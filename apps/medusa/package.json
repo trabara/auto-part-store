@@ -1,0 +1,69 @@
+{
+  "name": "medusa",
+  "version": "0.0.1",
+  "description": "A starter for Medusa projects.",
+  "author": "Medusa (https://medusajs.com)",
+  "license": "MIT",
+  "keywords": [
+    "sqlite",
+    "postgres",
+    "typescript",
+    "ecommerce",
+    "headless",
+    "medusa"
+  ],
+  "scripts": {
+    "nukedb": "docker compose down -v && docker compose up -d",
+    "build": "medusa build",
+    "seed": "medusa exec ./src/scripts/seed.ts",
+    "start": "medusa start",
+    "dev": "medusa develop",
+    "sync": "medusa db:sync-links",
+    "migrate:prod": "medusa db:migrate",
+    "start:prod": "yarn migrate:prod && yarn seed:prod && medusa start",
+    "seed:prod": "medusa exec ./src/scripts/seed.js && yarn add-user:prod",
+    "add-user:prod": "medusa user --email admin@medusa-test.com --password supersecret && medusa user --email admin@lambdacurry.dev --password password",
+    "migrate": "medusa db:migrate",
+    "test:integration:http": "TEST_TYPE=integration:http NODE_OPTIONS=--experimental-vm-modules jest --silent=false --runInBand --forceExit",
+    "test:integration:modules": "TEST_TYPE=integration:modules NODE_OPTIONS=--experimental-vm-modules jest --silent --runInBand --forceExit",
+    "test:unit": "TEST_TYPE=unit NODE_OPTIONS=--experimental-vm-modules jest --silent --runInBand --forceExit",
+    "medusa:init": "yarn run nukedb && medusa db:create --db medusa2 && yarn run migrate && yarn run sync && yarn run seed && yarn run add-user",
+    "add-user": "medusa user --email admin@medusa-test.com --password supersecret && medusa user --email admin@lambdacurry.dev --password password",
+    "typecheck": "tsc --noEmit",
+    "postinstall": "node node_modules/@techlabi/medusa-marketplace-plugin/.medusa/server/src/patch-admin.js"
+  },
+  "dependencies": {
+    "@agilo/medusa-analytics-plugin": "^1.2.1",
+    "@hookform/resolvers": "^5.2.2",
+    "@medusajs/admin-sdk": "2.13.1",
+    "@medusajs/cli": "2.13.1",
+    "@medusajs/framework": "2.13.1",
+    "@medusajs/medusa": "2.13.1",
+    "@repo/invoice-gen-plugin": "workspace:*",
+    "@rsc-labs/medusa-store-analytics-v2": "^0.1.9",
+    "@techlabi/medusa-marketplace-plugin": "^0.52.0"
+  },
+  "devDependencies": {
+    "@medusajs/test-utils": "2.13.1",
+    "@swc/core": "^1.7.28",
+    "@swc/jest": "^0.2.36",
+    "@types/jest": "^29.5.13",
+    "@types/node": "^20.12.11",
+    "@types/react": "^18.3.2",
+    "@types/react-dom": "^18.2.25",
+    "jest": "^29.7.0",
+    "prop-types": "^15.8.1",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.6.2",
+    "vite": "^5.4.14",
+    "yalc": "^1.0.0-pre.53"
+  },
+  "installConfig": {
+    "hoistingLimits": "workspaces"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

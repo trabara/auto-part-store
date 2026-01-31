@@ -6,17 +6,24 @@
     "dev": "turbo run dev",
     "lint": "turbo run lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
-    "check-types": "turbo run check-types"
+    "check-types": "turbo run check-types",
+    "clean": "rimraf ./node_modules ./packages/*/node_modules ./apps/*/node_modules ./dist .turbo",
+    "docker:build": "docker compose -f docker/docker-compose.yml build",
+    "docker:up": "docker compose -f docker/docker-compose.yml up -d",
+    "docker:down": "docker compose -f docker/docker-compose.yml down",
+    "docker:dev": "docker compose -f docker/docker-compose.yml -f docker/docker-compose.dev.yml up -d"
   },
   "devDependencies": {
     "prettier": "^3.7.4",
+    "rimraf": "^6.1.2",
+    "ts-node": "^10.9.2",
     "turbo": "^2.7.6",
     "typescript": "5.9.2"
   },
   "engines": {
-    "node": ">=18"
+    "node": ">=20"
   },
-  "packageManager": "yarn@1.22.22",
+  "packageManager": "yarn@4.12.0",
   "workspaces": [
     "apps/*",
     "packages/*"

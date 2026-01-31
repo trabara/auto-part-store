@@ -1,0 +1,66 @@
+{
+    "invoices": {
+        "title": "Paramètres de la facture",
+        "config": {
+            "fields": {
+                "company_name": {
+                    "label": "Nom de l'entreprise",
+                    "validation": {
+                        "required": "Le nom de l'entreprise est requis"
+                    }
+                },
+                "company_address": {
+                    "label": "Adresse de l'entreprise",
+                    "validation": {
+                        "required": "L'adresse de l'entreprise est requise"
+                    }
+                },
+                "company_phone": {
+                    "label": "Téléphone de l'entreprise",
+                    "validation": {
+                        "required": "Le téléphone de l'entreprise est requis"
+                    }
+                },
+                "company_email": {
+                    "label": "Email de l'entreprise",
+                    "validation": {
+                        "required": "L'email de l'entreprise est requis",
+                        "invalid": "L'email de l'entreprise doit être une adresse email valide"
+                    }
+                },
+                "company_logo": {
+                    "label": "Logo de l'entreprise",
+                    "validation": {
+                        "required": "Le logo de l'entreprise est requis"
+                    }
+                },
+                "notes": {
+                    "label": "Notes",
+                    "validation": {
+                        "required": "Les notes sont requises"
+                    }
+                },
+                "template_id": {
+                    "label": "ID du modèle",
+                    "validation": {
+                        "required": "L'ID du modèle est requis"
+                    }
+                }
+            },
+            "buttons": {
+                "save": "Enregistrer les paramètres de la facture"
+            },
+            "toasts": {
+                "success": "Paramètres de la facture mis à jour avec succès",
+                "error": "Échec de la mise à jour des paramètres de la facture : {{error}}"
+            }
+        },
+        "widget": {
+            "header": "Facture",
+            "description": "Générer et télécharger la facture pour cette commande",
+            "action": "Télécharger la facture",
+            "success": "Facture générée et téléchargée avec succès",
+            "error": "Échec de la génération de la facture : {{error}}"
+        }
+    }
+}

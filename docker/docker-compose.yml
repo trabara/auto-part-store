@@ -1,0 +1,197 @@
+services:
+  # Traefik Reverse Proxy / Load Balancer
+  traefik:
+    image: traefik:v2.11
+    container_name: traefik
+    restart: unless-stopped
+    command:
+      # Enable Docker provider
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      # Entry points
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      # WebSocket transport
+      - "--entrypoints.web.transport.respondingTimeouts.readTimeout=0"
+      - "--entrypoints.web.transport.respondingTimeouts.writeTimeout=0"
+      - "--entrypoints.web.transport.respondingTimeouts.idleTimeout=180s"
+      # Logging
+      - "--log.level=INFO"
+      - "--accesslog=true"
+    ports:
+      - "80:80"       # HTTP
+      - "443:443"     # HTTPS
+      - "8080:8080"   # Traefik Dashboard
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - traefik-certificates:/certificates
+    networks:
+      - medusa_network
+    labels:
+      - "traefik.enable=true"
+      # Dashboard
+      - "traefik.http.routers.traefik.rule=Host(`traefik.localhost`)"
+      - "traefik.http.routers.traefik.service=api@internal"
+      - "traefik.http.routers.traefik.entrypoints=web"
+
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: medusa_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: medusa-store
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - medusa_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis
+  redis:
+    image: redis:7-alpine
+    container_name: medusa_redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    networks:
+      - medusa_network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # MinIO Object Storage
+  minio:
+    image: minio/minio:latest
+    container_name: medusa_minio
+    restart: unless-stopped
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    command: server /data --console-address ":9001" --address ":9002"
+    volumes:
+      - minio_data:/data
+    networks:
+      - medusa_network
+    labels:
+      - "traefik.enable=true"
+      # MinIO API
+      - "traefik.http.services.minio-api.loadbalancer.server.port=9002"
+      - "traefik.http.routers.minio-api.rule=Host(`minio-api.localhost`)"
+      - "traefik.http.routers.minio-api.entrypoints=web"
+      - "traefik.http.routers.minio-api.service=minio-api"
+      # MinIO Console
+      - "traefik.http.services.minio-console.loadbalancer.server.port=9001"
+      - "traefik.http.routers.minio-console.rule=Host(`minio.localhost`)"
+      - "traefik.http.routers.minio-console.entrypoints=web"
+      - "traefik.http.routers.minio-console.service=minio-console"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9002/minio/health/live"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+
+  # Medusa Backend Server
+  medusa:
+    build:
+      context: ..
+      dockerfile: ./apps/medusa/Dockerfile
+      network: host
+    container_name: medusa_backend
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+    ports:
+      - "5173:5173"
+    environment:
+      - NODE_ENV=development
+      - DATABASE_URL=postgres://postgres:postgres@postgres:5432/medusa-store
+      - REDIS_URL=redis://redis:6379
+      - MINIO_ENDPOINT=minio
+      - MINIO_PORT=9002
+      - MINIO_ACCESS_KEY=minioadmin
+      - MINIO_SECRET_KEY=minioadmin
+      - MINIO_BUCKET=medusa-uploads
+      - MINIO_USE_SSL=false
+    env_file:
+      - ../apps/medusa/.env
+    networks:
+      - medusa_network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.services.medusa-backend.loadbalancer.server.port=9000"
+      - "traefik.http.routers.medusa-backend.rule=Host(`api.localhost`)"
+      - "traefik.http.routers.medusa-backend.entrypoints=web"
+      - "traefik.http.routers.medusa-backend.service=medusa-backend"
+      - "traefik.http.middlewares.medusa-backend-headers.headers.customrequestheaders.X-Forwarded-Proto=http"
+      - "traefik.http.routers.medusa-backend.middlewares=medusa-backend-headers"
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:9000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  # Medusa Storefront
+  # storefront:
+  #   build:
+  #     context: ../apps/storefront
+  #     dockerfile: Dockerfile
+  #   container_name: medusa_storefront
+  #   restart: unless-stopped
+  #   depends_on:
+  #     medusa: 
+  #       condition: service_healthy
+  #   environment:
+  #     - NODE_ENV=production
+  #     - NEXT_PUBLIC_MEDUSA_BACKEND_URL=http://medusa:9000
+  #     - NEXT_PUBLIC_BASE_URL=http://localhost
+  #     - REVALIDATE_SECRET=supersecret
+  #   env_file:
+  #     - ./storefront/.env
+  #   volumes:
+  #     - ./storefront:/app
+  #     - /app/node_modules
+  #     - /app/.next
+  #   networks:
+  #     - medusa_network
+  #   labels:
+  #     - "traefik.enable=true"
+  #     - "traefik.http.services.storefront.loadbalancer.server.port=8000"
+  #     - "traefik.http.routers.storefront.rule=Host(`shop.localhost`) || Host(`localhost`)"
+  #     - "traefik.http.routers.storefront.entrypoints=web"
+  #     - "traefik.http.routers.storefront.service=storefront"
+  #     - "traefik.http.routers.storefront.priority=1"
+  #     - "traefik.http.middlewares.storefront-headers.headers.customrequestheaders.X-Forwarded-Proto=http"
+  #     - "traefik.http.routers.storefront.middlewares=storefront-headers"
+  #   healthcheck:
+  #     test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8000"]
+  #     interval: 30s
+  #     timeout: 10s
+  #     retries: 3
+  #     start_period: 60s
+
+volumes:
+  postgres_data:
+  minio_data:
+  traefik-certificates:
+
+networks:
+  medusa_network:
+    driver: bridge

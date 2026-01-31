@@ -1,0 +1,50 @@
+services:
+  # Traefik configuration for development
+  traefik:
+    command:
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--entrypoints.web.transport.respondingTimeouts.readTimeout=0"
+      - "--entrypoints.web.transport.respondingTimeouts.writeTimeout=0"
+      - "--entrypoints.web.transport.respondingTimeouts.idleTimeout=180s"
+      - "--log.level=DEBUG"
+      - "--accesslog=true"
+
+  # Medusa Backend in Development Mode
+  medusa:
+    # build:
+    #   target: dev
+    environment:
+      - NODE_ENV=development
+      - DATABASE_URL=postgres://postgres:postgres@postgres:5432/medusa-store
+      - REDIS_URL=redis://redis:6379
+      - MINIO_ENDPOINT=http://minio:9002
+      - MINIO_PORT=9002
+      - MINIO_ACCESS_KEY=minioadmin
+      - MINIO_SECRET_KEY=minioadmin
+      - MINIO_BUCKET=medusa-uploads
+      - MINIO_REGION=us-east-1
+      - MINIO_FILE_URL=http://minio-api.localhost/medusa-uploads
+      - MINIO_USE_SSL=false
+      - LOG_LEVEL=debug
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.medusa-backend.priority=10"
+
+  # Medusa Storefront in Development Mode
+  # storefront:
+  #   build:
+  #     target: dev
+  #   environment:
+  #     - NODE_ENV=development
+  #     - WATCHPACK_POLLING=true
+  #   command: ["yarn", "dev"]
+  #   healthcheck:
+  #     test: ["CMD-SHELL", "nc -z localhost 8000 || exit 1"]
+  #     interval: 10s
+  #     timeout: 5s
+  #     retries: 3
+  #     start_period: 30s

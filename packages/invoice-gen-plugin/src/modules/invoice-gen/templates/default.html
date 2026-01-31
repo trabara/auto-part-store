@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Facture {{invoiceNumber}}</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 11px;
+            line-height: 1.4;
+            color: #333;
+            padding: 40px;
+        }
+
+        .invoice-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 40px;
+        }
+
+        .company-info {
+            flex: 1;
+        }
+
+        .company-info h1 {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .company-info p {
+            margin: 2px 0;
+            font-size: 10px;
+        }
+
+        .invoice-title {
+            flex: 1;
+            text-align: right;
+        }
+
+        .invoice-title h2 {
+            font-size: 24px;
+            font-weight: bold;
+            letter-spacing: 2px;
+        }
+
+        .client-section {
+            margin-bottom: 30px;
+        }
+
+        .client-info {
+            margin-bottom: 20px;
+        }
+
+        .client-info h3 {
+            font-size: 11px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .client-info p {
+            margin: 2px 0;
+            font-size: 10px;
+        }
+
+        .invoice-details {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 30px;
+        }
+
+        .details-table {
+            text-align: right;
+        }
+
+        .details-table table {
+            border-collapse: collapse;
+        }
+
+        .details-table td {
+            padding: 3px 10px;
+            font-size: 10px;
+        }
+
+        .details-table td:first-child {
+            font-weight: normal;
+            text-align: right;
+            padding-right: 20px;
+        }
+
+        .details-table td:last-child {
+            font-weight: normal;
+        }
+
+        .additional-info {
+            margin-bottom: 20px;
+            font-size: 10px;
+        }
+
+        .additional-info p {
+            margin: 2px 0;
+        }
+
+        .items-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+            font-size: 10px;
+        }
+
+        .items-table thead {
+            background-color: #f5f5f5;
+        }
+
+        .items-table th {
+            padding: 8px;
+            text-align: left;
+            font-weight: bold;
+            border: 1px solid #ddd;
+            font-size: 9px;
+        }
+
+        .items-table td {
+            padding: 8px;
+            border: 1px solid #ddd;
+            vertical-align: top;
+        }
+
+        .items-table td.right {
+            text-align: right;
+        }
+
+        .items-table td.center {
+            text-align: center;
+        }
+
+        .totals {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 30px;
+            margin-bottom: 40px;
+        }
+
+        .totals-table {
+            min-width: 250px;
+        }
+
+        .totals-table table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .totals-table td {
+            padding: 5px 10px;
+            font-size: 11px;
+        }
+
+        .totals-table td:first-child {
+            text-align: right;
+            font-weight: normal;
+        }
+
+        .totals-table td:last-child {
+            text-align: right;
+            font-weight: bold;
+        }
+
+        .totals-table .total-line {
+            border-top: 2px solid #333;
+        }
+
+        .footer {
+            margin-top: 60px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            display: flex;
+            justify-content: space-between;
+            font-size: 9px;
+        }
+
+        .footer-section {
+            flex: 1;
+        }
+
+        .footer-section h4 {
+            font-size: 10px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .footer-section p {
+            margin: 2px 0;
+        }
+
+        @media print {
+            body {
+                padding: 0;
+            }
+            
+            .invoice-container {
+                max-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="invoice-container">
+        <!-- Header -->
+        <div class="header">
+            <div class="company-info">
+                <h1>{{companyName}}</h1>
+                <p>{{companyAddress}}</p>
+                <p>{{companyPostalCode}} {{companyCity}}</p>
+                <p>N° Siren ou Siret : {{companySiren}}</p>
+                <p>N° TVA intra. : {{companyVAT}}</p>
+            </div>
+            <div class="invoice-title">
+                <h2>FACTURE</h2>
+            </div>
+        </div>
+
+        <!-- Client Info -->
+        <div class="client-section">
+            <div class="client-info">
+                <h3>Client :</h3>
+                <p><strong>{{customerName}}</strong></p>
+                <p>{{customerAddress}}</p>
+                <p>{{customerPostalCode}} {{customerCity}}</p>
+            </div>
+        </div>
+
+        <!-- Invoice Details -->
+        <div class="invoice-details">
+            <div class="details-table">
+                <table>
+                    <tr>
+                        <td>Date :</td>
+                        <td>{{invoiceDate}}</td>
+                    </tr>
+                    <tr>
+                        <td>Numéro de facture :</td>
+                        <td>{{invoiceNumber}}</td>
+                    </tr>
+                    <tr>
+                        <td>Échéance :</td>
+                        <td>{{dueDate}}</td>
+                    </tr>
+                    <tr>
+                        <td>Paiement :</td>
+                        <td>{{paymentTerms}}</td>
+                    </tr>
+                    <tr>
+                        <td>Référence :</td>
+                        <td>{{reference}}</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+        <!-- Additional Information -->
+        <div class="additional-info">
+            <p><strong>Informations additionnelles :</strong></p>
+            <p>{{additionalInfo}}</p>
+        </div>
+
+        <!-- Items Table -->
+        <table class="items-table">
+            <thead>
+                <tr>
+                    <th>Description</th>
+                    <th class="center">Quantité</th>
+                    <th class="right">Prix unitaire HT</th>
+                    <th class="center">% TVA</th>
+                    <th class="right">Total TVA</th>
+                    <th class="right">Total TTC</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{#each items}}
+                <tr>
+                    <td>{{this.description}}</td>
+                    <td class="center">{{this.quantity}}</td>
+                    <td class="right">{{this.unitPrice}} {{currencyCode}}</td>
+                    <td class="center">{{this.taxRate}} %</td>
+                    <td class="right">{{this.totalTax}} {{currencyCode}}</td>
+                    <td class="right">{{this.totalWithTax}} {{currencyCode}}</td>
+                </tr>
+                {{/each}}
+            </tbody>
+        </table>
+
+        <!-- Totals -->
+        <div class="totals">
+            <div class="totals-table">
+                <table>
+                    <tr>
+                        <td>Total HT</td>
+                        <td>{{totalHT}} {{currencyCode}}</td>
+                    </tr>
+                    <tr>
+                        <td>Total TVA</td>
+                        <td>{{totalVAT}} {{currencyCode}}</td>
+                    </tr>
+                    <tr class="total-line">
+                        <td><strong>Total TTC</strong></td>
+                        <td><strong>{{totalTTC}} {{currencyCode}}</strong></td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <div class="footer-section">
+                <h4>Siège social</h4>
+                <p>{{companyName}}</p>
+                <p>{{companyAddress}}</p>
+                <p>{{companyPostalCode}} {{companyCity}}</p>
+            </div>
+            <div class="footer-section">
+                <h4>Coordonnées</h4>
+                <p>{{contactName}}</p>
+                <p>Téléphone : {{phone}}</p>
+                <p>E-mail : {{email}}</p>
+                <p>{{website}}</p>
+            </div>
+            <div class="footer-section">
+                <h4>Détails bancaires</h4>
+                <p>Banque : {{bankName}}</p>
+                <p>IBAN : {{iban}}</p>
+                <p>SWIFT/BIC : {{swift}}</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

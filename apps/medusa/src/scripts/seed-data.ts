@@ -78,7 +78,7 @@ export const getProducts = (params: {
       shipping_profile_id: shippingProfileId,
       images: [
         {
-          url: "https://via.placeholder.com/800x600/4A90E2/FFFFFF?text=Hyundai+Brake+Pads",
+          url: "https://placehold.co/300/4A90E2/FFFFFF?text=Hyundai+Brake+Pads",
         },
       ],
       options: [
@@ -135,7 +135,7 @@ export const getProducts = (params: {
       shipping_profile_id: shippingProfileId,
       images: [
         {
-          url: "https://via.placeholder.com/800x600/E74C3C/FFFFFF?text=Suzuki+Air+Filter",
+          url: "https://placehold.co/300/E74C3C/FFFFFF?text=Suzuki+Air+Filter",
         },
       ],
       options: [
@@ -192,7 +192,7 @@ export const getProducts = (params: {
       shipping_profile_id: shippingProfileId,
       images: [
         {
-          url: "https://via.placeholder.com/800x600/27AE60/FFFFFF?text=Kia+Shock+Absorbers",
+          url: "https://placehold.co/300/27AE60/FFFFFF?text=Kia+Shock+Absorbers",
         },
       ],
       options: [
@@ -261,7 +261,7 @@ export const getProducts = (params: {
       shipping_profile_id: shippingProfileId,
       images: [
         {
-          url: "https://via.placeholder.com/800x600/F39C12/FFFFFF?text=Hyundai+Headlight",
+          url: "https://placehold.co/300/F39C12/FFFFFF?text=Hyundai+Headlight",
         },
       ],
       options: [
@@ -330,7 +330,7 @@ export const getProducts = (params: {
       shipping_profile_id: shippingProfileId,
       images: [
         {
-          url: "https://via.placeholder.com/800x600/8E44AD/FFFFFF?text=Suzuki+Oil+Package",
+          url: "https://placehold.co/300/8E44AD/FFFFFF?text=Suzuki+Oil+Package",
         },
       ],
       options: [
@@ -386,7 +386,7 @@ export const getProducts = (params: {
       shipping_profile_id: shippingProfileId,
       images: [
         {
-          url: "https://via.placeholder.com/800x600/2ECC71/FFFFFF?text=Kia+Front+Bumper",
+          url: "https://placehold.co/300/2ECC71/FFFFFF?text=Kia+Front+Bumper",
         },
       ],
       options: [
@@ -442,7 +442,7 @@ export const getProducts = (params: {
       shipping_profile_id: shippingProfileId,
       images: [
         {
-          url: "https://via.placeholder.com/800x600/3498DB/FFFFFF?text=Hyundai+Timing+Belt",
+          url: "https://placehold.co/300/3498DB/FFFFFF?text=Hyundai+Timing+Belt",
         },
       ],
       options: [
@@ -498,7 +498,7 @@ export const getProducts = (params: {
       shipping_profile_id: shippingProfileId,
       images: [
         {
-          url: "https://via.placeholder.com/800x600/E67E22/FFFFFF?text=Suzuki+Spark+Plugs",
+          url: "https://placehold.co/300/E67E22/FFFFFF?text=Suzuki+Spark+Plugs",
         },
       ],
       options: [
@@ -554,7 +554,7 @@ export const getProducts = (params: {
       shipping_profile_id: shippingProfileId,
       images: [
         {
-          url: "https://via.placeholder.com/800x600/1ABC9C/FFFFFF?text=Kia+Side+Mirror",
+          url: "https://placehold.co/300/1ABC9C/FFFFFF?text=Kia+Side+Mirror",
         },
       ],
       options: [
@@ -644,7 +644,7 @@ export const getProducts = (params: {
       shipping_profile_id: shippingProfileId,
       images: [
         {
-          url: "https://via.placeholder.com/800x600/95A5A6/FFFFFF?text=Hyundai+Brake+Rotors",
+          url: "https://placehold.co/300/95A5A6/FFFFFF?text=Hyundai+Brake+Rotors",
         },
       ],
       options: [
@@ -735,7 +735,7 @@ export const getProducts = (params: {
       shipping_profile_id: shippingProfileId,
       images: [
         {
-          url: "https://via.placeholder.com/800x600/34495E/FFFFFF?text=Hyundai+Alternator",
+          url: "https://placehold.co/300/34495E/FFFFFF?text=Hyundai+Alternator",
         },
       ],
       options: [
@@ -778,7 +778,7 @@ export const getProducts = (params: {
       shipping_profile_id: shippingProfileId,
       images: [
         {
-          url: "https://via.placeholder.com/800x600/16A085/FFFFFF?text=Hyundai+Radiator",
+          url: "https://placehold.co/300/16A085/FFFFFF?text=Hyundai+Radiator",
         },
       ],
       options: [
@@ -821,7 +821,7 @@ export const getProducts = (params: {
       shipping_profile_id: shippingProfileId,
       images: [
         {
-          url: "https://via.placeholder.com/800x600/C0392B/FFFFFF?text=Hyundai+Clutch",
+          url: "https://placehold.co/300/C0392B/FFFFFF?text=Hyundai+Clutch",
         },
       ],
       options: [
@@ -864,7 +864,7 @@ export const getProducts = (params: {
       shipping_profile_id: shippingProfileId,
       images: [
         {
-          url: "https://via.placeholder.com/800x600/7F8C8D/FFFFFF?text=Hyundai+Grille",
+          url: "https://placehold.co/300/7F8C8D/FFFFFF?text=Hyundai+Grille",
         },
       ],
       options: [
@@ -920,7 +920,7 @@ export const getProducts = (params: {
       shipping_profile_id: shippingProfileId,
       images: [
         {
-          url: "https://via.placeholder.com/800x600/2980B9/FFFFFF?text=Hyundai+Cabin+Filter",
+          url: "https://placehold.co/300/2980B9/FFFFFF?text=Hyundai+Cabin+Filter",
         },
       ],
       options: [
@@ -963,7 +963,7 @@ export const getProducts = (params: {
       shipping_profile_id: shippingProfileId,
       images: [
         {
-          url: "https://via.placeholder.com/800x600/8E44AD/FFFFFF?text=Hyundai+Steering",
+          url: "https://placehold.co/300/8E44AD/FFFFFF?text=Hyundai+Steering",
         },
       ],
       options: [
@@ -1006,7 +1006,7 @@ export const getProducts = (params: {
       shipping_profile_id: shippingProfileId,
       images: [
         {
-          url: "https://via.placeholder.com/800x600/D35400/FFFFFF?text=Hyundai+Catalytic",
+          url: "https://placehold.co/300/D35400/FFFFFF?text=Hyundai+Catalytic",
         },
       ],
       options: [
@@ -1049,7 +1049,7 @@ export const getProducts = (params: {
       shipping_profile_id: shippingProfileId,
       images: [
         {
-          url: "https://via.placeholder.com/800x600/E74C3C/FFFFFF?text=Hyundai+Fuel+Pump",
+          url: "https://placehold.co/300/E74C3C/FFFFFF?text=Hyundai+Fuel+Pump",
         },
       ],
       options: [
@@ -1092,7 +1092,7 @@ export const getProducts = (params: {
       shipping_profile_id: shippingProfileId,
       images: [
         {
-          url: "https://via.placeholder.com/800x600/2C3E50/FFFFFF?text=Hyundai+Battery",
+          url: "https://placehold.co/300/2C3E50/FFFFFF?text=Hyundai+Battery",
         },
       ],
       options: [
@@ -1148,7 +1148,7 @@ export const getProducts = (params: {
       shipping_profile_id: shippingProfileId,
       images: [
         {
-          url: "https://via.placeholder.com/800x600/95A5A6/FFFFFF?text=Hyundai+Door+Handle",
+          url: "https://placehold.co/300/95A5A6/FFFFFF?text=Hyundai+Door+Handle",
         },
       ],
       options: [
@@ -1231,7 +1231,7 @@ export const getProducts = (params: {
       shipping_profile_id: shippingProfileId,
       images: [
         {
-          url: "https://via.placeholder.com/800x600/27AE60/FFFFFF?text=Kia+O2+Sensor",
+          url: "https://placehold.co/300/27AE60/FFFFFF?text=Kia+O2+Sensor",
         },
       ],
       options: [
@@ -1287,7 +1287,7 @@ export const getProducts = (params: {
       shipping_profile_id: shippingProfileId,
       images: [
         {
-          url: "https://via.placeholder.com/800x600/2ECC71/FFFFFF?text=Kia+CV+Joint",
+          url: "https://placehold.co/300/2ECC71/FFFFFF?text=Kia+CV+Joint",
         },
       ],
       options: [
@@ -1343,7 +1343,7 @@ export const getProducts = (params: {
       shipping_profile_id: shippingProfileId,
       images: [
         {
-          url: "https://via.placeholder.com/800x600/3498DB/FFFFFF?text=Kia+Wheel+Bearing",
+          url: "https://placehold.co/300/3498DB/FFFFFF?text=Kia+Wheel+Bearing",
         },
       ],
       options: [
@@ -1425,7 +1425,7 @@ export const getProducts = (params: {
       shipping_profile_id: shippingProfileId,
       images: [
         {
-          url: "https://via.placeholder.com/800x600/E67E22/FFFFFF?text=Kia+Starter",
+          url: "https://placehold.co/300/E67E22/FFFFFF?text=Kia+Starter",
         },
       ],
       options: [
@@ -1468,7 +1468,7 @@ export const getProducts = (params: {
       shipping_profile_id: shippingProfileId,
       images: [
         {
-          url: "https://via.placeholder.com/800x600/C0392B/FFFFFF?text=Kia+Tail+Light",
+          url: "https://placehold.co/300/C0392B/FFFFFF?text=Kia+Tail+Light",
         },
       ],
       options: [
@@ -1524,7 +1524,7 @@ export const getProducts = (params: {
       shipping_profile_id: shippingProfileId,
       images: [
         {
-          url: "https://via.placeholder.com/800x600/1ABC9C/FFFFFF?text=Kia+Wipers",
+          url: "https://placehold.co/300/1ABC9C/FFFFFF?text=Kia+Wipers",
         },
       ],
       options: [
@@ -1567,7 +1567,7 @@ export const getProducts = (params: {
       shipping_profile_id: shippingProfileId,
       images: [
         {
-          url: "https://via.placeholder.com/800x600/9B59B6/FFFFFF?text=Kia+Control+Arm",
+          url: "https://placehold.co/300/9B59B6/FFFFFF?text=Kia+Control+Arm",
         },
       ],
       options: [
@@ -1623,7 +1623,7 @@ export const getProducts = (params: {
       shipping_profile_id: shippingProfileId,
       images: [
         {
-          url: "https://via.placeholder.com/800x600/16A085/FFFFFF?text=Kia+Thermostat",
+          url: "https://placehold.co/300/16A085/FFFFFF?text=Kia+Thermostat",
         },
       ],
       options: [
@@ -1666,7 +1666,7 @@ export const getProducts = (params: {
       shipping_profile_id: shippingProfileId,
       images: [
         {
-          url: "https://via.placeholder.com/800x600/34495E/FFFFFF?text=Kia+Hood",
+          url: "https://placehold.co/300/34495E/FFFFFF?text=Kia+Hood",
         },
       ],
       options: [
@@ -1709,7 +1709,7 @@ export const getProducts = (params: {
       shipping_profile_id: shippingProfileId,
       images: [
         {
-          url: "https://via.placeholder.com/800x600/D35400/FFFFFF?text=Kia+Tie+Rod",
+          url: "https://placehold.co/300/D35400/FFFFFF?text=Kia+Tie+Rod",
         },
       ],
       options: [
@@ -1766,7 +1766,7 @@ export const getProducts = (params: {
       shipping_profile_id: shippingProfileId,
       images: [
         {
-          url: "https://via.placeholder.com/800x600/E74C3C/FFFFFF?text=Suzuki+Caliper",
+          url: "https://placehold.co/300/E74C3C/FFFFFF?text=Suzuki+Caliper",
         },
       ],
       options: [
@@ -1822,7 +1822,7 @@ export const getProducts = (params: {
       shipping_profile_id: shippingProfileId,
       images: [
         {
-          url: "https://via.placeholder.com/800x600/F39C12/FFFFFF?text=Suzuki+Fuel+Filter",
+          url: "https://placehold.co/300/F39C12/FFFFFF?text=Suzuki+Fuel+Filter",
         },
       ],
       options: [
@@ -1865,7 +1865,7 @@ export const getProducts = (params: {
       shipping_profile_id: shippingProfileId,
       images: [
         {
-          url: "https://via.placeholder.com/800x600/3498DB/FFFFFF?text=Suzuki+Water+Pump",
+          url: "https://placehold.co/300/3498DB/FFFFFF?text=Suzuki+Water+Pump",
         },
       ],
       options: [
@@ -1908,7 +1908,7 @@ export const getProducts = (params: {
       shipping_profile_id: shippingProfileId,
       images: [
         {
-          url: "https://via.placeholder.com/800x600/27AE60/FFFFFF?text=Suzuki+Fender",
+          url: "https://placehold.co/300/27AE60/FFFFFF?text=Suzuki+Fender",
         },
       ],
       options: [
@@ -1964,7 +1964,7 @@ export const getProducts = (params: {
       shipping_profile_id: shippingProfileId,
       images: [
         {
-          url: "https://via.placeholder.com/800x600/95A5A6/FFFFFF?text=Suzuki+Muffler",
+          url: "https://placehold.co/300/95A5A6/FFFFFF?text=Suzuki+Muffler",
         },
       ],
       options: [
@@ -2007,7 +2007,7 @@ export const getProducts = (params: {
       shipping_profile_id: shippingProfileId,
       images: [
         {
-          url: "https://via.placeholder.com/800x600/2980B9/FFFFFF?text=Suzuki+Springs",
+          url: "https://placehold.co/300/2980B9/FFFFFF?text=Suzuki+Springs",
         },
       ],
       options: [
@@ -2063,7 +2063,7 @@ export const getProducts = (params: {
       shipping_profile_id: shippingProfileId,
       images: [
         {
-          url: "https://via.placeholder.com/800x600/8E44AD/FFFFFF?text=Suzuki+Trans+Cooler",
+          url: "https://placehold.co/300/8E44AD/FFFFFF?text=Suzuki+Trans+Cooler",
         },
       ],
       options: [
@@ -2106,7 +2106,7 @@ export const getProducts = (params: {
       shipping_profile_id: shippingProfileId,
       images: [
         {
-          url: "https://via.placeholder.com/800x600/C0392B/FFFFFF?text=Suzuki+Ignition+Coil",
+          url: "https://placehold.co/300/C0392B/FFFFFF?text=Suzuki+Ignition+Coil",
         },
       ],
       options: [
@@ -2149,7 +2149,7 @@ export const getProducts = (params: {
       shipping_profile_id: shippingProfileId,
       images: [
         {
-          url: "https://via.placeholder.com/800x600/E67E22/FFFFFF?text=Suzuki+Clutch+Master",
+          url: "https://placehold.co/300/E67E22/FFFFFF?text=Suzuki+Clutch+Master",
         },
       ],
       options: [
@@ -2192,7 +2192,7 @@ export const getProducts = (params: {
       shipping_profile_id: shippingProfileId,
       images: [
         {
-          url: "https://via.placeholder.com/800x600/1ABC9C/FFFFFF?text=Suzuki+Actuator",
+          url: "https://placehold.co/300/1ABC9C/FFFFFF?text=Suzuki+Actuator",
         },
       ],
       options: [
@@ -2275,7 +2275,7 @@ export const getProducts = (params: {
       shipping_profile_id: shippingProfileId,
       images: [
         {
-          url: "https://via.placeholder.com/800x600/2C3E50/FFFFFF?text=Engine+Oil",
+          url: "https://placehold.co/300/2C3E50/FFFFFF?text=Engine+Oil",
         },
       ],
       options: [
@@ -2344,7 +2344,7 @@ export const getProducts = (params: {
       shipping_profile_id: shippingProfileId,
       images: [
         {
-          url: "https://via.placeholder.com/800x600/E74C3C/FFFFFF?text=Brake+Fluid",
+          url: "https://placehold.co/300/E74C3C/FFFFFF?text=Brake+Fluid",
         },
       ],
       options: [
@@ -2387,7 +2387,7 @@ export const getProducts = (params: {
       shipping_profile_id: shippingProfileId,
       images: [
         {
-          url: "https://via.placeholder.com/800x600/27AE60/FFFFFF?text=Coolant",
+          url: "https://placehold.co/300/27AE60/FFFFFF?text=Coolant",
         },
       ],
       options: [
@@ -2443,7 +2443,7 @@ export const getProducts = (params: {
       shipping_profile_id: shippingProfileId,
       images: [
         {
-          url: "https://via.placeholder.com/800x600/34495E/FFFFFF?text=Window+Regulator",
+          url: "https://placehold.co/300/34495E/FFFFFF?text=Window+Regulator",
         },
       ],
       options: [
@@ -2525,7 +2525,7 @@ export const getProducts = (params: {
       shipping_profile_id: shippingProfileId,
       images: [
         {
-          url: "https://via.placeholder.com/800x600/9B59B6/FFFFFF?text=Engine+Mount",
+          url: "https://placehold.co/300/9B59B6/FFFFFF?text=Engine+Mount",
         },
       ],
       options: [
@@ -2568,7 +2568,7 @@ export const getProducts = (params: {
       shipping_profile_id: shippingProfileId,
       images: [
         {
-          url: "https://via.placeholder.com/800x600/D35400/FFFFFF?text=Trans+Mount",
+          url: "https://placehold.co/300/D35400/FFFFFF?text=Trans+Mount",
         },
       ],
       options: [
@@ -2611,7 +2611,7 @@ export const getProducts = (params: {
       shipping_profile_id: shippingProfileId,
       images: [
         {
-          url: "https://via.placeholder.com/800x600/16A085/FFFFFF?text=Blower+Motor",
+          url: "https://placehold.co/300/16A085/FFFFFF?text=Blower+Motor",
         },
       ],
       options: [
@@ -2654,7 +2654,7 @@ export const getProducts = (params: {
       shipping_profile_id: shippingProfileId,
       images: [
         {
-          url: "https://via.placeholder.com/800x600/3498DB/FFFFFF?text=ABS+Sensor",
+          url: "https://placehold.co/300/3498DB/FFFFFF?text=ABS+Sensor",
         },
       ],
       options: [
@@ -2736,7 +2736,7 @@ export const getProducts = (params: {
       shipping_profile_id: shippingProfileId,
       images: [
         {
-          url: "https://via.placeholder.com/800x600/E67E22/FFFFFF?text=Power+Steering",
+          url: "https://placehold.co/300/E67E22/FFFFFF?text=Power+Steering",
         },
       ],
       options: [
@@ -2779,7 +2779,7 @@ export const getProducts = (params: {
       shipping_profile_id: shippingProfileId,
       images: [
         {
-          url: "https://via.placeholder.com/800x600/C0392B/FFFFFF?text=Rear+Bumper",
+          url: "https://placehold.co/300/C0392B/FFFFFF?text=Rear+Bumper",
         },
       ],
       options: [
@@ -2835,7 +2835,7 @@ export const getProducts = (params: {
       shipping_profile_id: shippingProfileId,
       images: [
         {
-          url: "https://via.placeholder.com/800x600/1ABC9C/FFFFFF?text=Timing+Chain",
+          url: "https://placehold.co/300/1ABC9C/FFFFFF?text=Timing+Chain",
         },
       ],
       options: [

@@ -191,7 +191,6 @@ export function getProductOptions(products: HttpTypes.StoreProduct[]) {
 export function getPriceRange(products: HttpTypes.StoreProduct[]): number[] {
   let min = Number.MAX_VALUE
   let max = Number.MIN_VALUE
-
   const prices = products.map((product) => getProductPrice({ product }))
 
   for (const price of prices) {

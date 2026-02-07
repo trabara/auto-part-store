@@ -14,7 +14,7 @@ export const useFilters = () => {
   const filterSelector = useCategoryStore((store) => ({
     options: getProductOptions(store.products),
     isOptionActive: store.isOptionActive,
-    handleOptionsChange: store.handleOptionsChange,
+    handleOptionChange: store.handleOptionChange,
   }))
 
   return {

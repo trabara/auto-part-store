@@ -17,7 +17,7 @@ export type CategoryActions = {
   removeOptions: (key: string, values: StoreProductOptionValue[]) => void
   setDisplay: (display: Display) => void
   handlePriceFilterChange: (values: number[]) => void
-  handleOptionsChange: (
+  handleOptionChange: (
     key: string,
     values: StoreProductOptionValue[]
   ) => (checked: boolean) => void
@@ -43,35 +43,8 @@ export const createCategoryStore = (
     resetOptions: () => {
       set({ options: {} })
     },
-    handleOptionsChange: (key, values) => async (checked: boolean) => {
-      const { queryParams } = get()
-      const currentValues = queryParams.options?.values || []
-      const newValues = checked
-        ? [...currentValues, ...values]
-        : currentValues.filter(
-            (v) => !values.some((value) => value.id === v.id)
-          )
-
-      const newQueryParams = {
-        ...queryParams,
-        options: {
-          values: newValues,
-        },
-      }
-
-      try {
-        const { response } = await listProductsWithSort({
-          queryParams: newQueryParams,
-        })
-        
-
-        // set({
-        //   products: response.products,
-        //   queryParams: newQueryParams,
-        // })
-      } catch (error) {
-        console.log(error)
-      }
+    handleOptionChange: (key, values) => async (checked: boolean) => {
+      
     },
     removeOptions: (key, values) => {},
     isOptionActive: (key, values) => {

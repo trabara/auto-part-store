@@ -1,19 +1,12 @@
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-} from "@/components/ui/carousel"
 import { cn } from "@/lib/utils"
 import { StoreProduct } from "@medusajs/types"
 import Image from "next/image"
 import { createElement, HTMLAttributes } from "react"
+import { Display } from "../types"
 import { getProductPrice } from "../utils"
 import { WishlistButton } from "./whishlist-button"
-import { Display } from "../types"
 
 type ProductItemProps = HTMLAttributes<HTMLDivElement> & {
   product: StoreProduct
@@ -40,6 +33,7 @@ export function ProductGridItem({
         )}
         {product.thumbnail && (
           <Image
+            unoptimized
             className="object-cover"
             src={product.thumbnail}
             alt={product.title}
@@ -83,6 +77,7 @@ export function ProductListItem({
       <div className="relative size-32 md:size-48">
         {product.thumbnail && (
           <Image
+            unoptimized
             src={product.thumbnail}
             alt={product.title}
             width={300}
@@ -139,7 +134,7 @@ export default function ProductQuantityItem({
   product,
 }: {
   product: StoreProduct
-}) {}
+}) { }
 
 export function createViewProductItem(display: Display) {
   return function ProductItem(props?: ProductItemProps) {

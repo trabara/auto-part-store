@@ -1,4 +1,4 @@
-import { listProducts } from "@/modules/products/data"
+import { listProductOptions, listProducts } from "@/modules/products/data"
 import {
   ProductList,
   ProductListContent,
@@ -14,6 +14,8 @@ export type StoreTemplateProps = {
 export default async function StoreTemplate({
   queryParams,
 }: StoreTemplateProps) {
+  const productOptions = await listProductOptions()
+  console.log("Product options:", productOptions)
   const { response } = await listProducts({
     queryParams: {},
   })

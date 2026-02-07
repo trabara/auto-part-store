@@ -7,7 +7,7 @@ import { sdk } from "@/lib/config"
 
 import { SortOptions } from "./types"
 import { sortProducts } from "./utils"
-import { getDefaultRegion } from "../regions/data"
+import { getRegion } from "../regions/data"
 
 export type ProductListQueryParams = HttpTypes.FindParams &
   HttpTypes.StoreProductListParams & {
@@ -29,6 +29,18 @@ export type ProductListParams = {
   queryParams?: ProductListQueryParams
   // countryCode?: string
   // regionId?: string
+}
+
+export const listProductOptions = async (): Promise<{
+  options: HttpTypes.StoreProductOption[]
+}> => {
+  return await sdk.client.fetch(`/store/options`, {
+    method: "GET",
+    query: {
+      fields: "*",
+    },
+  })
+
 }
 
 export const listProducts = async ({
@@ -73,7 +85,7 @@ export const listProducts = async ({
   //   const next = {
   //     ...(await getCacheOptions("products")),
   //   }
-  const defaultRegion = await getDefaultRegion()
+  const defaultRegion = await getRegion('tn')
 
   let { products, count } =
     await sdk.client.fetch<HttpTypes.StoreProductListResponse>(
@@ -113,6 +125,7 @@ export const listProducts = async ({
       )
     )
   }
+  console.log("products after price filter", products)
 
   if (options?.values && options.values.length > 0) {
     products = products.filter(({ options: productOptions }) =>

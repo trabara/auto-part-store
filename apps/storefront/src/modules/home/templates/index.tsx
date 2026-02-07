@@ -38,7 +38,6 @@ export default function HomeTemplate() {
                   <Image
                     className="object-contain"
                     src="https://placehold.co/600x400"
-                    unoptimized
                     alt={`Slide ${index + 1}`}
                     width={660}
                     height={400}
@@ -107,7 +106,7 @@ export default function HomeTemplate() {
                   key={index}
                   className="basis-1/1 md:basis-1/2 lg:basis-1/3"
                 >
-                  <ProductGridItem />
+                  {/* <ProductGridItem product={}/> */}
                 </CarouselItem>
               ))}
             </CarouselContent>

@@ -30,7 +30,7 @@ export default function CategoryFilters({
     isOptionActive,
     getPriceRange,
     handlePriceRangeChange,
-    handleOptionsChange,
+    handleOptionChange,
   } = useFilters()
 
   return (
@@ -58,7 +58,7 @@ export default function CategoryFilters({
                       <Checkbox
                         id={`${option.key}-${index}`}
                         checked={isOptionActive(option.key, value)}
-                        onCheckedChange={handleOptionsChange(option.key, value)}
+                        onCheckedChange={handleOptionChange(option.key, value)}
                       />
                       <FieldLabel htmlFor={`${option.key}-${index}`} className="text-sm">
                         {value[0]?.value}

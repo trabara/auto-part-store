@@ -1,8 +1,6 @@
 import {
-  loadEnv,
   defineConfig,
-  ContainerRegistrationKeys,
-  Modules,
+  loadEnv
 } from "@medusajs/framework/utils";
 
 // Load environment variables based on the current NODE_ENV

@@ -27,19 +27,17 @@
     "test:integration:http": "TEST_TYPE=integration:http NODE_OPTIONS=--experimental-vm-modules jest --silent=false --runInBand --forceExit",
     "test:integration:modules": "TEST_TYPE=integration:modules NODE_OPTIONS=--experimental-vm-modules jest --silent --runInBand --forceExit",
     "test:unit": "TEST_TYPE=unit NODE_OPTIONS=--experimental-vm-modules jest --silent --runInBand --forceExit",
-    "medusa:init": "yarn run nukedb && medusa db:create --db medusa2 && yarn run migrate && yarn run sync && yarn run seed && yarn run add-user",
+    "medusa:init": "medusa db:create --db medusa-v2 && yarn run migrate && yarn run sync && yarn run seed && yarn run add-user",
     "add-user": "medusa user --email admin@medusa-test.com --password supersecret && medusa user --email admin@lambdacurry.dev --password password",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@agilo/medusa-analytics-plugin": "^1.2.1",
-    "@hookform/resolvers": "^5.2.2",
     "@medusajs/admin-sdk": "2.13.1",
     "@medusajs/cli": "2.13.1",
     "@medusajs/framework": "2.13.1",
     "@medusajs/medusa": "2.13.1",
-    "@repo/invoice-gen-plugin": "workspace:*",
-    "@rsc-labs/medusa-store-analytics-v2": "^0.1.9"
+    "@repo/invoice-gen-plugin": "workspace:*"
   },
   "devDependencies": {
     "@medusajs/test-utils": "2.13.1",

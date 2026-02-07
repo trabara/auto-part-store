@@ -1,8 +1,10 @@
+'use client'
+
 import { cn } from "@/lib/utils"
+import { StoreProductCategory } from "@medusajs/types"
 import { ChevronRight } from "lucide-react"
 import Link from "next/link"
 import { useCallback, useRef, useState } from "react"
-import { ProductCategoryItem } from "../data/productCategories"
 
 function MenuItem({
   active,
@@ -14,7 +16,7 @@ function MenuItem({
   children: React.ReactNode
 }) {
   return (
-    <div className="flex items-center justify-between rounded-md px-3 py-2 text-sm leading-none transition-colors hover:bg-accent hover:text-accent-foreground cursor-pointer w-full">
+    <div className="flex items-center justify-between rounded-md px-3 py-2 text-sm text-primary leading-none transition-colors hover:bg-accent hover:text-accent-foreground cursor-pointer w-full">
       {children}
       {!leaf && (
         <ChevronRight
@@ -32,7 +34,7 @@ export function CategoryNavMenu({
   onDepthChange,
   currentDepth,
 }: {
-  category: ProductCategoryItem
+  category: StoreProductCategory
   onDepthChange?: (depth: number) => void
   currentDepth?: number
 }) {

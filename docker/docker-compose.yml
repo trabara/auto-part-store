@@ -103,50 +103,50 @@ services:
       retries: 3
 
   # Medusa Backend Server
-  medusa:
-    build:
-      context: ..
-      dockerfile: ./apps/medusa/Dockerfile
-      network: host
-    container_name: medusa_backend
-    restart: unless-stopped
-    depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-      minio:
-        condition: service_healthy
-    ports:
-      - "5173:5173"
-    environment:
-      - NODE_ENV=development
-      - DATABASE_URL=postgres://postgres:postgres@postgres:5432/medusa-store
-      - REDIS_URL=redis://redis:6379
-      - MINIO_ENDPOINT=minio
-      - MINIO_PORT=9002
-      - MINIO_ACCESS_KEY=minioadmin
-      - MINIO_SECRET_KEY=minioadmin
-      - MINIO_BUCKET=medusa-uploads
-      - MINIO_USE_SSL=false
-    env_file:
-      - ../apps/medusa/.env
-    networks:
-      - medusa_network
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.services.medusa-backend.loadbalancer.server.port=9000"
-      - "traefik.http.routers.medusa-backend.rule=Host(`api.localhost`)"
-      - "traefik.http.routers.medusa-backend.entrypoints=web"
-      - "traefik.http.routers.medusa-backend.service=medusa-backend"
-      - "traefik.http.middlewares.medusa-backend-headers.headers.customrequestheaders.X-Forwarded-Proto=http"
-      - "traefik.http.routers.medusa-backend.middlewares=medusa-backend-headers"
-    healthcheck:
-      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:9000/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 60s
+  # medusa:
+  #   build:
+  #     context: ..
+  #     dockerfile: ./apps/medusa/Dockerfile
+  #     network: host
+  #   container_name: medusa_backend
+  #   restart: unless-stopped
+  #   depends_on:
+  #     postgres:
+  #       condition: service_healthy
+  #     redis:
+  #       condition: service_healthy
+  #     minio:
+  #       condition: service_healthy
+  #   ports:
+  #     - "5173:5173"
+  #   environment:
+  #     - NODE_ENV=development
+  #     - DATABASE_URL=postgres://postgres:postgres@postgres:5432/medusa-store
+  #     - REDIS_URL=redis://redis:6379
+  #     - MINIO_ENDPOINT=minio
+  #     - MINIO_PORT=9002
+  #     - MINIO_ACCESS_KEY=minioadmin
+  #     - MINIO_SECRET_KEY=minioadmin
+  #     - MINIO_BUCKET=medusa-uploads
+  #     - MINIO_USE_SSL=false
+  #   env_file:
+  #     - ../apps/medusa/.env
+  #   networks:
+  #     - medusa_network
+  #   labels:
+  #     - "traefik.enable=true"
+  #     - "traefik.http.services.medusa-backend.loadbalancer.server.port=9000"
+  #     - "traefik.http.routers.medusa-backend.rule=Host(`api.localhost`)"
+  #     - "traefik.http.routers.medusa-backend.entrypoints=web"
+  #     - "traefik.http.routers.medusa-backend.service=medusa-backend"
+  #     - "traefik.http.middlewares.medusa-backend-headers.headers.customrequestheaders.X-Forwarded-Proto=http"
+  #     - "traefik.http.routers.medusa-backend.middlewares=medusa-backend-headers"
+  #   healthcheck:
+  #     test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:9000/health"]
+  #     interval: 30s
+  #     timeout: 10s
+  #     retries: 3
+  #     start_period: 60s
 
   # Medusa Storefront
   # storefront:

@@ -33,11 +33,13 @@
   },
   "dependencies": {
     "@agilo/medusa-analytics-plugin": "^1.2.1",
+    "@hookform/resolvers": "^5.2.2",
     "@medusajs/admin-sdk": "2.13.1",
     "@medusajs/cli": "2.13.1",
     "@medusajs/framework": "2.13.1",
     "@medusajs/medusa": "2.13.1",
-    "@repo/invoice-gen-plugin": "workspace:*"
+    "@repo/invoice-gen-plugin": "workspace:*",
+    "react-hook-form": "^7.71.1"
   },
   "devDependencies": {
     "@medusajs/test-utils": "2.13.1",

@@ -51,13 +51,13 @@
         },
         "size": {
           "name": "size",
-          "type": "integer",
+          "type": "text",
           "unsigned": false,
           "autoincrement": false,
           "primary": false,
           "nullable": false,
-          "default": "1",
-          "mappedType": "integer"
+          "default": "'1.0'",
+          "mappedType": "text"
         },
         "tech": {
           "name": "tech",
@@ -101,20 +101,20 @@
           "mappedType": "datetime"
         }
       },
-      "name": "engine",
+      "name": "fitment_engine",
       "schema": "public",
       "indexes": [
         {
-          "keyName": "IDX_engine_deleted_at",
+          "keyName": "IDX_fitment_engine_deleted_at",
           "columnNames": [],
           "composite": false,
           "constraint": false,
           "primary": false,
           "unique": false,
-          "expression": "CREATE INDEX IF NOT EXISTS \"IDX_engine_deleted_at\" ON \"engine\" (\"deleted_at\") WHERE deleted_at IS NULL"
+          "expression": "CREATE INDEX IF NOT EXISTS \"IDX_fitment_engine_deleted_at\" ON \"fitment_engine\" (\"deleted_at\") WHERE deleted_at IS NULL"
         },
         {
-          "keyName": "engine_pkey",
+          "keyName": "fitment_engine_pkey",
           "columnNames": [
             "id"
           ],
@@ -181,20 +181,20 @@
           "mappedType": "datetime"
         }
       },
-      "name": "make",
+      "name": "fitment_make",
       "schema": "public",
       "indexes": [
         {
-          "keyName": "IDX_make_deleted_at",
+          "keyName": "IDX_fitment_make_deleted_at",
           "columnNames": [],
           "composite": false,
           "constraint": false,
           "primary": false,
           "unique": false,
-          "expression": "CREATE INDEX IF NOT EXISTS \"IDX_make_deleted_at\" ON \"make\" (\"deleted_at\") WHERE deleted_at IS NULL"
+          "expression": "CREATE INDEX IF NOT EXISTS \"IDX_fitment_make_deleted_at\" ON \"fitment_make\" (\"deleted_at\") WHERE deleted_at IS NULL"
         },
         {
-          "keyName": "make_pkey",
+          "keyName": "fitment_make_pkey",
           "columnNames": [
             "id"
           ],
@@ -270,29 +270,29 @@
           "mappedType": "datetime"
         }
       },
-      "name": "model",
+      "name": "fitment_model",
       "schema": "public",
       "indexes": [
         {
-          "keyName": "IDX_model_make_id",
+          "keyName": "IDX_fitment_model_make_id",
           "columnNames": [],
           "composite": false,
           "constraint": false,
           "primary": false,
           "unique": false,
-          "expression": "CREATE INDEX IF NOT EXISTS \"IDX_model_make_id\" ON \"model\" (\"make_id\") WHERE deleted_at IS NULL"
+          "expression": "CREATE INDEX IF NOT EXISTS \"IDX_fitment_model_make_id\" ON \"fitment_model\" (\"make_id\") WHERE deleted_at IS NULL"
         },
         {
-          "keyName": "IDX_model_deleted_at",
+          "keyName": "IDX_fitment_model_deleted_at",
           "columnNames": [],
           "composite": false,
           "constraint": false,
           "primary": false,
           "unique": false,
-          "expression": "CREATE INDEX IF NOT EXISTS \"IDX_model_deleted_at\" ON \"model\" (\"deleted_at\") WHERE deleted_at IS NULL"
+          "expression": "CREATE INDEX IF NOT EXISTS \"IDX_fitment_model_deleted_at\" ON \"fitment_model\" (\"deleted_at\") WHERE deleted_at IS NULL"
         },
         {
-          "keyName": "model_pkey",
+          "keyName": "fitment_model_pkey",
           "columnNames": [
             "id"
           ],
@@ -304,16 +304,16 @@
       ],
       "checks": [],
       "foreignKeys": {
-        "model_make_id_foreign": {
-          "constraintName": "model_make_id_foreign",
+        "fitment_model_make_id_foreign": {
+          "constraintName": "fitment_model_make_id_foreign",
           "columnNames": [
             "make_id"
           ],
-          "localTableName": "public.model",
+          "localTableName": "public.fitment_model",
           "referencedColumnNames": [
             "id"
           ],
-          "referencedTableName": "public.make",
+          "referencedTableName": "public.fitment_make",
           "updateRule": "cascade"
         }
       },
@@ -513,7 +513,7 @@
           "referencedColumnNames": [
             "id"
           ],
-          "referencedTableName": "public.model",
+          "referencedTableName": "public.fitment_model",
           "updateRule": "cascade"
         },
         "fitment_engine_id_foreign": {
@@ -525,7 +525,7 @@
           "referencedColumnNames": [
             "id"
           ],
-          "referencedTableName": "public.engine",
+          "referencedTableName": "public.fitment_engine",
           "updateRule": "cascade"
         }
       },

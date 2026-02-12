@@ -4,14 +4,14 @@ export type OptionSelectProps = {
     className?: string
     placeholder?: string,
     value?: string | number,
-    options: { label: string, value: string | number }[]
+    options: { label: string, value: string | number }[] | undefined,
     onChange: (value: string) => void
 }
 
-const OptionSelect = ({ placeholder, value, options = [], onChange ,...restProps}: OptionSelectProps) => {
+const OptionSelect = ({ placeholder, value, options = [], onChange, ...restProps }: OptionSelectProps) => {
     return (
-        <Select value={value?.toString()} onValueChange={onChange} {...restProps}>
-            <Select.Trigger>
+        <Select value={value?.toString()} onValueChange={onChange} >
+            <Select.Trigger {...restProps}>
                 <Select.Value placeholder={placeholder} />
             </Select.Trigger>
             <Select.Content>

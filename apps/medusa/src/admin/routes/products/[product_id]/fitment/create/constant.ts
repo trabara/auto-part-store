@@ -1,5 +1,5 @@
 import { z } from "@medusajs/framework/zod"
-import { EngineSchema, Fitment } from "../../../../modules/fitment/schema"
+import { CreateFitmentInput, EngineSchema, Fitment } from "../../../../../../modules/fitment/schema"
 
 export const MAKE_OPTIONS = [
     {
@@ -107,10 +107,32 @@ export const ENGINE_SIZE_OPTIONS =
         { label: "Electric", value: "electric" }
     ]
 
+export const BODY_STYLE_OPTIONS = [
+    { label: "Sedan", value: "sedan" },
+    { label: "Coupe", value: "coupe" },
+    { label: "SUV", value: "suv" },
+    { label: "Truck", value: "truck" },
+    { label: "Van", value: "van" },
+    { label: "Wagon", value: "wagon" },
+    { label: "Convertible", value: "convertible" },
+]
+
+export const DRIVE_OPTIONS = [
+    { label: "FWD", value: "fwd" },
+    { label: "RWD", value: "rwd" },
+    { label: "AWD", value: "awd" },
+]
+
+export const TRANSMISSION_OPTIONS = [
+    { label: "Manual", value: "manual" },
+    { label: "Automatic", value: "automatic" },
+    { label: "CVT", value: "cvt" }
+]
+
 export const STEPS = {
     general: {
         label: "General",
-        validate: (data: Fitment) => z.object({
+        validate: (data: CreateFitmentInput) => z.object({
             body_style: z.string(),
             drive: z.string(),
             transmission: z.string(),
@@ -122,22 +144,33 @@ export const STEPS = {
     },
     make: {
         label: "Make",
-        validate: (data: Fitment) => z.object({ name: z.string() }).parse(data.model.make),
+        validate: (data: CreateFitmentInput) => z.object({ name: z.string().min(1) }).parse(data.model.make),
         accessor: "model.make.name",
         error: "Make name is required"
     },
     model: {
         label: "Model",
-        validate: (data: Fitment) => z.object({ name: z.string() }).parse(data.model),
+        validate: (data: CreateFitmentInput) => z.object({ name: z.string().min(1) }).parse(data.model),
         accessor: "model.name",
         error: "Model name is required"
     },
     engine: {
         label: "Engine",
-        validate: (data: Fitment) => EngineSchema.parse(data.engine),
+        validate: (data: CreateFitmentInput) => EngineSchema.parse(data.engine),
         accessor: "engine",
         error: "Engine details are required and size must be a valid number"
     }
 }
 
 export type Steps = keyof typeof STEPS
+
+
+export const DEFAULT_FORM_VALUES: CreateFitmentInput = {
+    model: { name: "", make: { name: "" } },
+    engine: { fuel: "gasoline", size: "1.0", tech: undefined, type: "I4" },
+    body_style: "sedan",
+    drive: "fwd",
+    transmission: "manual",
+    year_start: 2020,
+    year_end: 2023,
+}

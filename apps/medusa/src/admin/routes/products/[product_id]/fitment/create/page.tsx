@@ -1,16 +1,17 @@
 import { defineRouteConfig } from "@medusajs/admin-sdk"
-import { Button, FocusModal, Heading, Hint, Input, Label, ProgressTabs, usePrompt } from "@medusajs/ui"
+import { Button, FocusModal, Heading, Hint, Input, Label, ProgressTabs, toast, usePrompt } from "@medusajs/ui"
+import { useMutation, useQuery } from '@tanstack/react-query'
 import { useCallback, useState } from "react"
 import { Controller, useForm } from "react-hook-form"
-import { useNavigate } from "react-router-dom"
-import { Fitment } from "../../../../modules/fitment/schema"
-import OptionSelect from "../../../components/select"
-import SelectOrCreateInput from "../../../components/select-or-create-input"
-import { ENGINE_FUEL_OPTIONS, ENGINE_SIZE_OPTIONS, ENGINE_TYPE_OPTIONS, MAKE_OPTIONS, MODEL_OPTIONS, STEPS, Steps } from "./constant"
-
-
+import { useNavigate, useParams } from "react-router-dom"
+import { CreateFitmentInput, Make, Model } from "../../../../../../modules/fitment/schema"
+import OptionSelect from "../../../../../components/select"
+import SelectOrCreateInput from "../../../../../components/select-or-create-input"
+import { sdk } from "../../../../../lib/sdk"
+import { BODY_STYLE_OPTIONS, DEFAULT_FORM_VALUES, DRIVE_OPTIONS, ENGINE_FUEL_OPTIONS, ENGINE_SIZE_OPTIONS, ENGINE_TYPE_OPTIONS, MODEL_OPTIONS, STEPS, Steps, TRANSMISSION_OPTIONS } from "./constant"
 
 const CreateFitementPage = () => {
+  const { product_id } = useParams()
 
   const cancelPrompt = usePrompt()
   const navigate = useNavigate()
@@ -27,47 +28,51 @@ const CreateFitementPage = () => {
     }
   }
 
-  const form = useForm<Fitment>({
-    defaultValues: {
-      model: { make: { name: undefined }, name: undefined },
-      engine: { fuel: "gasoline", size: "1.0", tech: undefined, type: "I4" },
-      body_style: "sedan",
-      drive: "fwd",
-      transmission: "manual",
-      year_start: new Date().getFullYear(),
-      year_end: new Date().getFullYear(),
-    }
+  const form = useForm<CreateFitmentInput>({
+    defaultValues: { ...DEFAULT_FORM_VALUES, product_id }
   })
 
   const steps = Object.keys(STEPS) as Steps[]
   const [active, setActive] = useState<Steps>("general")
-  // const [validations, setValidations] = useState({})
 
   const validateTab = (value: Steps) => {
-    const { accessor, validate, error } = STEPS[value]
-    debugger
+    const step = STEPS[value]
+
     try {
-      const data = form.getValues()
-      return validate(data)
+      return step.validate(form.getValues())
     } catch (e) {
-      console.log("Validation error: ", e)
-      form.setError(accessor as any, { message: error })
+      form.setError(step.accessor as any, { message: step.error })
     }
   }
 
-  const currentStepIndex = steps.indexOf(active)
-  const onSubmit = (data: Fitment) => {
+  const mutation = useMutation({
+    mutationFn: async (data: CreateFitmentInput) => {
+      // replace with actual API call
+      return sdk.client.fetch('/admin/fitments', {
+        method: "POST",
+        body: data
+      })
+    },
+    onSuccess: (data) => {
+      console.log("Form submitted successfully: ", data)
+      navigate(-1)
+    },
+    onError: (error) => {
+      console.log("Form submission error: ", error)
+      toast.error("An error occurred while submitting the form. Please try again.")
+    }
+  })
 
+  const currentStepIndex = steps.indexOf(active)
+  const onSubmit = (data: CreateFitmentInput) => {
     const step = steps[currentStepIndex]
     const isValid = validateTab(step)
 
     if (isValid && currentStepIndex < steps.length - 1) {
       setActive(steps[currentStepIndex + 1])
     } else {
-      // submit form
-      console.log("Submitting form with data: ", data)
+      mutation.mutate(data)
     }
-
   }
 
   const handleTabsChange = useCallback((value: Steps) => {
@@ -80,17 +85,39 @@ const CreateFitementPage = () => {
     }
   }, [active, validateTab])
 
+  const { data: MAKE_OPTIONS, } = useQuery({
+    queryKey: ["makes"],
+    queryFn: () => {
+      return sdk.client.fetch<{ makes: Make[] }>('/admin/makes', {
+        query: {
+          fields: "id,name"
+        }
+      }).then(({ makes }) => makes.map((make) => ({ label: make.name, value: make.id })))
+    },
+  })
+
+  const { data: MODEL_OPTIONS, } = useQuery({
+    queryKey: ["models"],
+    queryFn: () => {
+      return sdk.client.fetch<{ models: Model[] }>('/admin/models', {
+        query: {
+          fields: "id,name"
+        }
+      }).then(({ models }) => models.map(option => ({ label: option.name, value: option.id })))
+    },
+  })
+
+
 
   return (
     <FocusModal open onOpenChange={handleCancel}>
       <FocusModal.Content asChild>
-        <form
-          onSubmit={form.handleSubmit(onSubmit)}>
+        <form onSubmit={form.handleSubmit(onSubmit)}>
           <ProgressTabs value={active} onValueChange={(value) => handleTabsChange(value as Steps)} className="flex h-full flex-col overflow-hidden">
-            <FocusModal.Header className="">
+            <FocusModal.Header>
               <div className="flex w-full items-center justify-between gap-x-4">
                 <div className="-my-2 w-full max-w-[600px] border-l" >
-                  <ProgressTabs.List >
+                  <ProgressTabs.List>
                     <ProgressTabs.Trigger value="general">General</ProgressTabs.Trigger>
                     <ProgressTabs.Trigger value="make">Make</ProgressTabs.Trigger>
                     <ProgressTabs.Trigger value="model">Model</ProgressTabs.Trigger>
@@ -139,13 +166,7 @@ const CreateFitementPage = () => {
                             <OptionSelect
                               className="w-full"
                               placeholder="Enter body style"
-                              options={[
-                                { label: "Sedan", value: "sedan" },
-                                { label: "SUV", value: "suv" },
-                                { label: "Hatchback", value: "hatchback" },
-                                { label: "Coupe", value: "coupe" },
-                                { label: "Convertible", value: "convertible" },
-                              ]}
+                              options={BODY_STYLE_OPTIONS}
                               {...field} />
                             {fieldState.error && <Hint variant="error">{fieldState.error.message}</Hint>}
                           </div>
@@ -159,11 +180,7 @@ const CreateFitementPage = () => {
                             <OptionSelect
                               className="w-full"
                               placeholder="Enter drive type"
-                              options={[
-                                { label: "FWD", value: "fwd" },
-                                { label: "RWD", value: "rwd" },
-                                { label: "AWD", value: "awd" },
-                              ]}
+                              options={DRIVE_OPTIONS}
                               {...field} />
                             {fieldState.error && <Hint variant="error">{fieldState.error.message}</Hint>}
                           </div>
@@ -177,11 +194,7 @@ const CreateFitementPage = () => {
                             <OptionSelect
                               className="w-full"
                               placeholder="Enter transmission type"
-                              options={[
-                                { label: "Manual", value: "manual" },
-                                { label: "Automatic", value: "automatic" },
-                                { label: "CVT", value: "cvt" },
-                              ]}
+                              options={TRANSMISSION_OPTIONS}
                               {...field} />
                             {fieldState.error && <Hint variant="error">{fieldState.error.message}</Hint>}
                           </div>

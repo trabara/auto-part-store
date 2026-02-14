@@ -24,6 +24,7 @@
     "seed:prod": "medusa exec ./src/scripts/seed.js && yarn add-user:prod",
     "add-user:prod": "medusa user --email admin@medusa-test.com --password supersecret && medusa user --email admin@lambdacurry.dev --password password",
     "migrate": "medusa db:migrate",
+    "generate": "medusa db:generate",
     "test:integration:http": "TEST_TYPE=integration:http NODE_OPTIONS=--experimental-vm-modules jest --silent=false --runInBand --forceExit",
     "test:integration:modules": "TEST_TYPE=integration:modules NODE_OPTIONS=--experimental-vm-modules jest --silent --runInBand --forceExit",
     "test:unit": "TEST_TYPE=unit NODE_OPTIONS=--experimental-vm-modules jest --silent --runInBand --forceExit",
@@ -39,13 +40,16 @@
     "@medusajs/framework": "2.13.1",
     "@medusajs/medusa": "2.13.1",
     "@repo/invoice-gen-plugin": "workspace:*",
-    "react-hook-form": "^7.71.1"
+    "lodash": "^4.17.23",
+    "react-hook-form": "^7.71.1",
+    "vite-tsconfig-paths": "^6.1.1"
   },
   "devDependencies": {
     "@medusajs/test-utils": "2.13.1",
     "@swc/core": "^1.7.28",
     "@swc/jest": "^0.2.36",
     "@types/jest": "^29.5.13",
+    "@types/lodash": "^4",
     "@types/node": "^20.12.11",
     "@types/react": "^18.3.2",
     "@types/react-dom": "^18.2.25",

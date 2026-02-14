@@ -2,7 +2,7 @@ import {
   defineConfig,
   loadEnv
 } from "@medusajs/framework/utils";
-import { resolve } from "path";
+import path, { resolve } from "path";
 
 // Load environment variables based on the current NODE_ENV
 loadEnv(process.env.NODE_ENV || "development", process.cwd());
@@ -106,4 +106,15 @@ export default defineConfig({
     //   options: {},
     // },
   ],
+  admin: {
+    vite: () => {
+      return {
+        resolve: {
+          alias: {
+            "~": path.resolve(__dirname, "./src/admin"),
+          },
+        },
+      }
+    }
+  }
 });

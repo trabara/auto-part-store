@@ -22,12 +22,12 @@
           "autoincrement": false,
           "primary": false,
           "nullable": false,
-          "default": "'gasoline'",
+          "default": "'GASOLINE'",
           "enumItems": [
-            "gasoline",
-            "diesel",
-            "electric",
-            "hybrid"
+            "GASOLINE",
+            "DIESEL",
+            "ELECTRIC",
+            "HYBRID"
           ],
           "mappedType": "enum"
         },
@@ -44,8 +44,8 @@
             "V4",
             "V6",
             "V8",
-            "Electric",
-            "Hybrid"
+            "ELECTRIC",
+            "HYBRID"
           ],
           "mappedType": "enum"
         },
@@ -112,6 +112,15 @@
           "primary": false,
           "unique": false,
           "expression": "CREATE INDEX IF NOT EXISTS \"IDX_fitment_engine_deleted_at\" ON \"fitment_engine\" (\"deleted_at\") WHERE deleted_at IS NULL"
+        },
+        {
+          "keyName": "fitment_engine_unique",
+          "columnNames": [],
+          "composite": false,
+          "constraint": false,
+          "primary": false,
+          "unique": false,
+          "expression": "CREATE UNIQUE INDEX IF NOT EXISTS \"fitment_engine_unique\" ON \"fitment_engine\" (\"fuel\", \"type\", \"size\", \"tech\") WHERE deleted_at IS NULL"
         },
         {
           "keyName": "fitment_engine_pkey",
@@ -192,6 +201,15 @@
           "primary": false,
           "unique": false,
           "expression": "CREATE INDEX IF NOT EXISTS \"IDX_fitment_make_deleted_at\" ON \"fitment_make\" (\"deleted_at\") WHERE deleted_at IS NULL"
+        },
+        {
+          "keyName": "fitment_make_name_unique",
+          "columnNames": [],
+          "composite": false,
+          "constraint": false,
+          "primary": false,
+          "unique": false,
+          "expression": "CREATE UNIQUE INDEX IF NOT EXISTS \"fitment_make_name_unique\" ON \"fitment_make\" (\"name\") WHERE deleted_at IS NULL"
         },
         {
           "keyName": "fitment_make_pkey",
@@ -292,6 +310,15 @@
           "expression": "CREATE INDEX IF NOT EXISTS \"IDX_fitment_model_deleted_at\" ON \"fitment_model\" (\"deleted_at\") WHERE deleted_at IS NULL"
         },
         {
+          "keyName": "fitment_model_name_unique",
+          "columnNames": [],
+          "composite": false,
+          "constraint": false,
+          "primary": false,
+          "unique": false,
+          "expression": "CREATE UNIQUE INDEX IF NOT EXISTS \"fitment_model_name_unique\" ON \"fitment_model\" (\"name\") WHERE deleted_at IS NULL"
+        },
+        {
           "keyName": "fitment_model_pkey",
           "columnNames": [
             "id"
@@ -337,15 +364,28 @@
           "autoincrement": false,
           "primary": false,
           "nullable": false,
-          "default": "'sedan'",
+          "default": "'SEDAN'",
           "enumItems": [
-            "sedan",
-            "suv",
-            "hatchback",
-            "coupe",
-            "convertible"
+            "SEDAN",
+            "SUV",
+            "HATCHBACK",
+            "COUPE",
+            "CONVERTIBLE",
+            "WAGON",
+            "VAN",
+            "PICKUP"
           ],
           "mappedType": "enum"
+        },
+        "doors": {
+          "name": "doors",
+          "type": "integer",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "default": "4",
+          "mappedType": "integer"
         },
         "drive": {
           "name": "drive",
@@ -354,11 +394,12 @@
           "autoincrement": false,
           "primary": false,
           "nullable": false,
-          "default": "'fwd'",
+          "default": "'FWD'",
           "enumItems": [
-            "fwd",
-            "rwd",
-            "awd"
+            "FWD",
+            "RWD",
+            "AWD",
+            "FOUR_WD"
           ],
           "mappedType": "enum"
         },
@@ -369,11 +410,11 @@
           "autoincrement": false,
           "primary": false,
           "nullable": false,
-          "default": "'manual'",
+          "default": "'MANUAL'",
           "enumItems": [
-            "manual",
-            "automatic",
-            "cvt"
+            "MANUAL",
+            "AUTOMATIC",
+            "CVT"
           ],
           "mappedType": "enum"
         },
@@ -477,13 +518,13 @@
           "expression": "CREATE INDEX IF NOT EXISTS \"IDX_fitment_deleted_at\" ON \"fitment\" (\"deleted_at\") WHERE deleted_at IS NULL"
         },
         {
-          "keyName": "IDX_fitment_model_id_engine_id_unique",
+          "keyName": "IDX_fitment_model_id_engine_id_body_style_doors_drive_transmission_year_start_year_end_unique",
           "columnNames": [],
           "composite": false,
           "constraint": false,
           "primary": false,
           "unique": false,
-          "expression": "CREATE UNIQUE INDEX IF NOT EXISTS \"IDX_fitment_model_id_engine_id_unique\" ON \"fitment\" (\"model_id\", \"engine_id\") WHERE deleted_at IS NULL"
+          "expression": "CREATE UNIQUE INDEX IF NOT EXISTS \"IDX_fitment_model_id_engine_id_body_style_doors_drive_transmission_year_start_year_end_unique\" ON \"fitment\" (\"model_id\", \"engine_id\", \"body_style\", \"doors\", \"drive\", \"transmission\", \"year_start\", \"year_end\") WHERE deleted_at IS NULL"
         },
         {
           "keyName": "fitment_pkey",

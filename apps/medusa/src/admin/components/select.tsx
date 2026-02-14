@@ -1,4 +1,5 @@
 import { Select } from "@medusajs/ui"
+import { forwardRef } from "react"
 
 export type OptionSelectProps = {
     className?: string
@@ -8,10 +9,10 @@ export type OptionSelectProps = {
     onChange: (value: string) => void
 }
 
-const OptionSelect = ({ placeholder, value, options = [], onChange, ...restProps }: OptionSelectProps) => {
+const OptionSelect = forwardRef<HTMLButtonElement, OptionSelectProps>(({ placeholder, value, options = [], onChange, ...restProps }, ref) => {
     return (
         <Select value={value?.toString()} onValueChange={onChange} >
-            <Select.Trigger {...restProps}>
+            <Select.Trigger {...restProps} ref={ref}>
                 <Select.Value placeholder={placeholder} />
             </Select.Trigger>
             <Select.Content>
@@ -21,6 +22,6 @@ const OptionSelect = ({ placeholder, value, options = [], onChange, ...restProps
             </Select.Content>
         </Select>
     )
-}
+})
 
 export default OptionSelect

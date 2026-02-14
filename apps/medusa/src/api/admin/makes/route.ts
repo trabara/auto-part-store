@@ -4,10 +4,11 @@ import { ContainerRegistrationKeys } from "@medusajs/framework/utils";
 export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
     const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
 
-    const { data: makes } = await query.graph({
+    const { data: makes ,metadata} = await query.graph({
         entity: "fitment_make",
-        ...req.queryConfig
+        ...req.queryConfig,
+        ...req.filterableFields
     })
 
-    res.json({ makes })
+    res.json({ makes, metadata })
 }

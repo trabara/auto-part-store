@@ -1,7 +1,8 @@
 import { defineRouteConfig } from "@medusajs/admin-sdk"
+import FitmentList from "~/features/fitment-list"
 
 const FitmentsPage = () => {
-    return <div>FimtentPage</div>
+    return <FitmentList />
 }
 
 export const config = defineRouteConfig({

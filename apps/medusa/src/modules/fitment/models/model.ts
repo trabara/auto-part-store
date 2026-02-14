@@ -1,14 +1,20 @@
 import { model } from "@medusajs/framework/utils"
-import { Make } from "./make"
+import { FitmentMake } from "./make"
 import { Fitment } from "./fitment"
 
-export const Model = model.define("fitment_model", {
+export const FitmentModel = model.define("fitment_model", {
   id: model.id().primaryKey(),
   name: model.text(),
-  make: model.belongsTo(() => Make, {
+  make: model.belongsTo(() => FitmentMake, {
     mappedBy: "models",
   }),
   fitments: model.hasMany(() => Fitment, {
     mappedBy: "model",
   }),
-})
+}).indexes([
+  {
+    name: "fitment_model_name_unique",
+    on: ["name"],
+    unique: true,
+  }
+])

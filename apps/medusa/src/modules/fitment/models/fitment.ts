@@ -1,24 +1,25 @@
 import { model } from "@medusajs/framework/utils"
 import { BodyStyleTypeSchema, DriveTypeSchema, TransmissionTypeSchema } from "../schema"
-import { Model } from "./model"
-import { Engine } from "./engine"
+import { FitmentEngine } from "./engine"
+import { FitmentModel } from "./model"
 
 export const Fitment = model.define("fitment", {
   id: model.id().primaryKey(),
-  body_style: model.enum(BodyStyleTypeSchema.Values).default("sedan"),
-  drive: model.enum(DriveTypeSchema.Values).default("fwd"),
-  transmission: model.enum(TransmissionTypeSchema.Values).default("manual"),
+  body_style: model.enum(BodyStyleTypeSchema.Values).default("SEDAN"),
+  doors: model.number().default(4),
+  drive: model.enum(DriveTypeSchema.Values).default("FWD"),
+  transmission: model.enum(TransmissionTypeSchema.Values).default("MANUAL"),
   year_start: model.number(),
   year_end: model.number(),
-  model: model.belongsTo(() => Model, {
+  model: model.belongsTo(() => FitmentModel, {
     mappedBy: "fitments",
   }),
-  engine: model.belongsTo(() => Engine, {
+  engine: model.belongsTo(() => FitmentEngine, {
     mappedBy: "fitments",
   }),
 }).indexes([
   {
-    on: ["model_id", "engine_id"],
+    on: ["model_id", "engine_id", "body_style", "doors", "drive", "transmission", "year_start", "year_end"],
     unique: true,
   },
 ]).checks([

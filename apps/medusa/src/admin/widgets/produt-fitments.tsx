@@ -1,6 +1,7 @@
 import { defineWidgetConfig } from "@medusajs/admin-sdk"
 import { Button, Container, Heading } from '@medusajs/ui'
 import { useNavigate, useParams } from 'react-router-dom'
+
 const ProductFitmentsWidget = () => {
     const navigate = useNavigate()
     const params = useParams()

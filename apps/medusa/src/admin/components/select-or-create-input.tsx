@@ -20,7 +20,7 @@ const SelectOrCreateInput = forwardRef<HTMLInputElement, SelectOrCreateInputProp
     return (
         <div ref={ref} className={clx("space-y-2", className)}>
             {
-                isNew ? (
+                isNew || options.length === 0 ? (
                     <Input aria-invalid={isInvalid} ref={textInput} className="w-full" onChange={(e) => onChange(e.target.value)} {...restProps} />
                 ) : (
                     <OptionSelect aria-invalid={isInvalid} options={options} onChange={onChange} {...restProps} />

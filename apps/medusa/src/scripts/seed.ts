@@ -24,6 +24,7 @@ import {
   updateStoresWorkflow
 } from "@medusajs/medusa/core-flows";
 import { ApiKey } from "../../.medusa/types/query-entry-points";
+import { createFitmentsWorkflow } from "@/workflows/create-fitments";
 
 const updateStoreCurrencies = createWorkflow(
   "update-store-currencies",
@@ -333,7 +334,7 @@ export default async function seedData({ container }: ExecArgs) {
   });
   logger.info("Finished seeding publishable API key data.");
 
-  // logger.info("Seeding product data...");
+  logger.info("Seeding product data...");
 
   // const { result: categoryResult } = await createProductCategoriesWorkflow(
   //   container,
@@ -349,7 +350,7 @@ export default async function seedData({ container }: ExecArgs) {
   //   defaultSalesChannelId: defaultSalesChannel[0].id,
   // });
 
-  await createProductsWorkflow(container).run({
+  const { result: productResults } = await createProductsWorkflow(container).run({
     input: {
       products: [
         {
@@ -537,7 +538,8 @@ export default async function seedData({ container }: ExecArgs) {
       ]
     },
   });
-  // logger.info("Finished seeding product data.");
+
+  logger.info("Finished seeding product data.");
 
   logger.info("Seeding inventory levels.");
 
@@ -563,4 +565,177 @@ export default async function seedData({ container }: ExecArgs) {
   });
 
   logger.info("Finished seeding inventory levels data.");
+
+  logger.info("Seeding fitments");
+
+  await createFitmentsWorkflow(container).run({
+    input: {
+      fitments: [
+        // Hyundai Elantra - Hub Bearing
+        {
+          model: { name: "Elantra", make: { name: "HYUNDAI" } },
+          engine: { fuel: "GASOLINE", type: "I4", size: "1.6" },
+          body_style: "SEDAN",
+          doors: 4,
+          drive: "FWD",
+          transmission: "AUTOMATIC",
+          year_start: 2016,
+          year_end: 2020,
+        },
+        {
+          model: { name: "Elantra", make: { name: "HYUNDAI" } },
+          engine: { fuel: "GASOLINE", type: "I4", size: "2.0" },
+          body_style: "SEDAN",
+          doors: 4,
+          drive: "FWD",
+          transmission: "AUTOMATIC",
+          year_start: 2016,
+          year_end: 2020,
+        },
+        // Hyundai Tucson - Hub Bearing
+        {
+          model: { name: "Tucson", make: { name: "HYUNDAI" } },
+          engine: { fuel: "GASOLINE", type: "I4", size: "2.0" },
+          body_style: "SUV",
+          doors: 5,
+          drive: "AWD",
+          transmission: "AUTOMATIC",
+          year_start: 2015,
+          year_end: 2020,
+        },
+        {
+          model: { name: "Tucson", make: { name: "HYUNDAI" } },
+          engine: { fuel: "DIESEL", type: "I4", size: "2.0" },
+          body_style: "SUV",
+          doors: 5,
+          drive: "AWD",
+          transmission: "AUTOMATIC",
+          year_start: 2015,
+          year_end: 2020,
+        },
+        // Kia Sportage - Hub Bearing
+        {
+          model: { name: "Sportage", make: { name: "KIA" } },
+          engine: { fuel: "GASOLINE", type: "I4", size: "2.0" },
+          body_style: "SUV",
+          doors: 5,
+          drive: "AWD",
+          transmission: "AUTOMATIC",
+          year_start: 2016,
+          year_end: 2021,
+        },
+        {
+          model: { name: "Sportage", make: { name: "KIA" } },
+          engine: { fuel: "DIESEL", type: "I4", size: "2.0" },
+          body_style: "SUV",
+          doors: 5,
+          drive: "AWD",
+          transmission: "AUTOMATIC",
+          year_start: 2016,
+          year_end: 2021,
+        },
+        // Kia Rio - Hub Bearing
+        {
+          model: { name: "Rio", make: { name: "KIA" } },
+          engine: { fuel: "GASOLINE", type: "I4", size: "1.4" },
+          body_style: "SEDAN",
+          doors: 4,
+          drive: "FWD",
+          transmission: "MANUAL",
+          year_start: 2015,
+          year_end: 2020,
+        },
+        // Suzuki Swift - Hub Bearing
+        {
+          model: { name: "Swift", make: { name: "SUZUKI" } },
+          engine: { fuel: "GASOLINE", type: "I4", size: "1.2" },
+          body_style: "HATCHBACK",
+          doors: 5,
+          drive: "FWD",
+          transmission: "MANUAL",
+          year_start: 2017,
+          year_end: 2022,
+        },
+        {
+          model: { name: "Swift", make: { name: "SUZUKI" } },
+          engine: { fuel: "GASOLINE", type: "I4", size: "1.4" },
+          body_style: "HATCHBACK",
+          doors: 5,
+          drive: "FWD",
+          transmission: "AUTOMATIC",
+          year_start: 2017,
+          year_end: 2022,
+        },
+        // Suzuki Vitara - Hub Bearing
+        {
+
+          model: { name: "Vitara", make: { name: "SUZUKI" } },
+          engine: { fuel: "GASOLINE", type: "I4", size: "1.6" },
+          body_style: "SUV",
+          doors: 5,
+          drive: "AWD",
+          transmission: "AUTOMATIC",
+          year_start: 2015,
+          year_end: 2021,
+        },
+
+        // Hyundai Elantra - Serpentine Belt
+        {
+          model: { name: "Elantra", make: { name: "HYUNDAI" } },
+          engine: { fuel: "GASOLINE", type: "I4", size: "1.6" },
+          body_style: "SEDAN",
+          doors: 4,
+          drive: "FWD",
+          transmission: "AUTOMATIC",
+          year_start: 2016,
+          year_end: 2020,
+        },
+        {
+          model: { name: "Elantra", make: { name: "HYUNDAI" } },
+          engine: { fuel: "GASOLINE", type: "I4", size: "2.0" },
+          body_style: "SEDAN",
+          doors: 4,
+          drive: "FWD",
+          transmission: "AUTOMATIC",
+          year_start: 2016,
+          year_end: 2020,
+        },
+        // Hyundai Tucson - Serpentine Belt
+        {
+          model: { name: "Tucson", make: { name: "HYUNDAI" } },
+          engine: { fuel: "GASOLINE", type: "I4", size: "2.0" },
+          body_style: "SUV",
+          doors: 5,
+          drive: "AWD",
+          transmission: "AUTOMATIC",
+          year_start: 2015,
+          year_end: 2020,
+        },
+        // Kia Sportage - Serpentine Belt
+        {
+          model: { name: "Sportage", make: { name: "KIA" } },
+          engine: { fuel: "GASOLINE", type: "I4", size: "2.0" },
+          body_style: "SUV",
+          doors: 5,
+          drive: "AWD",
+          transmission: "AUTOMATIC",
+          year_start: 2016,
+          year_end: 2021,
+        },
+        // Kia Rio - Serpentine Belt
+        {
+          model: { name: "Rio", make: { name: "KIA" } },
+          engine: { fuel: "GASOLINE", type: "I4", size: "1.4" },
+          body_style: "SEDAN",
+          doors: 4,
+          drive: "FWD",
+          transmission: "MANUAL",
+          year_start: 2015,
+          year_end: 2020,
+        },
+      ],
+    }
+  });
+
+  logger.info("Finished seeding fitments");
 }

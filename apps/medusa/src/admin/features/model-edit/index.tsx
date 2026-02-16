@@ -1,12 +1,5 @@
-import { useEffect } from "react";
-import {
-  useNavigate,
-  LoaderFunctionArgs,
-  useLoaderData,
-} from "react-router-dom";
-import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { z } from "@medusajs/framework/zod";
 import {
   Button,
   Drawer,
@@ -16,9 +9,14 @@ import {
   Label,
   toast,
 } from "@medusajs/ui";
-import { z } from "@medusajs/framework/zod";
-import { sdk } from "~/lib/sdk";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useEffect } from "react";
+import { Controller, useForm } from "react-hook-form";
+import {
+  useNavigate
+} from "react-router-dom";
 import { MakesSelectInput } from "~/components/makes-select-input";
+import { sdk } from "~/lib/sdk";
 import { Model } from "~/modules/fitment/schema";
 
 const UpdateModelSchema = z.object({
@@ -28,21 +26,11 @@ const UpdateModelSchema = z.object({
 
 type UpdateModelInput = z.infer<typeof UpdateModelSchema>;
 
-export async function loader({ params }: LoaderFunctionArgs) {
-  const { id } = params;
-  const { model } = await sdk.client.fetch<{ model: Model }>(
-    `/admin/models/${id}`,
-    {
-      query: { fields: "*make" },
-    },
-  );
-  return { model };
-}
 
-const ModelEdit = () => {
+
+const ModelEdit = ({ model }: { model: Model }) => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const { model } = useLoaderData() as { model: Model };
 
   const form = useForm<UpdateModelInput>({
     resolver: zodResolver(UpdateModelSchema),

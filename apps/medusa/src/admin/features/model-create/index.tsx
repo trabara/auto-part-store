@@ -1,7 +1,5 @@
-import { useNavigate } from "react-router-dom";
-import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { z } from "@medusajs/framework/zod";
 import {
   Button,
   FocusModal,
@@ -11,9 +9,11 @@ import {
   Label,
   toast,
 } from "@medusajs/ui";
-import { z } from "@medusajs/framework/zod";
-import { sdk } from "~/lib/sdk";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { Controller, useForm } from "react-hook-form";
+import { useNavigate } from "react-router-dom";
 import { MakesSelectInput } from "~/components/makes-select-input";
+import { sdk } from "~/lib/sdk";
 
 const CreateModelSchema = z.object({
   name: z.string().min(1, "Name is required"),

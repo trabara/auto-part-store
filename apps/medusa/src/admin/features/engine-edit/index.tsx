@@ -43,10 +43,9 @@ export async function loader({ params }: LoaderFunctionArgs) {
   return { engine };
 }
 
-const EngineEdit = () => {
+const EngineEdit = ({ engine }: { engine: Engine }) => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const { engine } = useLoaderData() as { engine: Engine };
 
   const form = useForm<UpdateEngineInput>({
     resolver: zodResolver(UpdateEngineSchema),

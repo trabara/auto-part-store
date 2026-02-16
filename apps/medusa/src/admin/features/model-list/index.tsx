@@ -144,7 +144,7 @@ const ModelList = () => {
           <Button
             variant="secondary"
             size="base"
-            onClick={() => navigate("/models/create")}
+            onClick={() => navigate("/fitments/models/create")}
           >
             <Plus className="mr-2" />
             Create Model

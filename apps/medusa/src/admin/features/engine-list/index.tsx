@@ -120,7 +120,7 @@ const EngineList = () => {
           <Button
             variant="secondary"
             size="base"
-            onClick={() => navigate("/engines/create")}
+            onClick={() => navigate("/fitments/engines/create")}
           >
             <Plus className="mr-2" />
             Create Engine

@@ -33,21 +33,9 @@ type Make = {
   models?: any[];
 };
 
-export async function loader({ params }: LoaderFunctionArgs) {
-  const { id } = params;
-  const { make } = await sdk.client.fetch<{ make: Make }>(
-    `/admin/makes/${id}`,
-    {
-      query: { fields: "*models" },
-    },
-  );
-  return { make };
-}
-
-const MakeEdit = () => {
+const MakeEdit = ({ make }: { make: Make }) => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const { make } = useLoaderData() as { make: Make };
 
   const form = useForm<UpdateMakeInput>({
     resolver: zodResolver(UpdateMakeSchema),

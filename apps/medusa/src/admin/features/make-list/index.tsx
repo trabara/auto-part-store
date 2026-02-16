@@ -123,7 +123,7 @@ const MakeList = () => {
           <Button
             variant="secondary"
             size="base"
-            onClick={() => navigate("/makes/create")}
+            onClick={() => navigate("/fitments/makes/create")}
           >
             <Plus className="mr-2" />
             Create Make

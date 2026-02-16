@@ -1,43 +1,39 @@
 import { MedusaRequest, MedusaResponse } from "@medusajs/framework";
-import { ContainerRegistrationKeys } from "@medusajs/framework/utils";
+import { EnginesController } from "../controllers/engines.controller";
 import {
   CreateEngineInput,
   UpdateEngineInput,
 } from "../../../modules/fitment/schema";
-import { FITMENT_MODULE } from "../../../modules/fitment";
 
+/**
+ * GET /admin/engines
+ * List all engines
+ */
 export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
-  const query = req.scope.resolve(ContainerRegistrationKeys.QUERY);
-
-  const { data: engines, metadata } = await query.graph({
-    entity: "fitment_engine",
-    ...req.queryConfig,
-    ...req.filterableFields,
-  });
-
-  res.json({ engines, metadata });
+  const controller = new EnginesController(req, res);
+  await controller.list();
 };
 
+/**
+ * POST /admin/engines
+ * Create a new engine
+ */
 export const POST = async (
   req: MedusaRequest<CreateEngineInput>,
   res: MedusaResponse,
 ) => {
-  const fitmentModuleService = req.scope.resolve(FITMENT_MODULE);
-  const [engine] = await fitmentModuleService.createFitmentEngines([
-    req.validatedBody,
-  ]);
-
-  res.status(201).json({ engine });
+  const controller = new EnginesController(req, res);
+  await controller.create();
 };
 
+/**
+ * PATCH /admin/engines
+ * Update multiple engines
+ */
 export const PATCH = async (
   req: MedusaRequest<{ engines: UpdateEngineInput[] }>,
   res: MedusaResponse,
 ) => {
-  const fitmentModuleService = req.scope.resolve(FITMENT_MODULE);
-  const engines = await fitmentModuleService.updateFitmentEngines(
-    req.validatedBody.engines,
-  );
-
-  res.status(200).json({ engines });
+  const controller = new EnginesController(req, res);
+  await controller.updateBatch();
 };

@@ -1,0 +1,43 @@
+import { MedusaRequest, MedusaResponse } from "@medusajs/framework";
+import { ContainerRegistrationKeys } from "@medusajs/framework/utils";
+import {
+  CreateMakeInput,
+  UpdateMakeInput,
+} from "../../../modules/fitment/schema";
+import { FITMENT_MODULE } from "../../../modules/fitment";
+
+export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
+  const query = req.scope.resolve(ContainerRegistrationKeys.QUERY);
+
+  const { data: makes, metadata } = await query.graph({
+    entity: "fitment_make",
+    ...req.queryConfig,
+    ...req.filterableFields,
+  });
+
+  res.json({ makes, metadata });
+};
+
+export const POST = async (
+  req: MedusaRequest<CreateMakeInput>,
+  res: MedusaResponse,
+) => {
+  const fitmentModuleService = req.scope.resolve(FITMENT_MODULE);
+  const [make] = await fitmentModuleService.createFitmentMakes([
+    req.validatedBody,
+  ]);
+
+  res.status(201).json({ make });
+};
+
+export const PATCH = async (
+  req: MedusaRequest<{ makes: UpdateMakeInput[] }>,
+  res: MedusaResponse,
+) => {
+  const fitmentModuleService = req.scope.resolve(FITMENT_MODULE);
+  const makes = await fitmentModuleService.updateFitmentMakes(
+    req.validatedBody.makes,
+  );
+
+  res.status(200).json({ makes });
+};

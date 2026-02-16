@@ -2,19 +2,13 @@ import {
   Button,
   Container,
   DataTable,
-  DataTableFilteringState,
-  DataTablePaginationState,
-  DataTableSortingState,
   Heading,
-  toast,
   useDataTable,
-  usePrompt,
 } from "@medusajs/ui";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import _ from "lodash";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { sdk } from "~/lib/sdk";
+import { usePaginatedQuery, useDeleteMutation } from "~/hooks";
 import { Fitment } from "~/modules/fitment/schema";
 import { createFitmentColumns } from "./columns";
 import filters from "./filters";
@@ -35,75 +29,51 @@ type AdminFitmentResponse = {
 
 const FitmentList = ({ productId }: { productId?: string }) => {
   const navigate = useNavigate();
-  const queryClient = useQueryClient();
 
-  const limit = 15;
-  const [pagination, setPagination] = useState<DataTablePaginationState>({
-    pageSize: limit,
-    pageIndex: 0,
-  });
-  const offset = useMemo(() => {
-    return pagination.pageIndex * limit;
-  }, [pagination]);
-
-  const [search, setSearch] = useState<string>("");
-  const [filtering, setFiltering] = useState<DataTableFilteringState>({});
-  const [sorting, setSorting] = useState<DataTableSortingState | null>(null);
-
-  const filterValues = useMemo(() => {
-    let result: Record<string, any> = {};
-    Object.keys(filtering).forEach((key) => {
-      const value = filtering[key];
-      if (value) {
-        _.set(result, key, value);
-      }
-    });
-    return result;
-  }, [filtering]);
-
-  const { data, isLoading } = useQuery<AdminFitmentResponse>({
-    queryFn: () =>
+  // Use paginated query hook
+  const {
+    data,
+    isLoading,
+    pagination,
+    setPagination,
+    search,
+    setSearch,
+    filtering,
+    setFiltering,
+    sorting,
+    setSorting,
+  } = usePaginatedQuery<AdminFitmentResponse>({
+    queryKey: "fitments",
+    fields: "*engine,*model,*model.make,*products.*",
+    queryFn: (params) =>
       sdk.client.fetch<AdminFitmentResponse>(`/admin/fitments`, {
-        query: {
-          limit,
-          offset,
-          fields: "*engine,*model,*model.make,*products.*",
-          order: sorting
-            ? `${sorting.desc ? "-" : ""}${sorting.id}`
-            : undefined,
-          filters: filterValues,
-        },
+        query: params,
       }),
-    queryKey: [
-      ["fitments", limit, offset, filterValues, sorting?.id, sorting?.desc],
-    ],
   });
 
-  // Delete mutation
-  const deleteMutation = useMutation({
-    mutationFn: (fitmentId: string) =>
-      sdk.client.fetch(`/admin/fitments/${fitmentId}`, {
-        method: "DELETE",
-      }),
-    onSuccess: () => {
-      toast.success("Fitment deleted successfully");
-      queryClient.invalidateQueries({ queryKey: [["fitments"]] });
-    },
-    onError: (error: any) => {
-      toast.error("Failed to delete fitment", {
-        description: error.message || "An error occurred",
-      });
-    },
+  // Use delete mutation hook
+  const deleteMutation = useDeleteMutation({
+    invalidateKeys: ["fitments"],
+    successMessage: "Fitment deleted successfully",
+    errorMessage: "Failed to delete fitment",
+    deleteFn: (id) =>
+      sdk.client.fetch(`/admin/fitments/${id}`, { method: "DELETE" }),
   });
 
   // Create columns with handlers
-  const columns = useMemo(() => createFitmentColumns({
-    productId,
-    onLink: (fitment: Fitment) => productId ? navigate(`/products/${productId}`) : undefined,
-    onUnlink: (fitment: Fitment) => productId ? navigate(`/products/${productId}`) : undefined,
-    onEdit: (fitment: Fitment) => navigate(`/fitments/${fitment.id}/edit`),
-    onDelete: (fitment: Fitment) => deleteMutation.mutate(fitment.id),
-  }), []);
+  const columns = useMemo(
+    () =>
+      createFitmentColumns({
+        productId,
+        onLink: () =>
+          productId ? navigate(`/products/${productId}`) : undefined,
+        onUnlink: () =>
+          productId ? navigate(`/products/${productId}`) : undefined,
+        onEdit: (fitment: Fitment) => navigate(`/fitments/${fitment.id}/edit`),
+        onDelete: (fitment: Fitment) => deleteMutation.mutate(fitment.id),
+      }),
+    [productId, navigate, deleteMutation],
+  );
 
   const table = useDataTable({
     columns,

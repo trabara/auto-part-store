@@ -4,16 +4,21 @@ import {
   Container,
   DataTable,
   Heading,
+  toast,
   useDataTable,
   usePrompt,
+  type DataTablePaginationState,
+  type DataTableSortingState,
 } from "@medusajs/ui";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { sdk } from "~/lib/sdk";
-import { usePaginatedQuery, useDeleteMutation } from "~/hooks";
 import { Make, Model } from "~/modules/fitment/schema";
 import { createMakeColumns } from "./columns";
 
 export type MakeWithModels = Make & { models: Model[] };
+
 
 type MakesResponse = {
   makes: MakeWithModels[];
@@ -26,28 +31,50 @@ type MakesResponse = {
 
 const MakeList = () => {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const prompt = usePrompt();
 
-  // Use paginated query hook
-  const { data, isLoading, pagination, setPagination, sorting, setSorting } =
-    usePaginatedQuery<MakesResponse>({
-      queryKey: "makes",
-      fields: "*models",
-      queryFn: (params) => sdk.client.fetch(`/admin/makes`, { query: params }),
-    });
-
-  // Use delete mutation hook
-  const deleteMutation = useDeleteMutation({
-    invalidateKeys: ["makes"],
-    successMessage: "Make deleted successfully",
-    errorMessage: "Failed to delete make",
-    deleteFn: (id) =>
-      sdk.client.fetch(`/admin/makes/${id}`, { method: "DELETE" }),
+  const [pagination, setPagination] = useState<DataTablePaginationState>({
+    pageSize: 15,
+    pageIndex: 0,
   });
 
-  // Action handlers
-  const handleEdit = (make: Make) =>
+  const [sorting, setSorting] = useState<DataTableSortingState | null>(null);
+
+  // Fetch makes
+  const { data, isLoading } = useQuery<MakesResponse>({
+    queryFn: () =>
+      sdk.client.fetch(`/admin/makes`, {
+        query: {
+          limit: pagination.pageSize,
+          offset: pagination.pageIndex * pagination.pageSize,
+          fields: "*models",
+          order: sorting
+            ? `${sorting.desc ? "-" : ""}${sorting.id}`
+            : undefined,
+        },
+      }),
+    queryKey: ["makes", pagination, sorting],
+  });
+
+  // Delete mutation
+  const deleteMutation = useMutation({
+    mutationFn: (id: string) =>
+      sdk.client.fetch(`/admin/makes/${id}`, {
+        method: "DELETE",
+      }),
+    onSuccess: () => {
+      toast.success("Make deleted successfully");
+      queryClient.invalidateQueries({ queryKey: ["makes"] });
+    },
+    onError: (error: any) => {
+      toast.error(error?.message || "Failed to delete make");
+    },
+  });
+
+  const handleEdit = (make: Make) => {
     navigate(`/fitments/makes/${make.id}/edit`);
+  };
 
   const handleDelete = async (make: Make) => {
     const confirmed = await prompt({
@@ -57,10 +84,11 @@ const MakeList = () => {
       cancelText: "Cancel",
     });
 
-    if (confirmed) deleteMutation.mutate(make.id);
+    if (confirmed) {
+      deleteMutation.mutate(make.id);
+    }
   };
 
-  // Create table columns
   const columns = createMakeColumns({
     onEdit: handleEdit,
     onDelete: handleDelete,

@@ -1,43 +1,39 @@
 import { MedusaRequest, MedusaResponse } from "@medusajs/framework";
-import { ContainerRegistrationKeys } from "@medusajs/framework/utils";
+import { ModelsController } from "../controllers/models.controller";
 import {
   CreateModelInput,
   UpdateModelInput,
 } from "../../../modules/fitment/schema";
-import { FITMENT_MODULE } from "../../../modules/fitment";
 
+/**
+ * GET /admin/models
+ * List all vehicle models
+ */
 export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
-  const query = req.scope.resolve(ContainerRegistrationKeys.QUERY);
-
-  const { data: models, metadata } = await query.graph({
-    entity: "fitment_model",
-    ...req.queryConfig,
-    ...req.filterableFields,
-  });
-
-  res.json({ models, metadata });
+  const controller = new ModelsController(req, res);
+  await controller.list();
 };
 
+/**
+ * POST /admin/models
+ * Create a new vehicle model
+ */
 export const POST = async (
   req: MedusaRequest<CreateModelInput>,
   res: MedusaResponse,
 ) => {
-  const fitmentModuleService = req.scope.resolve(FITMENT_MODULE);
-  const model = await fitmentModuleService.createModelFromInput(
-    req.validatedBody,
-  );
-
-  res.status(201).json({ model });
+  const controller = new ModelsController(req, res);
+  await controller.create();
 };
 
+/**
+ * PATCH /admin/models
+ * Update multiple models
+ */
 export const PATCH = async (
   req: MedusaRequest<{ models: UpdateModelInput[] }>,
   res: MedusaResponse,
 ) => {
-  const fitmentModuleService = req.scope.resolve(FITMENT_MODULE);
-  const models = await fitmentModuleService.updateFitmentModels(
-    req.validatedBody.models,
-  );
-
-  res.status(200).json({ models });
+  const controller = new ModelsController(req, res);
+  await controller.updateBatch();
 };

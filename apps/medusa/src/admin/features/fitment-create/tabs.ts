@@ -3,8 +3,9 @@ import {
   CreateFitmentInput,
   CreateFitmentSchema,
   CreateMakeSchema,
-  CreateModelSchema,
+  CreateModelValidationSchema,
 } from "../../../modules/fitment/schema";
+import { z } from "@medusajs/framework/zod";
 import EngineTab from "./tabs/engine";
 import GeneralTab from "./tabs/general";
 import MakeTab from "./tabs/make";
@@ -21,16 +22,32 @@ const TABS = {
   },
   make: {
     label: "Make",
-    validate: (data: CreateFitmentInput) =>
-      CreateMakeSchema.omit({ id: true }).parse(data.model.make),
+    validate: (data: CreateFitmentInput) => {
+      // Handle both make formats
+      const model = data.model as any;
+      if (model.make) {
+        return CreateMakeSchema.omit({ id: true }).parse(model.make);
+      } else if (model.make_id) {
+        return true; // make_id is valid
+      }
+      throw new Error("Either make or make_id must be provided");
+    },
     accessor: "model.make.name",
     error: "Make name is required",
     Component: MakeTab,
   },
   model: {
     label: "Model",
-    validate: (data: CreateFitmentInput) =>
-      CreateModelSchema.omit({ make: true }).parse(data.model),
+    validate: (data: CreateFitmentInput) => {
+      const model = data.model as any;
+      // Validate based on which format is used
+      if (model.make) {
+        return CreateModelValidationSchema.parse(data.model);
+      } else if (model.make_id) {
+        return z.object({ name: z.string(), make_id: z.string() }).parse(model);
+      }
+      throw new Error("Invalid model format");
+    },
     accessor: "model.name",
     error: "Model name is required",
     Component: ModelTab,

@@ -1,43 +1,43 @@
 import { MedusaRequest, MedusaResponse } from "@medusajs/framework";
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils";
 import {
-  CreateMakeInput,
-  UpdateMakeInput,
+  CreateEngineInput,
+  UpdateEngineInput,
 } from "../../../modules/fitment/schema";
 import { FITMENT_MODULE } from "../../../modules/fitment";
 
 export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY);
 
-  const { data: makes, metadata } = await query.graph({
-    entity: "fitment_make",
+  const { data: engines, metadata } = await query.graph({
+    entity: "fitment_engine",
     ...req.queryConfig,
     ...req.filterableFields,
   });
 
-  res.json({ makes, metadata });
+  res.json({ engines, metadata });
 };
 
 export const POST = async (
-  req: MedusaRequest<CreateMakeInput>,
+  req: MedusaRequest<CreateEngineInput>,
   res: MedusaResponse,
 ) => {
   const fitmentModuleService = req.scope.resolve(FITMENT_MODULE);
-  const [make] = await fitmentModuleService.createFitmentMakes([
+  const [engine] = await fitmentModuleService.createFitmentEngines([
     req.validatedBody,
   ]);
 
-  res.status(201).json({ make });
+  res.status(201).json({ engine });
 };
 
 export const PATCH = async (
-  req: MedusaRequest<{ makes: UpdateMakeInput[] }>,
+  req: MedusaRequest<{ engines: UpdateEngineInput[] }>,
   res: MedusaResponse,
 ) => {
   const fitmentModuleService = req.scope.resolve(FITMENT_MODULE);
-  const makes = await fitmentModuleService.updateFitmentMakes(
-    req.validatedBody.makes,
+  const engines = await fitmentModuleService.updateFitmentEngines(
+    req.validatedBody.engines,
   );
 
-  res.status(200).json({ makes });
+  res.status(200).json({ engines });
 };

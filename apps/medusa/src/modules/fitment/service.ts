@@ -88,22 +88,50 @@ class FitmentModuleService extends MedusaService(Models) {
       }
 
       // Find or create make (with cache)
-      const makeName = dto.model.make.name;
+      // Handle both make_id and nested make formats
+      let makeName: string;
+      let makeId: string | undefined;
+
+      if ("make" in dto.model && dto.model.make) {
+        // Nested make format
+        makeName = dto.model.make.name;
+      } else if ("make_id" in dto.model && dto.model.make_id) {
+        // make_id format - fetch the make to get its name
+        const [existingMake] = await this.fitmentMakeRepository_.find(
+          { where: { id: dto.model.make_id } },
+          sharedContext,
+        );
+        if (!existingMake) {
+          throw new Error(`Make with id ${dto.model.make_id} not found`);
+        }
+        makeName = existingMake.name;
+        makeId = dto.model.make_id;
+      } else {
+        throw new Error("Either make or make_id must be provided in model");
+      }
+
       let make = makeCache.get(makeName);
 
       if (!make) {
-        [make] = await this.fitmentMakeRepository_.find(
-          {
-            where: { name: makeName },
-          },
-          sharedContext,
-        );
-
-        if (!make) {
-          [make] = await this.fitmentMakeRepository_.create(
-            [{ name: makeName }],
+        if (makeId) {
+          // If we already have the makeId, just use it
+          [make] = await this.fitmentMakeRepository_.find(
+            { where: { id: makeId } },
             sharedContext,
           );
+        } else {
+          // Find or create by name
+          [make] = await this.fitmentMakeRepository_.find(
+            { where: { name: makeName } },
+            sharedContext,
+          );
+
+          if (!make) {
+            [make] = await this.fitmentMakeRepository_.create(
+              [{ name: makeName }],
+              sharedContext,
+            );
+          }
         }
         makeCache.set(makeName, make!);
       }
@@ -178,6 +206,111 @@ class FitmentModuleService extends MedusaService(Models) {
     // It expects an array, so we wrap the single update in an array
     const updated = await this.updateFitments([data], sharedContext);
     return updated[0];
+  }
+
+  @InjectManager()
+  public async createModelFromInput(
+    dto: CreateFitmentInput | any,
+    @MedusaContext() sharedContext?: Context<EntityManager>,
+  ) {
+    // Check if it's the make_id format or nested make format
+    if ("make_id" in dto && dto.make_id) {
+      // Format 1: Reference by make_id
+      const [model] = await this.fitmentModelRepository_.create(
+        [{ name: dto.name, make_id: dto.make_id }],
+        sharedContext,
+      );
+      return model;
+    } else if ("make" in dto && dto.make) {
+      // Format 2: Nested make object - find or create make first
+      const makeName = dto.make.name;
+      let [make] = await this.fitmentMakeRepository_.find(
+        { where: { name: makeName } },
+        sharedContext,
+      );
+
+      if (!make) {
+        [make] = await this.fitmentMakeRepository_.create(
+          [{ name: makeName }],
+          sharedContext,
+        );
+      }
+
+      // Then create the model
+      const [model] = await this.fitmentModelRepository_.create(
+        [{ name: dto.name, make_id: make!.id }],
+        sharedContext,
+      );
+      return model;
+    }
+
+    throw new Error("Either make_id or make must be provided");
+  }
+
+  @InjectManager()
+  public async deleteMakeWithCascade(
+    id: string,
+    @MedusaContext() sharedContext?: Context<EntityManager>,
+  ) {
+    // Find all models for this make
+    const models = await this.fitmentModelRepository_.find(
+      { where: { make_id: id } },
+      sharedContext,
+    );
+
+    // For each model, delete all fitments
+    for (const model of models) {
+      await this.deleteModelWithCascade(model.id, sharedContext);
+    }
+
+    // Delete the make
+    await this.deleteFitmentMakes([id], sharedContext);
+  }
+
+  @InjectManager()
+  public async deleteModelWithCascade(
+    id: string,
+    @MedusaContext() sharedContext?: Context<EntityManager>,
+  ) {
+    // Find all fitments for this model
+    const fitments = await this.fitmentRepository_.find(
+      { where: { model_id: id } },
+      sharedContext,
+    );
+
+    // Delete all fitments
+    if (fitments.length > 0) {
+      await this.deleteFitments(
+        fitments.map((f) => f.id),
+        sharedContext,
+      );
+    }
+
+    // Delete the model
+    await this.deleteFitmentModels([id], sharedContext);
+  }
+
+  @InjectManager()
+  public async deleteEngineWithCascade(
+    id: string,
+    @MedusaContext() sharedContext?: Context<EntityManager>,
+  ) {
+    // Find all fitments for this engine
+    const fitments = await this.fitmentRepository_.find(
+      { where: { engine_id: id } },
+      sharedContext,
+    );
+
+    // Delete all fitments
+    if (fitments.length > 0) {
+      await this.deleteFitments(
+        fitments.map((f) => f.id),
+        sharedContext,
+      );
+    }
+
+    // Delete the engine
+    await this.deleteFitmentEngines([id], sharedContext);
   }
 }
 

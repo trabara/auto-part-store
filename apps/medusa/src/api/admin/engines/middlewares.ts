@@ -10,74 +10,73 @@ import {
   createOperatorMap,
 } from "@medusajs/medusa/api/utils/validators";
 import {
-  CreateModelValidationSchema,
-  UpdateModelSchema,
+  CreateEngineSchema,
+  UpdateEngineSchema,
+  FuelTypeSchema,
+  EngineTypeSchema,
 } from "../../../modules/fitment/schema";
 
 const authenticateMiddleware = authenticate(["*"], ["session"]);
 const findParams = createFindParams();
 
-const modelFindParams = findParams.extend({
+const engineFindParams = findParams.extend({
   filters: z
     .object({
-      name: createOperatorMap(z.string()).optional(),
-      make_id: createOperatorMap(z.string()).optional(),
-      make: z
-        .object({
-          name: createOperatorMap(z.string()).optional(),
-        })
-        .optional(),
+      fuel: createOperatorMap(FuelTypeSchema).optional(),
+      type: createOperatorMap(EngineTypeSchema).optional(),
+      size: createOperatorMap(z.string()).optional(),
+      tech: createOperatorMap(z.string()).optional(),
     })
     .optional(),
 });
 
-export const modelsMiddlewares: MiddlewareRoute[] = [
+export const enginesMiddlewares: MiddlewareRoute[] = [
   {
-    matcher: "/admin/models",
+    matcher: "/admin/engines",
     methods: ["GET"],
     middlewares: [
       authenticateMiddleware,
-      validateAndTransformQuery(modelFindParams, {
-        defaults: ["id", "name", "created_at", "updated_at"],
+      validateAndTransformQuery(engineFindParams, {
+        defaults: ["id", "fuel", "type", "size", "tech", "created_at", "updated_at"],
         isList: true,
       }),
     ],
   },
   {
-    matcher: "/admin/models",
+    matcher: "/admin/engines",
     method: "POST",
     middlewares: [
       authenticateMiddleware,
-      validateAndTransformBody(CreateModelValidationSchema),
+      validateAndTransformBody(CreateEngineSchema),
     ],
   },
   {
-    matcher: "/admin/models",
+    matcher: "/admin/engines",
     method: "PATCH",
     middlewares: [
       authenticateMiddleware,
       validateAndTransformBody(
         z.object({
-          models: z.array(UpdateModelSchema),
+          engines: z.array(UpdateEngineSchema),
         }),
       ),
     ],
   },
   {
-    matcher: "/admin/models/:id",
+    matcher: "/admin/engines/:id",
     method: "GET",
     middlewares: [authenticateMiddleware],
   },
   {
-    matcher: "/admin/models/:id",
+    matcher: "/admin/engines/:id",
     method: "PATCH",
     middlewares: [
       authenticateMiddleware,
-      validateAndTransformBody(UpdateModelSchema.omit({ id: true })),
+      validateAndTransformBody(UpdateEngineSchema.omit({ id: true })),
     ],
   },
   {
-    matcher: "/admin/models/:id",
+    matcher: "/admin/engines/:id",
     method: "DELETE",
     middlewares: [authenticateMiddleware],
   },

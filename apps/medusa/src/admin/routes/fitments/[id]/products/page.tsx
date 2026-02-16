@@ -1,14 +1,14 @@
-import { defineRouteConfig } from "@medusajs/admin-sdk"
-import { useParams } from "react-router-dom"
-import ProductList from "~/features/product-list"
+import { defineRouteConfig } from "@medusajs/admin-sdk";
+import { useParams } from "react-router-dom";
+import ProductList from "~/features/product-list";
 const ProductListPage = () => {
-    const { id } = useParams()
-    
-    return (
-        <ProductList fitmentId={id} />
-    )
-}
+  const { id } = useParams();
 
-export const config = defineRouteConfig({})
+  return <ProductList fitmentId={id} />;
+};
 
-export default ProductListPage
+export const config = defineRouteConfig({
+  label: "Fitment Products",
+});
+
+export default ProductListPage;

@@ -25,14 +25,11 @@ const EditFitmentPage = () => {
   const navigate = useNavigate();
 
   const handleClose = () => {
-    navigate("/fitments");
+    navigate(-1);
   };
 
   return (
-    <>
-      <FitmentList />
-      <FitmentEdit fitment={fitment} onClose={handleClose} open />
-    </>
+    <FitmentEdit fitment={fitment} onClose={handleClose} open />
   );
 };
 export const config = defineRouteConfig({

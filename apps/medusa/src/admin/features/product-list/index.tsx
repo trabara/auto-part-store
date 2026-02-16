@@ -1,4 +1,4 @@
-import { AdminProductListResponse } from "@medusajs/framework/types";
+import { AdminProduct, PaginatedResponse } from "@medusajs/framework/types";
 import {
   Button,
   Container,
@@ -7,18 +7,32 @@ import {
   DataTablePaginationState,
   DataTableSortingState,
   Heading,
+  toast,
   useDataTable,
 } from "@medusajs/ui";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import _ from "lodash";
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { sdk } from "~/lib/sdk";
-import columns from "./columns";
+import { Fitment } from "~/modules/fitment/schema";
+import { createProductColumns } from "./columns";
 import filters from "./filters";
 
-const ProductList = ({ fitmentId }: { fitmentId?: string }) => {
+type AdminProductListWithFitmentsResponse = PaginatedResponse<{
+  /**
+   * The list of products with their fitments.
+   */
+  products: (AdminProduct & { fitments: Fitment[] })[];
+}>;
+
+const ProductList = ({
+  fitmentId,
+}: {
+  fitmentId?: string;
+}) => {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   const limit = 15;
   const [pagination, setPagination] = useState<DataTablePaginationState>({
@@ -32,6 +46,7 @@ const ProductList = ({ fitmentId }: { fitmentId?: string }) => {
   const [search, setSearch] = useState<string>("");
   const [filtering, setFiltering] = useState<DataTableFilteringState>({});
   const [sorting, setSorting] = useState<DataTableSortingState | null>(null);
+  const [rowSelection, setRowSelection] = useState({});
 
   const filterValues = useMemo(() => {
     let result: Record<string, any> = {};
@@ -44,21 +59,21 @@ const ProductList = ({ fitmentId }: { fitmentId?: string }) => {
     return result;
   }, [filtering]);
 
-  const { data, isLoading } = useQuery<AdminProductListResponse>({
-    queryFn: () =>
-      sdk.client.fetch<AdminProductListResponse>(
-        `/admin/fitments/${fitmentId}/products`,
-        {
-          query: {
-            limit,
-            offset,
-            fields: "*,*variants.*,collections.*",
-            order: sorting
-              ? `${sorting.id}:${sorting.desc ? "desc" : "asc"}`
-              : undefined,
-          },
+  // Fetch all products or only linked products
+  const { data, isLoading } = useQuery({
+    queryFn: () => {
+      return sdk.client.fetch<AdminProductListWithFitmentsResponse>(`/admin/products`, {
+        query: {
+          limit,
+          offset,
+          fields: "*variants.*,*collection.*,*fitments.*",
+          order: sorting
+            ? `${sorting.id}:${sorting.desc ? "desc" : "asc"}`
+            : undefined,
+          q: search || undefined,
         },
-      ),
+      });
+    },
     queryKey: [
       [
         "products",
@@ -66,20 +81,134 @@ const ProductList = ({ fitmentId }: { fitmentId?: string }) => {
         offset,
         search,
         filterValues,
-        fitmentId,
         sorting?.id,
         sorting?.desc,
       ],
     ],
   });
-  console.log("data", data);
+
+  // Add isLinked flag to products when showing all
+  const productsWithLinkStatus = useMemo(() => {
+    if (!data) {
+      return [];
+    }
+    return data.products.map((product) => ({
+      ...product,
+      isLinked: product.fitments.some((fitment) => fitment.id === fitmentId),
+    }));
+  }, [data?.products, fitmentId]);
+
+  // Link products mutation
+  const linkMutation = useMutation({
+    mutationFn: async (productIds: string[]) => {
+      return sdk.client.fetch(`/admin/fitments/${fitmentId}/products`, {
+        method: "POST",
+        body: { product_ids: productIds },
+      });
+    },
+    onSuccess: () => {
+      toast.success("Products linked successfully");
+      queryClient.invalidateQueries({ queryKey: [["products"]] });
+      queryClient.invalidateQueries({ queryKey: [["fitment-products"]] });
+      setRowSelection({});
+    },
+    onError: (error: any) => {
+      toast.error("Failed to link products", {
+        description: error.message || "An error occurred",
+      });
+    },
+  });
+
+  // Unlink products mutation
+  const unlinkMutation = useMutation({
+    mutationFn: async (productId: string) => {
+      return sdk.client.fetch(
+        `/admin/fitments/${fitmentId}/products/${productId}`,
+        { method: "DELETE" },
+      );
+    },
+    onSuccess: () => {
+      toast.success("Product unlinked successfully");
+      queryClient.invalidateQueries({ queryKey: [["products"]] });
+      queryClient.invalidateQueries({ queryKey: [["fitment-products"]] });
+      setRowSelection({});
+    },
+    onError: (error: any) => {
+      toast.error("Failed to unlink product", {
+        description: error.message || "An error occurred",
+      });
+    },
+  });
+
+  // Bulk unlink mutation
+  const bulkUnlinkMutation = useMutation({
+    mutationFn: async (productIds: string[]) => {
+      return Promise.all(
+        productIds.map((productId) =>
+          sdk.client.fetch(
+            `/admin/fitments/${fitmentId}/products/${productId}`,
+            { method: "DELETE" },
+          ),
+        ),
+      );
+    },
+    onSuccess: () => {
+      toast.success("Products unlinked successfully");
+      queryClient.invalidateQueries({ queryKey: [["products"]] });
+      queryClient.invalidateQueries({ queryKey: [["fitment-products"]] });
+      setRowSelection({});
+    },
+    onError: (error: any) => {
+      toast.error("Failed to unlink products", {
+        description: error.message || "An error occurred",
+      });
+    },
+  });
+
+  const handleLinkProduct = (productId: string) => {
+    linkMutation.mutate([productId]);
+  };
+
+  const handleUnlinkProduct = (productId: string) => {
+    unlinkMutation.mutate(productId);
+  };
+
+  const handleBulkLink = () => {
+    const selectedIds = Object.keys(rowSelection);
+    linkMutation.mutate(selectedIds);
+  };
+
+  const handleBulkUnlink = () => {
+    const selectedIds = Object.keys(rowSelection);
+    bulkUnlinkMutation.mutate(selectedIds);
+  };
+
+  // Get selected products with link status
+  const selectedProducts = useMemo(() => {
+    const selectedIds = Object.keys(rowSelection);
+    return productsWithLinkStatus.filter((p) => selectedIds.includes(p.id));
+  }, [rowSelection, productsWithLinkStatus]);
+
+  const hasLinkedSelected = selectedProducts.some((p) => p.isLinked);
+  const hasUnlinkedSelected = selectedProducts.some((p) => !p.isLinked);
+
+  const tableColumns = useMemo(
+    () =>
+      createProductColumns({ onLinkProduct: handleLinkProduct, onUnlinkProduct: handleUnlinkProduct }),
+    [],
+  );
+
   const table = useDataTable({
-    columns,
+    columns: tableColumns as any,
     filters,
-    data: data?.products || [],
+    data: productsWithLinkStatus || [],
     getRowId: (row) => row.id,
     rowCount: data?.count || 0,
     isLoading,
+    rowSelection: {
+      state: rowSelection,
+      onRowSelectionChange: setRowSelection,
+    },
     pagination: {
       state: pagination,
       onPaginationChange: setPagination,
@@ -94,7 +223,6 @@ const ProductList = ({ fitmentId }: { fitmentId?: string }) => {
       onFilteringChange: setFiltering,
     },
     sorting: {
-      // Pass the pagination state and updater to the table instance
       state: sorting,
       onSortingChange: setSorting,
     },
@@ -107,13 +235,32 @@ const ProductList = ({ fitmentId }: { fitmentId?: string }) => {
         <DataTable.Toolbar className="flex items-center justify-between px-6 py-4">
           <Heading>Products</Heading>
           <div className="flex items-center justify-center gap-x-2">
-            <Button
-              variant="secondary"
-              size="small"
-              onClick={() => navigate("/fitments/create")}
-            >
-              Create
-            </Button>
+            {Object.keys(rowSelection).length > 0 && (
+              <>
+                {hasUnlinkedSelected && (
+                  <Button
+                    variant="primary"
+                    size="small"
+                    onClick={handleBulkLink}
+                    isLoading={linkMutation.isPending}
+                  >
+                    Attach Selected (
+                    {selectedProducts.filter((p) => !p.isLinked).length})
+                  </Button>
+                )}
+                {hasLinkedSelected && (
+                  <Button
+                    variant="secondary"
+                    size="small"
+                    onClick={handleBulkUnlink}
+                    isLoading={bulkUnlinkMutation.isPending}
+                  >
+                    Detach Selected (
+                    {selectedProducts.filter((p) => p.isLinked).length})
+                  </Button>
+                )}
+              </>
+            )}
           </div>
         </DataTable.Toolbar>
 

@@ -16,11 +16,16 @@ import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { sdk } from "~/lib/sdk";
 import { Fitment } from "~/modules/fitment/schema";
-import { createColumns } from "./columns";
+import { createFitmentColumns } from "./columns";
 import filters from "./filters";
+import { AdminProduct } from "@medusajs/framework/types";
 
-type FitmentResponse = {
-  fitments: Fitment[];
+export type AdminFitmentWithProducts = Fitment & {
+  products: AdminProduct[];
+};
+
+type AdminFitmentResponse = {
+  fitments: AdminFitmentWithProducts[];
   metadata: {
     count: number;
     offset: number;
@@ -28,10 +33,9 @@ type FitmentResponse = {
   };
 };
 
-const FitmentList = () => {
+const FitmentList = ({ productId }: { productId?: string }) => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const prompt = usePrompt();
 
   const limit = 15;
   const [pagination, setPagination] = useState<DataTablePaginationState>({
@@ -57,13 +61,13 @@ const FitmentList = () => {
     return result;
   }, [filtering]);
 
-  const { data, isLoading } = useQuery<FitmentResponse>({
+  const { data, isLoading } = useQuery<AdminFitmentResponse>({
     queryFn: () =>
-      sdk.client.fetch<FitmentResponse>(`/admin/fitments`, {
+      sdk.client.fetch<AdminFitmentResponse>(`/admin/fitments`, {
         query: {
           limit,
           offset,
-          fields: "*engine,*model,*model.make",
+          fields: "*engine,*model,*model.make,*products.*",
           order: sorting
             ? `${sorting.desc ? "-" : ""}${sorting.id}`
             : undefined,
@@ -92,27 +96,14 @@ const FitmentList = () => {
     },
   });
 
-  // Edit handler
-  const handleEdit = (fitment: Fitment) => {
-    navigate(`/fitments/${fitment.id}/edit`);
-  };
-
-  // Delete handler with confirmation
-  const handleDelete = async (fitment: Fitment) => {
-    const confirmed = await prompt({
-      title: "Delete Fitment",
-      description: `Are you sure you want to delete the fitment for ${fitment.model.make.name} ${fitment.model.name} (${fitment.year_start}-${fitment.year_end})?`,
-      confirmText: "Delete",
-      cancelText: "Cancel",
-    });
-
-    if (confirmed) {
-      deleteMutation.mutate(fitment.id);
-    }
-  };
-
   // Create columns with handlers
-  const columns = useMemo(() => createColumns(handleEdit, handleDelete), []);
+  const columns = useMemo(() => createFitmentColumns({
+    productId,
+    onLink: (fitment: Fitment) => productId ? navigate(`/products/${productId}`) : undefined,
+    onUnlink: (fitment: Fitment) => productId ? navigate(`/products/${productId}`) : undefined,
+    onEdit: (fitment: Fitment) => navigate(`/fitments/${fitment.id}/edit`),
+    onDelete: (fitment: Fitment) => deleteMutation.mutate(fitment.id),
+  }), []);
 
   const table = useDataTable({
     columns,

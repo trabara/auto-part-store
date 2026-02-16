@@ -90,7 +90,7 @@ const FitmentEdit = ({
     if (propOnClose) {
       propOnClose();
     } else {
-      navigate("/fitments");
+      navigate(-1);
     }
   };
 

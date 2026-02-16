@@ -14,6 +14,7 @@ import {
   UpdateFitmentSchema,
 } from "../modules/fitment/schema";
 import { productFitmentMiddlewares } from "./admin/products/[id]/fitments/middlewares";
+import { fitmentProductMiddlewares } from "./admin/fitments/[id]/products/middlewares";
 
 const findParams = createFindParams();
 
@@ -59,6 +60,7 @@ const authenticateMiddleware = authenticate(["*"], ["session"]);
 export default defineMiddlewares({
   routes: [
     ...productFitmentMiddlewares,
+    ...fitmentProductMiddlewares,
     {
       matcher: "/admin/fitments",
       methods: ["POST"],
@@ -76,17 +78,6 @@ export default defineMiddlewares({
       matcher: "/admin/fitments/:id",
       methods: ["DELETE"],
       middlewares: [authenticateMiddleware],
-    },
-    {
-      matcher: "/admin/fitments/:id/products",
-      methods: ["GET"],
-      middlewares: [
-        authenticateMiddleware,
-        validateAndTransformQuery(findParams, {
-          defaults: ["id", "title", "handle"],
-          isList: true,
-        }),
-      ],
     },
     {
       matcher: "/admin/fitments",

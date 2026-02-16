@@ -1,7 +1,7 @@
 import { Heading, Hint, Label } from "@medusajs/ui"
 import { useQuery } from '@tanstack/react-query'
 import { Controller, useFormContext } from "react-hook-form"
-import SelectOrCreateInput from "~/components/select-or-create-input"
+import { ModelsSelectInput } from "~/components/models-select-input"
 import { sdk } from "~/lib/sdk"
 import { Model } from "../../../../modules/fitment/schema"
 
@@ -14,23 +14,6 @@ type ModelListResponse = {
 const ModelTab = () => {
     const form = useFormContext()
     
-    const makeName = form.watch("model.make.name")
-    const { data: modelListResponse } = useQuery({
-        queryKey: ["models", makeName],
-        queryFn: () => sdk.client.fetch<ModelListResponse>('/admin/models', {
-            query: {
-                fields: "id,name",
-                filters: {
-                    make: { name: makeName }
-                }
-            }
-        })
-    })
-
-    const modelOptions = modelListResponse?.models.map(model => ({ label: model.name, value: model.name })) || []
-
-
-
     return (
         <div>
             <Heading>Model</Heading>
@@ -42,10 +25,10 @@ const ModelTab = () => {
                     render={({ field, fieldState }) => (
                         <div className="flex flex-col gap-y-2">
                             <Label htmlFor="model-name">Name</Label>
-                            <SelectOrCreateInput
+                            <ModelsSelectInput
+                                makeName={form.watch("model.make.name")}
                                 className="w-full"
                                 placeholder="Enter model name"
-                                options={modelOptions}
                                 error={fieldState.error?.message}
                                 {...field} />
                         </div>

@@ -2,10 +2,10 @@ import { clx, Hint, Input, Switch } from "@medusajs/ui"
 import { forwardRef, useEffect, useRef, useState } from "react"
 import OptionSelect, { OptionSelectProps } from './select'
 
-type SelectOrCreateInputProps = OptionSelectProps & {
+export type SelectOrCreateInputProps = OptionSelectProps & {
     error?: string
-
 }
+
 const SelectOrCreateInput = forwardRef<HTMLInputElement, SelectOrCreateInputProps>(({ className, onChange, error, options = [], ...restProps }, ref) => {
     const [isNew, setIsNew] = useState(!!restProps.value)
     const textInput = useRef<HTMLInputElement>(null)

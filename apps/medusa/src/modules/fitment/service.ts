@@ -213,6 +213,14 @@ class FitmentModuleService extends MedusaService(Models) {
     dto: CreateFitmentInput | any,
     @MedusaContext() sharedContext?: Context<EntityManager>,
   ) {
+    return await this.createModelFromInput_(dto, sharedContext);
+  }
+
+  @InjectTransactionManager()
+  protected async createModelFromInput_(
+    dto: CreateFitmentInput | any,
+    @MedusaContext() sharedContext?: Context<EntityManager>,
+  ) {
     // Check if it's the make_id format or nested make format
     if ("make_id" in dto && dto.make_id) {
       // Format 1: Reference by make_id
@@ -252,6 +260,14 @@ class FitmentModuleService extends MedusaService(Models) {
     id: string,
     @MedusaContext() sharedContext?: Context<EntityManager>,
   ) {
+    return await this.deleteMakeWithCascade_(id, sharedContext);
+  }
+
+  @InjectTransactionManager()
+  protected async deleteMakeWithCascade_(
+    id: string,
+    @MedusaContext() sharedContext?: Context<EntityManager>,
+  ) {
     // Find all models for this make
     const models = await this.fitmentModelRepository_.find(
       { where: { make_id: id } },
@@ -260,7 +276,7 @@ class FitmentModuleService extends MedusaService(Models) {
 
     // For each model, delete all fitments
     for (const model of models) {
-      await this.deleteModelWithCascade(model.id, sharedContext);
+      await this.deleteModelWithCascade_(model.id, sharedContext);
     }
 
     // Delete the make
@@ -269,6 +285,14 @@ class FitmentModuleService extends MedusaService(Models) {
 
   @InjectManager()
   public async deleteModelWithCascade(
+    id: string,
+    @MedusaContext() sharedContext?: Context<EntityManager>,
+  ) {
+    return await this.deleteModelWithCascade_(id, sharedContext);
+  }
+
+  @InjectTransactionManager()
+  protected async deleteModelWithCascade_(
     id: string,
     @MedusaContext() sharedContext?: Context<EntityManager>,
   ) {
@@ -292,6 +316,14 @@ class FitmentModuleService extends MedusaService(Models) {
 
   @InjectManager()
   public async deleteEngineWithCascade(
+    id: string,
+    @MedusaContext() sharedContext?: Context<EntityManager>,
+  ) {
+    return await this.deleteEngineWithCascade_(id, sharedContext);
+  }
+
+  @InjectTransactionManager()
+  protected async deleteEngineWithCascade_(
     id: string,
     @MedusaContext() sharedContext?: Context<EntityManager>,
   ) {

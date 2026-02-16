@@ -58,7 +58,7 @@ export type Engine = z.infer<typeof EngineSchema>;
 
 export const FitmentSchema = Base.extend({
     body_style: BodyStyleTypeSchema.default("SEDAN"),
-    doors: z.number().default(4),
+    doors: z.number().min(2).max(6).default(4),
     drive: DriveTypeSchema.default("FWD"),
     transmission: TransmissionTypeSchema.default("MANUAL"),
     year_start: z.number(),

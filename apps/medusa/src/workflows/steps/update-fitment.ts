@@ -3,17 +3,42 @@ import { FITMENT_MODULE } from "../../modules/fitment";
 import { UpdateFitmentInput } from "../../modules/fitment/schema";
 
 export const updateFitmentStep = createStep(
-    "update-fitment-step",
-    async function (input: UpdateFitmentInput, { container }) {
-        const fitmentModuleService = container.resolve(FITMENT_MODULE);
-        const fitment = await fitmentModuleService.updateFitments(input);
-        return new StepResponse(fitment, { fitment_id: fitment.id });
-    },
-    async function (input, { container }) {
-        if (!input) {
-            return
-        }
-        const fitmentModuleService = container.resolve(FITMENT_MODULE);
-        return fitmentModuleService.deleteFitments([input.fitment_id]);
+  "update-fitment-step",
+  async function (input: UpdateFitmentInput, { container }) {
+    const fitmentModuleService = container.resolve(FITMENT_MODULE);
+
+    // First, retrieve the original fitment data for compensation
+    const [originalFitment] = await fitmentModuleService.listFitments({
+      id: input.id,
+    });
+
+    // Now update the fitment
+    const updatedFitment = await fitmentModuleService.updateFullFitment(input);
+
+    return new StepResponse(updatedFitment, {
+      id: input.id,
+      originalData: {
+        model_id: originalFitment.model_id,
+        engine_id: originalFitment.engine_id,
+        body_style: originalFitment.body_style,
+        doors: originalFitment.doors,
+        drive: originalFitment.drive,
+        transmission: originalFitment.transmission,
+        year_start: originalFitment.year_start,
+        year_end: originalFitment.year_end,
+      },
+    });
+  },
+  async function (compensationData, { container }) {
+    if (!compensationData) {
+      return;
     }
+
+    // Rollback: restore the original fitment data
+    const fitmentModuleService = container.resolve(FITMENT_MODULE);
+    await fitmentModuleService.updateFullFitment({
+      id: compensationData.id,
+      ...compensationData.originalData,
+    });
+  },
 );

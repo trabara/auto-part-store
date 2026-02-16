@@ -1,12 +1,12 @@
-import { defineRouteConfig } from "@medusajs/admin-sdk"
-import FitmentList from "~/features/fitment-list"
+import { defineRouteConfig } from "@medusajs/admin-sdk";
+import FitmentList from "~/features/fitment-list";
 
 const FitmentsPage = () => {
-    return <FitmentList />
-}
+  return <FitmentList />;
+};
 
 export const config = defineRouteConfig({
-    label: "Fitments"
-})
+  label: "Fitments",
+});
 
-export default FitmentsPage
+export default FitmentsPage;

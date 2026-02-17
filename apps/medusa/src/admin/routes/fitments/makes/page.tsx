@@ -1,5 +1,5 @@
 import { defineRouteConfig } from "@medusajs/admin-sdk";
-import MakeList from "~/features/make-list";
+import MakeList from "~/modules/fitment/make-list";
 const MakesPage = () => {
   return <MakeList />;
 };

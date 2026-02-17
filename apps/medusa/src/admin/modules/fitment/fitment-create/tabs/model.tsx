@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query'
 import { Controller, useFormContext } from "react-hook-form"
 import { ModelsSelectInput } from "~/components/models-select-input"
 import { sdk } from "~/lib/sdk"
-import { Model } from "../../../../modules/fitment/schema"
+import { Model } from "../../../../../modules/fitment/schema"
 
 type ModelListResponse = {
     models: Model[]

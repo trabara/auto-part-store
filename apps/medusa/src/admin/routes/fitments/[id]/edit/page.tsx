@@ -4,8 +4,8 @@ import {
   useLoaderData,
   useNavigate,
 } from "react-router-dom";
-import FitmentEdit from "~/features/fitment-edit";
-import FitmentList from "~/features/fitment-list";
+import FitmentEdit from "~/modules/fitment/fitment-edit";
+import FitmentList from "~/modules/fitment/fitment-list";
 import { sdk } from "~/lib/sdk";
 import { Fitment } from "~/modules/fitment/schema";
 

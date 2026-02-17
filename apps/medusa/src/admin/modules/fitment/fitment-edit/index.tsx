@@ -18,12 +18,12 @@ import {
   BODY_STYLE_OPTIONS,
   DRIVE_OPTIONS,
   TRANSMISSION_OPTIONS,
-} from "../../../modules/fitment/constant";
+} from "../../../../modules/fitment/constant";
 import {
   Fitment,
   UpdateFitmentInput,
   UpdateFitmentSchema,
-} from "../../../modules/fitment/schema";
+} from "../../../../modules/fitment/schema";
 
 interface FitmentEditProps {
   fitment?: Fitment;

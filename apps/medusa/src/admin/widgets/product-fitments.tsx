@@ -11,7 +11,7 @@ import {
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { createFitmentColumns } from "~/features/fitment-list/columns";
+import { createFitmentColumns } from "~/modules/fitment/fitment-list/components/columns";
 import { sdk } from "~/lib/sdk";
 import { Fitment } from "~/modules/fitment/schema";
 

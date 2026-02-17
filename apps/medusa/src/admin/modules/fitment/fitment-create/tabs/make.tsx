@@ -2,7 +2,7 @@ import { Heading, Hint, Label } from "@medusajs/ui"
 import { Controller, useFormContext } from "react-hook-form"
 
 import { MakesSelectInput } from "~/components/makes-select-input"
-import { Make } from "../../../../modules/fitment/schema"
+import { Make } from "../../../../../modules/fitment/schema"
 
 const MakeTab = () => {
     const form = useFormContext()

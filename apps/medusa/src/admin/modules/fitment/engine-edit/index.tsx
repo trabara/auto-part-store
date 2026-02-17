@@ -23,7 +23,7 @@ import {
   ENGINE_FUEL_OPTIONS,
   ENGINE_TYPE_OPTIONS,
   ENGINE_SIZE_OPTIONS,
-} from "../../../modules/fitment/constant";
+} from "../../../../modules/fitment/constant";
 import { Engine } from "~/modules/fitment/schema";
 
 const UpdateEngineSchema = z.object({

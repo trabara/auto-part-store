@@ -1,6 +1,6 @@
 import { defineRouteConfig } from "@medusajs/admin-sdk"
 import { useParams } from "react-router-dom"
-import CreateFitmentModal from "~/features/fitment-create"
+import CreateFitmentModal from "~/modules/fitment/fitment-create"
 
 const CreateFitmentPage = () => {
   const { id } = useParams()

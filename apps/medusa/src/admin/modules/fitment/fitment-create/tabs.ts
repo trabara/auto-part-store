@@ -4,7 +4,7 @@ import {
   CreateFitmentSchema,
   CreateMakeSchema,
   CreateModelValidationSchema,
-} from "../../../modules/fitment/schema";
+} from "../../../../modules/fitment/schema";
 import { z } from "@medusajs/framework/zod";
 import EngineTab from "./tabs/engine";
 import GeneralTab from "./tabs/general";

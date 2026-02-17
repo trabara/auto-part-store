@@ -1,5 +1,5 @@
 import { defineRouteConfig } from "@medusajs/admin-sdk";
-import ModelList from "~/features/model-list";
+import ModelList from "~/modules/fitment/model-list";
 
 const ModelsPage = () => {
   return <ModelList />;

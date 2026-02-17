@@ -1,6 +1,6 @@
 import { defineRouteConfig } from "@medusajs/admin-sdk";
 import { LoaderFunctionArgs } from "react-router-dom";
-import MakeEdit from "~/features/make-edit";
+import MakeEdit from "~/modules/fitment/make-edit";
 import { sdk } from "~/lib/sdk";
 import { Make } from "~/modules/fitment/schema";
 

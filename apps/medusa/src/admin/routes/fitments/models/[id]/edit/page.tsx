@@ -1,6 +1,6 @@
 import { defineRouteConfig } from "@medusajs/admin-sdk";
 import { LoaderFunctionArgs, useLoaderData } from "react-router-dom";
-import ModelEdit from "~/features/model-edit";
+import ModelEdit from "~/modules/fitment/model-edit";
 import { sdk } from "~/lib/sdk";
 import { Model } from "~/modules/fitment/schema";
 

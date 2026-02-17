@@ -13,7 +13,7 @@ import { sdk } from "~/lib/sdk";
 import {
   CreateFitmentInput,
   CreateFitmentSchema,
-} from "../../../modules/fitment/schema";
+} from "../../../../modules/fitment/schema";
 import TABS, { Tabs } from "./tabs";
 
 export const DEFAULT_FORM_VALUES: CreateFitmentInput = {

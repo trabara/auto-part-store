@@ -18,7 +18,7 @@ import {
   ENGINE_FUEL_OPTIONS,
   ENGINE_TYPE_OPTIONS,
   ENGINE_SIZE_OPTIONS,
-} from "../../../modules/fitment/constant";
+} from "../../../../modules/fitment/constant";
 
 const CreateEngineSchema = z.object({
   fuel: z.enum(["GASOLINE", "DIESEL", "ELECTRIC", "HYBRID"]),

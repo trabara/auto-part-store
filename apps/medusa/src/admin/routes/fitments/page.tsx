@@ -1,6 +1,6 @@
 import { defineRouteConfig } from "@medusajs/admin-sdk";
 import { CarFront } from "lucide-react";
-import FitmentList from "~/features/fitment-list";
+import FitmentList from "~/modules/fitment/fitment-list";
 
 const FitmentsPage = () => {
   return <FitmentList />;

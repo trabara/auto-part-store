@@ -1,5 +1,5 @@
 import { defineRouteConfig } from "@medusajs/admin-sdk";
-import EngineList from "~/features/engine-list";
+import EngineList from "~/modules/fitment/engine-list";
 
 const EnginesPage = () => {
   return <EngineList />;

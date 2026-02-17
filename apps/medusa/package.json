@@ -30,7 +30,12 @@
     "test:unit": "TEST_TYPE=unit NODE_OPTIONS=--experimental-vm-modules jest --silent --runInBand --forceExit",
     "medusa:init": "medusa db:setup --db medusa-v2 && yarn run migrate && yarn run sync && yarn run seed && yarn run add-user",
     "add-user": "medusa user --email admin@medusa-test.com --password supersecret && medusa user --email admin@lambdacurry.dev --password password",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test:e2e": "npx @playwright/test test",
+    "test:e2e:ui": "npx @playwright/test test --ui",
+    "test:e2e:headed": "npx @playwright/test test --headed",
+    "test:e2e:debug": "npx @playwright/test test --debug",
+    "test:e2e:report": "npx @playwright/test show-report"
   },
   "dependencies": {
     "@agilo/medusa-analytics-plugin": "^1.2.1",
@@ -47,6 +52,7 @@
   },
   "devDependencies": {
     "@medusajs/test-utils": "2.13.1",
+    "@playwright/test": "^1.58.2",
     "@swc/core": "^1.7.28",
     "@swc/jest": "^0.2.36",
     "@types/jest": "^29.5.13",

@@ -17348,6 +17348,7 @@ __metadata:
     "@types/node": "npm:^20.12.11"
     "@types/react": "npm:^18.3.2"
     "@types/react-dom": "npm:^18.2.25"
+    date-fns: "npm:^4.1.0"
     jest: "npm:^29.7.0"
     lodash: "npm:^4.17.23"
     prop-types: "npm:^15.8.1"

@@ -1,8 +1,8 @@
-import { AdminProduct } from "@medusajs/framework/types";
-import { Badge, Button, Checkbox, createDataTableColumnHelper } from "@medusajs/ui";
-
+import { Badge, Checkbox, createDataTableColumnHelper } from "@medusajs/ui";
+import { AdminProductWithFitments } from "../types";
+import { Link, Unlink } from "lucide-react";
 const columnHelper = createDataTableColumnHelper<
-  AdminProduct & { isLinked?: boolean }
+  AdminProductWithFitments
 >();
 
 type CreateProductColumns = {
@@ -107,37 +107,31 @@ export const createProductColumns = ({ onLinkProduct, onUnlinkProduct }: CreateP
   // Add actions column if showing all products
 
   baseColumns.push(
-    columnHelper.display({
-      id: "actions",
-      header: "Actions",
-      cell: ({ row }) => {
-        const product = row.original;
-        const isLinked = product.isLinked;
-
-        const handleLinkClick = (e: React.MouseEvent) => {
-          e.stopPropagation();
-          if (isLinked) {
-            onUnlinkProduct?.(product.id);
-          } else {
-            onLinkProduct?.(product.id);
+    columnHelper.action({
+      actions: (context) => {
+        const { isLinked } = context.row.original;
+        const Icon = (props: React.ComponentProps<"svg">) => isLinked ? <Unlink {...props} /> : <Link {...props} />;
+        return [
+          {
+            label: isLinked ? "Unlink" : "Link",
+            icon: <Icon className="size-4"/>,
+            onClick: () => {
+              const product = context.row.original;
+              if (product.isLinked) {
+                onUnlinkProduct?.(product.id);
+              } else {
+                onLinkProduct?.(product.id);
+              }
+            },
           }
-        }
-        return (
-          <Button
-            size="small"
-            variant={isLinked ? "secondary" : "primary"}
-            onClick={handleLinkClick}
-          >
-            {isLinked ? "Detach" : "Attach"}
-          </Button>
-        );
+        ]
       },
     }),
   );
 
-
   return baseColumns;
-};
+}
+
 
 // Export default for backward compatibility
 export default [

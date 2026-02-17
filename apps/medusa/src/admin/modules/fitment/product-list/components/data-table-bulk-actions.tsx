@@ -1,6 +1,6 @@
 import { IconButton, Tooltip, type UseDataTableReturn } from "@medusajs/ui"
 import { Link, Unlink } from "lucide-react"
-import { useEffect, useState } from "react"
+import { useEffect } from "react"
 import { DataTableBulkActionsToolbar } from "~/components/bulk-actions-toolbar"
 import { useProductLinking } from "../hooks/use-product-linking"
 import { AdminProductWithFitments } from "../types"
@@ -17,19 +17,17 @@ export function ProductLinkageBulkActionsToolbar({
         fitmentId: fitmentId || "",
     });
 
-    const selectedProducts = table.getRowModel().rows
-        .filter((row) => row.getIsSelected())
-
     useEffect(() => {
-
-        productLinking.setRowSelection(
-            selectedProducts.reduce((acc, row) => {
-                acc[row.original.id] = true
-                return acc
-            }, {} as Record<string, boolean>)
-        )
-
-    }, [selectedProducts, table])
+        const selectedProducts = table.getRowModel().rows
+            .filter((row) => row.getIsSelected())
+        
+        const rowSelection = selectedProducts.reduce((acc, row) => {
+            acc[row.original.id] = true
+            return acc
+        }, {} as Record<string, boolean>)
+        
+        productLinking.setRowSelection(rowSelection)
+    }, [table, productLinking.setRowSelection])
 
     return (
 

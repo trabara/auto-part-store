@@ -4,39 +4,27 @@ import {
   Container,
   DataTable,
   Heading,
-  toast,
   useDataTable,
   usePrompt
 } from "@medusajs/ui";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
-import { usePaginatedQuery } from "~/hooks";
+import { useDeleteMutation, usePaginatedQuery } from "~/hooks";
 import { sdk } from "~/lib/sdk";
-import { Fitment, Model } from "~/modules/fitment/schema";
+import { Model } from "~/modules/fitment/schema";
 import { createModelColumns } from "./components/columns";
 import { ModelBulkActionsToolbar } from "./components/data-table-bulk-actions";
+import { ModelsResponse, ModelWithFitments } from "./types";
 
-export type ModelWithFitments = Model & {
-  fitments: Fitment[];
-};
 
-type ModelsResponse = {
-  models: ModelWithFitments[];
-  metadata: {
-    count: number;
-    offset: number;
-    limit: number;
-  };
-};
 
 const ModelList = () => {
   const navigate = useNavigate();
-  const queryClient = useQueryClient();
   const prompt = usePrompt();
 
   const queryConfig = usePaginatedQuery<ModelsResponse, ModelWithFitments>({
     queryKey: "models",
-    selectFn: (data) => data?.models,
+    fields: "*fitments.id,*make.name",
+    selectFn: (data) => ({ data: data?.models, rowCount: data?.metadata.count }),
     queryFn: (params) =>
       sdk.client.fetch(`/admin/models`, {
         query: params,
@@ -44,23 +32,18 @@ const ModelList = () => {
   });
 
   // Delete mutation
-  const deleteMutation = useMutation({
-    mutationFn: (id: string) =>
+  const deleteMutation = useDeleteMutation({
+    invalidateKeys: ["models"],
+    successMessage: "Model deleted successfully",
+    errorMessage: "Failed to delete model",
+    deleteFn: (id) =>
       sdk.client.fetch(`/admin/models/${id}`, {
         method: "DELETE",
       }),
-    onSuccess: () => {
-      toast.success("Model deleted successfully");
-      queryClient.invalidateQueries({ queryKey: ["models"] });
-    },
-    onError: (error: any) => {
-      toast.error(error?.message || "Failed to delete model");
-    },
   });
 
-  const handleEdit = (model: Model) => {
+  const handleEdit = (model: Model) =>
     navigate(`/fitments/models/${model.id}/edit`);
-  };
 
   const handleDelete = async (model: Model) => {
     const confirmed = await prompt({

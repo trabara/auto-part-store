@@ -7,7 +7,7 @@ import {
   DropdownMenu,
 } from "@medusajs/ui";
 import { format } from "date-fns";
-import { ModelWithFitments } from "..";
+import { ModelWithFitments } from "../types";
 
 const columnHelper = createDataTableColumnHelper<ModelWithFitments>();
 

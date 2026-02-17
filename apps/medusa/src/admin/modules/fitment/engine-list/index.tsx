@@ -23,7 +23,7 @@ const EngineList = () => {
   // Use paginated query hook
   const queryConfig = usePaginatedQuery<AdminEngineListResponse, Engine>({
     queryKey: "engines",
-    selectFn: (data) => data?.engines,
+    selectFn: (data) => ({ data: data?.engines, rowCount: data?.metadata.count }),
     queryFn: (params) =>
       sdk.client.fetch(`/admin/engines`, { query: params }),
   });

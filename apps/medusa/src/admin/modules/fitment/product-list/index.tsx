@@ -24,11 +24,11 @@ const ProductList = ({ fitmentId }: { fitmentId?: string }) => {
     queryKey: "products",
     fields: "*variants.*,*collection.*,*fitments.*",
     selectFn: (data) => {
-      const products = data?.products || [];
-      return products.map((product) => ({
+      const products = data?.products?.map((product) => ({
         ...product,
         isLinked: product.fitments.some((fitment) => fitment.id === fitmentId),
       }));
+      return { data: products, rowCount: data?.metadata.count };
     },
     queryFn: (params) =>
       sdk.client.fetch(

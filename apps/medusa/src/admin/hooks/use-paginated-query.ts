@@ -2,7 +2,7 @@ import {
   DataTableFilteringState,
   DataTableOptions,
   DataTablePaginationState,
-  DataTableSortingState
+  DataTableSortingState,
 } from "@medusajs/ui";
 import { useQuery, UseQueryOptions } from "@tanstack/react-query";
 import _ from "lodash";
@@ -21,7 +21,7 @@ export interface PaginatedQueryConfig<TData, T> {
   /** Query function that fetches data */
   queryFn: (params: PaginatedQueryParams) => Promise<TData>;
   /** Function to select and transform data */
-  selectFn: (data: TData | undefined) => T[] | undefined;
+  selectFn: (data: TData | undefined) => ({ data: T[] | undefined, rowCount: number | undefined });
   /** Additional query options */
   queryOptions?: Omit<UseQueryOptions<TData>, "queryKey" | "queryFn">;
 }
@@ -42,8 +42,8 @@ export interface PaginatedQueryParams {
  * Follows the structure of DataTableOptions, but with data and isLoading derived from the query
  * Includes pagination, filtering, and sorting state and handlers
  */
-export type UsePaginatedQueryReturn<T extends { id: string }> = DataTableOptions<T> & {
-}
+export type UsePaginatedQueryReturn<T extends { id: string }> =
+  DataTableOptions<T> & {};
 
 /**
  * Reusable hook for paginated, filtered, and sorted queries
@@ -62,7 +62,10 @@ export type UsePaginatedQueryReturn<T extends { id: string }> = DataTableOptions
  * });
  * ```
  */
-export function usePaginatedQuery<TData extends { metadata: { count: number } }, T extends { id: string }>({
+export function usePaginatedQuery<
+  TData extends { metadata: { count: number } },
+  T extends { id: string },
+>({
   queryKey,
   fields,
   pageSize = 15,
@@ -70,17 +73,18 @@ export function usePaginatedQuery<TData extends { metadata: { count: number } },
   selectFn,
   queryOptions,
 }: PaginatedQueryConfig<TData, T>): DataTableOptions<T> {
-
   const [search, setSearch] = useState<string>("");
   const [filtering, setFiltering] = useState<DataTableFilteringState>({});
   const [sorting, setSorting] = useState<DataTableSortingState | null>(null);
-  const [pagination, setPagination] = useState<DataTablePaginationState>({ pageSize, pageIndex: 0 });
+  const [pagination, setPagination] = useState<DataTablePaginationState>({
+    pageSize,
+    pageIndex: 0,
+  });
   const [selectedRows, setSelectedRows] = useState({});
 
   const offset = useMemo(() => {
     return pagination.pageIndex * pageSize;
   }, [pagination.pageIndex, pageSize]);
-
 
   const filterValues = useMemo(() => {
     const result: Record<string, any> = {};
@@ -92,7 +96,6 @@ export function usePaginatedQuery<TData extends { metadata: { count: number } },
     });
     return result;
   }, [filtering]);
-
 
   // Build query parameters
   const queryParams: PaginatedQueryParams = {
@@ -108,24 +111,23 @@ export function usePaginatedQuery<TData extends { metadata: { count: number } },
   const { data, isLoading } = useQuery<TData>({
     queryFn: () => queryFn(queryParams),
     queryKey: [
-      [
-        queryKey,
-        pageSize,
-        offset,
-        filterValues,
-        sorting?.id,
-        sorting?.desc,
-        search,
-      ],
+      queryKey,
+      pageSize,
+      offset,
+      filterValues,
+      sorting?.id,
+      sorting?.desc,
+      search,
     ],
     ...queryOptions,
   });
 
+  const dataWithMeta = data ? selectFn(data) : { data: [], rowCount: 0 };
+
   return {
-    data: selectFn(data) || [],
+    ...dataWithMeta,
     isLoading,
     getRowId: (row: T) => row.id,
-    rowCount: data?.metadata.count || 0,
     pagination: {
       state: pagination,
       onPaginationChange: setPagination,
@@ -147,5 +149,4 @@ export function usePaginatedQuery<TData extends { metadata: { count: number } },
       onRowSelectionChange: setSelectedRows,
     },
   } as unknown as UsePaginatedQueryReturn<T>;
-
 }

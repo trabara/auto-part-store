@@ -9,7 +9,7 @@ import { Trash } from "@medusajs/icons";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { sdk } from "~/lib/sdk";
 import { DataTableBulkActionsToolbar } from "~/components/bulk-actions-toolbar";
-import { MakeWithModels } from "..";
+import { MakeWithModels } from "../types";
 
 type MakeBulkActionsToolbarProps = {
   table: UseDataTableReturn<MakeWithModels>;

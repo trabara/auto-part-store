@@ -23,7 +23,7 @@ const FitmentList = ({ productId }: { productId?: string }) => {
   const queryConfig = usePaginatedQuery<AdminFitmentResponse, AdminFitmentWithProducts>({
     queryKey: "fitments",
     fields: "*engine,*model,*model.make,*products.*",
-    selectFn: (data) => data?.fitments,
+    selectFn: (data) => ({ data: data?.fitments, rowCount: data?.metadata.count }),
     queryFn: (params) =>
       sdk.client.fetch<AdminFitmentResponse>(`/admin/fitments`, {
         query: params,

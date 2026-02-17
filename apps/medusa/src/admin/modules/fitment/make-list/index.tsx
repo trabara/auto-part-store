@@ -26,7 +26,7 @@ const MakeList = () => {
       queryKey: "makes",
       fields: "*models",
       queryFn: (params) => sdk.client.fetch(`/admin/makes`, { query: params }),
-      selectFn: (data) => data?.makes,
+      selectFn: (data) => ({ data: data?.makes, rowCount: data?.metadata.count }),
     });
 
   // Use delete mutation hook

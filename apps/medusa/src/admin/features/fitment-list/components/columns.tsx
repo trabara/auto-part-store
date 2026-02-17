@@ -1,10 +1,10 @@
 import { EllipsisHorizontal, Pencil, Trash } from "@medusajs/icons";
-import { Badge, Button, createDataTableColumnHelper, DropdownMenu, toast, usePrompt } from "@medusajs/ui";
+import { Badge, Button, Checkbox, createDataTableColumnHelper, DropdownMenu, toast, usePrompt } from "@medusajs/ui";
 import { CellContext } from "@tanstack/react-table";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Link, Unlink } from "lucide-react";
 import { Fragment } from "react/jsx-runtime";
-import { AdminFitmentWithProducts } from ".";
+import { AdminFitmentWithProducts } from "..";
 import { sdk } from "~/lib/sdk";
 const columnHelper = createDataTableColumnHelper<AdminFitmentWithProducts>();
 
@@ -21,6 +21,28 @@ type Action = (context: CellContext<AdminFitmentWithProducts, unknown>) => { lab
 export const createFitmentColumns = ({ productId, onEdit, onDelete, onUnlink, onLink }: CreateFitmentColumns = {}) => {
 
   const baseColumns: any[] = [
+    columnHelper.display({
+      id: "select",
+      header: ({ table }) => (
+        <Checkbox
+          checked={
+            table.getIsAllPageRowsSelected() ||
+            (table.getIsSomePageRowsSelected() && "indeterminate")
+          }
+          onCheckedChange={(value) =>
+            table.toggleAllPageRowsSelected(!!value)
+          }
+        />
+      ),
+      cell: ({ row }) => (
+        <Checkbox
+          checked={row.getIsSelected()}
+          onCheckedChange={(value) => row.toggleSelected(!!value)}
+          onClick={(e) => e.stopPropagation()}
+        />
+      ),
+    }),
+
     columnHelper.accessor("model.make.name", {
       header: "Make",
       enableSorting: true,

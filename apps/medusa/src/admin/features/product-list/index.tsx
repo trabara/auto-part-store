@@ -1,29 +1,22 @@
-import { AdminProduct, PaginatedResponse } from "@medusajs/framework/types";
 import {
-  Button,
   Container,
   DataTable,
   Heading,
-  useDataTable,
+  useDataTable
 } from "@medusajs/ui";
 import { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { sdk } from "~/lib/sdk";
 import {
   usePaginatedQuery,
-  useProductLinking,
-  getSelectedProducts,
 } from "~/hooks";
-import { Fitment } from "~/modules/fitment/schema";
-import { createProductColumns } from "./columns";
-import filters from "./filters";
+import { sdk } from "~/lib/sdk";
+import { createProductColumns } from "./components/columns";
+import { ProductLinkageBulkActionsToolbar } from "./components/data-table-bulk-actions";
+import filters from "./components/filters";
+import { useProductLinking } from "./hooks/use-product-linking";
+import { AdminProductListWithFitmentsResponse, AdminProductWithFitments } from "./types";
 
-type AdminProductListWithFitmentsResponse = PaginatedResponse<{
-  /**
-   * The list of products with their fitments.
-   */
-  products: (AdminProduct & { fitments: Fitment[] })[];
-}>;
+
 
 const ProductList = ({ fitmentId }: { fitmentId?: string }) => {
   const navigate = useNavigate();
@@ -44,7 +37,7 @@ const ProductList = ({ fitmentId }: { fitmentId?: string }) => {
     queryKey: "products",
     fields: "*variants.*,*collection.*,*fitments.*",
     queryFn: (params) =>
-      sdk.client.fetch<AdminProductListWithFitmentsResponse>(
+      sdk.client.fetch(
         `/admin/products`,
         {
           query: params,
@@ -63,15 +56,7 @@ const ProductList = ({ fitmentId }: { fitmentId?: string }) => {
 
   // Use product linking hook (only when fitmentId is provided)
   const productLinking = useProductLinking({
-    linkFn: (productIds: string[]) =>
-      sdk.client.fetch(`/admin/fitments/${fitmentId}/products`, {
-        method: "POST",
-        body: { product_ids: productIds },
-      }),
-    unlinkFn: (productId: string) =>
-      sdk.client.fetch(`/admin/fitments/${fitmentId}/products/${productId}`, {
-        method: "DELETE",
-      }),
+    fitmentId: fitmentId || "",
   });
 
   const {
@@ -79,20 +64,7 @@ const ProductList = ({ fitmentId }: { fitmentId?: string }) => {
     setRowSelection,
     handleLinkProduct,
     handleUnlinkProduct,
-    handleBulkLink,
-    handleBulkUnlink,
-    isLinking,
-    isBulkUnlinking,
   } = productLinking;
-
-  // Get selected products with link status
-  const selectedProducts = useMemo(
-    () => getSelectedProducts(productsWithLinkStatus, rowSelection),
-    [rowSelection, productsWithLinkStatus],
-  );
-
-  const hasLinkedSelected = selectedProducts.some((p) => p.isLinked);
-  const hasUnlinkedSelected = selectedProducts.some((p) => !p.isLinked);
 
   // Create table columns
   const tableColumns = useMemo(
@@ -104,8 +76,8 @@ const ProductList = ({ fitmentId }: { fitmentId?: string }) => {
     [handleLinkProduct, handleUnlinkProduct],
   );
 
-  const table = useDataTable({
-    columns: tableColumns as any,
+  const table = useDataTable<AdminProductWithFitments>({
+    columns: tableColumns,
     filters,
     data: productsWithLinkStatus || [],
     getRowId: (row) => row.id,
@@ -140,39 +112,12 @@ const ProductList = ({ fitmentId }: { fitmentId?: string }) => {
       <DataTable instance={table}>
         <DataTable.Toolbar className="flex items-center justify-between px-6 py-4">
           <Heading>Products</Heading>
-          <div className="flex items-center justify-center gap-x-2">
-            {Object.keys(rowSelection).length > 0 && (
-              <>
-                {hasUnlinkedSelected && (
-                  <Button
-                    variant="primary"
-                    size="small"
-                    onClick={handleBulkLink}
-                    isLoading={isLinking}
-                  >
-                    Attach Selected (
-                    {selectedProducts.filter((p) => !p.isLinked).length})
-                  </Button>
-                )}
-                {hasLinkedSelected && (
-                  <Button
-                    variant="secondary"
-                    size="small"
-                    onClick={handleBulkUnlink}
-                    isLoading={isBulkUnlinking}
-                  >
-                    Detach Selected (
-                    {selectedProducts.filter((p) => p.isLinked).length})
-                  </Button>
-                )}
-              </>
-            )}
-          </div>
         </DataTable.Toolbar>
 
         <DataTable.Table />
         <DataTable.Pagination />
       </DataTable>
+      <ProductLinkageBulkActionsToolbar table={table} fitmentId={fitmentId}/>
     </Container>
   );
 };

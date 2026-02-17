@@ -10,9 +10,3 @@ export type {
   DeleteMutationConfig,
   UseDeleteMutationReturn,
 } from "./use-delete-mutation";
-
-export { useProductLinking, getSelectedProducts } from "./use-product-linking";
-export type {
-  ProductLinkingConfig,
-  UseProductLinkingReturn,
-} from "./use-product-linking";

@@ -1,5 +1,5 @@
 import { createDataTableFilterHelper } from "@medusajs/ui"
-import { BODY_STYLE_OPTIONS, DRIVE_OPTIONS, ENGINE_SIZE_OPTIONS, ENGINE_TYPE_OPTIONS, TRANSMISSION_OPTIONS } from "../../../modules/fitment/constant"
+import { BODY_STYLE_OPTIONS, DRIVE_OPTIONS, ENGINE_SIZE_OPTIONS, ENGINE_TYPE_OPTIONS, TRANSMISSION_OPTIONS } from "../../../../modules/fitment/constant"
 import { Fitment } from "~/modules/fitment/schema"
 
 const filterHelper = createDataTableFilterHelper<Fitment>()

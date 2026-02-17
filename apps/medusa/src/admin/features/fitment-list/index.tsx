@@ -10,9 +10,10 @@ import { useNavigate } from "react-router-dom";
 import { sdk } from "~/lib/sdk";
 import { usePaginatedQuery, useDeleteMutation } from "~/hooks";
 import { Fitment } from "~/modules/fitment/schema";
-import { createFitmentColumns } from "./columns";
-import filters from "./filters";
+import { createFitmentColumns } from "./components/columns";
+import filters from "./components/filters";
 import { AdminProduct } from "@medusajs/framework/types";
+import { FitmentBulkActionsToolbar } from "./components/data-table-bulk-actions";
 
 export type AdminFitmentWithProducts = Fitment & {
   products: AdminProduct[];
@@ -121,6 +122,7 @@ const FitmentList = ({ productId }: { productId?: string }) => {
         <DataTable.Table />
         <DataTable.Pagination />
       </DataTable>
+      <FitmentBulkActionsToolbar table={table} />
     </Container>
   );
 };

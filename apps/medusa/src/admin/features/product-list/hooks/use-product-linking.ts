@@ -1,17 +1,14 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "@medusajs/ui";
 import { useMemo, useState } from "react";
+import { sdk } from "~/lib/sdk";
 
 /**
  * Configuration for product linking operations
  */
 export interface ProductLinkingConfig {
-  /** Function to link products */
-  linkFn: (productIds: string[]) => Promise<any>;
-  /** Function to unlink a single product */
-  unlinkFn: (productId: string) => Promise<any>;
-  /** Query keys to invalidate after operations */
-  invalidateKeys?: string[];
+  /** The ID of the fitment to link/unlink products */
+  fitmentId: string;
 }
 
 /**
@@ -79,22 +76,34 @@ export function getSelectedProducts<
  * });
  * ```
  */
+const unlink = async (fitmentId: string, productId: string) => {
+  return sdk.client.fetch(`/admin/fitments/${fitmentId}/products/${productId}`, {
+    method: "DELETE",
+  });
+}
+
+const link = async (fitmentId: string, productIds: string[]) => {
+  return sdk.client.fetch(`/admin/fitments/${fitmentId}/products`, {
+    method: "POST",
+    body: { product_ids: productIds },
+  });
+}
+
 export function useProductLinking({
-  linkFn,
-  unlinkFn,
-  invalidateKeys = ["products", "fitment-products"],
+  fitmentId,
 }: ProductLinkingConfig): UseProductLinkingReturn {
   const queryClient = useQueryClient();
   const [rowSelection, setRowSelection] = useState<Record<string, boolean>>({});
 
+  const invalidateKeys = ()=> ["fitments", "products"].forEach((key) => {
+    queryClient.invalidateQueries({ queryKey: [[key]] }); 
+  });
   // Link products mutation
   const linkMutation = useMutation({
-    mutationFn: linkFn,
+    mutationFn: (productIds: string[]) => link(fitmentId, productIds),
     onSuccess: () => {
       toast.success("Products linked successfully");
-      invalidateKeys.forEach((key) => {
-        queryClient.invalidateQueries({ queryKey: [[key]] });
-      });
+      invalidateKeys();
       setRowSelection({});
     },
     onError: (error: any) => {
@@ -106,12 +115,10 @@ export function useProductLinking({
 
   // Unlink single product mutation
   const unlinkMutation = useMutation({
-    mutationFn: unlinkFn,
+    mutationFn: (productId: string) => unlink(fitmentId, productId),
     onSuccess: () => {
       toast.success("Product unlinked successfully");
-      invalidateKeys.forEach((key) => {
-        queryClient.invalidateQueries({ queryKey: [[key]] });
-      });
+      invalidateKeys();
       setRowSelection({});
     },
     onError: (error: any) => {
@@ -124,13 +131,11 @@ export function useProductLinking({
   // Bulk unlink mutation
   const bulkUnlinkMutation = useMutation({
     mutationFn: async (productIds: string[]) => {
-      return Promise.all(productIds.map(unlinkFn));
+      return Promise.all(productIds.map((id) => unlink(fitmentId, id)));
     },
     onSuccess: () => {
       toast.success("Products unlinked successfully");
-      invalidateKeys.forEach((key) => {
-        queryClient.invalidateQueries({ queryKey: [[key]] });
-      });
+      invalidateKeys();
       setRowSelection({});
     },
     onError: (error: any) => {

@@ -16,94 +16,58 @@ import filters from "./components/filters";
 import { useProductLinking } from "./hooks/use-product-linking";
 import { AdminProductListWithFitmentsResponse, AdminProductWithFitments } from "./types";
 
-
-
 const ProductList = ({ fitmentId }: { fitmentId?: string }) => {
   const navigate = useNavigate();
 
   // Use paginated query hook
-  const {
-    data,
-    isLoading,
-    pagination,
-    setPagination,
-    search,
-    setSearch,
-    filtering,
-    setFiltering,
-    sorting,
-    setSorting,
-  } = usePaginatedQuery<AdminProductListWithFitmentsResponse>({
+  const queryConfig = usePaginatedQuery<AdminProductListWithFitmentsResponse, AdminProductWithFitments>({
     queryKey: "products",
     fields: "*variants.*,*collection.*,*fitments.*",
+    selectFn: (data) => {
+      const products = data?.products || [];
+      return products.map((product) => ({
+        ...product,
+        isLinked: product.fitments.some((fitment) => fitment.id === fitmentId),
+      }));
+    },
     queryFn: (params) =>
       sdk.client.fetch(
         `/admin/products`,
         {
           query: params,
         },
-      ),
+      ).then((res: any) => {
+        return {
+          products: res.products,
+          metadata: {
+            count: res.count,
+            offset: res.offset,
+            limit: res.limit,
+          }
+        }
+      }),
   });
-
-  // Add isLinked flag to products
-  const productsWithLinkStatus = useMemo(() => {
-    if (!data) return [];
-    return data.products.map((product) => ({
-      ...product,
-      isLinked: product.fitments.some((fitment) => fitment.id === fitmentId),
-    }));
-  }, [data?.products, fitmentId]);
 
   // Use product linking hook (only when fitmentId is provided)
   const productLinking = useProductLinking({
     fitmentId: fitmentId || "",
+    selectedProducts: []
   });
-
-  const {
-    rowSelection,
-    setRowSelection,
-    handleLinkProduct,
-    handleUnlinkProduct,
-  } = productLinking;
 
   // Create table columns
   const tableColumns = useMemo(
     () =>
       createProductColumns({
-        onLinkProduct: handleLinkProduct,
-        onUnlinkProduct: handleUnlinkProduct,
+        onLinkProduct: productLinking.handleLinkProduct,
+        onUnlinkProduct: productLinking.handleUnlinkProduct,
       }),
-    [handleLinkProduct, handleUnlinkProduct],
+    [productLinking],
   );
 
-  const table = useDataTable<AdminProductWithFitments>({
+  const table = useDataTable({
+    ...queryConfig,
     columns: tableColumns,
     filters,
-    data: productsWithLinkStatus || [],
-    getRowId: (row) => row.id,
-    rowCount: data?.count || 0,
-    isLoading,
-    rowSelection: {
-      state: rowSelection,
-      onRowSelectionChange: setRowSelection,
-    },
-    pagination: {
-      state: pagination,
-      onPaginationChange: setPagination,
-    },
-    search: {
-      state: search,
-      onSearchChange: setSearch,
-      debounce: 2000,
-    },
-    filtering: {
-      state: filtering,
-      onFilteringChange: setFiltering,
-    },
-    sorting: {
-      state: sorting,
-      onSortingChange: setSorting,
-    },
     onRowClick: (_event, row) => navigate(`/products/${row.id}`),
   });
 
@@ -117,7 +81,7 @@ const ProductList = ({ fitmentId }: { fitmentId?: string }) => {
         <DataTable.Table />
         <DataTable.Pagination />
       </DataTable>
-      <ProductLinkageBulkActionsToolbar table={table} fitmentId={fitmentId}/>
+      <ProductLinkageBulkActionsToolbar table={table} fitmentId={fitmentId} />
     </Container>
   );
 };

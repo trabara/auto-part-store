@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+import { Plus } from "@medusajs/icons";
 import {
   Button,
   Container,
@@ -7,32 +7,26 @@ import {
   useDataTable,
   usePrompt,
 } from "@medusajs/ui";
-import { Plus } from "@medusajs/icons";
+import { useNavigate } from "react-router-dom";
+import { useDeleteMutation, usePaginatedQuery } from "~/hooks";
 import { sdk } from "~/lib/sdk";
-import { usePaginatedQuery, useDeleteMutation } from "~/hooks";
-import { createEngineColumns } from "./columns";
 import { Engine } from "~/modules/fitment/schema";
+import { createEngineColumns } from "./components/columns";
+import { EngineBulkActionsToolbar } from "./components/data-table-bulk-actions";
+import { AdminEngineListResponse } from "./types";
 
-type EnginesResponse = {
-  engines: Engine[];
-  metadata: {
-    count: number;
-    offset: number;
-    limit: number;
-  };
-};
 
 const EngineList = () => {
   const navigate = useNavigate();
   const prompt = usePrompt();
 
   // Use paginated query hook
-  const { data, isLoading, pagination, setPagination, sorting, setSorting } =
-    usePaginatedQuery<EnginesResponse>({
-      queryKey: "engines",
-      queryFn: (params) =>
-        sdk.client.fetch(`/admin/engines`, { query: params }),
-    });
+  const queryConfig = usePaginatedQuery<AdminEngineListResponse, Engine>({
+    queryKey: "engines",
+    selectFn: (data) => data?.engines,
+    queryFn: (params) =>
+      sdk.client.fetch(`/admin/engines`, { query: params }),
+  });
 
   // Use delete mutation hook
   const deleteMutation = useDeleteMutation({
@@ -66,19 +60,8 @@ const EngineList = () => {
   });
 
   const table = useDataTable({
+    ...queryConfig,
     columns,
-    data: data?.engines || [],
-    getRowId: (row) => row.id,
-    rowCount: data?.metadata.count || 0,
-    isLoading,
-    pagination: {
-      state: pagination,
-      onPaginationChange: setPagination,
-    },
-    sorting: {
-      state: sorting,
-      onSortingChange: setSorting,
-    },
   });
 
   return (
@@ -103,6 +86,7 @@ const EngineList = () => {
         <DataTable.Table />
         <DataTable.Pagination />
       </DataTable>
+      <EngineBulkActionsToolbar table={table} />
     </Container>
   );
 };

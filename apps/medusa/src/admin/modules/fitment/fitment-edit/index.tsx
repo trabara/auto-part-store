@@ -69,9 +69,9 @@ const FitmentEdit = ({
       }),
     onSuccess: () => {
       toast.success("Fitment updated successfully");
-      queryClient.invalidateQueries({ queryKey: [["fitments"]] });
+      queryClient.invalidateQueries({ queryKey: ["fitments"] });
       if (fitment?.id) {
-        queryClient.invalidateQueries({ queryKey: [["fitment", fitment?.id]] });
+        queryClient.invalidateQueries({ queryKey: ["fitment", fitment?.id] });
       }
       handleClose();
     },

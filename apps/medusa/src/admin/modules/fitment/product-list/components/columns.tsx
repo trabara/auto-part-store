@@ -12,7 +12,7 @@ type CreateProductColumns = {
 };
 
 export const createProductColumns = ({ onLinkProduct, onUnlinkProduct }: CreateProductColumns) => {
-  const baseColumns: any[] = [];
+  const baseColumns = [];
 
   // Add checkbox column if showing all products
 

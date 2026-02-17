@@ -7,45 +7,23 @@ import {
 } from "@medusajs/ui";
 import { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
+import { useDeleteMutation, usePaginatedQuery } from "~/hooks";
 import { sdk } from "~/lib/sdk";
-import { usePaginatedQuery, useDeleteMutation } from "~/hooks";
 import { Fitment } from "~/modules/fitment/schema";
 import { createFitmentColumns } from "./components/columns";
-import filters from "./components/filters";
-import { AdminProduct } from "@medusajs/framework/types";
 import { FitmentBulkActionsToolbar } from "./components/data-table-bulk-actions";
+import filters from "./components/filters";
+import { AdminFitmentResponse, AdminFitmentWithProducts } from "./types";
 
-export type AdminFitmentWithProducts = Fitment & {
-  products: AdminProduct[];
-};
-
-type AdminFitmentResponse = {
-  fitments: AdminFitmentWithProducts[];
-  metadata: {
-    count: number;
-    offset: number;
-    limit: number;
-  };
-};
 
 const FitmentList = ({ productId }: { productId?: string }) => {
   const navigate = useNavigate();
 
   // Use paginated query hook
-  const {
-    data,
-    isLoading,
-    pagination,
-    setPagination,
-    search,
-    setSearch,
-    filtering,
-    setFiltering,
-    sorting,
-    setSorting,
-  } = usePaginatedQuery<AdminFitmentResponse>({
+  const queryConfig = usePaginatedQuery<AdminFitmentResponse, AdminFitmentWithProducts>({
     queryKey: "fitments",
     fields: "*engine,*model,*model.make,*products.*",
+    selectFn: (data) => data?.fitments,
     queryFn: (params) =>
       sdk.client.fetch<AdminFitmentResponse>(`/admin/fitments`, {
         query: params,
@@ -77,29 +55,9 @@ const FitmentList = ({ productId }: { productId?: string }) => {
   );
 
   const table = useDataTable({
+    ...queryConfig,
     columns,
     filters,
-    data: data?.fitments || [],
-    getRowId: (row) => row.id,
-    rowCount: data?.metadata.count || 0,
-    isLoading,
-    pagination: {
-      state: pagination,
-      onPaginationChange: setPagination,
-    },
-    search: {
-      state: search,
-      onSearchChange: setSearch,
-    },
-    filtering: {
-      state: filtering,
-      onFilteringChange: setFiltering,
-    },
-    sorting: {
-      // Pass the pagination state and updater to the table instance
-      state: sorting,
-      onSortingChange: setSorting,
-    },
     onRowClick: (_event, row) => navigate(`/fitments/${row.id}/products`),
   });
 

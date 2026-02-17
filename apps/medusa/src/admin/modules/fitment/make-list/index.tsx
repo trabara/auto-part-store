@@ -8,32 +8,25 @@ import {
   usePrompt,
 } from "@medusajs/ui";
 import { useNavigate } from "react-router-dom";
+import { useDeleteMutation, usePaginatedQuery } from "~/hooks";
 import { sdk } from "~/lib/sdk";
-import { usePaginatedQuery, useDeleteMutation } from "~/hooks";
-import { Make, Model } from "~/modules/fitment/schema";
-import { createMakeColumns } from "./columns";
+import { createMakeColumns } from "./components/columns";
+import { MakeBulkActionsToolbar } from "./components/data-table-bulk-actions";
+import { MakesResponse, MakeWithModels } from "./types";
 
-export type MakeWithModels = Make & { models: Model[] };
 
-type MakesResponse = {
-  makes: MakeWithModels[];
-  metadata: {
-    count: number;
-    offset: number;
-    limit: number;
-  };
-};
 
 const MakeList = () => {
   const navigate = useNavigate();
   const prompt = usePrompt();
 
   // Use paginated query hook
-  const { data, isLoading, pagination, setPagination, sorting, setSorting } =
-    usePaginatedQuery<MakesResponse>({
+  const queryConfig =
+    usePaginatedQuery<MakesResponse, MakeWithModels>({
       queryKey: "makes",
       fields: "*models",
       queryFn: (params) => sdk.client.fetch(`/admin/makes`, { query: params }),
+      selectFn: (data) => data?.makes,
     });
 
   // Use delete mutation hook
@@ -46,10 +39,10 @@ const MakeList = () => {
   });
 
   // Action handlers
-  const handleEdit = (make: Make) =>
+  const handleEdit = (make: MakeWithModels) =>
     navigate(`/fitments/makes/${make.id}/edit`);
 
-  const handleDelete = async (make: Make) => {
+  const handleDelete = async (make: MakeWithModels) => {
     const confirmed = await prompt({
       title: "Delete Make",
       description: `Are you sure you want to delete "${make.name}"? This will also delete all associated models and fitments.`,
@@ -67,19 +60,8 @@ const MakeList = () => {
   });
 
   const table = useDataTable({
+    ...queryConfig,
     columns,
-    data: data?.makes || [],
-    getRowId: (row) => row.id,
-    rowCount: data?.metadata.count || 0,
-    isLoading,
-    pagination: {
-      state: pagination,
-      onPaginationChange: setPagination,
-    },
-    sorting: {
-      state: sorting,
-      onSortingChange: setSorting,
-    },
   });
 
   return (
@@ -104,6 +86,7 @@ const MakeList = () => {
         <DataTable.Table />
         <DataTable.Pagination />
       </DataTable>
+      <MakeBulkActionsToolbar table={table} />
     </Container>
   );
 };

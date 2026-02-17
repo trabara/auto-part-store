@@ -1,18 +1,42 @@
 import { EllipsisHorizontal, Pencil, Trash } from "@medusajs/icons";
-import { Button, createDataTableColumnHelper, DropdownMenu } from "@medusajs/ui";
-import { MakeWithModels } from ".";
+import {
+  Button,
+  Checkbox,
+  createDataTableColumnHelper,
+  DropdownMenu,
+} from "@medusajs/ui";
 import { format } from "date-fns";
-
+import { MakeWithModels } from "../types";
 
 const columnHelper = createDataTableColumnHelper<MakeWithModels>();
 
+type CreateMakeColumnsProps = {
+  onEdit?: (make: MakeWithModels) => void;
+  onDelete?: (make: MakeWithModels) => void;
+};
 export const createMakeColumns = ({
   onEdit,
   onDelete,
-}: {
-  onEdit?: (make: MakeWithModels) => void;
-  onDelete?: (make: MakeWithModels) => void;
-}) => [
+}: CreateMakeColumnsProps) => [
+    columnHelper.display({
+      id: "select",
+      header: ({ table }) => (
+        <Checkbox
+          checked={
+            table.getIsAllPageRowsSelected() ||
+            (table.getIsSomePageRowsSelected() && "indeterminate")
+          }
+          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+        />
+      ),
+      cell: ({ row }) => (
+        <Checkbox
+          checked={row.getIsSelected()}
+          onCheckedChange={(value) => row.toggleSelected(!!value)}
+          onClick={(e) => e.stopPropagation()}
+        />
+      ),
+    }),
     columnHelper.accessor("name", {
       header: "Name",
       enableSorting: true,

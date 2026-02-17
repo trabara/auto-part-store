@@ -77,7 +77,7 @@ export function useDeleteMutation({
       toast.success(successMessage);
       // Invalidate all specified query keys
       invalidateKeys.forEach((key) => {
-        queryClient.invalidateQueries({ queryKey: [[key]] });
+        queryClient.invalidateQueries({ queryKey: [key] });
       });
     },
     onError: (error: any) => {

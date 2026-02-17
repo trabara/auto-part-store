@@ -6,18 +6,15 @@ import {
   Heading,
   toast,
   useDataTable,
-  usePrompt,
-  type DataTableFilteringState,
-  type DataTablePaginationState,
-  type DataTableSortingState,
+  usePrompt
 } from "@medusajs/ui";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
+import { usePaginatedQuery } from "~/hooks";
 import { sdk } from "~/lib/sdk";
 import { Fitment, Model } from "~/modules/fitment/schema";
-import { createModelColumns } from "./columns";
-import modelFilters from "./filters";
+import { createModelColumns } from "./components/columns";
+import { ModelBulkActionsToolbar } from "./components/data-table-bulk-actions";
 
 export type ModelWithFitments = Model & {
   fitments: Fitment[];
@@ -37,40 +34,13 @@ const ModelList = () => {
   const queryClient = useQueryClient();
   const prompt = usePrompt();
 
-  const [pagination, setPagination] = useState<DataTablePaginationState>({
-    pageSize: 15,
-    pageIndex: 0,
-  });
-
-  const [sorting, setSorting] = useState<DataTableSortingState | null>(null);
-  const [filtering, setFiltering] = useState<DataTableFilteringState>({});
-
-  // Build filter query
-  const filterValues = Object.entries(filtering).reduce(
-    (acc, [key, value]) => {
-      if (value) {
-        acc[key] = value;
-      }
-      return acc;
-    },
-    {} as Record<string, any>,
-  );
-
-  // Fetch models
-  const { data, isLoading } = useQuery<ModelsResponse>({
-    queryFn: () =>
+  const queryConfig = usePaginatedQuery<ModelsResponse, ModelWithFitments>({
+    queryKey: "models",
+    selectFn: (data) => data?.models,
+    queryFn: (params) =>
       sdk.client.fetch(`/admin/models`, {
-        query: {
-          limit: pagination.pageSize,
-          offset: pagination.pageIndex * pagination.pageSize,
-          fields: "*make,*fitments",
-          order: sorting
-            ? `${sorting.desc ? "-" : ""}${sorting.id}`
-            : undefined,
-          filters: filterValues,
-        },
+        query: params,
       }),
-    queryKey: ["models", pagination, sorting, filterValues],
   });
 
   // Delete mutation
@@ -111,24 +81,8 @@ const ModelList = () => {
   });
 
   const table = useDataTable({
+    ...queryConfig,
     columns,
-    data: data?.models || [],
-    filters: modelFilters,
-    getRowId: (row) => row.id,
-    rowCount: data?.metadata.count || 0,
-    isLoading,
-    pagination: {
-      state: pagination,
-      onPaginationChange: setPagination,
-    },
-    sorting: {
-      state: sorting,
-      onSortingChange: setSorting,
-    },
-    filtering: {
-      state: filtering,
-      onFilteringChange: setFiltering,
-    },
   });
 
   return (
@@ -153,6 +107,7 @@ const ModelList = () => {
         <DataTable.Table />
         <DataTable.Pagination />
       </DataTable>
+      <ModelBulkActionsToolbar table={table} />
     </Container>
   );
 };

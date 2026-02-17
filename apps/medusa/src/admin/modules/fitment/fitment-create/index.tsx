@@ -72,7 +72,7 @@ const CreateFitmentModal = ({ productId }: { productId?: string }) => {
         body: CreateFitmentSchema.parse(data),
       }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [["fitments"]] });
+      queryClient.invalidateQueries({ queryKey: ["fitments"] });
       navigate(-1);
     },
     onError: () => {

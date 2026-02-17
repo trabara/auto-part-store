@@ -1,11 +1,11 @@
 import { EllipsisHorizontal, Pencil, Trash } from "@medusajs/icons";
 import { Badge, Button, Checkbox, createDataTableColumnHelper, DropdownMenu, toast, usePrompt } from "@medusajs/ui";
-import { CellContext } from "@tanstack/react-table";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { CellContext } from "@tanstack/react-table";
 import { Link, Unlink } from "lucide-react";
 import { Fragment } from "react/jsx-runtime";
-import { AdminFitmentWithProducts } from "..";
 import { sdk } from "~/lib/sdk";
+import { AdminFitmentWithProducts } from "../types";
 const columnHelper = createDataTableColumnHelper<AdminFitmentWithProducts>();
 
 type CreateFitmentColumns = {
@@ -175,7 +175,7 @@ export const createFitmentColumns = ({ productId, onEdit, onDelete, onUnlink, on
             queryKey: ["fitments"],
           });
           queryClient.invalidateQueries({
-            queryKey: [["products", { id: productId }]]
+            queryKey: ["products", { id: productId }]
           });
         },
         onError: (error: any) => {

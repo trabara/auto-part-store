@@ -1,16 +1,17 @@
-import { useQuery, UseQueryOptions } from "@tanstack/react-query";
-import { useMemo, useState } from "react";
 import {
   DataTableFilteringState,
+  DataTableOptions,
   DataTablePaginationState,
-  DataTableSortingState,
+  DataTableSortingState
 } from "@medusajs/ui";
+import { useQuery, UseQueryOptions } from "@tanstack/react-query";
 import _ from "lodash";
+import { useMemo, useState } from "react";
 
 /**
  * Configuration for paginated queries
  */
-export interface PaginatedQueryConfig<TData> {
+export interface PaginatedQueryConfig<TData, T> {
   /** Query key prefix (e.g., "fitments", "makes") */
   queryKey: string;
   /** Fields to include in the query */
@@ -19,6 +20,8 @@ export interface PaginatedQueryConfig<TData> {
   pageSize?: number;
   /** Query function that fetches data */
   queryFn: (params: PaginatedQueryParams) => Promise<TData>;
+  /** Function to select and transform data */
+  selectFn: (data: TData | undefined) => T[] | undefined;
   /** Additional query options */
   queryOptions?: Omit<UseQueryOptions<TData>, "queryKey" | "queryFn">;
 }
@@ -34,32 +37,12 @@ export interface PaginatedQueryParams {
   filters?: Record<string, any>;
   search?: string;
 }
-
 /**
- * Return type from usePaginatedQuery
+ * Return type of the usePaginatedQuery hook, which can be directly used as options for DataTable
+ * Follows the structure of DataTableOptions, but with data and isLoading derived from the query
+ * Includes pagination, filtering, and sorting state and handlers
  */
-export interface UsePaginatedQueryReturn<TData> {
-  // Data
-  data: TData | undefined;
-  isLoading: boolean;
-
-  // Pagination
-  pagination: DataTablePaginationState;
-  setPagination: (state: DataTablePaginationState) => void;
-  offset: number;
-
-  // Search
-  search: string;
-  setSearch: (value: string) => void;
-
-  // Filtering
-  filtering: DataTableFilteringState;
-  setFiltering: (state: DataTableFilteringState) => void;
-  filterValues: Record<string, any>;
-
-  // Sorting
-  sorting: DataTableSortingState | null;
-  setSorting: (state: DataTableSortingState | null) => void;
+export type UsePaginatedQueryReturn<T extends { id: string }> = DataTableOptions<T> & {
 }
 
 /**
@@ -79,28 +62,25 @@ export interface UsePaginatedQueryReturn<TData> {
  * });
  * ```
  */
-export function usePaginatedQuery<TData>({
+export function usePaginatedQuery<TData extends { metadata: { count: number } }, T extends { id: string }>({
   queryKey,
   fields,
   pageSize = 15,
   queryFn,
+  selectFn,
   queryOptions,
-}: PaginatedQueryConfig<TData>): UsePaginatedQueryReturn<TData> {
-  // Pagination state
-  const [pagination, setPagination] = useState<DataTablePaginationState>({
-    pageSize,
-    pageIndex: 0,
-  });
+}: PaginatedQueryConfig<TData, T>): DataTableOptions<T> {
+
+  const [search, setSearch] = useState<string>("");
+  const [filtering, setFiltering] = useState<DataTableFilteringState>({});
+  const [sorting, setSorting] = useState<DataTableSortingState | null>(null);
+  const [pagination, setPagination] = useState<DataTablePaginationState>({ pageSize, pageIndex: 0 });
+  const [selectedRows, setSelectedRows] = useState({});
 
   const offset = useMemo(() => {
     return pagination.pageIndex * pageSize;
   }, [pagination.pageIndex, pageSize]);
 
-  // Search state
-  const [search, setSearch] = useState<string>("");
-
-  // Filtering state
-  const [filtering, setFiltering] = useState<DataTableFilteringState>({});
 
   const filterValues = useMemo(() => {
     const result: Record<string, any> = {};
@@ -113,8 +93,6 @@ export function usePaginatedQuery<TData>({
     return result;
   }, [filtering]);
 
-  // Sorting state
-  const [sorting, setSorting] = useState<DataTableSortingState | null>(null);
 
   // Build query parameters
   const queryParams: PaginatedQueryParams = {
@@ -144,17 +122,30 @@ export function usePaginatedQuery<TData>({
   });
 
   return {
-    data,
+    data: selectFn(data) || [],
     isLoading,
-    pagination,
-    setPagination,
-    offset,
-    search,
-    setSearch,
-    filtering,
-    setFiltering,
-    filterValues,
-    sorting,
-    setSorting,
-  };
+    getRowId: (row: T) => row.id,
+    rowCount: data?.metadata.count || 0,
+    pagination: {
+      state: pagination,
+      onPaginationChange: setPagination,
+    },
+    search: {
+      state: search,
+      onSearchChange: setSearch,
+    },
+    filtering: {
+      state: filtering,
+      onFilteringChange: setFiltering,
+    },
+    sorting: {
+      state: sorting,
+      onSortingChange: setSorting,
+    },
+    rowSelection: {
+      state: selectedRows,
+      onRowSelectionChange: setSelectedRows,
+    },
+  } as unknown as UsePaginatedQueryReturn<T>;
+
 }

@@ -1,7 +1,8 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "@medusajs/ui";
-import { useMemo, useState } from "react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMemo } from "react";
 import { sdk } from "~/lib/sdk";
+import { AdminProductWithFitments } from "../types";
 
 /**
  * Configuration for product linking operations
@@ -9,16 +10,14 @@ import { sdk } from "~/lib/sdk";
 export interface ProductLinkingConfig {
   /** The ID of the fitment to link/unlink products */
   fitmentId: string;
+  /** The list of selected products for linking/unlinking */
+  selectedProducts: AdminProductWithFitments[];
 }
 
 /**
  * Return type from useProductLinking
  */
 export interface UseProductLinkingReturn {
-  // Row selection state
-  rowSelection: Record<string, boolean>;
-  setRowSelection: (selection: Record<string, boolean>) => void;
-
   // Actions
   handleLinkProduct: (productId: string) => void;
   handleUnlinkProduct: (productId: string) => void;
@@ -91,20 +90,20 @@ const link = async (fitmentId: string, productIds: string[]) => {
 
 export function useProductLinking({
   fitmentId,
+  selectedProducts
 }: ProductLinkingConfig): UseProductLinkingReturn {
   const queryClient = useQueryClient();
-  const [rowSelection, setRowSelection] = useState<Record<string, boolean>>({});
 
-  const invalidateKeys = ()=> ["fitments", "products"].forEach((key) => {
-    queryClient.invalidateQueries({ queryKey: [[key]] }); 
+  const invalidateKeys = () => ["fitments", "products"].forEach((key) => {
+    queryClient.invalidateQueries({ queryKey: [key] });
   });
+
   // Link products mutation
   const linkMutation = useMutation({
     mutationFn: (productIds: string[]) => link(fitmentId, productIds),
     onSuccess: () => {
       toast.success("Products linked successfully");
       invalidateKeys();
-      setRowSelection({});
     },
     onError: (error: any) => {
       toast.error("Failed to link products", {
@@ -119,7 +118,6 @@ export function useProductLinking({
     onSuccess: () => {
       toast.success("Product unlinked successfully");
       invalidateKeys();
-      setRowSelection({});
     },
     onError: (error: any) => {
       toast.error("Failed to unlink product", {
@@ -136,7 +134,6 @@ export function useProductLinking({
     onSuccess: () => {
       toast.success("Products unlinked successfully");
       invalidateKeys();
-      setRowSelection({});
     },
     onError: (error: any) => {
       toast.error("Failed to unlink products", {
@@ -155,23 +152,21 @@ export function useProductLinking({
   };
 
   const handleBulkLink = () => {
-    const selectedIds = Object.keys(rowSelection);
+    const selectedIds = selectedProducts.map((product) => product.id);
     linkMutation.mutate(selectedIds);
   };
 
   const handleBulkUnlink = () => {
-    const selectedIds = Object.keys(rowSelection);
+    const selectedIds = selectedProducts.map((product) => product.id);
     bulkUnlinkMutation.mutate(selectedIds);
   };
 
   // Compute selected products count
   const selectedProductsCount = useMemo(() => {
-    return Object.keys(rowSelection).length;
-  }, [rowSelection]);
+    return selectedProducts.length;
+  }, [selectedProducts]);
 
   return {
-    rowSelection,
-    setRowSelection,
     handleLinkProduct,
     handleUnlinkProduct,
     handleBulkLink,

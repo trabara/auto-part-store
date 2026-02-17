@@ -1,7 +1,7 @@
 import { toast } from "@medusajs/ui";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useMemo } from "react";
-import { sdk } from "~/lib/sdk";
+import { sdk } from "~/admin/lib/sdk";
 import { AdminProductWithFitments } from "../types";
 
 /**

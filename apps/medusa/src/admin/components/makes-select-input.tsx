@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { sdk } from "~/lib/sdk";
+import { sdk } from "~/admin/lib/sdk";
 import { Make } from '~/modules/fitment/schema';
 import SelectOrCreateInput, { SelectOrCreateInputProps } from './select-or-create-input';
 
@@ -15,8 +15,9 @@ type MakesSelectInputProps = Omit<SelectOrCreateInputProps, 'options'> & {
 
 export function MakesSelectInput({ value, ...props }: MakesSelectInputProps) {
 
-    const { data: makeListResponse } = useQuery({
+    const { data: options } = useQuery({
         queryKey: ["makes"],
+        select: (res) => res.makes?.map(make => ({ label: make.name, value: make.id })) || [],
         queryFn: () => sdk.client.fetch<MakeListResponse>('/admin/makes', {
             query: {
                 fields: "id,name",
@@ -24,12 +25,10 @@ export function MakesSelectInput({ value, ...props }: MakesSelectInputProps) {
         })
     })
 
-    const makeOptions = makeListResponse?.makes.map(make => ({ label: make.name, value: make.name })) || []
-
     return (
         <SelectOrCreateInput
             {...props}
-            options={makeOptions}
+            options={options}
         />
     );
 }

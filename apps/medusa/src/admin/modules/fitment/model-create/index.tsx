@@ -12,8 +12,8 @@ import {
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Controller, useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
-import { MakesSelectInput } from "~/components/makes-select-input";
-import { sdk } from "~/lib/sdk";
+import { MakesSelectInput } from "~/admin/components/makes-select-input";
+import { sdk } from "~/admin/lib/sdk";
 
 const CreateModelSchema = z.object({
   name: z.string().min(1, "Name is required"),

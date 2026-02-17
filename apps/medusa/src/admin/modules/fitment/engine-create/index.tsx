@@ -1,7 +1,5 @@
-import { useNavigate } from "react-router-dom";
-import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { z } from "@medusajs/framework/zod";
 import {
   Button,
   FocusModal,
@@ -11,14 +9,16 @@ import {
   Label,
   toast,
 } from "@medusajs/ui";
-import { z } from "@medusajs/framework/zod";
-import { sdk } from "~/lib/sdk";
-import OptionSelect from "~/components/select";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { Controller, useForm } from "react-hook-form";
+import { useNavigate } from "react-router-dom";
+import OptionSelect from "~/admin/components/select";
+import { sdk } from "~/admin/lib/sdk";
 import {
   ENGINE_FUEL_OPTIONS,
-  ENGINE_TYPE_OPTIONS,
   ENGINE_SIZE_OPTIONS,
-} from "../../../../modules/fitment/constant";
+  ENGINE_TYPE_OPTIONS,
+} from "~/modules/fitment/constant";
 
 const CreateEngineSchema = z.object({
   fuel: z.enum(["GASOLINE", "DIESEL", "ELECTRIC", "HYBRID"]),

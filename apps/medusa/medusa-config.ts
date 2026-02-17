@@ -111,7 +111,7 @@ export default defineConfig({
       return {
         resolve: {
           alias: {
-            "~": path.resolve(__dirname, "./src/admin"),
+            "~": path.resolve(__dirname, "./src"),
           },
         },
       }

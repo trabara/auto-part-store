@@ -4,7 +4,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { CellContext } from "@tanstack/react-table";
 import { Link, Unlink } from "lucide-react";
 import { Fragment } from "react/jsx-runtime";
-import { sdk } from "~/lib/sdk";
+import { sdk } from "~/admin/lib/sdk";
 import { AdminFitmentWithProducts } from "../types";
 const columnHelper = createDataTableColumnHelper<AdminFitmentWithProducts>();
 

@@ -1,4 +1,4 @@
-import FitmentList from "~/modules/fitment/fitment-list";
+import FitmentList from "~/admin/modules/fitment/fitment-list";
 import { useParams } from "react-router-dom"
 
 const ProductFitmentsPage = () => {

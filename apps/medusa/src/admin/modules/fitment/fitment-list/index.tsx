@@ -7,8 +7,8 @@ import {
 } from "@medusajs/ui";
 import { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { useDeleteMutation, usePaginatedQuery } from "~/hooks";
-import { sdk } from "~/lib/sdk";
+import { useDeleteMutation, usePaginatedQuery } from "~/admin/hooks";
+import { sdk } from "~/admin/lib/sdk";
 import { Fitment } from "~/modules/fitment/schema";
 import { createFitmentColumns } from "./components/columns";
 import { FitmentBulkActionsToolbar } from "./components/data-table-bulk-actions";

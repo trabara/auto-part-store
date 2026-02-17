@@ -3,57 +3,46 @@ import {
   Button,
   Container,
   DataTable,
-  DataTablePaginationState,
   Heading,
-  toast,
   useDataTable
 } from "@medusajs/ui";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { createFitmentColumns } from "~/modules/fitment/fitment-list/components/columns";
-import { sdk } from "~/lib/sdk";
+import { useDeleteMutation, usePaginatedQuery } from "~/admin/hooks";
+import { sdk } from "~/admin/lib/sdk";
+import { createFitmentColumns } from "~/admin/modules/fitment/fitment-list/components/columns";
 import { Fitment } from "~/modules/fitment/schema";
 
+type ProductFitmentsResponse = {
+  fitments: Fitment[],
+  metadata: {
+    count: number
+  }
+}
 
 const ProductFitmentsWidget = () => {
   const navigate = useNavigate();
   const params = useParams();
   const productId = params.id;
-  const queryClient = useQueryClient();
 
-  const [pagination, setPagination] = useState<DataTablePaginationState>({
-    pageIndex: 0,
-    pageSize: 10,
-  });
-
-  // Fetch fitments for this product
-  const { data, } = useQuery<{ fitments: Fitment[] }>({
-    queryKey: ["fitments", productId],
-    queryFn: () => sdk.client.fetch(
-      `/admin/products/${productId}/fitments`,
-    )
-  });
+  const queryConfig = usePaginatedQuery<ProductFitmentsResponse, Fitment>({
+    queryKey: "fitments",
+    queryFn: (params) =>
+      sdk.client.fetch(`/admin/products/${productId}/fitments`, {
+        query: params,
+      }),
+    selectFn: (data) => ({ data: data?.fitments, rowCount: data?.metadata?.count || 0 }),
+  })
 
   // Mutation to unlink a fitment
-  const unlinkMutation = useMutation({
-    mutationFn: async (fitmentId: string) => {
-      return sdk.client.fetch(
-        `/admin/products/${productId}/fitments/${fitmentId}`,
-        {
-          method: "DELETE",
-        },
-      );
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["fitments", productId],
-      });
-      toast.success("Fitment unlinked successfully");
-    },
-    onError: () => {
-      toast.error("Failed to unlink fitment");
-    },
+  const unlinkMutation = useDeleteMutation({
+    invalidateKeys: ["fitments", productId!],
+    successMessage: "Fitment unlinked successfully",
+    errorMessage: "Failed to unlink fitment",
+    deleteFn: (fitmentId) =>
+      sdk.client.fetch(`/admin/products/${productId}/fitments/${fitmentId}`, {
+        method: "DELETE",
+      }),
   });
 
   const handleEdit = (fitment: Fitment) =>
@@ -65,15 +54,11 @@ const ProductFitmentsWidget = () => {
 
 
   const columns = useMemo(() => createFitmentColumns({ onEdit: handleEdit, onUnlink: handleUnlink }), [])
-  const fitments = data?.fitments || [];
-  
+
+
   const table = useDataTable({
-    data: fitments,
+    ...queryConfig,
     columns,
-    pagination: {
-      state: pagination,
-      onPaginationChange: setPagination,
-    },
   });
 
   return (

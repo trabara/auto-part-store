@@ -1,5 +1,5 @@
 import { MedusaRequest, MedusaResponse } from "@medusajs/framework";
-import { FitmentsController } from "../../controllers/fitments.controller";
+import { FitmentsController } from "../../../controllers/fitments.controller";
 
 /**
  * GET /admin/fitments/:id

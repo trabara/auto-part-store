@@ -1,19 +1,11 @@
 import { Heading, Hint, Label } from "@medusajs/ui"
-import { useQuery } from '@tanstack/react-query'
 import { Controller, useFormContext } from "react-hook-form"
-import { ModelsSelectInput } from "~/components/models-select-input"
-import { sdk } from "~/lib/sdk"
-import { Model } from "../../../../../modules/fitment/schema"
+import { ModelsSelectInput } from "~/admin/components/models-select-input"
 
-type ModelListResponse = {
-    models: Model[]
-    metadata: {
-        count: number
-    }
-}
+
 const ModelTab = () => {
     const form = useFormContext()
-    
+
     return (
         <div>
             <Heading>Model</Heading>

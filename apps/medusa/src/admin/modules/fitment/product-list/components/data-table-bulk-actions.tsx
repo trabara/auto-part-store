@@ -1,6 +1,6 @@
 import { IconButton, Tooltip, type UseDataTableReturn } from "@medusajs/ui"
 import { Link, Unlink } from "lucide-react"
-import { DataTableBulkActionsToolbar } from "~/components/bulk-actions-toolbar"
+import { DataTableBulkActionsToolbar } from "~/admin/components/bulk-actions-toolbar"
 import { useProductLinking } from "../hooks/use-product-linking"
 import { AdminProductWithFitments } from "../types"
 

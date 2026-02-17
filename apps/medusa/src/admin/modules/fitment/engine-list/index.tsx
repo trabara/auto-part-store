@@ -8,8 +8,8 @@ import {
   usePrompt,
 } from "@medusajs/ui";
 import { useNavigate } from "react-router-dom";
-import { useDeleteMutation, usePaginatedQuery } from "~/hooks";
-import { sdk } from "~/lib/sdk";
+import { useDeleteMutation, usePaginatedQuery } from "~/admin/hooks";
+import { sdk } from "~/admin/lib/sdk";
 import { Engine } from "~/modules/fitment/schema";
 import { createEngineColumns } from "./components/columns";
 import { EngineBulkActionsToolbar } from "./components/data-table-bulk-actions";

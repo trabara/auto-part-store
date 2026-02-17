@@ -12,7 +12,7 @@ import {
   toast,
 } from "@medusajs/ui";
 import { z } from "@medusajs/framework/zod";
-import { sdk } from "~/lib/sdk";
+import { sdk } from "~/admin/lib/sdk";
 
 const CreateMakeSchema = z.object({
   name: z.string().min(1, "Name is required"),

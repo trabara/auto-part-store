@@ -8,8 +8,8 @@ import { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   usePaginatedQuery,
-} from "~/hooks";
-import { sdk } from "~/lib/sdk";
+} from "~/admin/hooks";
+import { sdk } from "~/admin/lib/sdk";
 import { createProductColumns } from "./components/columns";
 import { ProductLinkageBulkActionsToolbar } from "./components/data-table-bulk-actions";
 import filters from "./components/filters";

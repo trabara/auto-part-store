@@ -172,14 +172,12 @@ export type UpdateFitmentInput = z.infer<typeof UpdateFitmentSchema>;
 
 // Update schemas for Make, Model, and Engine
 export const UpdateMakeSchema = z.object({
-  id: z.string(),
   name: z.string().optional(),
 });
 
 export type UpdateMakeInput = z.infer<typeof UpdateMakeSchema>;
 
 export const UpdateModelSchema = z.object({
-  id: z.string(),
   name: z.string().optional(),
   make_id: z.string().optional(),
 });
@@ -187,7 +185,6 @@ export const UpdateModelSchema = z.object({
 export type UpdateModelInput = z.infer<typeof UpdateModelSchema>;
 
 export const UpdateEngineSchema = z.object({
-  id: z.string(),
   fuel: FuelTypeSchema.optional(),
   type: EngineTypeSchema.optional(),
   size: z

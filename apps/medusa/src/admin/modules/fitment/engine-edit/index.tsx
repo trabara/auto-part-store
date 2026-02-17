@@ -1,12 +1,5 @@
-import { useEffect } from "react";
-import {
-  useNavigate,
-  LoaderFunctionArgs,
-  useLoaderData,
-} from "react-router-dom";
-import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { z } from "@medusajs/framework/zod";
 import {
   Button,
   Drawer,
@@ -16,14 +9,20 @@ import {
   Label,
   toast,
 } from "@medusajs/ui";
-import { z } from "@medusajs/framework/zod";
-import { sdk } from "~/lib/sdk";
-import OptionSelect from "~/components/select";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useEffect } from "react";
+import { Controller, useForm } from "react-hook-form";
+import {
+  LoaderFunctionArgs,
+  useNavigate
+} from "react-router-dom";
+import OptionSelect from "~/admin/components/select";
+import { sdk } from "~/admin/lib/sdk";
 import {
   ENGINE_FUEL_OPTIONS,
-  ENGINE_TYPE_OPTIONS,
   ENGINE_SIZE_OPTIONS,
-} from "../../../../modules/fitment/constant";
+  ENGINE_TYPE_OPTIONS,
+} from "~/modules/fitment/constant";
 import { Engine } from "~/modules/fitment/schema";
 
 const UpdateEngineSchema = z.object({

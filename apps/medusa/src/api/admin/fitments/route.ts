@@ -1,5 +1,5 @@
 import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http";
-import { FitmentsController } from "../controllers/fitments.controller";
+import { FitmentsController } from "../../controllers/fitments.controller";
 import {
   CreateFitmentInput,
   UpdateFitmentInput,

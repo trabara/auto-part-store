@@ -1,42 +1,31 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "@medusajs/framework/zod";
 import {
   Button,
   Drawer,
   Heading,
   Hint,
   Input,
-  Label,
-  toast,
+  Label
 } from "@medusajs/ui";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
 import {
   useNavigate
 } from "react-router-dom";
-import { MakesSelectInput } from "~/components/makes-select-input";
-import { sdk } from "~/lib/sdk";
-import { Model } from "~/modules/fitment/schema";
-
-const UpdateModelSchema = z.object({
-  name: z.string().min(1, "Name is required"),
-  make_name: z.string().min(1, "Make is required"),
-});
-
-type UpdateModelInput = z.infer<typeof UpdateModelSchema>;
+import { MakesSelectInput } from "~/admin/components/makes-select-input";
+import { useUpdateMutation } from "~/admin/hooks/use-update-mutation";
+import { sdk } from "~/admin/lib/sdk";
+import { Model, UpdateModelInput, UpdateModelSchema } from "~/modules/fitment/schema";
 
 
-
-const ModelEdit = ({ model }: { model: Model }) => {
+const ModelEdit = ({ model }: { model?: Model }) => {
   const navigate = useNavigate();
-  const queryClient = useQueryClient();
 
   const form = useForm<UpdateModelInput>({
     resolver: zodResolver(UpdateModelSchema),
     defaultValues: {
-      name: model.name,
-      make_name: model.make.name,
+      name: model?.name,
+      make_id: model?.make.id,
     },
   });
 
@@ -44,30 +33,20 @@ const ModelEdit = ({ model }: { model: Model }) => {
     if (model) {
       form.reset({
         name: model.name,
-        make_name: model.make.name,
+        make_id: model.make.id,
       });
     }
   }, [model, form]);
 
-  const updateMutation = useMutation({
-    mutationFn: (data: UpdateModelInput) => {
-      // Transform to API format: { name, make: { name } }
-      return sdk.client.fetch(`/admin/models/${model.id}`, {
-        method: "PATCH",
-        body: {
-          name: data.name,
-          make: { name: data.make_name },
-        },
-      });
-    },
-    onSuccess: () => {
-      toast.success("Model updated successfully");
-      queryClient.invalidateQueries({ queryKey: ["models"] });
-      handleClose();
-    },
-    onError: (error: any) => {
-      toast.error(error?.message || "Failed to update model");
-    },
+  const updateMutation = useUpdateMutation({
+    invalidateKeys: ["models"],
+    successMessage: "Model updated successfully",
+    errorMessage: "Failed to update model",
+    updateFn: (data) =>
+      sdk.client.fetch(`/admin/models/${model?.id}`, {
+        method: "PUT",
+        body: data,
+      }),
   });
 
   const handleClose = () => {
@@ -95,16 +74,16 @@ const ModelEdit = ({ model }: { model: Model }) => {
                 <Label htmlFor="id" className="text-ui-fg-subtle">
                   Model ID
                 </Label>
-                <Input id="id" value={model.id} disabled />
+                <Input id="id" value={model?.id} disabled />
               </div>
 
               {/* Make Select */}
               <Controller
                 control={form.control}
-                name="make_name"
+                name="make_id"
                 render={({ field, fieldState }) => (
                   <div className="space-y-2">
-                    <Label htmlFor="make_name" className="font-medium">
+                    <Label htmlFor="make_id" className="font-medium">
                       Make <span className="text-ui-fg-error">*</span>
                     </Label>
                     <MakesSelectInput

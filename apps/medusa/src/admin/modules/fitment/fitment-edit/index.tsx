@@ -12,13 +12,13 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
-import OptionSelect from "~/components/select";
-import { sdk } from "~/lib/sdk";
+import OptionSelect from "~/admin/components/select";
+import { sdk } from "~/admin/lib/sdk";
 import {
   BODY_STYLE_OPTIONS,
   DRIVE_OPTIONS,
   TRANSMISSION_OPTIONS,
-} from "../../../../modules/fitment/constant";
+} from "~/modules/fitment/constant";
 import {
   Fitment,
   UpdateFitmentInput,

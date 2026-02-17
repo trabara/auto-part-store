@@ -1,12 +1,12 @@
 import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http";
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils";
-import { BaseController } from "../../shared/controllers/base.controller";
-import { FITMENT_MODULE } from "../../../modules/fitment";
+import { BaseController } from "../shared/controllers/base.controller";
+import { FITMENT_MODULE } from "../../modules/fitment";
 import {
   CreateFitmentInput,
   UpdateFitmentInput,
-} from "../../../modules/fitment/schema";
-import { deleteFitmentWorkflow } from "../../../workflows/delete-fitment";
+} from "../../modules/fitment/schema";
+import { deleteFitmentWorkflow } from "../../workflows/delete-fitment";
 
 /**
  * Fitments Controller

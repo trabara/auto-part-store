@@ -1,7 +1,7 @@
 import { Heading, Hint, Input, Label } from "@medusajs/ui"
 import { Controller, useFormContext } from "react-hook-form"
-import OptionSelect from "~/components/select"
-import { ENGINE_FUEL_OPTIONS, ENGINE_SIZE_OPTIONS, ENGINE_TYPE_OPTIONS } from "../../../../../modules/fitment/constant"
+import OptionSelect from "~/admin/components/select"
+import { ENGINE_FUEL_OPTIONS, ENGINE_SIZE_OPTIONS, ENGINE_TYPE_OPTIONS } from "~/modules/fitment/constant"
 
 
 const EngineTab = () => {

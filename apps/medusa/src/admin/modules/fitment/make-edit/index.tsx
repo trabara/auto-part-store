@@ -1,12 +1,5 @@
-import { useEffect } from "react";
-import {
-  useNavigate,
-  LoaderFunctionArgs,
-  useLoaderData,
-} from "react-router-dom";
-import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { z } from "@medusajs/framework/zod";
 import {
   Button,
   Drawer,
@@ -16,8 +9,14 @@ import {
   Label,
   toast,
 } from "@medusajs/ui";
-import { z } from "@medusajs/framework/zod";
-import { sdk } from "~/lib/sdk";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useEffect } from "react";
+import { Controller, useForm } from "react-hook-form";
+import {
+  useNavigate
+} from "react-router-dom";
+import { sdk } from "~/admin/lib/sdk";
+import { MakeWithModels } from "../make-list/types";
 
 const UpdateMakeSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -25,23 +24,12 @@ const UpdateMakeSchema = z.object({
 
 type UpdateMakeInput = z.infer<typeof UpdateMakeSchema>;
 
-type Make = {
-  id: string;
-  name: string;
-  created_at: Date;
-  updated_at: Date;
-  models?: any[];
-};
-
-const MakeEdit = ({ make }: { make: Make }) => {
+const MakeEdit = ({ make }: { make?: MakeWithModels }) => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
   const form = useForm<UpdateMakeInput>({
     resolver: zodResolver(UpdateMakeSchema),
-    defaultValues: {
-      name: make.name,
-    },
   });
 
   useEffect(() => {
@@ -54,7 +42,7 @@ const MakeEdit = ({ make }: { make: Make }) => {
 
   const updateMutation = useMutation({
     mutationFn: (data: UpdateMakeInput) =>
-      sdk.client.fetch(`/admin/makes/${make.id}`, {
+      sdk.client.fetch(`/admin/makes/${make?.id}`, {
         method: "PATCH",
         body: data,
       }),
@@ -93,7 +81,7 @@ const MakeEdit = ({ make }: { make: Make }) => {
                 <Label htmlFor="id" className="text-ui-fg-subtle">
                   Make ID
                 </Label>
-                <Input id="id" value={make.id} disabled />
+                <Input id="id" value={make?.id} disabled />
               </div>
 
               {/* Editable Name */}
@@ -120,7 +108,7 @@ const MakeEdit = ({ make }: { make: Make }) => {
               />
 
               {/* Model Count Info */}
-              {make.models && make.models.length > 0 && (
+              {make?.models && make.models.length > 0 && (
                 <div className="rounded-lg border border-ui-border-base bg-ui-bg-subtle p-4">
                   <p className="text-sm text-ui-fg-subtle">
                     This make has <strong>{make.models.length}</strong>{" "}

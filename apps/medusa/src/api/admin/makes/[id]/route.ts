@@ -1,5 +1,5 @@
 import { MedusaRequest, MedusaResponse } from "@medusajs/framework";
-import { MakesController } from "../../controllers/makes.controller";
+import { MakesController } from "../../../controllers/makes.controller";
 import { UpdateMakeInput } from "../../../../modules/fitment/schema";
 
 /**

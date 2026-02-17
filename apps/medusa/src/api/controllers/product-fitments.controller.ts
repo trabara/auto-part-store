@@ -1,7 +1,7 @@
 import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http";
 import { ContainerRegistrationKeys, Modules } from "@medusajs/framework/utils";
-import { BaseController } from "../../shared/controllers/base.controller";
-import FitmentProductLink from "../../../links/fitment-product";
+import { BaseController } from "../shared/controllers/base.controller";
+import FitmentProductLink from "../../links/fitment-product";
 
 const FITMENT_MODULE = "fitment";
 

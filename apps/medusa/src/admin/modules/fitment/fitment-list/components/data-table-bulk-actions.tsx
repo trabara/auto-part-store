@@ -7,8 +7,8 @@ import {
 } from "@medusajs/ui";
 import { Trash } from "@medusajs/icons";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { sdk } from "~/lib/sdk";
-import { DataTableBulkActionsToolbar } from "~/components/bulk-actions-toolbar";
+import { sdk } from "~/admin/lib/sdk";
+import { DataTableBulkActionsToolbar } from "~/admin/components/bulk-actions-toolbar";
 import { AdminFitmentWithProducts } from "..";
 
 type FitmentBulkActionsToolbarProps = {

@@ -9,7 +9,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useCallback, useMemo, useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
-import { sdk } from "~/lib/sdk";
+import { sdk } from "~/admin/lib/sdk";
 import {
   CreateFitmentInput,
   CreateFitmentSchema,

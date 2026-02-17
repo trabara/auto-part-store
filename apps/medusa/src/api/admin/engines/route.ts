@@ -1,5 +1,5 @@
 import { MedusaRequest, MedusaResponse } from "@medusajs/framework";
-import { EnginesController } from "../controllers/engines.controller";
+import { EnginesController } from "../../controllers/engines.controller";
 import {
   CreateEngineInput,
   UpdateEngineInput,

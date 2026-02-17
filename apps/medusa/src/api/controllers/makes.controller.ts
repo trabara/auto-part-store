@@ -1,11 +1,11 @@
 import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http";
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils";
-import { BaseController } from "../../shared/controllers/base.controller";
-import { FITMENT_MODULE } from "../../../modules/fitment";
+import { BaseController } from "../shared/controllers/base.controller";
+import { FITMENT_MODULE } from "../../modules/fitment";
 import {
   CreateMakeInput,
   UpdateMakeInput,
-} from "../../../modules/fitment/schema";
+} from "../../modules/fitment/schema";
 
 /**
  * Makes Controller

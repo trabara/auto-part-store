@@ -1,7 +1,7 @@
 import { Heading, Hint, Input, Label } from "@medusajs/ui"
 import { Controller, useFormContext } from "react-hook-form"
-import OptionSelect from "~/components/select"
-import { BODY_STYLE_OPTIONS, DRIVE_OPTIONS, TRANSMISSION_OPTIONS } from "../../../../../modules/fitment/constant"
+import OptionSelect from "~/admin/components/select"
+import { BODY_STYLE_OPTIONS, DRIVE_OPTIONS, TRANSMISSION_OPTIONS } from "~/modules/fitment/constant"
 
 const GeneralTab = () => {
     const form = useFormContext()

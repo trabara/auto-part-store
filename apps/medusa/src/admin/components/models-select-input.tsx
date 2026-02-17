@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { sdk } from "~/lib/sdk";
+import { sdk } from "~/admin/lib/sdk";
 import { Model } from '~/modules/fitment/schema';
 import SelectOrCreateInput, { SelectOrCreateInputProps } from './select-or-create-input';
 

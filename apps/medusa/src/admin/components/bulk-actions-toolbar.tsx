@@ -1,6 +1,5 @@
 import { type UseDataTableReturn } from '@medusajs/ui'
 import * as PopoverPrimitive from '@radix-ui/react-popover'
-import * as SeparatorPrimitive from '@radix-ui/react-separator'
 import { useEffect, useRef, useState } from 'react'
 
 export type DataTableBulkActionsToolbarProps<TData> = {
@@ -46,7 +45,7 @@ export function DataTableBulkActionsToolbar<TData>({
     }, [selectedCount, entityName])
 
     const handleClearSelection = () => {
-       selectedRows.forEach((row) => row.toggleSelected(false))
+        selectedRows.forEach((row) => row.toggleSelected(false))
     }
 
     const handleKeyDown = (event: React.KeyboardEvent) => {

@@ -4,7 +4,7 @@ import {
   Tooltip,
   type UseDataTableReturn
 } from "@medusajs/ui";
-import { DataTableBulkActionsToolbar } from "components/bulk-actions-toolbar";
+import { DataTableBulkActionsToolbar } from "~/admin/components/bulk-actions-toolbar";
 import { useMakeDeleteMutation } from "../hooks/use-delete-mutation";
 import { MakeWithModels } from "../types";
 

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { CrudContext } from "context/crud-context";
+import { CrudContext } from "~/admin/context/crud-context";
 
 
 

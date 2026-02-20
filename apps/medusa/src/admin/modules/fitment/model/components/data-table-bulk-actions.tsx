@@ -4,7 +4,7 @@ import {
   Tooltip,
   type UseDataTableReturn
 } from "@medusajs/ui";
-import { DataTableBulkActionsToolbar } from "components/bulk-actions-toolbar";
+import { DataTableBulkActionsToolbar } from "~/admin/components/bulk-actions-toolbar";
 import { useModelDeleteMutation } from "../hooks/use-mode-delete";
 import { ModelWithFitments } from "../types";
 
@@ -33,7 +33,7 @@ export function ModelBulkActionsToolbar({
       <Tooltip content="Delete selected models">
         <IconButton
           size="large"
-          className="rounded-none text-red-600" 
+          className="rounded-none text-red-600"
           variant="transparent"
           onClick={handleBulkDelete}
           disabled={bulkDeleteMutation.isPending}

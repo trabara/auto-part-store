@@ -5,7 +5,7 @@ import {
   Heading,
   useDataTable,
 } from "@medusajs/ui";
-import { useCrudContext } from "context/crud-context";
+import { useCrudContext } from "~/admin/context/crud-context";
 import { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDeleteMutation, usePaginatedQuery } from "~/admin/hooks";

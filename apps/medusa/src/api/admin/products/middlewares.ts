@@ -1,47 +1,5 @@
-import { MiddlewareRoute, validateAndTransformBody, validateAndTransformQuery } from "@medusajs/framework";
-import { z } from "@medusajs/framework/zod";
-import { authenticate } from "@medusajs/framework";
-import { createFindParams, createOperatorMap } from "@medusajs/medusa/api/utils/validators";
-import { CreateFitmentSchema, UpdateFitmentSchema } from "@/modules/fitment/schema";
-
-
-export const LinkFitmentsSchema = z.object({
-  fitment_ids: z
-    .array(z.string())
-    .min(1, "At least one fitment ID is required"),
-});
-
-export type LinkFitmentsSchema = z.infer<typeof LinkFitmentsSchema>;
-
-const findParams = createFindParams();
-
-const fitmentFindParams = findParams.extend({
-  filters: z
-    .object({
-      model: z
-        .object({
-          name: createOperatorMap(z.string()),
-          make: z
-            .object({
-              name: createOperatorMap(z.string()),
-            })
-            .optional(),
-        })
-        .optional(),
-      engine: z
-        .object({
-          size: createOperatorMap(z.string()),
-          fuel: createOperatorMap(z.string()),
-        })
-        .optional(),
-      body_style: createOperatorMap(z.string()).optional(),
-      drive: createOperatorMap(z.string()).optional(),
-      transmission: createOperatorMap(z.string()).optional(),
-      year_start: createOperatorMap(z.number()).optional(),
-      year_end: createOperatorMap(z.number()).optional(),
-    })
-    .optional(),
-});
+import { CreateFitmentSchema, FitmentFindParamsSchema, LinkProductsSchema, UpdateFitmentSchema } from "@/modules/fitment/schema";
+import { authenticate, MiddlewareRoute, validateAndTransformBody, validateAndTransformQuery } from "@medusajs/framework";
 
 
 const authenticateMiddleware = authenticate(["*"], ["session"]);
@@ -78,7 +36,7 @@ export const productFitmentMiddlewares: MiddlewareRoute[] = [
     methods: ["GET"],
     middlewares: [
       authenticateMiddleware,
-      validateAndTransformQuery(fitmentFindParams, {
+      validateAndTransformQuery(FitmentFindParamsSchema, {
         defaults: [
           "id",
           "model",
@@ -104,7 +62,7 @@ export const productFitmentMiddlewares: MiddlewareRoute[] = [
     method: "POST",
     middlewares: [
       authenticateMiddleware,
-      validateAndTransformBody(LinkFitmentsSchema),
+      validateAndTransformBody(LinkProductsSchema),
     ],
   },
   {

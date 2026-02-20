@@ -1,4 +1,5 @@
 import * as z from "@medusajs/framework/zod";
+import { createFindParams, createOperatorMap } from "@medusajs/medusa/api/utils/validators";
 
 export const FuelTypeSchema = z.enum([
   "GASOLINE",
@@ -183,3 +184,61 @@ export const UpdateEngineSchema = z.object({
 });
 
 export type UpdateEngineInput = z.infer<typeof UpdateEngineSchema>;
+
+const findParams = createFindParams();
+
+export const FitmentFindParamsSchema = findParams.extend({
+  filters: z
+    .object({
+      model: z
+        .object({
+          name: createOperatorMap(z.string()),
+          make: z
+            .object({
+              name: createOperatorMap(z.string()),
+            })
+            .optional(),
+        })
+        .optional(),
+      engine: z
+        .object({
+          size: createOperatorMap(z.string()),
+          fuel: createOperatorMap(z.string()),
+        })
+        .optional(),
+      body_style: createOperatorMap(z.string()).optional(),
+      drive: createOperatorMap(z.string()).optional(),
+      transmission: createOperatorMap(z.string()).optional(),
+      year_start: createOperatorMap(z.number()).optional(),
+      year_end: createOperatorMap(z.number()).optional(),
+    })
+    .optional(),
+});
+
+export const ModelFindParamsSchema = findParams.extend({
+  filters: z
+    .object({
+      name: createOperatorMap(z.string()).optional(),
+      make_id: createOperatorMap(z.string()).optional(),
+      make: z
+        .object({
+          name: createOperatorMap(z.string()).optional(),
+        })
+        .optional(),
+    })
+    .optional(),
+});
+
+export const LinkProductsSchema = z.object({
+  product_ids: z
+    .array(z.string())
+    .min(1, "At least one product ID is required"),
+});
+
+export const MakeFindParamsSchema = findParams.extend({
+  filters: z
+    .object({
+      name: createOperatorMap(z.string()).optional(),
+    })
+    .optional(),
+});

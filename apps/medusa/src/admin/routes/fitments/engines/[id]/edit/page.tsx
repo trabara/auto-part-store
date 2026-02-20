@@ -1,12 +1,12 @@
 import { defineRouteConfig } from "@medusajs/admin-sdk";
 import { LoaderFunctionArgs, useLoaderData } from "react-router";
-import EngineEdit from "~/admin/modules/fitment/engine-edit";
+import EngineEditDrawer from "~/admin/modules/fitment/engine/components/edit-drawer";
 import { sdk } from "~/admin/lib/sdk";
 import { Engine } from "~/modules/fitment/schema";
 
 const EditEnginePage = () => {
   const { engine } = useLoaderData() as { engine: Engine };
-  return <EngineEdit engine={engine} />;
+  return <EngineEditDrawer engine={engine} />;
 };
 
 export async function loader({ params }: LoaderFunctionArgs) {

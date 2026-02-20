@@ -1,18 +1,18 @@
 import {
+  CreateMakeSchema,
+  UpdateMakeSchema,
+} from "@/modules/fitment/schema";
+import {
   authenticate,
   MiddlewareRoute,
-  validateAndTransformQuery,
   validateAndTransformBody,
+  validateAndTransformQuery,
 } from "@medusajs/framework";
 import { z } from "@medusajs/framework/zod";
 import {
   createFindParams,
   createOperatorMap,
 } from "@medusajs/medusa/api/utils/validators";
-import {
-  CreateMakeSchema,
-  UpdateMakeSchema,
-} from "../../../modules/fitment/schema";
 
 const findParams = createFindParams();
 const makeFindParams = findParams.extend({
@@ -67,7 +67,7 @@ export const makesMiddlewares: MiddlewareRoute[] = [
     method: "PATCH",
     middlewares: [
       authenticateMiddleware,
-      validateAndTransformBody(UpdateMakeSchema.omit({ id: true })),
+      validateAndTransformBody(UpdateMakeSchema),
     ],
   },
   {

@@ -162,13 +162,13 @@ export function DataTableBulkActionsToolbar<TData>({
                             e.preventDefault()
                         }
                     }}
-                    className="bg-ui-contrast-bg-base relative flex items-center overflow-hidden rounded-full px-1 after:shadow-elevation-flyout after:pointer-events-none after:absolute after:inset-0 after:rounded-full after:content-['']"
+                    className="dark:bg-ui-contrast-bg-base bg-ui-bg-base relative flex items-center border overflow-hidden rounded-full px-1 after:shadow-elevation-flyout after:pointer-events-none after:absolute after:inset-0 after:rounded-full after:content-['']"
                 >
 
-                    <div className='txt-compact-small-plus text-ui-contrast-fg-secondary px-3 py-2.5'>
+                    <div className='txt-compact-small-plus dark:text-ui-contrast-fg-secondary text-ui-fg-secondary px-3 py-2.5'>
                         {selectedCount} selected
                     </div>
-                    <div className="bg-ui-contrast-border-base h-10 w-px"></div>
+                    <div className="dark:bg-ui-contrast-border-base bg-ui-border-base h-10 w-px"></div>
                     {children}
                 </PopoverPrimitive.Content>
             </PopoverPrimitive.Portal>

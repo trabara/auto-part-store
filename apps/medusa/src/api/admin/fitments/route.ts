@@ -1,9 +1,9 @@
-import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http";
-import { FitmentsController } from "../../controllers/fitments.controller";
+import { FitmentsController } from "@/modules/fitment/controllers/fitments";
 import {
   CreateFitmentInput,
   UpdateFitmentInput,
-} from "../../../modules/fitment/schema";
+} from "@/modules/fitment/schema";
+import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http";
 
 /**
  * GET /admin/fitments

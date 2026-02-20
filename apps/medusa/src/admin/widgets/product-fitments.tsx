@@ -10,7 +10,7 @@ import { useMemo } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useDeleteMutation, usePaginatedQuery } from "~/admin/hooks";
 import { sdk } from "~/admin/lib/sdk";
-import { createFitmentColumns } from "~/admin/modules/fitment/fitment-list/components/columns";
+import { createFitmentColumns } from "~/admin/modules/fitment/fitment/components/data-table-columns";
 import { Fitment } from "~/modules/fitment/schema";
 
 type ProductFitmentsResponse = {

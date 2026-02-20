@@ -1,5 +1,5 @@
 import { defineRouteConfig } from "@medusajs/admin-sdk";
-import MakeCreate from "~/admin/modules/fitment/make-create";
+import MakeCreate from "~/admin/modules/fitment/make/components/create-modal";
 
 const CreateMakePage = () => {
   return <MakeCreate />;

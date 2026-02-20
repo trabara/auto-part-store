@@ -1,20 +1,20 @@
 import {
+  CreateEngineSchema,
+  EngineTypeSchema,
+  FuelTypeSchema,
+  UpdateEngineSchema,
+} from "@/modules/fitment/schema";
+import {
   authenticate,
   MiddlewareRoute,
-  validateAndTransformQuery,
   validateAndTransformBody,
+  validateAndTransformQuery,
 } from "@medusajs/framework";
 import { z } from "@medusajs/framework/zod";
 import {
   createFindParams,
   createOperatorMap,
 } from "@medusajs/medusa/api/utils/validators";
-import {
-  CreateEngineSchema,
-  UpdateEngineSchema,
-  FuelTypeSchema,
-  EngineTypeSchema,
-} from "../../../modules/fitment/schema";
 
 const authenticateMiddleware = authenticate(["*"], ["session"]);
 const findParams = createFindParams();
@@ -72,7 +72,7 @@ export const enginesMiddlewares: MiddlewareRoute[] = [
     method: "PATCH",
     middlewares: [
       authenticateMiddleware,
-      validateAndTransformBody(UpdateEngineSchema.omit({ id: true })),
+      validateAndTransformBody(UpdateEngineSchema),
     ],
   },
   {

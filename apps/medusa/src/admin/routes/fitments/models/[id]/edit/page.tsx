@@ -1,7 +1,7 @@
 import { defineRouteConfig } from "@medusajs/admin-sdk";
 import { LoaderFunctionArgs, useLoaderData } from "react-router-dom";
 import { sdk } from "~/admin/lib/sdk";
-import ModelEdit from "~/admin/modules/fitment/model-edit";
+import ModelEdit from "~/admin/modules/fitment/model/components/edit-drawer";
 import { Model } from "~/modules/fitment/schema";
 
 type Response = {

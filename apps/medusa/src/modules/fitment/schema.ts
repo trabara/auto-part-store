@@ -87,16 +87,13 @@ export const FitmentSchema = Base.extend({
   drive: DriveTypeSchema.default("FWD"),
   transmission: TransmissionTypeSchema.default("MANUAL"),
   year_start: z.number(),
-  year_end: z.number(),
-  model: ModelSchema,
-  engine: EngineSchema,
+  year_end: z.number().optional(),
 });
 
 export type Fitment = z.infer<typeof FitmentSchema>;
 
-export const CreateMakeSchema = MakeSchema.omit(BASE_MASK).merge(
-  z.object({ id: z.string().optional() }),
-);
+export const CreateMakeSchema = MakeSchema.omit(BASE_MASK)
+
 export type CreateMakeInput = z.infer<typeof CreateMakeSchema>;
 
 // Support both make_id reference and nested make object
@@ -139,28 +136,19 @@ export const CreateModelValidationSchema = z
     }
   });
 
-export const CreateEngineSchema = EngineSchema.omit(BASE_MASK).merge(
-  z.object({ id: z.string().optional() }),
-);
+export const CreateEngineSchema = EngineSchema.omit(BASE_MASK)
+
 export type CreateEngineInput = z.infer<typeof CreateEngineSchema>;
 
-export const CreateFitmentSchema = FitmentSchema.omit({
-  engine: true,
-  model: true,
-  ...BASE_MASK,
-}).extend({
-  model: CreateModelSchema,
-  engine: CreateEngineSchema,
+export const CreateFitmentSchema = FitmentSchema.omit(BASE_MASK).extend({
+  model_id: z.string(),
+  engine_id: z.string(),
   product_id: z.string().optional(),
 });
 
 export type CreateFitmentInput = z.infer<typeof CreateFitmentSchema>;
 
-export const UpdateFitmentSchema = FitmentSchema.omit({
-  engine: true,
-  model: true,
-  ...BASE_MASK,
-})
+export const UpdateFitmentSchema = FitmentSchema.omit(BASE_MASK)
   .partial()
   .extend({
     id: z.string(),

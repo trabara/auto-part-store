@@ -1,9 +1,16 @@
 import { defineRouteConfig } from "@medusajs/admin-sdk";
 import { CarFront } from "lucide-react";
-import FitmentList from "~/admin/modules/fitment/fitment-list";
+import { CrudProvider } from "~/admin/components/curd-provider";
+import FitmentDataTable from "~/admin/modules/fitment/fitment/components/data-table";
+import FitmentEditDrawer from "~/admin/modules/fitment/fitment/components/edit-drawer";
 
 const FitmentsPage = () => {
-  return <FitmentList />;
+  return (
+    <CrudProvider entityName="fitment">
+      <FitmentDataTable />
+      <FitmentEditDrawer />
+    </CrudProvider>
+  );
 };
 
 export const config = defineRouteConfig({

@@ -1,6 +1,6 @@
 import { defineRouteConfig } from "@medusajs/admin-sdk";
 import { useParams } from "react-router-dom";
-import ProductList from "~/admin/modules/fitment/product-list";
+import ProductList from "~/admin/modules/fitment/product";
 const ProductListPage = () => {
   const { id } = useParams();
 

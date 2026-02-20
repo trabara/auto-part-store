@@ -1,5 +1,5 @@
 import { defineRouteConfig } from "@medusajs/admin-sdk";
-import EngineCreate from "~/admin/modules/fitment/engine-create";
+import EngineCreate from "~/admin/modules/fitment/engine/components/create-modal";
 
 const CreateEnginePage = () => {
   return <EngineCreate />;

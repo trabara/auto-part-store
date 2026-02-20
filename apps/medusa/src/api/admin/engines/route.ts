@@ -1,9 +1,9 @@
-import { MedusaRequest, MedusaResponse } from "@medusajs/framework";
-import { EnginesController } from "../../controllers/engines.controller";
+import { EnginesController } from "@/modules/fitment/controllers/engines";
 import {
   CreateEngineInput,
   UpdateEngineInput,
-} from "../../../modules/fitment/schema";
+} from "@/modules/fitment/schema";
+import { MedusaRequest, MedusaResponse } from "@medusajs/framework";
 
 /**
  * GET /admin/engines

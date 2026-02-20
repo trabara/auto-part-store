@@ -1,9 +1,9 @@
-import { MedusaRequest, MedusaResponse } from "@medusajs/framework";
-import { MakesController } from "../../controllers/makes.controller";
+import { MakesController } from "@/modules/fitment/controllers/makes";
 import {
   CreateMakeInput,
   UpdateMakeInput,
-} from "../../../modules/fitment/schema";
+} from "@/modules/fitment/schema";
+import { MedusaRequest, MedusaResponse } from "@medusajs/framework";
 
 /**
  * GET /admin/makes

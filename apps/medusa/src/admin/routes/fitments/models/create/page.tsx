@@ -1,5 +1,5 @@
 import { defineRouteConfig } from "@medusajs/admin-sdk";
-import ModelCreate from "~/admin/modules/fitment/model-create";
+import ModelCreate from "~/admin/modules/fitment/model/components/create-modal";
 
 const CreateModelPage = () => {
   return <ModelCreate />;

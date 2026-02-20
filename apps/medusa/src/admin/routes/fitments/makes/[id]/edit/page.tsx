@@ -1,12 +1,12 @@
 import { defineRouteConfig } from "@medusajs/admin-sdk";
 import { LoaderFunctionArgs, useLoaderData } from "react-router-dom";
 import { sdk } from "~/admin/lib/sdk";
-import MakeEdit from "~/admin/modules/fitment/make-edit";
-import { MakeWithModels } from "~/admin/modules/fitment/make-list/types";
+import MakeEditDrawer from "~/admin/modules/fitment/make/components/edit-drawer";
+import { MakeWithModels } from "~/admin/modules/fitment/make/types";
 
 const EditMakePage = () => {
   const { make } = useLoaderData() as { make: MakeWithModels };
-  return <MakeEdit make={make} />;
+  return <MakeEditDrawer make={make} />;
 };
 
 export async function loader({ params }: LoaderFunctionArgs) {

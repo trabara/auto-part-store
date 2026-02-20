@@ -5,7 +5,7 @@ import {
   useNavigate,
 } from "react-router-dom";
 import { sdk } from "~/admin/lib/sdk";
-import FitmentEdit from "~/admin/modules/fitment/fitment-edit";
+import FitmentEdit from "~/admin/modules/fitment/fitment/components/edit-drawer";
 import { Fitment } from "~/modules/fitment/schema";
 
 export async function loader({ params }: LoaderFunctionArgs) {

@@ -1,6 +1,6 @@
 import { clx, Hint, Input, Switch } from "@medusajs/ui"
 import { forwardRef, useEffect, useRef, useState } from "react"
-import OptionSelect, { OptionSelectProps } from './select'
+import OptionSelect, { OptionSelectProps } from './option-select'
 
 export type SelectOrCreateInputProps = OptionSelectProps & {
     error?: string

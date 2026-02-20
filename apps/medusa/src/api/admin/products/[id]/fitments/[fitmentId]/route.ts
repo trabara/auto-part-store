@@ -1,5 +1,5 @@
+import { ProductFitmentsController } from "@/modules/fitment/controllers/product-fitments";
 import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http";
-import { ProductFitmentsController } from "../../../../../controllers/product-fitments.controller";
 
 /**
  * DELETE /admin/products/:id/fitments/:fitmentId

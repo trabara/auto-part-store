@@ -1,9 +1,9 @@
+import { toast } from "@medusajs/ui";
 import {
   useMutation,
-  useQueryClient,
   UseMutationOptions,
+  useQueryClient,
 } from "@tanstack/react-query";
-import { toast } from "@medusajs/ui";
 
 /**
  * Configuration for delete mutations
@@ -19,7 +19,7 @@ export interface DeleteMutationConfig {
   deleteFn: (id: string) => Promise<any>;
   /** Additional mutation options */
   mutationOptions?: Omit<
-    UseMutationOptions<any, any, string>,
+    UseMutationOptions<any, any, string[]>,
     "mutationFn" | "onSuccess" | "onError"
   >;
 }
@@ -29,9 +29,9 @@ export interface DeleteMutationConfig {
  */
 export interface UseDeleteMutationReturn {
   /** Execute the delete mutation */
-  mutate: (id: string) => void;
+  mutate: (...ids: string[]) => void;
   /** Execute the delete mutation with async/await */
-  mutateAsync: (id: string) => Promise<any>;
+  mutateAsync: (...ids: string[]) => Promise<any>;
   /** Whether the mutation is currently running */
   isPending: boolean;
   /** Whether the mutation succeeded */
@@ -55,11 +55,11 @@ export interface UseDeleteMutationReturn {
  *   invalidateKeys: ["fitments"],
  *   successMessage: "Fitment deleted successfully",
  *   errorMessage: "Failed to delete fitment",
- *   deleteFn: (id) => sdk.client.fetch(`/admin/fitments/${id}`, { method: "DELETE" })
+ *   deleteFn: ({ ids }) => Promise.all(ids.map((id) => sdk.client.fetch(`/admin/fitments/${id}`, { method: "DELETE" })))
  * });
  *
  * // In your component:
- * deleteMutation.mutate(fitmentId);
+ * deleteMutation.mutate([fitmentId]);
  * ```
  */
 export function useDeleteMutation({
@@ -72,7 +72,14 @@ export function useDeleteMutation({
   const queryClient = useQueryClient();
 
   const mutation = useMutation({
-    mutationFn: deleteFn,
+    mutationFn: async (ids) => {
+      const results = [];
+      for (const id of ids) {
+        const result = await deleteFn(id);
+        results.push(result);
+      }
+      return results;
+    },
     onSuccess: () => {
       toast.success(successMessage);
       // Invalidate all specified query keys
@@ -89,8 +96,8 @@ export function useDeleteMutation({
   });
 
   return {
-    mutate: mutation.mutate,
-    mutateAsync: mutation.mutateAsync,
+    mutate: (...ids: string[]) => mutation.mutate(ids),
+    mutateAsync: (...ids: string[]) => mutation.mutateAsync(ids),
     isPending: mutation.isPending,
     isSuccess: mutation.isSuccess,
     isError: mutation.isError,

@@ -1,6 +1,6 @@
+import { EnginesController } from "@/modules/fitment/controllers/engines";
+import { UpdateEngineInput } from "@/modules/fitment/schema";
 import { MedusaRequest, MedusaResponse } from "@medusajs/framework";
-import { EnginesController } from "../../../controllers/engines.controller";
-import { UpdateEngineInput } from "../../../../modules/fitment/schema";
 
 /**
  * GET /admin/engines/:id

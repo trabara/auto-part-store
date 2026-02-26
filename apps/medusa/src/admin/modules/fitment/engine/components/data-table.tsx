@@ -4,10 +4,9 @@ import {
   Container,
   DataTable,
   Heading,
-  useDataTable,
-  usePrompt,
+  useDataTable
 } from "@medusajs/ui";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { usePaginatedQuery } from "~/admin/hooks";
 import { Engine } from "~/modules/fitment/schema";
 import { listEngines } from "../data";
@@ -18,12 +17,12 @@ import { createEngineColumns } from "./data-table-columns";
 
 const EngineList = () => {
   const navigate = useNavigate();
-  
+
   // Use paginated query hook
   const queryConfig = usePaginatedQuery({
     queryKey: "engines",
-    selectFn: (data) => ({ data: data?.engines, rowCount: data?.metadata.count }),
     queryFn: listEngines,
+    selectFn: (data) => ({ data: data?.engines, rowCount: data?.metadata.count }),
   });
 
   // Use delete mutation hook
@@ -56,13 +55,12 @@ const EngineList = () => {
               Manage vehicle engines and specifications
             </p>
           </div>
-          <Button
-            variant="secondary"
-            size="base"
-            onClick={() => navigate("/fitments/engines/create")}
-          >
-            <Plus className="mr-2" />
-            Create Engine
+
+          <Button variant="primary" asChild>
+            <Link to="/fitments/engines/create">
+              <Plus className="mr-2" />
+              Create Engine
+            </Link>
           </Button>
         </DataTable.Toolbar>
         <DataTable.Table />

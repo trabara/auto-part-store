@@ -1,4 +1,3 @@
-import { Plus } from "@medusajs/icons";
 import {
   Button,
   Container,
@@ -6,7 +5,7 @@ import {
   Heading,
   useDataTable
 } from "@medusajs/ui";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { usePaginatedQuery } from "~/admin/hooks";
 import { MakeBulkActionsToolbar } from "../components/data-table-bulk-actions";
 import { listMakesWithModels } from "../data";
@@ -56,11 +55,12 @@ const MakeList = () => {
           </div>
           <Button
             variant="secondary"
-            size="base"
-            onClick={() => navigate("/fitments/makes/create")}
+            size="small"
+            asChild
           >
-            <Plus className="mr-2" />
-            Create Make
+            <Link to="/fitments/makes/create">
+              Create
+            </Link>
           </Button>
         </DataTable.Toolbar>
         <DataTable.Table />

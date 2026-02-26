@@ -6,14 +6,13 @@ import {
   Heading,
   useDataTable
 } from "@medusajs/ui";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { usePaginatedQuery } from "~/admin/hooks";
 import { Model } from "~/modules/fitment/schema";
 import { listModelsWithFitments } from "../data";
 import { useModelDeleteMutation } from "../hooks/use-mode-delete";
 import { ModelBulkActionsToolbar } from "./data-table-bulk-actions";
 import { createModelColumns } from "./data-table-columns";
-
 
 
 const ModelList = () => {
@@ -54,11 +53,13 @@ const ModelList = () => {
           </div>
           <Button
             variant="secondary"
-            size="base"
-            onClick={() => navigate("/fitments/models/create")}
+            size="small"
+            asChild
           >
-            <Plus className="mr-2" />
-            Create Model
+            <Link to="/fitments/models/create">
+              <Plus className="mr-2" />
+              Create
+            </Link>
           </Button>
         </DataTable.Toolbar>
         <DataTable.Table />
@@ -67,6 +68,6 @@ const ModelList = () => {
       <ModelBulkActionsToolbar table={table} />
     </Container>
   );
-};
+}
 
 export default ModelList;

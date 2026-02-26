@@ -3,18 +3,23 @@ import { sdk } from "~/admin/lib/sdk";
 import { CreateModelInput, UpdateModelInput } from "~/modules/fitment/schema";
 import { ModelListResponse, ModelsWithFitmentsResponse } from "./types";
 
-export function listModels(): Promise<ModelListResponse> {
+export function listModels(signal: AbortSignal, params?: PaginatedQueryParams): Promise<ModelListResponse> {
     return sdk.client.fetch("/admin/models", {
+        signal,
+        method: "GET",
         query: {
+            ...(params || {}),
             fields: "id,name",
         },
     });
 }
 
-export function listModelsWithFitments(params: PaginatedQueryParams): Promise<ModelsWithFitmentsResponse> {
+export function listModelsWithFitments(signal: AbortSignal, params?: PaginatedQueryParams): Promise<ModelsWithFitmentsResponse> {
     return sdk.client.fetch("/admin/models", {
+        signal,
+        method: "GET",
         query: {
-            ...params,
+            ...(params || {}),
             fields: "*fitments.id,*make.name",
         },
     });
@@ -39,7 +44,7 @@ export function updateModel(id?: string) {
             return Promise.reject(new Error("Model ID is required for update"));
         }
         return sdk.client.fetch(`/admin/models/${id}`, {
-            method: "PUT",
+            method: "PATCH",
             body: input,
         });
     }

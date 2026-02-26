@@ -433,7 +433,7 @@
           "unsigned": false,
           "autoincrement": false,
           "primary": false,
-          "nullable": false,
+          "nullable": true,
           "mappedType": "integer"
         },
         "model_id": {
@@ -540,8 +540,8 @@
       "checks": [
         {
           "name": "year_range_check",
-          "expression": "year_end >= year_start",
-          "definition": "check ((year_end >= year_start))"
+          "expression": "year_end IS NULL OR year_end >= year_start",
+          "definition": "check ((year_end IS NULL OR year_end >= year_start))"
         }
       ],
       "foreignKeys": {

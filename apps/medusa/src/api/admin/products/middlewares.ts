@@ -4,7 +4,7 @@ import { authenticate, MiddlewareRoute, validateAndTransformBody, validateAndTra
 
 const authenticateMiddleware = authenticate(["*"], ["session"]);
 
-export const productFitmentMiddlewares: MiddlewareRoute[] = [
+export const adminProductFitmentMiddlewares: MiddlewareRoute[] = [
   {
     matcher: "/admin/fitments",
     methods: ["POST"],

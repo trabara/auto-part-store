@@ -1,5 +1,5 @@
 import {
-  CreateModelValidationSchema,
+  CreateModelSchema,
   ModelFindParamsSchema,
   UpdateModelSchema
 } from "@/modules/fitment/schema";
@@ -13,7 +13,7 @@ import { z } from "@medusajs/framework/zod";
 
 const authenticateMiddleware = authenticate(["*"], ["session"]);
 
-export const modelsMiddlewares: MiddlewareRoute[] = [
+export const adminModelsMiddlewares: MiddlewareRoute[] = [
   {
     matcher: "/admin/models",
     methods: ["GET"],
@@ -30,7 +30,7 @@ export const modelsMiddlewares: MiddlewareRoute[] = [
     method: "POST",
     middlewares: [
       authenticateMiddleware,
-      validateAndTransformBody(CreateModelValidationSchema),
+      validateAndTransformBody(CreateModelSchema),
     ],
   },
   {

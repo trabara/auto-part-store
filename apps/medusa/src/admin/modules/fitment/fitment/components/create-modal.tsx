@@ -5,10 +5,9 @@ import {
   Heading,
   Hint,
   Input,
-  Label,
-  usePrompt
+  Label
 } from "@medusajs/ui";
-import { Controller, FormProvider, useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import OptionSelect from "~/admin/components/option-select";
 import { useCreateMutation } from "~/admin/hooks/use-create-mutation";
@@ -20,22 +19,7 @@ import { createFitment } from "../data";
 
 
 const CreateFitmentModal = () => {
-  const prompt = usePrompt();
   const navigate = useNavigate();
-
-  const handleCancel = async () => {
-    const confirmed = await prompt({
-      title: "Are you sure you want to leave this form?",
-      description:
-        "You have unsaved changes that will be lost if you exit this form.",
-      confirmText: "Continue",
-      variant: "confirmation",
-    });
-    if (confirmed) {
-      navigate(-1);
-    }
-  };
-
 
   const form = useForm({
     resolver: zodResolver(CreateFitmentSchema),
@@ -48,6 +32,10 @@ const CreateFitmentModal = () => {
     }
   });
 
+  const handleClose = () => {
+    navigate(-1);
+  };
+
   const createMutation = useCreateMutation({
     invalidateKeys: ["fitments"],
     errorMessage: "An error occurred while submitting the form. Please try again.",
@@ -55,133 +43,124 @@ const CreateFitmentModal = () => {
     createFn: createFitment,
   });
 
-  const onSubmit = (data: CreateFitmentInput) => {
-    createMutation.mutate(data)
-  }
-
+  const handleSubmit = form.handleSubmit((data: CreateFitmentInput) => {
+    createMutation.mutate(data);
+    handleClose();
+  });
 
   return (
-    <FormProvider {...form}>
-      <FocusModal open onOpenChange={handleCancel}>
-
-        <FocusModal.Content>
-          <FocusModal.Header >
-          </FocusModal.Header>
-
-          <form className="" onSubmit={form.handleSubmit(onSubmit)}>
-
-            <div className="mx-auto max-w-lg py-4">
-              <div>
-                <Heading level="h1">Create Fitment</Heading>
-                <Hint>Fill out the form below to create a new fitment.</Hint>
-              </div>
-
-              <div className="mt-8 space-y-6">
-
-                <Controller
-                  control={form.control}
-                  name="year_start"
-                  render={({ field, fieldState }) => (
-                    <div className="flex flex-col space-y-2">
-                      <Label htmlFor="year_start">Year Start</Label>
-                      <Input id="year_start" type="number" {...field} />
-                      {fieldState.error && (<Hint variant="error">{fieldState.error.message}</Hint>)}
-                    </div>
-                  )}
-                />
-                <Controller
-                  control={form.control}
-                  name="year_end"
-                  render={({ field, fieldState }) => (
-                    <div className="flex flex-col space-y-2">
-                      <Label htmlFor="year_end">Year End (optional)</Label>
-                      <Input id="year_end" type="number" {...field} />
-                      {fieldState.error && (<Hint variant="error">{fieldState.error.message}</Hint>)}
-                    </div>
-                  )}
-                />
-                <Controller
-                  control={form.control}
-                  name="body_style"
-                  render={({ field, fieldState }) => (
-                    <div className="flex flex-col space-y-2">
-                      <Label htmlFor="body_style">Body Style</Label>
-                      <OptionSelect options={BODY_STYLE_OPTIONS} {...field} />
-                      {fieldState.error && (<Hint variant="error">{fieldState.error.message}</Hint>)}
-                    </div>
-                  )}
-                />
-                <Controller
-                  control={form.control}
-                  name="drive"
-                  render={({ field, fieldState }) => (
-                    <div className="flex flex-col space-y-2">
-                      <Label htmlFor="drive">Drive</Label>
-                      <OptionSelect options={DRIVE_OPTIONS} {...field} />
-                      {fieldState.error && (<Hint variant="error">{fieldState.error.message}</Hint>)}
-                    </div>
-                  )}
-                />
-                <Controller
-                  control={form.control}
-                  name="transmission"
-                  render={({ field, fieldState }) => (
-                    <div className="flex flex-col space-y-2">
-                      <Label htmlFor="transmission">Transmission</Label>
-                      <OptionSelect options={TRANSMISSION_OPTIONS} {...field} />
-                      {fieldState.error && (<Hint variant="error">{fieldState.error.message}</Hint>)}
-                    </div>
-                  )}
-                />
-                <Controller
-                  control={form.control}
-                  name="doors"
-                  render={({ field, fieldState }) => (
-                    <div className="flex flex-col space-y-2">
-                      <Label htmlFor="doors">Doors</Label>
-                      <OptionSelect options={DOORS_OPTIONS} {...field} />
-                      {fieldState.error && (<Hint variant="error">{fieldState.error.message}</Hint>)}
-                    </div>
-                  )}
-                />
-                <Controller
-                  control={form.control}
-                  name="model_id"
-                  render={({ field, fieldState }) => (
-                    <div className="flex flex-col space-y-2">
-                      <Label htmlFor="model_id">Model</Label>
-                      <ModelSelectInput  {...field} />
-                      {fieldState.error && (<Hint variant="error">{fieldState.error.message}</Hint>)}
-                    </div>
-                  )}
-                />
-                <Controller
-                  control={form.control}
-                  name="engine_id"
-                  render={({ field, fieldState }) => (
-                    <div className="flex flex-col space-y-2">
-                      <Label htmlFor="engine_id">Engine</Label>
-                      <EngineSelectInput  {...field} />
-                      {fieldState.error && (<Hint variant="error">{fieldState.error.message}</Hint>)}
-                    </div>
-                  )}
-                />
-              </div>
-
+    <FocusModal open onOpenChange={handleClose}>
+      <FocusModal.Content asChild>
+        <form onSubmit={handleSubmit}>
+          <FocusModal.Header />
+          <div className="mx-auto max-w-xl py-8 flex-1">
+            <div>
+              <Heading level="h1">Create Fitment</Heading>
+              <Hint>Fill out the form below to create a new fitment.</Hint>
             </div>
 
-            <div className="border-ui-border-base flex items-center justify-end gap-x-2 border-t p-4">
-              <div className="flex items-center justify-end gap-x-2">
-                <Button type="button" variant="secondary" onClick={handleCancel}>
-                  Cancel
-                </Button>
-                <Button type="submit">Continue</Button>
-              </div>
+            <div className="mt-8 space-y-6">
+              <Controller
+                name="year_start"
+                control={form.control}
+                render={({ field, fieldState: { error } }) => (
+                  <div className="flex flex-col space-y-2">
+                    <Label htmlFor="year_start">Year Start</Label>
+                    <Input id="year_start" type="number" {...field}
+                      onChange={(e) => field.onChange(Number(e.target.value))} />
+                    {error && (<Hint variant="error">{error.message}</Hint>)}
+                  </div>
+                )}
+              />
+              <Controller
+                name="year_end"
+                control={form.control}
+                render={({ field, fieldState: { error } }) => (
+                  <div className="flex flex-col space-y-2">
+                    <Label htmlFor="year_end">Year End (optional)</Label>
+                    <Input id="year_end" type="number" {...field}
+                      onChange={(e) => field.onChange(Number(e.target.value))} />
+                    {error && (<Hint variant="error">{error.message}</Hint>)}
+                  </div>
+                )}
+              />
+              <Controller
+                name="body_style"
+                control={form.control}
+                render={({ field, fieldState: { error } }) => (
+                  <div className="flex flex-col space-y-2">
+                    <Label htmlFor="body_style">Body Style</Label>
+                    <OptionSelect options={BODY_STYLE_OPTIONS} {...field} />
+                    {error && (<Hint variant="error">{error.message}</Hint>)}
+                  </div>
+                )}
+              />
+              <Controller
+                name="drive"
+                control={form.control}
+                render={({ field, fieldState: { error } }) => (
+                  <div className="flex flex-col space-y-2">
+                    <Label htmlFor="drive">Drive</Label>
+                    <OptionSelect options={DRIVE_OPTIONS} {...field} />
+                    {error && (<Hint variant="error">{error.message}</Hint>)}
+                  </div>
+                )}
+              />
+              <Controller
+                name="transmission"
+                control={form.control}
+                render={({ field, fieldState: { error } }) => (
+                  <div className="flex flex-col space-y-2">
+                    <Label htmlFor="transmission">Transmission</Label>
+                    <OptionSelect options={TRANSMISSION_OPTIONS} {...field} />
+                    {error && (<Hint variant="error">{error.message}</Hint>)}
+                  </div>
+                )}
+              />
+              <Controller
+                name="doors"
+                control={form.control}
+                render={({ field, fieldState: { error } }) => (
+                  <div className="flex flex-col space-y-2">
+                    <Label htmlFor="doors">Doors</Label>
+                    <OptionSelect options={DOORS_OPTIONS} {...field} />
+                    {error && (<Hint variant="error">{error.message}</Hint>)}
+                  </div>
+                )}
+              />
+              <Controller
+                name="model_id"
+                control={form.control}
+                render={({ field, fieldState: { error } }) => (
+                  <div className="flex flex-col space-y-2">
+                    <Label htmlFor="model_id">Model</Label>
+                    <ModelSelectInput  {...field} />
+                    {error && (<Hint variant="error">{error.message}</Hint>)}
+                  </div>
+                )}
+              />
+              <Controller
+                name="engine_id"
+                control={form.control}
+                render={({ field, fieldState: { error } }) => (
+                  <div className="flex flex-col space-y-2">
+                    <Label htmlFor="engine_id">Engine</Label>
+                    <EngineSelectInput  {...field} />
+                    {error && (<Hint variant="error">{error.message}</Hint>)}
+                  </div>
+                )}
+              />
             </div>
-          </form>
-        </FocusModal.Content>
-      </FocusModal>
-    </FormProvider>
+          </div>
+          <FocusModal.Footer >
+            <Button type="button" variant="secondary" onClick={handleClose}>
+              Cancel
+            </Button>
+            <Button type="submit">Continue</Button>
+          </FocusModal.Footer>
+        </form>
+      </FocusModal.Content>
+    </FocusModal>
   );
 };
 

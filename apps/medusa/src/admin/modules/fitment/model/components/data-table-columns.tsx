@@ -26,11 +26,9 @@ export function createModelColumns({ onEdit, onDelete }: CreateModelColumnsOptio
         header: "Make",
         enableSorting: true,
         cell: ({ getValue }) => (
-          <div className="flex items-center gap-x-2">
-            <Badge size="small" className="capitalize">
-              {getValue()}
-            </Badge>
-          </div>
+          <Badge size="small" className="capitalize">
+            {getValue()}
+          </Badge>
         ),
       }),
       columnHelper.accessor("fitments", {

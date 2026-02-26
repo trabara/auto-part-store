@@ -97,45 +97,12 @@ export const CreateMakeSchema = MakeSchema.omit(BASE_MASK)
 
 export type CreateMakeInput = z.infer<typeof CreateMakeSchema>;
 
-// Support both make_id reference and nested make object
-export const CreateModelSchema = z.union([
-  // Format 1: Reference by make_id
-  ModelSchema.omit({ ...BASE_MASK, make: true }).extend({
-    make_id: z.string(),
-    id: z.string().optional(),
-  }),
-  // Format 2: Nested make object
-  ModelSchema.omit(BASE_MASK).extend({
-    make: CreateMakeSchema,
-    id: z.string().optional(),
-  }),
-]);
-export type CreateModelInput = z.infer<typeof CreateModelSchema>;
+export const CreateModelSchema = z.object({
+  name: z.string(),
+  make_id: z.string(),
+})
 
-// Helper for validation middleware (wraps the union in a superRefine)
-export const CreateModelValidationSchema = z
-  .object({
-    name: z.string(),
-    make_id: z.string().optional(),
-    make: CreateMakeSchema.optional(),
-    id: z.string().optional(),
-  })
-  .superRefine((data, ctx) => {
-    if (!data.make_id && !data.make) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "Either make_id or make must be provided",
-        path: ["make_id"],
-      });
-    }
-    if (data.make_id && data.make) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "Cannot provide both make_id and make",
-        path: ["make_id"],
-      });
-    }
-  });
+export type CreateModelInput = z.infer<typeof CreateModelSchema>;
 
 export const CreateEngineSchema = EngineSchema.omit(BASE_MASK)
 
@@ -192,28 +159,41 @@ export const FitmentFindParamsSchema = findParams.extend({
     .object({
       model: z
         .object({
-          name: createOperatorMap(z.string()),
+          name: createOperatorMap(z.string()).optional(),
           make: z
             .object({
-              name: createOperatorMap(z.string()),
+              name: createOperatorMap(z.string()).optional(),
             })
             .optional(),
         })
         .optional(),
       engine: z
         .object({
-          size: createOperatorMap(z.string()),
-          fuel: createOperatorMap(z.string()),
+          size: createOperatorMap(z.string()).optional(),
+          fuel: createOperatorMap(z.string()).optional(),
         })
         .optional(),
       body_style: createOperatorMap(z.string()).optional(),
       drive: createOperatorMap(z.string()).optional(),
       transmission: createOperatorMap(z.string()).optional(),
-      year_start: createOperatorMap(z.number()).optional(),
-      year_end: createOperatorMap(z.number()).optional(),
+      year_start: createOperatorMap(z.coerce.number()).optional(),
+      year_end: createOperatorMap(z.coerce.number()).optional(),
+    })
+    .partial()
+    .optional(),
+});
+
+export const EngineFindParamsSchema = findParams.extend({
+  filters: z
+    .object({
+      fuel: createOperatorMap(FuelTypeSchema).optional(),
+      type: createOperatorMap(EngineTypeSchema).optional(),
+      size: createOperatorMap(z.string()).optional(),
+      tech: createOperatorMap(z.string()).optional(),
     })
     .optional(),
 });
+
 
 export const ModelFindParamsSchema = findParams.extend({
   filters: z
@@ -239,6 +219,13 @@ export const MakeFindParamsSchema = findParams.extend({
   filters: z
     .object({
       name: createOperatorMap(z.string()).optional(),
+      models: z.object({
+        name: createOperatorMap(z.string()).optional(),
+        fitments: z.object({
+          year_start: createOperatorMap(z.coerce.number()).optional(),
+          year_end: createOperatorMap(z.coerce.number()).optional(),
+        }).optional(),
+      }).optional(),
     })
     .optional(),
 });

@@ -11,13 +11,12 @@ import { Controller, useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import OptionSelect from "~/admin/components/option-select";
 import { useCreateMutation } from "~/admin/hooks/use-create-mutation";
-import { sdk } from "~/admin/lib/sdk";
 import {
   ENGINE_FUEL_OPTIONS,
   ENGINE_SIZE_OPTIONS,
   ENGINE_TYPE_OPTIONS,
 } from "~/modules/fitment/constant";
-import { CreateEngineInput, CreateEngineSchema } from "~/modules/fitment/schema";
+import { CreateEngineSchema } from "~/modules/fitment/schema";
 import { createEngine } from "../data";
 
 
@@ -47,6 +46,7 @@ const EngineCreate = () => {
 
   const handleSubmit = form.handleSubmit((data) => {
     createMutation.mutate(data);
+    handleClose();
   });
 
   return (

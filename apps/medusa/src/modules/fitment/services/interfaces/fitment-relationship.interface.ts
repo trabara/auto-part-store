@@ -38,21 +38,21 @@ export interface IFitmentRelationshipService {
     sharedContext?: Context<EntityManager>,
   ): Promise<any>;
 
-  /**
-   * Create a full fitment with related entities
-   */
-  createFullFitment(
-    dto: CreateFitmentInput,
-    sharedContext?: Context<EntityManager>,
-  ): Promise<any>;
+  // /**
+  //  * Create a full fitment with related entities
+  //  */
+  // createFullFitment(
+  //   dto: CreateFitmentInput,
+  //   sharedContext?: Context<EntityManager>,
+  // ): Promise<any>;
 
-  /**
-   * Create multiple full fitments with caching
-   */
-  createFullFitments(
-    dtos: CreateFitmentInput[],
-    sharedContext?: Context<EntityManager>,
-  ): Promise<any[]>;
+  // /**
+  //  * Create multiple full fitments with caching
+  //  */
+  // createFullFitments(
+  //   dtos: CreateFitmentInput[],
+  //   sharedContext?: Context<EntityManager>,
+  // ): Promise<any[]>;
 
   /**
    * Create model from various input formats

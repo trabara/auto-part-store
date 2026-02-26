@@ -1,4 +1,4 @@
-import { BaseController } from "@/common";
+import { BaseController } from "@/modules/common";
 import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http";
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils";
 import { FITMENT_MODULE } from "..";

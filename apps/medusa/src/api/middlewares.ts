@@ -1,27 +1,22 @@
-import { defineMiddlewares, validateAndTransformQuery } from "@medusajs/framework";
-import { fitmentProductMiddlewares } from "./admin/fitments/middlewares";
-import { makesMiddlewares } from "./admin/makes/middlewares";
-import { modelsMiddlewares } from "./admin/models/middlewares";
-import { enginesMiddlewares } from "./admin/engines/middlewares";
-import { productFitmentMiddlewares } from "./admin/products/middlewares";
-import { FitmentFindParamsSchema } from "@/modules/fitment/schema";
+import { defineMiddlewares } from "@medusajs/framework";
+import { adminEnginesMiddlewares } from "./admin/engines/middlewares";
+import { adminFitmentProductMiddlewares } from "./admin/fitments/middlewares";
+import { adminMakesMiddlewares } from "./admin/makes/middlewares";
+import { adminModelsMiddlewares } from "./admin/models/middlewares";
+import { adminProductFitmentMiddlewares } from "./admin/products/middlewares";
+import { storeFitmentsMiddlewares } from "./store/fitments/middlewares";
+import { storeMakeMiddlewares } from "./store/makes/middlewares";
+import { storeEngineMiddlewares } from "./store/engines/middlewares";
 
 export default defineMiddlewares({
   routes: [
-    {
-      matcher: "/store/fitments",
-      method: "GET",
-      middlewares: [
-        validateAndTransformQuery(FitmentFindParamsSchema, {
-          defaults: ["id", "make_id", "model_id", "engine_id", "created_at", "updated_at"],
-          isList: true,
-        })
-      ],
-    },
-    ...productFitmentMiddlewares,
-    ...fitmentProductMiddlewares,
-    ...makesMiddlewares,
-    ...modelsMiddlewares,
-    ...enginesMiddlewares,
+    ...storeFitmentsMiddlewares,
+    ...storeMakeMiddlewares,
+    ...storeEngineMiddlewares,
+    ...adminProductFitmentMiddlewares,
+    ...adminFitmentProductMiddlewares,
+    ...adminMakesMiddlewares,
+    ...adminModelsMiddlewares,
+    ...adminEnginesMiddlewares,
   ],
 });

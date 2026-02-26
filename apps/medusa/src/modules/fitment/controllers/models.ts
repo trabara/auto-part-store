@@ -1,4 +1,4 @@
-import { BaseController } from "@/common";
+import { BaseController } from "@/modules/common";
 import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http";
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils";
 import { FITMENT_MODULE } from "..";
@@ -93,7 +93,7 @@ export class ModelsController extends BaseController {
         data: this.req.validatedBody,
       });
 
-      const model = await fitmentModuleService.createModelFromInput(
+      const model = await fitmentModuleService.createFitmentModels(
         this.req.validatedBody as CreateModelInput,
       );
 

@@ -35,6 +35,7 @@ const ModelCreate = () => {
 
   const handleSubmit = form.handleSubmit((data) => {
     createMutation.mutate(data);
+    handleClose();
   });
 
   return (
@@ -77,7 +78,6 @@ const ModelCreate = () => {
                       </Label>
                       <MakeSelectInput
                         placeholder="Select or create a make"
-                        error={fieldState.error?.message}
                         {...field}
                       />
                       {fieldState.error && (

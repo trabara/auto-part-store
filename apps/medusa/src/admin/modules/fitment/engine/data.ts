@@ -1,13 +1,23 @@
 import { sdk } from "~/admin/lib/sdk";
 import { CreateEngineInput } from "~/modules/fitment/schema";
 import { AdminEngineListResponse } from "./types";
+import { PaginatedQueryParams } from "hooks/use-paginated-query";
 
-export function listEngines(): Promise<AdminEngineListResponse> {
-    return sdk.client.fetch(`/admin/engines`, { method: "GET", query: { fields: "id,type,size" } })
+export function listEngines(signal: AbortSignal, params?: PaginatedQueryParams): Promise<AdminEngineListResponse> {
+    return sdk.client.fetch(`/admin/engines`, {
+        signal,
+        method: "GET",
+        query: {
+            ...(params || {}),
+        }
+    })
 }
 
 export function createEngine(input: CreateEngineInput): Promise<void> {
-    return sdk.client.fetch(`/admin/engines`, { body: input, method: "POST" })
+    return sdk.client.fetch(`/admin/engines`, {
+        method: "POST",
+        body: input,
+    })
 }
 
 export function updateEngine(id?: string) {
@@ -15,10 +25,15 @@ export function updateEngine(id?: string) {
         if (!id) {
             return Promise.reject(new Error("Engine ID is required for update"))
         }
-        return sdk.client.fetch(`/admin/engines/${id}`, { body: input, method: "PUT" })
+        return sdk.client.fetch(`/admin/engines/${id}`, {
+            method: "PATCH",
+            body: input,
+        })
     }
 }
 
 export function deleteEngine(id: string): Promise<void> {
-    return sdk.client.fetch(`/admin/engines/${id}`, { method: "DELETE" })
+    return sdk.client.fetch(`/admin/engines/${id}`, {
+        method: "DELETE"
+    })
 }

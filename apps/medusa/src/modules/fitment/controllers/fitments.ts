@@ -1,4 +1,4 @@
-import { BaseController } from "@/common";
+import { BaseController } from "@/modules/common";
 import { deleteFitmentWorkflow } from "@/workflows/delete-fitment";
 import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http";
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils";
@@ -16,7 +16,7 @@ export class FitmentsController extends BaseController {
   constructor(req: MedusaRequest, res: MedusaResponse) {
     super(req, res, "FitmentsController");
   }
-
+  
   /**
    * GET /admin/fitments
    * List all fitments with pagination and filtering
@@ -104,7 +104,7 @@ export class FitmentsController extends BaseController {
         data: body,
       });
 
-      const fitment = await fitmentModuleService.createFullFitment(body);
+      const fitment = await fitmentModuleService.createFitments(body);
 
       this.logger.info(`Fitment created successfully: ${fitment.id}`);
 

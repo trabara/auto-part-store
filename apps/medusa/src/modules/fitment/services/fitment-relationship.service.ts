@@ -148,147 +148,147 @@ export class FitmentRelationshipService implements IFitmentRelationshipService {
     return newEngine;
   }
 
-  @InjectManager()
-  public async createFullFitment(
-    dto: CreateFitmentInput,
-    @MedusaContext() sharedContext?: Context<EntityManager>,
-  ): Promise<Fitment> {
-    const [fitment] = await this.createFullFitments_([dto], sharedContext);
-    return fitment;
-  }
+  // @InjectManager()
+  // public async createFullFitment(
+  //   dto: CreateFitmentInput,
+  //   @MedusaContext() sharedContext?: Context<EntityManager>,
+  // ): Promise<Fitment> {
+  //   const [fitment] = await this.createFullFitments_([dto], sharedContext);
+  //   return fitment;
+  // }
 
-  @InjectManager()
-  public async createFullFitments(
-    dtos: CreateFitmentInput[],
-    @MedusaContext() sharedContext?: Context<EntityManager>,
-  ): Promise<Fitment[]> {
-    return await this.createFullFitments_(dtos, sharedContext);
-  }
+  // @InjectManager()
+  // public async createFullFitments(
+  //   dtos: CreateFitmentInput[],
+  //   @MedusaContext() sharedContext?: Context<EntityManager>,
+  // ): Promise<Fitment[]> {
+  //   return await this.createFullFitments_(dtos, sharedContext);
+  // }
 
-  @InjectTransactionManager()
-  protected async createFullFitments_(
-    dtos: CreateFitmentInput[],
-    @MedusaContext() sharedContext?: Context<EntityManager>,
-  ): Promise<Fitment[]> {
-    // Initialize caches for batch operations
-    const makeCache = new EntityCache<FitmentMake>();
-    const modelCache = new EntityCache<FitmentModel>();
-    const engineCache = new EntityCache<FitmentEngine>();
+  // @InjectTransactionManager()
+  // protected async createFullFitments_(
+  //   dtos: CreateFitmentInput[],
+  //   @MedusaContext() sharedContext?: Context<EntityManager>,
+  // ): Promise<Fitment[]> {
+  //   // Initialize caches for batch operations
+  //   const makeCache = new EntityCache<FitmentMake>();
+  //   const modelCache = new EntityCache<FitmentModel>();
+  //   const engineCache = new EntityCache<FitmentEngine>();
 
-    const fitments: Fitment[] = [];
+  //   const fitments: Fitment[] = [];
 
-    for (const dto of dtos) {
-      // Process engine with caching
-      const engine = await this.processEngine(dto, engineCache, sharedContext);
+  //   for (const dto of dtos) {
+  //     // Process engine with caching
+  //     const engine = await this.processEngine(dto, engineCache, sharedContext);
 
-      // Process make with caching
-      const make = await this.processMake(dto, makeCache, sharedContext);
+  //     // Process make with caching
+  //     const make = await this.processMake(dto, makeCache, sharedContext);
 
-      // Process model with caching
-      const model = await this.processModel(
-        dto,
-        make,
-        modelCache,
-        sharedContext,
-      );
+  //     // Process model with caching
+  //     const model = await this.processModel(
+  //       dto,
+  //       make,
+  //       modelCache,
+  //       sharedContext,
+  //     );
 
-      // Create or find fitment
-      const fitment = await this.createOrFindFitment(
-        dto,
-        model,
-        engine,
-        sharedContext,
-      );
+  //     // Create or find fitment
+  //     const fitment = await this.createOrFindFitment(
+  //       dto,
+  //       model,
+  //       engine,
+  //       sharedContext,
+  //     );
 
-      fitments.push(fitment);
-    }
+  //     fitments.push(fitment);
+  //   }
 
-    return fitments;
-  }
+  //   return fitments;
+  // }
 
-  /**
-   * Process engine entity with caching
-   */
-  private async processEngine(
-    dto: CreateFitmentInput,
-    cache: EntityCache<FitmentEngine>,
-    sharedContext?: Context<EntityManager>,
-  ): Promise<FitmentEngine> {
-    const engineKey = EntityKeyGenerator.generateEngineKey(dto.engine);
+  // /**
+  //  * Process engine entity with caching
+  //  */
+  // private async processEngine(
+  //   dto: CreateFitmentInput,
+  //   cache: EntityCache<FitmentEngine>,
+  //   sharedContext?: Context<EntityManager>,
+  // ): Promise<FitmentEngine> {
+  //   const engineKey = EntityKeyGenerator.generateEngineKey(dto.engine);
 
-    return await cache.getOrCompute(engineKey, async () => {
-      return await this.findOrCreateEngine_(dto.engine, sharedContext);
-    });
-  }
+  //   return await cache.getOrCompute(engineKey, async () => {
+  //     return await this.findOrCreateEngine_(dto.engine, sharedContext);
+  //   });
+  // }
 
-  /**
-   * Process make entity with caching
-   */
-  private async processMake(
-    dto: CreateFitmentInput,
-    cache: EntityCache<FitmentMake>,
-    sharedContext?: Context<EntityManager>,
-  ): Promise<FitmentMake> {
-    let makeName: string;
-    let makeId: string | undefined;
+  // /**
+  //  * Process make entity with caching
+  //  */
+  // private async processMake(
+  //   dto: CreateFitmentInput,
+  //   cache: EntityCache<FitmentMake>,
+  //   sharedContext?: Context<EntityManager>,
+  // ): Promise<FitmentMake> {
+  //   let makeName: string;
+  //   let makeId: string | undefined;
 
-    // Handle nested make format
-    if ("make" in dto.model && dto.model.make) {
-      makeName = dto.model.make.name;
-    }
-    // Handle make_id format
-    else if ("make_id" in dto.model && dto.model.make_id) {
-      const [existingMake] = await this.fitmentMakeRepository_.find(
-        { where: { id: dto.model.make_id } },
-        sharedContext,
-      );
+  //   // Handle nested make format
+  //   if ("make" in dto.model && dto.model.make) {
+  //     makeName = dto.model.make.name;
+  //   }
+  //   // Handle make_id format
+  //   else if ("make_id" in dto.model && dto.model.make_id) {
+  //     const [existingMake] = await this.fitmentMakeRepository_.find(
+  //       { where: { id: dto.model.make_id } },
+  //       sharedContext,
+  //     );
 
-      if (!existingMake) {
-        throw new Error(`Make with id ${dto.model.make_id} not found`);
-      }
+  //     if (!existingMake) {
+  //       throw new Error(`Make with id ${dto.model.make_id} not found`);
+  //     }
 
-      makeName = existingMake.name;
-      makeId = dto.model.make_id;
-    } else {
-      throw new Error("Either make or make_id must be provided in model");
-    }
+  //     makeName = existingMake.name;
+  //     makeId = dto.model.make_id;
+  //   } else {
+  //     throw new Error("Either make or make_id must be provided in model");
+  //   }
 
-    const makeKey = EntityKeyGenerator.generateMakeKey(makeName);
+  //   const makeKey = EntityKeyGenerator.generateMakeKey(makeName);
 
-    return await cache.getOrCompute(makeKey, async () => {
-      if (makeId) {
-        const [make] = await this.fitmentMakeRepository_.find(
-          { where: { id: makeId } },
-          sharedContext,
-        );
-        return make;
-      }
-      return await this.findOrCreateMake_(makeName, sharedContext);
-    });
-  }
+  //   return await cache.getOrCompute(makeKey, async () => {
+  //     if (makeId) {
+  //       const [make] = await this.fitmentMakeRepository_.find(
+  //         { where: { id: makeId } },
+  //         sharedContext,
+  //       );
+  //       return make;
+  //     }
+  //     return await this.findOrCreateMake_(makeName, sharedContext);
+  //   });
+  // }
 
-  /**
-   * Process model entity with caching
-   */
-  private async processModel(
-    dto: CreateFitmentInput,
-    make: FitmentMake,
-    cache: EntityCache<FitmentModel>,
-    sharedContext?: Context<EntityManager>,
-  ): Promise<FitmentModel> {
-    const modelKey = EntityKeyGenerator.generateModelKey(
-      make.id,
-      dto.model.name,
-    );
+  // /**
+  //  * Process model entity with caching
+  //  */
+  // private async processModel(
+  //   dto: CreateFitmentInput,
+  //   make: FitmentMake,
+  //   cache: EntityCache<FitmentModel>,
+  //   sharedContext?: Context<EntityManager>,
+  // ): Promise<FitmentModel> {
+  //   const modelKey = EntityKeyGenerator.generateModelKey(
+  //     make.id,
+  //     dto.model.name,
+  //   );
 
-    return await cache.getOrCompute(modelKey, async () => {
-      return await this.findOrCreateModel_(
-        dto.model.name,
-        make.id,
-        sharedContext,
-      );
-    });
-  }
+  //   return await cache.getOrCompute(modelKey, async () => {
+  //     return await this.findOrCreateModel_(
+  //       dto.model.name,
+  //       make.id,
+  //       sharedContext,
+  //     );
+  //   });
+  // }
 
   /**
    * Create or find fitment entity

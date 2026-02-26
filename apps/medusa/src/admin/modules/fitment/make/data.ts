@@ -1,23 +1,21 @@
 import { PaginatedQueryParams } from "~/admin/hooks";
 import { sdk } from "~/admin/lib/sdk";
-import { MakeListResponse, MakeWithModels } from "./types";
 import { CreateMakeInput, UpdateMakeInput } from "~/modules/fitment/schema";
+import { MakeListResponse, MakeWithModels } from "./types";
 
-export function listMakes(): Promise<MakeListResponse> {
+export function listMakes(signal: AbortSignal): Promise<MakeListResponse> {
     return sdk.client.fetch(`/admin/makes`, {
-        query: {
-            fields: "id,name",
-            ...params,
-        },
+        signal,
     });
 }
 
-export function listMakesWithModels(params: PaginatedQueryParams): Promise<MakeListResponse<MakeWithModels>> {
+export function listMakesWithModels(signal: AbortSignal, params?: PaginatedQueryParams): Promise<MakeListResponse<MakeWithModels>> {
     return sdk.client.fetch(`/admin/makes`, {
+        signal,
         query: {
+            ...(params || {}),
             fields: "*models",
-            ...params,
-        },
+        }
     });
 }
 
@@ -34,7 +32,7 @@ export function updateMake(id?: string) {
             return Promise.reject(new Error("Make ID is required for update"));
         }
         return sdk.client.fetch(`/admin/makes/${id}`, {
-            method: "PUT",
+            method: "PATCH",
             body: input,
         });
     }

@@ -1,8 +1,7 @@
 import {
   CreateEngineSchema,
-  EngineTypeSchema,
-  FuelTypeSchema,
-  UpdateEngineSchema,
+  EngineFindParamsSchema,
+  UpdateEngineSchema
 } from "@/modules/fitment/schema";
 import {
   authenticate,
@@ -11,33 +10,25 @@ import {
   validateAndTransformQuery,
 } from "@medusajs/framework";
 import { z } from "@medusajs/framework/zod";
-import {
-  createFindParams,
-  createOperatorMap,
-} from "@medusajs/medusa/api/utils/validators";
 
 const authenticateMiddleware = authenticate(["*"], ["session"]);
-const findParams = createFindParams();
 
-const engineFindParams = findParams.extend({
-  filters: z
-    .object({
-      fuel: createOperatorMap(FuelTypeSchema).optional(),
-      type: createOperatorMap(EngineTypeSchema).optional(),
-      size: createOperatorMap(z.string()).optional(),
-      tech: createOperatorMap(z.string()).optional(),
-    })
-    .optional(),
-});
-
-export const enginesMiddlewares: MiddlewareRoute[] = [
+export const adminEnginesMiddlewares: MiddlewareRoute[] = [
   {
     matcher: "/admin/engines",
     methods: ["GET"],
     middlewares: [
       authenticateMiddleware,
-      validateAndTransformQuery(engineFindParams, {
-        defaults: ["id", "fuel", "type", "size", "tech", "created_at", "updated_at"],
+      validateAndTransformQuery(EngineFindParamsSchema, {
+        defaults: [
+          "id",
+          "fuel",
+          "type",
+          "size",
+          "tech",
+          "created_at",
+          "updated_at"
+        ],
         isList: true,
       }),
     ],

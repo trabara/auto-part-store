@@ -1,10 +1,9 @@
+import { toast } from "@medusajs/ui";
 import {
     useMutation,
-    useQueryClient,
     UseMutationOptions,
+    useQueryClient,
 } from "@tanstack/react-query";
-import { toast } from "@medusajs/ui";
-import { UpdateMutationConfig, UseUpdateMutationReturn } from "./use-update-mutation";
 
 /**
  * Configuration for create mutations

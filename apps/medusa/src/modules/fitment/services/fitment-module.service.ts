@@ -66,31 +66,31 @@ class FitmentModuleService extends MedusaService(Models) {
    * Create a full fitment with all related entities
    * Delegates to FitmentRelationshipService
    */
-  @InjectManager()
-  public async createFullFitment(
-    dto: CreateFitmentInput,
-    @MedusaContext() sharedContext?: Context<EntityManager>,
-  ): Promise<Fitment> {
-    return await this.relationshipService_.createFullFitment(
-      dto,
-      sharedContext,
-    );
-  }
+  // @InjectManager()
+  // public async createFullFitment(
+  //   dto: CreateFitmentInput,
+  //   @MedusaContext() sharedContext?: Context<EntityManager>,
+  // ): Promise<Fitment> {
+  //   return await this.relationshipService_.createFullFitment(
+  //     dto,
+  //     sharedContext,
+  //   );
+  // }
 
   /**
    * Create multiple full fitments with caching
    * Delegates to FitmentRelationshipService
    */
-  @InjectManager()
-  public async createFullFitments(
-    dtos: CreateFitmentInput[],
-    @MedusaContext() sharedContext?: Context<EntityManager>,
-  ): Promise<Fitment[]> {
-    return await this.relationshipService_.createFullFitments(
-      dtos,
-      sharedContext,
-    );
-  }
+  // @InjectManager()
+  // public async createFullFitments(
+  //   dtos: CreateFitmentInput[],
+  //   @MedusaContext() sharedContext?: Context<EntityManager>,
+  // ): Promise<Fitment[]> {
+  //   return await this.relationshipService_.createFullFitments(
+  //     dtos,
+  //     sharedContext,
+  //   );
+  // }
 
   /**
    * Update a full fitment

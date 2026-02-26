@@ -10,7 +10,7 @@ export const Fitment = model.define("fitment", {
   drive: model.enum(DriveTypeSchema.Values).default("FWD"),
   transmission: model.enum(TransmissionTypeSchema.Values).default("MANUAL"),
   year_start: model.number(),
-  year_end: model.number(),
+  year_end: model.number().nullable(),
   model: model.belongsTo(() => FitmentModel, {
     mappedBy: "fitments",
   }),
@@ -25,6 +25,6 @@ export const Fitment = model.define("fitment", {
 ]).checks([
   {
     name: "year_range_check",
-    expression: "year_end >= year_start",
+    expression: "year_end IS NULL OR year_end >= year_start",
   },
 ])

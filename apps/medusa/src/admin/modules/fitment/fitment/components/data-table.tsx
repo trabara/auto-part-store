@@ -5,9 +5,9 @@ import {
   Heading,
   useDataTable,
 } from "@medusajs/ui";
-import { useCrudContext } from "~/admin/context/crud-context";
 import { useMemo } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useCrudContext } from "~/admin/context/crud-context";
 import { useDeleteMutation, usePaginatedQuery } from "~/admin/hooks";
 import { deleteFitment, listFitments } from "../data";
 import { AdminFitmentWithProducts } from "../types";
@@ -61,16 +61,22 @@ const FitmentDataTable = ({ productId }: { productId?: string }) => {
     <Container className="divide-y p-0">
       <DataTable instance={table}>
         <DataTable.Toolbar className="flex items-center justify-between px-6 py-4">
-          <Heading>Fitments</Heading>
-          <div className="flex items-center justify-center gap-x-2">
-            <Button
-              variant="secondary"
-              size="small"
-              onClick={() => navigate("/fitments/create")}
-            >
-              Create
-            </Button>
+          <div>
+            <Heading level="h1">Fitments</Heading>
+            <p className="text-ui-fg-subtle text-sm mt-1">
+              Manage vehicle fitments and compatible products
+            </p>
           </div>
+
+          <Button
+            variant="secondary"
+            size="small"
+            asChild
+          >
+            <Link to="/fitments/create">
+              Create
+            </Link>
+          </Button>
         </DataTable.Toolbar>
 
         <DataTable.Table />

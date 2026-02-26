@@ -1,9 +1,22 @@
-import { LinkProductsSchema } from "@/modules/fitment/schema";
+import { CreateFitmentSchema, LinkProductsSchema } from "@/modules/fitment/schema";
 import { authenticate, MiddlewareRoute, validateAndTransformBody } from "@medusajs/framework";
 
 const authenticateMiddleware = authenticate(["*"], ["session"]);
 
-export const fitmentProductMiddlewares: MiddlewareRoute[] = [
+export const adminFitmentProductMiddlewares: MiddlewareRoute[] = [
+  {
+    matcher: "/admin/fitments",
+    method: "GET",
+    middlewares: [authenticateMiddleware],
+  },
+  {
+    matcher: "/admin/fitments",
+    method: "POST",
+    middlewares: [
+      authenticateMiddleware,
+      validateAndTransformBody(CreateFitmentSchema),
+    ],
+  },
   {
     matcher: "/admin/fitments/:id/products",
     method: "GET",

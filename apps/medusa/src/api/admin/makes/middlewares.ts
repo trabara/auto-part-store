@@ -14,7 +14,7 @@ import { z } from "@medusajs/framework/zod";
 
 const authenticateMiddleware = authenticate(["*"], ["session"]);
 
-export const makesMiddlewares: MiddlewareRoute[] = [
+export const adminMakesMiddlewares: MiddlewareRoute[] = [
   {
     matcher: "/admin/makes",
     methods: ["GET"],

@@ -3,10 +3,11 @@ import { sdk } from "~/admin/lib/sdk";
 import { CreateFitmentInput } from "~/modules/fitment/schema";
 import { AdminFitmentResponse, AdminFitmentWithProducts } from "./types";
 
-export function listFitments(params: PaginatedQueryParams): Promise<AdminFitmentResponse<AdminFitmentWithProducts>> {
+export function listFitments(signal: AbortSignal, params?: PaginatedQueryParams): Promise<AdminFitmentResponse<AdminFitmentWithProducts>> {
     return sdk.client.fetch(`/admin/fitments`, {
+        signal,
         query: {
-            ...params,
+            ...(params || {}),
             fields: "*engine,*model,*model.make,*products.*",
         },
     });
@@ -25,7 +26,7 @@ export function updateFitment(id?: string) {
             return Promise.reject(new Error("Fitment ID is required for update"));
         }
         return sdk.client.fetch(`/admin/fitments/${id}`, {
-            method: "PUT",
+            method: "PATCH",
             body: input,
         });
     }

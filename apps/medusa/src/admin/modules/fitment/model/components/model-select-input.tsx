@@ -10,8 +10,8 @@ export function ModelSelectInput({ value, ...props }: ModelSelectInputProps) {
 
     const { data: modelOptions } = useQuery({
         queryKey: ["models"],
-        select: (data) => data.models.map(model => ({ label: model.name, value: model.id })) || [],
-        queryFn: listModels
+        queryFn: ({ signal }) => listModels(signal),
+        select: ({ models }) => models?.map(model => ({ label: model.name, value: model.id })) || [],
     })
 
 

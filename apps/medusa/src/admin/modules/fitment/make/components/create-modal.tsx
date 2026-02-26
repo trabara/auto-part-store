@@ -19,9 +19,6 @@ const MakeCreate = () => {
 
   const form = useForm<CreateMakeInput>({
     resolver: zodResolver(CreateMakeSchema),
-    defaultValues: {
-      name: "",
-    },
   });
 
   const createMutation = useCreateMutation({
@@ -37,6 +34,7 @@ const MakeCreate = () => {
 
   const handleSubmit = form.handleSubmit((data) => {
     createMutation.mutate(data);
+    handleClose();
   });
 
   return (

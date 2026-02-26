@@ -19,7 +19,7 @@ export interface PaginatedQueryConfig<TData, T> {
   /** Items per page (default: 15) */
   pageSize?: number;
   /** Query function that fetches data */
-  queryFn: (params: PaginatedQueryParams) => Promise<TData>;
+  queryFn: (signal: AbortSignal, params: PaginatedQueryParams) => Promise<TData>;
   /** Function to select and transform data */
   selectFn: (data: TData | undefined) => ({ data: T[] | undefined, rowCount: number | undefined });
   /** Additional query options */
@@ -109,7 +109,7 @@ export function usePaginatedQuery<
 
   // Fetch data
   const { data, isLoading } = useQuery<TData>({
-    queryFn: () => queryFn(queryParams),
+    queryFn: ({ signal }) => queryFn(signal, queryParams),
     queryKey: [
       queryKey,
       pageSize,

@@ -6,7 +6,7 @@ import { listModels } from '../data';
 
 type ModelSelectInputProps = Omit<SelectOrCreateInputProps, 'options'>;
 
-export function ModelSelectInput({ value, ...props }: ModelSelectInputProps) {
+export function ModelSelectInput(props: ModelSelectInputProps) {
 
     const { data: modelOptions } = useQuery({
         queryKey: ["models"],

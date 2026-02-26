@@ -108,6 +108,10 @@ export const createFitmentColumns = ({ productId, onEdit, onDelete, onUnlink, on
     }),
     columnHelper.accessor("year_end", {
       header: "Year End",
+      cell: (context) => {
+        const yearEnd = context.getValue();
+        return yearEnd ? yearEnd : "Present";
+      },
       enableSorting: true,
       sortLabel: "Year End",
       sortAscLabel: "Oldest-Newest",

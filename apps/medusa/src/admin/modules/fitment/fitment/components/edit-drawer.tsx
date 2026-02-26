@@ -12,13 +12,14 @@ import { Controller, useForm } from "react-hook-form";
 import OptionSelect from "~/admin/components/option-select";
 import { useCrudContext } from "~/admin/context/crud-context";
 import { useUpdateMutation } from "~/admin/hooks/use-update-mutation";
+import { EngineSelectInput } from "~/admin/modules/fitment/engine/components/engine-select";
+import { ModelSelectInput } from "~/admin/modules/fitment/model/components/model-select-input";
 import {
   BODY_STYLE_OPTIONS,
   DRIVE_OPTIONS,
   TRANSMISSION_OPTIONS,
 } from "~/modules/fitment/constant";
 import {
-  UpdateFitmentInput,
   UpdateFitmentSchema
 } from "~/modules/fitment/schema";
 import { updateFitment } from "../data";
@@ -27,7 +28,7 @@ import { AdminFitmentWithProducts } from "../types";
 const FitmentEditDrawer = () => {
   const { entity: fitment, isEdit, setIsEdit } = useCrudContext<AdminFitmentWithProducts>();
 
-  const form = useForm<UpdateFitmentInput>({
+  const form = useForm({
     resolver: zodResolver(UpdateFitmentSchema),
   });
 
@@ -54,6 +55,7 @@ const FitmentEditDrawer = () => {
 
   const onSubmit = form.handleSubmit((data) => {
     updateMutation.mutate(data);
+    setIsEdit(false);
   });
 
   return (
@@ -66,176 +68,196 @@ const FitmentEditDrawer = () => {
             </Heading>
           </Drawer.Header>
           <Drawer.Body>
-
-            <div className="flex flex-col overflow-y-auto">
-
-              {/* Vehicle Info (Read-only) */}
-              {/* <div className="p-4">
-                <h3 className="font-medium">
-                  Vehicle Information (Read-only)
-                </h3>
-                <div className="mt-4 flex flex-col gap-y-4">
+            <div className="mt-4 flex flex-col gap-y-4">
+              <Controller
+                name="model_id"
+                control={form.control}
+                render={({ field, fieldState: { error } }) => (
                   <div className="space-y-2">
-                    <Label>Make</Label>
-                    <Input value={make.name} disabled />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Model</Label>
-                    <Input value={modelName} disabled />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Engine</Label>
-                    <Input value={`${size}L ${engineType} ${fuel}`} disabled />
-                  </div>
-                </div>
-              </div> */}
-
-              {/* Editable Fields */}
-              <div className="p-4">
-                <h3 className="font-medium">Fitment Details</h3>
-                <div className="mt-4 flex flex-col gap-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="body_style">Body Style *</Label>
-                    <Controller
-                      name="body_style"
-                      control={form.control}
-                      render={({ field }) => (
-                        <OptionSelect
-                          {...field}
-                          options={BODY_STYLE_OPTIONS}
-                          onChange={(value) => field.onChange(value)}
-                        />
-                      )}
+                    <Label htmlFor={field.name}>
+                      Model
+                    </Label>
+                    <ModelSelectInput
+                      {...field}
                     />
-                    {form.formState.errors.body_style && (
+                    {error && (
                       <Hint variant="error">
-                        {form.formState.errors.body_style.message}
+                        {error.message}
+                      </Hint>
+                    )}
+                  </div>
+                )}
+              />
+
+              <Controller
+                name="engine_id"
+                control={form.control}
+                render={({ field, fieldState: { error } }) => (
+                  <div className="space-y-2">
+                    <Label htmlFor={field.name}>
+                      Engine
+                    </Label>
+                    <EngineSelectInput {...field} />
+                    {error && (
+                      <Hint variant="error">
+                        {error.message}
+                      </Hint>
+                    )}
+                  </div>
+                )}
+              />
+              <Controller
+                name="body_style"
+                control={form.control}
+                render={({ field, fieldState: { error } }) => (
+                  <div className="space-y-2">
+                    <Label htmlFor={field.name}>
+                      Body Style
+                    </Label>
+                    <OptionSelect
+                      {...field}
+                      options={BODY_STYLE_OPTIONS}
+                      onChange={(value) => field.onChange(value)}
+                    />
+                    {error && (
+                      <Hint variant="error">
+                        {error.message}
+                      </Hint>
+                    )}
+                  </div>
+                )}
+              />
+
+              <Controller
+                name="drive"
+                control={form.control}
+                render={({ field, fieldState: { error } }) => (
+                  <div className="space-y-2">
+                    <Label htmlFor={field.name}>
+                      Drive Type
+                    </Label>
+                    <OptionSelect
+                      {...field}
+                      options={DRIVE_OPTIONS}
+                      onChange={(value) => field.onChange(value)}
+                    />
+                    {error && (
+                      <Hint variant="error">
+                        {error.message}
+                      </Hint>
+                    )}
+                  </div>
+                )}
+              />
+
+              <Controller
+                name="transmission"
+                control={form.control}
+                render={({ field, fieldState: { error } }) => (
+                  <div className="space-y-2">
+                    <Label htmlFor={field.name}>
+                      Transmission
+                    </Label>
+                    <OptionSelect
+                      {...field}
+                      options={TRANSMISSION_OPTIONS}
+                      onChange={(value) => field.onChange(value)}
+                    />
+                    {error && (
+                      <Hint variant="error">
+                        {error.message}
                       </Hint>
                     )}
                   </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="drive">Drive Type *</Label>
-                    <Controller
-                      name="drive"
-                      control={form.control}
-                      render={({ field }) => (
-                        <OptionSelect
-                          {...field}
-                          options={DRIVE_OPTIONS}
-                          onChange={(value) => field.onChange(value)}
-                        />
-                      )}
-                    />
-                    {form.formState.errors.drive && (
-                      <Hint variant="error">
-                        {form.formState.errors.drive.message}
-                      </Hint>
-                    )}
-                  </div>
+                )}
+              />
 
+              <Controller
+                name="doors"
+                control={form.control}
+                render={({ field, fieldState: { error } }) => (
                   <div className="space-y-2">
-                    <Label htmlFor="transmission">Transmission *</Label>
-                    <Controller
-                      name="transmission"
-                      control={form.control}
-                      render={({ field }) => (
-                        <OptionSelect
-                          {...field}
-                          options={TRANSMISSION_OPTIONS}
-                          onChange={(value) => field.onChange(value)}
-                        />
-                      )}
+                    <Label htmlFor={field.name}>
+                      Doors
+                    </Label>
+                    <Input
+                      {...field}
+                      type="number"
+                      onChange={(e) => field.onChange(Number(e.target.value))}
                     />
-                    {form.formState.errors.transmission && (
+                    {error && (
                       <Hint variant="error">
-                        {form.formState.errors.transmission.message}
+                        {error.message}
                       </Hint>
                     )}
                   </div>
+                )}
+              />
 
+              <Controller
+                name="year_start"
+                control={form.control}
+                render={({ field, fieldState: { error } }) => (
                   <div className="space-y-2">
-                    <Label htmlFor="doors">Doors *</Label>
-                    <Controller
-                      name="doors"
-                      control={form.control}
-                      render={({ field }) => (
-                        <Input
-                          {...field}
-                          type="number"
-                          onChange={(e) => field.onChange(Number(e.target.value))}
-                        />
-                      )}
+                    <Label htmlFor={field.name}>
+                      Year Start
+                    </Label>
+                    <Input
+                      {...field}
+                      type="number"
+                      onChange={(e) => field.onChange(Number(e.target.value))}
                     />
-                    {form.formState.errors.doors && (
+                    {error && (
                       <Hint variant="error">
-                        {form.formState.errors.doors.message}
+                        {error.message}
                       </Hint>
                     )}
                   </div>
+                )}
+              />
 
+              <Controller
+                name="year_end"
+                control={form.control}
+                render={({ field, fieldState: { error } }) => (
                   <div className="space-y-2">
-                    <Label htmlFor="year_start">Year Start *</Label>
-                    <Controller
-                      name="year_start"
-                      control={form.control}
-                      render={({ field }) => (
-                        <Input
-                          {...field}
-                          type="number"
-                          onChange={(e) => field.onChange(Number(e.target.value))}
-                        />
-                      )}
+                    <Label htmlFor={field.name}>
+                      Year End
+                    </Label>
+                    <Input
+                      {...field}
+                      type="number"
+                      onChange={(e) => field.onChange(Number(e.target.value))}
                     />
-                    {form.formState.errors.year_start && (
+                    {error && (
                       <Hint variant="error">
-                        {form.formState.errors.year_start.message}
+                        {error.message}
                       </Hint>
                     )}
                   </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="year_end">Year End *</Label>
-                    <Controller
-                      name="year_end"
-                      control={form.control}
-                      render={({ field }) => (
-                        <Input
-                          {...field}
-                          type="number"
-                          onChange={(e) => field.onChange(Number(e.target.value))}
-                        />
-                      )}
-                    />
-                    {form.formState.errors.year_end && (
-                      <Hint variant="error">
-                        {form.formState.errors.year_end.message}
-                      </Hint>
-                    )}
-                  </div>
-                </div>
-              </div>
+                )}
+              />
             </div>
 
-            {/* Footer Buttons */}
-            <div className="flex-1 flex items-center justify-end gap-x-2">
-              <Button
-                type="button"
-                variant="secondary"
-                onClick={() => setIsEdit(false)}
-                disabled={updateMutation.isPending}
-              >
-                Cancel
-              </Button>
-              <Button
-                type="submit"
-                variant="primary"
-                isLoading={updateMutation.isPending}
-              >
-                Save Changes
-              </Button>
-            </div>
           </Drawer.Body>
+          <Drawer.Footer>
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={() => setIsEdit(false)}
+              disabled={updateMutation.isPending}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="submit"
+              variant="primary"
+              isLoading={updateMutation.isPending}
+            >
+              Save Changes
+            </Button>
+          </Drawer.Footer>
         </form>
       </Drawer.Content>
     </Drawer>

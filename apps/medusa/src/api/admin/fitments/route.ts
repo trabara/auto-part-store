@@ -1,7 +1,6 @@
 import { FitmentsController } from "@/modules/fitment/controllers/fitments";
 import {
-  CreateFitmentInput,
-  UpdateFitmentInput,
+  CreateFitmentInput
 } from "@/modules/fitment/schema";
 import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http";
 
@@ -26,14 +25,3 @@ export async function POST(
   await controller.create();
 }
 
-/**
- * PATCH /admin/fitments
- * Update an existing fitment
- */
-export async function PATCH(
-  req: MedusaRequest<UpdateFitmentInput>,
-  res: MedusaResponse,
-) {
-  const controller = new FitmentsController(req, res);
-  await controller.update();
-}

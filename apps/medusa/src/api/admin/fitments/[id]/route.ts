@@ -1,4 +1,5 @@
 import { FitmentsController } from "@/modules/fitment/controllers/fitments";
+import { UpdateFitmentInput } from "@/modules/fitment/schema";
 import { MedusaRequest, MedusaResponse } from "@medusajs/framework";
 
 /**
@@ -17,4 +18,17 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
 export async function DELETE(req: MedusaRequest, res: MedusaResponse) {
   const controller = new FitmentsController(req, res);
   await controller.delete();
+}
+
+
+/**
+ * PATCH /admin/fitments
+ * Update an existing fitment
+ */
+export async function PATCH(
+  req: MedusaRequest<UpdateFitmentInput>,
+  res: MedusaResponse,
+) {
+  const controller = new FitmentsController(req, res);
+  await controller.update();
 }

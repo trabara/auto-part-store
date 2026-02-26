@@ -4,7 +4,7 @@ import { CreateFitmentInput } from "~/modules/fitment/schema";
 import { AdminFitmentResponse, AdminFitmentWithProducts } from "./types";
 
 export function listFitments(signal: AbortSignal, params?: PaginatedQueryParams): Promise<AdminFitmentResponse<AdminFitmentWithProducts>> {
-    return sdk.client.fetch(`/admin/fitments`, {
+    return sdk.client.fetch('/admin/fitments', {
         signal,
         query: {
             ...(params || {}),
@@ -14,7 +14,7 @@ export function listFitments(signal: AbortSignal, params?: PaginatedQueryParams)
 }
 
 export function createFitment(input: CreateFitmentInput): Promise<void> {
-    return sdk.client.fetch(`/admin/fitments`, {
+    return sdk.client.fetch('/admin/fitments', {
         method: "POST",
         body: input,
     });

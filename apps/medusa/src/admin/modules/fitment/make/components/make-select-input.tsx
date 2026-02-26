@@ -3,7 +3,8 @@ import OptionSelect, { OptionSelectProps } from '~/admin/components/option-selec
 import { listMakes } from '../data';
 
 type MakeSelectInputProps = Omit<OptionSelectProps, "options">;
-export function MakeSelectInput({ value, ...props }: MakeSelectInputProps) {
+
+export function MakeSelectInput(props: MakeSelectInputProps) {
 
     const { data: options } = useQuery({
         queryKey: ["makes"],

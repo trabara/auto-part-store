@@ -5,12 +5,12 @@ import { listEngines } from '../data';
 
 type EngineSelectInputProps = Omit<SelectOrCreateInputProps, 'options'>;
 
-export function EngineSelectInput({ value, ...props }: EngineSelectInputProps) {
+export function EngineSelectInput(props: EngineSelectInputProps) {
 
     const { data: engineOptions } = useQuery({
         queryKey: ["engines"],
         queryFn: ({ signal }) => listEngines(signal),
-        select: ({ engines }) => engines?.map(engine => ({ label: `${engine.type} ${engine.size}`, value: engine.id })) || [],
+        select: ({ engines }) => engines?.map(engine => ({ label: engine.tech || `${engine.type} ${engine.size} ${engine.fuel} `, value: engine.id })) || [],
     })
 
 

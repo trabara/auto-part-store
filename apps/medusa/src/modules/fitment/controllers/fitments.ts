@@ -16,7 +16,7 @@ export class FitmentsController extends BaseController {
   constructor(req: MedusaRequest, res: MedusaResponse) {
     super(req, res, "FitmentsController");
   }
-  
+
   /**
    * GET /admin/fitments
    * List all fitments with pagination and filtering
@@ -113,19 +113,21 @@ export class FitmentsController extends BaseController {
   }
 
   /**
-   * PATCH /admin/fitments
+   * PATCH /admin/fitments/:id
    * Update an existing fitment
    */
   async update(): Promise<void> {
     await this.execute(async () => {
       const fitmentModuleService = this.req.scope.resolve(FITMENT_MODULE);
       const body = this.req.validatedBody as UpdateFitmentInput;
+      const { id } = this.req.params as Record<string, string | undefined>;
 
       this.logger.info("Updating fitment", {
-        id: body.id,
+        id,
+        body,
       });
 
-      const updated = await fitmentModuleService.updateFullFitment(body);
+      const updated = await fitmentModuleService.updateFitments(body);
 
       this.logger.info(`Fitment updated successfully: ${updated.id}`);
 

@@ -1,4 +1,4 @@
-import { ProductFitmentsController } from "@/modules/fitment/controllers/product-fitments";
+import { ProductController } from "@/modules/fitment/controllers/product";
 import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http";
 
 /**
@@ -6,7 +6,7 @@ import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http";
  * Get all fitments linked to a product
  */
 export async function GET(req: MedusaRequest, res: MedusaResponse) {
-  const controller = new ProductFitmentsController(req, res);
+  const controller = new ProductController(req, res);
   await controller.getFitmentsForProduct();
 }
 
@@ -18,6 +18,6 @@ export async function POST(
   req: MedusaRequest<{ fitment_ids: string[] }>,
   res: MedusaResponse,
 ) {
-  const controller = new ProductFitmentsController(req, res);
+  const controller = new ProductController(req, res);
   await controller.linkFitmentsToProduct();
 }

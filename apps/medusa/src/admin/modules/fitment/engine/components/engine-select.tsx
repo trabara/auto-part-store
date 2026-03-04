@@ -10,9 +10,8 @@ export function EngineSelectInput(props: EngineSelectInputProps) {
     const { data: engineOptions } = useQuery({
         queryKey: ["engines"],
         queryFn: ({ signal }) => listEngines(signal),
-        select: ({ engines }) => engines?.map(engine => ({ label: engine.tech || `${engine.type} ${engine.size} ${engine.fuel} `, value: engine.id })) || [],
+        select: ({ engines }) => engines?.map(({ id, tech, type, size, fuel }) => ({ label: tech || `${type} ${size} ${fuel} `, value: id })) || [],
     })
-
 
     return (
         <OptionSelect

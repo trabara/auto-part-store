@@ -1,7 +1,7 @@
-import { BaseController } from "@/modules/common";
 import FitmentProductLink from '@/links/fitment-product';
+import { BaseController } from "@/modules/common";
 import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http";
-import { ContainerRegistrationKeys, Modules } from "@medusajs/framework/utils";
+import { ContainerRegistrationKeys, Modules, QueryContext } from "@medusajs/framework/utils";
 import { FITMENT_MODULE } from "..";
 
 /**
@@ -11,9 +11,73 @@ import { FITMENT_MODULE } from "..";
  * Following SRP: Single responsibility is managing product-fitment relationships.
  * Following DIP: Depends on abstraction (BaseController) not implementation.
  */
-export class ProductFitmentsController extends BaseController {
+export class ProductController extends BaseController {
   constructor(req: MedusaRequest, res: MedusaResponse) {
-    super(req, res, "ProductFitmentsController");
+    super(req, res, "ProductController");
+  }
+
+  async list(): Promise<void> {
+    await this.execute(async () => {
+      const query = this.req.scope.resolve(ContainerRegistrationKeys.QUERY);
+
+      const { region_id, currency_code, fitment_id, category_id } = this.req.filterableFields;
+
+      this.logger.info("Listing products with filters", {
+        filters: this.req.filterableFields,
+        queryConfig: this.req.queryConfig,
+      });
+
+      // If fitment_id is provided, resolve product IDs through the link table
+      // since fitment is not a direct property of Product
+      let filtersFields: Record<string, any> = {};
+
+      if (category_id) {
+        filtersFields = {
+          ...filtersFields,
+          categories: {
+            id: category_id,
+          }
+        }
+      }
+
+
+      if (fitment_id) {
+        const { data: links } = await query.graph({
+          entity: FitmentProductLink.entryPoint,
+          fields: ["product_id"],
+          filters: { fitment_id },
+        });
+
+        if (links.length === 0) {
+          this.logger.info(`No products found for fitment ${fitment_id}`);
+          this.success({ products: [], metadata: { count: 0 } });
+          return;
+        }
+
+        filtersFields = {
+          ...filtersFields,
+          id: links.map(({ product_id }) => product_id)
+        };
+      }
+
+      const { data, metadata } = await query.graph({
+        entity: 'product',
+        ...this.req.queryConfig,
+        filters: filtersFields,
+        context: {
+          variants: {
+            calculated_price: QueryContext({
+              region_id,
+              currency_code,
+            })
+          }
+        },
+      });
+
+      this.logger.info(`Retrieved ${data.length} products`, { count: data.length });
+
+      this.success({ products: data, metadata });
+    }, "Products retrieved successfully");
   }
 
   /**

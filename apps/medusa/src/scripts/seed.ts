@@ -350,194 +350,194 @@ export default async function seedData({ container }: ExecArgs) {
   //   defaultSalesChannelId: defaultSalesChannel[0].id,
   // });
 
-  const { result: productResults } = await createProductsWorkflow(container).run({
-    input: {
-      products: [
-        {
-          "title": "Rear Wheel Hub Bearing Assembly",
-          "subtitle": "Hyundai / Kia Rear Hub Unit",
-          "description": "Rear wheel hub bearing assembly. Genuine Hyundai/Kia OEM part 52750-F9100. Made in Korea. Fits various Hyundai and Kia models. Please verify compatibility using VIN before ordering.",
-          "handle": "hyundai-kia-52750-f9100-rear-hub-bearing",
-          "status": "published",
-          "is_giftcard": false,
-          "discountable": true,
-          "options": [
-            {
-              "title": "Brand",
-              "values": [
-                "Hyundai / Kia OEM",
-                "SKF",
-                "FAG",
-                "SNR",
-                "MOOG",
-                "Timken",
-                "GSP",
-                "Febest",
-                "Iljin"
-              ]
-            }
-          ],
-          "variants": [
-            {
-              "title": "Hyundai / Kia OEM",
-              "sku": "52750-F9100",
-              "barcode": "52750F9100",
-              "manage_inventory": true,
-              "prices": [
-                {
-                  "currency_code": "usd",
-                  "amount": 18900
-                }
-              ],
-            },
-            {
-              "title": "SKF",
-              "sku": "SKF-VKBA-7604",
-              "manage_inventory": true,
-              "prices": [
-                {
-                  "currency_code": "usd",
-                  "amount": 14900
-                }
-              ],
-            },
-            {
-              "title": "FAG",
-              "sku": "FAG-713626530",
-              "manage_inventory": true,
-              "prices": [
-                {
-                  "currency_code": "usd",
-                  "amount": 13900
-                }
-              ],
+  // const { result: productResults } = await createProductsWorkflow(container).run({
+  //   input: {
+  //     products: [
+  //       {
+  //         "title": "Rear Wheel Hub Bearing Assembly",
+  //         "subtitle": "Hyundai / Kia Rear Hub Unit",
+  //         "description": "Rear wheel hub bearing assembly. Genuine Hyundai/Kia OEM part 52750-F9100. Made in Korea. Fits various Hyundai and Kia models. Please verify compatibility using VIN before ordering.",
+  //         "handle": "hyundai-kia-52750-f9100-rear-hub-bearing",
+  //         "status": "published",
+  //         "is_giftcard": false,
+  //         "discountable": true,
+  //         "options": [
+  //           {
+  //             "title": "Brand",
+  //             "values": [
+  //               "Hyundai / Kia OEM",
+  //               "SKF",
+  //               "FAG",
+  //               "SNR",
+  //               "MOOG",
+  //               "Timken",
+  //               "GSP",
+  //               "Febest",
+  //               "Iljin"
+  //             ]
+  //           }
+  //         ],
+  //         "variants": [
+  //           {
+  //             "title": "Hyundai / Kia OEM",
+  //             "sku": "52750-F9100",
+  //             "barcode": "52750F9100",
+  //             "manage_inventory": true,
+  //             "prices": [
+  //               {
+  //                 "currency_code": "usd",
+  //                 "amount": 18900
+  //               }
+  //             ],
+  //           },
+  //           {
+  //             "title": "SKF",
+  //             "sku": "SKF-VKBA-7604",
+  //             "manage_inventory": true,
+  //             "prices": [
+  //               {
+  //                 "currency_code": "usd",
+  //                 "amount": 14900
+  //               }
+  //             ],
+  //           },
+  //           {
+  //             "title": "FAG",
+  //             "sku": "FAG-713626530",
+  //             "manage_inventory": true,
+  //             "prices": [
+  //               {
+  //                 "currency_code": "usd",
+  //                 "amount": 13900
+  //               }
+  //             ],
 
-            },
-            {
-              "title": "SNR",
-              "sku": "SNR-R184XX",
-              "manage_inventory": true,
-              "prices": [
-                {
-                  "currency_code": "usd",
-                  "amount": 13500
-                }
-              ],
+  //           },
+  //           {
+  //             "title": "SNR",
+  //             "sku": "SNR-R184XX",
+  //             "manage_inventory": true,
+  //             "prices": [
+  //               {
+  //                 "currency_code": "usd",
+  //                 "amount": 13500
+  //               }
+  //             ],
 
-            },
-            {
-              "title": "MOOG",
-              "sku": "MOOG-HY-WB-12158",
-              "manage_inventory": true,
-              "prices": [
-                {
-                  "currency_code": "usd",
-                  "amount": 12900
-                }
-              ],
+  //           },
+  //           {
+  //             "title": "MOOG",
+  //             "sku": "MOOG-HY-WB-12158",
+  //             "manage_inventory": true,
+  //             "prices": [
+  //               {
+  //                 "currency_code": "usd",
+  //                 "amount": 12900
+  //               }
+  //             ],
 
-            },
-            {
-              "title": "Timken",
-              "sku": "TIMKEN-HA590XXX",
-              "manage_inventory": true,
-              "prices": [
-                {
-                  "currency_code": "usd",
-                  "amount": 15900
-                }
-              ],
+  //           },
+  //           {
+  //             "title": "Timken",
+  //             "sku": "TIMKEN-HA590XXX",
+  //             "manage_inventory": true,
+  //             "prices": [
+  //               {
+  //                 "currency_code": "usd",
+  //                 "amount": 15900
+  //               }
+  //             ],
 
-            }
-          ],
-          "metadata": {
-            "oem_part_number": "52750-F9100",
-            "position": "Rear",
-            "product_type": "Wheel Hub Bearing Assembly",
-            "made_in": "Korea",
-            "interchange_numbers": [
-              "52750F9100",
-              "52750-F9100"
-            ]
-          }
-        },
-        {
-          "title": "Serpentine Drive Belt 6PK1255",
-          "subtitle": "Hyundai / Kia OEM 25212-03050",
-          "description": "Accessory drive belt (ribbed belt) OEM 25212-03050 for Hyundai and Kia vehicles. 6-rib serpentine belt approximately 1255mm length. Please verify compatibility by VIN before ordering.",
-          "handle": "hyundai-kia-25212-03050-serpentine-belt",
-          "status": "published",
-          "discountable": true,
-          "options": [
-            {
-              "title": "Brand",
-              "values": [
-                "Hyundai OEM",
-                "Gates",
-                "Continental",
-                "Dayco",
-                "Bosch",
-                "Bando",
-                "Mitsuboshi",
-                "SKF"
-              ]
-            }
-          ],
-          "variants": [
-            {
-              "title": "Hyundai OEM",
-              "sku": "25212-03050",
-              "barcode": "2521203050",
-              "manage_inventory": true,
-              "prices": [
-                { "currency_code": "usd", "amount": 4900 }
-              ],
+  //           }
+  //         ],
+  //         "metadata": {
+  //           "oem_part_number": "52750-F9100",
+  //           "position": "Rear",
+  //           "product_type": "Wheel Hub Bearing Assembly",
+  //           "made_in": "Korea",
+  //           "interchange_numbers": [
+  //             "52750F9100",
+  //             "52750-F9100"
+  //           ]
+  //         }
+  //       },
+  //       {
+  //         "title": "Serpentine Drive Belt 6PK1255",
+  //         "subtitle": "Hyundai / Kia OEM 25212-03050",
+  //         "description": "Accessory drive belt (ribbed belt) OEM 25212-03050 for Hyundai and Kia vehicles. 6-rib serpentine belt approximately 1255mm length. Please verify compatibility by VIN before ordering.",
+  //         "handle": "hyundai-kia-25212-03050-serpentine-belt",
+  //         "status": "published",
+  //         "discountable": true,
+  //         "options": [
+  //           {
+  //             "title": "Brand",
+  //             "values": [
+  //               "Hyundai OEM",
+  //               "Gates",
+  //               "Continental",
+  //               "Dayco",
+  //               "Bosch",
+  //               "Bando",
+  //               "Mitsuboshi",
+  //               "SKF"
+  //             ]
+  //           }
+  //         ],
+  //         "variants": [
+  //           {
+  //             "title": "Hyundai OEM",
+  //             "sku": "25212-03050",
+  //             "barcode": "2521203050",
+  //             "manage_inventory": true,
+  //             "prices": [
+  //               { "currency_code": "usd", "amount": 4900 }
+  //             ],
 
-            },
-            {
-              "title": "Gates",
-              "sku": "GATES-6PK1255",
-              "manage_inventory": true,
-              "prices": [
-                { "currency_code": "usd", "amount": 3200 }
-              ],
+  //           },
+  //           {
+  //             "title": "Gates",
+  //             "sku": "GATES-6PK1255",
+  //             "manage_inventory": true,
+  //             "prices": [
+  //               { "currency_code": "usd", "amount": 3200 }
+  //             ],
 
-            },
-            {
-              "title": "Continental",
-              "sku": "CONT-6PK1255",
-              "manage_inventory": true,
-              "prices": [
-                { "currency_code": "usd", "amount": 3000 }
-              ],
+  //           },
+  //           {
+  //             "title": "Continental",
+  //             "sku": "CONT-6PK1255",
+  //             "manage_inventory": true,
+  //             "prices": [
+  //               { "currency_code": "usd", "amount": 3000 }
+  //             ],
 
-            },
-            {
-              "title": "Dayco",
-              "sku": "DAYCO-6PK1255",
-              "manage_inventory": true,
-              "prices": [
-                { "currency_code": "usd", "amount": 2800 }
-              ],
+  //           },
+  //           {
+  //             "title": "Dayco",
+  //             "sku": "DAYCO-6PK1255",
+  //             "manage_inventory": true,
+  //             "prices": [
+  //               { "currency_code": "usd", "amount": 2800 }
+  //             ],
 
-            }
-          ],
-          "metadata": {
-            "oem_part_number": "25212-03050",
-            "belt_type": "Serpentine / Ribbed",
-            "rib_count": 6,
-            "length_mm": 1255,
-            "product_type": "Accessory Drive Belt",
-            "interchange_numbers": [
-              "25212-03050",
-              "2521203050",
-              "6PK1255"
-            ]
-          }
-        }
-      ]
-    },
-  });
+  //           }
+  //         ],
+  //         "metadata": {
+  //           "oem_part_number": "25212-03050",
+  //           "belt_type": "Serpentine / Ribbed",
+  //           "rib_count": 6,
+  //           "length_mm": 1255,
+  //           "product_type": "Accessory Drive Belt",
+  //           "interchange_numbers": [
+  //             "25212-03050",
+  //             "2521203050",
+  //             "6PK1255"
+  //           ]
+  //         }
+  //       }
+  //     ]
+  //   },
+  // });
 
   logger.info("Finished seeding product data.");
 
@@ -571,169 +571,7 @@ export default async function seedData({ container }: ExecArgs) {
   await createFitmentsWorkflow(container).run({
     input: {
       fitments: [
-        // Hyundai Elantra - Hub Bearing
-        {
-          model: { name: "Elantra", make: { name: "HYUNDAI" } },
-          engine: { fuel: "GASOLINE", type: "I4", size: "1.6" },
-          body_style: "SEDAN",
-          doors: 4,
-          drive: "FWD",
-          transmission: "AUTOMATIC",
-          year_start: 2016,
-          year_end: 2020,
-        },
-        {
-          model: { name: "Elantra", make: { name: "HYUNDAI" } },
-          engine: { fuel: "GASOLINE", type: "I4", size: "2.0" },
-          body_style: "SEDAN",
-          doors: 4,
-          drive: "FWD",
-          transmission: "AUTOMATIC",
-          year_start: 2016,
-          year_end: 2020,
-        },
-        // Hyundai Tucson - Hub Bearing
-        {
-          model: { name: "Tucson", make: { name: "HYUNDAI" } },
-          engine: { fuel: "GASOLINE", type: "I4", size: "2.0" },
-          body_style: "SUV",
-          doors: 5,
-          drive: "AWD",
-          transmission: "AUTOMATIC",
-          year_start: 2015,
-          year_end: 2020,
-        },
-        {
-          model: { name: "Tucson", make: { name: "HYUNDAI" } },
-          engine: { fuel: "DIESEL", type: "I4", size: "2.0" },
-          body_style: "SUV",
-          doors: 5,
-          drive: "AWD",
-          transmission: "AUTOMATIC",
-          year_start: 2015,
-          year_end: 2020,
-        },
-        // Kia Sportage - Hub Bearing
-        {
-          model: { name: "Sportage", make: { name: "KIA" } },
-          engine: { fuel: "GASOLINE", type: "I4", size: "2.0" },
-          body_style: "SUV",
-          doors: 5,
-          drive: "AWD",
-          transmission: "AUTOMATIC",
-          year_start: 2016,
-          year_end: 2021,
-        },
-        {
-          model: { name: "Sportage", make: { name: "KIA" } },
-          engine: { fuel: "DIESEL", type: "I4", size: "2.0" },
-          body_style: "SUV",
-          doors: 5,
-          drive: "AWD",
-          transmission: "AUTOMATIC",
-          year_start: 2016,
-          year_end: 2021,
-        },
-        // Kia Rio - Hub Bearing
-        {
-          model: { name: "Rio", make: { name: "KIA" } },
-          engine: { fuel: "GASOLINE", type: "I4", size: "1.4" },
-          body_style: "SEDAN",
-          doors: 4,
-          drive: "FWD",
-          transmission: "MANUAL",
-          year_start: 2015,
-          year_end: 2020,
-        },
-        // Suzuki Swift - Hub Bearing
-        {
-          model: { name: "Swift", make: { name: "SUZUKI" } },
-          engine: { fuel: "GASOLINE", type: "I4", size: "1.2" },
-          body_style: "HATCHBACK",
-          doors: 5,
-          drive: "FWD",
-          transmission: "MANUAL",
-          year_start: 2017,
-          year_end: 2022,
-        },
-        {
-          model: { name: "Swift", make: { name: "SUZUKI" } },
-          engine: { fuel: "GASOLINE", type: "I4", size: "1.4" },
-          body_style: "HATCHBACK",
-          doors: 5,
-          drive: "FWD",
-          transmission: "AUTOMATIC",
-          year_start: 2017,
-          year_end: 2022,
-        },
-        // Suzuki Vitara - Hub Bearing
-        {
-
-          model: { name: "Vitara", make: { name: "SUZUKI" } },
-          engine: { fuel: "GASOLINE", type: "I4", size: "1.6" },
-          body_style: "SUV",
-          doors: 5,
-          drive: "AWD",
-          transmission: "AUTOMATIC",
-          year_start: 2015,
-          year_end: 2021,
-        },
-
-        // Hyundai Elantra - Serpentine Belt
-        {
-          model: { name: "Elantra", make: { name: "HYUNDAI" } },
-          engine: { fuel: "GASOLINE", type: "I4", size: "1.6" },
-          body_style: "SEDAN",
-          doors: 4,
-          drive: "FWD",
-          transmission: "AUTOMATIC",
-          year_start: 2016,
-          year_end: 2020,
-        },
-        {
-          model: { name: "Elantra", make: { name: "HYUNDAI" } },
-          engine: { fuel: "GASOLINE", type: "I4", size: "2.0" },
-          body_style: "SEDAN",
-          doors: 4,
-          drive: "FWD",
-          transmission: "AUTOMATIC",
-          year_start: 2016,
-          year_end: 2020,
-        },
-        // Hyundai Tucson - Serpentine Belt
-        {
-          model: { name: "Tucson", make: { name: "HYUNDAI" } },
-          engine: { fuel: "GASOLINE", type: "I4", size: "2.0" },
-          body_style: "SUV",
-          doors: 5,
-          drive: "AWD",
-          transmission: "AUTOMATIC",
-          year_start: 2015,
-          year_end: 2020,
-        },
-        // Kia Sportage - Serpentine Belt
-        {
-          model: { name: "Sportage", make: { name: "KIA" } },
-          engine: { fuel: "GASOLINE", type: "I4", size: "2.0" },
-          body_style: "SUV",
-          doors: 5,
-          drive: "AWD",
-          transmission: "AUTOMATIC",
-          year_start: 2016,
-          year_end: 2021,
-        },
-        // Kia Rio - Serpentine Belt
-        {
-          model: { name: "Rio", make: { name: "KIA" } },
-          engine: { fuel: "GASOLINE", type: "I4", size: "1.4" },
-          body_style: "SEDAN",
-          doors: 4,
-          drive: "FWD",
-          transmission: "MANUAL",
-          year_start: 2015,
-          year_end: 2020,
-        },
-      ],
+      ]
     }
   });
 

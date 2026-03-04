@@ -1,17 +1,17 @@
+import { getPriceRange, getProductOptions } from "@/lib/util/product"
 import _ from "lodash"
 import { useRef } from "react"
-import { useCategoryStore } from "../components/provider"
-import { getPriceRange, getProductOptions } from "../utils"
+import { useProductList } from "./use-product-list"
 
-export const useFilters = () => {
+export const useProductFilters = () => {
   const priceRef = useRef(
-    useCategoryStore((store) => ({
+    useProductList((store) => ({
       range: getPriceRange(store.products),
       handleChange: _.debounce(store.handlePriceFilterChange, 500),
     }))
   )
 
-  const filterSelector = useCategoryStore((store) => ({
+  const filterSelector = useProductList((store) => ({
     options: getProductOptions(store.products),
     isOptionActive: store.isOptionActive,
     handleOptionChange: store.handleOptionChange,

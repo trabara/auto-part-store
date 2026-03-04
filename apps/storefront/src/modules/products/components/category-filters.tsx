@@ -1,6 +1,6 @@
 "use client"
 
-import { cn } from "@/lib/utils"
+import { cn } from "@/lib/util/cn"
 import PriceSlider from "@/modules/products/components/price-slider"
 
 import {
@@ -9,14 +9,14 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion"
+import { Checkbox } from "@/components/ui/checkbox"
 import {
   Field,
   FieldContent,
   FieldGroup,
   FieldLabel,
 } from "@/components/ui/field"
-import { useFilters } from "@/modules/products/hooks/use-filters"
-import { Checkbox } from "@/components/ui/checkbox"
+import { useProductFilters } from "@/modules/products/hooks/use-product-filters"
 import { HTMLAttributes } from "react"
 
 type CategoryFiltersProps = HTMLAttributes<HTMLDivElement> & {}
@@ -31,7 +31,7 @@ export default function CategoryFilters({
     getPriceRange,
     handlePriceRangeChange,
     handleOptionChange,
-  } = useFilters()
+  } = useProductFilters()
 
   return (
     <div className={cn("flex flex-col space-y-8", className)} {...props}>
@@ -67,7 +67,7 @@ export default function CategoryFilters({
                   ))}
                 </FieldGroup>
               </Field>
-            </AccordionContent> 
+            </AccordionContent>
           </AccordionItem>
         ))}
       </Accordion>

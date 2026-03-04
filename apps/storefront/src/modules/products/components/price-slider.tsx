@@ -2,7 +2,7 @@
 
 import { Input } from "@/components/ui/input"
 import { Slider } from "@/components/ui/slider"
-import { cn } from "@/lib/utils"
+import { cn } from "@/lib/util/cn"
 import * as SliderPrimitive from "@radix-ui/react-slider"
 import { useCallback, useState } from "react"
 

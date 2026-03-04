@@ -66,6 +66,28 @@ export const removeAuthToken = async () => {
     })
 }
 
+export const getFitmentId = async () => {
+    const cookies = await nextCookies()
+    return cookies.get("_medusa_fitment_id")?.value
+}
+
+export const setFitmentId = async (fitmentId: string) => {
+    const cookies = await nextCookies()
+    cookies.set("_medusa_fitment_id", fitmentId, {
+        maxAge: 60 * 60 * 24 * 7,
+        httpOnly: true,
+        sameSite: "strict",
+        secure: process.env.NODE_ENV === "production",
+    })
+}
+
+export const removeFitmentId = async () => {
+    const cookies = await nextCookies()
+    cookies.set("_medusa_fitment_id", "", {
+        maxAge: -1,
+    })
+}
+
 export const getCartId = async () => {
     const cookies = await nextCookies()
     return cookies.get("_medusa_cart_id")?.value

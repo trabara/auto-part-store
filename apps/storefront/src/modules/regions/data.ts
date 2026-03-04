@@ -1,8 +1,8 @@
 "use server"
 
 import { sdk } from "@/lib/config"
-import { getCacheOptions } from "@/lib/cookies"
-import medusaError from "@/lib/utils"
+import { getCacheOptions } from "@/lib/data/cookies"
+import { medusaError } from "@/lib/util/error"
 import { HttpTypes } from "@medusajs/types"
 
 export const listRegions = async () => {

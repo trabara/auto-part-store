@@ -1,11 +1,11 @@
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { cn } from "@/lib/utils"
+import { cn } from "@/lib/util/cn"
+import { getProductPrice } from "@/lib/util/product"
 import { StoreProduct } from "@medusajs/types"
 import Image from "next/image"
 import { createElement, HTMLAttributes } from "react"
 import { Display } from "../types"
-import { getProductPrice } from "../utils"
 import { WishlistButton } from "./whishlist-button"
 
 type ProductItemProps = HTMLAttributes<HTMLDivElement> & {
@@ -24,26 +24,24 @@ export function ProductGridItem({
   const isSale = cheapestPrice?.price_type === "sale"
 
   return (
-    <div className={cn("flex flex-col space-y-4", className)} {...props}>
-      <div className="relative">
-        {isSale && (
-          <Badge className="absolute top-2 left-2 z-20 bg-destructive text-destructive-foreground">
-            {cheapestPrice?.percentage_diff}%
-          </Badge>
-        )}
-        {product.thumbnail && (
-          <Image
-            unoptimized
-            className="object-cover"
-            src={product.thumbnail}
-            alt={product.title}
-            width={300}
-            height={300}
-          />
-        )}
-      </div>
+    <div className={cn("relative flex flex-col space-y-4", className)} {...props}>
+      {isSale && (
+        <Badge className="absolute top-2 left-2 z-20 bg-destructive text-destructive-foreground">
+          {cheapestPrice?.percentage_diff}%
+        </Badge>
+      )}
+      {product.thumbnail && (
+        <Image
+          unoptimized
+          className="object-cover w-full"
+          src={product.thumbnail}
+          alt={product.title}
+          width={300}
+          height={300}
+        />
+      )}
 
-      <div className="flex flex-col space-y-4">
+      <div className="p-4 space-y-4 flex flex-col">
         <h6 className="line-clamp-2">{product?.title}</h6>
         <div className="flex items-center gap-2">
           <span className="text-xl font-semibold">
@@ -55,9 +53,11 @@ export function ProductGridItem({
             </span>
           )}
         </div>
-        <Button>Add to cart</Button>
+        <Button className="">Add to cart</Button>
       </div>
+
     </div>
+
   )
 }
 
@@ -78,11 +78,11 @@ export function ProductListItem({
         {product.thumbnail && (
           <Image
             unoptimized
+            className="object-cover h-full"
             src={product.thumbnail}
             alt={product.title}
             width={300}
             height={300}
-            className="object-cover h-full"
           />
         )}
       </div>

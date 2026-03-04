@@ -1,6 +1,6 @@
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { cn } from "@/lib/utils"
+import { cn } from "@/lib/util/cn"
 import { ShoppingCart } from "lucide-react"
 import { ComponentProps } from "react"
 

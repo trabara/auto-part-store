@@ -1,42 +1,28 @@
 "use client"
 
-import { type ReactNode, createContext, useContext } from "react"
-import { shallow } from "zustand/shallow"
-import { useStoreWithEqualityFn } from "zustand/traditional"
-import { CategoryState, CategoryStore, createCategoryStore } from "../store"
+import { type ReactNode, createContext } from "react"
+import { StoreApi } from "zustand/vanilla"
+import { createProductListStore, ProductListState, ProductListStore } from "../store"
 
-export type CategoryStoreApi = ReturnType<typeof createCategoryStore>
 
-export const CategoryStoreContext = createContext<CategoryStoreApi | undefined>(
+export const ProductListProviderContext = createContext<StoreApi<ProductListStore> | undefined>(
   undefined
 )
 
-export interface CategoryStoreProviderProps {
+export interface ProductListProviderProviderProps {
   children: ReactNode
-  initialState?: CategoryState
+  initialState?: ProductListState
 }
 
-export const CategoryStoreProvider = ({
+export const ProductListProvider = ({
   children,
   initialState,
-}: CategoryStoreProviderProps) => {
-  const store = createCategoryStore(initialState)
+}: ProductListProviderProviderProps) => {
+  const store = createProductListStore(initialState)
   return (
-    <CategoryStoreContext.Provider value={store}>
+    <ProductListProviderContext.Provider value={store}>
       {children}
-    </CategoryStoreContext.Provider>
+    </ProductListProviderContext.Provider>
   )
 }
 
-export const useCategoryStore = <T,>(
-  selector: (store: CategoryStore) => T
-): T => {
-  const categoryStoreContext = useContext(CategoryStoreContext)
-  if (!categoryStoreContext) {
-    throw new Error(
-      `useCategoryStore must be used within CategoryStoreProvider`
-    )
-  }
-
-  return useStoreWithEqualityFn(categoryStoreContext, selector, shallow)
-}

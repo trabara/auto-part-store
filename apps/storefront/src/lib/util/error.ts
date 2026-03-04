@@ -1,11 +1,4 @@
-import { clsx, type ClassValue } from "clsx"
-import { twMerge } from "tailwind-merge"
-
-export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs))
-}
-
-export default function medusaError(error: any): never {
+export function medusaError(error: any): never {
   if (error.response) {
     // The request was made and the server responded with a status code
     // that falls out of the range of 2xx

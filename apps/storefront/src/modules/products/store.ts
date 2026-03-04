@@ -1,9 +1,9 @@
 import { StoreProduct, StoreProductOptionValue } from "@medusajs/types"
 import { createStore } from "zustand/vanilla"
-import { listProductsWithSort, ProductListQueryParams } from "./data"
 import { Display } from "./types"
+import { listProductsWithSort, ProductListQueryParams } from "@/lib/data/products"
 
-export type CategoryState = {
+export type ProductListState = {
   queryParams: ProductListQueryParams
   options: Record<string, StoreProductOptionValue[]>
   products: StoreProduct[]
@@ -12,7 +12,7 @@ export type CategoryState = {
   error?: string
 }
 
-export type CategoryActions = {
+export type ProductListActions = {
   resetOptions: () => void
   removeOptions: (key: string, values: StoreProductOptionValue[]) => void
   setDisplay: (display: Display) => void
@@ -24,9 +24,9 @@ export type CategoryActions = {
   isOptionActive: (key: string, values: StoreProductOptionValue[]) => boolean
 }
 
-export type CategoryStore = CategoryState & CategoryActions
+export type ProductListStore = ProductListState & ProductListActions
 
-export const INITIAL_CATEGORY_STATE: CategoryState = {
+export const INITIAL_PRODUCT_LIST_STATE: ProductListState = {
   queryParams: {},
   options: {},
   products: [],
@@ -34,19 +34,19 @@ export const INITIAL_CATEGORY_STATE: CategoryState = {
   isLoading: false,
 }
 
-export const createCategoryStore = (
-  initState: CategoryState = INITIAL_CATEGORY_STATE
+export const createProductListStore = (
+  initState: ProductListState = INITIAL_PRODUCT_LIST_STATE
 ) => {
-  return createStore<CategoryStore>()((set, get) => ({
+  return createStore<ProductListStore>()((set, get) => ({
     ...initState,
     setDisplay: (display) => set({ display }),
     resetOptions: () => {
       set({ options: {} })
     },
     handleOptionChange: (key, values) => async (checked: boolean) => {
-      
+
     },
-    removeOptions: (key, values) => {},
+    removeOptions: (key, values) => { },
     isOptionActive: (key, values) => {
       const { options } = get()
       const activeValues = options[key] || []

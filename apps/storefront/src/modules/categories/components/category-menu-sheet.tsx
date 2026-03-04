@@ -1,4 +1,3 @@
-import { Button } from "@/components/ui/button"
 import {
   Sheet,
   SheetContent,
@@ -6,31 +5,25 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet"
-import { Menu } from "lucide-react"
-import { CategoryNavMenu } from "./category-nav-menu"
 import { StoreProductCategory } from "@medusajs/types"
-import { cn } from "@/lib/utils"
+import { CategoryNavMenu } from "./category-nav-menu"
 
-type CategoryMenuButtonProps = {
+type CategoryMenuSheetProps = {
   categories: StoreProductCategory[]
-  side: "left" | "right"
-  className?: string
+  children: React.ReactNode
 }
 
-export function CategoryMenuButton({
-  categories = [],
-  side = "left",
-  className,
-}: CategoryMenuButtonProps) {
+export async function CategoryMenuSheet({
+  categories,
+  children,
+}: CategoryMenuSheetProps) {
+
   return (
     <Sheet>
       <SheetTrigger asChild>
-        <Button variant="ghost" className={cn("inline-flex items-center", className)}>
-          <Menu />
-          <span className="hidden xl:block ml-2">ALL CATEGORIES</span>
-        </Button>
+        {children}
       </SheetTrigger>
-      <SheetContent side={side}>
+      <SheetContent side="left">
         <SheetHeader>
           <SheetTitle className="text-lg font-bold">ALL CATEGORIES</SheetTitle>
         </SheetHeader>

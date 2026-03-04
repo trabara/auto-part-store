@@ -21,11 +21,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { cn } from "@/lib/utils"
-import { FilterDrawerButton } from "@/modules/store/components/filter-drawer-button"
+import { cn } from "@/lib/util/cn"
 import { HTMLAttributes } from "react"
 
-import { useCategoryStore } from "@/modules/products/components/provider"
+import { useProductList } from "../hooks/use-product-list"
+import { FilterDrawerButton } from "./filter-drawer-button"
 import { createViewProductItem } from "./product-item"
 
 const SORT_OPTIONS = [
@@ -51,9 +51,11 @@ export function ProductListFilterTags({
   className,
   ...props
 }: HTMLAttributes<HTMLDivElement>) {
-  const { options, resetOptions, removeOptions } = useCategoryStore(
-    (store) => store
-  )
+  const { options, resetOptions, removeOptions } = useProductList((store) => ({
+    options: store.options,
+    resetOptions: store.resetOptions,
+    removeOptions: store.removeOptions,
+  }))
 
   const hasFilters = Object.keys(options).length > 0
   if (!hasFilters) return null
@@ -93,7 +95,7 @@ export function ProductListFilterTags({
 export function ProductListHeader({
   className,
 }: HTMLAttributes<HTMLDivElement>) {
-  const { products, display, setDisplay } = useCategoryStore((store) => ({
+  const { products, display, setDisplay } = useProductList((store) => ({
     products: store.products,
     display: store.display,
     setDisplay: store.setDisplay,
@@ -160,7 +162,7 @@ export function ProductListHeader({
 }
 
 export function ProductListContent() {
-  const { display, products, isLoading } = useCategoryStore((store) => ({
+  const { display, products, isLoading } = useProductList((store) => ({
     display: store.display,
     products: store.products,
     isLoading: store.isLoading,

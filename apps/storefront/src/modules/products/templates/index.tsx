@@ -1,30 +1,26 @@
-import { listProductOptions, listProducts } from "@/modules/products/data"
 import {
   ProductList,
   ProductListContent,
   ProductListHeader,
 } from "@/modules/products/components/product-list"
-import { CategoryStoreProvider } from "@/modules/products/components/provider"
+import { ProductListProvider } from "@/modules/products/components/provider"
+import { StoreProduct } from "@medusajs/types"
 import CategoryFilters from "../components/category-filters"
 
-export type StoreTemplateProps = {
-  queryParams?: { category: string }
+export type ProductListTemplateProps = {
+  products: StoreProduct[]
 }
 
-export default async function StoreTemplate({
-  queryParams,
-}: StoreTemplateProps) {
-  const productOptions = await listProductOptions()
-  console.log("Product options:", productOptions)
-  const { response } = await listProducts({
-    queryParams: {},
-  })
+export default async function ProductListTemplate({
+  products,
+}: ProductListTemplateProps) {
+
 
   return (
-    <CategoryStoreProvider
+    <ProductListProvider
       initialState={{
         queryParams: {},
-        products: response.products,
+        products,
         display: "grid",
         options: {},
         isLoading: false,
@@ -40,6 +36,6 @@ export default async function StoreTemplate({
           <ProductListContent />
         </ProductList>
       </div>
-    </CategoryStoreProvider>
+    </ProductListProvider>
   )
 }

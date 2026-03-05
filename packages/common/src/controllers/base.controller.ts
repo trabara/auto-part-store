@@ -18,10 +18,9 @@ export abstract class BaseController {
 
   constructor(
     protected readonly req: MedusaRequest,
-    protected readonly res: MedusaResponse,
-    loggerContext: string,
+    protected readonly res: MedusaResponse
   ) {
-    this.logger = MedusaLoggerAdapter.fromScope(req.scope, loggerContext);
+    this.logger = MedusaLoggerAdapter.fromScope(req.scope, this.constructor.name);
     this.errorHandler = new ApiErrorHandler(this.logger);
   }
 

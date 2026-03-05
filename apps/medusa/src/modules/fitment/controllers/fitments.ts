@@ -1,7 +1,7 @@
-import { BaseController } from "@/modules/common";
 import { deleteFitmentWorkflow } from "@/workflows/delete-fitment";
 import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http";
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils";
+import { BaseController } from "@repo/common";
 import { FITMENT_MODULE } from "..";
 import { CreateFitmentInput, UpdateFitmentInput } from "../schema";
 
@@ -14,7 +14,7 @@ import { CreateFitmentInput, UpdateFitmentInput } from "../schema";
  */
 export class FitmentsController extends BaseController {
   constructor(req: MedusaRequest, res: MedusaResponse) {
-    super(req, res, "FitmentsController");
+    super(req, res);
   }
 
   /**

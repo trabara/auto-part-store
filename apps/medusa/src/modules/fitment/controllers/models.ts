@@ -1,6 +1,6 @@
-import { BaseController } from "@/modules/common";
 import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http";
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils";
+import { BaseController } from "@repo/common";
 import { FITMENT_MODULE } from "..";
 import { CreateModelInput, UpdateModelInput } from "../schema";
 
@@ -13,7 +13,7 @@ import { CreateModelInput, UpdateModelInput } from "../schema";
  */
 export class ModelsController extends BaseController {
   constructor(req: MedusaRequest, res: MedusaResponse) {
-    super(req, res, "ModelsController");
+    super(req, res);
   }
 
   /**

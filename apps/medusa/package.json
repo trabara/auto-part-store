@@ -44,6 +44,7 @@
     "@medusajs/cli": "2.13.1",
     "@medusajs/framework": "2.13.1",
     "@medusajs/medusa": "2.13.1",
+    "@repo/common": "workspace:*",
     "@repo/invoice-gen-plugin": "workspace:*",
     "date-fns": "^4.1.0",
     "lodash": "^4.17.23",

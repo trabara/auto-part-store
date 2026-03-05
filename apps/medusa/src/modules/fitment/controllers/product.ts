@@ -1,7 +1,7 @@
 import FitmentProductLink from '@/links/fitment-product';
-import { BaseController } from "@/modules/common";
 import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http";
 import { ContainerRegistrationKeys, Modules, QueryContext } from "@medusajs/framework/utils";
+import { BaseController } from "@repo/common";
 import { FITMENT_MODULE } from "..";
 
 /**
@@ -13,7 +13,7 @@ import { FITMENT_MODULE } from "..";
  */
 export class ProductController extends BaseController {
   constructor(req: MedusaRequest, res: MedusaResponse) {
-    super(req, res, "ProductController");
+    super(req, res);
   }
 
   async list(): Promise<void> {

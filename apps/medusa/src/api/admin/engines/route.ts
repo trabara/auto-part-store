@@ -1,4 +1,4 @@
-import { EnginesController } from "@/modules/fitment/controllers/engines";
+import { EnginesController } from "@/modules/fitment/controllers";
 import {
   CreateEngineInput,
   UpdateEngineInput,

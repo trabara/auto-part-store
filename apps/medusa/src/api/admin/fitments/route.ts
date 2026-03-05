@@ -1,4 +1,4 @@
-import { FitmentsController } from "@/modules/fitment/controllers/fitments";
+import { FitmentsController } from "@/modules/fitment/controllers";
 import {
   CreateFitmentInput
 } from "@/modules/fitment/schema";

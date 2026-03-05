@@ -1,4 +1,4 @@
-import { ModelsController } from "@/modules/fitment/controllers/models";
+import { ModelsController } from "@/modules/fitment/controllers";
 import {
   CreateModelInput,
   UpdateModelInput,

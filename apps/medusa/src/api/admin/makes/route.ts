@@ -1,4 +1,4 @@
-import { MakesController } from "@/modules/fitment/controllers/makes";
+import { MakesController } from "@/modules/fitment/controllers";
 import {
   CreateMakeInput,
   UpdateMakeInput,

@@ -24,9 +24,6 @@ export default defineConfig({
   },
   modules: [
     {
-      resolve: resolve(__dirname, './src/modules/fitment'),
-    },
-    {
       resolve: "@medusajs/medusa/cache-redis",
       options: {
         redisUrl: process.env.REDIS_URL,
@@ -97,24 +94,17 @@ export default defineConfig({
     },
   ],
   plugins: [
-    // {
-    //   resolve: '@agilo/medusa-analytics-plugin',
-    //   options: {},
-    // },
-    // {
-    //   resolve: '@repo/invoice-gen-plugin',
-    //   options: {},
-    // },
-  ],
-  admin: {
-    vite: () => {
-      return {
-        resolve: {
-          alias: {
-            "~": path.resolve(__dirname, "./src"),
-          },
-        },
-      }
+    {
+      resolve: '@repo/vehicle-fitment-plugin',
+      options: {
+        // Plugin-specific options can be added here
+      },
+    },
+    {
+      resolve: '@repo/invoice-gen-plugin',
+      options: {
+        // Plugin-specific options can be added here
+      },
     }
-  }
+  ],
 });

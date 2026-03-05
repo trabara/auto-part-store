@@ -18,7 +18,8 @@
     "rimraf": "^6.1.2",
     "ts-node": "^10.9.2",
     "turbo": "^2.7.6",
-    "typescript": "5.9.2"
+    "typescript": "5.9.2",
+    "yalc": "^1.0.0-pre.53"
   },
   "engines": {
     "node": ">=20"
@@ -26,6 +27,7 @@
   "packageManager": "yarn@4.12.0",
   "workspaces": [
     "apps/*",
-    "packages/*"
+    "packages/*",
+    "plugins/*"
   ]
 }

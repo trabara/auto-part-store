@@ -10321,9 +10321,9 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@repo/invoice-gen-plugin@workspace:*, @repo/invoice-gen-plugin@workspace:packages/invoice-gen-plugin":
+"@repo/invoice-gen-plugin@workspace:*, @repo/invoice-gen-plugin@workspace:plugins/invoice-gen-plugin":
   version: 0.0.0-use.local
-  resolution: "@repo/invoice-gen-plugin@workspace:packages/invoice-gen-plugin"
+  resolution: "@repo/invoice-gen-plugin@workspace:plugins/invoice-gen-plugin"
   dependencies:
     "@hookform/resolvers": "npm:^5.2.2"
     "@medusajs/admin-sdk": "npm:2.13.1"
@@ -10381,9 +10381,9 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@repo/vehicle-fitment-plugin@workspace:packages/vehicle-fitment-plugin":
+"@repo/vehicle-fitment-plugin@workspace:plugins/vehicle-fitment-plugin":
   version: 0.0.0-use.local
-  resolution: "@repo/vehicle-fitment-plugin@workspace:packages/vehicle-fitment-plugin"
+  resolution: "@repo/vehicle-fitment-plugin@workspace:plugins/vehicle-fitment-plugin"
   dependencies:
     "@medusajs/admin-sdk": "npm:2.12.4"
     "@medusajs/cli": "npm:2.12.4"
@@ -21506,6 +21506,7 @@ __metadata:
     ts-node: "npm:^10.9.2"
     turbo: "npm:^2.7.6"
     typescript: "npm:5.9.2"
+    yalc: "npm:^1.0.0-pre.53"
   languageName: unknown
   linkType: soft
 

@@ -8,3 +8,6 @@ export * from "./services/error-handler.service";
 
 // Controllers
 export * from "./controllers/base.controller";
+
+// Schemas
+export * from "./schemas/base";

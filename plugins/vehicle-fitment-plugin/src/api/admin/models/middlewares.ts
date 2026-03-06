@@ -6,9 +6,9 @@ import {
 } from "@medusajs/framework";
 import { z } from "@medusajs/framework/zod";
 import {
-  CreateModelSchema,
+  CreateModelInputSchema,
   ModelFindParamsSchema,
-  UpdateModelSchema,
+  UpdateModelInputSchema,
 } from "../../../modules/fitment/schema";
 
 const authenticateMiddleware = authenticate(["*"], ["session"]);
@@ -30,7 +30,7 @@ export const adminModelsMiddlewares: MiddlewareRoute[] = [
     method: "POST",
     middlewares: [
       authenticateMiddleware,
-      validateAndTransformBody(CreateModelSchema),
+      validateAndTransformBody(CreateModelInputSchema),
     ],
   },
   {
@@ -40,7 +40,7 @@ export const adminModelsMiddlewares: MiddlewareRoute[] = [
       authenticateMiddleware,
       validateAndTransformBody(
         z.object({
-          models: z.array(UpdateModelSchema),
+          models: z.array(UpdateModelInputSchema),
         }),
       ),
     ],
@@ -55,7 +55,7 @@ export const adminModelsMiddlewares: MiddlewareRoute[] = [
     method: "PATCH",
     middlewares: [
       authenticateMiddleware,
-      validateAndTransformBody(UpdateModelSchema),
+      validateAndTransformBody(UpdateModelInputSchema),
     ],
   },
   {

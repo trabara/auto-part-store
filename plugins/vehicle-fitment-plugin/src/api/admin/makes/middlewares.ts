@@ -6,9 +6,9 @@ import {
 } from "@medusajs/framework";
 import { z } from "@medusajs/framework/zod";
 import {
-  CreateMakeSchema,
+  CreateMakeInputSchema,
   MakeFindParamsSchema,
-  UpdateMakeSchema,
+  UpdateMakeInputSchema,
 } from "../../../modules/fitment/schema";
 
 const authenticateMiddleware = authenticate(["*"], ["session"]);
@@ -30,7 +30,7 @@ export const adminMakesMiddlewares: MiddlewareRoute[] = [
     method: "POST",
     middlewares: [
       authenticateMiddleware,
-      validateAndTransformBody(CreateMakeSchema),
+      validateAndTransformBody(CreateMakeInputSchema),
     ],
   },
   {
@@ -40,7 +40,7 @@ export const adminMakesMiddlewares: MiddlewareRoute[] = [
       authenticateMiddleware,
       validateAndTransformBody(
         z.object({
-          makes: z.array(UpdateMakeSchema),
+          makes: z.array(UpdateMakeInputSchema),
         }),
       ),
     ],
@@ -55,7 +55,7 @@ export const adminMakesMiddlewares: MiddlewareRoute[] = [
     method: "PATCH",
     middlewares: [
       authenticateMiddleware,
-      validateAndTransformBody(UpdateMakeSchema),
+      validateAndTransformBody(UpdateMakeInputSchema),
     ],
   },
   {

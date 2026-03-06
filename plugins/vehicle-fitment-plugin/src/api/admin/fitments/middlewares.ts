@@ -1,13 +1,13 @@
 import {
-  CreateFitmentSchema,
-  LinkProductsSchema,
-  UpdateFitmentSchema,
-} from "../../../modules/fitment/schema";
-import {
   authenticate,
   MiddlewareRoute,
   validateAndTransformBody,
 } from "@medusajs/framework";
+import {
+  CreateFitmentInputSchema,
+  LinkProductsInputSchema,
+  UpdateFitmentInputSchema
+} from "../../../modules/fitment/schema";
 
 const authenticateMiddleware = authenticate(["*"], ["session"]);
 
@@ -22,7 +22,7 @@ export const adminFitmentProductMiddlewares: MiddlewareRoute[] = [
     method: "POST",
     middlewares: [
       authenticateMiddleware,
-      validateAndTransformBody(CreateFitmentSchema),
+      validateAndTransformBody(CreateFitmentInputSchema),
     ],
   },
   {
@@ -30,7 +30,7 @@ export const adminFitmentProductMiddlewares: MiddlewareRoute[] = [
     method: "PATCH",
     middlewares: [
       authenticateMiddleware,
-      validateAndTransformBody(UpdateFitmentSchema),
+      validateAndTransformBody(UpdateFitmentInputSchema),
     ],
   },
   {
@@ -43,7 +43,7 @@ export const adminFitmentProductMiddlewares: MiddlewareRoute[] = [
     method: "POST",
     middlewares: [
       authenticateMiddleware,
-      validateAndTransformBody(LinkProductsSchema),
+      validateAndTransformBody(LinkProductsInputSchema),
     ],
   },
   {

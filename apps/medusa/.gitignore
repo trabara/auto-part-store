@@ -2,7 +2,6 @@
 .env
 .DS_Store
 /uploads
-/static
 /node_modules
 yarn-error.log
 
@@ -25,9 +24,3 @@ build
 !.yarn/versions
 
 .medusa
-.turbo
-
-# Playwright
-test-results/
-playwright-report/
-playwright/.cache/

@@ -1,5 +1,5 @@
 import { OrderDTO, OrderLineItemDTO } from "@medusajs/framework/types";
-import z from "zod";
+import z from "@medusajs/framework/zod";
 
 const BaseSchema = z.object({
   id: z.string(),

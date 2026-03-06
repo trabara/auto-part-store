@@ -1,4 +1,4 @@
-import * as z from "zod";
+import * as z from "@medusajs/framework/zod";
 import {
   createFindParams,
   createOperatorMap,

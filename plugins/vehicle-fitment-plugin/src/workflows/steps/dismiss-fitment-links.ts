@@ -2,6 +2,7 @@ import { ContainerRegistrationKeys, Modules } from "@medusajs/framework/utils";
 import { createStep, StepResponse } from "@medusajs/framework/workflows-sdk";
 import { FITMENT_MODULE } from "../../modules/fitment";
 import FitmentProductLink from "../../links/fitment-product";
+import { Link, Query } from "@medusajs/framework/modules-sdk";
 
 type DismissFitmentLinksInput = {
   fitment_ids: string[];
@@ -26,8 +27,8 @@ export const dismissFitmentLinksStep = createStep(
   ): Promise<
     StepResponse<DismissFitmentLinksOutput, DismissFitmentLinksOutput>
   > {
-    const query = container.resolve(ContainerRegistrationKeys.QUERY);
-    const link = container.resolve(ContainerRegistrationKeys.LINK);
+    const query = container.resolve<Query>(ContainerRegistrationKeys.QUERY);
+    const link = container.resolve<Link>(ContainerRegistrationKeys.LINK);
 
     const dismissedLinks: Array<{ product_id: string; fitment_id: string }> =
       [];
@@ -76,7 +77,7 @@ export const dismissFitmentLinksStep = createStep(
       return;
     }
 
-    const link = container.resolve(ContainerRegistrationKeys.LINK);
+    const link = container.resolve<Link>(ContainerRegistrationKeys.LINK);
 
     // Restore all dismissed links
     await Promise.all(

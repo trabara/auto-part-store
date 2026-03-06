@@ -4,7 +4,7 @@ import {
   WorkflowResponse,
 } from "@medusajs/framework/workflows-sdk";
 import { generateInvoicePdfStep } from "./steps/generate-invoice-pdf";
-import { useQueryGraphStep } from "@medusajs/medusa/core-flows";
+import { useQueryGraphStep } from "@medusajs/core-flows";
 import { getOrderInvoiceStep } from "./steps/get-order-invoice";
 
 type WorkflowInput = {

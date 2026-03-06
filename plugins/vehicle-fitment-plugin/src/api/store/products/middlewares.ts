@@ -2,7 +2,7 @@ import {
   MiddlewareRoute,
   validateAndTransformQuery,
 } from "@medusajs/framework";
-import { z } from "zod";
+import { z } from "@medusajs/framework/zod";
 import { createFindParams } from "@medusajs/medusa/api/utils/validators";
 
 const findParams = createFindParams().extend({

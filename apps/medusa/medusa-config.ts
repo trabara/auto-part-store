@@ -1,8 +1,4 @@
-import {
-  defineConfig,
-  loadEnv
-} from "@medusajs/framework/utils";
-import path, { resolve } from "path";
+import { defineConfig, loadEnv } from "@medusajs/framework/utils";
 
 // Load environment variables based on the current NODE_ENV
 loadEnv(process.env.NODE_ENV || "development", process.cwd());
@@ -35,27 +31,6 @@ export default defineConfig({
         redisUrl: process.env.REDIS_URL,
       },
     },
-    // {
-    //   resolve: "@medusajs/medusa/auth",
-    //   dependencies: [Modules.CACHE, ContainerRegistrationKeys.LOGGER],
-    //   options: {
-    //     providers: [
-    //       {
-    //         resolve: "@medusajs/medusa/auth-emailpass",
-    //         id: "emailpass",
-    //       },
-    //       // {
-    //       //   resolve: "@medusajs/medusa/auth-google",
-    //       //   id: "google",
-    //       //   options: {
-    //       //     clientId: process.env.GOOGLE_CLIENT_ID,
-    //       //     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-    //       //     callbackUrl: process.env.GOOGLE_CALLBACK_URL,
-    //       //   },
-    //       // },
-    //     ],
-    //   },
-    // },
     {
       resolve: "@medusajs/medusa/notification",
       options: {
@@ -94,17 +69,11 @@ export default defineConfig({
     },
   ],
   plugins: [
-    {
-      resolve: '@repo/vehicle-fitment-plugin',
-      options: {
-        // Plugin-specific options can be added here
-      },
-    },
-    {
-      resolve: '@repo/invoice-gen-plugin',
-      options: {
-        // Plugin-specific options can be added here
-      },
-    }
+    // {
+    //   resolve: "@repo/vehicle-fitment-plugin",
+    //   options: {
+    //     // Plugin-specific options can be added here
+    //   },
+    // },
   ],
 });

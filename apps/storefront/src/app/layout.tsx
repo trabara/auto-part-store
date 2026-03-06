@@ -9,7 +9,6 @@ import ShoppingCartButton from "@/modules/cart/components/cart-button"
 import CartList from "@/modules/cart/components/cart-sheet"
 import { CategoryMenuSheet } from "@/modules/categories/components/category-menu-sheet"
 import FitmentBadge from "@/modules/fitment/components/fitment-badge"
-import { FitmentDialog } from "@/modules/fitment/components/fitment-dialog"
 import { SimpleSearchWithForm } from "@/modules/search/components/simple-search-with-form"
 import '@/styles/globals.css'
 import { Car, CarFront, Menu, Search, User } from "lucide-react"

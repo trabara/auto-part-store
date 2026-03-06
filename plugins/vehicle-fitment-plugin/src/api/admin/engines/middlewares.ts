@@ -1,15 +1,15 @@
 import {
-  CreateEngineSchema,
-  EngineFindParamsSchema,
-  UpdateEngineSchema,
-} from "../../../modules/fitment/schema";
-import {
   authenticate,
   MiddlewareRoute,
   validateAndTransformBody,
   validateAndTransformQuery,
 } from "@medusajs/framework";
-import { z } from "zod";
+import { z } from "@medusajs/framework/zod";
+import {
+  CreateEngineSchema,
+  EngineFindParamsSchema,
+  UpdateEngineSchema,
+} from "../../../modules/fitment/schema";
 
 const authenticateMiddleware = authenticate(["*"], ["session"]);
 

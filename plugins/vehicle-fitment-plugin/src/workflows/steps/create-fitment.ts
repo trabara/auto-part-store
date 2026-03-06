@@ -1,3 +1,4 @@
+import { Link } from "@medusajs/framework/modules-sdk";
 import { ContainerRegistrationKeys, Modules } from "@medusajs/framework/utils";
 import { createStep, StepResponse } from "@medusajs/framework/workflows-sdk";
 import { FITMENT_MODULE } from "../../modules/fitment";
@@ -16,7 +17,7 @@ export const createFitmentsStep = createStep(
 
 
         if (input.product_id) {
-            const link = await container.resolve(ContainerRegistrationKeys.LINK)
+            const link = await container.resolve<Link>(ContainerRegistrationKeys.LINK)
             await link.create({
                 [Modules.PRODUCT]: {
                     product_id: input.product_id,

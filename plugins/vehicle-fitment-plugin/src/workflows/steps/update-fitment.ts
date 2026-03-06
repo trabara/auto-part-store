@@ -1,11 +1,10 @@
 import { createStep, StepResponse } from "@medusajs/framework/workflows-sdk";
-import { FITMENT_MODULE } from "../../modules/fitment";
+import { FITMENT_MODULE, FitmentModuleService } from "../../modules/fitment";
 import { UpdateFitmentInput } from "../../modules/fitment/schema";
-
 export const updateFitmentStep = createStep(
   "update-fitment-step",
   async function (input: UpdateFitmentInput, { container }) {
-    const fitmentModuleService = container.resolve(FITMENT_MODULE) as any;
+    const fitmentModuleService = container.resolve<FitmentModuleService>(FITMENT_MODULE);
 
     // First, retrieve the original fitment data for compensation
     const [originalFitment] = await fitmentModuleService.listFitments({
@@ -13,7 +12,7 @@ export const updateFitmentStep = createStep(
     });
 
     // Now update the fitment
-    const updatedFitment = await fitmentModuleService.updateFullFitment(input);
+    const updatedFitment = await fitmentModuleService.updateFitments(input);
 
     return new StepResponse(updatedFitment, {
       id: input.id,
@@ -35,8 +34,8 @@ export const updateFitmentStep = createStep(
     }
 
     // Rollback: restore the original fitment data
-    const fitmentModuleService = container.resolve(FITMENT_MODULE) as any;
-    await fitmentModuleService.updateFullFitment({
+    const fitmentModuleService = container.resolve<FitmentModuleService>(FITMENT_MODULE);
+    await fitmentModuleService.updateFitments({
       id: compensationData.id,
       ...compensationData.originalData,
     });

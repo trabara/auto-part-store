@@ -1,4 +1,5 @@
 import { createStep } from "@medusajs/framework/workflows-sdk";
+import { FITMENT_MODULE, FitmentModuleService } from "../../modules/fitment";
 
 type DeleteFitmentsStepInput = {
     ids: string[]
@@ -6,12 +7,12 @@ type DeleteFitmentsStepInput = {
 export const deleteFitmentsStep = createStep(
     "delete-fitments",
     async ({ ids }: DeleteFitmentsStepInput, { container }) => {
-        const fitmentModuleService = container.resolve("fitment") as any
+        const fitmentModuleService = container.resolve<FitmentModuleService>(FITMENT_MODULE)
 
         await fitmentModuleService.deleteFitments(ids)
     },
     async ({ ids }: DeleteFitmentsStepInput, { container }) => {
-        const fitmentModuleService = container.resolve("fitment") as any
+        const fitmentModuleService = container.resolve<FitmentModuleService>(FITMENT_MODULE)
 
         await fitmentModuleService.restoreFitments(ids)
     }

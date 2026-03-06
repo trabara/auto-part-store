@@ -1,6 +1,7 @@
 import { ContainerRegistrationKeys, Modules } from "@medusajs/framework/utils";
 import { createStep, StepResponse } from "@medusajs/framework/workflows-sdk";
 import { FITMENT_MODULE } from "../../modules/fitment";
+import { Link } from "@medusajs/framework/modules-sdk";
 
 type LinkFitmentsToProductInput = {
     product_id: string,
@@ -10,7 +11,7 @@ type LinkFitmentsToProductInput = {
 export const linkFitmentsToProductStep = createStep(
     "link-fitments-to-product",
     async function (input: LinkFitmentsToProductInput, { container }) {
-        const link = container.resolve(ContainerRegistrationKeys.LINK)
+        const link = container.resolve<Link>(ContainerRegistrationKeys.LINK)
         await Promise.all(input.fitment_ids.map((fitment_id) => link.create({
             [Modules.PRODUCT]: {
                 product_id: input.product_id,
@@ -25,7 +26,7 @@ export const linkFitmentsToProductStep = createStep(
         if (!input) {
             return
         }
-        const link = container.resolve(ContainerRegistrationKeys.LINK)
+        const link = container.resolve<Link>(ContainerRegistrationKeys.LINK)
         await Promise.all(input.fitment_ids.map((fitment_id) => link.delete({
             [Modules.PRODUCT]: {
                 product_id: input.product_id,

@@ -7,7 +7,7 @@
     "lint": "turbo run lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "check-types": "turbo run check-types",
-    "clean": "rimraf ./node_modules ./packages/*/node_modules ./apps/*/node_modules ./dist .turbo",
+    "clean": "rimraf ./node_modules **/node_modules .turbo **/.turbo **/*/.medusa",
     "docker:build": "docker compose -f docker/docker-compose.yml build",
     "docker:up": "docker compose -f docker/docker-compose.yml up -d",
     "docker:down": "docker compose -f docker/docker-compose.yml down",
@@ -29,5 +29,12 @@
     "apps/*",
     "packages/*",
     "plugins/*"
-  ]
+  ],
+  "resolutions": {
+    "@medusajs/core-flows": "2.13.1",
+    "@medusajs/framework": "2.13.1",
+    "@medusajs/medusa": "2.13.1",
+    "@medusajs/orchestration": "2.13.1",
+    "@medusajs/workflows-sdk": "2.13.1"
+  }
 }

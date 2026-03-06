@@ -6,3 +6,5 @@ export const FITMENT_MODULE = "fitment";
 export default Module(FITMENT_MODULE, {
   service: FitmentModuleService,
 });
+
+export type { FitmentModuleService };

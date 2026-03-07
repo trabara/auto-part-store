@@ -23,14 +23,14 @@
   },
   "dependencies": {
     "@agilo/medusa-analytics-plugin": "^1.4.0",
-    "@medusajs/admin-sdk": "2.13.1",
-    "@medusajs/cli": "2.13.1",
-    "@medusajs/framework": "2.13.1",
-    "@medusajs/medusa": "patch:@medusajs/medusa@npm%3A2.13.1#~/.yarn/patches/@medusajs-medusa-npm-2.13.1-a5f2a940af.patch",
+    "@medusajs/admin-sdk": "2.13.3",
+    "@medusajs/cli": "2.13.3",
+    "@medusajs/framework": "2.13.3",
+    "@medusajs/medusa": "patch:@medusajs/medusa@npm%3A2.13.3#~/.yarn/patches/@medusajs-medusa-npm-2.13.3-a5f2a940af.patch",
     "@repo/vehicle-fitment-plugin": "workspace:^"
   },
   "devDependencies": {
-    "@medusajs/test-utils": "2.13.1",
+    "@medusajs/test-utils": "2.13.3",
     "@swc/core": "^1.7.28",
     "@swc/jest": "^0.2.36",
     "@types/jest": "^29.5.13",

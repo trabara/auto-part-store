@@ -9129,7 +9129,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@repo/vehicle-fitment-plugin@workspace:*, @repo/vehicle-fitment-plugin@workspace:plugins/vehicle-fitment-plugin":
+"@repo/vehicle-fitment-plugin@workspace:^, @repo/vehicle-fitment-plugin@workspace:plugins/vehicle-fitment-plugin":
   version: 0.0.0-use.local
   resolution: "@repo/vehicle-fitment-plugin@workspace:plugins/vehicle-fitment-plugin"
   dependencies:
@@ -16847,7 +16847,7 @@ __metadata:
     "@medusajs/framework": "npm:2.13.1"
     "@medusajs/medusa": "npm:2.13.1"
     "@medusajs/test-utils": "npm:2.13.1"
-    "@repo/vehicle-fitment-plugin": "workspace:*"
+    "@repo/vehicle-fitment-plugin": "workspace:^"
     "@swc/core": "npm:^1.7.28"
     "@swc/jest": "npm:^0.2.36"
     "@types/jest": "npm:^29.5.13"

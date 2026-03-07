@@ -9429,6 +9429,20 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@repo/scripts@workspace:*, @repo/scripts@workspace:packages/scripts":
+  version: 0.0.0-use.local
+  resolution: "@repo/scripts@workspace:packages/scripts"
+  peerDependencies:
+    "@medusajs/admin-bundler": "*"
+    "@medusajs/framework": ">=2.0.0"
+    "@swc/core": ">=1.0.0"
+    chokidar: ">=3.0.0"
+  bin:
+    plugin-dev-init: ./src/develop-init.mjs
+    plugin-dev-watch: ./src/develop-watch.mjs
+  languageName: unknown
+  linkType: soft
+
 "@repo/tsconfig@workspace:*, @repo/tsconfig@workspace:packages/tsconfig":
   version: 0.0.0-use.local
   resolution: "@repo/tsconfig@workspace:packages/tsconfig"
@@ -9457,6 +9471,7 @@ __metadata:
   resolution: "@repo/vehicle-fitment-plugin@workspace:plugins/vehicle-fitment-plugin"
   dependencies:
     "@hookform/resolvers": "npm:^5.2.2"
+    "@medusajs/admin-bundler": "npm:2.13.3"
     "@medusajs/admin-sdk": "npm:2.13.3"
     "@medusajs/cli": "npm:2.13.3"
     "@medusajs/framework": "npm:2.13.3"
@@ -9465,10 +9480,12 @@ __metadata:
     "@medusajs/test-utils": "npm:2.13.3"
     "@medusajs/ui": "npm:4.0.25"
     "@repo/common": "workspace:*"
+    "@repo/scripts": "workspace:*"
     "@swc/core": "npm:^1.7.28"
     "@types/node": "npm:^20.0.0"
     "@types/react": "npm:^18.3.2"
     "@types/react-dom": "npm:^18.2.25"
+    chokidar: "npm:^4.0.3"
     date-fns: "npm:^4.1.0"
     lodash: "npm:^4.17.23"
     lucide-react: "npm:^0.563.0"

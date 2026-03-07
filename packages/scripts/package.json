@@ -1,0 +1,23 @@
+{
+  "name": "@repo/scripts",
+  "version": "0.0.1",
+  "private": true,
+  "description": "Shared dev scripts for monorepo plugins",
+  "type": "module",
+  "files": [
+    "src"
+  ],
+  "bin": {
+    "plugin-dev-init": "./src/develop-init.mjs",
+    "plugin-dev-watch": "./src/develop-watch.mjs"
+  },
+  "peerDependencies": {
+    "@medusajs/admin-bundler": "*",
+    "@medusajs/framework": ">=2.0.0",
+    "@swc/core": ">=1.0.0",
+    "chokidar": ">=3.0.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

@@ -29,7 +29,8 @@
   ],
   "scripts": {
     "build": "medusa plugin:build",
-    "dev": "medusa plugin:develop",
+    "dev": "plugin-dev-watch . ../../apps/medusa",
+    "dev:init": "plugin-dev-init .",
     "prepublishOnly": "medusa plugin:build"
   },
   "dependencies": {
@@ -41,6 +42,7 @@
     "react-hook-form": "^7.71.1"
   },
   "devDependencies": {
+    "@medusajs/admin-bundler": "2.13.3",
     "@medusajs/admin-sdk": "2.13.3",
     "@medusajs/cli": "2.13.3",
     "@medusajs/framework": "2.13.3",
@@ -48,10 +50,12 @@
     "@medusajs/medusa": "patch:@medusajs/medusa@npm%3A2.13.3#~/.yarn/patches/@medusajs-medusa-npm-2.13.3-a5f2a940af.patch",
     "@medusajs/test-utils": "2.13.3",
     "@medusajs/ui": "4.0.25",
+    "@repo/scripts": "workspace:*",
     "@swc/core": "^1.7.28",
     "@types/node": "^20.0.0",
     "@types/react": "^18.3.2",
     "@types/react-dom": "^18.2.25",
+    "chokidar": "^4.0.3",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "ts-node": "^10.9.2",

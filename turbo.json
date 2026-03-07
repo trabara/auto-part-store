@@ -17,9 +17,13 @@
       "dependsOn": ["^start"]
     },
     "dev": {
-      "dependsOn": ["^build"],
+      "dependsOn": ["^build", "^dev:init"],
       "cache": false,
       "persistent": true
+    },
+    "dev:init": {
+      "outputs": [".medusa/server/**"],
+      "cache": false
     },
     "medusa:init": {
       "cache": false

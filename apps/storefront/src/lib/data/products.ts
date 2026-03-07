@@ -83,7 +83,7 @@ export async function listProducts({
     const fitment = await retreiveFitment()
     
     const { products } = await sdk.client.fetch<HttpTypes.StoreProductListResponse>(
-        `/store/get-products`,
+        `/store/products-v2`,
         {
             method: "GET",
             query: {

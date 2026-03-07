@@ -130,9 +130,9 @@ export const LinkProductsInputSchema = z.object({
     .min(1, "At least one product ID is required"),
 });
 
-const findParams = createFindParams();
+export const BaseFindParams = createFindParams();
 
-export const FitmentFindParamsSchema = findParams.extend({
+export const FitmentFindParamsSchema = BaseFindParams.extend({
   filters: z
     .object({
       model: z
@@ -161,7 +161,7 @@ export const FitmentFindParamsSchema = findParams.extend({
     .optional(),
 });
 
-export const EngineFindParamsSchema = findParams.extend({
+export const EngineFindParamsSchema = BaseFindParams.extend({
   filters: z
     .object({
       fuel: createOperatorMap(FuelTypeSchema).optional(),
@@ -172,7 +172,7 @@ export const EngineFindParamsSchema = findParams.extend({
     .optional(),
 });
 
-export const ModelFindParamsSchema = findParams.extend({
+export const ModelFindParamsSchema = BaseFindParams.extend({
   filters: z
     .object({
       name: createOperatorMap(z.string()).optional(),
@@ -186,7 +186,7 @@ export const ModelFindParamsSchema = findParams.extend({
     .optional(),
 });
 
-export const MakeFindParamsSchema = findParams.extend({
+export const MakeFindParamsSchema = BaseFindParams.extend({
   filters: z
     .object({
       name: createOperatorMap(z.string()).optional(),
@@ -203,4 +203,11 @@ export const MakeFindParamsSchema = findParams.extend({
         .optional(),
     })
     .optional(),
+});
+
+export const ProductV2FindParams = BaseFindParams.extend({
+  currency_code: z.string(),
+  region_id: z.string(),
+  fitment_id: z.string().optional(),
+  category_id: z.string().optional(),
 });

@@ -21,7 +21,7 @@ import {
   ENGINE_SIZE_OPTIONS,
   ENGINE_TYPE_OPTIONS,
 } from "../../../../../modules/fitment/constant";
-import { Engine, UpdateEngineInput, UpdateEngineSchema } from "../../../../../modules/fitment/schema";
+import { Engine, UpdateEngineInput, UpdateEngineInputSchema } from "../../../../../modules/fitment/schema";
 import { updateEngine } from "../data";
 
 
@@ -37,7 +37,7 @@ const EngineEditDrawer = ({ engine }: { engine: Engine }) => {
   const navigate = useNavigate();
 
   const form = useForm<UpdateEngineInput>({
-    resolver: zodResolver(UpdateEngineSchema),
+    resolver: zodResolver(UpdateEngineInputSchema),
     defaultValues: {
       fuel: engine.fuel,
       type: engine.type,

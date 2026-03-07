@@ -9,11 +9,9 @@ import {
 } from "@medusajs/ui";
 import { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
-import {
-  useNavigate
-} from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { UpdateMakeInput, UpdateMakeInputSchema } from "../../../../../modules/fitment/schema";
 import { useUpdateMutation } from "../../../../hooks/use-update-mutation";
-import { UpdateMakeInput, UpdateMakeSchema } from "../../../../../modules/fitment/schema";
 import { updateMake } from "../data";
 import { MakeWithModels } from "../types";
 
@@ -21,7 +19,7 @@ const MakeEdit = ({ make }: { make?: MakeWithModels }) => {
   const navigate = useNavigate();
 
   const form = useForm<UpdateMakeInput>({
-    resolver: zodResolver(UpdateMakeSchema),
+    resolver: zodResolver(UpdateMakeInputSchema),
   });
 
   useEffect(() => {

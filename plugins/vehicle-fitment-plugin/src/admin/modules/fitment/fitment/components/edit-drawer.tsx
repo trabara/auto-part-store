@@ -9,19 +9,19 @@ import {
 } from "@medusajs/ui";
 import { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
-import OptionSelect from "../../../../components/option-select";
-import { useCrudContext } from "../../../../context/crud-context";
-import { useUpdateMutation } from "../../../../hooks/use-update-mutation";
-import { EngineSelectInput } from "../../engine/components/engine-select";
-import { ModelSelectInput } from "../../model/components/model-select-input";
 import {
   BODY_STYLE_OPTIONS,
   DRIVE_OPTIONS,
   TRANSMISSION_OPTIONS,
 } from "../../../../../modules/fitment/constant";
 import {
-  UpdateFitmentSchema
+  UpdateFitmentInputSchema
 } from "../../../../../modules/fitment/schema";
+import OptionSelect from "../../../../components/option-select";
+import { useCrudContext } from "../../../../context/crud-context";
+import { useUpdateMutation } from "../../../../hooks/use-update-mutation";
+import { EngineSelectInput } from "../../engine/components/engine-select";
+import { ModelSelectInput } from "../../model/components/model-select-input";
 import { updateFitment } from "../data";
 import { AdminFitmentWithProducts } from "../types";
 
@@ -29,7 +29,7 @@ const FitmentEditDrawer = () => {
   const { entity: fitment, isEdit, setIsEdit } = useCrudContext<AdminFitmentWithProducts>();
 
   const form = useForm({
-    resolver: zodResolver(UpdateFitmentSchema),
+    resolver: zodResolver(UpdateFitmentInputSchema),
   });
 
 

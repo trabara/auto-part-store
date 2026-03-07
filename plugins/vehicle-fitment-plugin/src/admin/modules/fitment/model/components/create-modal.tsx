@@ -9,17 +9,17 @@ import {
 } from "@medusajs/ui";
 import { Controller, useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
-import { MakeSelectInput } from "../../make/components/make-select-input";
+import { CreateModelInput, CreateModelInputSchema } from "../../../../../modules/fitment/schema";
 import { useCreateMutation } from "../../../../hooks/use-create-mutation";
+import { MakeSelectInput } from "../../make/components/make-select-input";
 import { createModel } from "../data";
-import { CreateModelInput, CreateModelSchema } from "../../../../../modules/fitment/schema";
 
 
 const ModelCreate = () => {
   const navigate = useNavigate();
 
   const form = useForm<CreateModelInput>({
-    resolver: zodResolver(CreateModelSchema),
+    resolver: zodResolver(CreateModelInputSchema),
   });
 
   const createMutation = useCreateMutation({

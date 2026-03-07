@@ -12,9 +12,9 @@ import { Controller, useForm } from "react-hook-form";
 import {
   useNavigate
 } from "react-router-dom";
-import { MakeSelectInput } from "../../make/components/make-select-input";
+import { Model, UpdateModelInput, UpdateModelInputSchema } from "../../../../../modules/fitment/schema";
 import { useUpdateMutation } from "../../../../hooks/use-update-mutation";
-import { Model, UpdateModelInput, UpdateModelSchema } from "../../../../../modules/fitment/schema";
+import { MakeSelectInput } from "../../make/components/make-select-input";
 import { updateModel } from "../data";
 
 
@@ -22,7 +22,7 @@ const ModelEdit = ({ model }: { model?: Model }) => {
   const navigate = useNavigate();
 
   const form = useForm<UpdateModelInput>({
-    resolver: zodResolver(UpdateModelSchema),
+    resolver: zodResolver(UpdateModelInputSchema),
     defaultValues: {
       name: model?.name,
       make_id: model?.make.id,
@@ -84,7 +84,6 @@ const ModelEdit = ({ model }: { model?: Model }) => {
                     </Label>
                     <MakeSelectInput
                       placeholder="Select or create a make"
-                      error={fieldState.error?.message}
                       {...field}
                     />
                     {fieldState.error && (

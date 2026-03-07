@@ -9,14 +9,14 @@ import {
 } from "@medusajs/ui";
 import { Controller, useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
-import OptionSelect from "../../../../components/option-select";
-import { useCreateMutation } from "../../../../hooks/use-create-mutation";
 import {
   ENGINE_FUEL_OPTIONS,
   ENGINE_SIZE_OPTIONS,
   ENGINE_TYPE_OPTIONS,
 } from "../../../../../modules/fitment/constant";
-import { CreateEngineSchema } from "../../../../../modules/fitment/schema";
+import { CreateEngineInputSchema } from "../../../../../modules/fitment/schema";
+import OptionSelect from "../../../../components/option-select";
+import { useCreateMutation } from "../../../../hooks/use-create-mutation";
 import { createEngine } from "../data";
 
 
@@ -24,7 +24,7 @@ const EngineCreate = () => {
   const navigate = useNavigate();
 
   const form = useForm({
-    resolver: zodResolver(CreateEngineSchema),
+    resolver: zodResolver(CreateEngineInputSchema),
     defaultValues: {
       fuel: "GASOLINE",
       type: "I4",

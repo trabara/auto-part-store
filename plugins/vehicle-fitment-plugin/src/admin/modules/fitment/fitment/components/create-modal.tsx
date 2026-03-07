@@ -9,12 +9,12 @@ import {
 } from "@medusajs/ui";
 import { Controller, useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
+import { BODY_STYLE_OPTIONS, DOORS_OPTIONS, DRIVE_OPTIONS, TRANSMISSION_OPTIONS } from "../../../../../modules/fitment/constant";
+import { CreateFitmentInput, CreateFitmentInputSchema } from "../../../../../modules/fitment/schema";
 import OptionSelect from "../../../../components/option-select";
 import { useCreateMutation } from "../../../../hooks/use-create-mutation";
 import { EngineSelectInput } from "../../engine/components/engine-select";
 import { ModelSelectInput } from "../../model/components/model-select-input";
-import { BODY_STYLE_OPTIONS, DOORS_OPTIONS, DRIVE_OPTIONS, TRANSMISSION_OPTIONS } from "../../../../../modules/fitment/constant";
-import { CreateFitmentInput, CreateFitmentSchema } from "../../../../../modules/fitment/schema";
 import { createFitment } from "../data";
 
 
@@ -22,7 +22,7 @@ const CreateFitmentModal = () => {
   const navigate = useNavigate();
 
   const form = useForm({
-    resolver: zodResolver(CreateFitmentSchema),
+    resolver: zodResolver(CreateFitmentInputSchema),
     defaultValues: {
       year_start: 2000,
       body_style: "SEDAN",

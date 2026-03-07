@@ -1,4 +1,4 @@
-import { ProductV2FindParams } from "../../../modules/fitment/schema";
+import { ProductV2FindParams } from "../../../../modules/fitment/schema";
 import {
   MiddlewareRoute,
   validateAndTransformQuery,
@@ -6,7 +6,7 @@ import {
 
 export const storeProductMiddlewares: MiddlewareRoute[] = [
   {
-    matcher: "/store/products-v2",
+    matcher: "/store/products/v2",
     method: "GET",
     middlewares: [
       validateAndTransformQuery(ProductV2FindParams, {

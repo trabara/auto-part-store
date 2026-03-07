@@ -6,7 +6,7 @@ import { adminModelsMiddlewares } from "./admin/models/middlewares";
 import { adminProductFitmentMiddlewares } from "./admin/products/middlewares";
 import { storeEngineMiddlewares } from "./store/engines/middlewares";
 import { storeFitmentsMiddlewares } from "./store/fitments/middlewares";
-import { storeProductMiddlewares } from "./store/products-v2/middlewares";
+import { storeProductMiddlewares } from "./store/products/v2/middlewares";
 import { storeMakeMiddlewares } from "./store/makes/middlewares";
 
 export default defineMiddlewares({

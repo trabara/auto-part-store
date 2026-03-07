@@ -70,6 +70,12 @@ export default defineConfig({
   ],
   plugins: [
     {
+      resolve: "@agilo/medusa-analytics-plugin",
+      options: {
+        // Plugin-specific options can be added here
+      },
+    },
+    {
       resolve: "@repo/vehicle-fitment-plugin",
       options: {
         // Plugin-specific options can be added here

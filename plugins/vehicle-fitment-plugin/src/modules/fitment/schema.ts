@@ -3,7 +3,7 @@ import {
   createFindParams,
   createOperatorMap,
 } from "@medusajs/medusa/api/utils/validators";
-import { BASE_MASK, BaseSchema } from "@repo/common";
+import { BASE_MASK, BaseSchema } from "@repo/common/schemas";
 
 export const FuelTypeSchema = z.enum([
   "GASOLINE",
@@ -204,4 +204,3 @@ export const MakeFindParamsSchema = findParams.extend({
     })
     .optional(),
 });
-  

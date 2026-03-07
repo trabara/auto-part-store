@@ -45,7 +45,7 @@
     "@medusajs/cli": "2.13.1",
     "@medusajs/framework": "2.13.1",
     "@medusajs/icons": "2.13.1",
-    "@medusajs/medusa": "2.13.1",
+    "@medusajs/medusa": "patch:@medusajs/medusa@npm%3A2.13.1#~/.yarn/patches/@medusajs-medusa-npm-2.13.1-a5f2a940af.patch",
     "@medusajs/test-utils": "2.13.1",
     "@medusajs/ui": "4.0.25",
     "@swc/core": "^1.7.28",

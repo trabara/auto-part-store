@@ -69,5 +69,11 @@ export default defineConfig({
     },
   ],
   plugins: [
+    {
+      resolve: "@repo/vehicle-fitment-plugin",
+      options: {
+        // Plugin-specific options can be added here
+      },
+    }
   ],
 });

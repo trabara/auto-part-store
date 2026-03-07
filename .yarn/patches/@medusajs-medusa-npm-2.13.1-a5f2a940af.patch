@@ -1,0 +1,26 @@
+diff --git a/dist/api/admin/rbac/policies/validators.js b/dist/api/admin/rbac/policies/validators.js
+index 1b7788c3037dce8e7c2adbaf0e45b676a1a533db..5f78cc69d8887257314e5577d6c7e6f150fb5bfe 100644
+--- a/dist/api/admin/rbac/policies/validators.js
++++ b/dist/api/admin/rbac/policies/validators.js
+@@ -1,7 +1,7 @@
+ "use strict";
+ Object.defineProperty(exports, "__esModule", { value: true });
+ exports.AdminUpdateRbacPolicy = exports.AdminCreateRbacPolicy = exports.AdminGetRbacPoliciesParams = exports.AdminGetRbacPoliciesParamsFields = exports.AdminGetRbacPolicyParams = void 0;
+-const zod_1 = require("zod");
++const zod_1 = require("@medusajs/deps/zod");
+ const common_validators_1 = require("../../../utils/common-validators");
+ const validators_1 = require("../../../utils/validators");
+ exports.AdminGetRbacPolicyParams = (0, validators_1.createSelectParams)();
+diff --git a/dist/api/admin/rbac/roles/validators.js b/dist/api/admin/rbac/roles/validators.js
+index 09d404ad304d5a4b97e7adf29c29ac217cea0d21..bb7128d8337d60f01daaea7d65e83c69857402d1 100644
+--- a/dist/api/admin/rbac/roles/validators.js
++++ b/dist/api/admin/rbac/roles/validators.js
+@@ -1,7 +1,7 @@
+ "use strict";
+ Object.defineProperty(exports, "__esModule", { value: true });
+ exports.AdminAddRolePoliciesType = exports.AdminUpdateRbacRole = exports.AdminCreateRbacRole = exports.AdminGetRbacRolesParams = exports.AdminGetRbacRolesParamsFields = exports.AdminGetRbacRoleParams = void 0;
+-const zod_1 = require("zod");
++const zod_1 = require("@medusajs/deps/zod");
+ const common_validators_1 = require("../../../utils/common-validators");
+ const validators_1 = require("../../../utils/validators");
+ exports.AdminGetRbacRoleParams = (0, validators_1.createSelectParams)().merge(zod_1.z.object({

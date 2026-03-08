@@ -61,13 +61,15 @@ export function ProductListFilterTags({
     activeOptions: store.activeOptions,
     queryParams: store.queryParams,
   }))
-  const { removeOption, resetFilters } = useProductFilters()
+  const { removeOption, resetFilters, handleStatusChange } = useProductFilters()
 
   const hasOptionFilters = Object.keys(activeOptions).length > 0
   const hasPriceFilter =
     queryParams.min_price !== undefined || queryParams.max_price !== undefined
+  const hasStatusFilter =
+    queryParams.status !== undefined && queryParams.status.length > 0
 
-  if (!hasOptionFilters && !hasPriceFilter) return null
+  if (!hasOptionFilters && !hasPriceFilter && !hasStatusFilter) return null
 
   return (
     <div className={cn("items-center gap-2", className)} {...props}>
@@ -97,6 +99,20 @@ export function ProductListFilterTags({
           </Button>
         </Badge>
       )}
+
+      {(queryParams.status ?? []).map((s) => (
+        <Badge key={s} variant="secondary" className="p-2 items-center gap-1">
+          {s === "in_stock" ? "In stock" : "On sale"}
+          <Button
+            variant="ghost"
+            size="icon"
+            className="size-4 p-0 ml-1"
+            onClick={() => handleStatusChange(s, false)}
+          >
+            <X className="size-3" />
+          </Button>
+        </Badge>
+      ))}
 
       {Object.entries(activeOptions).map(([optionId, values]) =>
         values.map((value) => (

@@ -9,15 +9,16 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@repo/ui/components/accordion"
-import { Checkbox } from "@repo/ui/components/checkbox"
 import {
   Field,
   FieldContent,
   FieldGroup,
   FieldLabel,
 } from "@repo/ui/components/field"
+import { Checkbox } from "@repo/ui/components/checkbox"
 import { useProductFilters } from "@/modules/products/hooks/use-product-filters"
 import { HTMLAttributes } from "react"
+import { Label } from "@repo/ui/components/label"
 
 type CategoryFiltersProps = HTMLAttributes<HTMLDivElement> & {}
 
@@ -32,6 +33,7 @@ export default function CategoryFilters({
     isOptionActive,
     handlePriceRangeChange,
     handleOptionChange,
+    handleStatusChange,
   } = useProductFilters()
 
   const absMin = (priceRange ?? [0, 0])[0] ?? 0
@@ -39,6 +41,9 @@ export default function CategoryFilters({
 
   return (
     <div className={cn("flex flex-col space-y-8", className)} {...props}>
+
+
+      {/* Price range */}
       <div>
         <h5 className="uppercase">Price</h5>
         <div className="mt-4 flex flex-col space-y-2">
@@ -51,6 +56,8 @@ export default function CategoryFilters({
           />
         </div>
       </div>
+
+      {/* Option filters */}
       <Accordion type="multiple" defaultValue={["0"]}>
         {options.map((option) => (
           <AccordionItem key={option.key} value={option.key}>
@@ -84,6 +91,37 @@ export default function CategoryFilters({
           </AccordionItem>
         ))}
       </Accordion>
+
+      {/* Status filter */}
+      <div>
+        <h5 className="uppercase">Status</h5>
+        <div className="mt-4 flex flex-col gap-3">
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="status-in-stock"
+              checked={(queryParams.status ?? []).includes("in_stock")}
+              onCheckedChange={(checked) =>
+                handleStatusChange("in_stock", !!checked)
+              }
+            />
+            <Label htmlFor="status-in-stock" className="text-sm cursor-pointer">
+              In stock
+            </Label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="status-on-sale"
+              checked={(queryParams.status ?? []).includes("on_sale")}
+              onCheckedChange={(checked) =>
+                handleStatusChange("on_sale", !!checked)
+              }
+            />
+            <Label htmlFor="status-on-sale" className="text-sm cursor-pointer">
+              On sale
+            </Label>
+          </div>
+        </div>
+      </div>
     </div>
   )
 }

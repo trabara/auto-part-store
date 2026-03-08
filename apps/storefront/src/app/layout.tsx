@@ -176,7 +176,7 @@ export default async function RootLayout({
           </div>
         </header>
         {/** Main Content */}
-        <main className="bg-accent/20">{children}</main>
+        <main className="bg-accent/20 pt-8">{children}</main>
         {/** Footer */}
         <footer className="bg-primary border-t border-t-accent-foreground/10">
           <div className="snap-container mt-10 py-6 text-secondary">

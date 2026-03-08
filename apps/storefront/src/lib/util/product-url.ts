@@ -6,6 +6,7 @@ export type ProductListUrlParams = {
   page?: number
   min_price?: number
   max_price?: number
+  status?: ("in_stock" | "on_sale")[]
   option_values?: ProductOptionValueFilter[]
   limit?: number
 }
@@ -39,6 +40,11 @@ export function buildProductListUrl(
   }
   if (params.max_price !== undefined) {
     sp.set("max_price", String(params.max_price))
+  }
+  if (params.status && params.status.length > 0) {
+    for (const s of params.status) {
+      sp.append("status", s)
+    }
   }
   if (params.limit && params.limit !== 12) {
     sp.set("limit", String(params.limit))

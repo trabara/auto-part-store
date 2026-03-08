@@ -28,6 +28,7 @@ export type ProductListQueryParams = {
   sort?: SortOptions
   min_price?: number
   max_price?: number
+  status?: ("in_stock" | "on_sale")[]
   option_values?: ProductOptionValueFilter[]
 }
 
@@ -86,8 +87,8 @@ export async function listProducts({
     sort,
     min_price,
     max_price,
+    status,
     option_values,
-    ...restQueryParams
   } = queryParams || {}
 
   const _pageParam = Math.max(pageParam, 1)
@@ -115,7 +116,7 @@ export async function listProducts({
     ...(sort && { sort }),
     ...(min_price !== undefined && { min_price }),
     ...(max_price !== undefined && { max_price }),
-    ...restQueryParams,
+    ...(status !== undefined && status.length > 0 && { status }),
   }
 
   // Encode option_values as repeated indexed params so Medusa's Zod parser

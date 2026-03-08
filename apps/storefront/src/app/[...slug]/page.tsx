@@ -1,68 +1,12 @@
 import { getCategoryByHandle } from "@/lib/data/categories"
-import { listProducts, ProductOptionValueFilter } from "@/lib/data/products"
-import { SORT_OPTIONS, SortOptions } from "@/lib/types"
+import { listProducts } from "@/lib/data/products"
 import { CategoryBreadcrumb } from "@/modules/categories/components/category-breadcrumb"
 import ProductListTemplate from "@/modules/products/templates"
+import { parseSearchParams, SearchParams } from "@/modules/products/utils"
 import Link from "next/link"
 import { notFound } from "next/navigation"
 
-const DEFAULT_LIMIT = 12
 
-type SearchParams = {
-  sort?: string
-  page?: string
-  min_price?: string
-  max_price?: string
-  // option filters: options[OptionTitle][]=optionValueId,...
-  [key: string]: string | string[] | undefined
-}
-
-function parseSearchParams(searchParams: SearchParams): {
-  sort: SortOptions
-  page: number
-  min_price?: number
-  max_price?: number
-  option_values: ProductOptionValueFilter[]
-  limit: number
-} {
-  const sort = SORT_OPTIONS.includes(searchParams.sort as SortOptions)
-    ? (searchParams.sort as SortOptions)
-    : "created_at"
-
-  const page = Math.max(1, parseInt(searchParams.page ?? "1", 10) || 1)
-
-  const min_price = searchParams.min_price
-    ? parseFloat(searchParams.min_price)
-    : undefined
-  const max_price = searchParams.max_price
-    ? parseFloat(searchParams.max_price)
-    : undefined
-
-  // Parse option_values from:
-  // option_values[0][option_id]=x&option_values[0][value]=y
-  // OR: options[OptionTitle][]=optionValueId (human-readable URL style)
-  // We support the human-readable style: options[Color][]=Red&options[Color][]=Blue
-  // Each key is "options[<option_title>]" with value being a string or array.
-  const option_values: ProductOptionValueFilter[] = []
-  for (const [key, val] of Object.entries(searchParams)) {
-    const match = key.match(/^options\[(.+)\]$/)
-    if (!match) continue
-    const option_id = match[1]! // we pass option_id as the title key from the URL
-    const values = Array.isArray(val) ? val : val ? [val] : []
-    for (const value of values) {
-      option_values.push({ option_id, value })
-    }
-  }
-
-  return {
-    sort,
-    page,
-    min_price,
-    max_price,
-    option_values,
-    limit: DEFAULT_LIMIT,
-  }
-}
 
 export default async function CategoryProducts({
   params,
@@ -106,7 +50,7 @@ export default async function CategoryProducts({
     )
   }
 
-  const { sort, page, min_price, max_price, option_values, limit } =
+  const { sort, page, min_price, max_price, status, option_values, limit } =
     parseSearchParams(resolvedSearchParams)
 
   const { response, priceRange, options } = await listProducts({
@@ -117,9 +61,12 @@ export default async function CategoryProducts({
       sort,
       ...(min_price !== undefined && { min_price }),
       ...(max_price !== undefined && { max_price }),
+      ...(status !== undefined && { status }),
       ...(option_values.length > 0 && { option_values }),
     },
   })
+
+  console.log("response", response, priceRange, options)
 
   return (
     <>
@@ -135,6 +82,7 @@ export default async function CategoryProducts({
         sort={sort}
         minPrice={min_price}
         maxPrice={max_price}
+        status={status}
         optionValues={option_values}
         priceRange={priceRange}
         availableOptions={options}

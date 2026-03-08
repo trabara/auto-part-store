@@ -221,6 +221,12 @@ export const ProductV2FindParams = BaseFindParams.extend({
   sort: z.string().optional(),
   min_price: z.coerce.number().optional(),
   max_price: z.coerce.number().optional(),
+  status: z
+    .union([
+      z.enum(["in_stock", "on_sale"]),
+      z.array(z.enum(["in_stock", "on_sale"])),
+    ])
+    .optional(),
   option_values: z
     .union([
       z.array(ProductOptionValueFilterSchema),

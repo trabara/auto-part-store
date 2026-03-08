@@ -10,6 +10,7 @@ export type ProductListInput = {
   sort?: string;
   min_price?: number;
   max_price?: number;
+  status?: ("in_stock" | "on_sale")[];
   option_values?: ProductOptionValueFilter[];
   queryConfig: {
     fields?: string[];
@@ -58,7 +59,6 @@ export class ProductListService {
   }
 
   async list(input: ProductListInput): Promise<ProductListResult> {
-    
     const {
       region_id,
       currency_code,
@@ -67,6 +67,7 @@ export class ProductListService {
       sort,
       min_price,
       max_price,
+      status,
       option_values,
       queryConfig,
     } = input;
@@ -129,8 +130,10 @@ export class ProductListService {
     const hasPriceFilter = min_price !== undefined || max_price !== undefined;
     const hasPriceSort = sort === "price_asc" || sort === "price_desc";
     const hasOptionFilter = !!option_values && option_values.length > 0;
+    const hasStatusFilter = !!status && status.length > 0;
+    const statusSet = new Set(status ?? []);
     const needsPostProcessing =
-      hasPriceFilter || hasPriceSort || hasOptionFilter;
+      hasPriceFilter || hasPriceSort || hasOptionFilter || hasStatusFilter;
 
     // ── Main product query ───────────────────────────────────────────────────
     // When post-processing is needed we fetch everything then paginate in JS;
@@ -166,6 +169,23 @@ export class ProductListService {
 
     if (hasPriceFilter) {
       processed = this.filterByPrice(processed, min_price, max_price);
+    }
+
+    if (hasStatusFilter) {
+      const filterFns: ((p: any[]) => any[])[] = [];
+      if (statusSet.has("in_stock"))
+        filterFns.push((p) => this.filterInStock(p));
+      if (statusSet.has("on_sale")) filterFns.push((p) => this.filterOnSale(p));
+
+      if (filterFns.length === 1) {
+        processed = filterFns[0]!(processed);
+      } else if (filterFns.length > 1) {
+        // Both checked: union (OR) — keep products that pass any filter
+        const sets = filterFns.map(
+          (fn) => new Set(fn(processed).map((p: any) => p.id)),
+        );
+        processed = processed.filter((p) => sets.some((s) => s.has(p.id)));
+      }
     }
 
     if (hasPriceSort) {
@@ -287,6 +307,43 @@ export class ProductListService {
         if (min !== undefined && amount < min) return false;
         if (max !== undefined && amount > max) return false;
         return true;
+      }),
+    );
+  }
+
+  /**
+   * Keep only products that have at least one variant with inventory_quantity > 0.
+   * A variant with manage_inventory !== true (false, null, or undefined) is considered
+   * always in stock. When inventory_quantity is null/undefined (field not exposed by
+   * the API layer), the variant is also treated as in stock (safe default).
+   */
+  private filterInStock(products: any[]): any[] {
+    return products.filter((product) =>
+      (product.variants ?? []).some((variant: any) => {
+        // If inventory is not managed (or manage_inventory is not available), treat as always in stock
+        if (variant.manage_inventory !== true) return true;
+        // If inventory_quantity is null/undefined (field not resolvable), treat as in stock
+        if (variant.inventory_quantity == null) return true;
+        return variant.inventory_quantity > 0;
+      }),
+    );
+  }
+
+  /**
+   * Keep only products that have at least one variant where
+   * compare_at_price is set and greater than the current calculated_price.
+   */
+  private filterOnSale(products: any[]): any[] {
+    return products.filter((product) =>
+      (product.variants ?? []).some((variant: any) => {
+        const compareAt =
+          variant.calculated_price?.original_amount ??
+          variant.calculated_price?.original_price_incl_tax;
+        const current =
+          variant.calculated_price?.calculated_amount ??
+          variant.calculated_price?.calculated_price_incl_tax;
+        if (compareAt == null || current == null) return false;
+        return compareAt > current;
       }),
     );
   }

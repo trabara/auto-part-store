@@ -49,6 +49,7 @@ export const useProductFilters = () => {
         page: number
         min_price: number | undefined
         max_price: number | undefined
+        status: ("in_stock" | "on_sale")[] | undefined
         option_values: ProductOptionValueFilter[]
         limit: number
       }>
@@ -58,6 +59,7 @@ export const useProductFilters = () => {
         page: currentPage,
         min_price: queryParams.min_price,
         max_price: queryParams.max_price,
+        status: queryParams.status,
         option_values: currentOptionValues,
         limit,
         ...overrides,
@@ -149,11 +151,26 @@ export const useProductFilters = () => {
         option_values: [],
         min_price: undefined,
         max_price: undefined,
+        status: undefined,
         page: 1,
       }),
       { scroll: false }
     )
   }, [buildUrl, router])
+
+  const handleStatusChange = useCallback(
+    (value: "in_stock" | "on_sale", checked: boolean) => {
+      const current = queryParams.status ?? []
+      const next = checked
+        ? [...new Set([...current, value])]
+        : current.filter((s) => s !== value)
+      router.push(
+        buildUrl({ status: next.length > 0 ? next : undefined, page: 1 }),
+        { scroll: false }
+      )
+    },
+    [buildUrl, router, queryParams.status]
+  )
 
   const setSort = useCallback(
     (newSort: SortOptions) => {
@@ -186,7 +203,8 @@ export const useProductFilters = () => {
   const hasActiveFilters =
     currentOptionValues.length > 0 ||
     queryParams.min_price !== undefined ||
-    queryParams.max_price !== undefined
+    queryParams.max_price !== undefined ||
+    (queryParams.status !== undefined && queryParams.status.length > 0)
 
   return {
     options,
@@ -200,6 +218,7 @@ export const useProductFilters = () => {
       (activeOptions[optionId] ?? []).includes(value),
     handlePriceRangeChange,
     handleOptionChange,
+    handleStatusChange,
     removeOption,
     resetFilters,
     setSort,

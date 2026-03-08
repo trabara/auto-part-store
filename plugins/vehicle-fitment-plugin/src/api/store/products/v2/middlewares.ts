@@ -28,6 +28,7 @@ export const storeProductMiddlewares: MiddlewareRoute[] = [
           "options.values.value",
           "variants",
           "*variants.calculated_price",
+          "variants.inventory_quantity",
           "tags",
           "metadata",
         ],

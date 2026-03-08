@@ -2,8 +2,10 @@ import FitmentProductLink from "../../../links/fitment-product";
 import { FITMENT_MODULE } from "..";
 import { ContainerRegistrationKeys, Modules } from "@medusajs/framework/utils";
 import { BaseController } from "@repo/common";
-import { ProductOptionValueFilter } from "../schema";
-import { ProductListInput, ProductListService } from "../services/product-list.service";
+import {
+  ProductListInput,
+  ProductListService,
+} from "../services/product-list.service";
 
 /**
  * Product Controller
@@ -28,7 +30,7 @@ export class ProductController extends BaseController {
 
       const service = new ProductListService(query);
       const result = await service.list({
-        ...this.req.filterableFields as ProductListInput,
+        ...(this.req.filterableFields as ProductListInput),
         queryConfig: this.req.queryConfig,
       });
 

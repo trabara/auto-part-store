@@ -23,6 +23,7 @@ export type ProductListTemplateProps = {
   sort: SortOptions
   minPrice?: number
   maxPrice?: number
+  status?: ("in_stock" | "on_sale")[]
   optionValues: ProductOptionValueFilter[]
   priceRange: ProductPriceRange
   availableOptions: ProductOptionMeta[]
@@ -36,6 +37,7 @@ export default async function ProductListTemplate({
   sort,
   minPrice,
   maxPrice,
+  status,
   optionValues,
   priceRange,
   availableOptions,
@@ -55,6 +57,7 @@ export default async function ProductListTemplate({
           sort,
           ...(minPrice !== undefined && { min_price: minPrice }),
           ...(maxPrice !== undefined && { max_price: maxPrice }),
+          ...(status !== undefined && { status }),
           ...(optionValues.length > 0 && { option_values: optionValues }),
         },
         activeOptions,

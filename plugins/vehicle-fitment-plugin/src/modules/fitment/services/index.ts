@@ -2,6 +2,13 @@
 export { FitmentRelationshipService } from "./fitment-relationship.service";
 export { FitmentCascadeService } from "./fitment-cascade.service";
 export { default as FitmentModuleService } from "./fitment-module.service";
+export { ProductListService } from "./product-list.service";
+export type {
+  ProductListInput,
+  ProductListResult,
+  ProductPriceRange,
+  ProductOptionMeta,
+} from "./product-list.service";
 
 // Service interfaces
 export type { IFitmentRelationshipService } from "./interfaces/fitment-relationship.interface";

@@ -61,7 +61,6 @@ export default function CategoryFilters({
       <Accordion type="multiple" defaultValue={["0"]}>
         {options.map((option) => (
           <div key={option.key} >
-
             <h5 className="uppercase">{option.title}</h5>
             <div className="mt-4 flex flex-col gap-3">
               {option.values.map(({ optionId, value }, index) => (

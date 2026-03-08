@@ -251,13 +251,10 @@ export function ProductListContent() {
     )
   }
 
-  const contentClassName = cn(
-    "grid divide-accent-foreground/10 border border-accent-foreground/10",
-    {
-      "grid-cols-2 lg:grid-cols-3 divide-y divide-x": display === "grid",
-      "grid-cols-1 divide-y": display === "list",
-    }
-  )
+  const contentClassName = cn("grid", {
+    "grid-cols-2 lg:grid-cols-3 gap-px bg-border": display === "grid",
+    "grid-cols-1 divide-y divide-border": display === "list",
+  })
 
   return (
     <div className={contentClassName}>

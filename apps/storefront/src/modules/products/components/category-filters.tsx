@@ -60,35 +60,27 @@ export default function CategoryFilters({
       {/* Option filters */}
       <Accordion type="multiple" defaultValue={["0"]}>
         {options.map((option) => (
-          <AccordionItem key={option.key} value={option.key}>
-            <AccordionTrigger className="px-0">
-              <h5 className="uppercase">{option.title}</h5>
-            </AccordionTrigger>
-            <AccordionContent>
-              <Field>
-                <FieldGroup className="grid w-full grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
-                  {option.values.map(({ optionId, value }, index) => (
-                    <FieldContent
-                      key={index}
-                      className="flex items-center space-x-2"
-                    >
-                      <Checkbox
-                        id={`${option.key}-${index}`}
-                        checked={isOptionActive(optionId, value)}
-                        onCheckedChange={handleOptionChange(optionId, value)}
-                      />
-                      <FieldLabel
-                        htmlFor={`${option.key}-${index}`}
-                        className="text-sm"
-                      >
-                        {value}
-                      </FieldLabel>
-                    </FieldContent>
-                  ))}
-                </FieldGroup>
-              </Field>
-            </AccordionContent>
-          </AccordionItem>
+          <div key={option.key} >
+
+            <h5 className="uppercase">{option.title}</h5>
+            <div className="mt-4 flex flex-col gap-3">
+              {option.values.map(({ optionId, value }, index) => (
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id={`${option.key}-${index}`}
+                    checked={isOptionActive(optionId, value)}
+                    onCheckedChange={handleOptionChange(optionId, value)}
+                  />
+                  <Label
+                    htmlFor={`${option.key}-${index}`}
+                    className="text-sm"
+                  >
+                    {value}
+                  </Label>
+                </div>
+              ))}
+            </div>
+          </div>
         ))}
       </Accordion>
 

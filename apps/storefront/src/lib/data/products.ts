@@ -1,220 +1,202 @@
 "use server"
 
 import { sdk } from "@/lib/config"
+import { SortOptions } from "@/lib/types"
 import { HttpTypes } from "@medusajs/types"
-import { SortOptions } from "../types"
-import { sortProducts } from "../util/product"
 import { retreiveFitment } from "./fitments"
 import { getRegion } from "./regions"
 
-export type ProductListQueryParams = HttpTypes.FindParams & {
-    category_id?: string
+export type ProductOptionValueFilter = {
+  option_id: string
+  value: string
+}
+
+export type ProductPriceRange = {
+  min: number
+  max: number
+}
+
+export type ProductOptionMeta = {
+  title: string
+  option_id: string
+  values: string[]
+}
+
+export type ProductListQueryParams = {
+  category_id?: string
+  limit?: number
+  sort?: SortOptions
+  min_price?: number
+  max_price?: number
+  option_values?: ProductOptionValueFilter[]
 }
 
 export type ProductListResponse = {
-    response: { products: HttpTypes.StoreProduct[]; count: number }
-    nextPage: number | null
-    queryParams?: ProductListQueryParams
+  response: { products: HttpTypes.StoreProduct[]; count: number }
+  nextPage: number | null
+  queryParams?: ProductListQueryParams
+  priceRange: ProductPriceRange
+  options: ProductOptionMeta[]
 }
 
 export type ProductListParams = {
-    pageParam?: number
-    queryParams?: ProductListQueryParams
-    // countryCode?: string
-    // regionId?: string
+  pageParam?: number
+  queryParams?: ProductListQueryParams
 }
 
 export async function listProductOptions(): Promise<{
-    options: HttpTypes.StoreProductOption[]
+  options: HttpTypes.StoreProductOption[]
 }> {
-    return sdk.client.fetch(`/store/options`, {
-        method: "GET",
-        query: {
-            fields: "*",
-        },
-    })
+  return sdk.client.fetch(`/store/options`, {
+    method: "GET",
+    query: {
+      fields: "*",
+    },
+  })
+}
+
+// Maps our SortOptions type to the Medusa `order` query param format.
+// Medusa's get-query-config parses a plain string: prefix "-" means DESC,
+// no prefix means ASC. e.g. "title" → ASC, "-title" → DESC.
+// Price sorts are omitted here — calculated_price is not a DB column,
+// so they are handled as a JS post-sort in the plugin controller.
+function buildOrderParam(sort?: SortOptions): string | undefined {
+  if (!sort) return undefined
+  switch (sort) {
+    case "name_asc":
+      return "title"
+    case "name_desc":
+      return "-title"
+    case "price_asc":
+    case "price_desc":
+      // Post-sorted server-side in the plugin controller
+      return undefined
+    case "created_at":
+    default:
+      return "-created_at"
+  }
 }
 
 export async function listProducts({
-    pageParam = 1,
-    queryParams,
-    // countryCode,
-    // regionId,
+  pageParam = 1,
+  queryParams,
 }: ProductListParams): Promise<ProductListResponse> {
-    // if (!countryCode && !regionId) {
-    //   throw new Error("Country code or region ID is required")
-    // }
-    const {
-        limit = 12,
-        ...resetQueryParams
-    } = queryParams || {}
+  const {
+    limit = 12,
+    sort,
+    min_price,
+    max_price,
+    option_values,
+    ...restQueryParams
+  } = queryParams || {}
 
-    const _pageParam = Math.max(pageParam, 1)
-    const offset = _pageParam === 1 ? 0 : (_pageParam - 1) * limit
+  const _pageParam = Math.max(pageParam, 1)
+  const offset = _pageParam === 1 ? 0 : (_pageParam - 1) * limit
 
-    //   let region: HttpTypes.StoreRegion | undefined | null
+  const region = await getRegion("tn")
+  if (!region) {
+    throw new Error("Region not found")
+  }
 
-    //   if (countryCode) {
-    //     region = await getRegion(countryCode)
-    //   } else {
-    //     region = await retrieveRegion(regionId!)
-    //   }
+  const fitment = await retreiveFitment()
 
-    //   if (!region) {
-    //     return {
-    //       response: { products: [], count: 0 },
-    //       nextPage: null,
-    //     }
-    //   }
+  const order = buildOrderParam(sort)
 
-    // const headers = {
-    //     ...(await getAuthHeaders()),
-    // }
+  const query: Record<string, any> = {
+    limit,
+    offset,
+    fitment_id: fitment?.id,
+    region_id: region.id,
+    currency_code: region.currency_code,
+    fields:
+      "*variants.calculated_price,+variants.inventory_quantity,*variants.images,+metadata,+tags",
+    ...(order && { order }),
+    // Pass sort so the controller can apply price post-sort
+    ...(sort && { sort }),
+    ...(min_price !== undefined && { min_price }),
+    ...(max_price !== undefined && { max_price }),
+    ...restQueryParams,
+  }
 
-    //   const next = {
-    //     ...(await getCacheOptions("products")),
-    //   }
-
-    const region = await getRegion('tn')
-    if (!region) {
-        throw new Error("Region not found")
-    }
-
-    const fitment = await retreiveFitment()
-    
-    const { products } = await sdk.client.fetch<HttpTypes.StoreProductListResponse>(
-        `/store/products/v2`,
-        {
-            method: "GET",
-            query: {
-                limit,
-                offset,
-                fitment_id: fitment?.id,
-                region_id: region.id,
-                currency_code: region.currency_code,
-                fields:
-                    "*variants.calculated_price,+variants.inventory_quantity,*variants.images,+metadata,+tags",
-                ...resetQueryParams,
-            },
-            // headers,
-            // next,
-            // cache: "force-cache",
-        }
-    )
-    console.log('products', products)
-    // if (min_price) {
-    //     products = products.filter(({ variants }) =>
-    //         variants?.some(
-    //             ({ calculated_price }) =>
-    //                 calculated_price?.calculated_amount &&
-    //                 calculated_price?.calculated_amount >= min_price!
-    //         )
-    //     )
-    // }
-
-    // if (max_price) {
-    //     products = products.filter(({ variants }) =>
-    //         variants?.some(
-    //             ({ calculated_price }) =>
-    //                 calculated_price?.calculated_amount &&
-    //                 calculated_price?.calculated_amount <= max_price!
-    //         )
-    //     )
-    // }
-
-    // if (options?.values && options.values.length > 0) {
-    //     products = products.filter(({ options: productOptions }) =>
-    //         options.values.every((filterValue) =>
-    //             productOptions?.some(
-    //                 (productOption) =>
-    //                     productOption.values?.some(
-    //                         (value) => value.id === filterValue.id
-    //                     ) && productOption.id === filterValue.option_id
-    //             )
-    //         )
-    //     )
-    // }
-
-    return {
-        nextPage: products?.length > offset + limit ? pageParam + 1 : null,
-        queryParams,
-        response: {
-            products: products || [],
-            count: products?.length || 0,
-        },
-    }
-}
-
-export type ProductListWithSortParams = ProductListParams & {
-    sortBy?: SortOptions
-    // countryCode: string
-}
-
-/**
- * This will fetch 100 products to the Next.js cache and sort them based on the sortBy parameter.
- * It will then return the paginated products based on the page and limit parameters.
- */
-export async function listProductsWithSort({
-    pageParam = 1,
-    queryParams,
-    sortBy = "created_at",
-    // countryCode,
-}: ProductListWithSortParams): Promise<ProductListResponse> {
-    const limit = queryParams?.limit || 12
-
-    const {
-        response: { products, count },
-    } = await listProducts({
-        pageParam,
-        queryParams: {
-            ...queryParams,
-            limit: 100,
-        },
-        // countryCode,
+  // Encode option_values as repeated indexed params so Medusa's Zod parser
+  // picks them up as an array of objects:
+  // option_values[0][option_id]=x&option_values[0][value]=y
+  if (option_values && option_values.length > 0) {
+    option_values.forEach((ov, i) => {
+      query[`option_values[${i}][option_id]`] = ov.option_id
+      query[`option_values[${i}][value]`] = ov.value
     })
+  }
 
-    const sortedProducts = sortProducts(products, sortBy)
-
-    const page = (pageParam - 1) * limit
-
-    const nextPage = count > page + limit ? page + limit : null
-
-    const paginatedProducts = sortedProducts.slice(page, page + limit)
-
-    return {
-        nextPage,
-        queryParams,
-        response: {
-            products: paginatedProducts,
-            count,
-        },
+  const { products, metadata, price_range, options } = await sdk.client.fetch<
+    HttpTypes.StoreProductListResponse & {
+      metadata?: { count?: number }
+      price_range?: ProductPriceRange
+      options?: ProductOptionMeta[]
     }
+  >(`/store/products/v2`, {
+    method: "GET",
+    query,
+  })
+
+  const totalCount = (metadata as any)?.count ?? products?.length ?? 0
+  const hasNextPage = totalCount > offset + limit
+
+  return {
+    nextPage: hasNextPage ? pageParam + 1 : null,
+    queryParams,
+    priceRange: price_range ?? { min: 0, max: 0 },
+    options: options ?? [],
+    response: {
+      products: products || [],
+      count: totalCount,
+    },
+  }
+}
+
+// Kept for backward compatibility — thin wrapper around listProducts
+export type ProductListWithSortParams = ProductListParams & {
+  sortBy?: SortOptions
+}
+
+export async function listProductsWithSort({
+  pageParam = 1,
+  queryParams,
+  sortBy,
+}: ProductListWithSortParams): Promise<ProductListResponse> {
+  return listProducts({
+    pageParam,
+    queryParams: {
+      ...queryParams,
+      ...(sortBy && { sort: sortBy }),
+    },
+  })
 }
 
 export const getProductTypes = async () => {
-    const { product_types } =
-        await sdk.client.fetch<HttpTypes.StoreProductTypeListResponse>(
-            "/store/product-types",
-            {
-                query: {
-                    limit: 100,
-                },
-            }
-        )
+  const { product_types } =
+    await sdk.client.fetch<HttpTypes.StoreProductTypeListResponse>(
+      "/store/product-types",
+      {
+        query: {
+          limit: 100,
+        },
+      }
+    )
 
-    return product_types
+  return product_types
 }
 
 export const getProductTags = async () => {
-    const { product_tags } =
-        await sdk.client.fetch<HttpTypes.StoreProductTagListResponse>(
-            "/store/product-tags",
-            {
-                query: {
-                    limit: 100,
-                },
-            }
-        )
+  const { product_tags } =
+    await sdk.client.fetch<HttpTypes.StoreProductTagListResponse>(
+      "/store/product-tags",
+      {
+        query: {
+          limit: 100,
+        },
+      }
+    )
 
-    return product_tags
+  return product_tags
 }

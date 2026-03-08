@@ -1,79 +1,69 @@
-import { StoreProduct, StoreProductOptionValue } from "@medusajs/types"
+import { StoreProduct } from "@medusajs/types"
 import { createStore } from "zustand/vanilla"
+import { SortOptions } from "@/lib/types"
+import {
+  ProductOptionMeta,
+  ProductOptionValueFilter,
+  ProductListQueryParams,
+  ProductPriceRange,
+} from "@/lib/data/products"
 import { Display } from "./types"
-import { listProductsWithSort, ProductListQueryParams } from "@/lib/data/products"
 
 export type ProductListState = {
   queryParams: ProductListQueryParams
-  options: Record<string, StoreProductOptionValue[]>
+  // Active option filters: Record<optionId, selectedValues[]>
+  activeOptions: Record<string, string[]>
   products: StoreProduct[]
   display: Display
   isLoading: boolean
+  totalCount: number
+  currentPage: number
+  limit: number
+  sort: SortOptions
+  priceRange: [number, number] | null
+  /** Absolute price range across the full unfiltered catalog for this category */
+  absolutePriceRange: ProductPriceRange
+  /** All available options from the full unfiltered catalog */
+  availableOptions: ProductOptionMeta[]
   error?: string
 }
 
 export type ProductListActions = {
-  resetOptions: () => void
-  removeOptions: (key: string, values: StoreProductOptionValue[]) => void
   setDisplay: (display: Display) => void
-  handlePriceFilterChange: (values: number[]) => void
-  handleOptionChange: (
-    key: string,
-    values: StoreProductOptionValue[]
-  ) => (checked: boolean) => void
-  isOptionActive: (key: string, values: StoreProductOptionValue[]) => boolean
+  isOptionActive: (optionId: string, value: string) => boolean
 }
 
 export type ProductListStore = ProductListState & ProductListActions
 
 export const INITIAL_PRODUCT_LIST_STATE: ProductListState = {
   queryParams: {},
-  options: {},
+  activeOptions: {},
   products: [],
   display: "grid",
   isLoading: false,
+  totalCount: 0,
+  currentPage: 1,
+  limit: 12,
+  sort: "created_at",
+  priceRange: null,
+  absolutePriceRange: { min: 0, max: 0 },
+  availableOptions: [],
 }
 
 export const createProductListStore = (
-  initState: ProductListState = INITIAL_PRODUCT_LIST_STATE
+  initState: Partial<ProductListState> = {}
 ) => {
-  return createStore<ProductListStore>()((set, get) => ({
+  const state: ProductListState = {
+    ...INITIAL_PRODUCT_LIST_STATE,
     ...initState,
+  }
+
+  return createStore<ProductListStore>()((set, get) => ({
+    ...state,
     setDisplay: (display) => set({ display }),
-    resetOptions: () => {
-      set({ options: {} })
-    },
-    handleOptionChange: (key, values) => async (checked: boolean) => {
-
-    },
-    removeOptions: (key, values) => { },
-    isOptionActive: (key, values) => {
-      const { options } = get()
-      const activeValues = options[key] || []
-      return values.every((value) => activeValues.some((v) => v.id === value.id))
-    },
-    handlePriceFilterChange: async (values) => {
-      const { queryParams } = get()
-      const minPrice = values[0] ?? 0
-      const maxPrice = values[1] ?? Infinity
-
-      const newQueryParams = {
-        ...queryParams,
-        min_price: minPrice,
-        max_price: maxPrice === Infinity ? undefined : maxPrice,
-      }
-      try {
-        const { response } = await listProductsWithSort({
-          queryParams: newQueryParams,
-        })
-
-        set({
-          products: response.products,
-          queryParams: newQueryParams,
-        })
-      } catch (error) {
-        console.log(error)
-      }
+    isOptionActive: (optionId: string, value: string) => {
+      const { activeOptions } = get()
+      return (activeOptions[optionId] ?? []).includes(value)
     },
   }))
 }

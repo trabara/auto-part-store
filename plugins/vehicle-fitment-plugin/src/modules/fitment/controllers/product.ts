@@ -6,6 +6,7 @@ import {
   QueryContext,
 } from "@medusajs/framework/utils";
 import { BaseController } from "@repo/common";
+import { ProductOptionValueFilter } from "../schema";
 
 /**
  * Product Controller
@@ -23,24 +24,39 @@ export class ProductController extends BaseController {
     await this.execute(async () => {
       const query = this.req.scope.resolve(ContainerRegistrationKeys.QUERY);
 
-      const { region_id, currency_code, fitment_id, category_id } =
-        this.req.filterableFields;
+      const {
+        region_id,
+        currency_code,
+        fitment_id,
+        category_id,
+        sort,
+        min_price,
+        max_price,
+        option_values,
+      } = this.req.filterableFields as {
+        region_id: string;
+        currency_code: string;
+        fitment_id?: string;
+        category_id?: string;
+        sort?: string;
+        min_price?: number;
+        max_price?: number;
+        option_values?: ProductOptionValueFilter[];
+      };
 
       this.logger.info("Listing products with filters", {
         filters: this.req.filterableFields,
         queryConfig: this.req.queryConfig,
       });
 
-      // If fitment_id is provided, resolve product IDs through the link table
-      // since fitment is not a direct property of Product
-      let filtersFields: Record<string, any> = {};
+      // Build base filters (category + fitment only, no price/option filters).
+      // These are used both for the main query and the "absolute" metadata query.
+      let baseFilters: Record<string, any> = {};
 
       if (category_id) {
-        filtersFields = {
-          ...filtersFields,
-          categories: {
-            id: category_id,
-          },
+        baseFilters = {
+          ...baseFilters,
+          categories: { id: category_id },
         };
       }
 
@@ -53,26 +69,136 @@ export class ProductController extends BaseController {
 
         if (links.length === 0) {
           this.logger.info(`No products found for fitment ${fitment_id}`);
-          this.success({ products: [], metadata: { count: 0 } });
+          this.success({
+            products: [],
+            metadata: { count: 0 },
+            price_range: { min: 0, max: 0 },
+            options: [],
+          });
           return;
         }
 
-        filtersFields = {
-          ...filtersFields,
+        baseFilters = {
+          ...baseFilters,
           id: links.map(({ product_id }) => product_id),
         };
       }
 
+      // ── Absolute metadata query ──────────────────────────────────────────
+      // Fetch all products matching base filters (no price/option constraints)
+      // to derive absolute price_range and available options.
+      const { data: allProducts } = await query.graph({
+        entity: "product",
+        fields: [
+          "id",
+          "options.id",
+          "options.title",
+          "options.values.id",
+          "options.values.value",
+          "variants.id",
+          "variants.calculated_price.calculated_amount",
+        ],
+        filters: baseFilters,
+        pagination: { skip: 0, take: 10000 },
+        context: {
+          variants: {
+            calculated_price: QueryContext({ region_id, currency_code }),
+          },
+        },
+      });
+
+      // Compute absolute price range across all matching products
+      let absMin = Infinity;
+      let absMax = -Infinity;
+      for (const product of allProducts as any[]) {
+        for (const variant of product.variants ?? []) {
+          const amount = variant.calculated_price?.calculated_amount;
+          if (amount == null) continue;
+          if (amount < absMin) absMin = amount;
+          if (amount > absMax) absMax = amount;
+        }
+      }
+      const price_range =
+        absMin === Infinity ? { min: 0, max: 0 } : { min: absMin, max: absMax };
+
+      // Compute available options (title → distinct values with option_id)
+      const optionsMap = new Map<
+        string,
+        { title: string; option_id: string; values: Set<string> }
+      >();
+      for (const product of allProducts as any[]) {
+        for (const opt of product.options ?? []) {
+          if (!opt?.title || !opt?.id) continue;
+          if (!optionsMap.has(opt.title)) {
+            optionsMap.set(opt.title, {
+              title: opt.title,
+              option_id: opt.id,
+              values: new Set(),
+            });
+          }
+          for (const ov of opt.values ?? []) {
+            if (ov?.value) optionsMap.get(opt.title)!.values.add(ov.value);
+          }
+        }
+      }
+      const options = Array.from(optionsMap.values()).map((o) => ({
+        title: o.title,
+        option_id: o.option_id,
+        values: Array.from(o.values),
+      }));
+
+      // ── Build filterable fields for the main query ───────────────────────
+      let filtersFields: Record<string, any> = { ...baseFilters };
+
+      // Option value filters
+      if (option_values && option_values.length > 0) {
+        const grouped = option_values.reduce(
+          (acc: Record<string, string[]>, { option_id, value }) => {
+            if (!acc[option_id]) acc[option_id] = [];
+            acc[option_id].push(value);
+            return acc;
+          },
+          {},
+        );
+
+        const optionGroups = Object.entries(grouped) as [string, string[]][];
+        if (optionGroups.length === 1) {
+          const [option_id, values] = optionGroups[0];
+          filtersFields.$or = values.map((value) => ({
+            variants: { options: { value, option_id } },
+          }));
+        } else if (optionGroups.length > 1) {
+          filtersFields.$and = optionGroups.map(([option_id, values]) => ({
+            $or: values.map((value) => ({
+              variants: { options: { value, option_id } },
+            })),
+          }));
+        }
+      }
+
+      // ── Main product query ───────────────────────────────────────────────
+      const hasPriceFilter = min_price !== undefined || max_price !== undefined;
+      const hasPriceSort = sort === "price_asc" || sort === "price_desc";
+
+      const queryConfig =
+        hasPriceFilter || hasPriceSort
+          ? {
+              ...this.req.queryConfig,
+              pagination: {
+                ...this.req.queryConfig.pagination,
+                skip: 0,
+                take: 10000,
+              },
+            }
+          : this.req.queryConfig;
+
       const { data, metadata } = await query.graph({
         entity: "product",
-        ...this.req.queryConfig,
+        ...queryConfig,
         filters: filtersFields,
         context: {
           variants: {
-            calculated_price: QueryContext({
-              region_id,
-              currency_code,
-            }),
+            calculated_price: QueryContext({ region_id, currency_code }),
           },
         },
       });
@@ -81,7 +207,56 @@ export class ProductController extends BaseController {
         count: data.length,
       });
 
-      this.success({ products: data, metadata });
+      if (!hasPriceFilter && !hasPriceSort) {
+        this.success({ products: data, metadata, price_range, options });
+        return;
+      }
+
+      // Helper: get cheapest calculated_amount for a product
+      const minPriceOf = (product: any): number => {
+        if (!product.variants?.length) return Infinity;
+        return Math.min(
+          ...product.variants.map(
+            (v: any) => v.calculated_price?.calculated_amount ?? Infinity,
+          ),
+        );
+      };
+
+      // Post-filter by calculated price range
+      let processed: any[] = hasPriceFilter
+        ? data.filter((product: any) => {
+            return product.variants?.some((variant: any) => {
+              const amount = variant.calculated_price?.calculated_amount;
+              if (amount == null) return false;
+              if (min_price !== undefined && amount < min_price) return false;
+              if (max_price !== undefined && amount > max_price) return false;
+              return true;
+            });
+          })
+        : [...data];
+
+      // Post-sort by price if requested
+      if (hasPriceSort) {
+        processed.sort((a: any, b: any) => {
+          const diff = minPriceOf(a) - minPriceOf(b);
+          return sort === "price_asc" ? diff : -diff;
+        });
+      }
+
+      // Apply pagination from the original request on the processed set
+      const { skip = 0, take = 12 } = this.req.queryConfig.pagination ?? {};
+      const paginatedProducts = processed.slice(skip, skip + take);
+
+      this.logger.info(
+        `After post-processing: ${processed.length} products, returning ${paginatedProducts.length}`,
+      );
+
+      this.success({
+        products: paginatedProducts,
+        metadata: { count: processed.length },
+        price_range,
+        options,
+      });
     }, "Products retrieved successfully");
   }
 

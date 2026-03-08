@@ -205,9 +205,26 @@ export const MakeFindParamsSchema = BaseFindParams.extend({
     .optional(),
 });
 
+export const ProductOptionValueFilterSchema = z.object({
+  option_id: z.string(),
+  value: z.string(),
+});
+export type ProductOptionValueFilter = z.infer<
+  typeof ProductOptionValueFilterSchema
+>;
+
 export const ProductV2FindParams = BaseFindParams.extend({
   currency_code: z.string(),
   region_id: z.string(),
   fitment_id: z.string().optional(),
   category_id: z.string().optional(),
+  sort: z.string().optional(),
+  min_price: z.coerce.number().optional(),
+  max_price: z.coerce.number().optional(),
+  option_values: z
+    .union([
+      z.array(ProductOptionValueFilterSchema),
+      ProductOptionValueFilterSchema.transform((v) => [v]),
+    ])
+    .optional(),
 });

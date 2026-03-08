@@ -1,11 +1,11 @@
 'use client'
 
-import { Button } from "@/components/ui/button"
-import { Field, FieldContent } from "@/components/ui/field"
-import { Input } from "@/components/ui/input"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Button } from "@repo/ui/components/button"
+import { Field, FieldContent } from "@repo/ui/components/field"
+import { Input } from "@repo/ui/components/input"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@repo/ui/components/tabs"
 import { addFitment } from "@/lib/data/fitments"
-import { cn } from "@/lib/util/cn"
+import { cn } from "@repo/ui/lib/utils"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { ArrowRight } from "lucide-react"
 import { useForm } from 'react-hook-form'

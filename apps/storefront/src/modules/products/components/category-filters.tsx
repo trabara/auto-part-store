@@ -1,6 +1,6 @@
 "use client"
 
-import { cn } from "@/lib/util/cn"
+import { cn } from "@repo/ui/lib/utils"
 import PriceSlider from "@/modules/products/components/price-slider"
 
 import {
@@ -8,14 +8,14 @@ import {
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from "@/components/ui/accordion"
-import { Checkbox } from "@/components/ui/checkbox"
+} from "@repo/ui/components/accordion"
+import { Checkbox } from "@repo/ui/components/checkbox"
 import {
   Field,
   FieldContent,
   FieldGroup,
   FieldLabel,
-} from "@/components/ui/field"
+} from "@repo/ui/components/field"
 import { useProductFilters } from "@/modules/products/hooks/use-product-filters"
 import { HTMLAttributes } from "react"
 

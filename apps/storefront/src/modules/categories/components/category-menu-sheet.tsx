@@ -4,7 +4,7 @@ import {
   SheetHeader,
   SheetTitle,
   SheetTrigger,
-} from "@/components/ui/sheet"
+} from "@repo/ui/components/sheet"
 import { StoreProductCategory } from "@medusajs/types"
 import { CategoryNavMenu } from "./category-nav-menu"
 

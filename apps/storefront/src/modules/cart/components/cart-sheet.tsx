@@ -1,13 +1,13 @@
-import EmptyShoppingCartIcon from "@/components/icons/empty-shopping-cart"
-import { Button } from "@/components/ui/button"
+import { StoreProduct } from "@medusajs/types"
+import { EmptyShoppingCartIcon } from "@repo/icons"
+import { Button } from "@repo/ui/components/button"
 import {
   Empty,
   EmptyContent,
   EmptyHeader,
   EmptyMedia,
   EmptyTitle,
-} from "@/components/ui/empty"
-import { StoreProduct } from "@medusajs/types"
+} from "@repo/ui/components/empty"
 
 export default function CartList({ products }: { products: StoreProduct[] }) {
   return (

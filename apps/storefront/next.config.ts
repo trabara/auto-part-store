@@ -8,8 +8,13 @@ const nextConfig: NextConfig = {
       {
         protocol: "https",
         hostname: "placehold.co",
-      }
+      },
     ],
+  },
+  turbopack: {
+    resolveAlias: {
+      "tw-animate-css": "../../node_modules/tw-animate-css/dist/tw-animate.css",
+    },
   },
 }
 

@@ -1,11 +1,11 @@
 "use client"
 
-import { Button } from "@/components/ui/button"
-import { ButtonGroup } from "@/components/ui/button-group"
+import { Button } from "@repo/ui/components/button"
+import { ButtonGroup } from "@repo/ui/components/button-group"
 
 import { Grid, List, RefreshCcwIcon, Search, X } from "lucide-react"
 
-import { Badge } from "@/components/ui/badge"
+import { Badge } from "@repo/ui/components/badge"
 import {
   Empty,
   EmptyContent,
@@ -13,15 +13,15 @@ import {
   EmptyHeader,
   EmptyMedia,
   EmptyTitle,
-} from "@/components/ui/empty"
+} from "@repo/ui/components/empty"
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
-import { cn } from "@/lib/util/cn"
+} from "@repo/ui/components/select"
+import { cn } from "@repo/ui/lib/utils"
 import { HTMLAttributes } from "react"
 
 import { useProductList } from "../hooks/use-product-list"

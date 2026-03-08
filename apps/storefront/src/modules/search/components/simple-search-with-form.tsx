@@ -1,4 +1,4 @@
-import { Input } from "@/components/ui/input"
+import { Input } from "@repo/ui/components/input"
 import { SearchIcon } from "lucide-react"
 import { ComponentProps } from "react"
 

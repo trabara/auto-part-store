@@ -1,4 +1,4 @@
-import { Button } from "@/components/ui/button"
+import { Button } from "@repo/ui/components/button"
 import {
   Drawer,
   DrawerContent,
@@ -6,7 +6,7 @@ import {
   DrawerHeader,
   DrawerTitle,
   DrawerTrigger,
-} from "@/components/ui/drawer"
+} from "@repo/ui/components/drawer"
 import { Funnel } from "lucide-react"
 import CategoryFilters from "./category-filters"
 

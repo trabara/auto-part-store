@@ -1,0 +1,1 @@
+export { default as EmptyShoppingCartIcon } from "./empty-shopping-cart"

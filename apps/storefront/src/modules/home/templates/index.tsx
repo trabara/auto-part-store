@@ -1,13 +1,13 @@
-import { Button } from "@/components/ui/button"
+import { Button } from "@repo/ui/components/button"
 import {
   Carousel,
   CarouselContent,
   CarouselItem,
   CarouselNext,
   CarouselPrevious,
-} from "@/components/ui/carousel"
+} from "@repo/ui/components/carousel"
 
-import { Marquee, MarqueeContent } from "@/components/ui/marquee"
+import { Marquee, MarqueeContent } from "@repo/ui/components/marquee"
 import { retreiveFitment } from "@/lib/data/fitments"
 import { ArrowRight } from "lucide-react"
 import Image from "next/image"

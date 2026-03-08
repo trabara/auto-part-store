@@ -1,20 +1,30 @@
-import { cn } from "@/lib/util/cn"
+import { cn } from "@repo/ui/lib/utils"
 import { Akshar } from "next/font/google"
 
-import { Button } from "@/components/ui/button"
-import { ButtonGroup, ButtonGroupSeparator } from "@/components/ui/button-group"
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
 import { listCategories } from "@/lib/data/categories"
 import ShoppingCartButton from "@/modules/cart/components/cart-button"
 import CartList from "@/modules/cart/components/cart-sheet"
 import { CategoryMenuSheet } from "@/modules/categories/components/category-menu-sheet"
 import FitmentBadge from "@/modules/fitment/components/fitment-badge"
 import { SimpleSearchWithForm } from "@/modules/search/components/simple-search-with-form"
-import '@/styles/globals.css'
+import { Button } from "@repo/ui/components/button"
+import {
+  ButtonGroup,
+  ButtonGroupSeparator,
+} from "@repo/ui/components/button-group"
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@repo/ui/components/sheet"
 import { Car, CarFront, Menu, Search, User } from "lucide-react"
 import { Metadata } from "next/dist/lib/metadata/types/metadata-interface"
 import Image from "next/image"
 import Link from "next/link"
+
+import "@/styles/globals.css"
 
 const akshar = Akshar({
   subsets: ["latin"],
@@ -24,11 +34,16 @@ const akshar = Akshar({
 export const metadata: Metadata = {
   metadataBase: new URL("https://snapstore.com"),
   title: "SnapStore - Your One-Stop Shop for Auto Parts",
-  description: "Discover a wide range of high-quality auto parts at SnapStore. Shop with confidence and get your vehicle back on the road in no time.",
+  description:
+    "Discover a wide range of high-quality auto parts at SnapStore. Shop with confidence and get your vehicle back on the road in no time.",
 }
 
-export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  const categories = await listCategories()
+export default async function RootLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
+  const categories = await listCategories().catch(() => [])
 
   return (
     <html lang="en" data-mode="light">
@@ -42,17 +57,29 @@ export default async function RootLayout({ children }: { children: React.ReactNo
                   <div className="space-x-2 flex justify-between items-center">
                     <div className="">
                       <Link href="/about-us">
-                        <Button variant="link" size="sm" className="text-accent">
+                        <Button
+                          variant="link"
+                          size="sm"
+                          className="text-accent"
+                        >
                           About Us
                         </Button>
                       </Link>
                       <Link href="/faq">
-                        <Button variant="link" size="sm" className="text-accent">
+                        <Button
+                          variant="link"
+                          size="sm"
+                          className="text-accent"
+                        >
                           FAQ
                         </Button>
                       </Link>
                       <Link href="/order-tracking">
-                        <Button variant="link" size="sm" className="text-accent">
+                        <Button
+                          variant="link"
+                          size="sm"
+                          className="text-accent"
+                        >
                           Order Tracking
                         </Button>
                       </Link>
@@ -63,9 +90,14 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 
                 <div className="xl:mt-4 flex justify-between space-x-4 py-2 xl:py-4">
                   <CategoryMenuSheet categories={categories}>
-                    <Button variant="ghost" className="inline-flex items-center xl:hidden hover:bg-accent-foreground/10 text-accent">
+                    <Button
+                      variant="ghost"
+                      className="inline-flex items-center xl:hidden hover:bg-accent-foreground/10 text-accent"
+                    >
                       <Menu />
-                      <span className="hidden xl:block ml-2">ALL CATEGORIES</span>
+                      <span className="hidden xl:block ml-2">
+                        ALL CATEGORIES
+                      </span>
                     </Button>
                   </CategoryMenuSheet>
 
@@ -74,12 +106,14 @@ export default async function RootLayout({ children }: { children: React.ReactNo
                   </Link>
 
                   <FitmentBadge>
-                    <Button variant="ghost" className="hidden xl:inline-flex text-secondary hover:bg-accent/50 cursor-pointer ">
+                    <Button
+                      variant="ghost"
+                      className="hidden xl:inline-flex text-secondary hover:bg-accent/50 cursor-pointer "
+                    >
                       <CarFront />
                       My Garage
                     </Button>
                   </FitmentBadge>
-
 
                   {/** Search Input */}
                   <SimpleSearchWithForm className="hidden xl:block flex-1" />
@@ -115,27 +149,24 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             <div className="bg-white border-b border-b-accent">
               <div className="snap-container py-1">
                 <CategoryMenuSheet categories={categories}>
-                  <Button variant="ghost" className="hidden xl:inline-flex hover:bg-accent-foreground/10">
+                  <Button
+                    variant="ghost"
+                    className="hidden xl:inline-flex hover:bg-accent-foreground/10"
+                  >
                     <Menu />
                     <span className="hidden xl:block ml-2">ALL CATEGORIES</span>
                   </Button>
                 </CategoryMenuSheet>
                 <ButtonGroup className="flex xl:hidden w-full">
                   <FitmentBadge>
-                    <Button
-                      variant="ghost"
-                      className="flex-1"
-                    >
+                    <Button variant="ghost" className="flex-1">
                       <Car />
                       My Garage
                     </Button>
                   </FitmentBadge>
 
                   <ButtonGroupSeparator orientation="vertical" />
-                  <Button
-                    variant="ghost"
-                    className="flex-1"
-                  >
+                  <Button variant="ghost" className="flex-1">
                     <Search />
                     Search Product
                   </Button>
@@ -145,9 +176,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           </div>
         </header>
         {/** Main Content */}
-        <main className="bg-accent/20">
-          {children}
-        </main>
+        <main className="bg-accent/20">{children}</main>
         {/** Footer */}
         <footer className="bg-primary border-t border-t-accent-foreground/10">
           <div className="snap-container mt-10 py-6 text-secondary">
@@ -199,7 +228,8 @@ export default async function RootLayout({ children }: { children: React.ReactNo
               </div>
             </div>
             <div className="text-center text-xs mt-4">
-              &copy; {new Date().getFullYear()} Your Company. All rights reserved.
+              &copy; {new Date().getFullYear()} Your Company. All rights
+              reserved.
             </div>
           </div>
         </footer>

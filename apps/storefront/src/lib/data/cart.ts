@@ -7,7 +7,7 @@ import { medusaError } from "@/lib/util/error"
 import { StoreCart } from "@medusajs/types"
 
 const CART_FIELDS =
-  "+items, +items.variant, +items.variant.product, +items.variant.calculated_price, +items.thumbnail, +items.subtotal, +items.unit_price, +items.total, +subtotal, +total"
+  "+items, +items.variant, +items.variant.product, +items.variant.calculated_price, +items.thumbnail, +items.subtotal, +items.unit_price, +items.total, +subtotal, +total, +tax_total, +shipping_total, +discount_total"
 
 export const retrieveCart = async (
   cartId: string

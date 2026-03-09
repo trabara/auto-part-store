@@ -68,8 +68,11 @@ export default function CartList() {
           <span>Subtotal</span>
           <span className="text-base font-bold tabular-nums">{subtotal}</span>
         </div>
-        <Button className="w-full rounded-none font-semibold tracking-widest uppercase text-xs">
-          Proceed to Checkout
+        <Button
+          className="w-full rounded-none font-semibold tracking-widest uppercase text-xs"
+          asChild
+        >
+          <Link href="/cart">View Cart &amp; Checkout</Link>
         </Button>
       </div>
     </div>

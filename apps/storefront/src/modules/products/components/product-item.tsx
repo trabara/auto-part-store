@@ -4,15 +4,32 @@ import { Badge } from "@repo/ui/components/badge"
 import { Button } from "@repo/ui/components/button"
 import { cn } from "@repo/ui/lib/utils"
 import { getProductPrice } from "@/lib/util/product"
+import { useAddToCart } from "@/modules/cart/hooks/use-cart"
 import { StoreProduct } from "@medusajs/types"
 import Image from "next/image"
 import { createElement, HTMLAttributes } from "react"
 import { Display } from "../types"
 import { WishlistButton } from "./whishlist-button"
-import { ShoppingCart, Tag } from "lucide-react"
+import { Loader2, ShoppingCart, Tag } from "lucide-react"
 
 type ProductItemProps = HTMLAttributes<HTMLDivElement> & {
   product: StoreProduct
+}
+
+function getCheapestVariantId(product: StoreProduct): string | undefined {
+  if (!product.variants?.length) return undefined
+  type VariantWithPrice = {
+    id?: string
+    calculated_price?: { calculated_amount: number }
+  }
+  const sorted = (product.variants as VariantWithPrice[])
+    .filter((v) => !!v.calculated_price)
+    .sort(
+      (a, b) =>
+        (a.calculated_price?.calculated_amount ?? 0) -
+        (b.calculated_price?.calculated_amount ?? 0)
+    )
+  return sorted[0]?.id
 }
 
 export function ProductGridItem({
@@ -22,6 +39,8 @@ export function ProductGridItem({
 }: ProductItemProps) {
   const { cheapestPrice } = getProductPrice({ product })
   const isSale = cheapestPrice?.price_type === "sale"
+  const { add, isPending } = useAddToCart()
+  const variantId = getCheapestVariantId(product)
 
   return (
     <div
@@ -66,8 +85,14 @@ export function ProductGridItem({
           <Button
             size="sm"
             className="w-full gap-2 rounded-none text-xs font-semibold tracking-widest uppercase bg-primary/90 backdrop-blur-sm hover:bg-primary"
+            onClick={() => variantId && add(variantId, 1)}
+            disabled={isPending || !variantId}
           >
-            <ShoppingCart className="size-3.5" />
+            {isPending ? (
+              <Loader2 className="size-3.5 animate-spin" />
+            ) : (
+              <ShoppingCart className="size-3.5" />
+            )}
             Add to cart
           </Button>
         </div>
@@ -101,6 +126,8 @@ export function ProductListItem({
 }: ProductItemProps) {
   const { cheapestPrice } = getProductPrice({ product })
   const isSale = cheapestPrice?.price_type === "sale"
+  const { add, isPending } = useAddToCart()
+  const variantId = getCheapestVariantId(product)
 
   return (
     <div
@@ -183,8 +210,14 @@ export function ProductListItem({
             <Button
               size="sm"
               className="w-full gap-1.5 rounded-none text-xs font-semibold tracking-widest uppercase"
+              onClick={() => variantId && add(variantId, 1)}
+              disabled={isPending || !variantId}
             >
-              <ShoppingCart className="size-3.5" />
+              {isPending ? (
+                <Loader2 className="size-3.5 animate-spin" />
+              ) : (
+                <ShoppingCart className="size-3.5" />
+              )}
               Add to cart
             </Button>
           </div>

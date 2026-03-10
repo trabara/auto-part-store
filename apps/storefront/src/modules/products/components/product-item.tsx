@@ -7,6 +7,7 @@ import { getProductPrice } from "@/lib/util/product"
 import { useAddToCart } from "@/modules/cart/hooks/use-cart"
 import { StoreProduct } from "@medusajs/types"
 import Image from "next/image"
+import Link from "next/link"
 import { createElement, HTMLAttributes } from "react"
 import { Display } from "../types"
 import { WishlistButton } from "./whishlist-button"
@@ -52,10 +53,13 @@ export function ProductGridItem({
       {...props}
     >
       {/* Image */}
-      <div className="relative aspect-square overflow-hidden bg-accent/40">
+      <Link
+        href={`/p/${product.handle}`}
+        className="block relative aspect-square overflow-hidden bg-accent/40"
+      >
         {isSale && (
           <div className="absolute top-3 left-3 z-20">
-            <Badge className="bg-destructive text-destructive-foreground text-[11px] font-semibold tracking-wide px-2 py-0.5 rounded-none">
+            <Badge className="bg-destructive text-destructive-foreground text-[11px] font-semibold tracking-wide px-2 py-0.5 ">
               -{cheapestPrice?.percentage_diff}%
             </Badge>
           </div>
@@ -84,8 +88,11 @@ export function ProductGridItem({
         <div className="absolute inset-x-0 bottom-0 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out p-3">
           <Button
             size="sm"
-            className="w-full gap-2 rounded-none text-xs font-semibold tracking-widest uppercase bg-primary/90 backdrop-blur-sm hover:bg-primary"
-            onClick={() => variantId && add(variantId, 1)}
+            className="w-full gap-2  text-xs font-semibold tracking-widest uppercase bg-primary/90 backdrop-blur-sm hover:bg-primary"
+            onClick={(e) => {
+              e.preventDefault()
+              variantId && add(variantId, 1)
+            }}
             disabled={isPending || !variantId}
           >
             {isPending ? (
@@ -96,13 +103,18 @@ export function ProductGridItem({
             Add to cart
           </Button>
         </div>
-      </div>
+      </Link>
 
       {/* Info */}
       <div className="p-3 flex flex-col gap-2 border-t border-border/50">
-        <p className="text-sm font-medium leading-snug line-clamp-2 text-foreground">
-          {product.title}
-        </p>
+        <Link
+          href={`/p/${product.handle}`}
+          className="hover:text-primary transition-colors"
+        >
+          <p className="text-sm font-medium leading-snug line-clamp-2 text-foreground">
+            {product.title}
+          </p>
+        </Link>
 
         <div className="flex items-baseline gap-2 mt-auto">
           <span className="text-base font-bold tabular-nums">
@@ -139,7 +151,10 @@ export function ProductListItem({
       {...props}
     >
       {/* Image */}
-      <div className="relative w-32 md:w-48 shrink-0 overflow-hidden bg-accent/40">
+      <Link
+        href={`/p/${product.handle}`}
+        className="relative w-32 md:w-48 shrink-0 overflow-hidden bg-accent/40 block"
+      >
         {product.thumbnail ? (
           <Image
             unoptimized
@@ -154,7 +169,7 @@ export function ProductListItem({
             <Tag className="size-8" strokeWidth={1} />
           </div>
         )}
-      </div>
+      </Link>
 
       {/* Body */}
       <div className="flex flex-1 min-w-0 items-stretch p-4 gap-4">
@@ -163,13 +178,18 @@ export function ProductListItem({
           <div className="space-y-1">
             <div className="flex items-start gap-2">
               {isSale && (
-                <Badge className="mt-0.5 shrink-0 bg-destructive text-destructive-foreground text-[10px] font-semibold tracking-wide px-1.5 py-0 rounded-none">
+                <Badge className="mt-0.5 shrink-0 bg-destructive text-destructive-foreground text-[10px] font-semibold tracking-wide px-1.5 py-0 ">
                   SALE
                 </Badge>
               )}
-              <h6 className="text-sm md:text-base font-semibold leading-snug line-clamp-2 text-foreground">
-                {product.title}
-              </h6>
+              <Link
+                href={`/p/${product.handle}`}
+                className="hover:text-primary transition-colors"
+              >
+                <h6 className="text-sm md:text-base font-semibold leading-snug line-clamp-2 text-foreground">
+                  {product.title}
+                </h6>
+              </Link>
             </div>
 
             {product.description && (
@@ -209,7 +229,7 @@ export function ProductListItem({
             <WishlistButton className="size-8" />
             <Button
               size="sm"
-              className="w-full gap-1.5 rounded-none text-xs font-semibold tracking-widest uppercase"
+              className="w-full gap-1.5  text-xs font-semibold tracking-widest uppercase"
               onClick={() => variantId && add(variantId, 1)}
               disabled={isPending || !variantId}
             >
@@ -231,7 +251,7 @@ export default function ProductQuantityItem({
   product,
 }: {
   product: StoreProduct
-}) {}
+}) { }
 
 export function createViewProductItem(display: Display) {
   return function ProductItem(props?: ProductItemProps) {

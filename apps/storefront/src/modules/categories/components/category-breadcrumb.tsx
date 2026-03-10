@@ -1,37 +1,81 @@
-import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbSeparator } from "@repo/ui/components/breadcrumb"
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@repo/ui/components/breadcrumb"
 import { StoreProductCategory } from "@medusajs/types"
+import Link from "next/link"
 import React from "react"
 
-export function CategoryBreadcrumb({ category, ...props }: { category: StoreProductCategory, className?: string }) {
-    const paths: { name: string; handle: string }[] = [{
-        name: category.name,
-        handle: category.handle,
-    }]
+type BreadcrumbPath = {
+  name: string
+  handle: string
+}
 
-    let currentCategory = category
-    while (currentCategory.parent_category) {
-        currentCategory = currentCategory.parent_category
-        paths.unshift({
-            name: currentCategory.name,
-            handle: currentCategory.handle,
-        })
-    }
+export function CategoryBreadcrumb({
+  category,
+  ...props
+}: {
+  category: StoreProductCategory
+  className?: string
+}) {
+  // Build ancestor chain: root → ... → current
+  const chain: BreadcrumbPath[] = []
+  let cur: StoreProductCategory | null | undefined = category
+  while (cur) {
+    chain.unshift({ name: cur.name, handle: cur.handle })
+    cur = cur.parent_category ?? null
+  }
 
-    return (
-        <Breadcrumb {...props}>
-            <BreadcrumbList>
-                {paths.map((path, index) => {
-                    const href = `/${paths.slice(0, index + 1).map(p => p.handle).join("/")}`
-                    return (
-                        <React.Fragment key={path.handle}>
-                            <BreadcrumbItem>
-                                <BreadcrumbLink className="uppercase" href={href}>{path.name}</BreadcrumbLink>
-                            </BreadcrumbItem>
-                            {index < paths.length - 1 && <BreadcrumbSeparator />}
-                        </React.Fragment>
-                    )
-                })}
-            </BreadcrumbList>
-        </Breadcrumb>
-    )
+  // Build cumulative hrefs from category handles only (no empty Home handle)
+  const segments = chain.map((seg, i) => ({
+    name: seg.name,
+    href:
+      "/" +
+      chain
+        .slice(0, i + 1)
+        .map((s) => s.handle)
+        .join("/"),
+  }))
+
+  return (
+    <Breadcrumb {...props}>
+      <BreadcrumbList>
+        {/* Home */}
+        <BreadcrumbItem>
+          <BreadcrumbLink asChild>
+            <Link href="/" className="uppercase">
+              Home
+            </Link>
+          </BreadcrumbLink>
+        </BreadcrumbItem>
+
+        {/* Category segments */}
+        {segments.map((seg, i) => {
+          const isLast = i === segments.length - 1
+          return (
+            <React.Fragment key={seg.href}>
+              <BreadcrumbSeparator />
+              <BreadcrumbItem>
+                {isLast ? (
+                  <BreadcrumbPage className="uppercase">
+                    {seg.name}
+                  </BreadcrumbPage>
+                ) : (
+                  <BreadcrumbLink asChild>
+                    <Link href={seg.href} className="uppercase">
+                      {seg.name}
+                    </Link>
+                  </BreadcrumbLink>
+                )}
+              </BreadcrumbItem>
+            </React.Fragment>
+          )
+        })}
+      </BreadcrumbList>
+    </Breadcrumb>
+  )
 }

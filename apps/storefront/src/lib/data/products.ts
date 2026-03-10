@@ -174,6 +174,39 @@ export async function listProductsWithSort({
   })
 }
 
+export async function getProductByHandle(
+  handle: string
+): Promise<HttpTypes.StoreProduct | null> {
+  const region = await getRegion("tn")
+  if (!region) return null
+
+  const { products } = await sdk.client.fetch<{
+    products: HttpTypes.StoreProduct[]
+  }>("/store/products", {
+    method: "GET",
+    query: {
+      handle,
+      region_id: region.id,
+      fields:
+        "+id,+title,+subtitle,+handle,+description,+thumbnail," +
+        "+images,+images.url," +
+        "+options,+options.id,+options.title,+options.values,+options.values.id,+options.values.value," +
+        "+variants,+variants.id,+variants.title,+variants.sku,+variants.allow_backorder," +
+        "+variants.options,+variants.options.option_id,+variants.options.value," +
+        "+variants.thumbnail,+variants.images,+variants.images.url," +
+        "*variants.calculated_price,+variants.inventory_quantity," +
+        "+tags,+metadata,+weight,+length,+width,+height," +
+        "+categories,+categories.id,+categories.name,+categories.handle," +
+        "+categories.parent_category,+categories.parent_category.id," +
+        "+categories.parent_category.name,+categories.parent_category.handle," +
+        "+categories.parent_category.parent_category,+categories.parent_category.parent_category.id," +
+        "+categories.parent_category.parent_category.name,+categories.parent_category.parent_category.handle",
+    },
+  })
+
+  return products?.[0] ?? null
+}
+
 export const getProductTypes = async () => {
   const { product_types } =
     await sdk.client.fetch<HttpTypes.StoreProductTypeListResponse>(

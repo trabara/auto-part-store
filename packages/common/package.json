@@ -27,7 +27,7 @@
     "@medusajs/framework": ">=2.0.0"
   },
   "devDependencies": {
-    "@medusajs/framework": "2.13.1",
+    "@medusajs/framework": "2.13.3",
     "@types/node": "^20.0.0",
     "typescript": "^5.0.0"
   }

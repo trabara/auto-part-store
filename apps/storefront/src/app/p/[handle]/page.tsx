@@ -1,8 +1,9 @@
 import { Metadata } from "next"
 import { notFound } from "next/navigation"
-import { getProductByHandle } from "@/lib/data/products"
+import { getProductByHandle, getRelatedProducts } from "@/lib/data/products"
 import { getProductFitments, retreiveFitment } from "@/lib/data/fitments"
 import { ProductDetailTemplate } from "@/modules/products/templates/product-detail-template"
+import { HttpTypes } from "@medusajs/types"
 
 type Props = {
   params: Promise<{ handle: string }>
@@ -29,13 +30,17 @@ export default async function ProductPage({ params }: Props) {
   ])
   if (!product) notFound()
 
-  const fitments = await getProductFitments(product.id)
+  const [fitments, relatedProducts] = await Promise.all([
+    getProductFitments(product.id),
+    getRelatedProducts(product, 4),
+  ])
 
   return (
     <ProductDetailTemplate
       product={product}
       fitments={fitments}
       activeFitment={activeFitment}
+      relatedProducts={relatedProducts}
     />
   )
 }

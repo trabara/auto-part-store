@@ -209,6 +209,39 @@ export async function getProductByHandle(
   return products?.[0] ?? null
 }
 
+/**
+ * Fetch related products via the dedicated backend endpoint.
+ * The server resolves the product's category and excludes the source product —
+ * no client-side filtering needed.
+ */
+export async function getRelatedProducts(
+  product: HttpTypes.StoreProduct,
+  limit = 4
+): Promise<HttpTypes.StoreProduct[]> {
+  const region = await getRegion("tn")
+  if (!region) return []
+
+  const fitment = await retreiveFitment()
+
+  const { products } = await sdk.client.fetch<{
+    products: HttpTypes.StoreProduct[]
+  }>("/store/products/related", {
+    method: "GET",
+    query: {
+      product_id: product.id,
+      limit,
+      offset: 0,
+      region_id: region.id,
+      currency_code: region.currency_code,
+      ...(fitment?.id && { fitment_id: fitment.id }),
+      fields:
+        "*variants.calculated_price,+variants.inventory_quantity,*variants.images,+metadata,+tags",
+    },
+  })
+
+  return products ?? []
+}
+
 export const getProductTypes = async () => {
   const { product_types } =
     await sdk.client.fetch<HttpTypes.StoreProductTypeListResponse>(

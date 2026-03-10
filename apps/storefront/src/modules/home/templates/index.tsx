@@ -336,7 +336,7 @@ export default async function HomeTemplate() {
       </section>
 
       {/* ── 5. BEST SELLERS ──────────────────────────────────────────────── */}
-      <section className="snap-container mt-20">
+      {/* <section className="snap-container mt-20">
         <SectionHeading title="Best Sellers" href="/" />
         {bestSellers.length > 0 ? (
           <Carousel opts={{ align: "start" }}>
@@ -358,7 +358,7 @@ export default async function HomeTemplate() {
             No products available yet.
           </p>
         )}
-      </section>
+      </section> */}
 
       {/* ── 6. PROMO BANNERS ─────────────────────────────────────────────── */}
       <section className="snap-container mt-20">

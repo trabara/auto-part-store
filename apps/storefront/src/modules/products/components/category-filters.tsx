@@ -39,7 +39,7 @@ export default function CategoryFilters({
       <Accordion type="multiple" defaultValue={["0"]}>
         {options.map((option) => (
           <AccordionItem key={option.key} value={option.key}>
-            <AccordionTrigger className="text-lg">{option.title}</AccordionTrigger>
+            <AccordionTrigger className="font-semibold">{option.title}</AccordionTrigger>
             <AccordionContent className="max-h-64 overflow-y-auto">
               <div className="mt-4 flex flex-col gap-3">
                 {option.values.map(({ optionId, value }, index) => (
@@ -62,7 +62,7 @@ export default function CategoryFilters({
           </AccordionItem>
         ))}
         <AccordionItem value="price">
-          <AccordionTrigger className="text-lg">Price</AccordionTrigger>
+          <AccordionTrigger className="font-semibold">Price</AccordionTrigger>
           <AccordionContent className="p-4">
             <PriceSlider
               min={absMin}
@@ -75,7 +75,7 @@ export default function CategoryFilters({
         </AccordionItem>
 
         <AccordionItem value="status">
-          <AccordionTrigger className="text-lg">Status</AccordionTrigger>
+          <AccordionTrigger className="font-semibold">Status</AccordionTrigger>
           <AccordionContent className="max-h-64 overflow-y-auto">
             <div className="mt-4 flex flex-col gap-3">
               <div className="flex items-center space-x-2">

@@ -17,9 +17,10 @@ import { ProductGallery } from "@/modules/products/components/product-gallery"
 import { VariantSelector } from "@/modules/products/components/variant-selector"
 import { ProductActions } from "@/modules/products/components/product-actions"
 import { ProductTabs } from "@/modules/products/components/product-tabs"
+import { ProductGridItem } from "@/modules/products/components/product-item"
 import { HttpTypes } from "@medusajs/types"
 import Link from "next/link"
-import { CheckCircle2, Tag, XCircle } from "lucide-react"
+import { ArrowRight, CheckCircle2, Tag, XCircle } from "lucide-react"
 import React, { useState } from "react"
 
 type BreadcrumbSegment = { name: string; href: string }
@@ -93,6 +94,7 @@ type ProductDetailTemplateProps = {
   product: HttpTypes.StoreProduct
   fitments: ProductFitment[]
   activeFitment: Fitment | null
+  relatedProducts: HttpTypes.StoreProduct[]
 }
 
 function buildInitialVariantId(
@@ -127,6 +129,7 @@ export function ProductDetailTemplate({
   product,
   fitments,
   activeFitment,
+  relatedProducts,
 }: ProductDetailTemplateProps) {
   const [selectedVariantId, setSelectedVariantId] = useState<
     string | undefined
@@ -254,6 +257,47 @@ export function ProductDetailTemplate({
       <div className="mt-12">
         <ProductTabs product={product} fitments={fitments} />
       </div>
+
+      {/* Related Products */}
+      {relatedProducts.length > 0 && (
+        <section className="mt-16 border-t border-border/60 pt-12">
+          <div className="flex items-center justify-between mb-8">
+            <p className="relative text-2xl font-extrabold uppercase tracking-widest text-foreground">
+              <span className="relative">
+                Related Products
+                <span className="absolute -bottom-1 left-0 h-[3px] w-full bg-primary" />
+              </span>
+            </p>
+            {product.categories?.[0]?.handle && (
+              <Link
+                href={`/${product.categories[0].handle}`}
+                className="hidden md:inline-flex items-center gap-1 text-sm font-semibold uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors"
+              >
+                View All
+                <ArrowRight className="size-4" />
+              </Link>
+            )}
+          </div>
+
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+            {relatedProducts.map((p) => (
+              <ProductGridItem key={p.id} product={p} />
+            ))}
+          </div>
+
+          {product.categories?.[0]?.handle && (
+            <div className="mt-6 flex md:hidden">
+              <Link
+                href={`/${product.categories[0].handle}`}
+                className="inline-flex items-center gap-1 text-sm font-semibold uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors"
+              >
+                View All in {product.categories[0].name}
+                <ArrowRight className="size-4" />
+              </Link>
+            </div>
+          )}
+        </section>
+      )}
     </div>
   )
 }

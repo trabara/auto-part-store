@@ -88,7 +88,7 @@ export function ProductGallery({
 
   if (images.length === 0) {
     return (
-      <div className="w-full aspect-square bg-accent/40 flex items-center justify-center rounded-lg border border-border/50">
+      <div className="w-full aspect-square bg-accent/40 flex items-center justify-center border border-border/50">
         <Tag className="size-16 text-muted-foreground/20" strokeWidth={1} />
       </div>
     )
@@ -105,7 +105,7 @@ export function ProductGallery({
         <CarouselContent>
           {images.map((img, i) => (
             <CarouselItem key={`${selectedVariant?.id ?? "product"}-${i}`}>
-              <div className="relative aspect-square overflow-hidden rounded-lg border border-border/50 bg-accent/40">
+              <div className="relative aspect-square overflow-hidden border border-border/50 bg-accent/40">
                 <Image
                   unoptimized
                   src={img.url}
@@ -121,8 +121,8 @@ export function ProductGallery({
         </CarouselContent>
         {images.length > 1 && (
           <>
-            <CarouselPrevious className="left-3" />
-            <CarouselNext className="right-3" />
+            <CarouselPrevious className="left-3 rounded-none" />
+            <CarouselNext className="right-3 rounded-none" />
           </>
         )}
       </Carousel>
@@ -135,7 +135,7 @@ export function ProductGallery({
               key={`${selectedVariant?.id ?? "product"}-thumb-${i}`}
               onClick={() => scrollTo(i)}
               className={cn(
-                "relative size-16 shrink-0 overflow-hidden rounded border-2 bg-accent/40 transition-all",
+                "relative size-16 shrink-0 overflow-hidden border-2 bg-accent/40 transition-all",
                 i === current
                   ? "border-primary"
                   : "border-border/50 opacity-60 hover:opacity-100"

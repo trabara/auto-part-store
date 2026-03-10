@@ -47,7 +47,7 @@ export function ContactSection({ initialEmail, onSaved }: Props) {
   }
 
   return (
-    <section className="bg-card border border-border rounded-xl overflow-hidden">
+    <section className="bg-card border border-border overflow-hidden">
       <div className="px-6 py-4 border-b border-border bg-accent/30 flex items-center justify-between">
         <div className="flex items-center gap-2">
           {saved && !editing && (

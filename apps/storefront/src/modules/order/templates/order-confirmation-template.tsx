@@ -45,7 +45,7 @@ export function OrderConfirmationTemplate({ order }: Props) {
 
         <div className="space-y-4">
           {/* Items */}
-          <section className="bg-card border border-border rounded-xl overflow-hidden">
+          <section className="bg-card border border-border overflow-hidden">
             <div className="px-6 py-4 border-b border-border bg-accent/30 flex items-center gap-2">
               <Package className="size-4 text-muted-foreground" />
               <h2 className="text-sm font-semibold tracking-tight">
@@ -55,7 +55,7 @@ export function OrderConfirmationTemplate({ order }: Props) {
             <div className="px-6 py-5 space-y-3">
               {items.map((item) => (
                 <div key={item.id} className="flex gap-3">
-                  <div className="relative size-14 shrink-0 overflow-hidden rounded-sm border border-border/50 bg-accent/30">
+                  <div className="relative size-14 shrink-0 overflow-hidden border border-border/50 bg-accent/30">
                     {item.thumbnail ? (
                       <Image
                         unoptimized
@@ -122,7 +122,7 @@ export function OrderConfirmationTemplate({ order }: Props) {
 
           {/* Shipping details */}
           {address && (
-            <section className="bg-card border border-border rounded-xl overflow-hidden">
+            <section className="bg-card border border-border overflow-hidden">
               <div className="px-6 py-4 border-b border-border bg-accent/30 flex items-center gap-2">
                 <MapPin className="size-4 text-muted-foreground" />
                 <h2 className="text-sm font-semibold tracking-tight">
@@ -150,7 +150,7 @@ export function OrderConfirmationTemplate({ order }: Props) {
 
           {/* Shipping method */}
           {shippingMethod && (
-            <section className="bg-card border border-border rounded-xl overflow-hidden">
+            <section className="bg-card border border-border overflow-hidden">
               <div className="px-6 py-4 border-b border-border bg-accent/30 flex items-center gap-2">
                 <Truck className="size-4 text-muted-foreground" />
                 <h2 className="text-sm font-semibold tracking-tight">

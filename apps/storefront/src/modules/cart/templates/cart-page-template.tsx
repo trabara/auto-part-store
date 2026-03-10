@@ -79,7 +79,7 @@ export function CartPageTemplate({ initialCart }: CartPageTemplateProps) {
       <div className="flex flex-col xl:flex-row gap-8 items-start">
         {/* ── Left: items ─────────────────────────────────────────────────── */}
         <div className="w-full xl:flex-1 min-w-0">
-          <div className="bg-card border border-border rounded-xl overflow-hidden">
+          <div className="bg-card border border-border overflow-hidden">
             {/* Column headers — desktop only */}
             <div className="hidden md:grid grid-cols-[1fr_auto_auto] gap-4 px-6 py-3 border-b border-border bg-accent/30 text-xs font-medium text-muted-foreground uppercase tracking-widest">
               <span>Product</span>

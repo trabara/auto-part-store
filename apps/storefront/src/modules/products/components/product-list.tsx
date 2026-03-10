@@ -75,7 +75,7 @@ export function ProductListFilterTags({
     <div className={cn("items-center gap-2", className)} {...props}>
       <Badge
         variant="outline"
-        className="p-2 items-center cursor-pointer"
+        className="p-2 items-center gap-1 cursor-pointer rounded-none"
         onClick={resetFilters}
       >
         <X className="size-3 mr-1" />
@@ -83,7 +83,7 @@ export function ProductListFilterTags({
       </Badge>
 
       {hasPriceFilter && (
-        <Badge variant="secondary" className="p-2 items-center gap-1">
+        <Badge variant="secondary" className="p-2 items-center gap-1 rounded-none">
           Price:{" "}
           {queryParams.min_price !== undefined
             ? `${queryParams.min_price} – `
@@ -101,7 +101,7 @@ export function ProductListFilterTags({
       )}
 
       {(queryParams.status ?? []).map((s) => (
-        <Badge key={s} variant="secondary" className="p-2 items-center gap-1">
+        <Badge key={s} variant="secondary" className="p-2 items-center gap-1 rounded-none">
           {s === "in_stock" ? "In stock" : "On sale"}
           <Button
             variant="ghost"
@@ -119,7 +119,7 @@ export function ProductListFilterTags({
           <Badge
             key={`${optionId}-${value}`}
             variant="secondary"
-            className="p-2 items-center gap-1"
+            className="p-2 items-center gap-1 rounded-none"
           >
             {value}
             <Button

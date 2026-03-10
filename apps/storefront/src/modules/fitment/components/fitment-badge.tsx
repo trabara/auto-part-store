@@ -1,27 +1,36 @@
-import { Button } from "@repo/ui/components/button"
 import { clearFitment, retreiveFitment } from "@/lib/data/fitments"
-import { CarFront, X } from "lucide-react"
+import { Button } from "@repo/ui/components/button"
+import { cn } from "@repo/ui/lib/utils"
+import { X } from "lucide-react"
 import { FitmentDialog } from "./fitment-dialog"
 
 export default async function FitmentBadge({
   children,
+  className
 }: {
+  className?: string
   children: React.ReactNode
 }) {
-  const currentFitment = await retreiveFitment()
-  if (!currentFitment) {
+  const fitment = await retreiveFitment()
+  if (!fitment) {
     return <FitmentDialog>{children}</FitmentDialog>
   }
 
   return (
-    <div className="text-accent flex items-center space-x-2 border border-accent/20 rounded-md px-3 py-1">
-      <CarFront className="mr-2" />
-      <div>
-        {currentFitment.year_start} - {currentFitment.year_end} {">"}{" "}
-        {currentFitment.model.make.name} {">"} {currentFitment.model.name}
-      </div>
-      <Button variant="ghost" size="icon" onClick={clearFitment}>
-        <X />
+    <div className={cn("inline-flex items-center gap-2 px-3 py-1.5 border border-white/20 text-xs font-semibold", className)}>
+      <span className="size-1.5 rounded-full bg-green-400 animate-pulse" />
+      <span className="flex-1">
+        {fitment.model.make.name} · {fitment.model.name} ·{" "}
+        {fitment.year_start}
+      </span>
+
+      <Button
+        variant="ghost"
+        size="icon"
+        className="ml-2 size-2!"
+        onClick={clearFitment}
+      >
+        <X className='' />
       </Button>
     </div>
   )

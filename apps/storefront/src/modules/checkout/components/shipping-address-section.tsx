@@ -101,7 +101,7 @@ export function ShippingAddressSection({
   return (
     <section
       className={
-        "bg-card border border-border rounded-xl overflow-hidden" +
+        "bg-card border border-border overflow-hidden" +
         (disabled ? " opacity-50 pointer-events-none" : "")
       }
     >

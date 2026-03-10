@@ -64,7 +64,7 @@ export function OrderSummary() {
   const hasTax = taxTotal > 0
 
   return (
-    <div className="bg-card border border-border rounded-xl overflow-hidden">
+    <div className="bg-card border border-border overflow-hidden">
       {/* Header */}
       <div className="px-6 py-4 border-b border-border bg-accent/30">
         <h2 className="text-base font-semibold tracking-tight">

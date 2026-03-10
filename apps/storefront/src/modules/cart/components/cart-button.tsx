@@ -17,6 +17,7 @@ export default function ShoppingCartButton({
     <div className="relative">
       <Button
         className={cn("hover:bg-accent/50 cursor-pointer", className)}
+        size='icon'
         {...props}
       >
         <ShoppingCart />

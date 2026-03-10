@@ -29,10 +29,7 @@ export function FitmentForm({ form, className, orientation = "horizontal" }: Fit
     } = useFitment(form)
 
     return (
-        <div className={cn("flex", className, {
-            "flex-col space-y-4": orientation === "vertical",
-            "flex-row space-x-4": orientation === "horizontal",
-        })}>
+        <div className={cn("flex flex-col space-y-4 xl:flex-row xl:space-x-4 xl:space-y-0", className)}>
             <Controller
                 name="year"
                 control={form.control}

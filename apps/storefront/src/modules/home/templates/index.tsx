@@ -170,7 +170,7 @@ export default async function HomeTemplate() {
   const newArrivals = productsData.response.products
 
   return (
-    <div className="pb-20">
+    <div className=''>
       {/* ── 1. HERO CAROUSEL ─────────────────────────────────────────────── */}
       <Carousel className="w-full" opts={{ loop: true }}>
         <CarouselContent>
@@ -178,7 +178,7 @@ export default async function HomeTemplate() {
             <CarouselItem key={i}>
               <div
                 className={cn(
-                  "relative flex items-center min-h-[600px] bg-gradient-to-br",
+                  "relative flex items-end min-h-[560px] bg-gradient-to-br",
                   slide.accent
                 )}
               >
@@ -195,20 +195,20 @@ export default async function HomeTemplate() {
                 {/* Diagonal accent stripe */}
                 <div className="absolute right-0 top-0 h-full w-1/3 bg-white/[0.02] [clip-path:polygon(20%_0,100%_0,100%_100%,0%_100%)]" />
 
-                <div className="snap-container relative z-10 w-full py-20">
+                <div className="snap-container relative z-10 w-full pb-16 pt-8">
                   <div className="max-w-2xl">
                     {/* Eyebrow */}
                     <p className="text-xs font-bold uppercase tracking-[0.3em] text-white/40 mb-4">
                       {slide.eyebrow}
                     </p>
 
-                    {/* Headline */}
-                    <h1 className="text-5xl md:text-7xl font-extrabold uppercase tracking-tight text-white leading-[0.95] mb-6 whitespace-pre-line text-left!">
+                    {/* Headline — div avoids global h1 text-center rule */}
+                    <div className="text-5xl md:text-7xl font-extrabold uppercase tracking-tight text-white leading-[0.95] mb-6 whitespace-pre-line text-left">
                       {slide.headline}
-                    </h1>
+                    </div>
 
-                    {/* Tagline */}
-                    <p className="text-base md:text-lg text-white/60 font-normal leading-relaxed mb-10 max-w-md">
+                    {/* Tagline — mt-0! cancels global p [&:not(:first-child)]:mt-6 */}
+                    <p className="!mt-0 text-base md:text-lg text-white/60 font-normal leading-relaxed mb-10 max-w-md">
                       {slide.tagline}
                     </p>
 
@@ -217,7 +217,7 @@ export default async function HomeTemplate() {
                       <Button
                         asChild
                         size="lg"
-                        className="bg-white text-black hover:bg-white/90 font-bold uppercase tracking-widest text-xs px-8 h-12 rounded-none"
+                        className="bg-white text-black hover:bg-white/90 font-bold uppercase tracking-widest text-xs px-8 h-12"
                       >
                         <Link href={slide.href}>
                           {slide.cta}
@@ -236,8 +236,8 @@ export default async function HomeTemplate() {
             </CarouselItem>
           ))}
         </CarouselContent>
-        <CarouselPrevious className="left-4 rounded-none bg-white/10 border-white/20 text-white hover:bg-white/20 hover:text-white size-11" />
-        <CarouselNext className="right-4 rounded-none bg-white/10 border-white/20 text-white hover:bg-white/20 hover:text-white size-11" />
+        <CarouselPrevious className="left-4 bg-white/10 border-white/20 text-white hover:bg-white/20 hover:text-white size-11 rounded-none" />
+        <CarouselNext className="right-4 bg-white/10 border-white/20 text-white hover:bg-white/20 hover:text-white size-11 rounded-none" />
       </Carousel>
 
       {/* ── 2. BRAND MARQUEE ─────────────────────────────────────────────── */}
@@ -270,7 +270,7 @@ export default async function HomeTemplate() {
                   My Garage
                 </span>
               </div>
-              <p className="text-3xl md:text-4xl font-extrabold uppercase tracking-tight leading-[1.05] mb-4 text-left">
+              <p className="!mt-0 text-3xl md:text-4xl font-extrabold uppercase tracking-tight leading-[1.05] mb-4 text-left">
                 Find Parts
                 <br />
                 For Your
@@ -278,7 +278,7 @@ export default async function HomeTemplate() {
                 Vehicle
               </p>
               <p
-                className="text-sm leading-relaxed max-w-xs"
+                className="!mt-0 text-sm leading-relaxed max-w-xs"
                 style={{ color: "rgba(255,255,255,0.6)" }}
               >
                 Select your make, model, and year to get an exact-fit parts list
@@ -350,8 +350,8 @@ export default async function HomeTemplate() {
                 </CarouselItem>
               ))}
             </CarouselContent>
-            <CarouselPrevious className="-left-4 rounded-none size-9" />
-            <CarouselNext className="-right-4 rounded-none size-9" />
+            <CarouselPrevious className="-left-4 size-9" />
+            <CarouselNext className="-right-4 size-9" />
           </Carousel>
         ) : (
           <p className="text-sm text-muted-foreground">
@@ -435,7 +435,7 @@ export default async function HomeTemplate() {
                   <p className="text-sm font-extrabold uppercase tracking-widest">
                     {title}
                   </p>
-                  <p className="text-xs text-primary-foreground/50 leading-relaxed">
+                  <p className="!mt-0 text-xs text-primary-foreground/50 leading-relaxed">
                     {desc}
                   </p>
                 </div>

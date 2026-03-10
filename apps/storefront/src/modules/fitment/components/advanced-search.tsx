@@ -33,11 +33,11 @@ export default function AdvancedSearch({ className }: { className?: string }) {
         </TabsList>
         <TabsContent value="model" className="mt-2">
           <h5 className="font-medium mb-4">Search by Vehicle Model</h5>
-          <form className="flex flex-col gap-4 lg:items-center lg:flex-row" onSubmit={onSubmit}>
+          <form className="flex flex-col gap-4 xl:items-center xl:flex-row" onSubmit={onSubmit}>
             <FitmentForm form={fitmentForm} className="flex-1" />
-            <Button type="submit" className="w-full lg:w-auto self-end">
+            <Button type="submit" className="w-full xl:w-auto self-end">
               Go
-              <ArrowRight />
+              <ArrowRight className="ml-2" />
             </Button>
           </form>
         </TabsContent>

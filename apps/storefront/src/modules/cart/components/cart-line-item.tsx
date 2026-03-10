@@ -102,7 +102,7 @@ export default function CartLineItem({
       )}
     >
       {/* Thumbnail */}
-      <div className="relative size-16 shrink-0 overflow-hidden rounded-sm border border-border/50 bg-accent/30">
+      <div className="relative size-16 shrink-0 overflow-hidden border border-border/50 bg-accent/30">
         {item.thumbnail ? (
           <Image
             unoptimized

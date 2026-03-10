@@ -53,7 +53,7 @@ export function ProductActions({
               <span className="text-lg text-muted-foreground line-through tabular-nums">
                 {prices.original_price}
               </span>
-              <Badge className="bg-destructive text-destructive-foreground  text-xs font-semibold">
+              <Badge className="bg-destructive text-destructive-foreground  text-xs font-semibold rounded-none">
                 -{prices.percentage_diff}%
               </Badge>
             </>
@@ -67,8 +67,9 @@ export function ProductActions({
           <Badge
             variant="outline"
             className={cn(
-              " text-xs font-medium border-green-500/50 text-green-700 bg-green-50",
-              "dark:text-green-400 dark:bg-green-950/30"
+              "text-xs font-medium border-green-500/50 text-green-700 bg-green-50",
+              "dark:text-green-400 dark:bg-green-950/30",
+              "rounded-none"
             )}
           >
             In Stock
@@ -79,7 +80,7 @@ export function ProductActions({
         ) : (
           <Badge
             variant="outline"
-            className=" text-xs font-medium border-destructive/50 text-destructive bg-destructive/5"
+            className=" text-xs font-medium border-destructive/50 text-destructive bg-destructive/5 rounded-none"
           >
             Out of Stock
           </Badge>

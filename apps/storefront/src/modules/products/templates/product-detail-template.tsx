@@ -157,7 +157,7 @@ export function ProductDetailTemplate({
         </div>
 
         {/* ── Right: Info + Actions ────────────────────────────────────── */}
-        <div className="flex-1 min-w-0 flex flex-col gap-6">
+        <div className="flex-1 min-w-0 flex flex-col gap-6 w-full">
           {/* Title & subtitle */}
           <div className="flex flex-col gap-1">
             {product.subtitle && (
@@ -165,9 +165,14 @@ export function ProductDetailTemplate({
                 {product.subtitle}
               </p>
             )}
-            <h1 className="text-2xl md:text-3xl font-bold leading-tight tracking-tight text-foreground">
+            <h1 className="text-left! text-2xl md:text-3xl font-bold leading-tight tracking-tight text-foreground">
               {product.title}
             </h1>
+            {selectedVariant?.sku && (
+              <p className="!mt-0 text-xs text-muted-foreground font-mono tracking-wider">
+                SKU: {selectedVariant.sku}
+              </p>
+            )}
           </div>
 
           {/* Tags */}
@@ -177,7 +182,7 @@ export function ProductDetailTemplate({
                 <Badge
                   key={tag.id}
                   variant="outline"
-                  className="text-xs border-border/80 flex items-center gap-1"
+                  className="text-xs border-border/80 flex items-center gap-1 rounded-none"
                 >
                   <Tag className="size-2.5" />
                   {tag.value}

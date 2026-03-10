@@ -1,9 +1,9 @@
 import { cn } from "@repo/ui/lib/utils"
 import { Akshar } from "next/font/google"
 
-import { getCartId } from "@/lib/data/cookies"
 import { retrieveCart } from "@/lib/data/cart"
 import { listCategories } from "@/lib/data/categories"
+import { getCartId } from "@/lib/data/cookies"
 import ShoppingCartButton from "@/modules/cart/components/cart-button"
 import CartList from "@/modules/cart/components/cart-sheet"
 import { CartProvider } from "@/modules/cart/components/provider"
@@ -116,7 +116,7 @@ export default async function RootLayout({
                       />
                     </Link>
 
-                    <FitmentBadge>
+                    <FitmentBadge className="text-secondary hidden xl:inline-flex">
                       <Button
                         variant="ghost"
                         className="hidden xl:inline-flex text-secondary hover:bg-accent/50 cursor-pointer "
@@ -171,7 +171,7 @@ export default async function RootLayout({
                     </Button>
                   </CategoryMenuSheet>
                   <ButtonGroup className="flex xl:hidden w-full">
-                    <FitmentBadge>
+                    <FitmentBadge className="flex-1">
                       <Button variant="ghost" className="flex-1">
                         <Car />
                         My Garage
@@ -189,7 +189,7 @@ export default async function RootLayout({
             </div>
           </header>
           {/** Main Content */}
-          <main className="bg-accent/20 pt-8">{children}</main>
+          <main className="bg-accent/20">{children}</main>
           {/** Footer */}
           <footer className="bg-primary border-t border-t-accent-foreground/10">
             <div className="snap-container mt-10 py-6 text-secondary">

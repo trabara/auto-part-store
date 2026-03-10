@@ -64,7 +64,7 @@ export function PaymentSection({ cart, onSaved, disabled }: Props) {
   return (
     <section
       className={
-        "bg-card border border-border rounded-xl overflow-hidden" +
+        "bg-card border border-border overflow-hidden" +
         (disabled ? " opacity-50 pointer-events-none" : "")
       }
     >
@@ -105,7 +105,7 @@ export function PaymentSection({ cart, onSaved, disabled }: Props) {
                 key={provider.id}
                 htmlFor={`payment-${provider.id}`}
                 className={
-                  "flex items-center gap-4 rounded-lg border px-4 py-3 cursor-pointer transition-colors " +
+                  "flex items-center gap-4 border px-4 py-3 cursor-pointer transition-colors " +
                   (selected === provider.id
                     ? "border-primary bg-primary/5"
                     : "border-border hover:border-muted-foreground/40")

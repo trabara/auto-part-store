@@ -32,6 +32,10 @@ export function CheckoutTemplate({ initialCart }: Props) {
     !!(initialCart.payment_collection as any)?.payment_sessions?.length
   )
 
+  // Latest cart for the Review section — updated when shipping or payment is saved
+  // so totals always reflect the most recent server state.
+  const [reviewCart, setReviewCart] = useState<StoreCart>(initialCart)
+
   return (
     <div className="min-h-screen bg-background">
       <div className="snap-container py-8 md:py-12">
@@ -63,19 +67,25 @@ export function CheckoutTemplate({ initialCart }: Props) {
           {/* Step 3: Shipping Method */}
           <ShippingMethodSection
             cart={initialCart}
-            onSaved={() => setShippingDone(true)}
+            onSaved={(updatedCart) => {
+              setShippingDone(true)
+              setReviewCart(updatedCart)
+            }}
             disabled={!addressDone}
           />
 
           {/* Step 4: Payment */}
           <PaymentSection
             cart={initialCart}
-            onSaved={() => setPaymentDone(true)}
+            onSaved={(updatedCart) => {
+              setPaymentDone(true)
+              setReviewCart(updatedCart)
+            }}
             disabled={!shippingDone}
           />
 
           {/* Step 5: Review & Place Order */}
-          <OrderReviewSection cart={initialCart} disabled={!paymentDone} />
+          <OrderReviewSection cart={reviewCart} disabled={!paymentDone} />
         </div>
       </div>
     </div>

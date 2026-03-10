@@ -10,18 +10,41 @@ import Image from "next/image"
 import { useTransition } from "react"
 import { useCartStore } from "../hooks/use-cart"
 
-type CartItemProps = {
+type CartLineItemProps = {
   item: StoreCartLineItem
   cartId: string
   currencyCode: string
 }
 
-export default function CartItem({
+/**
+ * Returns a human-readable variant label for a cart line item.
+ * Prefers the expanded variant.options array (e.g. "Brand: SKF"),
+ * falls back to variant_title (the flat denormalized field),
+ * then to variant.title, then null.
+ */
+export function getVariantLabel(item: StoreCartLineItem): string | null {
+  // Prefer expanded options — most descriptive
+  const opts = (item.variant as any)?.options as
+    | { option_id?: string; value?: string }[]
+    | null
+    | undefined
+  if (opts?.length) {
+    return opts
+      .filter((o) => o.value)
+      .map((o) => o.value)
+      .join(" / ")
+  }
+  // Fall back to flat denormalized fields
+  const flat = (item as any).variant_title ?? item.variant?.title ?? null
+  return flat && flat !== item.title ? flat : null
+}
+
+export default function CartLineItem({
   item,
   cartId,
   currencyCode,
-}: CartItemProps) {
-  const store = useCartStore(store => ({
+}: CartLineItemProps) {
+  const store = useCartStore((store) => ({
     setLoading: store.setLoading,
     updateCartFromServer: store.updateCartFromServer,
   }))
@@ -37,6 +60,8 @@ export default function CartItem({
     amount: item.subtotal ?? 0,
     currency_code: currencyCode,
   })
+
+  const variantLabel = getVariantLabel(item)
 
   const handleQuantityChange = (newQuantity: number) => {
     startTransition(async () => {
@@ -99,7 +124,13 @@ export default function CartItem({
         <p className="text-sm font-medium leading-snug line-clamp-2">
           {item.title}
         </p>
-        {item.subtitle && (
+        {/* Variant label — shows selected option value(s) e.g. "SKF" or "SKF / Blue" */}
+        {variantLabel && (
+          <p className="text-xs text-muted-foreground font-medium">
+            {variantLabel}
+          </p>
+        )}
+        {item.subtitle && !variantLabel && (
           <p className="text-xs text-muted-foreground">{item.subtitle}</p>
         )}
         <p className="text-xs text-muted-foreground">{unitPrice} each</p>

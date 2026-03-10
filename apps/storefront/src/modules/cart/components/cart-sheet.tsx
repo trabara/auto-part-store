@@ -12,7 +12,7 @@ import {
 import { Separator } from "@repo/ui/components/separator"
 import { convertToLocale } from "@/lib/util/product"
 import { useCart } from "@/modules/cart/hooks/use-cart"
-import CartItem from "./cart-item"
+import CartLineItem from "./cart-line-item"
 import Link from "next/link"
 
 export default function CartList() {
@@ -52,7 +52,7 @@ export default function CartList() {
       {/* Items list */}
       <div className="flex-1 overflow-y-auto divide-y divide-border/50 px-4">
         {items.map((item) => (
-          <CartItem
+          <CartLineItem
             key={item.id}
             item={item}
             cartId={cart!.id}
@@ -69,7 +69,7 @@ export default function CartList() {
           <span className="text-base font-bold tabular-nums">{subtotal}</span>
         </div>
         <Button
-          className="w-full rounded-none font-semibold tracking-widest uppercase text-xs"
+          className="w-full  font-semibold tracking-widest uppercase text-xs"
           asChild
         >
           <Link href="/cart">View Cart &amp; Checkout</Link>

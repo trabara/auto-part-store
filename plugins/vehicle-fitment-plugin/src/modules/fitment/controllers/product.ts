@@ -39,6 +39,48 @@ export class ProductController extends BaseController {
   }
 
   /**
+   * GET /store/products/v2/related
+   * Returns products from the same category as the given product_id,
+   * excluding the source product itself.
+   */
+  async related(): Promise<void> {
+    await this.execute(async () => {
+      const query = this.req.scope.resolve(ContainerRegistrationKeys.QUERY);
+      const { product_id, currency_code, region_id, fitment_id } = this.req
+        .filterableFields as {
+        product_id: string;
+        currency_code: string;
+        region_id: string;
+        fitment_id?: string;
+      };
+
+      this.logger.info("Fetching related products", { product_id });
+
+      // Resolve the product's primary category
+      const { data: products } = await query.graph({
+        entity: "product",
+        fields: ["id", "categories.id"],
+        filters: { id: product_id },
+      });
+
+      const category_id: string | undefined =
+        products?.[0]?.categories?.[0]?.id;
+
+      const service = new ProductListService(query);
+      const result = await service.list({
+        region_id,
+        currency_code,
+        fitment_id,
+        category_id,
+        exclude_id: product_id,
+        queryConfig: this.req.queryConfig,
+      });
+
+      this.success(result);
+    }, "Related products retrieved successfully");
+  }
+
+  /**
    * GET /admin/products/:id/fitments
    * Get all fitments linked to a product
    */

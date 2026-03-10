@@ -234,3 +234,16 @@ export const ProductV2FindParams = BaseFindParams.extend({
     ])
     .optional(),
 });
+
+/**
+ * Query params for GET /store/products/v2/related
+ * The backend resolves the product's category and returns same-category products,
+ * excluding the source product itself.
+ */
+export const ProductRelatedFindParams = BaseFindParams.extend({
+  product_id: z.string(),
+  currency_code: z.string(),
+  region_id: z.string(),
+  fitment_id: z.string().optional(),
+});
+export type ProductRelatedFindParams = z.infer<typeof ProductRelatedFindParams>;

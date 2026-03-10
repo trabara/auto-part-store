@@ -7,6 +7,7 @@ export type ProductListInput = {
   currency_code: string;
   fitment_id?: string;
   category_id?: string;
+  exclude_id?: string;
   sort?: string;
   min_price?: number;
   max_price?: number;
@@ -64,6 +65,7 @@ export class ProductListService {
       currency_code,
       fitment_id,
       category_id,
+      exclude_id,
       sort,
       min_price,
       max_price,
@@ -100,6 +102,11 @@ export class ProductListService {
       );
     }
 
+    // ── exclude_id: remove the source product from results ───────────────────
+    // Applied as a post-filter after the main query since query.graph does not
+    // support NOT IN / exclude filters natively.
+    const needsExclusion = !!exclude_id;
+
     // ── Absolute metadata query ──────────────────────────────────────────────
     // Fetch all products matching base filters to derive price_range + options.
     // This query is intentionally lightweight (minimal fields).
@@ -133,7 +140,11 @@ export class ProductListService {
     const hasStatusFilter = !!status && status.length > 0;
     const statusSet = new Set(status ?? []);
     const needsPostProcessing =
-      hasPriceFilter || hasPriceSort || hasOptionFilter || hasStatusFilter;
+      hasPriceFilter ||
+      hasPriceSort ||
+      hasOptionFilter ||
+      hasStatusFilter ||
+      needsExclusion;
 
     // ── Main product query ───────────────────────────────────────────────────
     // When post-processing is needed we fetch everything then paginate in JS;
@@ -162,6 +173,11 @@ export class ProductListService {
 
     // ── JS post-processing ───────────────────────────────────────────────────
     let processed: any[] = [...data];
+
+    // Exclude the source product from related results
+    if (needsExclusion) {
+      processed = processed.filter((p) => p.id !== exclude_id);
+    }
 
     if (hasOptionFilter) {
       processed = this.filterByOptions(processed, option_values!, options);

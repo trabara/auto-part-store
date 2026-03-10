@@ -84,6 +84,7 @@ export async function listProducts({
 }: ProductListParams): Promise<ProductListResponse> {
   const {
     limit = 12,
+    category_id,
     sort,
     min_price,
     max_price,
@@ -114,6 +115,7 @@ export async function listProducts({
     ...(order && { order }),
     // Pass sort so the controller can apply price post-sort
     ...(sort && { sort }),
+    ...(category_id && { category_id }),
     ...(min_price !== undefined && { min_price }),
     ...(max_price !== undefined && { max_price }),
     ...(status !== undefined && status.length > 0 && { status }),

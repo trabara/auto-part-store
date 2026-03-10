@@ -83,7 +83,6 @@ export function CartPageTemplate({ initialCart }: CartPageTemplateProps) {
             {/* Column headers — desktop only */}
             <div className="hidden md:grid grid-cols-[1fr_auto_auto] gap-4 px-6 py-3 border-b border-border bg-accent/30 text-xs font-medium text-muted-foreground uppercase tracking-widest">
               <span>Product</span>
-              <span className="text-center w-24">Quantity</span>
               <span className="text-right w-24">Subtotal</span>
             </div>
 

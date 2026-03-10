@@ -12,7 +12,11 @@ const CART_FIELDS =
   "+items.variant.options,+items.variant.options.option_id,+items.variant.options.value," +
   "+items.variant.product,+items.variant.calculated_price," +
   "+items.thumbnail,+items.subtotal,+items.unit_price,+items.total," +
-  "+subtotal,+total,+tax_total,+shipping_total,+discount_total"
+  "+subtotal,+total,+tax_total,+shipping_total,+discount_total," +
+  "+email,+shipping_address,+billing_address," +
+  "+payment_collection,+payment_collection.payment_sessions," +
+  "+shipping_methods,+shipping_methods.shipping_option," +
+  "+shipping_methods.shipping_option.name,+shipping_methods.amount"
 
 export const retrieveCart = async (
   cartId: string

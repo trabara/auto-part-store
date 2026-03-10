@@ -7,6 +7,7 @@ import { Input } from "@repo/ui/components/input"
 import { Separator } from "@repo/ui/components/separator"
 import { cn } from "@repo/ui/lib/utils"
 import { Tag, Truck, Lock } from "lucide-react"
+import Link from "next/link"
 import { useState } from "react"
 
 type SummaryRowProps = {
@@ -151,15 +152,16 @@ export function OrderSummary() {
       {/* Checkout CTA */}
       <div className="px-6 py-5 space-y-3">
         <Button
-          className="w-full font-semibold tracking-widest uppercase text-xs h-11 gap-2 cursor-not-allowed opacity-60"
-          disabled
-          title="Checkout is coming soon"
+          className="w-full font-semibold tracking-widest uppercase text-xs h-11 gap-2"
+          asChild
         >
-          <Lock className="size-3.5" />
-          Proceed to Checkout
+          <Link href="/checkout">
+            <Lock className="size-3.5" />
+            Proceed to Checkout
+          </Link>
         </Button>
         <p className="text-center text-xs text-muted-foreground">
-          Secure checkout — coming soon
+          Secure checkout
         </p>
       </div>
     </div>

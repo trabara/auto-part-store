@@ -1,0 +1,120 @@
+"use client"
+
+import { useState, useTransition } from "react"
+import { useCartStore } from "@/modules/cart/hooks/use-cart"
+import { initiatePayment } from "@/lib/data/checkout"
+import { Button } from "@repo/ui/components/button"
+import { RadioGroup, RadioGroupItem } from "@repo/ui/components/radio-group"
+import { CheckCircle2, CreditCard } from "lucide-react"
+import { StoreCart } from "@medusajs/types"
+
+const PAYMENT_PROVIDERS = [
+  {
+    id: "pp_system_default",
+    label: "Pay on delivery",
+    description: "Cash or card payment upon delivery",
+  },
+]
+
+type Props = {
+  cart: StoreCart
+  onSaved: (providerId: string) => void
+  disabled?: boolean
+}
+
+export function PaymentSection({ cart, onSaved, disabled }: Props) {
+  const store = useCartStore((s) => ({
+    updateCartFromServer: s.updateCartFromServer,
+  }))
+
+  const existingProvider =
+    (cart.payment_collection?.payment_sessions as any[])?.[0]?.provider_id ?? ""
+
+  const [selected, setSelected] = useState(
+    existingProvider || "pp_system_default"
+  )
+  const [saved, setSaved] = useState(!!existingProvider)
+  const [error, setError] = useState<string | null>(null)
+  const [isPending, startTransition] = useTransition()
+
+  const handleSave = () => {
+    if (!selected) {
+      setError("Please select a payment method.")
+      return
+    }
+    setError(null)
+
+    startTransition(async () => {
+      try {
+        const updatedCart = await initiatePayment(selected)
+        setSaved(true)
+        onSaved(selected)
+        // Update global cart store after UI state is committed
+        store.updateCartFromServer(updatedCart as StoreCart)
+      } catch (e: any) {
+        setError(e?.message ?? "Failed to set up payment.")
+      }
+    })
+  }
+
+  return (
+    <section
+      className={
+        "bg-card border border-border rounded-xl overflow-hidden" +
+        (disabled ? " opacity-50 pointer-events-none" : "")
+      }
+    >
+      <div className="px-6 py-4 border-b border-border bg-accent/30 flex items-center gap-2">
+        {saved && <CheckCircle2 className="size-4 text-green-500 shrink-0" />}
+        <h2 className="text-base font-semibold tracking-tight">4. Payment</h2>
+      </div>
+
+      <div className="px-6 py-5 space-y-4">
+        <RadioGroup
+          value={selected}
+          onValueChange={(val) => {
+            setSelected(val)
+            setSaved(false)
+          }}
+        >
+          {PAYMENT_PROVIDERS.map((provider) => (
+            <label
+              key={provider.id}
+              htmlFor={`payment-${provider.id}`}
+              className={
+                "flex items-center gap-4 rounded-lg border px-4 py-3 cursor-pointer transition-colors " +
+                (selected === provider.id
+                  ? "border-primary bg-primary/5"
+                  : "border-border hover:border-muted-foreground/40")
+              }
+            >
+              <RadioGroupItem
+                value={provider.id}
+                id={`payment-${provider.id}`}
+              />
+              <div className="flex items-center gap-3">
+                <CreditCard className="size-4 text-muted-foreground shrink-0" />
+                <div>
+                  <p className="text-sm font-medium">{provider.label}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {provider.description}
+                  </p>
+                </div>
+              </div>
+            </label>
+          ))}
+        </RadioGroup>
+
+        {error && <p className="text-sm text-destructive">{error}</p>}
+
+        <Button
+          onClick={handleSave}
+          disabled={isPending || !selected}
+          className="font-semibold tracking-widest uppercase text-xs h-9 px-6"
+        >
+          {isPending ? "Saving…" : saved ? "Saved" : "Continue"}
+        </Button>
+      </div>
+    </section>
+  )
+}

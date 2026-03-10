@@ -1,4 +1,7 @@
+"use client"
+
 import { StoreProductCategory } from "@medusajs/types"
+import { SheetClose } from "@repo/ui/components/sheet"
 import { ChevronRight } from "lucide-react"
 import Link from "next/link"
 
@@ -7,22 +10,25 @@ type CategoryNavMenuProps = {
   paths?: string[]
 }
 
-export function CategoryNavMenu({ category, paths = [] }: CategoryNavMenuProps) {
+export function CategoryNavMenu({
+  category,
+  paths = [],
+}: CategoryNavMenuProps) {
   const hasSubcategories =
     category.category_children && category.category_children.length > 0
-
 
   const currentPaths = [...paths, category.handle]
 
   if (!hasSubcategories) {
-
     return (
-      <Link
-        href={`/${currentPaths.join("/")}`}
-        className="flex items-center px-3 py-2 text-sm text-primary leading-none transition-colors hover:bg-accent hover:text-accent-foreground w-full"
-      >
-        {category.name}
-      </Link>
+      <SheetClose asChild>
+        <Link
+          href={`/${currentPaths.join("/")}`}
+          className="flex items-center px-3 py-2 text-sm text-primary leading-none transition-colors hover:bg-accent hover:text-accent-foreground w-full"
+        >
+          {category.name}
+        </Link>
+      </SheetClose>
     )
   }
 
@@ -34,7 +40,11 @@ export function CategoryNavMenu({ category, paths = [] }: CategoryNavMenuProps) 
       </summary>
       <div className="border-l border-border py-2 pl-4">
         {category.category_children!.map((subCategory) => (
-          <CategoryNavMenu key={subCategory.handle} category={subCategory} paths={currentPaths} />
+          <CategoryNavMenu
+            key={subCategory.handle}
+            category={subCategory}
+            paths={currentPaths}
+          />
         ))}
       </div>
     </details>

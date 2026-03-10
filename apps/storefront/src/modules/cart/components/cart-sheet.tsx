@@ -9,6 +9,7 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "@repo/ui/components/empty"
+import { SheetClose } from "@repo/ui/components/sheet"
 import { Separator } from "@repo/ui/components/separator"
 import { convertToLocale } from "@/lib/util/product"
 import { useCart } from "@/modules/cart/hooks/use-cart"
@@ -39,9 +40,11 @@ export default function CartList() {
           </EmptyTitle>
         </EmptyHeader>
         <EmptyContent>
-          <Button asChild>
-            <Link href="/categories">Return to Shop</Link>
-          </Button>
+          <SheetClose asChild>
+            <Button asChild>
+              <Link href="/categories">Return to Shop</Link>
+            </Button>
+          </SheetClose>
         </EmptyContent>
       </Empty>
     )
@@ -68,12 +71,14 @@ export default function CartList() {
           <span>Subtotal</span>
           <span className="text-base font-bold tabular-nums">{subtotal}</span>
         </div>
-        <Button
-          className="w-full  font-semibold tracking-widest uppercase text-xs"
-          asChild
-        >
-          <Link href="/cart">View Cart &amp; Checkout</Link>
-        </Button>
+        <SheetClose asChild>
+          <Button
+            className="w-full  font-semibold tracking-widest uppercase text-xs"
+            asChild
+          >
+            <Link href="/cart">View Cart &amp; Checkout</Link>
+          </Button>
+        </SheetClose>
       </div>
     </div>
   )

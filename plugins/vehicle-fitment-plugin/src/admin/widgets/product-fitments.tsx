@@ -4,9 +4,10 @@ import {
   Container,
   DataTable,
   Heading,
-  useDataTable
+  useDataTable,
 } from "@medusajs/ui";
 import { useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { useNavigate, useParams } from "react-router-dom";
 import { useDeleteMutation, usePaginatedQuery } from "../hooks";
 import { sdk } from "../lib/sdk";
@@ -14,13 +15,14 @@ import { createFitmentColumns } from "../modules/fitment/fitment/components/data
 import { Fitment } from "../../modules/fitment/schema";
 
 type ProductFitmentsResponse = {
-  fitments: Fitment[],
+  fitments: Fitment[];
   metadata: {
-    count: number
-  }
-}
+    count: number;
+  };
+};
 
 const ProductFitmentsWidget = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const params = useParams();
   const productId = params.id;
@@ -31,14 +33,17 @@ const ProductFitmentsWidget = () => {
       sdk.client.fetch(`/admin/products/${productId}/fitments`, {
         query: params,
       }),
-    selectFn: (data) => ({ data: data?.fitments, rowCount: data?.metadata?.count || 0 }),
-  })
+    selectFn: (data) => ({
+      data: data?.fitments,
+      rowCount: data?.metadata?.count || 0,
+    }),
+  });
 
   // Mutation to unlink a fitment
   const unlinkMutation = useDeleteMutation({
     invalidateKeys: ["fitments", productId!],
-    successMessage: "Fitment unlinked successfully",
-    errorMessage: "Failed to unlink fitment",
+    successMessage: t("fitment.toast.unlinked"),
+    errorMessage: t("fitment.toast.unlinkError"),
     deleteFn: (fitmentId) =>
       sdk.client.fetch(`/admin/products/${productId}/fitments/${fitmentId}`, {
         method: "DELETE",
@@ -48,13 +53,13 @@ const ProductFitmentsWidget = () => {
   const handleEdit = (fitment: Fitment) =>
     navigate(`/fitments/${fitment.id}/edit`);
 
+  const handleUnlink = (fitment: Fitment) => unlinkMutation.mutate(fitment.id);
 
-  const handleUnlink = (fitment: Fitment) =>
-    unlinkMutation.mutate(fitment.id);
-
-
-  const columns = useMemo(() => createFitmentColumns({ onEdit: handleEdit, onUnlink: handleUnlink }), [])
-
+  const columns = useMemo(
+    () =>
+      createFitmentColumns({ onEdit: handleEdit, onUnlink: handleUnlink, t }),
+    [],
+  );
 
   const table = useDataTable({
     ...queryConfig,
@@ -64,15 +69,15 @@ const ProductFitmentsWidget = () => {
   return (
     <Container className="p-0">
       <DataTable instance={table}>
-        <DataTable.Toolbar className="flex justify-between items-center" >
-          <Heading level="h2">Fitments</Heading>
+        <DataTable.Toolbar className="flex justify-between items-center">
+          <Heading level="h2">{t("widget.fitments.title")}</Heading>
           <div>
             <Button
               size="small"
               variant="secondary"
               onClick={() => navigate(`/products/${productId}/fitments`)}
             >
-              Link
+              {t("widget.fitments.link")}
             </Button>
           </div>
         </DataTable.Toolbar>

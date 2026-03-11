@@ -6,6 +6,7 @@ import {
   useDataTable,
 } from "@medusajs/ui";
 import { useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { Link, useNavigate } from "react-router-dom";
 import { useCrudContext } from "../../../../context/crud-context";
 import { useDeleteMutation, usePaginatedQuery } from "../../../../hooks";
@@ -15,23 +16,26 @@ import { FitmentBulkActionsToolbar } from "./data-table-bulk-actions";
 import { createFitmentColumns } from "./data-table-columns";
 import filters from "./data-table-filters";
 
-
 const FitmentDataTable = ({ productId }: { productId?: string }) => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { edit } = useCrudContext<AdminFitmentWithProducts>();
 
   // Use paginated query hook
   const queryConfig = usePaginatedQuery({
     queryKey: "fitments",
-    selectFn: (data) => ({ data: data?.fitments, rowCount: data?.metadata.count }),
+    selectFn: (data) => ({
+      data: data?.fitments,
+      rowCount: data?.metadata.count,
+    }),
     queryFn: listFitments,
   });
 
   // Use delete mutation hook
   const deleteMutation = useDeleteMutation({
     invalidateKeys: ["fitments"],
-    successMessage: "Fitment deleted successfully",
-    errorMessage: "Failed to delete fitment",
+    successMessage: t("fitment.toast.deleted"),
+    errorMessage: t("fitment.toast.deleteError"),
     deleteFn: deleteFitment,
   });
 
@@ -46,8 +50,9 @@ const FitmentDataTable = ({ productId }: { productId?: string }) => {
           productId ? navigate(`/products/${productId}`) : undefined,
         onEdit: (fitment) => edit(fitment),
         onDelete: (fitment) => deleteMutation.mutate(fitment.id),
+        t,
       }),
-    [productId, navigate, deleteMutation, edit],
+    [productId, navigate, deleteMutation, edit, t],
   );
 
   const table = useDataTable({
@@ -62,20 +67,14 @@ const FitmentDataTable = ({ productId }: { productId?: string }) => {
       <DataTable instance={table}>
         <DataTable.Toolbar className="flex items-center justify-between px-6 py-4">
           <div>
-            <Heading level="h1">Fitments</Heading>
+            <Heading level="h1">{t("fitment.page.title")}</Heading>
             <p className="text-ui-fg-subtle text-sm mt-1">
-              Manage vehicle fitments and compatible products
+              {t("fitment.page.subtitle")}
             </p>
           </div>
 
-          <Button
-            variant="secondary"
-            size="small"
-            asChild
-          >
-            <Link to="/fitments/create">
-              Create
-            </Link>
+          <Button variant="secondary" size="small" asChild>
+            <Link to="/fitments/create">{t("common.create")}</Link>
           </Button>
         </DataTable.Toolbar>
 

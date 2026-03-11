@@ -1,14 +1,8 @@
-import {
-  Container,
-  DataTable,
-  Heading,
-  useDataTable
-} from "@medusajs/ui";
+import { Container, DataTable, Heading, useDataTable } from "@medusajs/ui";
 import { useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
-import {
-  usePaginatedQuery,
-} from "../../../hooks";
+import { usePaginatedQuery } from "../../../hooks";
 import { createProductColumns } from "./components/columns";
 import { ProductLinkageBulkActionsToolbar } from "./components/data-table-bulk-actions";
 import filters from "./components/filters";
@@ -16,6 +10,7 @@ import { listProductsWithFitments } from "./data";
 import { useProductLinking } from "./hooks/use-product-linking";
 
 const ProductList = ({ fitmentId }: { fitmentId?: string }) => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
 
   // Use paginated query hook
@@ -34,7 +29,7 @@ const ProductList = ({ fitmentId }: { fitmentId?: string }) => {
   // Use product linking hook (only when fitmentId is provided)
   const productLinking = useProductLinking({
     fitmentId: fitmentId || "",
-    selectedProducts: []
+    selectedProducts: [],
   });
 
   // Create table columns
@@ -43,8 +38,9 @@ const ProductList = ({ fitmentId }: { fitmentId?: string }) => {
       createProductColumns({
         onLinkProduct: productLinking.handleLinkProduct,
         onUnlinkProduct: productLinking.handleUnlinkProduct,
+        t,
       }),
-    [productLinking],
+    [productLinking, t],
   );
 
   const table = useDataTable({
@@ -58,7 +54,7 @@ const ProductList = ({ fitmentId }: { fitmentId?: string }) => {
     <Container className="divide-y p-0">
       <DataTable instance={table}>
         <DataTable.Toolbar className="flex items-center justify-between px-6 py-4">
-          <Heading>Products</Heading>
+          <Heading>{t("product.page.title")}</Heading>
         </DataTable.Toolbar>
 
         <DataTable.Table />

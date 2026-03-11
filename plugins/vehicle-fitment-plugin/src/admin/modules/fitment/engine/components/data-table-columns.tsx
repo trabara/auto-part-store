@@ -1,12 +1,14 @@
 import { EllipsisHorizontal, Pencil, Trash } from "@medusajs/icons";
 import { Button, DropdownMenu } from "@medusajs/ui";
 import { format } from "date-fns";
+import { TFunction } from "i18next";
 import { Engine } from "../../../../../modules/fitment/schema";
 import { createSelectDataTableColumns } from "../../../../helpers/create-select-columns";
 
 type CreateEngineColumnsOptions = {
   onEdit?: (engine: Engine) => void;
   onDelete?: (engine: Engine) => void;
+  t?: TFunction;
 };
 
 const FUEL_LABELS: Record<string, string> = {
@@ -16,35 +18,42 @@ const FUEL_LABELS: Record<string, string> = {
   HYBRID: "Hybrid",
 };
 
-export function createEngineColumns({ onEdit, onDelete }: CreateEngineColumnsOptions) {
+export function createEngineColumns({
+  onEdit,
+  onDelete,
+  t,
+}: CreateEngineColumnsOptions) {
+  const tr = (key: string, options?: Record<string, unknown>) =>
+    (t ? t(key, options as any) : key) as string;
+
   return createSelectDataTableColumns<Engine>((columnHelper) => [
     columnHelper.accessor("fuel", {
-      header: "Fuel Type",
+      header: tr("engine.column.fuelType"),
       enableSorting: true,
       cell: ({ getValue }) => {
-        const fuel = getValue<string>()
+        const fuel = getValue<string>();
         return <span className="font-medium">{FUEL_LABELS[fuel] || fuel}</span>;
       },
     }) as any,
     columnHelper.accessor("type", {
-      header: "Engine Type",
+      header: tr("engine.column.engineType"),
       enableSorting: true,
       cell: ({ getValue }) => <span>{getValue()}</span>,
     }),
     columnHelper.accessor("size", {
-      header: "Size",
+      header: tr("engine.column.size"),
       enableSorting: true,
       cell: ({ getValue }) => <span>{getValue()}L</span>,
     }),
     columnHelper.accessor("tech", {
-      header: "Technology",
+      header: tr("engine.column.technology"),
       enableSorting: false,
       cell: ({ getValue }) => (
         <span className="text-ui-fg-subtle">{getValue() || "-"}</span>
       ),
     }),
     columnHelper.accessor("created_at", {
-      header: "Created At",
+      header: tr("engine.column.createdAt"),
       enableSorting: true,
       cell: ({ getValue }) => {
         const date = new Date(getValue());
@@ -53,7 +62,7 @@ export function createEngineColumns({ onEdit, onDelete }: CreateEngineColumnsOpt
     }),
     columnHelper.display({
       id: "actions",
-      header: "Actions",
+      header: tr("common.actions"),
       cell: ({ row }) => (
         <DropdownMenu>
           <DropdownMenu.Trigger asChild>
@@ -67,7 +76,7 @@ export function createEngineColumns({ onEdit, onDelete }: CreateEngineColumnsOpt
               onClick={() => onEdit?.(row.original)}
             >
               <Pencil className="size-4" />
-              Edit
+              {tr("common.edit")}
             </DropdownMenu.Item>
             <DropdownMenu.Separator />
             <DropdownMenu.Item
@@ -75,11 +84,11 @@ export function createEngineColumns({ onEdit, onDelete }: CreateEngineColumnsOpt
               onClick={() => onDelete?.(row.original)}
             >
               <Trash className="size-4" />
-              Delete
+              {tr("common.delete")}
             </DropdownMenu.Item>
           </DropdownMenu.Content>
         </DropdownMenu>
       ),
     }),
-  ])
+  ]);
 }

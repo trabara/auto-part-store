@@ -6,7 +6,8 @@ const ModelsPage = () => {
 };
 
 export const config = defineRouteConfig({
-  label: "Models",
+  label: "nav.models",
+  translationNs: "translation",
 });
 
 export default ModelsPage;

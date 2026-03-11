@@ -1,22 +1,14 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  Button,
-  Drawer,
-  Heading,
-  Hint,
-  Input,
-  Label
-} from "@medusajs/ui";
+import { Button, Drawer, Heading, Hint, Input, Label } from "@medusajs/ui";
 import { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 import {
   BODY_STYLE_OPTIONS,
   DRIVE_OPTIONS,
   TRANSMISSION_OPTIONS,
 } from "../../../../../modules/fitment/constant";
-import {
-  UpdateFitmentInputSchema
-} from "../../../../../modules/fitment/schema";
+import { UpdateFitmentInputSchema } from "../../../../../modules/fitment/schema";
 import OptionSelect from "../../../../components/option-select";
 import { useCrudContext } from "../../../../context/crud-context";
 import { useUpdateMutation } from "../../../../hooks/use-update-mutation";
@@ -26,12 +18,16 @@ import { updateFitment } from "../data";
 import { AdminFitmentWithProducts } from "../types";
 
 const FitmentEditDrawer = () => {
-  const { entity: fitment, isEdit, setIsEdit } = useCrudContext<AdminFitmentWithProducts>();
+  const { t } = useTranslation();
+  const {
+    entity: fitment,
+    isEdit,
+    setIsEdit,
+  } = useCrudContext<AdminFitmentWithProducts>();
 
   const form = useForm({
     resolver: zodResolver(UpdateFitmentInputSchema),
   });
-
 
   // Populate form when data loads
   useEffect(() => {
@@ -48,8 +44,8 @@ const FitmentEditDrawer = () => {
   // Update mutation
   const updateMutation = useUpdateMutation({
     invalidateKeys: ["fitments", "fitment"],
-    successMessage: "Fitment updated successfully.",
-    errorMessage: "Failed to update fitment. Please try again.",
+    successMessage: t("fitment.toast.updated"),
+    errorMessage: t("fitment.toast.updateError"),
     updateFn: updateFitment(fitment?.id),
   });
 
@@ -63,9 +59,7 @@ const FitmentEditDrawer = () => {
       <Drawer.Content asChild>
         <form onSubmit={onSubmit} className="flex flex-col">
           <Drawer.Header>
-            <Heading>
-              Edit Fitment
-            </Heading>
+            <Heading>{t("fitment.edit.title")}</Heading>
           </Drawer.Header>
           <Drawer.Body>
             <div className="mt-4 flex flex-col gap-y-4">
@@ -75,16 +69,10 @@ const FitmentEditDrawer = () => {
                 render={({ field, fieldState: { error } }) => (
                   <div className="space-y-2">
                     <Label htmlFor={field.name}>
-                      Model
+                      {t("fitment.field.model")}
                     </Label>
-                    <ModelSelectInput
-                      {...field}
-                    />
-                    {error && (
-                      <Hint variant="error">
-                        {error.message}
-                      </Hint>
-                    )}
+                    <ModelSelectInput {...field} />
+                    {error && <Hint variant="error">{error.message}</Hint>}
                   </div>
                 )}
               />
@@ -95,14 +83,10 @@ const FitmentEditDrawer = () => {
                 render={({ field, fieldState: { error } }) => (
                   <div className="space-y-2">
                     <Label htmlFor={field.name}>
-                      Engine
+                      {t("fitment.field.engine")}
                     </Label>
                     <EngineSelectInput {...field} />
-                    {error && (
-                      <Hint variant="error">
-                        {error.message}
-                      </Hint>
-                    )}
+                    {error && <Hint variant="error">{error.message}</Hint>}
                   </div>
                 )}
               />
@@ -112,18 +96,14 @@ const FitmentEditDrawer = () => {
                 render={({ field, fieldState: { error } }) => (
                   <div className="space-y-2">
                     <Label htmlFor={field.name}>
-                      Body Style
+                      {t("fitment.field.bodyStyle")}
                     </Label>
                     <OptionSelect
                       {...field}
                       options={BODY_STYLE_OPTIONS}
                       onChange={(value) => field.onChange(value)}
                     />
-                    {error && (
-                      <Hint variant="error">
-                        {error.message}
-                      </Hint>
-                    )}
+                    {error && <Hint variant="error">{error.message}</Hint>}
                   </div>
                 )}
               />
@@ -134,18 +114,14 @@ const FitmentEditDrawer = () => {
                 render={({ field, fieldState: { error } }) => (
                   <div className="space-y-2">
                     <Label htmlFor={field.name}>
-                      Drive Type
+                      {t("fitment.field.driveType")}
                     </Label>
                     <OptionSelect
                       {...field}
                       options={DRIVE_OPTIONS}
                       onChange={(value) => field.onChange(value)}
                     />
-                    {error && (
-                      <Hint variant="error">
-                        {error.message}
-                      </Hint>
-                    )}
+                    {error && <Hint variant="error">{error.message}</Hint>}
                   </div>
                 )}
               />
@@ -156,20 +132,15 @@ const FitmentEditDrawer = () => {
                 render={({ field, fieldState: { error } }) => (
                   <div className="space-y-2">
                     <Label htmlFor={field.name}>
-                      Transmission
+                      {t("fitment.field.transmission")}
                     </Label>
                     <OptionSelect
                       {...field}
                       options={TRANSMISSION_OPTIONS}
                       onChange={(value) => field.onChange(value)}
                     />
-                    {error && (
-                      <Hint variant="error">
-                        {error.message}
-                      </Hint>
-                    )}
+                    {error && <Hint variant="error">{error.message}</Hint>}
                   </div>
-
                 )}
               />
 
@@ -179,18 +150,14 @@ const FitmentEditDrawer = () => {
                 render={({ field, fieldState: { error } }) => (
                   <div className="space-y-2">
                     <Label htmlFor={field.name}>
-                      Doors
+                      {t("fitment.field.doors")}
                     </Label>
                     <Input
                       {...field}
                       type="number"
                       onChange={(e) => field.onChange(Number(e.target.value))}
                     />
-                    {error && (
-                      <Hint variant="error">
-                        {error.message}
-                      </Hint>
-                    )}
+                    {error && <Hint variant="error">{error.message}</Hint>}
                   </div>
                 )}
               />
@@ -201,18 +168,14 @@ const FitmentEditDrawer = () => {
                 render={({ field, fieldState: { error } }) => (
                   <div className="space-y-2">
                     <Label htmlFor={field.name}>
-                      Year Start
+                      {t("fitment.field.yearStart")}
                     </Label>
                     <Input
                       {...field}
                       type="number"
                       onChange={(e) => field.onChange(Number(e.target.value))}
                     />
-                    {error && (
-                      <Hint variant="error">
-                        {error.message}
-                      </Hint>
-                    )}
+                    {error && <Hint variant="error">{error.message}</Hint>}
                   </div>
                 )}
               />
@@ -223,23 +186,18 @@ const FitmentEditDrawer = () => {
                 render={({ field, fieldState: { error } }) => (
                   <div className="space-y-2">
                     <Label htmlFor={field.name}>
-                      Year End
+                      {t("fitment.field.yearEndEdit")}
                     </Label>
                     <Input
                       {...field}
                       type="number"
                       onChange={(e) => field.onChange(Number(e.target.value))}
                     />
-                    {error && (
-                      <Hint variant="error">
-                        {error.message}
-                      </Hint>
-                    )}
+                    {error && <Hint variant="error">{error.message}</Hint>}
                   </div>
                 )}
               />
             </div>
-
           </Drawer.Body>
           <Drawer.Footer>
             <Button
@@ -248,14 +206,14 @@ const FitmentEditDrawer = () => {
               onClick={() => setIsEdit(false)}
               disabled={updateMutation.isPending}
             >
-              Cancel
+              {t("common.cancel")}
             </Button>
             <Button
               type="submit"
               variant="primary"
               isLoading={updateMutation.isPending}
             >
-              Save Changes
+              {t("common.save")}
             </Button>
           </Drawer.Footer>
         </form>

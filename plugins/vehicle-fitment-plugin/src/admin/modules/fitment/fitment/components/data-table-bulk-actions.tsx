@@ -7,6 +7,7 @@ import {
   usePrompt,
 } from "@medusajs/ui";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import { DataTableBulkActionsToolbar } from "../../../../components/bulk-actions-toolbar";
 import { sdk } from "../../../../lib/sdk";
 import { AdminFitmentWithProducts } from "../types";
@@ -17,6 +18,7 @@ type FitmentBulkActionsToolbarProps = {
 export function FitmentBulkActionsToolbar({
   table,
 }: FitmentBulkActionsToolbarProps) {
+  const { t } = useTranslation();
   const prompt = usePrompt();
   const queryClient = useQueryClient();
 
@@ -34,7 +36,7 @@ export function FitmentBulkActionsToolbar({
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["fitments"] });
-      toast.success("Fitments deleted successfully");
+      toast.success(t("fitment.toast.bulkDeleted"));
       // Clear row selection
       const selectedRows = table
         .getRowModel()
@@ -42,7 +44,7 @@ export function FitmentBulkActionsToolbar({
       selectedRows.forEach((row) => row.toggleSelected(false));
     },
     onError: (error: any) => {
-      toast.error(error?.message || "Failed to delete fitments");
+      toast.error(error?.message || t("fitment.toast.bulkDeleteError"));
     },
   });
 
@@ -59,10 +61,29 @@ export function FitmentBulkActionsToolbar({
     }, 0);
 
     const confirmed = await prompt({
-      title: `Delete ${selectedIds.length} Fitment${selectedIds.length > 1 ? "s" : ""}`,
-      description: `Are you sure you want to delete ${selectedIds.length} fitment${selectedIds.length > 1 ? "s" : ""}?${totalProductLinks > 0 ? ` This will also remove ~${totalProductLinks} product link${totalProductLinks > 1 ? "s" : ""}.` : ""}`,
-      confirmText: "Delete All",
-      cancelText: "Cancel",
+      title: t(
+        selectedIds.length > 1
+          ? "fitment.bulkDelete.title_plural"
+          : "fitment.bulkDelete.title",
+        { count: selectedIds.length },
+      ),
+      description:
+        t(
+          selectedIds.length > 1
+            ? "fitment.bulkDelete.description_plural"
+            : "fitment.bulkDelete.description",
+          { count: selectedIds.length },
+        ) +
+        (totalProductLinks > 0
+          ? t(
+              totalProductLinks > 1
+                ? "fitment.bulkDelete.withLinks_plural"
+                : "fitment.bulkDelete.withLinks",
+              { count: totalProductLinks },
+            )
+          : ""),
+      confirmText: t("common.deleteAll"),
+      cancelText: t("common.cancel"),
     });
 
     if (confirmed) {
@@ -73,7 +94,7 @@ export function FitmentBulkActionsToolbar({
   return (
     <>
       <DataTableBulkActionsToolbar table={table} entityName="fitment">
-        <Tooltip content="Delete selected fitments">
+        <Tooltip content={t("fitment.bulkDelete.tooltip")}>
           <IconButton
             className="rounded-none"
             size="large"

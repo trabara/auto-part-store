@@ -1,9 +1,6 @@
 import { Trash } from "@medusajs/icons";
-import {
-  IconButton,
-  Tooltip,
-  type UseDataTableReturn
-} from "@medusajs/ui";
+import { IconButton, Tooltip, type UseDataTableReturn } from "@medusajs/ui";
+import { useTranslation } from "react-i18next";
 import { DataTableBulkActionsToolbar } from "../../../../components/bulk-actions-toolbar";
 import { useModelDeleteMutation } from "../hooks/use-mode-delete";
 import { ModelWithFitments } from "../types";
@@ -15,7 +12,7 @@ type ModelBulkActionsToolbarProps = {
 export function ModelBulkActionsToolbar({
   table,
 }: ModelBulkActionsToolbarProps) {
-
+  const { t } = useTranslation();
   // Bulk delete mutation
   const [bulkDeleteHandler, bulkDeleteMutation] = useModelDeleteMutation();
 
@@ -30,7 +27,7 @@ export function ModelBulkActionsToolbar({
 
   return (
     <DataTableBulkActionsToolbar table={table} entityName="model">
-      <Tooltip content="Delete selected models">
+      <Tooltip content={t("model.bulkDelete.tooltip")}>
         <IconButton
           size="large"
           className="rounded-none text-red-600"

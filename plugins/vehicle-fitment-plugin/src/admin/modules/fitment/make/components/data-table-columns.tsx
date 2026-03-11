@@ -6,6 +6,7 @@ import {
   DropdownMenu,
 } from "@medusajs/ui";
 import { format } from "date-fns";
+import { TFunction } from "i18next";
 import { MakeWithModels } from "../types";
 
 const columnHelper = createDataTableColumnHelper<MakeWithModels>();
@@ -13,11 +14,17 @@ const columnHelper = createDataTableColumnHelper<MakeWithModels>();
 type CreateMakeColumnsProps = {
   onEdit?: (make: MakeWithModels) => void;
   onDelete?: (make: MakeWithModels) => void;
+  t?: TFunction;
 };
 export const createMakeColumns = ({
   onEdit,
   onDelete,
-}: CreateMakeColumnsProps) => [
+  t,
+}: CreateMakeColumnsProps) => {
+  const tr = (key: string, options?: Record<string, unknown>) =>
+    (t ? t(key, options as any) : key) as string;
+
+  return [
     columnHelper.display({
       id: "select",
       header: ({ table }) => (
@@ -38,7 +45,7 @@ export const createMakeColumns = ({
       ),
     }),
     columnHelper.accessor("name", {
-      header: "Name",
+      header: tr("make.column.name"),
       enableSorting: true,
       cell: ({ getValue }) => (
         <div className="flex items-center gap-x-3">
@@ -47,19 +54,19 @@ export const createMakeColumns = ({
       ),
     }),
     columnHelper.accessor("models", {
-      header: "Models",
+      header: tr("make.column.models"),
       enableSorting: false,
       cell: ({ getValue }) => {
         const models = getValue() || [];
         return (
           <div className="text-ui-fg-subtle">
-            {models.length} {models.length === 1 ? "model" : "models"}
+            {tr("make.column.models.count", { count: models.length })}
           </div>
         );
       },
     }),
     columnHelper.accessor("created_at", {
-      header: "Created At",
+      header: tr("make.column.createdAt"),
       enableSorting: true,
       cell: ({ getValue }) => {
         return (
@@ -70,7 +77,7 @@ export const createMakeColumns = ({
       },
     }),
     columnHelper.accessor("updated_at", {
-      header: "Updated At",
+      header: tr("make.column.updatedAt"),
       enableSorting: true,
       cell: ({ getValue }) => {
         return (
@@ -82,7 +89,7 @@ export const createMakeColumns = ({
     }),
     columnHelper.display({
       id: "actions",
-      header: "Actions",
+      header: tr("common.actions"),
       cell: ({ row }) => (
         <DropdownMenu>
           <DropdownMenu.Trigger asChild>
@@ -96,7 +103,7 @@ export const createMakeColumns = ({
               onClick={() => onEdit?.(row.original)}
             >
               <Pencil className="size-4" />
-              Edit
+              {tr("common.edit")}
             </DropdownMenu.Item>
             <DropdownMenu.Separator />
             <DropdownMenu.Item
@@ -104,10 +111,11 @@ export const createMakeColumns = ({
               onClick={() => onDelete?.(row.original)}
             >
               <Trash className="size-4" />
-              Delete
+              {tr("common.delete")}
             </DropdownMenu.Item>
           </DropdownMenu.Content>
         </DropdownMenu>
       ),
     }),
   ];
+};

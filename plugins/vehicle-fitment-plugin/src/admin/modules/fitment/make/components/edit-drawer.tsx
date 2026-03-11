@@ -1,21 +1,19 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  Button,
-  Drawer,
-  Heading,
-  Hint,
-  Input,
-  Label
-} from "@medusajs/ui";
+import { Button, Drawer, Heading, Hint, Input, Label } from "@medusajs/ui";
 import { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
-import { UpdateMakeInput, UpdateMakeInputSchema } from "../../../../../modules/fitment/schema";
+import { useTranslation } from "react-i18next";
+import {
+  UpdateMakeInput,
+  UpdateMakeInputSchema,
+} from "../../../../../modules/fitment/schema";
 import { useUpdateMutation } from "../../../../hooks/use-update-mutation";
 import { updateMake } from "../data";
 import { MakeWithModels } from "../types";
 
 const MakeEdit = ({ make }: { make?: MakeWithModels }) => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
 
   const form = useForm<UpdateMakeInput>({
@@ -32,8 +30,8 @@ const MakeEdit = ({ make }: { make?: MakeWithModels }) => {
 
   const updateMutation = useUpdateMutation({
     invalidateKeys: ["makes"],
-    errorMessage: "Failed to update make. Please try again.",
-    successMessage: "Make updated successfully.",
+    errorMessage: t("make.toast.updateError"),
+    successMessage: t("make.toast.updated"),
     updateFn: updateMake(make?.id),
   });
 
@@ -49,9 +47,9 @@ const MakeEdit = ({ make }: { make?: MakeWithModels }) => {
     <Drawer open onOpenChange={handleClose}>
       <Drawer.Content>
         <Drawer.Header>
-          <Heading level="h2">Edit Make</Heading>
+          <Heading level="h2">{t("make.edit.title")}</Heading>
           <p className="text-ui-fg-subtle text-sm mt-1">
-            Update make information
+            {t("make.edit.subtitle")}
           </p>
         </Drawer.Header>
         <Drawer.Body>
@@ -60,7 +58,7 @@ const MakeEdit = ({ make }: { make?: MakeWithModels }) => {
               {/* Read-only ID */}
               <div className="space-y-2">
                 <Label htmlFor="id" className="text-ui-fg-subtle">
-                  Make ID
+                  {t("make.field.id")}
                 </Label>
                 <Input id="id" value={make?.id} disabled />
               </div>
@@ -72,11 +70,12 @@ const MakeEdit = ({ make }: { make?: MakeWithModels }) => {
                 render={({ field, fieldState }) => (
                   <div className="space-y-2">
                     <Label htmlFor="name" className="font-medium">
-                      Make Name <span className="text-ui-fg-error">*</span>
+                      {t("make.field.name")}{" "}
+                      <span className="text-ui-fg-error">*</span>
                     </Label>
                     <Input
                       id="name"
-                      placeholder="e.g., Toyota, Ford, Honda"
+                      placeholder={t("make.field.name.placeholder")}
                       aria-invalid={!!fieldState.error}
                       autoFocus
                       {...field}
@@ -92,9 +91,9 @@ const MakeEdit = ({ make }: { make?: MakeWithModels }) => {
               {make?.models && make.models.length > 0 && (
                 <div className="rounded-lg border border-ui-border-base bg-ui-bg-subtle p-4">
                   <p className="text-sm text-ui-fg-subtle">
-                    This make has <strong>{make.models.length}</strong>{" "}
-                    {make.models.length === 1 ? "model" : "models"} associated
-                    with it.
+                    {t("make.models.associated_one", {
+                      count: make.models.length,
+                    })}
                   </p>
                 </div>
               )}
@@ -102,14 +101,14 @@ const MakeEdit = ({ make }: { make?: MakeWithModels }) => {
 
             <div className="flex items-center justify-end gap-x-2 border-t pt-4 mt-6">
               <Button variant="secondary" onClick={handleClose} type="button">
-                Cancel
+                {t("common.cancel")}
               </Button>
               <Button
                 variant="primary"
                 type="submit"
                 isLoading={updateMutation.isPending}
               >
-                Save Changes
+                {t("common.save")}
               </Button>
             </div>
           </form>

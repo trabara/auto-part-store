@@ -1,14 +1,8 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  Button,
-  FocusModal,
-  Heading,
-  Hint,
-  Input,
-  Label
-} from "@medusajs/ui";
+import { Button, FocusModal, Heading, Hint, Input, Label } from "@medusajs/ui";
 import { Controller, useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import {
   ENGINE_FUEL_OPTIONS,
   ENGINE_SIZE_OPTIONS,
@@ -19,8 +13,8 @@ import OptionSelect from "../../../../components/option-select";
 import { useCreateMutation } from "../../../../hooks/use-create-mutation";
 import { createEngine } from "../data";
 
-
 const EngineCreate = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
 
   const form = useForm({
@@ -35,8 +29,8 @@ const EngineCreate = () => {
 
   const createMutation = useCreateMutation({
     invalidateKeys: ["fitment", "engines"],
-    errorMessage: "Failed to create engine specification. Please try again.",
-    successMessage: "Engine specification created successfully.",
+    errorMessage: t("engine.toast.createError"),
+    successMessage: t("engine.toast.created"),
     createFn: createEngine,
   });
 
@@ -56,14 +50,14 @@ const EngineCreate = () => {
           <FocusModal.Header>
             <div className="flex items-center justify-end gap-x-2">
               <Button variant="secondary" size="small" onClick={handleClose}>
-                Cancel
+                {t("common.cancel")}
               </Button>
               <Button
                 type="submit"
                 size="small"
                 isLoading={createMutation.isPending}
               >
-                Create
+                {t("common.create")}
               </Button>
             </div>
           </FocusModal.Header>
@@ -71,10 +65,10 @@ const EngineCreate = () => {
             <div className="w-full max-w-lg space-y-8">
               <div className="flex flex-col items-center text-center">
                 <Heading level="h1" className="mb-2">
-                  Create Engine
+                  {t("engine.create.title")}
                 </Heading>
                 <p className="text-ui-fg-subtle text-sm">
-                  Add a new engine specification to your catalog
+                  {t("engine.create.subtitle")}
                 </p>
               </div>
 
@@ -85,10 +79,11 @@ const EngineCreate = () => {
                   render={({ field, fieldState }) => (
                     <div className="space-y-2">
                       <Label htmlFor="fuel" className="font-medium">
-                        Fuel Type <span className="text-ui-fg-error">*</span>
+                        {t("engine.field.fuel")}{" "}
+                        <span className="text-ui-fg-error">*</span>
                       </Label>
                       <OptionSelect
-                        placeholder="Select fuel type"
+                        placeholder={t("engine.field.fuel.placeholder")}
                         options={ENGINE_FUEL_OPTIONS}
                         {...field}
                       />
@@ -105,10 +100,11 @@ const EngineCreate = () => {
                   render={({ field, fieldState }) => (
                     <div className="space-y-2">
                       <Label htmlFor="type" className="font-medium">
-                        Engine Type <span className="text-ui-fg-error">*</span>
+                        {t("engine.field.type")}{" "}
+                        <span className="text-ui-fg-error">*</span>
                       </Label>
                       <OptionSelect
-                        placeholder="Select engine type"
+                        placeholder={t("engine.field.type.placeholder")}
                         options={ENGINE_TYPE_OPTIONS}
                         {...field}
                       />
@@ -125,19 +121,18 @@ const EngineCreate = () => {
                   render={({ field, fieldState }) => (
                     <div className="space-y-2">
                       <Label htmlFor="size" className="font-medium">
-                        Engine Size <span className="text-ui-fg-error">*</span>
+                        {t("engine.field.size")}{" "}
+                        <span className="text-ui-fg-error">*</span>
                       </Label>
                       <OptionSelect
-                        placeholder="Select engine size"
+                        placeholder={t("engine.field.size.placeholder")}
                         options={ENGINE_SIZE_OPTIONS}
                         {...field}
                       />
                       {fieldState.error && (
                         <Hint variant="error">{fieldState.error.message}</Hint>
                       )}
-                      <Hint>
-                        Engine displacement in liters (e.g., 2.0, 3.5)
-                      </Hint>
+                      <Hint>{t("engine.field.size.hint")}</Hint>
                     </div>
                   )}
                 />
@@ -148,20 +143,18 @@ const EngineCreate = () => {
                   render={({ field, fieldState }) => (
                     <div className="space-y-2">
                       <Label htmlFor="tech" className="font-medium">
-                        Technology
+                        {t("engine.field.tech")}
                       </Label>
                       <Input
                         id="tech"
-                        placeholder="e.g., Turbo, DOHC, VVT"
+                        placeholder={t("engine.field.tech.placeholder")}
                         aria-invalid={!!fieldState.error}
                         {...field}
                       />
                       {fieldState.error && (
                         <Hint variant="error">{fieldState.error.message}</Hint>
                       )}
-                      <Hint>
-                        Optional: Specify engine technology (e.g., Turbo, DOHC)
-                      </Hint>
+                      <Hint>{t("engine.field.tech.hint")}</Hint>
                     </div>
                   )}
                 />

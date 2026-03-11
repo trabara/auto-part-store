@@ -6,7 +6,8 @@ const EnginesPage = () => {
 };
 
 export const config = defineRouteConfig({
-  label: "Engines",
+  label: "nav.engines",
+  translationNs: "translation",
 });
 
 export default EnginesPage;

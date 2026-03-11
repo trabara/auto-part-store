@@ -7,6 +7,7 @@ import {
   usePrompt,
 } from "@medusajs/ui";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import { DataTableBulkActionsToolbar } from "../../../../components/bulk-actions-toolbar";
 import { sdk } from "../../../../lib/sdk";
 import { Engine } from "../../../../../modules/fitment/schema";
@@ -18,6 +19,7 @@ type EngineBulkActionsToolbarProps = {
 export function EngineBulkActionsToolbar({
   table,
 }: EngineBulkActionsToolbarProps) {
+  const { t } = useTranslation();
   const prompt = usePrompt();
   const queryClient = useQueryClient();
 
@@ -35,7 +37,7 @@ export function EngineBulkActionsToolbar({
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["engines"] });
-      toast.success("Engines deleted successfully");
+      toast.success(t("engine.toast.bulkDeleted"));
       // Clear row selection
       const selectedRows = table
         .getRowModel()
@@ -43,7 +45,7 @@ export function EngineBulkActionsToolbar({
       selectedRows.forEach((row) => row.toggleSelected(false));
     },
     onError: (error: any) => {
-      toast.error(error?.message || "Failed to delete engines");
+      toast.error(error?.message || t("engine.toast.bulkDeleteError"));
     },
   });
 
@@ -54,13 +56,13 @@ export function EngineBulkActionsToolbar({
     const selectedEngines = selectedRows.map((row) => row.original);
     const selectedIds = selectedEngines.map((e) => e.id);
 
-    // Note: We don't have fitment count data on the Engine entity yet
-    // This will be added in Phase 5
     const confirmed = await prompt({
-      title: `Delete ${selectedIds.length} Engine${selectedIds.length > 1 ? "s" : ""}`,
-      description: `Are you sure you want to delete ${selectedIds.length} engine${selectedIds.length > 1 ? "s" : ""}? This will also delete any associated fitments.`,
-      confirmText: "Delete All",
-      cancelText: "Cancel",
+      title: t("engine.bulkDelete.title", { count: selectedIds.length }),
+      description: t("engine.bulkDelete.description", {
+        count: selectedIds.length,
+      }),
+      confirmText: t("common.deleteAll"),
+      cancelText: t("common.cancel"),
     });
 
     if (confirmed) {
@@ -70,7 +72,7 @@ export function EngineBulkActionsToolbar({
 
   return (
     <DataTableBulkActionsToolbar table={table} entityName="engine">
-      <Tooltip content="Delete selected engines">
+      <Tooltip content={t("engine.bulkDelete.tooltip")}>
         <IconButton
           className="rounded-none"
           size="large"

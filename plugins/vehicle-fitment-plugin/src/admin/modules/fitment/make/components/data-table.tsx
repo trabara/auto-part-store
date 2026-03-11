@@ -3,9 +3,10 @@ import {
   Container,
   DataTable,
   Heading,
-  useDataTable
+  useDataTable,
 } from "@medusajs/ui";
 import { Link, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { usePaginatedQuery } from "../../../../hooks";
 import { MakeBulkActionsToolbar } from "../components/data-table-bulk-actions";
 import { listMakesWithModels } from "../data";
@@ -13,9 +14,8 @@ import { useMakeDeleteMutation } from "../hooks/use-delete-mutation";
 import { MakeWithModels } from "../types";
 import { createMakeColumns } from "./data-table-columns";
 
-
-
 const MakeList = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
 
   // Use paginated query hook
@@ -36,6 +36,7 @@ const MakeList = () => {
   const columns = createMakeColumns({
     onEdit: handleEdit,
     onDelete: handleDeleteMake,
+    t,
   });
 
   const table = useDataTable({
@@ -48,19 +49,13 @@ const MakeList = () => {
       <DataTable instance={table}>
         <DataTable.Toolbar className="flex items-center justify-between px-6 py-4">
           <div>
-            <Heading level="h1">Makes</Heading>
+            <Heading level="h1">{t("make.page.title")}</Heading>
             <p className="text-ui-fg-subtle text-sm mt-1">
-              Manage vehicle makes and manufacturers
+              {t("make.page.subtitle")}
             </p>
           </div>
-          <Button
-            variant="secondary"
-            size="small"
-            asChild
-          >
-            <Link to="/fitments/makes/create">
-              Create
-            </Link>
+          <Button variant="secondary" size="small" asChild>
+            <Link to="/fitments/makes/create">{t("common.create")}</Link>
           </Button>
         </DataTable.Toolbar>
         <DataTable.Table />

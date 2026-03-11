@@ -4,9 +4,10 @@ import {
   Container,
   DataTable,
   Heading,
-  useDataTable
+  useDataTable,
 } from "@medusajs/ui";
 import { Link, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { usePaginatedQuery } from "../../../../hooks";
 import { Model } from "../../../../../modules/fitment/schema";
 import { listModelsWithFitments } from "../data";
@@ -14,14 +15,17 @@ import { useModelDeleteMutation } from "../hooks/use-mode-delete";
 import { ModelBulkActionsToolbar } from "./data-table-bulk-actions";
 import { createModelColumns } from "./data-table-columns";
 
-
 const ModelList = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
 
   const queryConfig = usePaginatedQuery({
     queryKey: "models",
-    selectFn: (data) => ({ data: data?.models, rowCount: data?.metadata.count }),
-    queryFn: listModelsWithFitments
+    selectFn: (data) => ({
+      data: data?.models,
+      rowCount: data?.metadata.count,
+    }),
+    queryFn: listModelsWithFitments,
   });
 
   // Delete mutation
@@ -30,10 +34,10 @@ const ModelList = () => {
   const handleEdit = (model: Model) =>
     navigate(`/fitments/models/${model.id}/edit`);
 
-
   const columns = createModelColumns({
     onEdit: handleEdit,
     onDelete: deleteHandler,
+    t,
   });
 
   const table = useDataTable({
@@ -46,19 +50,15 @@ const ModelList = () => {
       <DataTable instance={table}>
         <DataTable.Toolbar className="flex items-center justify-between px-6 py-4">
           <div>
-            <Heading level="h1">Models</Heading>
+            <Heading level="h1">{t("model.page.title")}</Heading>
             <p className="text-ui-fg-subtle text-sm mt-1">
-              Manage vehicle models by manufacturer
+              {t("model.page.subtitle")}
             </p>
           </div>
-          <Button
-            variant="secondary"
-            size="small"
-            asChild
-          >
+          <Button variant="secondary" size="small" asChild>
             <Link to="/fitments/models/create">
               <Plus className="mr-2" />
-              Create
+              {t("common.create")}
             </Link>
           </Button>
         </DataTable.Toolbar>
@@ -68,6 +68,6 @@ const ModelList = () => {
       <ModelBulkActionsToolbar table={table} />
     </Container>
   );
-}
+};
 
 export default ModelList;

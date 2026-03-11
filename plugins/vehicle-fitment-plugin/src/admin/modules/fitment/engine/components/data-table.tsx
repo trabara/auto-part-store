@@ -4,9 +4,10 @@ import {
   Container,
   DataTable,
   Heading,
-  useDataTable
+  useDataTable,
 } from "@medusajs/ui";
 import { Link, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { usePaginatedQuery } from "../../../../hooks";
 import { Engine } from "../../../../../modules/fitment/schema";
 import { listEngines } from "../data";
@@ -14,30 +15,32 @@ import { useEngineDeleteMutation } from "../hooks/use-engine-delete";
 import { EngineBulkActionsToolbar } from "./data-table-bulk-actions";
 import { createEngineColumns } from "./data-table-columns";
 
-
 const EngineList = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
 
   // Use paginated query hook
   const queryConfig = usePaginatedQuery({
     queryKey: "engines",
     queryFn: listEngines,
-    selectFn: (data) => ({ data: data?.engines, rowCount: data?.metadata.count }),
+    selectFn: (data) => ({
+      data: data?.engines,
+      rowCount: data?.metadata.count,
+    }),
   });
 
   // Use delete mutation hook
   const [deleteEngineHandler] = useEngineDeleteMutation();
 
-
   // Action handlers
   const handleEdit = (engine: Engine) =>
     navigate(`/fitments/engines/${engine.id}/edit`);
-
 
   // Create table columns
   const columns = createEngineColumns({
     onEdit: handleEdit,
     onDelete: deleteEngineHandler,
+    t,
   });
 
   const table = useDataTable({
@@ -50,16 +53,16 @@ const EngineList = () => {
       <DataTable instance={table}>
         <DataTable.Toolbar className="flex items-center justify-between px-6 py-4">
           <div>
-            <Heading level="h1">Engines</Heading>
+            <Heading level="h1">{t("engine.page.title")}</Heading>
             <p className="text-ui-fg-subtle text-sm mt-1">
-              Manage vehicle engines and specifications
+              {t("engine.page.subtitle")}
             </p>
           </div>
 
           <Button variant="primary" asChild>
             <Link to="/fitments/engines/create">
               <Plus className="mr-2" />
-              Create Engine
+              {t("engine.create.title")}
             </Link>
           </Button>
         </DataTable.Toolbar>

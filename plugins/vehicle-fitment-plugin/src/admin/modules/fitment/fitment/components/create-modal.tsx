@@ -1,24 +1,26 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  Button,
-  FocusModal,
-  Heading,
-  Hint,
-  Input,
-  Label
-} from "@medusajs/ui";
+import { Button, FocusModal, Heading, Hint, Input, Label } from "@medusajs/ui";
 import { Controller, useForm } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
-import { BODY_STYLE_OPTIONS, DOORS_OPTIONS, DRIVE_OPTIONS, TRANSMISSION_OPTIONS } from "../../../../../modules/fitment/constant";
-import { CreateFitmentInput, CreateFitmentInputSchema } from "../../../../../modules/fitment/schema";
+import {
+  BODY_STYLE_OPTIONS,
+  DOORS_OPTIONS,
+  DRIVE_OPTIONS,
+  TRANSMISSION_OPTIONS,
+} from "../../../../../modules/fitment/constant";
+import {
+  CreateFitmentInput,
+  CreateFitmentInputSchema,
+} from "../../../../../modules/fitment/schema";
 import OptionSelect from "../../../../components/option-select";
 import { useCreateMutation } from "../../../../hooks/use-create-mutation";
 import { EngineSelectInput } from "../../engine/components/engine-select";
 import { ModelSelectInput } from "../../model/components/model-select-input";
 import { createFitment } from "../data";
 
-
 const CreateFitmentModal = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
 
   const form = useForm({
@@ -29,7 +31,7 @@ const CreateFitmentModal = () => {
       drive: "FWD",
       transmission: "MANUAL",
       doors: 4,
-    }
+    },
   });
 
   const handleClose = () => {
@@ -38,8 +40,8 @@ const CreateFitmentModal = () => {
 
   const createMutation = useCreateMutation({
     invalidateKeys: ["fitments"],
-    errorMessage: "An error occurred while submitting the form. Please try again.",
-    successMessage: "Fitment created successfully.",
+    errorMessage: t("fitment.toast.createError"),
+    successMessage: t("fitment.toast.created"),
     createFn: createFitment,
   });
 
@@ -55,8 +57,8 @@ const CreateFitmentModal = () => {
           <FocusModal.Header />
           <div className="mx-auto max-w-xl py-8 flex-1">
             <div>
-              <Heading level="h1">Create Fitment</Heading>
-              <Hint>Fill out the form below to create a new fitment.</Hint>
+              <Heading level="h1">{t("fitment.create.title")}</Heading>
+              <Hint>{t("fitment.create.hint")}</Hint>
             </div>
 
             <div className="mt-8 space-y-6">
@@ -65,10 +67,16 @@ const CreateFitmentModal = () => {
                 control={form.control}
                 render={({ field, fieldState: { error } }) => (
                   <div className="flex flex-col space-y-2">
-                    <Label htmlFor="year_start">Year Start</Label>
-                    <Input id="year_start" type="number" {...field}
-                      onChange={(e) => field.onChange(Number(e.target.value))} />
-                    {error && (<Hint variant="error">{error.message}</Hint>)}
+                    <Label htmlFor="year_start">
+                      {t("fitment.field.yearStart")}
+                    </Label>
+                    <Input
+                      id="year_start"
+                      type="number"
+                      {...field}
+                      onChange={(e) => field.onChange(Number(e.target.value))}
+                    />
+                    {error && <Hint variant="error">{error.message}</Hint>}
                   </div>
                 )}
               />
@@ -77,10 +85,16 @@ const CreateFitmentModal = () => {
                 control={form.control}
                 render={({ field, fieldState: { error } }) => (
                   <div className="flex flex-col space-y-2">
-                    <Label htmlFor="year_end">Year End (optional)</Label>
-                    <Input id="year_end" type="number" {...field}
-                      onChange={(e) => field.onChange(Number(e.target.value))} />
-                    {error && (<Hint variant="error">{error.message}</Hint>)}
+                    <Label htmlFor="year_end">
+                      {t("fitment.field.yearEnd")}
+                    </Label>
+                    <Input
+                      id="year_end"
+                      type="number"
+                      {...field}
+                      onChange={(e) => field.onChange(Number(e.target.value))}
+                    />
+                    {error && <Hint variant="error">{error.message}</Hint>}
                   </div>
                 )}
               />
@@ -89,9 +103,11 @@ const CreateFitmentModal = () => {
                 control={form.control}
                 render={({ field, fieldState: { error } }) => (
                   <div className="flex flex-col space-y-2">
-                    <Label htmlFor="body_style">Body Style</Label>
+                    <Label htmlFor="body_style">
+                      {t("fitment.field.bodyStyle")}
+                    </Label>
                     <OptionSelect options={BODY_STYLE_OPTIONS} {...field} />
-                    {error && (<Hint variant="error">{error.message}</Hint>)}
+                    {error && <Hint variant="error">{error.message}</Hint>}
                   </div>
                 )}
               />
@@ -100,9 +116,9 @@ const CreateFitmentModal = () => {
                 control={form.control}
                 render={({ field, fieldState: { error } }) => (
                   <div className="flex flex-col space-y-2">
-                    <Label htmlFor="drive">Drive</Label>
+                    <Label htmlFor="drive">{t("fitment.field.drive")}</Label>
                     <OptionSelect options={DRIVE_OPTIONS} {...field} />
-                    {error && (<Hint variant="error">{error.message}</Hint>)}
+                    {error && <Hint variant="error">{error.message}</Hint>}
                   </div>
                 )}
               />
@@ -111,9 +127,11 @@ const CreateFitmentModal = () => {
                 control={form.control}
                 render={({ field, fieldState: { error } }) => (
                   <div className="flex flex-col space-y-2">
-                    <Label htmlFor="transmission">Transmission</Label>
+                    <Label htmlFor="transmission">
+                      {t("fitment.field.transmission")}
+                    </Label>
                     <OptionSelect options={TRANSMISSION_OPTIONS} {...field} />
-                    {error && (<Hint variant="error">{error.message}</Hint>)}
+                    {error && <Hint variant="error">{error.message}</Hint>}
                   </div>
                 )}
               />
@@ -122,9 +140,9 @@ const CreateFitmentModal = () => {
                 control={form.control}
                 render={({ field, fieldState: { error } }) => (
                   <div className="flex flex-col space-y-2">
-                    <Label htmlFor="doors">Doors</Label>
+                    <Label htmlFor="doors">{t("fitment.field.doors")}</Label>
                     <OptionSelect options={DOORS_OPTIONS} {...field} />
-                    {error && (<Hint variant="error">{error.message}</Hint>)}
+                    {error && <Hint variant="error">{error.message}</Hint>}
                   </div>
                 )}
               />
@@ -133,9 +151,9 @@ const CreateFitmentModal = () => {
                 control={form.control}
                 render={({ field, fieldState: { error } }) => (
                   <div className="flex flex-col space-y-2">
-                    <Label htmlFor="model_id">Model</Label>
-                    <ModelSelectInput  {...field} />
-                    {error && (<Hint variant="error">{error.message}</Hint>)}
+                    <Label htmlFor="model_id">{t("fitment.field.model")}</Label>
+                    <ModelSelectInput {...field} />
+                    {error && <Hint variant="error">{error.message}</Hint>}
                   </div>
                 )}
               />
@@ -144,19 +162,21 @@ const CreateFitmentModal = () => {
                 control={form.control}
                 render={({ field, fieldState: { error } }) => (
                   <div className="flex flex-col space-y-2">
-                    <Label htmlFor="engine_id">Engine</Label>
-                    <EngineSelectInput  {...field} />
-                    {error && (<Hint variant="error">{error.message}</Hint>)}
+                    <Label htmlFor="engine_id">
+                      {t("fitment.field.engine")}
+                    </Label>
+                    <EngineSelectInput {...field} />
+                    {error && <Hint variant="error">{error.message}</Hint>}
                   </div>
                 )}
               />
             </div>
           </div>
-          <FocusModal.Footer >
+          <FocusModal.Footer>
             <Button type="button" variant="secondary" onClick={handleClose}>
-              Cancel
+              {t("common.cancel")}
             </Button>
-            <Button type="submit">Continue</Button>
+            <Button type="submit">{t("common.continue")}</Button>
           </FocusModal.Footer>
         </form>
       </FocusModal.Content>

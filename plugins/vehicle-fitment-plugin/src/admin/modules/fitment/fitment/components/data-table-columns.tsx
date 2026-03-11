@@ -1,25 +1,47 @@
 import { EllipsisHorizontal, Pencil, Trash } from "@medusajs/icons";
-import { Badge, Button, Checkbox, createDataTableColumnHelper, DropdownMenu, toast, usePrompt } from "@medusajs/ui";
+import {
+  Badge,
+  Button,
+  Checkbox,
+  createDataTableColumnHelper,
+  DropdownMenu,
+  toast,
+  usePrompt,
+} from "@medusajs/ui";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { CellContext } from "@tanstack/react-table";
 import { Link, Unlink } from "lucide-react";
 import { Fragment } from "react/jsx-runtime";
+import { TFunction } from "i18next";
 import { sdk } from "../../../../lib/sdk";
 import { AdminFitmentWithProducts } from "../types";
 const columnHelper = createDataTableColumnHelper<AdminFitmentWithProducts>();
 
 type CreateFitmentColumns = {
-  productId?: string,
-  onEdit?: (fitment: AdminFitmentWithProducts) => void,
-  onDelete?: (fitment: AdminFitmentWithProducts) => void,
-  onUnlink?: (fitment: AdminFitmentWithProducts) => void,
-  onLink?: (fitment: AdminFitmentWithProducts) => void,
+  productId?: string;
+  onEdit?: (fitment: AdminFitmentWithProducts) => void;
+  onDelete?: (fitment: AdminFitmentWithProducts) => void;
+  onUnlink?: (fitment: AdminFitmentWithProducts) => void;
+  onLink?: (fitment: AdminFitmentWithProducts) => void;
+  t?: TFunction;
 };
 
-type Action = (context: CellContext<AdminFitmentWithProducts, unknown>) => { label: string, icon?: React.ElementType, onClick: (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => void };
+type Action = (context: CellContext<AdminFitmentWithProducts, unknown>) => {
+  label: string;
+  icon?: React.ElementType;
+  onClick: (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
+};
 
-export const createFitmentColumns = ({ productId, onEdit, onDelete, onUnlink, onLink }: CreateFitmentColumns = {}) => {
-
+export const createFitmentColumns = ({
+  productId,
+  onEdit,
+  onDelete,
+  onUnlink,
+  onLink,
+  t,
+}: CreateFitmentColumns = {}) => {
+  const tr = (key: string, options?: Record<string, unknown>) =>
+    (t ? t(key, options as any) : key) as string;
   const baseColumns: any[] = [
     columnHelper.display({
       id: "select",
@@ -29,9 +51,7 @@ export const createFitmentColumns = ({ productId, onEdit, onDelete, onUnlink, on
             table.getIsAllPageRowsSelected() ||
             (table.getIsSomePageRowsSelected() && "indeterminate")
           }
-          onCheckedChange={(value) =>
-            table.toggleAllPageRowsSelected(!!value)
-          }
+          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
         />
       ),
       cell: ({ row }) => (
@@ -44,114 +64,117 @@ export const createFitmentColumns = ({ productId, onEdit, onDelete, onUnlink, on
     }),
 
     columnHelper.accessor("model.make.name", {
-      header: "Make",
+      header: tr("fitment.column.make"),
       enableSorting: true,
-      sortLabel: "Make",
-      sortAscLabel: "A-Z",
-      sortDescLabel: "Z-A",
+      sortLabel: tr("fitment.column.make"),
+      sortAscLabel: tr("fitment.sort.az"),
+      sortDescLabel: tr("fitment.sort.za"),
     }),
     columnHelper.accessor("model.name", {
-      header: "Model",
+      header: tr("fitment.column.model"),
       enableSorting: true,
-      sortLabel: "Model",
-      sortAscLabel: "A-Z",
-      sortDescLabel: "Z-A",
+      sortLabel: tr("fitment.column.model"),
+      sortAscLabel: tr("fitment.sort.az"),
+      sortDescLabel: tr("fitment.sort.za"),
     }),
     columnHelper.accessor("engine.size", {
-      header: "Engine Size",
+      header: tr("fitment.column.engineSize"),
       enableSorting: true,
-      sortLabel: "Engine Size",
-      sortAscLabel: "Smallest-Largest",
-      sortDescLabel: "Largest-Smallest",
+      sortLabel: tr("fitment.column.engineSize"),
+      sortAscLabel: tr("fitment.sort.smallestLargest"),
+      sortDescLabel: tr("fitment.sort.largestSmallest"),
     }),
     columnHelper.accessor("engine.fuel", {
-      header: "Fuel Type",
+      header: tr("fitment.column.fuelType"),
       enableSorting: true,
-      sortLabel: "Fuel Type",
-      sortAscLabel: "A-Z",
-      sortDescLabel: "Z-A",
+      sortLabel: tr("fitment.column.fuelType"),
+      sortAscLabel: tr("fitment.sort.az"),
+      sortDescLabel: tr("fitment.sort.za"),
     }),
     columnHelper.accessor("doors", {
-      header: "Doors",
+      header: tr("fitment.column.doors"),
       enableSorting: true,
-      sortLabel: "Doors",
-      sortAscLabel: "Fewest-Most",
-      sortDescLabel: "Most-Fewest",
+      sortLabel: tr("fitment.column.doors"),
+      sortAscLabel: tr("fitment.sort.fewestMost"),
+      sortDescLabel: tr("fitment.sort.mostFewest"),
     }),
     columnHelper.accessor("body_style", {
-      header: "Body Style",
+      header: tr("fitment.column.bodyStyle"),
       enableSorting: true,
-      sortLabel: "Body Style",
-      sortAscLabel: "A-Z",
-      sortDescLabel: "Z-A",
+      sortLabel: tr("fitment.column.bodyStyle"),
+      sortAscLabel: tr("fitment.sort.az"),
+      sortDescLabel: tr("fitment.sort.za"),
     }),
     columnHelper.accessor("drive", {
-      header: "Drive Type",
+      header: tr("fitment.column.driveType"),
       enableSorting: true,
-      sortLabel: "Drive Type",
-      sortAscLabel: "A-Z",
-      sortDescLabel: "Z-A",
+      sortLabel: tr("fitment.column.driveType"),
+      sortAscLabel: tr("fitment.sort.az"),
+      sortDescLabel: tr("fitment.sort.za"),
     }),
     columnHelper.accessor("transmission", {
-      header: "Transmission",
+      header: tr("fitment.column.transmission"),
       enableSorting: true,
-      sortLabel: "Transmission",
-      sortAscLabel: "A-Z",
-      sortDescLabel: "Z-A",
+      sortLabel: tr("fitment.column.transmission"),
+      sortAscLabel: tr("fitment.sort.az"),
+      sortDescLabel: tr("fitment.sort.za"),
     }),
     columnHelper.accessor("year_start", {
-      header: "Year Start",
+      header: tr("fitment.column.yearStart"),
       enableSorting: true,
-      sortLabel: "Year Start",
-      sortAscLabel: "Oldest-Newest",
-      sortDescLabel: "Newest-Oldest",
+      sortLabel: tr("fitment.column.yearStart"),
+      sortAscLabel: tr("fitment.sort.oldestNewest"),
+      sortDescLabel: tr("fitment.sort.newestOldest"),
     }),
     columnHelper.accessor("year_end", {
-      header: "Year End",
+      header: tr("fitment.column.yearEnd"),
       cell: (context) => {
         const yearEnd = context.getValue();
-        return yearEnd ? yearEnd : "Present";
+        return yearEnd ? yearEnd : tr("common.present");
       },
       enableSorting: true,
-      sortLabel: "Year End",
-      sortAscLabel: "Oldest-Newest",
-      sortDescLabel: "Newest-Oldest",
+      sortLabel: tr("fitment.column.yearEnd"),
+      sortAscLabel: tr("fitment.sort.oldestNewest"),
+      sortDescLabel: tr("fitment.sort.newestOldest"),
     }),
   ];
-
 
   const actions: Action[] = [];
   if (onEdit) {
     actions.push((context) => ({
-      label: "Edit",
+      label: tr("common.edit"),
       icon: Pencil,
       onClick: (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
         e.stopPropagation();
-        onEdit?.(context.row.original)
+        onEdit?.(context.row.original);
       },
     }));
   }
 
   if (productId) {
-    baseColumns.push(columnHelper.display({
-      id: "linked",
-      header: "Linked",
-      cell: (context) => {
-        const fitment = context.row.original;
-        const isLinked = fitment.products.some(p => p.id === productId);
-        return (
-          <Badge color={isLinked ? "green" : "grey"} size="small">
-            {isLinked ? "Linked" : "Not Linked"}
-          </Badge>
-        )
-      }
-    }));
+    baseColumns.push(
+      columnHelper.display({
+        id: "linked",
+        header: tr("fitment.column.linked"),
+        cell: (context) => {
+          const fitment = context.row.original;
+          const isLinked = fitment.products.some((p) => p.id === productId);
+          return (
+            <Badge color={isLinked ? "green" : "grey"} size="small">
+              {isLinked
+                ? tr("fitment.column.linked.yes")
+                : tr("fitment.column.linked.no")}
+            </Badge>
+          );
+        },
+      }),
+    );
 
     actions.push((context) => {
       const queryClient = useQueryClient();
 
       const fitment = context.row.original;
-      const isLinked = fitment.products.some(p => p.id === productId);
+      const isLinked = fitment.products.some((p) => p.id === productId);
 
       const linkUnlinkMutation = useMutation({
         mutationFn: async () => {
@@ -169,40 +192,40 @@ export const createFitmentColumns = ({ productId, onEdit, onDelete, onUnlink, on
         },
         onSuccess: () => {
           if (isLinked) {
-            toast.success("Product unlinked successfully");
+            toast.success(tr("fitment.toast.unlinked"));
             onUnlink?.(context.row.original);
           } else {
-            toast.success("Product linked successfully");
+            toast.success(tr("fitment.toast.linked"));
             onLink?.(context.row.original);
           }
           queryClient.invalidateQueries({
             queryKey: ["fitments"],
           });
           queryClient.invalidateQueries({
-            queryKey: ["products", { id: productId }]
+            queryKey: ["products", { id: productId }],
           });
         },
         onError: (error: any) => {
           if (isLinked) {
-            toast.error("Failed to unlink product", {
-              description: error.message || "An error occurred",
+            toast.error(tr("fitment.toast.unlinkError"), {
+              description: error.message || tr("fitment.toast.errorOccurred"),
             });
           } else {
-            toast.error("Failed to link product", {
-              description: error.message || "An error occurred",
+            toast.error(tr("fitment.toast.linkError"), {
+              description: error.message || tr("fitment.toast.errorOccurred"),
             });
           }
         },
       });
 
       return {
-        label: isLinked ? "Unlink" : "Link",
+        label: isLinked ? tr("common.unlink") : tr("common.link"),
         icon: isLinked ? Unlink : Link,
         onClick: (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
           e.stopPropagation();
           linkUnlinkMutation.mutate();
         },
-      }
+      };
     });
   }
 
@@ -210,14 +233,21 @@ export const createFitmentColumns = ({ productId, onEdit, onDelete, onUnlink, on
     actions.push((context) => {
       const prompt = usePrompt();
 
-      const handleDelete = async (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+      const handleDelete = async (
+        e: React.MouseEvent<HTMLDivElement, MouseEvent>,
+      ) => {
         e.stopPropagation();
 
         const confirmed = await prompt({
-          title: "Delete Fitment",
-          description: `Are you sure you want to delete the fitment for ${context.row.original.model.make.name} ${context.row.original.model.name} (${context.row.original.year_start}-${context.row.original.year_end})?`,
-          confirmText: "Delete",
-          cancelText: "Cancel",
+          title: tr("fitment.delete.title"),
+          description: tr("fitment.delete.description", {
+            make: context.row.original.model.make.name,
+            model: context.row.original.model.name,
+            yearStart: context.row.original.year_start,
+            yearEnd: context.row.original.year_end,
+          }),
+          confirmText: tr("fitment.delete.confirm"),
+          cancelText: tr("fitment.delete.cancel"),
           variant: "danger",
           verificationText: "DELETE",
         });
@@ -225,19 +255,19 @@ export const createFitmentColumns = ({ productId, onEdit, onDelete, onUnlink, on
         if (confirmed) {
           onDelete?.(context.row.original);
         }
-      }
+      };
 
       return {
-        label: "Delete",
+        label: tr("common.delete"),
         icon: Trash,
         onClick: handleDelete,
-      }
+      };
     });
   }
 
   const actionsColumn = columnHelper.display({
     id: "actions",
-    header: "Actions",
+    header: tr("common.actions"),
     cell: (context) => {
       const actionItems = actions.map((getAction) => getAction(context));
 
@@ -255,7 +285,9 @@ export const createFitmentColumns = ({ productId, onEdit, onDelete, onUnlink, on
                   {action.icon && <action.icon className="size-4 me-2" />}
                   {action.label}
                 </DropdownMenu.Item>
-                {actionItems.length - 1 > index && <DropdownMenu.Separator key={`${index}-separator`} />}
+                {actionItems.length - 1 > index && (
+                  <DropdownMenu.Separator key={`${index}-separator`} />
+                )}
               </Fragment>
             ))}
           </DropdownMenu.Content>
@@ -264,11 +296,7 @@ export const createFitmentColumns = ({ productId, onEdit, onDelete, onUnlink, on
     },
   });
 
-
-
   baseColumns.push(actionsColumn);
-
-
 
   return baseColumns;
 };

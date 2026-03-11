@@ -1,9 +1,6 @@
 import { Trash } from "@medusajs/icons";
-import {
-  IconButton,
-  Tooltip,
-  type UseDataTableReturn
-} from "@medusajs/ui";
+import { IconButton, Tooltip, type UseDataTableReturn } from "@medusajs/ui";
+import { useTranslation } from "react-i18next";
 import { DataTableBulkActionsToolbar } from "../../../../components/bulk-actions-toolbar";
 import { useMakeDeleteMutation } from "../hooks/use-delete-mutation";
 import { MakeWithModels } from "../types";
@@ -13,6 +10,7 @@ type MakeBulkActionsToolbarProps = {
 };
 
 export function MakeBulkActionsToolbar({ table }: MakeBulkActionsToolbarProps) {
+  const { t } = useTranslation();
   // Bulk delete mutation
   const [bulkDeleteHandler, bulkDeleteMutation] = useMakeDeleteMutation();
 
@@ -27,7 +25,7 @@ export function MakeBulkActionsToolbar({ table }: MakeBulkActionsToolbarProps) {
 
   return (
     <DataTableBulkActionsToolbar table={table} entityName="make">
-      <Tooltip content="Delete selected makes">
+      <Tooltip content={t("make.bulkDelete.tooltip")}>
         <IconButton
           size="large"
           className="rounded-none text-red-600"

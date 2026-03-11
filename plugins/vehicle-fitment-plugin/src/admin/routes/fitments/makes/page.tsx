@@ -5,7 +5,8 @@ const MakesPage = () => {
 };
 
 export const config = defineRouteConfig({
-  label: "Makes",
+  label: "nav.makes",
+  translationNs: "translation",
 });
 
 export default MakesPage;

@@ -1,17 +1,24 @@
 import { Badge, Checkbox, createDataTableColumnHelper } from "@medusajs/ui";
-import { AdminProductWithFitments } from "../types";
+import { TFunction } from "i18next";
 import { Link, Unlink } from "lucide-react";
-const columnHelper = createDataTableColumnHelper<
-  AdminProductWithFitments
->();
+import { AdminProductWithFitments } from "../types";
+const columnHelper = createDataTableColumnHelper<AdminProductWithFitments>();
 
 type CreateProductColumns = {
   fitmentId?: string;
   onLinkProduct?: (id: string) => void;
   onUnlinkProduct?: (id: string) => void;
+  t?: TFunction;
 };
 
-export const createProductColumns = ({ onLinkProduct, onUnlinkProduct }: CreateProductColumns) => {
+export const createProductColumns = ({
+  onLinkProduct,
+  onUnlinkProduct,
+  t,
+}: CreateProductColumns) => {
+  const tr = (key: string, options?: Record<string, unknown>) =>
+    (t ? t(key, options as any) : key) as string;
+
   const baseColumns = [];
 
   // Add checkbox column if showing all products
@@ -25,9 +32,7 @@ export const createProductColumns = ({ onLinkProduct, onUnlinkProduct }: CreateP
             table.getIsAllPageRowsSelected() ||
             (table.getIsSomePageRowsSelected() && "indeterminate")
           }
-          onCheckedChange={(value) =>
-            table.toggleAllPageRowsSelected(!!value)
-          }
+          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
         />
       ),
       cell: ({ row }) => (
@@ -40,33 +45,33 @@ export const createProductColumns = ({ onLinkProduct, onUnlinkProduct }: CreateP
     }),
   );
 
-
   // Standard product columns
   baseColumns.push(
     columnHelper.accessor("title", {
-      header: "Title",
+      header: tr("product.column.title"),
       cell: ({ getValue }) => getValue(),
     }),
     columnHelper.accessor("subtitle", {
-      header: "Subtitle",
+      header: tr("product.column.subtitle"),
       cell: ({ getValue }) => getValue() || "-",
     }),
     columnHelper.accessor("handle", {
-      header: "Handle",
+      header: tr("product.column.handle"),
       cell: ({ getValue }) => getValue(),
     }),
     columnHelper.accessor("status", {
-      header: "Status",
+      header: tr("product.column.status"),
       cell: ({ getValue }) => {
         const status = getValue();
         return (
           <span
-            className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${status === "published"
-              ? "bg-green-50 text-green-700"
-              : status === "draft"
-                ? "bg-gray-50 text-gray-700"
-                : "bg-red-50 text-red-700"
-              }`}
+            className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${
+              status === "published"
+                ? "bg-green-50 text-green-700"
+                : status === "draft"
+                  ? "bg-gray-50 text-gray-700"
+                  : "bg-red-50 text-red-700"
+            }`}
           >
             {status}
           </span>
@@ -74,14 +79,14 @@ export const createProductColumns = ({ onLinkProduct, onUnlinkProduct }: CreateP
       },
     }),
     columnHelper.accessor("collection", {
-      header: "Collection",
+      header: tr("product.column.collection"),
       cell: ({ getValue }) => {
         const collection = getValue();
         return collection?.title || "-";
       },
     }),
     columnHelper.accessor("variants", {
-      header: "Variants",
+      header: tr("product.column.variants"),
       cell: ({ getValue }) => {
         const variants = getValue();
         return variants?.length || 0;
@@ -93,12 +98,14 @@ export const createProductColumns = ({ onLinkProduct, onUnlinkProduct }: CreateP
 
   baseColumns.push(
     columnHelper.accessor("isLinked", {
-      header: "Link Status",
+      header: tr("product.column.linkStatus"),
       cell: ({ getValue }) => {
         const isLinked = getValue();
         return (
           <Badge color={isLinked ? "green" : "grey"} size="small">
-            {isLinked ? "Linked" : "Not Linked"}
+            {isLinked
+              ? tr("product.column.linked")
+              : tr("product.column.notLinked")}
           </Badge>
         );
       },
@@ -110,11 +117,12 @@ export const createProductColumns = ({ onLinkProduct, onUnlinkProduct }: CreateP
     columnHelper.action({
       actions: (context) => {
         const { isLinked } = context.row.original;
-        const Icon = (props: React.ComponentProps<"svg">) => isLinked ? <Unlink {...props} /> : <Link {...props} />;
+        const Icon = (props: React.ComponentProps<"svg">) =>
+          isLinked ? <Unlink {...props} /> : <Link {...props} />;
         return [
           {
-            label: isLinked ? "Unlink" : "Link",
-            icon: <Icon className="size-4"/>,
+            label: isLinked ? tr("common.unlink") : tr("common.link"),
+            icon: <Icon className="size-4" />,
             onClick: () => {
               const product = context.row.original;
               if (product.isLinked) {
@@ -123,15 +131,14 @@ export const createProductColumns = ({ onLinkProduct, onUnlinkProduct }: CreateP
                 onLinkProduct?.(product.id);
               }
             },
-          }
-        ]
+          },
+        ];
       },
     }),
   );
 
   return baseColumns;
-}
-
+};
 
 // Export default for backward compatibility
 export default [
@@ -153,12 +160,13 @@ export default [
       const status = getValue();
       return (
         <span
-          className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${status === "published"
-            ? "bg-green-50 text-green-700"
-            : status === "draft"
-              ? "bg-gray-50 text-gray-700"
-              : "bg-red-50 text-red-700"
-            }`}
+          className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${
+            status === "published"
+              ? "bg-green-50 text-green-700"
+              : status === "draft"
+                ? "bg-gray-50 text-gray-700"
+                : "bg-red-50 text-red-700"
+          }`}
         >
           {status}
         </span>

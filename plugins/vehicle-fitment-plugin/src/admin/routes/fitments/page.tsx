@@ -14,8 +14,9 @@ const FitmentsPage = () => {
 };
 
 export const config = defineRouteConfig({
-  label: "Fitments",
-  icon: () => <CarFront size={15} />
+  label: "nav.fitments",
+  translationNs: "translation",
+  icon: () => <CarFront size={15} />,
 });
 
 export default FitmentsPage;

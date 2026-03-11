@@ -1,18 +1,9 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  Button,
-  Drawer,
-  Heading,
-  Hint,
-  Input,
-  Label
-} from "@medusajs/ui";
+import { Button, Drawer, Heading, Hint, Input, Label } from "@medusajs/ui";
 import { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
-import {
-  LoaderFunctionArgs,
-  useNavigate
-} from "react-router-dom";
+import { LoaderFunctionArgs, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import OptionSelect from "../../../../components/option-select";
 import { useUpdateMutation } from "../../../../hooks/use-update-mutation";
 import { sdk } from "../../../../lib/sdk";
@@ -21,9 +12,12 @@ import {
   ENGINE_SIZE_OPTIONS,
   ENGINE_TYPE_OPTIONS,
 } from "../../../../../modules/fitment/constant";
-import { Engine, UpdateEngineInput, UpdateEngineInputSchema } from "../../../../../modules/fitment/schema";
+import {
+  Engine,
+  UpdateEngineInput,
+  UpdateEngineInputSchema,
+} from "../../../../../modules/fitment/schema";
 import { updateEngine } from "../data";
-
 
 export async function loader({ params }: LoaderFunctionArgs) {
   const { id } = params;
@@ -34,6 +28,7 @@ export async function loader({ params }: LoaderFunctionArgs) {
 }
 
 const EngineEditDrawer = ({ engine }: { engine: Engine }) => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
 
   const form = useForm<UpdateEngineInput>({
@@ -58,9 +53,9 @@ const EngineEditDrawer = ({ engine }: { engine: Engine }) => {
   }, [engine, form]);
 
   const updateMutation = useUpdateMutation({
-    invalidateKeys: ['engines'],
-    errorMessage: "Failed to update engine. Please try again.",
-    successMessage: "Engine updated successfully.",
+    invalidateKeys: ["engines"],
+    errorMessage: t("engine.toast.updateError"),
+    successMessage: t("engine.toast.updated"),
     updateFn: updateEngine(engine?.id),
   });
 
@@ -76,9 +71,9 @@ const EngineEditDrawer = ({ engine }: { engine: Engine }) => {
     <Drawer open onOpenChange={handleClose}>
       <Drawer.Content>
         <Drawer.Header>
-          <Heading level="h2">Edit Engine</Heading>
+          <Heading level="h2">{t("engine.edit.title")}</Heading>
           <p className="text-ui-fg-subtle text-sm mt-1">
-            Update engine information
+            {t("engine.edit.subtitle")}
           </p>
         </Drawer.Header>
         <Drawer.Body>
@@ -87,7 +82,7 @@ const EngineEditDrawer = ({ engine }: { engine: Engine }) => {
               {/* Read-only ID */}
               <div className="space-y-2">
                 <Label htmlFor="id" className="text-ui-fg-subtle">
-                  Engine ID
+                  {t("engine.field.id")}
                 </Label>
                 <Input id="id" value={engine.id} disabled />
               </div>
@@ -99,10 +94,11 @@ const EngineEditDrawer = ({ engine }: { engine: Engine }) => {
                 render={({ field, fieldState }) => (
                   <div className="space-y-2">
                     <Label htmlFor="fuel" className="font-medium">
-                      Fuel Type <span className="text-ui-fg-error">*</span>
+                      {t("engine.field.fuel")}{" "}
+                      <span className="text-ui-fg-error">*</span>
                     </Label>
                     <OptionSelect
-                      placeholder="Select fuel type"
+                      placeholder={t("engine.field.fuel.placeholder")}
                       options={ENGINE_FUEL_OPTIONS}
                       {...field}
                     />
@@ -120,10 +116,11 @@ const EngineEditDrawer = ({ engine }: { engine: Engine }) => {
                 render={({ field, fieldState }) => (
                   <div className="space-y-2">
                     <Label htmlFor="type" className="font-medium">
-                      Engine Type <span className="text-ui-fg-error">*</span>
+                      {t("engine.field.type")}{" "}
+                      <span className="text-ui-fg-error">*</span>
                     </Label>
                     <OptionSelect
-                      placeholder="Select engine type"
+                      placeholder={t("engine.field.type.placeholder")}
                       options={ENGINE_TYPE_OPTIONS}
                       {...field}
                     />
@@ -141,17 +138,18 @@ const EngineEditDrawer = ({ engine }: { engine: Engine }) => {
                 render={({ field, fieldState }) => (
                   <div className="space-y-2">
                     <Label htmlFor="size" className="font-medium">
-                      Engine Size <span className="text-ui-fg-error">*</span>
+                      {t("engine.field.size")}{" "}
+                      <span className="text-ui-fg-error">*</span>
                     </Label>
                     <OptionSelect
-                      placeholder="Select engine size"
+                      placeholder={t("engine.field.size.placeholder")}
                       options={ENGINE_SIZE_OPTIONS}
                       {...field}
                     />
                     {fieldState.error && (
                       <Hint variant="error">{fieldState.error.message}</Hint>
                     )}
-                    <Hint>Engine displacement in liters</Hint>
+                    <Hint>{t("engine.field.size.hintShort")}</Hint>
                   </div>
                 )}
               />
@@ -163,20 +161,18 @@ const EngineEditDrawer = ({ engine }: { engine: Engine }) => {
                 render={({ field, fieldState }) => (
                   <div className="space-y-2">
                     <Label htmlFor="tech" className="font-medium">
-                      Technology
+                      {t("engine.field.tech")}
                     </Label>
                     <Input
                       id="tech"
-                      placeholder="e.g., Turbo, DOHC, VVT"
+                      placeholder={t("engine.field.tech.placeholder")}
                       aria-invalid={!!fieldState.error}
                       {...field}
                     />
                     {fieldState.error && (
                       <Hint variant="error">{fieldState.error.message}</Hint>
                     )}
-                    <Hint>
-                      Optional: Specify engine technology (e.g., Turbo, DOHC)
-                    </Hint>
+                    <Hint>{t("engine.field.tech.hint")}</Hint>
                   </div>
                 )}
               />
@@ -184,14 +180,14 @@ const EngineEditDrawer = ({ engine }: { engine: Engine }) => {
 
             <div className="flex items-center justify-end gap-x-2 border-t pt-4 mt-6">
               <Button variant="secondary" onClick={handleClose} type="button">
-                Cancel
+                {t("common.cancel")}
               </Button>
               <Button
                 variant="primary"
                 type="submit"
                 isLoading={updateMutation.isPending}
               >
-                Save Changes
+                {t("common.save")}
               </Button>
             </div>
           </form>

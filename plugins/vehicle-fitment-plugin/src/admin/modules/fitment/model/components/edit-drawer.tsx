@@ -1,24 +1,20 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  Button,
-  Drawer,
-  Heading,
-  Hint,
-  Input,
-  Label
-} from "@medusajs/ui";
+import { Button, Drawer, Heading, Hint, Input, Label } from "@medusajs/ui";
 import { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
+import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import {
-  useNavigate
-} from "react-router-dom";
-import { Model, UpdateModelInput, UpdateModelInputSchema } from "../../../../../modules/fitment/schema";
+  Model,
+  UpdateModelInput,
+  UpdateModelInputSchema,
+} from "../../../../../modules/fitment/schema";
 import { useUpdateMutation } from "../../../../hooks/use-update-mutation";
 import { MakeSelectInput } from "../../make/components/make-select-input";
 import { updateModel } from "../data";
 
-
 const ModelEdit = ({ model }: { model?: Model }) => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
 
   const form = useForm<UpdateModelInput>({
@@ -40,8 +36,8 @@ const ModelEdit = ({ model }: { model?: Model }) => {
 
   const updateMutation = useUpdateMutation({
     invalidateKeys: ["models"],
-    successMessage: "Model updated successfully",
-    errorMessage: "Failed to update model",
+    successMessage: t("model.toast.updated"),
+    errorMessage: t("model.toast.updateError"),
     updateFn: updateModel(model?.id),
   });
 
@@ -57,9 +53,9 @@ const ModelEdit = ({ model }: { model?: Model }) => {
     <Drawer open onOpenChange={handleClose}>
       <Drawer.Content>
         <Drawer.Header>
-          <Heading level="h2">Edit Model</Heading>
+          <Heading level="h2">{t("model.edit.title")}</Heading>
           <p className="text-ui-fg-subtle text-sm mt-1">
-            Update model information
+            {t("model.edit.subtitle")}
           </p>
         </Drawer.Header>
         <Drawer.Body>
@@ -68,7 +64,7 @@ const ModelEdit = ({ model }: { model?: Model }) => {
               {/* Read-only ID */}
               <div className="space-y-2">
                 <Label htmlFor="id" className="text-ui-fg-subtle">
-                  Model ID
+                  {t("model.field.id")}
                 </Label>
                 <Input id="id" value={model?.id} disabled />
               </div>
@@ -80,18 +76,17 @@ const ModelEdit = ({ model }: { model?: Model }) => {
                 render={({ field, fieldState }) => (
                   <div className="space-y-2">
                     <Label htmlFor="make_id" className="font-medium">
-                      Make <span className="text-ui-fg-error">*</span>
+                      {t("model.field.make")}{" "}
+                      <span className="text-ui-fg-error">*</span>
                     </Label>
                     <MakeSelectInput
-                      placeholder="Select or create a make"
+                      placeholder={t("model.field.make.placeholder")}
                       {...field}
                     />
                     {fieldState.error && (
                       <Hint variant="error">{fieldState.error.message}</Hint>
                     )}
-                    <Hint>
-                      Select an existing make or type a new one to create it
-                    </Hint>
+                    <Hint>{t("model.field.make.hint")}</Hint>
                   </div>
                 )}
               />
@@ -103,11 +98,12 @@ const ModelEdit = ({ model }: { model?: Model }) => {
                 render={({ field, fieldState }) => (
                   <div className="space-y-2">
                     <Label htmlFor="name" className="font-medium">
-                      Model Name <span className="text-ui-fg-error">*</span>
+                      {t("model.field.name")}{" "}
+                      <span className="text-ui-fg-error">*</span>
                     </Label>
                     <Input
                       id="name"
-                      placeholder="e.g., Camry, F-150, Civic"
+                      placeholder={t("model.field.name.placeholder")}
                       aria-invalid={!!fieldState.error}
                       {...field}
                     />
@@ -121,14 +117,14 @@ const ModelEdit = ({ model }: { model?: Model }) => {
 
             <div className="flex items-center justify-end gap-x-2 border-t pt-4 mt-6">
               <Button variant="secondary" onClick={handleClose} type="button">
-                Cancel
+                {t("common.cancel")}
               </Button>
               <Button
                 variant="primary"
                 type="submit"
                 isLoading={updateMutation.isPending}
               >
-                Save Changes
+                {t("common.save")}
               </Button>
             </div>
           </form>

@@ -2,7 +2,7 @@ import { Trash } from "@medusajs/icons";
 import { IconButton, Tooltip, type UseDataTableReturn } from "@medusajs/ui";
 import { useTranslation } from "react-i18next";
 import { DataTableBulkActionsToolbar } from "../../../../components/bulk-actions-toolbar";
-import { useModelDeleteMutation } from "../hooks/use-mode-delete";
+import { useModelDeleteMutation } from "../hooks/use-model-delete";
 import { ModelWithFitments } from "../types";
 
 type ModelBulkActionsToolbarProps = {

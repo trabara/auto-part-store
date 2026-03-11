@@ -1,7 +1,17 @@
 import { defineRouteConfig } from "@medusajs/admin-sdk";
-import MakeList from "../../../modules/fitment/make/components/data-table";
+import { CrudProvider } from "../../../components/crud-provider";
+import MakeCreateModal from "../../../modules/fitment/make/components/create-modal";
+import MakeDataTable from "../../../modules/fitment/make/components/data-table";
+import MakeEditDrawer from "../../../modules/fitment/make/components/edit-drawer";
+
 const MakesPage = () => {
-  return <MakeList />;
+  return (
+    <CrudProvider entityName="make">
+      <MakeDataTable />
+      <MakeEditDrawer />
+      <MakeCreateModal />
+    </CrudProvider>
+  );
 };
 
 export const config = defineRouteConfig({

@@ -3,7 +3,6 @@
   "nav.makes": "Makes",
   "nav.models": "Models",
   "nav.engines": "Engines",
-
   "common.actions": "Actions",
   "common.create": "Create",
   "common.cancel": "Cancel",
@@ -18,7 +17,6 @@
   "common.selected": "{{count}} selected",
   "common.createNew": "Creating a new option",
   "common.selectExisting": "Select an existing option",
-
   "fitment.page.title": "Fitments",
   "fitment.page.subtitle": "Manage vehicle fitments and compatible products",
   "fitment.create.title": "Create Fitment",
@@ -79,7 +77,6 @@
   "fitment.toast.unlinked": "Product unlinked successfully",
   "fitment.toast.unlinkError": "Failed to unlink product",
   "fitment.toast.errorOccurred": "An error occurred",
-
   "make.page.title": "Makes",
   "make.page.subtitle": "Manage vehicle makes and manufacturers",
   "make.create.title": "Create Make",
@@ -103,7 +100,6 @@
   "make.toast.createError": "Failed to create make. Please try again.",
   "make.toast.updated": "Make updated successfully.",
   "make.toast.updateError": "Failed to update make. Please try again.",
-
   "model.page.title": "Models",
   "model.page.subtitle": "Manage vehicle models by manufacturer",
   "model.create.title": "Create Model",
@@ -128,7 +124,6 @@
   "model.toast.createError": "Failed to create model. Please try again.",
   "model.toast.updated": "Model updated successfully",
   "model.toast.updateError": "Failed to update model",
-
   "engine.page.title": "Engines",
   "engine.page.subtitle": "Manage vehicle engines and specifications",
   "engine.create.title": "Create Engine",
@@ -163,7 +158,6 @@
   "engine.toast.updateError": "Failed to update engine. Please try again.",
   "engine.toast.bulkDeleted": "Engines deleted successfully",
   "engine.toast.bulkDeleteError": "Failed to delete engines",
-
   "product.page.title": "Products",
   "product.column.title": "Title",
   "product.column.subtitle": "Subtitle",
@@ -176,7 +170,24 @@
   "product.column.notLinked": "Not Linked",
   "product.bulk.linkTooltip": "Link selected products to fitment",
   "product.bulk.unlinkTooltip": "Unlink selected products from fitment",
-
   "widget.fitments.title": "Fitments",
-  "widget.fitments.link": "Link"
+  "widget.fitments.link": "Link",
+  "make.delete.title": "Delete Make",
+  "make.delete.description": "Are you sure you want to delete \"{{name}}\"? This will also delete all associated models and fitments.",
+  "make.delete.confirm": "Delete",
+  "make.delete.cancel": "Cancel",
+  "make.toast.deleted": "Make deleted successfully",
+  "make.toast.deleteError": "Failed to delete make",
+  "model.delete.title": "Delete Model",
+  "model.delete.description": "Are you sure you want to delete \"{{name}}\"? This will also delete all associated fitments.",
+  "model.delete.confirm": "Delete",
+  "model.delete.cancel": "Cancel",
+  "model.toast.deleted": "Model deleted successfully",
+  "model.toast.deleteError": "Failed to delete model",
+  "engine.delete.title": "Delete Engine",
+  "engine.delete.description": "Are you sure you want to delete this engine specification? This will also delete all associated fitments.",
+  "engine.delete.confirm": "Delete",
+  "engine.delete.cancel": "Cancel",
+  "engine.toast.deleted": "Engine deleted successfully",
+  "engine.toast.deleteError": "Failed to delete engine"
 }

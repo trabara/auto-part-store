@@ -58,7 +58,7 @@ const ProductFitmentsWidget = () => {
   const columns = useMemo(
     () =>
       createFitmentColumns({ onEdit: handleEdit, onUnlink: handleUnlink, t }),
-    [],
+    [handleEdit, handleUnlink, t],
   );
 
   const table = useDataTable({

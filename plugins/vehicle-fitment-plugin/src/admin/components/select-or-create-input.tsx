@@ -12,7 +12,7 @@ const SelectOrCreateInput = forwardRef<
   SelectOrCreateInputProps
 >(({ className, onChange, error, options = [], ...restProps }, ref) => {
   const { t } = useTranslation();
-  const [isNew, setIsNew] = useState(!!restProps.value);
+  const [isNew, setIsNew] = useState(false);
   const textInput = useRef<HTMLInputElement>(null);
   useEffect(() => {
     if (isNew) {

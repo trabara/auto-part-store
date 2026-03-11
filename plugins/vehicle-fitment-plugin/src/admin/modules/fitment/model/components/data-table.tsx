@@ -1,4 +1,3 @@
-import { Plus } from "@medusajs/icons";
 import {
   Button,
   Container,
@@ -6,18 +5,18 @@ import {
   Heading,
   useDataTable,
 } from "@medusajs/ui";
-import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { useCrudContext } from "../../../../context/crud-context";
 import { usePaginatedQuery } from "../../../../hooks";
-import { Model } from "../../../../../modules/fitment/schema";
 import { listModelsWithFitments } from "../data";
-import { useModelDeleteMutation } from "../hooks/use-mode-delete";
+import { useModelDeleteMutation } from "../hooks/use-model-delete";
+import { ModelWithFitments } from "../types";
 import { ModelBulkActionsToolbar } from "./data-table-bulk-actions";
 import { createModelColumns } from "./data-table-columns";
 
 const ModelList = () => {
   const { t } = useTranslation();
-  const navigate = useNavigate();
+  const { edit, setIsCreate } = useCrudContext<ModelWithFitments>();
 
   const queryConfig = usePaginatedQuery({
     queryKey: "models",
@@ -31,11 +30,8 @@ const ModelList = () => {
   // Delete mutation
   const [deleteHandler] = useModelDeleteMutation();
 
-  const handleEdit = (model: Model) =>
-    navigate(`/fitments/models/${model.id}/edit`);
-
   const columns = createModelColumns({
-    onEdit: handleEdit,
+    onEdit: edit,
     onDelete: deleteHandler,
     t,
   });
@@ -55,11 +51,8 @@ const ModelList = () => {
               {t("model.page.subtitle")}
             </p>
           </div>
-          <Button variant="secondary" size="small" asChild>
-            <Link to="/fitments/models/create">
-              <Plus className="mr-2" />
-              {t("common.create")}
-            </Link>
+          <Button variant="secondary" size="small" onClick={() => setIsCreate(true)}>
+            {t("common.create")}
           </Button>
         </DataTable.Toolbar>
         <DataTable.Table />

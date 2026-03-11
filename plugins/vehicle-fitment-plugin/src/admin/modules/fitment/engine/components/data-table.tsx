@@ -1,4 +1,3 @@
-import { Plus } from "@medusajs/icons";
 import {
   Button,
   Container,
@@ -6,10 +5,11 @@ import {
   Heading,
   useDataTable,
 } from "@medusajs/ui";
-import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { usePaginatedQuery } from "../../../../hooks";
+import { Link } from "react-router-dom";
 import { Engine } from "../../../../../modules/fitment/schema";
+import { useCrudContext } from "../../../../context/crud-context";
+import { usePaginatedQuery } from "../../../../hooks";
 import { listEngines } from "../data";
 import { useEngineDeleteMutation } from "../hooks/use-engine-delete";
 import { EngineBulkActionsToolbar } from "./data-table-bulk-actions";
@@ -17,7 +17,7 @@ import { createEngineColumns } from "./data-table-columns";
 
 const EngineList = () => {
   const { t } = useTranslation();
-  const navigate = useNavigate();
+  const { edit } = useCrudContext<Engine>();
 
   // Use paginated query hook
   const queryConfig = usePaginatedQuery({
@@ -32,13 +32,9 @@ const EngineList = () => {
   // Use delete mutation hook
   const [deleteEngineHandler] = useEngineDeleteMutation();
 
-  // Action handlers
-  const handleEdit = (engine: Engine) =>
-    navigate(`/fitments/engines/${engine.id}/edit`);
-
   // Create table columns
   const columns = createEngineColumns({
-    onEdit: handleEdit,
+    onEdit: edit,
     onDelete: deleteEngineHandler,
     t,
   });
@@ -59,10 +55,9 @@ const EngineList = () => {
             </p>
           </div>
 
-          <Button variant="primary" asChild>
+          <Button variant="secondary" size="small" asChild>
             <Link to="/fitments/engines/create">
-              <Plus className="mr-2" />
-              {t("engine.create.title")}
+              {t("common.create")}
             </Link>
           </Button>
         </DataTable.Toolbar>

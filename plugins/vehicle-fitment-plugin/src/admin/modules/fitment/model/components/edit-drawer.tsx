@@ -2,27 +2,27 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Button, Drawer, Heading, Hint, Input, Label } from "@medusajs/ui";
 import { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import {
-  Model,
   UpdateModelInput,
   UpdateModelInputSchema,
 } from "../../../../../modules/fitment/schema";
+import { useCrudContext } from "../../../../context/crud-context";
 import { useUpdateMutation } from "../../../../hooks/use-update-mutation";
 import { MakeSelectInput } from "../../make/components/make-select-input";
 import { updateModel } from "../data";
+import { ModelWithFitments } from "../types";
 
-const ModelEdit = ({ model }: { model?: Model }) => {
+const ModelEditDrawer = () => {
   const { t } = useTranslation();
-  const navigate = useNavigate();
+  const {
+    entity: model,
+    isEdit,
+    setIsEdit,
+  } = useCrudContext<ModelWithFitments>();
 
   const form = useForm<UpdateModelInput>({
     resolver: zodResolver(UpdateModelInputSchema),
-    defaultValues: {
-      name: model?.name,
-      make_id: model?.make.id,
-    },
   });
 
   useEffect(() => {
@@ -41,32 +41,29 @@ const ModelEdit = ({ model }: { model?: Model }) => {
     updateFn: updateModel(model?.id),
   });
 
-  const handleClose = () => {
-    navigate(-1);
-  };
-
   const handleSubmit = form.handleSubmit((data) => {
     updateMutation.mutate(data);
+    setIsEdit(false);
   });
 
   return (
-    <Drawer open onOpenChange={handleClose}>
-      <Drawer.Content>
-        <Drawer.Header>
-          <Heading level="h2">{t("model.edit.title")}</Heading>
-          <p className="text-ui-fg-subtle text-sm mt-1">
-            {t("model.edit.subtitle")}
-          </p>
-        </Drawer.Header>
-        <Drawer.Body>
-          <form onSubmit={handleSubmit} className="flex flex-col h-full">
-            <div className="flex-1 space-y-6">
+    <Drawer open={isEdit} onOpenChange={setIsEdit}>
+      <Drawer.Content asChild>
+        <form onSubmit={handleSubmit} className="flex flex-col">
+          <Drawer.Header>
+            <Heading level="h2">{t("model.edit.title")}</Heading>
+            <p className="text-ui-fg-subtle text-sm mt-1">
+              {t("model.edit.subtitle")}
+            </p>
+          </Drawer.Header>
+          <Drawer.Body>
+            <div className="mt-4 flex flex-col gap-y-4">
               {/* Read-only ID */}
               <div className="space-y-2">
                 <Label htmlFor="id" className="text-ui-fg-subtle">
                   {t("model.field.id")}
                 </Label>
-                <Input id="id" value={model?.id} disabled />
+                <Input id="id" value={model?.id ?? ""} disabled />
               </div>
 
               {/* Make Select */}
@@ -114,24 +111,28 @@ const ModelEdit = ({ model }: { model?: Model }) => {
                 )}
               />
             </div>
-
-            <div className="flex items-center justify-end gap-x-2 border-t pt-4 mt-6">
-              <Button variant="secondary" onClick={handleClose} type="button">
-                {t("common.cancel")}
-              </Button>
-              <Button
-                variant="primary"
-                type="submit"
-                isLoading={updateMutation.isPending}
-              >
-                {t("common.save")}
-              </Button>
-            </div>
-          </form>
-        </Drawer.Body>
+          </Drawer.Body>
+          <Drawer.Footer>
+            <Button
+              variant="secondary"
+              onClick={() => setIsEdit(false)}
+              type="button"
+              disabled={updateMutation.isPending}
+            >
+              {t("common.cancel")}
+            </Button>
+            <Button
+              variant="primary"
+              type="submit"
+              isLoading={updateMutation.isPending}
+            >
+              {t("common.save")}
+            </Button>
+          </Drawer.Footer>
+        </form>
       </Drawer.Content>
     </Drawer>
   );
 };
 
-export default ModelEdit;
+export default ModelEditDrawer;

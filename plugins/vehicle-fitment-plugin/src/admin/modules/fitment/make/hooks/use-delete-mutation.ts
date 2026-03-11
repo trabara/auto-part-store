@@ -1,38 +1,39 @@
-import {
-    usePrompt
-} from "@medusajs/ui";
+import { usePrompt } from "@medusajs/ui";
+import { useTranslation } from "react-i18next";
 import { useDeleteMutation } from "../../../../hooks";
 import { Make } from "../../../../../modules/fitment/schema";
 import { deleteMake } from "../data";
 
 type UseMakeDeleteMutationReturn = [
-    (...makes: Make[]) => Promise<void>,
-    ReturnType<typeof useDeleteMutation>
+  (...makes: Make[]) => Promise<void>,
+  ReturnType<typeof useDeleteMutation>,
 ];
 
 export function useMakeDeleteMutation(): UseMakeDeleteMutationReturn {
-    const prompt = usePrompt();
+  const { t } = useTranslation();
+  const prompt = usePrompt();
 
-    const mutation = useDeleteMutation({
-        invalidateKeys: ["makes"],
-        successMessage: "Make deleted successfully",
-        errorMessage: "Failed to delete make",
-        deleteFn: deleteMake,
+  const mutation = useDeleteMutation({
+    invalidateKeys: ["makes"],
+    successMessage: t("make.toast.deleted"),
+    errorMessage: t("make.toast.deleteError"),
+    deleteFn: deleteMake,
+  });
+
+  const makeDeleteHandler = async (...makes: Make[]) => {
+    const confirmed = await prompt({
+      title: t("make.delete.title"),
+      description: t("make.delete.description", {
+        name: makes.map((m) => m.name).join(", "),
+      }),
+      confirmText: t("make.delete.confirm"),
+      cancelText: t("make.delete.cancel"),
     });
 
-    const makeDeleteHandler = async (...makes: Make[]) => {
-        const confirmed = await prompt({
-            title: "Delete Makes",
-            description: `Are you sure you want to delete the selected makes? This will also delete all associated models and fitments.`,
-            confirmText: "Delete",
-            cancelText: "Cancel",
-        });
-
-        if (confirmed) {
-            mutation.mutate(...makes.map((make) => make.id));
-        }
+    if (confirmed) {
+      mutation.mutate(...makes.map((make) => make.id));
     }
+  };
 
-
-    return [makeDeleteHandler, mutation];
-}   
+  return [makeDeleteHandler, mutation];
+}

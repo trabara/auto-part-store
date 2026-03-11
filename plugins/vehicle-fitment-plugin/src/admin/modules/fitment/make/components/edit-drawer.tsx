@@ -2,19 +2,19 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Button, Drawer, Heading, Hint, Input, Label } from "@medusajs/ui";
 import { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import {
   UpdateMakeInput,
   UpdateMakeInputSchema,
 } from "../../../../../modules/fitment/schema";
+import { useCrudContext } from "../../../../context/crud-context";
 import { useUpdateMutation } from "../../../../hooks/use-update-mutation";
 import { updateMake } from "../data";
 import { MakeWithModels } from "../types";
 
-const MakeEdit = ({ make }: { make?: MakeWithModels }) => {
+const MakeEditDrawer = () => {
   const { t } = useTranslation();
-  const navigate = useNavigate();
+  const { entity: make, isEdit, setIsEdit } = useCrudContext<MakeWithModels>();
 
   const form = useForm<UpdateMakeInput>({
     resolver: zodResolver(UpdateMakeInputSchema),
@@ -35,32 +35,29 @@ const MakeEdit = ({ make }: { make?: MakeWithModels }) => {
     updateFn: updateMake(make?.id),
   });
 
-  const handleClose = () => {
-    navigate(-1);
-  };
-
   const handleSubmit = form.handleSubmit((data) => {
     updateMutation.mutate(data);
+    setIsEdit(false);
   });
 
   return (
-    <Drawer open onOpenChange={handleClose}>
-      <Drawer.Content>
-        <Drawer.Header>
-          <Heading level="h2">{t("make.edit.title")}</Heading>
-          <p className="text-ui-fg-subtle text-sm mt-1">
-            {t("make.edit.subtitle")}
-          </p>
-        </Drawer.Header>
-        <Drawer.Body>
-          <form onSubmit={handleSubmit} className="flex flex-col h-full">
-            <div className="flex-1 space-y-6">
+    <Drawer open={isEdit} onOpenChange={setIsEdit}>
+      <Drawer.Content asChild>
+        <form onSubmit={handleSubmit} className="flex flex-col">
+          <Drawer.Header>
+            <Heading level="h2">{t("make.edit.title")}</Heading>
+            <p className="text-ui-fg-subtle text-sm mt-1">
+              {t("make.edit.subtitle")}
+            </p>
+          </Drawer.Header>
+          <Drawer.Body>
+            <div className="mt-4 flex flex-col gap-y-4">
               {/* Read-only ID */}
               <div className="space-y-2">
                 <Label htmlFor="id" className="text-ui-fg-subtle">
                   {t("make.field.id")}
                 </Label>
-                <Input id="id" value={make?.id} disabled />
+                <Input id="id" value={make?.id ?? ""} disabled />
               </div>
 
               {/* Editable Name */}
@@ -98,24 +95,28 @@ const MakeEdit = ({ make }: { make?: MakeWithModels }) => {
                 </div>
               )}
             </div>
-
-            <div className="flex items-center justify-end gap-x-2 border-t pt-4 mt-6">
-              <Button variant="secondary" onClick={handleClose} type="button">
-                {t("common.cancel")}
-              </Button>
-              <Button
-                variant="primary"
-                type="submit"
-                isLoading={updateMutation.isPending}
-              >
-                {t("common.save")}
-              </Button>
-            </div>
-          </form>
-        </Drawer.Body>
+          </Drawer.Body>
+          <Drawer.Footer>
+            <Button
+              variant="secondary"
+              onClick={() => setIsEdit(false)}
+              type="button"
+              disabled={updateMutation.isPending}
+            >
+              {t("common.cancel")}
+            </Button>
+            <Button
+              variant="primary"
+              type="submit"
+              isLoading={updateMutation.isPending}
+            >
+              {t("common.save")}
+            </Button>
+          </Drawer.Footer>
+        </form>
       </Drawer.Content>
     </Drawer>
   );
 };
 
-export default MakeEdit;
+export default MakeEditDrawer;

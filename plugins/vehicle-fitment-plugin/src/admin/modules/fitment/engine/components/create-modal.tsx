@@ -1,7 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button, FocusModal, Heading, Hint, Input, Label } from "@medusajs/ui";
 import { Controller, useForm } from "react-hook-form";
-import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import {
   ENGINE_FUEL_OPTIONS,
@@ -10,12 +9,13 @@ import {
 } from "../../../../../modules/fitment/constant";
 import { CreateEngineInputSchema } from "../../../../../modules/fitment/schema";
 import OptionSelect from "../../../../components/option-select";
+import { useCrudContext } from "../../../../context/crud-context";
 import { useCreateMutation } from "../../../../hooks/use-create-mutation";
 import { createEngine } from "../data";
 
-const EngineCreate = () => {
+const EngineCreateModal = () => {
   const { t } = useTranslation();
-  const navigate = useNavigate();
+  const { isCreate, setIsCreate } = useCrudContext();
 
   const form = useForm({
     resolver: zodResolver(CreateEngineInputSchema),
@@ -35,7 +35,7 @@ const EngineCreate = () => {
   });
 
   const handleClose = () => {
-    navigate(-1);
+    setIsCreate(false);
   };
 
   const handleSubmit = form.handleSubmit((data) => {
@@ -44,7 +44,7 @@ const EngineCreate = () => {
   });
 
   return (
-    <FocusModal open onOpenChange={handleClose}>
+    <FocusModal open={isCreate} onOpenChange={handleClose}>
       <FocusModal.Content>
         <form onSubmit={handleSubmit}>
           <FocusModal.Header>
@@ -167,4 +167,4 @@ const EngineCreate = () => {
   );
 };
 
-export default EngineCreate;
+export default EngineCreateModal;

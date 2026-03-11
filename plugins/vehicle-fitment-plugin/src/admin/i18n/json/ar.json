@@ -3,7 +3,6 @@
   "nav.makes": "الصانعين",
   "nav.models": "النماذج",
   "nav.engines": "المحركات",
-
   "common.actions": "الإجراءات",
   "common.create": "إنشاء",
   "common.cancel": "إلغاء",
@@ -18,7 +17,6 @@
   "common.selected": "{{count}} محدد",
   "common.createNew": "إنشاء خيار جديد",
   "common.selectExisting": "اختر خيارًا موجودًا",
-
   "fitment.page.title": "التوافقات",
   "fitment.page.subtitle": "إدارة توافقات المركبات والمنتجات المتوافقة",
   "fitment.create.title": "إنشاء توافق",
@@ -79,7 +77,6 @@
   "fitment.toast.unlinked": "تم إلغاء ربط المنتج بنجاح",
   "fitment.toast.unlinkError": "فشل في إلغاء ربط المنتج",
   "fitment.toast.errorOccurred": "حدث خطأ ما",
-
   "make.page.title": "الصانعين",
   "make.page.subtitle": "إدارة صانعي المركبات والمصنعين",
   "make.create.title": "إنشاء صانع",
@@ -103,7 +100,6 @@
   "make.toast.createError": "فشل في إنشاء الصانع. يرجى المحاولة مرة أخرى.",
   "make.toast.updated": "تم تحديث الصانع بنجاح.",
   "make.toast.updateError": "فشل في تحديث الصانع. يرجى المحاولة مرة أخرى.",
-
   "model.page.title": "النماذج",
   "model.page.subtitle": "إدارة نماذج المركبات حسب الصانع",
   "model.create.title": "إنشاء نموذج",
@@ -128,7 +124,6 @@
   "model.toast.createError": "فشل في إنشاء النموذج. يرجى المحاولة مرة أخرى.",
   "model.toast.updated": "تم تحديث النموذج بنجاح.",
   "model.toast.updateError": "فشل في تحديث النموذج. يرجى المحاولة مرة أخرى.",
-
   "engine.page.title": "المحركات",
   "engine.page.subtitle": "إدارة محركات المركبات والمواصفات",
   "engine.create.title": "إنشاء محرك",
@@ -163,7 +158,6 @@
   "engine.toast.updateError": "فشل في تحديث المحرك. يرجى المحاولة مرة أخرى.",
   "engine.toast.bulkDeleted": "تم حذف المحركات بنجاح",
   "engine.toast.bulkDeleteError": "فشل في حذف المحركات",
-
   "product.page.title": "المنتجات",
   "product.column.title": "العنوان",
   "product.column.subtitle": "العنوان الفرعي",
@@ -176,7 +170,24 @@
   "product.column.notLinked": "غير مرتبط",
   "product.bulk.linkTooltip": "ربط المنتجات المحددة بالتوافق",
   "product.bulk.unlinkTooltip": "فك ارتباط المنتجات المحددة من التوافق",
-
   "widget.fitments.title": "التوافقات",
-  "widget.fitments.link": "ربط"
+  "widget.fitments.link": "ربط",
+  "make.delete.title": "حذف الصانع",
+  "make.delete.description": "هل أنت متأكد أنك تريد حذف \"{{name}}\"؟ سيؤدي هذا أيضًا إلى حذف جميع النماذج والتوافقات المرتبطة.",
+  "make.delete.confirm": "حذف",
+  "make.delete.cancel": "إلغاء",
+  "make.toast.deleted": "تم حذف الصانع بنجاح",
+  "make.toast.deleteError": "فشل في حذف الصانع",
+  "model.delete.title": "حذف النموذج",
+  "model.delete.description": "هل أنت متأكد أنك تريد حذف \"{{name}}\"؟ سيؤدي هذا أيضًا إلى حذف جميع التوافقات المرتبطة.",
+  "model.delete.confirm": "حذف",
+  "model.delete.cancel": "إلغاء",
+  "model.toast.deleted": "تم حذف النموذج بنجاح",
+  "model.toast.deleteError": "فشل في حذف النموذج",
+  "engine.delete.title": "حذف المحرك",
+  "engine.delete.description": "هل أنت متأكد أنك تريد حذف مواصفات هذا المحرك؟ سيؤدي هذا أيضًا إلى حذف جميع التوافقات المرتبطة.",
+  "engine.delete.confirm": "حذف",
+  "engine.delete.cancel": "إلغاء",
+  "engine.toast.deleted": "تم حذف المحرك بنجاح",
+  "engine.toast.deleteError": "فشل في حذف المحرك"
 }

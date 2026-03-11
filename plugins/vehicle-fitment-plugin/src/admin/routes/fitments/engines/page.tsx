@@ -1,8 +1,17 @@
 import { defineRouteConfig } from "@medusajs/admin-sdk";
-import EngineList from "../../../modules/fitment/engine/components/data-table";
+import { CrudProvider } from "../../../components/crud-provider";
+import EngineCreateModal from "../../../modules/fitment/engine/components/create-modal";
+import EngineDataTable from "../../../modules/fitment/engine/components/data-table";
+import EngineEditDrawer from "../../../modules/fitment/engine/components/edit-drawer";
 
 const EnginesPage = () => {
-  return <EngineList />;
+  return (
+    <CrudProvider entityName="engine">
+      <EngineDataTable />
+      <EngineEditDrawer />
+      <EngineCreateModal />
+    </CrudProvider>
+  );
 };
 
 export const config = defineRouteConfig({

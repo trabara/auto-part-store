@@ -11,10 +11,10 @@ import {
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { CellContext } from "@tanstack/react-table";
 import { Link, Unlink } from "lucide-react";
-import { Fragment } from "react/jsx-runtime";
 import { TFunction } from "i18next";
 import { sdk } from "../../../../lib/sdk";
 import { AdminFitmentWithProducts } from "../types";
+
 const columnHelper = createDataTableColumnHelper<AdminFitmentWithProducts>();
 
 type CreateFitmentColumns = {
@@ -26,11 +26,187 @@ type CreateFitmentColumns = {
   t?: TFunction;
 };
 
-type Action = (context: CellContext<AdminFitmentWithProducts, unknown>) => {
-  label: string;
-  icon?: React.ElementType;
-  onClick: (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
+// ─── Proper React cell components (hooks used at top level) ──────────────────
+
+type LinkActionCellProps = {
+  context: CellContext<AdminFitmentWithProducts, unknown>;
+  productId: string;
+  onUnlink?: (fitment: AdminFitmentWithProducts) => void;
+  onLink?: (fitment: AdminFitmentWithProducts) => void;
+  tr: (key: string, opts?: Record<string, unknown>) => string;
 };
+
+function LinkActionCell({
+  context,
+  productId,
+  onUnlink,
+  onLink,
+  tr,
+}: LinkActionCellProps) {
+  const queryClient = useQueryClient();
+  const fitment = context.row.original;
+  const isLinked = fitment.products.some((p) => p.id === productId);
+
+  const linkUnlinkMutation = useMutation({
+    mutationFn: async () => {
+      if (isLinked) {
+        return sdk.client.fetch(
+          `/admin/fitments/${fitment.id}/products/${productId}`,
+          { method: "DELETE" },
+        );
+      } else {
+        return sdk.client.fetch(`/admin/fitments/${fitment.id}/products`, {
+          method: "POST",
+          body: { product_ids: [productId] },
+        });
+      }
+    },
+    onSuccess: () => {
+      if (isLinked) {
+        toast.success(tr("fitment.toast.unlinked"));
+        onUnlink?.(fitment);
+      } else {
+        toast.success(tr("fitment.toast.linked"));
+        onLink?.(fitment);
+      }
+      queryClient.invalidateQueries({ queryKey: ["fitments"] });
+      queryClient.invalidateQueries({
+        queryKey: ["products", { id: productId }],
+      });
+    },
+    onError: (error: any) => {
+      if (isLinked) {
+        toast.error(tr("fitment.toast.unlinkError"), {
+          description: error.message || tr("fitment.toast.errorOccurred"),
+        });
+      } else {
+        toast.error(tr("fitment.toast.linkError"), {
+          description: error.message || tr("fitment.toast.errorOccurred"),
+        });
+      }
+    },
+  });
+
+  return (
+    <DropdownMenu.Item
+      className="gap-x-2"
+      onClick={(e) => {
+        e.stopPropagation();
+        linkUnlinkMutation.mutate();
+      }}
+    >
+      {isLinked ? <Unlink className="size-4" /> : <Link className="size-4" />}
+      {isLinked ? tr("common.unlink") : tr("common.link")}
+    </DropdownMenu.Item>
+  );
+}
+
+type DeleteActionCellProps = {
+  context: CellContext<AdminFitmentWithProducts, unknown>;
+  onDelete: (fitment: AdminFitmentWithProducts) => void;
+  tr: (key: string, opts?: Record<string, unknown>) => string;
+};
+
+function DeleteActionCell({ context, onDelete, tr }: DeleteActionCellProps) {
+  const prompt = usePrompt();
+
+  const handleDelete = async (
+    e: React.MouseEvent<HTMLDivElement, MouseEvent>,
+  ) => {
+    e.stopPropagation();
+
+    const confirmed = await prompt({
+      title: tr("fitment.delete.title"),
+      description: tr("fitment.delete.description", {
+        make: context.row.original.model.make.name,
+        model: context.row.original.model.name,
+        yearStart: context.row.original.year_start,
+        yearEnd: context.row.original.year_end,
+      }),
+      confirmText: tr("fitment.delete.confirm"),
+      cancelText: tr("fitment.delete.cancel"),
+      variant: "danger",
+      verificationText: "DELETE",
+    });
+
+    if (confirmed) {
+      onDelete(context.row.original);
+    }
+  };
+
+  return (
+    <DropdownMenu.Item className="gap-x-2" onClick={handleDelete}>
+      <Trash className="size-4" />
+      {tr("common.delete")}
+    </DropdownMenu.Item>
+  );
+}
+
+// ─── Actions cell renderer ────────────────────────────────────────────────────
+
+type ActionsCellProps = {
+  context: CellContext<AdminFitmentWithProducts, unknown>;
+  productId?: string;
+  onEdit?: (fitment: AdminFitmentWithProducts) => void;
+  onDelete?: (fitment: AdminFitmentWithProducts) => void;
+  onUnlink?: (fitment: AdminFitmentWithProducts) => void;
+  onLink?: (fitment: AdminFitmentWithProducts) => void;
+  tr: (key: string, opts?: Record<string, unknown>) => string;
+};
+
+function ActionsCell({
+  context,
+  productId,
+  onEdit,
+  onDelete,
+  onUnlink,
+  onLink,
+  tr,
+}: ActionsCellProps) {
+  const hasLink = !!productId;
+  const hasSeparatorBeforeLink = !!onEdit && hasLink;
+  const hasSeparatorBeforeDelete = !!onDelete && (!!onEdit || hasLink);
+
+  return (
+    <DropdownMenu>
+      <DropdownMenu.Trigger asChild className="p-2">
+        <Button variant="transparent" size="small">
+          <EllipsisHorizontal />
+        </Button>
+      </DropdownMenu.Trigger>
+      <DropdownMenu.Content>
+        {onEdit && (
+          <DropdownMenu.Item
+            className="gap-x-2"
+            onClick={(e) => {
+              e.stopPropagation();
+              onEdit(context.row.original);
+            }}
+          >
+            <Pencil className="size-4" />
+            {tr("common.edit")}
+          </DropdownMenu.Item>
+        )}
+        {hasSeparatorBeforeLink && <DropdownMenu.Separator />}
+        {hasLink && (
+          <LinkActionCell
+            context={context}
+            productId={productId!}
+            onUnlink={onUnlink}
+            onLink={onLink}
+            tr={tr}
+          />
+        )}
+        {hasSeparatorBeforeDelete && <DropdownMenu.Separator />}
+        {onDelete && (
+          <DeleteActionCell context={context} onDelete={onDelete} tr={tr} />
+        )}
+      </DropdownMenu.Content>
+    </DropdownMenu>
+  );
+}
+
+// ─── Column factory ───────────────────────────────────────────────────────────
 
 export const createFitmentColumns = ({
   productId,
@@ -42,6 +218,7 @@ export const createFitmentColumns = ({
 }: CreateFitmentColumns = {}) => {
   const tr = (key: string, options?: Record<string, unknown>) =>
     (t ? t(key, options as any) : key) as string;
+
   const baseColumns: any[] = [
     columnHelper.display({
       id: "select",
@@ -139,18 +316,6 @@ export const createFitmentColumns = ({
     }),
   ];
 
-  const actions: Action[] = [];
-  if (onEdit) {
-    actions.push((context) => ({
-      label: tr("common.edit"),
-      icon: Pencil,
-      onClick: (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
-        e.stopPropagation();
-        onEdit?.(context.row.original);
-      },
-    }));
-  }
-
   if (productId) {
     baseColumns.push(
       columnHelper.display({
@@ -169,134 +334,25 @@ export const createFitmentColumns = ({
         },
       }),
     );
-
-    actions.push((context) => {
-      const queryClient = useQueryClient();
-
-      const fitment = context.row.original;
-      const isLinked = fitment.products.some((p) => p.id === productId);
-
-      const linkUnlinkMutation = useMutation({
-        mutationFn: async () => {
-          if (isLinked) {
-            return sdk.client.fetch(
-              `/admin/fitments/${fitment.id}/products/${productId}`,
-              { method: "DELETE" },
-            );
-          } else {
-            return sdk.client.fetch(`/admin/fitments/${fitment.id}/products`, {
-              method: "POST",
-              body: { product_ids: [productId] },
-            });
-          }
-        },
-        onSuccess: () => {
-          if (isLinked) {
-            toast.success(tr("fitment.toast.unlinked"));
-            onUnlink?.(context.row.original);
-          } else {
-            toast.success(tr("fitment.toast.linked"));
-            onLink?.(context.row.original);
-          }
-          queryClient.invalidateQueries({
-            queryKey: ["fitments"],
-          });
-          queryClient.invalidateQueries({
-            queryKey: ["products", { id: productId }],
-          });
-        },
-        onError: (error: any) => {
-          if (isLinked) {
-            toast.error(tr("fitment.toast.unlinkError"), {
-              description: error.message || tr("fitment.toast.errorOccurred"),
-            });
-          } else {
-            toast.error(tr("fitment.toast.linkError"), {
-              description: error.message || tr("fitment.toast.errorOccurred"),
-            });
-          }
-        },
-      });
-
-      return {
-        label: isLinked ? tr("common.unlink") : tr("common.link"),
-        icon: isLinked ? Unlink : Link,
-        onClick: (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
-          e.stopPropagation();
-          linkUnlinkMutation.mutate();
-        },
-      };
-    });
   }
 
-  if (onDelete) {
-    actions.push((context) => {
-      const prompt = usePrompt();
-
-      const handleDelete = async (
-        e: React.MouseEvent<HTMLDivElement, MouseEvent>,
-      ) => {
-        e.stopPropagation();
-
-        const confirmed = await prompt({
-          title: tr("fitment.delete.title"),
-          description: tr("fitment.delete.description", {
-            make: context.row.original.model.make.name,
-            model: context.row.original.model.name,
-            yearStart: context.row.original.year_start,
-            yearEnd: context.row.original.year_end,
-          }),
-          confirmText: tr("fitment.delete.confirm"),
-          cancelText: tr("fitment.delete.cancel"),
-          variant: "danger",
-          verificationText: "DELETE",
-        });
-
-        if (confirmed) {
-          onDelete?.(context.row.original);
-        }
-      };
-
-      return {
-        label: tr("common.delete"),
-        icon: Trash,
-        onClick: handleDelete,
-      };
-    });
-  }
-
-  const actionsColumn = columnHelper.display({
-    id: "actions",
-    header: tr("common.actions"),
-    cell: (context) => {
-      const actionItems = actions.map((getAction) => getAction(context));
-
-      return (
-        <DropdownMenu>
-          <DropdownMenu.Trigger asChild className="p-2">
-            <Button variant="transparent" size="small">
-              <EllipsisHorizontal />
-            </Button>
-          </DropdownMenu.Trigger>
-          <DropdownMenu.Content>
-            {actionItems.map((action, index) => (
-              <Fragment key={index}>
-                <DropdownMenu.Item onClick={action.onClick}>
-                  {action.icon && <action.icon className="size-4 me-2" />}
-                  {action.label}
-                </DropdownMenu.Item>
-                {actionItems.length - 1 > index && (
-                  <DropdownMenu.Separator key={`${index}-separator`} />
-                )}
-              </Fragment>
-            ))}
-          </DropdownMenu.Content>
-        </DropdownMenu>
-      );
-    },
-  });
-
-  baseColumns.push(actionsColumn);
+  baseColumns.push(
+    columnHelper.display({
+      id: "actions",
+      header: tr("common.actions"),
+      cell: (context) => (
+        <ActionsCell
+          context={context}
+          productId={productId}
+          onEdit={onEdit}
+          onDelete={onDelete}
+          onUnlink={onUnlink}
+          onLink={onLink}
+          tr={tr}
+        />
+      ),
+    }),
+  );
 
   return baseColumns;
 };

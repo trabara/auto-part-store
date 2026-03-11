@@ -4,8 +4,8 @@ type CrudContextType<TData> = {
     entity: TData | null,
     entityName: string,
     edit: (entity: TData) => void
-    isEdit?: boolean,
-    isCreate?: boolean,
+    isEdit: boolean,
+    isCreate: boolean,
     setIsEdit: (state: boolean) => void,
     setIsCreate: (state: boolean) => void
 }
@@ -13,6 +13,8 @@ type CrudContextType<TData> = {
 export const CrudContext = createContext<CrudContextType<any>>({
     entity: null,
     entityName: "",
+    isEdit: false,
+    isCreate: false,
     edit: () => { },
     setIsEdit: () => { },
     setIsCreate: () => { }

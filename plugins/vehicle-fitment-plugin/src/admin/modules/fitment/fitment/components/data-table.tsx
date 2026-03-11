@@ -7,7 +7,7 @@ import {
 } from "@medusajs/ui";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useCrudContext } from "../../../../context/crud-context";
 import { useDeleteMutation, usePaginatedQuery } from "../../../../hooks";
 import { deleteFitment, listFitments } from "../data";
@@ -19,7 +19,7 @@ import filters from "./data-table-filters";
 const FitmentDataTable = ({ productId }: { productId?: string }) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { edit } = useCrudContext<AdminFitmentWithProducts>();
+  const { edit, setIsCreate } = useCrudContext<AdminFitmentWithProducts>();
 
   // Use paginated query hook
   const queryConfig = usePaginatedQuery({
@@ -73,8 +73,8 @@ const FitmentDataTable = ({ productId }: { productId?: string }) => {
             </p>
           </div>
 
-          <Button variant="secondary" size="small" asChild>
-            <Link to="/fitments/create">{t("common.create")}</Link>
+          <Button variant="secondary" size="small" onClick={() => setIsCreate(true)}>
+            {t("common.create")}
           </Button>
         </DataTable.Toolbar>
 

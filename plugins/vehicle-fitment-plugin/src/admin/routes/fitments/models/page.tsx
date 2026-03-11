@@ -1,8 +1,17 @@
 import { defineRouteConfig } from "@medusajs/admin-sdk";
-import ModelList from "../../../modules/fitment/model/components/data-table";
+import { CrudProvider } from "../../../components/crud-provider";
+import ModelCreateModal from "../../../modules/fitment/model/components/create-modal";
+import ModelDataTable from "../../../modules/fitment/model/components/data-table";
+import ModelEditDrawer from "../../../modules/fitment/model/components/edit-drawer";
 
 const ModelsPage = () => {
-  return <ModelList />;
+  return (
+    <CrudProvider entityName="model">
+      <ModelDataTable />
+      <ModelEditDrawer />
+      <ModelCreateModal />
+    </CrudProvider>
+  );
 };
 
 export const config = defineRouteConfig({

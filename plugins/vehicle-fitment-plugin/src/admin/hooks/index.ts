@@ -10,3 +10,15 @@ export type {
   DeleteMutationConfig,
   UseDeleteMutationReturn,
 } from "./use-delete-mutation";
+
+export { useCreateMutation } from "./use-create-mutation";
+export type {
+  CreateMutationConfig,
+  UseCreateMutationReturn,
+} from "./use-create-mutation";
+
+export { useUpdateMutation } from "./use-update-mutation";
+export type {
+  UpdateMutationConfig,
+  UseUpdateMutationReturn,
+} from "./use-update-mutation";

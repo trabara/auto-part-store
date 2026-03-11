@@ -3,7 +3,6 @@
   "nav.makes": "Marques",
   "nav.models": "Modèles",
   "nav.engines": "Moteurs",
-
   "common.actions": "Actions",
   "common.create": "Créer",
   "common.cancel": "Annuler",
@@ -18,7 +17,6 @@
   "common.selected": "{{count}} sélectionné(s)",
   "common.createNew": "Créer une nouvelle option",
   "common.selectExisting": "Sélectionner une option existante",
-
   "fitment.page.title": "Correspondances",
   "fitment.page.subtitle": "Gérer les correspondances de véhicules et les produits compatibles",
   "fitment.create.title": "Créer une correspondance",
@@ -79,7 +77,6 @@
   "fitment.toast.unlinked": "Produit délié avec succès",
   "fitment.toast.unlinkError": "Échec de la liaison du produit",
   "fitment.toast.errorOccurred": "Une erreur s'est produite",
-
   "make.page.title": "Marques",
   "make.page.subtitle": "Gérer les marques et constructeurs automobiles",
   "make.create.title": "Créer une marque",
@@ -103,7 +100,6 @@
   "make.toast.createError": "Échec de la création de la marque. Veuillez réessayer.",
   "make.toast.updated": "Marque mise à jour avec succès.",
   "make.toast.updateError": "Échec de la mise à jour de la marque. Veuillez réessayer.",
-
   "model.page.title": "Modèles",
   "model.page.subtitle": "Gérer les modèles de véhicules par fabricant",
   "model.create.title": "Créer un modèle",
@@ -128,7 +124,6 @@
   "model.toast.createError": "Échec de la création du modèle. Veuillez réessayer.",
   "model.toast.updated": "Modèle mis à jour avec succès",
   "model.toast.updateError": "Échec de la mise à jour du modèle",
-
   "engine.page.title": "Moteurs",
   "engine.page.subtitle": "Gérer les moteurs et spécifications de véhicules",
   "engine.create.title": "Créer un moteur",
@@ -163,7 +158,6 @@
   "engine.toast.updateError": "Échec de la mise à jour du moteur. Veuillez réessayer.",
   "engine.toast.bulkDeleted": "Moteurs supprimés avec succès",
   "engine.toast.bulkDeleteError": "Échec de la suppression des moteurs",
-
   "product.page.title": "Produits",
   "product.column.title": "Titre",
   "product.column.subtitle": "Sous-titre",
@@ -176,7 +170,24 @@
   "product.column.notLinked": "Non lié",
   "product.bulk.linkTooltip": "Lier les produits sélectionnés à la correspondance",
   "product.bulk.unlinkTooltip": "Délier les produits sélectionnés de la correspondance",
-
   "widget.fitments.title": "Correspondances",
-  "widget.fitments.link": "Lier"
+  "widget.fitments.link": "Lier",
+  "make.delete.title": "Supprimer la marque",
+  "make.delete.description": "Êtes-vous sûr de vouloir supprimer \"{{name}}\" ? Cela supprimera également tous les modèles et correspondances associés.",
+  "make.delete.confirm": "Supprimer",
+  "make.delete.cancel": "Annuler",
+  "make.toast.deleted": "Marque supprimée avec succès",
+  "make.toast.deleteError": "Échec de la suppression de la marque",
+  "model.delete.title": "Supprimer le modèle",
+  "model.delete.description": "Êtes-vous sûr de vouloir supprimer \"{{name}}\" ? Cela supprimera également toutes les correspondances associées.",
+  "model.delete.confirm": "Supprimer",
+  "model.delete.cancel": "Annuler",
+  "model.toast.deleted": "Modèle supprimé avec succès",
+  "model.toast.deleteError": "Échec de la suppression du modèle",
+  "engine.delete.title": "Supprimer le moteur",
+  "engine.delete.description": "Êtes-vous sûr de vouloir supprimer cette spécification de moteur ? Cela supprimera également toutes les correspondances associées.",
+  "engine.delete.confirm": "Supprimer",
+  "engine.delete.cancel": "Annuler",
+  "engine.toast.deleted": "Moteur supprimé avec succès",
+  "engine.toast.deleteError": "Échec de la suppression du moteur"
 }

@@ -1,8 +1,8 @@
 import { defineRouteConfig } from "@medusajs/admin-sdk";
 import { LoaderFunctionArgs, useLoaderData } from "react-router";
-import EngineEditDrawer from "../../../../../modules/fitment/engine/components/edit-drawer";
-import { sdk } from "../../../../../lib/sdk";
 import { Engine } from "../../../../../../modules/fitment/schema";
+import { sdk } from "../../../../../lib/sdk";
+import EngineEditDrawer from "../../../../../modules/fitment/engine/components/edit-drawer";
 
 const EditEnginePage = () => {
   const { engine } = useLoaderData() as { engine: Engine };

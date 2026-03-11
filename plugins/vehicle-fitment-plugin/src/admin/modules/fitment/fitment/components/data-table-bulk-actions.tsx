@@ -96,7 +96,7 @@ export function FitmentBulkActionsToolbar({
       <DataTableBulkActionsToolbar table={table} entityName="fitment">
         <Tooltip content={t("fitment.bulkDelete.tooltip")}>
           <IconButton
-            className="rounded-none"
+            className="rounded-none text-ui-fg-error hover:bg-ui-error/10 data-[state=active]:bg-ui-error/20"
             size="large"
             variant="transparent"
             onClick={handleBulkDelete}

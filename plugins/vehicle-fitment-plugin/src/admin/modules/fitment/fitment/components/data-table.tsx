@@ -14,7 +14,7 @@ import { deleteFitment, listFitments } from "../data";
 import { AdminFitmentWithProducts } from "../types";
 import { FitmentBulkActionsToolbar } from "./data-table-bulk-actions";
 import { createFitmentColumns } from "./data-table-columns";
-import filters from "./data-table-filters";
+import { createFitmentFilters } from "./data-table-filters";
 
 const FitmentDataTable = ({ productId }: { productId?: string }) => {
   const { t } = useTranslation();
@@ -42,7 +42,7 @@ const FitmentDataTable = ({ productId }: { productId?: string }) => {
   // Create columns with handlers
   const columns = useMemo(
     () =>
-      createFitmentColumns({
+      createFitmentColumns(t, {
         productId,
         onLink: () =>
           productId ? navigate(`/products/${productId}`) : undefined,
@@ -50,10 +50,11 @@ const FitmentDataTable = ({ productId }: { productId?: string }) => {
           productId ? navigate(`/products/${productId}`) : undefined,
         onEdit: (fitment) => edit(fitment),
         onDelete: (fitment) => deleteMutation.mutate(fitment.id),
-        t,
       }),
     [productId, navigate, deleteMutation, edit, t],
   );
+
+  const filters = useMemo(() => createFitmentFilters(t), [t]);
 
   const table = useDataTable({
     ...queryConfig,

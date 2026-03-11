@@ -74,8 +74,8 @@ export function EngineBulkActionsToolbar({
     <DataTableBulkActionsToolbar table={table} entityName="engine">
       <Tooltip content={t("engine.bulkDelete.tooltip")}>
         <IconButton
-          className="rounded-none"
           size="large"
+          className="rounded-none text-ui-fg-error hover:bg-ui-error/10 data-[state=active]:bg-ui-error/20"
           variant="transparent"
           onClick={handleBulkDelete}
           disabled={bulkDeleteMutation.isPending}

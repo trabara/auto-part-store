@@ -30,7 +30,7 @@ export function ModelBulkActionsToolbar({
       <Tooltip content={t("model.bulkDelete.tooltip")}>
         <IconButton
           size="large"
-          className="rounded-none text-red-600"
+          className="rounded-none text-ui-fg-error hover:bg-ui-error/10 data-[state=active]:bg-ui-error/20"
           variant="transparent"
           onClick={handleBulkDelete}
           disabled={bulkDeleteMutation.isPending}

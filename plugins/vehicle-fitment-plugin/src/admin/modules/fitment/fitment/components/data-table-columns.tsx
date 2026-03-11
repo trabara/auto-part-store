@@ -10,8 +10,9 @@ import {
 } from "@medusajs/ui";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { CellContext } from "@tanstack/react-table";
-import { Link, Unlink } from "lucide-react";
 import { TFunction } from "i18next";
+import { Link, Unlink } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { sdk } from "../../../../lib/sdk";
 import { AdminFitmentWithProducts } from "../types";
 
@@ -33,16 +34,16 @@ type LinkActionCellProps = {
   productId: string;
   onUnlink?: (fitment: AdminFitmentWithProducts) => void;
   onLink?: (fitment: AdminFitmentWithProducts) => void;
-  tr: (key: string, opts?: Record<string, unknown>) => string;
 };
+
 
 function LinkActionCell({
   context,
   productId,
   onUnlink,
   onLink,
-  tr,
 }: LinkActionCellProps) {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const fitment = context.row.original;
   const isLinked = fitment.products.some((p) => p.id === productId);
@@ -63,10 +64,10 @@ function LinkActionCell({
     },
     onSuccess: () => {
       if (isLinked) {
-        toast.success(tr("fitment.toast.unlinked"));
+        toast.success(t("fitment.toast.unlinked"));
         onUnlink?.(fitment);
       } else {
-        toast.success(tr("fitment.toast.linked"));
+        toast.success(t("fitment.toast.linked"));
         onLink?.(fitment);
       }
       queryClient.invalidateQueries({ queryKey: ["fitments"] });
@@ -76,12 +77,12 @@ function LinkActionCell({
     },
     onError: (error: any) => {
       if (isLinked) {
-        toast.error(tr("fitment.toast.unlinkError"), {
-          description: error.message || tr("fitment.toast.errorOccurred"),
+        toast.error(t("fitment.toast.unlinkError"), {
+          description: error.message || t("fitment.toast.errorOccurred"),
         });
       } else {
-        toast.error(tr("fitment.toast.linkError"), {
-          description: error.message || tr("fitment.toast.errorOccurred"),
+        toast.error(t("fitment.toast.linkError"), {
+          description: error.message || t("fitment.toast.errorOccurred"),
         });
       }
     },
@@ -96,7 +97,7 @@ function LinkActionCell({
       }}
     >
       {isLinked ? <Unlink className="size-4" /> : <Link className="size-4" />}
-      {isLinked ? tr("common.unlink") : tr("common.link")}
+      {isLinked ? t("common.unlink") : t("common.link")}
     </DropdownMenu.Item>
   );
 }
@@ -104,11 +105,11 @@ function LinkActionCell({
 type DeleteActionCellProps = {
   context: CellContext<AdminFitmentWithProducts, unknown>;
   onDelete: (fitment: AdminFitmentWithProducts) => void;
-  tr: (key: string, opts?: Record<string, unknown>) => string;
 };
 
-function DeleteActionCell({ context, onDelete, tr }: DeleteActionCellProps) {
+function DeleteActionCell({ context, onDelete }: DeleteActionCellProps) {
   const prompt = usePrompt();
+  const { t } = useTranslation();
 
   const handleDelete = async (
     e: React.MouseEvent<HTMLDivElement, MouseEvent>,
@@ -116,15 +117,15 @@ function DeleteActionCell({ context, onDelete, tr }: DeleteActionCellProps) {
     e.stopPropagation();
 
     const confirmed = await prompt({
-      title: tr("fitment.delete.title"),
-      description: tr("fitment.delete.description", {
+      title: t("fitment.delete.title"),
+      description: t("fitment.delete.description", {
         make: context.row.original.model.make.name,
         model: context.row.original.model.name,
         yearStart: context.row.original.year_start,
         yearEnd: context.row.original.year_end,
       }),
-      confirmText: tr("fitment.delete.confirm"),
-      cancelText: tr("fitment.delete.cancel"),
+      confirmText: t("fitment.delete.confirm"),
+      cancelText: t("fitment.delete.cancel"),
       variant: "danger",
       verificationText: "DELETE",
     });
@@ -137,7 +138,7 @@ function DeleteActionCell({ context, onDelete, tr }: DeleteActionCellProps) {
   return (
     <DropdownMenu.Item className="gap-x-2" onClick={handleDelete}>
       <Trash className="size-4" />
-      {tr("common.delete")}
+      {t("common.delete")}
     </DropdownMenu.Item>
   );
 }
@@ -151,7 +152,6 @@ type ActionsCellProps = {
   onDelete?: (fitment: AdminFitmentWithProducts) => void;
   onUnlink?: (fitment: AdminFitmentWithProducts) => void;
   onLink?: (fitment: AdminFitmentWithProducts) => void;
-  tr: (key: string, opts?: Record<string, unknown>) => string;
 };
 
 function ActionsCell({
@@ -161,12 +161,11 @@ function ActionsCell({
   onDelete,
   onUnlink,
   onLink,
-  tr,
 }: ActionsCellProps) {
   const hasLink = !!productId;
   const hasSeparatorBeforeLink = !!onEdit && hasLink;
   const hasSeparatorBeforeDelete = !!onDelete && (!!onEdit || hasLink);
-
+  const { t } = useTranslation();
   return (
     <DropdownMenu>
       <DropdownMenu.Trigger asChild className="p-2">
@@ -184,7 +183,7 @@ function ActionsCell({
             }}
           >
             <Pencil className="size-4" />
-            {tr("common.edit")}
+            {t("common.edit")}
           </DropdownMenu.Item>
         )}
         {hasSeparatorBeforeLink && <DropdownMenu.Separator />}
@@ -194,12 +193,12 @@ function ActionsCell({
             productId={productId!}
             onUnlink={onUnlink}
             onLink={onLink}
-            tr={tr}
           />
         )}
         {hasSeparatorBeforeDelete && <DropdownMenu.Separator />}
         {onDelete && (
-          <DeleteActionCell context={context} onDelete={onDelete} tr={tr} />
+          <DeleteActionCell context={context} onDelete={onDelete} />
+
         )}
       </DropdownMenu.Content>
     </DropdownMenu>
@@ -208,16 +207,13 @@ function ActionsCell({
 
 // ─── Column factory ───────────────────────────────────────────────────────────
 
-export const createFitmentColumns = ({
+export const createFitmentColumns = (t: TFunction, {
   productId,
   onEdit,
   onDelete,
   onUnlink,
   onLink,
-  t,
 }: CreateFitmentColumns = {}) => {
-  const tr = (key: string, options?: Record<string, unknown>) =>
-    (t ? t(key, options as any) : key) as string;
 
   const baseColumns: any[] = [
     columnHelper.display({
@@ -241,78 +237,78 @@ export const createFitmentColumns = ({
     }),
 
     columnHelper.accessor("model.make.name", {
-      header: tr("fitment.column.make"),
+      header: t("fitment.column.make"),
       enableSorting: true,
-      sortLabel: tr("fitment.column.make"),
-      sortAscLabel: tr("fitment.sort.az"),
-      sortDescLabel: tr("fitment.sort.za"),
+      sortLabel: t("fitment.column.make"),
+      sortAscLabel: t("fitment.sort.az"),
+      sortDescLabel: t("fitment.sort.za"),
     }),
     columnHelper.accessor("model.name", {
-      header: tr("fitment.column.model"),
+      header: t("fitment.column.model"),
       enableSorting: true,
-      sortLabel: tr("fitment.column.model"),
-      sortAscLabel: tr("fitment.sort.az"),
-      sortDescLabel: tr("fitment.sort.za"),
+      sortLabel: t("fitment.column.model"),
+      sortAscLabel: t("fitment.sort.az"),
+      sortDescLabel: t("fitment.sort.za"),
     }),
     columnHelper.accessor("engine.size", {
-      header: tr("fitment.column.engineSize"),
+      header: t("fitment.column.engineSize"),
       enableSorting: true,
-      sortLabel: tr("fitment.column.engineSize"),
-      sortAscLabel: tr("fitment.sort.smallestLargest"),
-      sortDescLabel: tr("fitment.sort.largestSmallest"),
+      sortLabel: t("fitment.column.engineSize"),
+      sortAscLabel: t("fitment.sort.smallestLargest"),
+      sortDescLabel: t("fitment.sort.largestSmallest"),
     }),
     columnHelper.accessor("engine.fuel", {
-      header: tr("fitment.column.fuelType"),
+      header: t("fitment.column.fuelType"),
       enableSorting: true,
-      sortLabel: tr("fitment.column.fuelType"),
-      sortAscLabel: tr("fitment.sort.az"),
-      sortDescLabel: tr("fitment.sort.za"),
+      sortLabel: t("fitment.column.fuelType"),
+      sortAscLabel: t("fitment.sort.az"),
+      sortDescLabel: t("fitment.sort.za"),
     }),
     columnHelper.accessor("doors", {
-      header: tr("fitment.column.doors"),
+      header: t("fitment.column.doors"),
       enableSorting: true,
-      sortLabel: tr("fitment.column.doors"),
-      sortAscLabel: tr("fitment.sort.fewestMost"),
-      sortDescLabel: tr("fitment.sort.mostFewest"),
+      sortLabel: t("fitment.column.doors"),
+      sortAscLabel: t("fitment.sort.fewestMost"),
+      sortDescLabel: t("fitment.sort.mostFewest"),
     }),
     columnHelper.accessor("body_style", {
-      header: tr("fitment.column.bodyStyle"),
+      header: t("fitment.column.bodyStyle"),
       enableSorting: true,
-      sortLabel: tr("fitment.column.bodyStyle"),
-      sortAscLabel: tr("fitment.sort.az"),
-      sortDescLabel: tr("fitment.sort.za"),
+      sortLabel: t("fitment.column.bodyStyle"),
+      sortAscLabel: t("fitment.sort.az"),
+      sortDescLabel: t("fitment.sort.za"),
     }),
     columnHelper.accessor("drive", {
-      header: tr("fitment.column.driveType"),
+      header: t("fitment.column.driveType"),
       enableSorting: true,
-      sortLabel: tr("fitment.column.driveType"),
-      sortAscLabel: tr("fitment.sort.az"),
-      sortDescLabel: tr("fitment.sort.za"),
+      sortLabel: t("fitment.column.driveType"),
+      sortAscLabel: t("fitment.sort.az"),
+      sortDescLabel: t("fitment.sort.za"),
     }),
     columnHelper.accessor("transmission", {
-      header: tr("fitment.column.transmission"),
+      header: t("fitment.column.transmission"),
       enableSorting: true,
-      sortLabel: tr("fitment.column.transmission"),
-      sortAscLabel: tr("fitment.sort.az"),
-      sortDescLabel: tr("fitment.sort.za"),
+      sortLabel: t("fitment.column.transmission"),
+      sortAscLabel: t("fitment.sort.az"),
+      sortDescLabel: t("fitment.sort.za"),
     }),
     columnHelper.accessor("year_start", {
-      header: tr("fitment.column.yearStart"),
+      header: t("fitment.column.yearStart"),
       enableSorting: true,
-      sortLabel: tr("fitment.column.yearStart"),
-      sortAscLabel: tr("fitment.sort.oldestNewest"),
-      sortDescLabel: tr("fitment.sort.newestOldest"),
+      sortLabel: t("fitment.column.yearStart"),
+      sortAscLabel: t("fitment.sort.oldestNewest"),
+      sortDescLabel: t("fitment.sort.newestOldest"),
     }),
     columnHelper.accessor("year_end", {
-      header: tr("fitment.column.yearEnd"),
+      header: t("fitment.column.yearEnd"),
       cell: (context) => {
         const yearEnd = context.getValue();
-        return yearEnd ? yearEnd : tr("common.present");
+        return yearEnd ? yearEnd : t("common.present");
       },
       enableSorting: true,
-      sortLabel: tr("fitment.column.yearEnd"),
-      sortAscLabel: tr("fitment.sort.oldestNewest"),
-      sortDescLabel: tr("fitment.sort.newestOldest"),
+      sortLabel: t("fitment.column.yearEnd"),
+      sortAscLabel: t("fitment.sort.oldestNewest"),
+      sortDescLabel: t("fitment.sort.newestOldest"),
     }),
   ];
 
@@ -320,15 +316,15 @@ export const createFitmentColumns = ({
     baseColumns.push(
       columnHelper.display({
         id: "linked",
-        header: tr("fitment.column.linked"),
+        header: t("fitment.column.linked"),
         cell: (context) => {
           const fitment = context.row.original;
           const isLinked = fitment.products.some((p) => p.id === productId);
           return (
             <Badge color={isLinked ? "green" : "grey"} size="small">
               {isLinked
-                ? tr("fitment.column.linked.yes")
-                : tr("fitment.column.linked.no")}
+                ? t("fitment.column.linked.yes")
+                : t("fitment.column.linked.no")}
             </Badge>
           );
         },
@@ -339,7 +335,7 @@ export const createFitmentColumns = ({
   baseColumns.push(
     columnHelper.display({
       id: "actions",
-      header: tr("common.actions"),
+      header: t("common.actions"),
       cell: (context) => (
         <ActionsCell
           context={context}
@@ -348,7 +344,6 @@ export const createFitmentColumns = ({
           onDelete={onDelete}
           onUnlink={onUnlink}
           onLink={onLink}
-          tr={tr}
         />
       ),
     }),

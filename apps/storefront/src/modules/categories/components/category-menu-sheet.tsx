@@ -1,3 +1,4 @@
+import { StoreProductCategory } from "@/lib/data/categories"
 import {
   Sheet,
   SheetContent,
@@ -5,7 +6,6 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@repo/ui/components/sheet"
-import { StoreProductCategory } from "@medusajs/types"
 import { CategoryNavMenu } from "./category-nav-menu"
 
 type CategoryMenuSheetProps = {

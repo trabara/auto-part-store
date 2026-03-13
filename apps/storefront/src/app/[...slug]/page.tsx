@@ -2,9 +2,11 @@ import {
   getCategoryByHandle,
   StoreProductCategory,
 } from "@/lib/data/categories"
+import { retreiveFitment } from "@/lib/data/fitments"
 import { listProducts } from "@/lib/data/products"
 import { CategoryBreadcrumb } from "@/modules/categories/components/category-breadcrumb"
 import ProductCategoryCard from "@/modules/categories/components/category-card"
+import { FitmentCTA } from "@/modules/fitment/components/fitment-cta"
 import ProductListTemplate from "@/modules/products/templates"
 import { parseSearchParams, SearchParams } from "@/modules/products/utils"
 import { notFound } from "next/navigation"
@@ -21,7 +23,10 @@ export default async function CategoryProducts({
     searchParams,
   ])
 
-  const category = await getCategoryByHandle(slug)
+  const [category, fitment] = await Promise.all([
+    getCategoryByHandle(slug),
+    retreiveFitment()
+  ])
 
   if (!category) {
     notFound()
@@ -29,19 +34,22 @@ export default async function CategoryProducts({
 
   if (category.category_children.length > 0) {
     return (
-      <>
-        <CategoryBreadcrumb className="py-4" category={category} />
-        <div className="mt-8">
-          <h1 className="text-2xl font-medium mb-4 text-left! after:content-[''] after:block after:w-16 after:h-1 after:bg-primary">
-            SHOP BY CATEGORIES
-          </h1>
-          <div className="grid gap-3 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4">
-            {category.category_children.map((child: StoreProductCategory) => {
-              return <ProductCategoryCard key={child.id} category={child} />
-            })}
+      <div className="space-y-8 mt-8">
+        <section className="bg-primary text-primary-foreground py-14">
+          <div className="snap-container">
+            <FitmentCTA fitment={fitment} />
           </div>
+        </section>
+
+        <h1 className="text-2xl font-medium mb-4 text-left! after:content-[''] after:block after:w-16 after:h-1 after:bg-primary">
+          Most Popular Parts
+        </h1>
+        <div className="grid gap-3 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4">
+          {category.category_children.map((child: StoreProductCategory) => {
+            return <ProductCategoryCard key={child.id} category={child} />
+          })}
         </div>
-      </>
+      </div>
     )
   }
 
@@ -61,27 +69,19 @@ export default async function CategoryProducts({
     },
   })
 
-  console.log("response", response, priceRange, options)
-
   return (
-    <>
-      <CategoryBreadcrumb className="py-4" category={category} />
-      <h1 className="text-2xl font-bold uppercase text-left!">
-        {category.name}
-      </h1>
-      <ProductListTemplate
-        products={response.products}
-        totalCount={response.count}
-        currentPage={page}
-        limit={limit}
-        sort={sort}
-        minPrice={min_price}
-        maxPrice={max_price}
-        status={status}
-        optionValues={option_values}
-        priceRange={priceRange}
-        availableOptions={options}
-      />
-    </>
+    <ProductListTemplate
+      products={response.products}
+      totalCount={response.count}
+      currentPage={page}
+      limit={limit}
+      sort={sort}
+      minPrice={min_price}
+      maxPrice={max_price}
+      status={status}
+      optionValues={option_values}
+      priceRange={priceRange}
+      availableOptions={options}
+    />
   )
 }

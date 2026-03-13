@@ -1,7 +1,10 @@
+import SectionHeading from "@/components/section-heading"
 import { listCategories, StoreProductCategory } from "@/lib/data/categories"
 import { retreiveFitment } from "@/lib/data/fitments"
 import { listProducts } from "@/lib/data/products"
+import ProductCategoryCard from "@/modules/categories/components/category-card"
 import AdvancedSearch from "@/modules/fitment/components/advanced-search"
+import { FitmentCTA } from "@/modules/fitment/components/fitment-cta"
 import { ProductGridItem } from "@/modules/products/components/product-item"
 import { Button } from "@repo/ui/components/button"
 import {
@@ -16,17 +19,14 @@ import { cn } from "@repo/ui/lib/utils"
 import {
   ArrowRight,
   CarFront,
-  ChevronRight,
   Headphones,
   RefreshCw,
   ShieldCheck,
   Truck,
   Wrench,
-  Zap,
+  Zap
 } from "lucide-react"
 import Link from "next/link"
-import Image from "next/image"
-import ProductCategoryCard from "@/modules/categories/components/category-card"
 
 // ── Hero slides ──────────────────────────────────────────────────────────────
 
@@ -123,38 +123,6 @@ const PROMO_BANNERS = [
   },
 ]
 
-// ── Section heading helper ────────────────────────────────────────────────────
-
-function SectionHeading({
-  title,
-  href,
-  linkLabel = "View All",
-}: {
-  title: string
-  href?: string
-  linkLabel?: string
-}) {
-  return (
-    <div className="flex items-center justify-between mb-8">
-      <p className="relative text-2xl font-extrabold uppercase tracking-widest text-foreground">
-        <span className="relative">
-          {title}
-          <span className="absolute -bottom-1 left-0 h-[3px] w-full bg-primary" />
-        </span>
-      </p>
-      {href && (
-        <Link
-          href={href}
-          className="hidden md:inline-flex items-center gap-1 text-sm font-semibold uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors"
-        >
-          {linkLabel}
-          <ArrowRight className="size-4" />
-        </Link>
-      )}
-    </div>
-  )
-}
-
 // ── Component ─────────────────────────────────────────────────────────────────
 
 export default async function HomeTemplate() {
@@ -179,7 +147,7 @@ export default async function HomeTemplate() {
             <CarouselItem key={i}>
               <div
                 className={cn(
-                  "relative flex items-end min-h-[560px] bg-gradient-to-br",
+                  "relative flex items-end min-h-[560px] bg-linear-to-br",
                   slide.accent
                 )}
               >
@@ -194,7 +162,7 @@ export default async function HomeTemplate() {
                 />
 
                 {/* Diagonal accent stripe */}
-                <div className="absolute right-0 top-0 h-full w-1/3 bg-white/[0.02] [clip-path:polygon(20%_0,100%_0,100%_100%,0%_100%)]" />
+                <div className="absolute right-0 top-0 h-full w-1/3 bg-white/2 [clip-path:polygon(20%_0,100%_0,100%_100%,0%_100%)]" />
 
                 <div className="snap-container relative z-10 w-full pb-16 pt-8">
                   <div className="max-w-2xl">
@@ -209,7 +177,7 @@ export default async function HomeTemplate() {
                     </div>
 
                     {/* Tagline — mt-0! cancels global p [&:not(:first-child)]:mt-6 */}
-                    <p className="!mt-0 text-base md:text-lg text-white/60 font-normal leading-relaxed mb-10 max-w-md">
+                    <p className="mt-0! text-base md:text-lg text-white/60 font-normal leading-relaxed mb-10 max-w-md">
                       {slide.tagline}
                     </p>
 
@@ -262,57 +230,17 @@ export default async function HomeTemplate() {
       {/* ── 3. VEHICLE FITMENT CTA ───────────────────────────────────────── */}
       <section className="bg-primary text-primary-foreground py-14">
         <div className="snap-container">
-          <div className="flex flex-col lg:flex-row lg:items-start gap-10">
-            {/* Left copy */}
-            <div className="lg:w-80 shrink-0">
-              <div className="flex items-center gap-2 mb-3">
-                <CarFront className="size-5 opacity-60" />
-                <span className="text-xs font-bold uppercase tracking-[0.25em] opacity-60">
-                  My Garage
-                </span>
-              </div>
-              <p className="!mt-0 text-3xl md:text-4xl font-extrabold uppercase tracking-tight leading-[1.05] mb-4 text-left">
-                Find Parts
-                <br />
-                For Your
-                <br />
-                Vehicle
-              </p>
-              <p
-                className="!mt-0 text-sm leading-relaxed max-w-xs"
-                style={{ color: "rgba(255,255,255,0.6)" }}
-              >
-                Select your make, model, and year to get an exact-fit parts list
-                for your car.
-              </p>
-              {fitment && (
-                <div className="mt-4 inline-flex items-center gap-2 px-3 py-1.5 border border-white/20 text-xs font-semibold">
-                  <span className="size-1.5 rounded-full bg-green-400 animate-pulse" />
-                  {fitment.model.make.name} · {fitment.model.name} ·{" "}
-                  {fitment.year_start}
-                </div>
-              )}
-            </div>
-
-            {/* Right: search form — dark class forces dark-mode tokens on the tabs/inputs */}
-            <div className="dark flex-1 bg-white/5 border border-white/10 p-6">
-              <AdvancedSearch />
-            </div>
-          </div>
+          <FitmentCTA fitment={fitment} />
         </div>
       </section>
-
+      
       {/* ── 4. SHOP BY CATEGORY ──────────────────────────────────────────── */}
       {categories.length > 0 && (
         <section className="snap-container mt-20">
           <SectionHeading title="Shop by Category" />
 
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
-            {categories.map((category: StoreProductCategory) => {
-              return (
-                <ProductCategoryCard key={category.id} category={category} />
-              )
-            })}
+            {categories.map((category: StoreProductCategory) => <ProductCategoryCard key={category.id} category={category} />)}
           </div>
         </section>
       )}
@@ -417,7 +345,7 @@ export default async function HomeTemplate() {
                   <p className="text-sm font-extrabold uppercase tracking-widest">
                     {title}
                   </p>
-                  <p className="!mt-0 text-xs text-primary-foreground/50 leading-relaxed">
+                  <p className="mt-0! text-xs text-primary-foreground/50 leading-relaxed">
                     {desc}
                   </p>
                 </div>

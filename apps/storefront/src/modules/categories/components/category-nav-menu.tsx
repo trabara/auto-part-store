@@ -1,6 +1,6 @@
 "use client"
 
-import { StoreProductCategory } from "@medusajs/types"
+import { StoreProductCategory } from "@/lib/data/categories"
 import { SheetClose } from "@repo/ui/components/sheet"
 import { ChevronRight } from "lucide-react"
 import Link from "next/link"
@@ -39,7 +39,7 @@ export function CategoryNavMenu({
         <ChevronRight className="ml-2 size-4 transition-transform" />
       </summary>
       <div className="border-l border-border py-2 pl-4">
-        {category.category_children!.map((subCategory) => (
+        {category.category_children?.map((subCategory) => (
           <CategoryNavMenu
             key={subCategory.handle}
             category={subCategory}

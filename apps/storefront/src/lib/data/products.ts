@@ -23,6 +23,7 @@ export type ProductOptionMeta = {
 }
 
 export type ProductListQueryParams = {
+  q?: string
   category_id?: string
   limit?: number
   sort?: SortOptions
@@ -83,6 +84,7 @@ export async function listProducts({
   queryParams,
 }: ProductListParams): Promise<ProductListResponse> {
   const {
+    q,
     limit = 12,
     category_id,
     sort,
@@ -115,6 +117,7 @@ export async function listProducts({
     ...(order && { order }),
     // Pass sort so the controller can apply price post-sort
     ...(sort && { sort }),
+    ...(q && { q }),
     ...(category_id && { category_id }),
     ...(min_price !== undefined && { min_price }),
     ...(max_price !== undefined && { max_price }),
@@ -238,6 +241,46 @@ export async function getRelatedProducts(
         "*variants.calculated_price,+variants.inventory_quantity,*variants.images,+metadata,+tags",
     },
   })
+
+  return products ?? []
+}
+
+export type SearchSuggestion = {
+  id: string
+  title: string
+  handle: string
+  thumbnail: string | null
+}
+
+/**
+ * Lightweight autocomplete search — calls /store/products/search and returns
+ * a small list of matching products (id, title, handle, thumbnail).
+ * Fitment-aware: passes the active fitment_id cookie when present.
+ */
+export async function searchProducts(
+  q: string,
+  limit = 8
+): Promise<SearchSuggestion[]> {
+  if (!q || q.trim().length === 0) return []
+
+  const region = await getRegion("tn")
+  if (!region) return []
+
+  const fitment = await retreiveFitment()
+
+  const { products } = await sdk.client.fetch<{ products: SearchSuggestion[] }>(
+    "/store/products/search",
+    {
+      method: "GET",
+      query: {
+        q: q.trim(),
+        limit,
+        region_id: region.id,
+        currency_code: region.currency_code,
+        ...(fitment?.id && { fitment_id: fitment.id }),
+      },
+    }
+  )
 
   return products ?? []
 }

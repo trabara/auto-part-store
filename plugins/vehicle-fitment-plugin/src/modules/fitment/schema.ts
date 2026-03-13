@@ -216,6 +216,7 @@ export type ProductOptionValueFilter = z.infer<
 export const ProductV2FindParams = BaseFindParams.extend({
   currency_code: z.string(),
   region_id: z.string(),
+  q: z.string().optional(),
   fitment_id: z.string().optional(),
   category_id: z.string().optional(),
   sort: z.string().optional(),
@@ -233,6 +234,13 @@ export const ProductV2FindParams = BaseFindParams.extend({
       ProductOptionValueFilterSchema.transform((v) => [v]),
     ])
     .optional(),
+});
+
+export const ProductSearchParams = BaseFindParams.extend({
+  q: z.string().min(1),
+  currency_code: z.string(),
+  region_id: z.string(),
+  fitment_id: z.string().optional(),
 });
 
 /**

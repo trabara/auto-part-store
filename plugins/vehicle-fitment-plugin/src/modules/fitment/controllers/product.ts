@@ -39,6 +39,46 @@ export class ProductController extends BaseController {
   }
 
   /**
+   * GET /store/products/search
+   * Lightweight autocomplete endpoint — returns id, title, handle, thumbnail
+   * for products whose title, description, tags, or variant SKUs match `q`.
+   */
+  async search(): Promise<void> {
+    await this.execute(async () => {
+      const query = this.req.scope.resolve(ContainerRegistrationKeys.QUERY);
+      const {
+        q,
+        currency_code,
+        region_id,
+        fitment_id,
+        limit = 8,
+      } = this.req.filterableFields as {
+        q: string;
+        currency_code: string;
+        region_id: string;
+        fitment_id?: string;
+        limit?: number;
+      };
+
+      this.logger.info("Autocomplete search", { q });
+
+      const service = new ProductListService(query);
+      const result = await service.list({
+        q,
+        fitment_id,
+        region_id,
+        currency_code,
+        queryConfig: {
+          fields: ["id", "title", "handle", "thumbnail"],
+          pagination: { skip: 0, take: limit },
+        },
+      });
+
+      this.success({ products: result.products });
+    }, "Product search autocomplete");
+  }
+
+  /**
    * GET /store/products/v2/related
    * Returns products from the same category as the given product_id,
    * excluding the source product itself.

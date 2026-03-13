@@ -14,6 +14,7 @@ import { CartProvider } from "@/modules/cart/components/provider"
 import { CategoryMenuSheet } from "@/modules/categories/components/category-menu-sheet"
 import FitmentBadge from "@/modules/fitment/components/fitment-badge"
 import { SimpleSearchWithForm } from "@/modules/search/components/simple-search-with-form"
+import { SearchWithAutocomplete } from "@/modules/search/components/search-with-autocomplete"
 import { LocaleSwitcher } from "@/components/locale-switcher"
 import { Button } from "@repo/ui/components/button"
 import {
@@ -168,7 +169,7 @@ export default async function LocaleLayout({ children, params }: Props) {
                       </FitmentBadge>
 
                       {/** Search Input */}
-                      <SimpleSearchWithForm className="hidden xl:block flex-1" />
+                      <SearchWithAutocomplete className="hidden xl:block flex-1" />
 
                       {/** User Actions */}
                       <div className="flex space-x-2">
@@ -220,10 +221,23 @@ export default async function LocaleLayout({ children, params }: Props) {
                       </FitmentBadge>
 
                       <ButtonGroupSeparator orientation="vertical" />
-                      <Button variant="ghost" className="flex-1">
-                        <Search />
-                        {t("searchProduct")}
-                      </Button>
+
+                      <Sheet>
+                        <SheetTrigger asChild>
+                          <Button variant="ghost" className="flex-1">
+                            <Search />
+                            {t("searchProduct")}
+                          </Button>
+                        </SheetTrigger>
+                        <SheetContent side="top" className="pt-10">
+                          <SheetHeader className="sr-only">
+                            <SheetTitle>{t("searchProduct")}</SheetTitle>
+                          </SheetHeader>
+                          <div className="snap-container pb-4">
+                            <SimpleSearchWithForm />
+                          </div>
+                        </SheetContent>
+                      </Sheet>
                     </ButtonGroup>
                   </div>
                 </div>

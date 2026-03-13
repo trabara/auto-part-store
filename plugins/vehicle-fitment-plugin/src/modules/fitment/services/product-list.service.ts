@@ -5,6 +5,7 @@ import { ProductOptionValueFilter } from "../schema";
 export type ProductListInput = {
   region_id: string;
   currency_code: string;
+  q?: string;
   fitment_id?: string;
   category_id?: string;
   exclude_id?: string;
@@ -63,6 +64,7 @@ export class ProductListService {
     const {
       region_id,
       currency_code,
+      q,
       fitment_id,
       category_id,
       exclude_id,
@@ -79,6 +81,11 @@ export class ProductListService {
 
     if (category_id) {
       baseFilters.categories = { id: category_id };
+    }
+
+    // Title search at DB level via ILIKE for efficiency
+    if (q) {
+      baseFilters.title = { $ilike: `%${q}%` };
     }
 
     if (fitment_id) {
@@ -138,12 +145,16 @@ export class ProductListService {
     const hasPriceSort = sort === "price_asc" || sort === "price_desc";
     const hasOptionFilter = !!option_values && option_values.length > 0;
     const hasStatusFilter = !!status && status.length > 0;
+    // Secondary text search: also match on description, tags, and variant SKUs
+    // (title is already filtered at DB level via $ilike on baseFilters)
+    const hasTextSearch = !!q;
     const statusSet = new Set(status ?? []);
     const needsPostProcessing =
       hasPriceFilter ||
       hasPriceSort ||
       hasOptionFilter ||
       hasStatusFilter ||
+      hasTextSearch ||
       needsExclusion;
 
     // ── Main product query ───────────────────────────────────────────────────
@@ -177,6 +188,13 @@ export class ProductListService {
     // Exclude the source product from related results
     if (needsExclusion) {
       processed = processed.filter((p) => p.id !== exclude_id);
+    }
+
+    // Secondary text search: expand matches to description, tags, and variant SKUs.
+    // Title matches already filtered by DB $ilike; here we union with other fields
+    // so products matching on description/SKU/tags are also included.
+    if (hasTextSearch) {
+      processed = this.filterByText(processed, q!);
     }
 
     if (hasOptionFilter) {
@@ -221,6 +239,36 @@ export class ProductListService {
   }
 
   // ── Private helpers ────────────────────────────────────────────────────────
+
+  /**
+   * Secondary text search across description, tags, and variant SKUs.
+   * Title matches are already applied at the DB level via $ilike on baseFilters.
+   * This broadens the results to include products whose description, tags, or
+   * variant SKUs contain the query string (case-insensitive).
+   */
+  private filterByText(products: any[], q: string): any[] {
+    const lower = q.toLowerCase();
+    return products.filter((product) => {
+      // title already matched at DB level — keep all that come through
+      if (product.title?.toLowerCase().includes(lower)) return true;
+      if (product.description?.toLowerCase().includes(lower)) return true;
+      // tags: array of { value: string }
+      if (
+        (product.tags ?? []).some((tag: any) =>
+          tag?.value?.toLowerCase().includes(lower),
+        )
+      )
+        return true;
+      // variant SKUs
+      if (
+        (product.variants ?? []).some((v: any) =>
+          v?.sku?.toLowerCase().includes(lower),
+        )
+      )
+        return true;
+      return false;
+    });
+  }
 
   private computePriceRange(products: any[]): ProductPriceRange {
     let absMin = Infinity;

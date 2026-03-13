@@ -7,6 +7,7 @@ import { adminProductFitmentMiddlewares } from "./admin/products/middlewares";
 import { storeEngineMiddlewares } from "./store/engines/middlewares";
 import { storeFitmentsMiddlewares } from "./store/fitments/middlewares";
 import { storeProductMiddlewares } from "./store/products/v2/middlewares";
+import { storeProductSearchMiddlewares } from "./store/products/search/middlewares";
 import { storeProductRelatedMiddlewares } from "./store/products/related/middlewares";
 import { storeMakeMiddlewares } from "./store/makes/middlewares";
 import { adminCategoriesMiddlewares } from "./admin/categories/middlewares";
@@ -14,6 +15,7 @@ import { adminCategoriesMiddlewares } from "./admin/categories/middlewares";
 export default defineMiddlewares({
   routes: [
     ...storeProductMiddlewares,
+    ...storeProductSearchMiddlewares,
     ...storeProductRelatedMiddlewares,
     ...storeFitmentsMiddlewares,
     ...storeMakeMiddlewares,
@@ -23,6 +25,6 @@ export default defineMiddlewares({
     ...adminMakesMiddlewares,
     ...adminModelsMiddlewares,
     ...adminEnginesMiddlewares,
-    ...adminCategoriesMiddlewares
+    ...adminCategoriesMiddlewares,
   ],
 });

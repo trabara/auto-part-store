@@ -278,7 +278,16 @@
   },
   "search": {
     "placeholder": "Search...",
-    "srOnly": "Search"
+    "srOnly": "Search",
+    "resultsFor": "Results for: \"{q}\"",
+    "productsFound": "{count} products found",
+    "noResults": "No Products Found",
+    "noResultsDesc": "We couldn't find any products matching \"{q}\". Try a different keyword.",
+    "browseCatalog": "Browse All Products",
+    "emptyPromptTitle": "Search for Parts",
+    "emptyPromptDesc": "Enter a keyword, part number, or SKU to find what you need.",
+    "viewAllResults": "View all results for \"{q}\"",
+    "searching": "Searching..."
   },
   "sectionHeading": {
     "viewAll": "View All"

@@ -278,7 +278,16 @@
   },
   "search": {
     "placeholder": "Rechercher...",
-    "srOnly": "Rechercher"
+    "srOnly": "Rechercher",
+    "resultsFor": "Résultats pour : \"{q}\"",
+    "productsFound": "{count} produits trouvés",
+    "noResults": "Aucun produit trouvé",
+    "noResultsDesc": "Nous n'avons trouvé aucun produit correspondant à \"{q}\". Essayez un autre mot-clé.",
+    "browseCatalog": "Parcourir tous les produits",
+    "emptyPromptTitle": "Rechercher des pièces",
+    "emptyPromptDesc": "Saisissez un mot-clé, un numéro de pièce ou un SKU pour trouver ce dont vous avez besoin.",
+    "viewAllResults": "Voir tous les résultats pour \"{q}\"",
+    "searching": "Recherche en cours..."
   },
   "sectionHeading": {
     "viewAll": "Voir tout"

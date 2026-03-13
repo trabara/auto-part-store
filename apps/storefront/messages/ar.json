@@ -278,7 +278,16 @@
   },
   "search": {
     "placeholder": "بحث...",
-    "srOnly": "بحث"
+    "srOnly": "بحث",
+    "resultsFor": "نتائج: \"{q}\"",
+    "productsFound": "{count} منتج",
+    "noResults": "لا توجد منتجات",
+    "noResultsDesc": "لم نتمكن من العثور على منتجات تطابق \"{q}\". جرب كلمة مفتاحية أخرى.",
+    "browseCatalog": "تصفح جميع المنتجات",
+    "emptyPromptTitle": "ابحث عن قطع الغيار",
+    "emptyPromptDesc": "أدخل كلمة مفتاحية أو رقم القطعة أو SKU للعثور على ما تحتاجه.",
+    "viewAllResults": "عرض جميع نتائج \"{q}\"",
+    "searching": "جارٍ البحث..."
   },
   "sectionHeading": {
     "viewAll": "عرض الكل"

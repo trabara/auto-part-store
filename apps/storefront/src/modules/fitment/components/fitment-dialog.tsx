@@ -71,7 +71,7 @@ export function FitmentDialog({
             <DialogDescription>{t("dialogDesc")}</DialogDescription>
           </DialogHeader>
 
-          <FitmentForm orientation="vertical" form={makeSearchForm} />
+          <FitmentForm className="flex-col! space-y-4!" form={makeSearchForm} />
           <DialogFooter>
             <Button
               type="submit"

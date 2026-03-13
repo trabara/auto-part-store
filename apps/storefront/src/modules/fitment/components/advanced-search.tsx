@@ -33,7 +33,7 @@ export default function AdvancedSearch({ className }: { className?: string }) {
   return (
     <div className={cn("flex flex-col flex-1 justify-between", className)}>
       <Tabs defaultValue="model" orientation="horizontal">
-        <TabsList variant="default" className="w-48">
+        <TabsList variant="default">
           <TabsTrigger value="model">{t("tabModel")}</TabsTrigger>
           <TabsTrigger value="vin">{t("tabVin")}</TabsTrigger>
           <TabsTrigger value="plate">{t("tabPlate")}</TabsTrigger>

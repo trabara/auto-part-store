@@ -9,6 +9,7 @@ import { storeFitmentsMiddlewares } from "./store/fitments/middlewares";
 import { storeProductMiddlewares } from "./store/products/v2/middlewares";
 import { storeProductRelatedMiddlewares } from "./store/products/related/middlewares";
 import { storeMakeMiddlewares } from "./store/makes/middlewares";
+import { adminCategoriesMiddlewares } from "./admin/categories/middlewares";
 
 export default defineMiddlewares({
   routes: [
@@ -22,5 +23,6 @@ export default defineMiddlewares({
     ...adminMakesMiddlewares,
     ...adminModelsMiddlewares,
     ...adminEnginesMiddlewares,
+    ...adminCategoriesMiddlewares
   ],
 });

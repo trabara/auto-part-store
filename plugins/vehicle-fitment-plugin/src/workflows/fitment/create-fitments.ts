@@ -1,5 +1,5 @@
 import { createWorkflow, WorkflowResponse } from "@medusajs/framework/workflows-sdk";
-import { CreateFitmentInput } from "../modules/fitment/schema";
+import { CreateFitmentInput } from "../../modules/fitment/schema";
 import { createFitmentsStep } from "./steps/create-fitment";
 
 type CreateFitmentWorkflowInput = {

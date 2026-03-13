@@ -1,8 +1,9 @@
 import { Link } from "@medusajs/framework/modules-sdk";
 import { ContainerRegistrationKeys, Modules } from "@medusajs/framework/utils";
 import { createStep, StepResponse } from "@medusajs/framework/workflows-sdk";
-import { FITMENT_MODULE } from "../../modules/fitment";
-import { CreateFitmentInput } from "../../modules/fitment/schema";
+import { FITMENT_MODULE } from "../../../modules/fitment";
+import { CreateFitmentInput } from "../../../modules/fitment/schema";
+
 
 type CreateFitmentStepInput = {
     fitments: CreateFitmentInput[]

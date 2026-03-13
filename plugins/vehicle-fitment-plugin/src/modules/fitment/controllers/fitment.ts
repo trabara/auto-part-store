@@ -1,8 +1,8 @@
-import { FITMENT_MODULE } from "..";
-import { CreateFitmentInput, UpdateFitmentInput } from "../schema";
-import { deleteFitmentWorkflow } from "../../../workflows/delete-fitment";
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils";
 import { BaseController } from "@repo/common";
+import { FITMENT_MODULE } from "..";
+import { deleteFitmentWorkflow } from "../../../workflows";
+import { CreateFitmentInput, UpdateFitmentInput } from "../schema";
 
 /**
  * Fitment Controller

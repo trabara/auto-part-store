@@ -9,10 +9,10 @@ import {
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useParams } from "react-router-dom";
+import { Fitment } from "../../modules/fitment/schema";
 import { useDeleteMutation, usePaginatedQuery } from "../hooks";
 import { sdk } from "../lib/sdk";
 import { createFitmentColumns } from "../modules/fitment/fitment/components/data-table-columns";
-import { Fitment } from "../../modules/fitment/schema";
 
 type ProductFitmentsResponse = {
   fitments: Fitment[];
@@ -57,7 +57,7 @@ const ProductFitmentsWidget = () => {
 
   const columns = useMemo(
     () =>
-      createFitmentColumns({ onEdit: handleEdit, onUnlink: handleUnlink, t }),
+      createFitmentColumns(t, { onEdit: handleEdit, onUnlink: handleUnlink, }),
     [handleEdit, handleUnlink, t],
   );
 

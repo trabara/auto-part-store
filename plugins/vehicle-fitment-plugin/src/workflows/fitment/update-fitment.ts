@@ -2,7 +2,7 @@ import {
   createWorkflow,
   WorkflowResponse,
 } from "@medusajs/framework/workflows-sdk";
-import { UpdateFitmentInput } from "../modules/fitment/schema";
+import { UpdateFitmentInput } from "../../modules/fitment/schema";
 import { updateFitmentStep } from "./steps/update-fitment";
 
 export const updateFitmentWorkflow = createWorkflow(

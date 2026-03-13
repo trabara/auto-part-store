@@ -1,8 +1,8 @@
+import { Link, Query } from "@medusajs/framework/modules-sdk";
 import { ContainerRegistrationKeys, Modules } from "@medusajs/framework/utils";
 import { createStep, StepResponse } from "@medusajs/framework/workflows-sdk";
-import { FITMENT_MODULE } from "../../modules/fitment";
-import FitmentProductLink from "../../links/fitment-product";
-import { Link, Query } from "@medusajs/framework/modules-sdk";
+import FitmentProductLink from "../../../links/fitment-product";
+import { FITMENT_MODULE } from "../../../modules/fitment";
 
 type DismissFitmentLinksInput = {
   fitment_ids: string[];

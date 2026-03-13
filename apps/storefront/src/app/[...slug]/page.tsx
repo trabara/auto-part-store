@@ -1,11 +1,11 @@
-import { getCategoryByHandle } from "@/lib/data/categories"
+import { getCategoryByHandle, StoreProductCategory } from "@/lib/data/categories"
 import { listProducts } from "@/lib/data/products"
 import { CategoryBreadcrumb } from "@/modules/categories/components/category-breadcrumb"
 import ProductListTemplate from "@/modules/products/templates"
 import { parseSearchParams, SearchParams } from "@/modules/products/utils"
+import Image from "next/image"
 import Link from "next/link"
 import { notFound } from "next/navigation"
-
 
 
 export default async function CategoryProducts({
@@ -35,15 +35,28 @@ export default async function CategoryProducts({
             SHOP BY CATEGORIES
           </h1>
           <div className="grid gap-4 md:grid-cols-2">
-            {category.category_children.map((child) => (
-              <Link
-                key={child.id}
-                href={`/${category.handle}/${child.handle}`}
-                className="block py-2 px-4 border border-accent-foreground/20"
-              >
-                {child.name}
-              </Link>
-            ))}
+            {category.category_children.map((child: StoreProductCategory) => {
+              const imageUrl = child.product_category_image?.[0]?.url
+            
+              return (
+                <Link
+                  key={child.id}
+                  href={`/${category.handle}/${child.handle}`}
+                  className="block py-2 px-4 border border-accent-foreground/20"
+                >
+                  {imageUrl && (
+                    <Image
+                      src={imageUrl}
+                      alt={child.name}
+                      sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                      className="object-cover"
+                      fill
+                    />
+                  )}
+                  {child.name}
+                </Link>
+              )
+            })}
           </div>
         </div>
       </>

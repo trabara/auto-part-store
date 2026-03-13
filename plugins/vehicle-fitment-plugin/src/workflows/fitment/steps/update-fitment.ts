@@ -1,6 +1,7 @@
 import { createStep, StepResponse } from "@medusajs/framework/workflows-sdk";
-import { FITMENT_MODULE, FitmentModuleService } from "../../modules/fitment";
-import { UpdateFitmentInput } from "../../modules/fitment/schema";
+import { FITMENT_MODULE, FitmentModuleService } from "../../../modules/fitment";
+import { UpdateFitmentInput } from "../../../modules/fitment/schema";
+
 export const updateFitmentStep = createStep(
   "update-fitment-step",
   async function (input: UpdateFitmentInput, { container }) {

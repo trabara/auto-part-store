@@ -1,7 +1,7 @@
+import { Link } from "@medusajs/framework/modules-sdk";
 import { ContainerRegistrationKeys, Modules } from "@medusajs/framework/utils";
 import { createStep, StepResponse } from "@medusajs/framework/workflows-sdk";
-import { FITMENT_MODULE } from "../../modules/fitment";
-import { Link } from "@medusajs/framework/modules-sdk";
+import { FITMENT_MODULE } from "../../../modules/fitment";
 
 type LinkFitmentsToProductInput = {
     product_id: string,

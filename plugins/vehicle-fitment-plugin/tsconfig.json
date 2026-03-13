@@ -18,11 +18,6 @@
     "resolveJsonModule": true,
     "checkJs": false,
     "strictNullChecks": true,
-    "paths": {
-      "@/*": [
-        "./src/*"
-      ]
-    }
   },
   "ts-node": {
     "swc": true

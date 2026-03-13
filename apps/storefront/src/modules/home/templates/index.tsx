@@ -1,9 +1,8 @@
-import { listCategories } from "@/lib/data/categories"
+import { listCategories, StoreProductCategory } from "@/lib/data/categories"
 import { retreiveFitment } from "@/lib/data/fitments"
 import { listProducts } from "@/lib/data/products"
 import AdvancedSearch from "@/modules/fitment/components/advanced-search"
 import { ProductGridItem } from "@/modules/products/components/product-item"
-import { HttpTypes } from "@medusajs/types"
 import { Button } from "@repo/ui/components/button"
 import {
   Carousel,
@@ -26,6 +25,7 @@ import {
   Zap,
 } from "lucide-react"
 import Link from "next/link"
+import Image from "next/image"
 
 // ── Hero slides ──────────────────────────────────────────────────────────────
 
@@ -170,7 +170,7 @@ export default async function HomeTemplate() {
   const newArrivals = productsData.response.products
 
   return (
-    <div className=''>
+    <div className="">
       {/* ── 1. HERO CAROUSEL ─────────────────────────────────────────────── */}
       <Carousel className="w-full" opts={{ loop: true }}>
         <CarouselContent>
@@ -302,38 +302,47 @@ export default async function HomeTemplate() {
       </section>
 
       {/* ── 4. SHOP BY CATEGORY ──────────────────────────────────────────── */}
-      <section className="snap-container mt-20">
-        <SectionHeading title="Shop by Category" />
-        {categories.length > 0 ? (
+      {categories.length > 0 && (
+        <section className="snap-container mt-20">
+          <SectionHeading title="Shop by Category" />
+
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
-            {categories.map((category: HttpTypes.StoreProductCategory) => (
-              <Link
-                key={category.id}
-                href={`/${category.handle}`}
-                className="group relative flex flex-col justify-end overflow-hidden bg-zinc-900 min-h-[180px] p-5"
-              >
-                {/* Hover accent bar */}
-                <div className="absolute top-0 left-0 h-1 w-0 bg-white transition-all duration-300 group-hover:w-full" />
+            {categories.map((category: StoreProductCategory) => {
+              const imageUrl =
+                category.product_category_image[0]?.url
+              return (
+                <Link
+                  key={category.id}
+                  href={`/${category.handle}`}
+                  className="group relative flex flex-col justify-end overflow-hidden bg-zinc-900 min-h-[180px] p-5"
+                >
+                  {/* Hover accent bar */}
+                  <div className="absolute top-0 left-0 h-1 w-0 bg-white transition-all duration-300 group-hover:w-full" />
 
-                {/* Diagonal bg accent */}
-                <div className="absolute inset-0 bg-gradient-to-br from-white/[0.03] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-
-                <span className="relative z-10 text-xs font-bold uppercase tracking-[0.2em] text-white/40 mb-1">
-                  Parts
-                </span>
-                <span className="relative z-10 text-sm font-extrabold uppercase tracking-wider text-white leading-tight">
-                  {category.name}
-                </span>
-                <ChevronRight className="absolute bottom-4 right-4 size-4 text-white/25 group-hover:text-white/70 group-hover:translate-x-1 transition-all duration-200" />
-              </Link>
-            ))}
+                  {/* Diagonal bg accent */}
+                  <div className="absolute inset-0 bg-gradient-to-br from-white/[0.03] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  {imageUrl && (
+                    <Image
+                      src={imageUrl}
+                      alt={category.name}
+                      fill
+                      sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                      className="object-cover"
+                    />
+                  )}
+                  <span className="relative z-10 text-xs font-bold uppercase tracking-[0.2em] text-white/40 mb-1">
+                    Parts
+                  </span>
+                  <span className="relative z-10 text-sm font-extrabold uppercase tracking-wider text-white leading-tight">
+                    {category.name}
+                  </span>
+                  <ChevronRight className="absolute bottom-4 right-4 size-4 text-white/25 group-hover:text-white/70 group-hover:translate-x-1 transition-all duration-200" />
+                </Link>
+              )
+            })}
           </div>
-        ) : (
-          <div className="text-sm text-muted-foreground">
-            No categories found.
-          </div>
-        )}
-      </section>
+        </section>
+      )}
 
       {/* ── 5. BEST SELLERS ──────────────────────────────────────────────── */}
       {/* <section className="snap-container mt-20">

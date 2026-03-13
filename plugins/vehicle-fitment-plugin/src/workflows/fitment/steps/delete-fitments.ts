@@ -1,5 +1,5 @@
 import { createStep } from "@medusajs/framework/workflows-sdk";
-import { FITMENT_MODULE, FitmentModuleService } from "../../modules/fitment";
+import { FITMENT_MODULE, FitmentModuleService } from "../../../modules/fitment";
 
 type DeleteFitmentsStepInput = {
     ids: string[]

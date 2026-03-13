@@ -9,7 +9,13 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "placehold.co",
       },
+      {
+        protocol: "http",
+        hostname: "minio-api.localhost",
+      },
     ],
+    dangerouslyAllowSVG: false,
+    dangerouslyAllowLocalIP: true,
   },
   turbopack: {
     resolveAlias: {

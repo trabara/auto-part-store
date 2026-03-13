@@ -1,3 +1,4 @@
+import { StoreProductCategory } from "@/lib/data/categories"
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -6,7 +7,6 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@repo/ui/components/breadcrumb"
-import { StoreProductCategory } from "@medusajs/types"
 import Link from "next/link"
 import React from "react"
 

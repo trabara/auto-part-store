@@ -4,13 +4,15 @@ import { Separator } from "@repo/ui/components/separator"
 import { Button } from "@repo/ui/components/button"
 import { CheckCircle2, Package, MapPin, Truck } from "lucide-react"
 import Image from "next/image"
-import Link from "next/link"
+import { Link } from "@/i18n/navigation"
+import { getTranslations } from "next-intl/server"
 
 type Props = {
   order: HttpTypes.StoreOrder
 }
 
-export function OrderConfirmationTemplate({ order }: Props) {
+export async function OrderConfirmationTemplate({ order }: Props) {
+  const t = await getTranslations("order")
   const currency = order.currency_code ?? "usd"
   const fmt = (amount: number | null | undefined) =>
     convertToLocale({ amount: amount ?? 0, currency_code: currency })
@@ -19,7 +21,9 @@ export function OrderConfirmationTemplate({ order }: Props) {
   const address = order.shipping_address
   const shippingMethod = (order.shipping_methods as any[])?.[0]
   const shippingName =
-    shippingMethod?.shipping_option?.name ?? shippingMethod?.name ?? "Standard"
+    shippingMethod?.shipping_option?.name ??
+    shippingMethod?.name ??
+    t("standardShipping")
 
   return (
     <div className="min-h-screen bg-background">
@@ -30,13 +34,11 @@ export function OrderConfirmationTemplate({ order }: Props) {
             <CheckCircle2 className="size-8 text-green-600 dark:text-green-400" />
           </div>
           <h1 className="text-2xl font-bold tracking-tight mb-1">
-            Order Confirmed!
+            {t("confirmed")}
           </h1>
-          <p className="text-muted-foreground text-sm">
-            Thank you for your purchase. We&apos;ll get your parts to you soon.
-          </p>
+          <p className="text-muted-foreground text-sm">{t("thankYou")}</p>
           <p className="text-xs text-muted-foreground mt-2">
-            Order{" "}
+            {t("orderNumber")}{" "}
             <span className="font-mono font-medium text-foreground">
               #{order.display_id ?? order.id.slice(-8).toUpperCase()}
             </span>
@@ -49,7 +51,7 @@ export function OrderConfirmationTemplate({ order }: Props) {
             <div className="px-6 py-4 border-b border-border bg-accent/30 flex items-center gap-2">
               <Package className="size-4 text-muted-foreground" />
               <h2 className="text-sm font-semibold tracking-tight">
-                Items Ordered
+                {t("itemsOrdered")}
               </h2>
             </div>
             <div className="px-6 py-5 space-y-3">
@@ -67,7 +69,7 @@ export function OrderConfirmationTemplate({ order }: Props) {
                       />
                     ) : (
                       <div className="absolute inset-0 flex items-center justify-center text-muted-foreground/30 text-xs">
-                        No img
+                        {t("noImg")}
                       </div>
                     )}
                   </div>
@@ -77,7 +79,7 @@ export function OrderConfirmationTemplate({ order }: Props) {
                         {item.title}
                       </p>
                       <p className="text-xs text-muted-foreground">
-                        Qty: {item.quantity}
+                        {t("qty")} {item.quantity}
                       </p>
                     </div>
                     <span className="text-sm font-semibold tabular-nums shrink-0">
@@ -92,26 +94,26 @@ export function OrderConfirmationTemplate({ order }: Props) {
               {/* Totals */}
               <div className="space-y-1.5">
                 <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Subtotal</span>
+                  <span className="text-muted-foreground">{t("subtotal")}</span>
                   <span className="tabular-nums">{fmt(order.subtotal)}</span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Shipping</span>
+                  <span className="text-muted-foreground">{t("shipping")}</span>
                   <span className="tabular-nums">
                     {(order.shipping_total ?? 0) > 0
                       ? fmt(order.shipping_total)
-                      : "Free"}
+                      : t("free")}
                   </span>
                 </div>
                 {(order.tax_total ?? 0) > 0 && (
                   <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Tax</span>
+                    <span className="text-muted-foreground">{t("tax")}</span>
                     <span className="tabular-nums">{fmt(order.tax_total)}</span>
                   </div>
                 )}
                 <Separator />
                 <div className="flex justify-between">
-                  <span className="font-semibold">Total</span>
+                  <span className="font-semibold">{t("total")}</span>
                   <span className="font-bold text-base tabular-nums">
                     {fmt(order.total)}
                   </span>
@@ -126,7 +128,7 @@ export function OrderConfirmationTemplate({ order }: Props) {
               <div className="px-6 py-4 border-b border-border bg-accent/30 flex items-center gap-2">
                 <MapPin className="size-4 text-muted-foreground" />
                 <h2 className="text-sm font-semibold tracking-tight">
-                  Shipping Address
+                  {t("shippingAddress")}
                 </h2>
               </div>
               <div className="px-6 py-4 space-y-0.5">
@@ -154,7 +156,7 @@ export function OrderConfirmationTemplate({ order }: Props) {
               <div className="px-6 py-4 border-b border-border bg-accent/30 flex items-center gap-2">
                 <Truck className="size-4 text-muted-foreground" />
                 <h2 className="text-sm font-semibold tracking-tight">
-                  Delivery Method
+                  {t("deliveryMethod")}
                 </h2>
               </div>
               <div className="px-6 py-4">
@@ -169,7 +171,7 @@ export function OrderConfirmationTemplate({ order }: Props) {
               asChild
               className="flex-1 font-semibold tracking-widest uppercase text-xs h-10"
             >
-              <Link href="/">Continue Shopping</Link>
+              <Link href="/">{t("continueShopping")}</Link>
             </Button>
           </div>
         </div>

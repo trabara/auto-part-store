@@ -8,6 +8,7 @@ import { Input } from "@repo/ui/components/input"
 import { Field, FieldLabel, FieldError } from "@repo/ui/components/field"
 import { CheckCircle2, Pencil } from "lucide-react"
 import { StoreCart } from "@medusajs/types"
+import { useTranslations } from "next-intl"
 
 type Props = {
   initialEmail?: string
@@ -25,9 +26,11 @@ export function ContactSection({ initialEmail, onSaved }: Props) {
   const [error, setError] = useState<string | null>(null)
   const [isPending, startTransition] = useTransition()
 
+  const t = useTranslations("checkout")
+
   const handleSave = () => {
     if (!email.trim() || !email.includes("@")) {
-      setError("Please enter a valid email address.")
+      setError(t("contact.emailError"))
       return
     }
     setError(null)
@@ -41,7 +44,7 @@ export function ContactSection({ initialEmail, onSaved }: Props) {
         // Update global cart store after UI state is committed
         store.updateCartFromServer(updatedCart as StoreCart)
       } catch (e: any) {
-        setError(e?.message ?? "Failed to save email.")
+        setError(e?.message ?? t("contact.saveError"))
       }
     })
   }
@@ -53,7 +56,9 @@ export function ContactSection({ initialEmail, onSaved }: Props) {
           {saved && !editing && (
             <CheckCircle2 className="size-4 text-green-500 shrink-0" />
           )}
-          <h2 className="text-base font-semibold tracking-tight">1. Contact</h2>
+          <h2 className="text-base font-semibold tracking-tight">
+            {t("contact.title")}
+          </h2>
         </div>
         {saved && !editing && (
           <button
@@ -61,24 +66,28 @@ export function ContactSection({ initialEmail, onSaved }: Props) {
             onClick={() => setEditing(true)}
           >
             <Pencil className="size-3" />
-            Edit
+            {t("edit")}
           </button>
         )}
       </div>
 
       {!editing && saved ? (
         <div className="px-6 py-4">
-          <p className="text-sm text-muted-foreground">Email</p>
+          <p className="text-sm text-muted-foreground">
+            {t("contact.emailLabel")}
+          </p>
           <p className="text-sm font-medium mt-0.5">{email}</p>
         </div>
       ) : (
         <div className="px-6 py-5 space-y-4">
           <Field>
-            <FieldLabel htmlFor="checkout-email">Email address</FieldLabel>
+            <FieldLabel htmlFor="checkout-email">
+              {t("contact.emailField")}
+            </FieldLabel>
             <Input
               id="checkout-email"
               type="email"
-              placeholder="you@example.com"
+              placeholder={t("contact.emailPlaceholder")}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleSave()}
@@ -93,7 +102,7 @@ export function ContactSection({ initialEmail, onSaved }: Props) {
             disabled={isPending || !email.trim()}
             className="font-semibold tracking-widest uppercase text-xs h-9 px-6"
           >
-            {isPending ? "Saving…" : "Continue"}
+            {isPending ? t("saving") : t("continue")}
           </Button>
         </div>
       )}

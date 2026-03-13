@@ -1,3 +1,5 @@
+"use client"
+
 import { Button } from "@repo/ui/components/button"
 import {
   Drawer,
@@ -9,20 +11,22 @@ import {
 } from "@repo/ui/components/drawer"
 import { Funnel } from "lucide-react"
 import CategoryFilters from "./category-filters"
+import { useTranslations } from "next-intl"
 
 export function FilterDrawerButton() {
+  const t = useTranslations("filters")
   return (
     <Drawer>
       <DrawerTrigger asChild>
         <Button variant="secondary" className="xl:hidden">
           <Funnel className="size-4" />
-          Filters
+          {t("title")}
         </Button>
       </DrawerTrigger>
       <DrawerContent>
         <DrawerHeader>
-          <DrawerTitle>Filters</DrawerTitle>
-          <DrawerDescription>Refine your product search</DrawerDescription>
+          <DrawerTitle>{t("title")}</DrawerTitle>
+          <DrawerDescription>{t("description")}</DrawerDescription>
         </DrawerHeader>
         <CategoryFilters className="px-4 pb-20" />
       </DrawerContent>

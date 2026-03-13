@@ -19,9 +19,10 @@ import { ProductActions } from "@/modules/products/components/product-actions"
 import { ProductTabs } from "@/modules/products/components/product-tabs"
 import { ProductGridItem } from "@/modules/products/components/product-item"
 import { HttpTypes } from "@medusajs/types"
-import Link from "next/link"
+import { Link } from "@/i18n/navigation"
 import { ArrowRight, CheckCircle2, Tag, XCircle } from "lucide-react"
 import React, { useState } from "react"
+import { useTranslations } from "next-intl"
 
 type BreadcrumbSegment = { name: string; href: string }
 
@@ -50,6 +51,7 @@ function buildCategorySegments(
 }
 
 function ProductBreadcrumb({ product }: { product: HttpTypes.StoreProduct }) {
+  const t = useTranslations("product")
   // Use the first category if available
   const primaryCategory = product.categories?.[0] ?? null
   const categorySegments = primaryCategory
@@ -62,7 +64,7 @@ function ProductBreadcrumb({ product }: { product: HttpTypes.StoreProduct }) {
         {/* Home */}
         <BreadcrumbItem>
           <BreadcrumbLink asChild>
-            <Link href="/">Home</Link>
+            <Link href="/">{t("home")}</Link>
           </BreadcrumbLink>
         </BreadcrumbItem>
 
@@ -72,7 +74,7 @@ function ProductBreadcrumb({ product }: { product: HttpTypes.StoreProduct }) {
             <BreadcrumbSeparator />
             <BreadcrumbItem>
               <BreadcrumbLink asChild>
-                <Link href={seg.href}>{seg.name}</Link>
+                <Link href={seg.href as any}>{seg.name}</Link>
               </BreadcrumbLink>
             </BreadcrumbItem>
           </React.Fragment>
@@ -131,6 +133,7 @@ export function ProductDetailTemplate({
   activeFitment,
   relatedProducts,
 }: ProductDetailTemplateProps) {
+  const t = useTranslations("product")
   const [selectedVariantId, setSelectedVariantId] = useState<
     string | undefined
   >(buildInitialVariantId(product))
@@ -201,7 +204,7 @@ export function ProductDetailTemplate({
             <div className="flex items-center gap-2 p-3 border border-green-500/40 bg-green-50/60  text-sm text-green-800 dark:bg-green-950/20 dark:text-green-300 dark:border-green-500/30">
               <CheckCircle2 className="size-4 shrink-0" />
               <span>
-                Compatible with your{" "}
+                {t("compatibleWith")}{" "}
                 <span className="font-semibold">
                   {fitmentLabel(activeFitment)}
                 </span>
@@ -213,7 +216,7 @@ export function ProductDetailTemplate({
             <div className="flex items-center gap-2 p-3 border border-destructive/30 bg-destructive/5  text-sm text-destructive dark:border-destructive/40">
               <XCircle className="size-4 shrink-0" />
               <span>
-                Not compatible with your{" "}
+                {t("notCompatibleWith")}{" "}
                 <span className="font-semibold">
                   {fitmentLabel(activeFitment)}
                 </span>
@@ -245,8 +248,10 @@ export function ProductDetailTemplate({
                 {fitments.length}
               </span>
               <span>
-                compatible vehicle{fitments.length !== 1 ? "s" : ""} — see
-                Fitment tab below
+                {fitments.length !== 1
+                  ? t("compatibleVehiclesPlural", { count: fitments.length })
+                  : t("compatibleVehicles", { count: fitments.length })}{" "}
+                {t("seeFitmentTab")}
               </span>
             </div>
           )}
@@ -264,16 +269,16 @@ export function ProductDetailTemplate({
           <div className="flex items-center justify-between mb-8">
             <p className="relative text-2xl font-extrabold uppercase tracking-widest text-foreground">
               <span className="relative">
-                Related Products
+                {t("relatedProducts")}
                 <span className="absolute -bottom-1 left-0 h-[3px] w-full bg-primary" />
               </span>
             </p>
             {product.categories?.[0]?.handle && (
               <Link
-                href={`/${product.categories[0].handle}`}
+                href={`/${product.categories[0].handle}` as any}
                 className="hidden md:inline-flex items-center gap-1 text-sm font-semibold uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors"
               >
-                View All
+                {t("viewAll")}
                 <ArrowRight className="size-4" />
               </Link>
             )}
@@ -288,10 +293,10 @@ export function ProductDetailTemplate({
           {product.categories?.[0]?.handle && (
             <div className="mt-6 flex md:hidden">
               <Link
-                href={`/${product.categories[0].handle}`}
+                href={`/${product.categories[0].handle}` as any}
                 className="inline-flex items-center gap-1 text-sm font-semibold uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors"
               >
-                View All in {product.categories[0].name}
+                {t("viewAllIn", { category: product.categories[0].name })}
                 <ArrowRight className="size-4" />
               </Link>
             </div>

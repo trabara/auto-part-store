@@ -13,11 +13,13 @@ import { SheetClose } from "@repo/ui/components/sheet"
 import { Separator } from "@repo/ui/components/separator"
 import { convertToLocale } from "@/lib/util/product"
 import { useCart } from "@/modules/cart/hooks/use-cart"
+import { useTranslations } from "next-intl"
+import { Link } from "@/i18n/navigation"
 import CartLineItem from "./cart-line-item"
-import Link from "next/link"
 
 export default function CartList() {
   const { cart } = useCart()
+  const t = useTranslations("cart")
 
   const items = cart?.items ?? []
   const hasItems = items.length > 0
@@ -36,13 +38,13 @@ export default function CartList() {
             <EmptyShoppingCartIcon className="size-16" />
           </EmptyMedia>
           <EmptyTitle className="text-muted-foreground">
-            No products in the cart.
+            {t("empty")}
           </EmptyTitle>
         </EmptyHeader>
         <EmptyContent>
           <SheetClose asChild>
             <Button asChild>
-              <Link href="/categories">Return to Shop</Link>
+              <Link href="/categories">{t("returnToShop")}</Link>
             </Button>
           </SheetClose>
         </EmptyContent>
@@ -68,7 +70,7 @@ export default function CartList() {
       <div className="pt-4 space-y-3">
         <Separator />
         <div className="flex justify-between items-center text-sm font-medium px-4">
-          <span>Subtotal</span>
+          <span>{t("subtotal")}</span>
           <span className="text-base font-bold tabular-nums">{subtotal}</span>
         </div>
         <SheetClose asChild>
@@ -76,7 +78,7 @@ export default function CartList() {
             className="w-full  font-semibold tracking-widest uppercase text-xs"
             asChild
           >
-            <Link href="/cart">View Cart &amp; Checkout</Link>
+            <Link href="/cart">{t("viewCartCheckout")}</Link>
           </Button>
         </SheetClose>
       </div>

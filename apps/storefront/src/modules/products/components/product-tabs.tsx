@@ -9,6 +9,7 @@ import {
   TabsList,
   TabsTrigger,
 } from "@repo/ui/components/tabs"
+import { useTranslations } from "next-intl"
 
 type ProductTabsProps = {
   product: HttpTypes.StoreProduct
@@ -51,11 +52,12 @@ function SpecRow({
 // ── Tab: Description ─────────────────────────────────────────────────────────
 
 function DescriptionTab({ product }: { product: HttpTypes.StoreProduct }) {
+  const t = useTranslations("product")
   const text = product.description
   if (!text) {
     return (
       <p className="text-sm text-muted-foreground py-4">
-        No description available.
+        {t("tabs.noDescription")}
       </p>
     )
   }
@@ -69,6 +71,7 @@ function DescriptionTab({ product }: { product: HttpTypes.StoreProduct }) {
 // ── Tab: Specifications ──────────────────────────────────────────────────────
 
 function SpecificationsTab({ product }: { product: HttpTypes.StoreProduct }) {
+  const t = useTranslations("product")
   const hasDimensions =
     product.weight || product.length || product.width || product.height
 
@@ -78,9 +81,7 @@ function SpecificationsTab({ product }: { product: HttpTypes.StoreProduct }) {
 
   if (!hasDimensions && !hasMetadata) {
     return (
-      <p className="text-sm text-muted-foreground py-4">
-        No specifications available.
-      </p>
+      <p className="text-sm text-muted-foreground py-4">{t("tabs.noSpecs")}</p>
     )
   }
 
@@ -89,19 +90,19 @@ function SpecificationsTab({ product }: { product: HttpTypes.StoreProduct }) {
       {hasDimensions && (
         <div className="divide-y divide-border/50">
           <SpecRow
-            label="Weight"
+            label={t("tabs.weight")}
             value={product.weight ? `${product.weight} g` : null}
           />
           <SpecRow
-            label="Length"
+            label={t("tabs.length")}
             value={product.length ? `${product.length} mm` : null}
           />
           <SpecRow
-            label="Width"
+            label={t("tabs.width")}
             value={product.width ? `${product.width} mm` : null}
           />
           <SpecRow
-            label="Height"
+            label={t("tabs.height")}
             value={product.height ? `${product.height} mm` : null}
           />
         </div>
@@ -121,10 +122,11 @@ function SpecificationsTab({ product }: { product: HttpTypes.StoreProduct }) {
 // ── Tab: Fitment ─────────────────────────────────────────────────────────────
 
 function FitmentTab({ fitments }: { fitments: ProductFitment[] }) {
+  const t = useTranslations("product")
   if (fitments.length === 0) {
     return (
       <p className="text-sm text-muted-foreground py-4">
-        No vehicle compatibility data available for this product.
+        {t("tabs.noFitment")}
       </p>
     )
   }
@@ -135,25 +137,25 @@ function FitmentTab({ fitments }: { fitments: ProductFitment[] }) {
         <thead>
           <tr className="border-b border-border bg-accent/30">
             <th className="text-left py-2 px-3 font-medium text-muted-foreground text-xs uppercase tracking-wider">
-              Make
+              {t("tabs.make")}
             </th>
             <th className="text-left py-2 px-3 font-medium text-muted-foreground text-xs uppercase tracking-wider">
-              Model
+              {t("tabs.model")}
             </th>
             <th className="text-left py-2 px-3 font-medium text-muted-foreground text-xs uppercase tracking-wider">
-              Years
+              {t("tabs.years")}
             </th>
             <th className="text-left py-2 px-3 font-medium text-muted-foreground text-xs uppercase tracking-wider">
-              Body
+              {t("tabs.body")}
             </th>
             <th className="text-left py-2 px-3 font-medium text-muted-foreground text-xs uppercase tracking-wider">
-              Engine
+              {t("tabs.engine")}
             </th>
             <th className="text-left py-2 px-3 font-medium text-muted-foreground text-xs uppercase tracking-wider">
-              Drive
+              {t("tabs.drive")}
             </th>
             <th className="text-left py-2 px-3 font-medium text-muted-foreground text-xs uppercase tracking-wider">
-              Trans.
+              {t("tabs.trans")}
             </th>
           </tr>
         </thead>
@@ -191,6 +193,7 @@ function FitmentTab({ fitments }: { fitments: ProductFitment[] }) {
 // ── Main export ───────────────────────────────────────────────────────────────
 
 export function ProductTabs({ product, fitments }: ProductTabsProps) {
+  const t = useTranslations("product")
   return (
     <Tabs defaultValue="description">
       <TabsList
@@ -201,19 +204,19 @@ export function ProductTabs({ product, fitments }: ProductTabsProps) {
           value="description"
           className=" px-4 py-2.5 text-sm font-medium"
         >
-          Description
+          {t("tabs.description")}
         </TabsTrigger>
         <TabsTrigger
           value="specifications"
           className=" px-4 py-2.5 text-sm font-medium"
         >
-          Specifications
+          {t("tabs.specifications")}
         </TabsTrigger>
         <TabsTrigger
           value="fitment"
           className=" px-4 py-2.5 text-sm font-medium"
         >
-          Vehicle Fitment
+          {t("tabs.vehicleFitment")}
           {fitments.length > 0 && (
             <span className="ml-1.5 text-xs text-muted-foreground">
               ({fitments.length})

@@ -1,0 +1,286 @@
+{
+  "layout": {
+    "aboutUs": "About Us",
+    "faq": "FAQ",
+    "orderTracking": "Order Tracking",
+    "allCategories": "ALL CATEGORIES",
+    "myGarage": "My Garage",
+    "searchProduct": "Search Product",
+    "account": "Account",
+    "loginRegister": "Login / Register",
+    "shoppingCart": "Shopping Cart",
+    "customerService": "Customer Service",
+    "helpContact": "Help & Contact",
+    "returnsRefunds": "Returns & Refunds",
+    "shippingInfo": "Shipping Info",
+    "aboutUsFooter": "About Us",
+    "ourStory": "Our Story",
+    "careers": "Careers",
+    "press": "Press",
+    "followUs": "Follow Us",
+    "copyright": "© {year} Your Company. All rights reserved.",
+    "settings": "SETTINGS"
+  },
+  "localeSwitcher": {
+    "label": "Language"
+  },
+  "notFound": {
+    "title": "Page Not Found",
+    "goHome": "Go Back Home"
+  },
+  "home": {
+    "shopByCategory": "Shop by Category",
+    "newArrivals": "New Arrivals",
+    "bestSellers": "Best Sellers",
+    "noProductsYet": "No products available yet.",
+    "heroSlides": {
+      "0": {
+        "eyebrow": "New Season Collection",
+        "headline": "Engine Parts\nBuilt to Last",
+        "tagline": "Premium OEM-grade components for every make and model.",
+        "cta": "Shop Engine Parts"
+      },
+      "1": {
+        "eyebrow": "Best Sellers",
+        "headline": "Electrical &\nLighting",
+        "tagline": "Brighten the road. Upgrade your electrical system today.",
+        "cta": "Shop Electrical"
+      },
+      "2": {
+        "eyebrow": "Trusted Brands",
+        "headline": "Genuine Parts,\nReal Performance",
+        "tagline": "Bosch, NGK, Shell and more — sourced direct, priced right.",
+        "cta": "Browse All Parts"
+      }
+    },
+    "trustBadges": {
+      "fastDelivery": {
+        "title": "Fast Delivery",
+        "desc": "Nationwide shipping in 24–48h"
+      },
+      "genuineParts": {
+        "title": "Genuine Parts",
+        "desc": "100% OEM & OES certified"
+      },
+      "easyReturns": {
+        "title": "Easy Returns",
+        "desc": "30-day hassle-free returns"
+      },
+      "expertSupport": {
+        "title": "Expert Support",
+        "desc": "Mechanics on call, 7 days a week"
+      }
+    },
+    "promoBanners": {
+      "0": {
+        "eyebrow": "Limited Time",
+        "headline": "Up to 40% Off\nEngine Parts",
+        "cta": "Shop Now"
+      },
+      "1": {
+        "eyebrow": "Free Shipping",
+        "headline": "Orders Over\n200 TND",
+        "cta": "Start Shopping"
+      }
+    }
+  },
+  "cart": {
+    "empty": "No products in the cart.",
+    "returnToShop": "Return to Shop",
+    "subtotal": "Subtotal",
+    "viewCartCheckout": "View Cart & Checkout",
+    "orderSummary": "Order Summary",
+    "discount": "Discount",
+    "shipping": "Shipping",
+    "calculatedAtCheckout": "Calculated at checkout",
+    "tax": "Tax",
+    "orderTotal": "Order Total",
+    "couponLabel": "Coupon or gift card",
+    "couponPlaceholder": "Enter code",
+    "couponApply": "Apply",
+    "couponNote": "Coupon codes will be applied at checkout.",
+    "proceedToCheckout": "Proceed to Checkout",
+    "secureCheckout": "Secure checkout",
+    "cartEmpty": "Your cart is empty",
+    "continueShopping": "Continue Shopping",
+    "shoppingCart": "Shopping Cart",
+    "item": "item",
+    "items": "items",
+    "product": "Product",
+    "continueShoppingArrow": "← Continue Shopping",
+    "noImg": "No img",
+    "eachPrice": "{price} each",
+    "freeShipping": "Free"
+  },
+  "checkout": {
+    "backToCart": "Back to cart",
+    "title": "Checkout",
+    "saving": "Saving…",
+    "continue": "Continue",
+    "edit": "Edit",
+    "contact": {
+      "title": "1. Contact",
+      "emailLabel": "Email",
+      "emailField": "Email address",
+      "emailPlaceholder": "you@example.com",
+      "emailError": "Please enter a valid email address.",
+      "saveError": "Failed to save email."
+    },
+    "shippingAddress": {
+      "title": "2. Shipping Address",
+      "firstName": "First name",
+      "lastName": "Last name",
+      "address": "Address",
+      "addressPlaceholder": "Street address",
+      "city": "City",
+      "postalCode": "Postal code",
+      "country": "Country",
+      "countryValue": "Tunisia",
+      "phone": "Phone",
+      "phonePlaceholder": "+216 XX XXX XXX",
+      "required": "Required",
+      "saveError": "Failed to save address."
+    },
+    "shippingMethod": {
+      "title": "3. Shipping Method",
+      "loading": "Loading shipping options…",
+      "noOptions": "No shipping options available for your address.",
+      "selectError": "Please select a shipping method.",
+      "saveError": "Failed to select shipping method.",
+      "free": "Free"
+    },
+    "payment": {
+      "title": "4. Payment",
+      "selectError": "Please select a payment method.",
+      "saveError": "Failed to set up payment.",
+      "payOnDelivery": "Pay on delivery",
+      "payOnDeliveryDesc": "Cash or card payment upon delivery"
+    },
+    "review": {
+      "title": "5. Review & Place Order",
+      "qty": "Qty:",
+      "subtotal": "Subtotal",
+      "shipping": "Shipping",
+      "tax": "Tax",
+      "total": "Total",
+      "free": "Free",
+      "placeOrder": "Place Order",
+      "placingOrder": "Placing Order…",
+      "terms": "By placing your order you agree to our terms and conditions.",
+      "noImg": "No img"
+    }
+  },
+  "order": {
+    "confirmed": "Order Confirmed!",
+    "thankYou": "Thank you for your purchase. We'll get your parts to you soon.",
+    "orderNumber": "Order",
+    "itemsOrdered": "Items Ordered",
+    "shippingAddress": "Shipping Address",
+    "deliveryMethod": "Delivery Method",
+    "subtotal": "Subtotal",
+    "shipping": "Shipping",
+    "tax": "Tax",
+    "total": "Total",
+    "free": "Free",
+    "continueShopping": "Continue Shopping",
+    "qty": "Qty:",
+    "noImg": "No img",
+    "standardShipping": "Standard"
+  },
+  "product": {
+    "home": "Home",
+    "compatibleWith": "Compatible with your",
+    "notCompatibleWith": "Not compatible with your",
+    "compatibleVehicles": "{count} compatible vehicle",
+    "compatibleVehiclesPlural": "{count} compatible vehicles",
+    "seeFitmentTab": "— see Fitment tab below",
+    "relatedProducts": "Related Products",
+    "viewAll": "View All",
+    "viewAllIn": "View All in {category}",
+    "inStock": "In Stock",
+    "onlyLeft": "— only {count} left",
+    "outOfStock": "Out of Stock",
+    "addToCart": "Add to Cart",
+    "adding": "Adding...",
+    "selectOptions": "Select options above to add to cart.",
+    "tabs": {
+      "description": "Description",
+      "specifications": "Specifications",
+      "vehicleFitment": "Vehicle Fitment",
+      "noDescription": "No description available.",
+      "noSpecs": "No specifications available.",
+      "noFitment": "No vehicle compatibility data available for this product.",
+      "make": "Make",
+      "model": "Model",
+      "years": "Years",
+      "body": "Body",
+      "engine": "Engine",
+      "drive": "Drive",
+      "trans": "Trans.",
+      "weight": "Weight",
+      "length": "Length",
+      "width": "Width",
+      "height": "Height"
+    },
+    "list": {
+      "clearAll": "Clear all",
+      "inStock": "In stock",
+      "onSale": "On sale",
+      "showing": "Showing {count} of {total} results",
+      "loading": "Loading...",
+      "noProducts": "No Products Found",
+      "noProductsDesc": "We couldn't find any products matching your filters. Try adjusting or clearing your filters.",
+      "clearFilters": "Clear filters",
+      "perPage": "{count} / page",
+      "sortNewest": "Newest First",
+      "sortNameAsc": "Name A–Z",
+      "sortNameDesc": "Name Z–A",
+      "sortPriceAsc": "Price Low–High",
+      "sortPriceDesc": "Price High–Low"
+    },
+    "sale": "SALE",
+    "addToCartBtn": "Add to cart"
+  },
+  "filters": {
+    "price": "Price",
+    "status": "Status",
+    "inStock": "In stock",
+    "onSale": "On sale",
+    "title": "Filters",
+    "description": "Refine your product search"
+  },
+  "fitment": {
+    "myGarage": "My Garage",
+    "findParts": "Find Parts\nFor Your\nVehicle",
+    "findPartsDesc": "Select your make, model, and year to get an exact-fit parts list for your car.",
+    "dialogTitle": "My Garage",
+    "dialogDesc": "Add your vehicles to find the right parts faster.",
+    "addVehicle": "Add Vehicle",
+    "clear": "Clear",
+    "selectYear": "Select Year",
+    "selectManufacturer": "Select Manufacturer",
+    "selectModel": "Select Model",
+    "selectEngine": "Select Engine",
+    "tabModel": "Model",
+    "tabVin": "VIN",
+    "tabPlate": "License Plate",
+    "searchByModel": "Search by Vehicle Model",
+    "searchByVin": "Search by VIN",
+    "vinPlaceholder": "Vehicle Identification Number",
+    "searchByPlate": "Search by License Plate",
+    "platePlaceholder": "License Plate Number",
+    "go": "Go"
+  },
+  "categories": {
+    "allCategories": "ALL CATEGORIES",
+    "settings": "SETTINGS",
+    "mostPopularParts": "Most Popular Parts"
+  },
+  "search": {
+    "placeholder": "Search...",
+    "srOnly": "Search"
+  },
+  "sectionHeading": {
+    "viewAll": "View All"
+  }
+}

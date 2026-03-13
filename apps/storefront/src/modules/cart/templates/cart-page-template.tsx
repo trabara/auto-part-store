@@ -14,7 +14,8 @@ import {
   EmptyTitle,
 } from "@repo/ui/components/empty"
 import { ShoppingBag } from "lucide-react"
-import Link from "next/link"
+import { useTranslations } from "next-intl"
+import { Link } from "@/i18n/navigation"
 import { useEffect } from "react"
 import CartLineItem from "../components/cart-line-item"
 
@@ -32,6 +33,7 @@ export function CartPageTemplate({ initialCart }: CartPageTemplateProps) {
   }, [])
 
   const { cart } = useCart()
+  const t = useTranslations("cart")
 
   const items = cart?.items ?? []
   const hasItems = items.length > 0
@@ -48,12 +50,12 @@ export function CartPageTemplate({ initialCart }: CartPageTemplateProps) {
               <EmptyShoppingCartIcon className="size-20 text-muted-foreground/40" />
             </EmptyMedia>
             <EmptyTitle className="text-muted-foreground">
-              Your cart is empty
+              {t("cartEmpty")}
             </EmptyTitle>
           </EmptyHeader>
           <EmptyContent>
             <Button asChild>
-              <Link href="/">Continue Shopping</Link>
+              <Link href="/">{t("continueShopping")}</Link>
             </Button>
           </EmptyContent>
         </Empty>
@@ -68,9 +70,9 @@ export function CartPageTemplate({ initialCart }: CartPageTemplateProps) {
       <div className="mb-6 flex items-center gap-3">
         <ShoppingBag className="size-6 text-primary" strokeWidth={1.5} />
         <h1 className="text-2xl font-bold tracking-tight">
-          Shopping Cart
+          {t("shoppingCart")}
           <span className="ml-2 text-base font-normal text-muted-foreground">
-            ({itemCount} {itemCount === 1 ? "item" : "items"})
+            ({itemCount} {itemCount === 1 ? t("item") : t("items")})
           </span>
         </h1>
       </div>
@@ -82,8 +84,8 @@ export function CartPageTemplate({ initialCart }: CartPageTemplateProps) {
           <div className="bg-card border border-border overflow-hidden">
             {/* Column headers — desktop only */}
             <div className="hidden md:grid grid-cols-[1fr_auto_auto] gap-4 px-6 py-3 border-b border-border bg-accent/30 text-xs font-medium text-muted-foreground uppercase tracking-widest">
-              <span>Product</span>
-              <span className="text-right w-24">Subtotal</span>
+              <span>{t("product")}</span>
+              <span className="text-right w-24">{t("subtotal")}</span>
             </div>
 
             {/* Items */}
@@ -96,7 +98,7 @@ export function CartPageTemplate({ initialCart }: CartPageTemplateProps) {
                   currencyCode={currencyCode}
                 />
               ))}
-            </div>  
+            </div>
 
             {/* Cart footer — subtotal row */}
             <div className="px-6 py-4 border-t border-border bg-accent/10 flex items-center justify-between gap-4">
@@ -106,10 +108,12 @@ export function CartPageTemplate({ initialCart }: CartPageTemplateProps) {
                 size="sm"
                 className="text-xs text-muted-foreground hover:text-foreground"
               >
-                <Link href="/">← Continue Shopping</Link>
+                <Link href="/">{t("continueShoppingArrow")}</Link>
               </Button>
               <div className="flex items-baseline gap-2">
-                <span className="text-sm text-muted-foreground">Subtotal:</span>
+                <span className="text-sm text-muted-foreground">
+                  {t("subtotal")}:
+                </span>
                 <span className="text-base font-bold tabular-nums">
                   {convertToLocale({
                     amount: cart?.subtotal ?? 0,

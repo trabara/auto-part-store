@@ -8,6 +8,7 @@ import { RadioGroup, RadioGroupItem } from "@repo/ui/components/radio-group"
 import { convertToLocale } from "@/lib/util/product"
 import { CheckCircle2, Loader2, Pencil, Truck } from "lucide-react"
 import { HttpTypes, StoreCart } from "@medusajs/types"
+import { useTranslations } from "next-intl"
 
 type Props = {
   cart: StoreCart
@@ -33,6 +34,7 @@ export function ShippingMethodSection({ cart, onSaved, disabled }: Props) {
   const [isPending, startTransition] = useTransition()
 
   const currency = cart.currency_code ?? "usd"
+  const t = useTranslations("checkout")
 
   useEffect(() => {
     listShippingOptions()
@@ -43,7 +45,7 @@ export function ShippingMethodSection({ cart, onSaved, disabled }: Props) {
 
   const handleSave = () => {
     if (!selected) {
-      setError("Please select a shipping method.")
+      setError(t("shippingMethod.selectError"))
       return
     }
     setError(null)
@@ -57,7 +59,7 @@ export function ShippingMethodSection({ cart, onSaved, disabled }: Props) {
         // Update global cart store after UI state is committed
         store.updateCartFromServer(updatedCart as StoreCart)
       } catch (e: any) {
-        setError(e?.message ?? "Failed to select shipping method.")
+        setError(e?.message ?? t("shippingMethod.saveError"))
       }
     })
   }
@@ -70,7 +72,7 @@ export function ShippingMethodSection({ cart, onSaved, disabled }: Props) {
         name: selectedOption.name,
         price:
           selectedOption.amount === 0
-            ? "Free"
+            ? t("shippingMethod.free")
             : convertToLocale({
                 amount: selectedOption.amount ?? 0,
                 currency_code: currency,
@@ -91,7 +93,7 @@ export function ShippingMethodSection({ cart, onSaved, disabled }: Props) {
             <CheckCircle2 className="size-4 text-green-500 shrink-0" />
           )}
           <h2 className="text-base font-semibold tracking-tight">
-            3. Shipping Method
+            {t("shippingMethod.title")}
           </h2>
         </div>
         {saved && !editing && (
@@ -100,7 +102,7 @@ export function ShippingMethodSection({ cart, onSaved, disabled }: Props) {
             onClick={() => setEditing(true)}
           >
             <Pencil className="size-3" />
-            Edit
+            {t("edit")}
           </button>
         )}
       </div>
@@ -120,11 +122,11 @@ export function ShippingMethodSection({ cart, onSaved, disabled }: Props) {
           {loading ? (
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <Loader2 className="size-4 animate-spin" />
-              Loading shipping options…
+              {t("shippingMethod.loading")}
             </div>
           ) : options.length === 0 ? (
             <p className="text-sm text-muted-foreground">
-              No shipping options available for your address.
+              {t("shippingMethod.noOptions")}
             </p>
           ) : (
             <RadioGroup
@@ -163,7 +165,7 @@ export function ShippingMethodSection({ cart, onSaved, disabled }: Props) {
                       </div>
                     </div>
                     <span className="text-sm font-semibold tabular-nums shrink-0">
-                      {option.amount === 0 ? "Free" : price}
+                      {option.amount === 0 ? t("shippingMethod.free") : price}
                     </span>
                   </label>
                 )
@@ -179,7 +181,7 @@ export function ShippingMethodSection({ cart, onSaved, disabled }: Props) {
               disabled={isPending || !selected}
               className="font-semibold tracking-widest uppercase text-xs h-9 px-6"
             >
-              {isPending ? "Saving…" : "Continue"}
+              {isPending ? t("saving") : t("continue")}
             </Button>
           )}
         </div>

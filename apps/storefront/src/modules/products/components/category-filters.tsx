@@ -8,11 +8,12 @@ import {
   Accordion,
   AccordionContent,
   AccordionItem,
-  AccordionTrigger
+  AccordionTrigger,
 } from "@repo/ui/components/accordion"
 import { Checkbox } from "@repo/ui/components/checkbox"
 import { Label } from "@repo/ui/components/label"
 import { HTMLAttributes } from "react"
+import { useTranslations } from "next-intl"
 
 type CategoryFiltersProps = HTMLAttributes<HTMLDivElement> & {}
 
@@ -20,6 +21,7 @@ export default function CategoryFilters({
   className,
   ...props
 }: CategoryFiltersProps) {
+  const t = useTranslations("filters")
   const {
     options,
     priceRange,
@@ -35,11 +37,12 @@ export default function CategoryFilters({
 
   return (
     <div className={cn("flex flex-col space-y-8", className)} {...props}>
-
       <Accordion type="multiple" defaultValue={["0"]}>
         {options.map((option) => (
           <AccordionItem key={option.key} value={option.key}>
-            <AccordionTrigger className="font-semibold">{option.title}</AccordionTrigger>
+            <AccordionTrigger className="font-semibold">
+              {option.title}
+            </AccordionTrigger>
             <AccordionContent className="max-h-64 overflow-y-auto">
               <div className="mt-4 flex flex-col gap-3">
                 {option.values.map(({ optionId, value }, index) => (
@@ -62,7 +65,9 @@ export default function CategoryFilters({
           </AccordionItem>
         ))}
         <AccordionItem value="price">
-          <AccordionTrigger className="font-semibold">Price</AccordionTrigger>
+          <AccordionTrigger className="font-semibold">
+            {t("price")}
+          </AccordionTrigger>
           <AccordionContent className="p-4">
             <PriceSlider
               min={absMin}
@@ -75,7 +80,9 @@ export default function CategoryFilters({
         </AccordionItem>
 
         <AccordionItem value="status">
-          <AccordionTrigger className="font-semibold">Status</AccordionTrigger>
+          <AccordionTrigger className="font-semibold">
+            {t("status")}
+          </AccordionTrigger>
           <AccordionContent className="max-h-64 overflow-y-auto">
             <div className="mt-4 flex flex-col gap-3">
               <div className="flex items-center space-x-2">
@@ -86,8 +93,11 @@ export default function CategoryFilters({
                     handleStatusChange("in_stock", !!checked)
                   }
                 />
-                <Label htmlFor="status-in-stock" className="text-sm cursor-pointer">
-                  In stock
+                <Label
+                  htmlFor="status-in-stock"
+                  className="text-sm cursor-pointer"
+                >
+                  {t("inStock")}
                 </Label>
               </div>
               <div className="flex items-center space-x-2">
@@ -98,8 +108,11 @@ export default function CategoryFilters({
                     handleStatusChange("on_sale", !!checked)
                   }
                 />
-                <Label htmlFor="status-on-sale" className="text-sm cursor-pointer">
-                  On sale
+                <Label
+                  htmlFor="status-on-sale"
+                  className="text-sm cursor-pointer"
+                >
+                  {t("onSale")}
                 </Label>
               </div>
             </div>

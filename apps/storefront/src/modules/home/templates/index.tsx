@@ -24,41 +24,10 @@ import {
   ShieldCheck,
   Truck,
   Wrench,
-  Zap
+  Zap,
 } from "lucide-react"
+import { getTranslations } from "next-intl/server"
 import Link from "next/link"
-
-// ── Hero slides ──────────────────────────────────────────────────────────────
-
-const HERO_SLIDES = [
-  {
-    eyebrow: "New Season Collection",
-    headline: "Engine Parts\nBuilt to Last",
-    tagline: "Premium OEM-grade components for every make and model.",
-    cta: "Shop Engine Parts",
-    href: "/engine-and-drivetrain",
-    accent: "from-zinc-950 via-zinc-900 to-zinc-800",
-    highlight: "Engine Parts",
-  },
-  {
-    eyebrow: "Best Sellers",
-    headline: "Electrical &\nLighting",
-    tagline: "Brighten the road. Upgrade your electrical system today.",
-    cta: "Shop Electrical",
-    href: "/electrical-and-lighting",
-    accent: "from-zinc-950 via-zinc-900 to-zinc-800",
-    highlight: "Electrical &\nLighting",
-  },
-  {
-    eyebrow: "Trusted Brands",
-    headline: "Genuine Parts,\nReal Performance",
-    tagline: "Bosch, NGK, Shell and more — sourced direct, priced right.",
-    cta: "Browse All Parts",
-    href: "/",
-    accent: "from-zinc-950 via-zinc-900 to-zinc-800",
-    highlight: "Genuine Parts,",
-  },
-]
 
 // ── Brand chips ───────────────────────────────────────────────────────────────
 
@@ -77,66 +46,93 @@ const BRANDS = [
   "BREMBO",
 ]
 
-// ── Trust badges ──────────────────────────────────────────────────────────────
-
-const TRUST_BADGES = [
-  {
-    icon: Truck,
-    title: "Fast Delivery",
-    desc: "Nationwide shipping in 24–48h",
-  },
-  {
-    icon: ShieldCheck,
-    title: "Genuine Parts",
-    desc: "100% OEM & OES certified",
-  },
-  {
-    icon: RefreshCw,
-    title: "Easy Returns",
-    desc: "30-day hassle-free returns",
-  },
-  {
-    icon: Headphones,
-    title: "Expert Support",
-    desc: "Mechanics on call, 7 days a week",
-  },
-]
-
-// ── Promo banners ─────────────────────────────────────────────────────────────
-
-const PROMO_BANNERS = [
-  {
-    eyebrow: "Limited Time",
-    headline: "Up to 40% Off\nEngine Parts",
-    cta: "Shop Now",
-    href: "/engine-and-drivetrain",
-    bg: "bg-zinc-900",
-    icon: Wrench,
-  },
-  {
-    eyebrow: "Free Shipping",
-    headline: "Orders Over\n200 TND",
-    cta: "Start Shopping",
-    href: "/",
-    bg: "bg-zinc-800",
-    icon: Zap,
-  },
-]
-
 // ── Component ─────────────────────────────────────────────────────────────────
 
 export default async function HomeTemplate() {
-  const [categories, fitment, productsData] = await Promise.all([
+  const [categories, fitment, productsData, t] = await Promise.all([
     listCategories(),
     retreiveFitment(),
     listProducts({
       pageParam: 1,
       queryParams: { sort: "created_at", limit: 8 },
     }),
+    getTranslations("home"),
   ])
 
   const bestSellers = productsData.response.products
   const newArrivals = productsData.response.products
+
+  // ── Hero slides ──────────────────────────────────────────────────────────────
+  const HERO_SLIDES = [
+    {
+      eyebrow: t("heroSlides.0.eyebrow"),
+      headline: t("heroSlides.0.headline"),
+      tagline: t("heroSlides.0.tagline"),
+      cta: t("heroSlides.0.cta"),
+      href: "/engine-and-drivetrain",
+      accent: "from-zinc-950 via-zinc-900 to-zinc-800",
+    },
+    {
+      eyebrow: t("heroSlides.1.eyebrow"),
+      headline: t("heroSlides.1.headline"),
+      tagline: t("heroSlides.1.tagline"),
+      cta: t("heroSlides.1.cta"),
+      href: "/electrical-and-lighting",
+      accent: "from-zinc-950 via-zinc-900 to-zinc-800",
+    },
+    {
+      eyebrow: t("heroSlides.2.eyebrow"),
+      headline: t("heroSlides.2.headline"),
+      tagline: t("heroSlides.2.tagline"),
+      cta: t("heroSlides.2.cta"),
+      href: "/",
+      accent: "from-zinc-950 via-zinc-900 to-zinc-800",
+    },
+  ]
+
+  // ── Trust badges ──────────────────────────────────────────────────────────────
+  const TRUST_BADGES = [
+    {
+      icon: Truck,
+      title: t("trustBadges.fastDelivery.title"),
+      desc: t("trustBadges.fastDelivery.desc"),
+    },
+    {
+      icon: ShieldCheck,
+      title: t("trustBadges.genuineParts.title"),
+      desc: t("trustBadges.genuineParts.desc"),
+    },
+    {
+      icon: RefreshCw,
+      title: t("trustBadges.easyReturns.title"),
+      desc: t("trustBadges.easyReturns.desc"),
+    },
+    {
+      icon: Headphones,
+      title: t("trustBadges.expertSupport.title"),
+      desc: t("trustBadges.expertSupport.desc"),
+    },
+  ]
+
+  // ── Promo banners ─────────────────────────────────────────────────────────────
+  const PROMO_BANNERS = [
+    {
+      eyebrow: t("promoBanners.0.eyebrow"),
+      headline: t("promoBanners.0.headline"),
+      cta: t("promoBanners.0.cta"),
+      href: "/engine-and-drivetrain",
+      bg: "bg-zinc-900",
+      icon: Wrench,
+    },
+    {
+      eyebrow: t("promoBanners.1.eyebrow"),
+      headline: t("promoBanners.1.headline"),
+      cta: t("promoBanners.1.cta"),
+      href: "/",
+      bg: "bg-zinc-800",
+      icon: Zap,
+    },
+  ]
 
   return (
     <div className="">
@@ -233,21 +229,23 @@ export default async function HomeTemplate() {
           <FitmentCTA fitment={fitment} />
         </div>
       </section>
-      
+
       {/* ── 4. SHOP BY CATEGORY ──────────────────────────────────────────── */}
       {categories.length > 0 && (
         <section className="snap-container mt-20">
-          <SectionHeading title="Shop by Category" />
+          <SectionHeading title={t("shopByCategory")} />
 
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
-            {categories.map((category: StoreProductCategory) => <ProductCategoryCard key={category.id} category={category} />)}
+            {categories.map((category: StoreProductCategory) => (
+              <ProductCategoryCard key={category.id} category={category} />
+            ))}
           </div>
         </section>
       )}
 
       {/* ── 5. BEST SELLERS ──────────────────────────────────────────────── */}
       {/* <section className="snap-container mt-20">
-        <SectionHeading title="Best Sellers" href="/" />
+        <SectionHeading title={t("bestSellers")} href="/" />
         {bestSellers.length > 0 ? (
           <Carousel opts={{ align: "start" }}>
             <CarouselContent className="-ml-3 pb-4">
@@ -265,7 +263,7 @@ export default async function HomeTemplate() {
           </Carousel>
         ) : (
           <p className="text-sm text-muted-foreground">
-            No products available yet.
+            {t("noProductsYet")}
           </p>
         )}
       </section> */}
@@ -318,7 +316,7 @@ export default async function HomeTemplate() {
 
       {/* ── 7. NEW ARRIVALS ──────────────────────────────────────────────── */}
       <section className="snap-container mt-20">
-        <SectionHeading title="New Arrivals" href="/" />
+        <SectionHeading title={t("newArrivals")} href="/" />
         {newArrivals.length > 0 ? (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
             {newArrivals.map((product) => (
@@ -326,9 +324,7 @@ export default async function HomeTemplate() {
             ))}
           </div>
         ) : (
-          <p className="text-sm text-muted-foreground">
-            No products available yet.
-          </p>
+          <p className="text-sm text-muted-foreground">{t("noProductsYet")}</p>
         )}
       </section>
 

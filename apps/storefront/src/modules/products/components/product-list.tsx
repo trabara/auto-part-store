@@ -1,9 +1,9 @@
 "use client"
 
+import { Badge } from "@repo/ui/components/badge"
 import { Button } from "@repo/ui/components/button"
 import { ButtonGroup } from "@repo/ui/components/button-group"
 import { Grid, List, RefreshCcwIcon, Search, X } from "lucide-react"
-import { Badge } from "@repo/ui/components/badge"
 import {
   Empty,
   EmptyContent,
@@ -36,14 +36,7 @@ import { useProductList } from "../hooks/use-product-list"
 import { useProductFilters } from "../hooks/use-product-filters"
 import { FilterDrawerButton } from "./filter-drawer-button"
 import { createViewProductItem } from "./product-item"
-
-const SORT_LABELS: Record<SortOptions, string> = {
-  created_at: "Newest First",
-  name_asc: "Name A–Z",
-  name_desc: "Name Z–A",
-  price_asc: "Price Low–High",
-  price_desc: "Price High–Low",
-}
+import { useTranslations } from "next-intl"
 
 const ITEMS_PER_PAGE_OPTIONS = [12, 24, 48, 96]
 
@@ -57,6 +50,7 @@ export function ProductListFilterTags({
   className,
   ...props
 }: HTMLAttributes<HTMLDivElement>) {
+  const t = useTranslations("product")
   const { activeOptions, queryParams } = useProductList((store) => ({
     activeOptions: store.activeOptions,
     queryParams: store.queryParams,
@@ -79,11 +73,14 @@ export function ProductListFilterTags({
         onClick={resetFilters}
       >
         <X className="size-3 mr-1" />
-        Clear all
+        {t("list.clearAll")}
       </Badge>
 
       {hasPriceFilter && (
-        <Badge variant="secondary" className="p-2 items-center gap-1 rounded-none">
+        <Badge
+          variant="secondary"
+          className="p-2 items-center gap-1 rounded-none"
+        >
           Price:{" "}
           {queryParams.min_price !== undefined
             ? `${queryParams.min_price} – `
@@ -101,8 +98,12 @@ export function ProductListFilterTags({
       )}
 
       {(queryParams.status ?? []).map((s) => (
-        <Badge key={s} variant="secondary" className="p-2 items-center gap-1 rounded-none">
-          {s === "in_stock" ? "In stock" : "On sale"}
+        <Badge
+          key={s}
+          variant="secondary"
+          className="p-2 items-center gap-1 rounded-none"
+        >
+          {s === "in_stock" ? t("list.inStock") : t("list.onSale")}
           <Button
             variant="ghost"
             size="icon"
@@ -140,6 +141,7 @@ export function ProductListFilterTags({
 export function ProductListHeader({
   className,
 }: HTMLAttributes<HTMLDivElement>) {
+  const t = useTranslations("product")
   const { products, totalCount, display, setDisplay, sort, limit } =
     useProductList((store) => ({
       products: store.products,
@@ -152,12 +154,20 @@ export function ProductListHeader({
 
   const { setSort, setLimit } = useProductFilters()
 
+  const SORT_LABELS: Record<SortOptions, string> = {
+    created_at: t("list.sortNewest"),
+    name_asc: t("list.sortNameAsc"),
+    name_desc: t("list.sortNameDesc"),
+    price_asc: t("list.sortPriceAsc"),
+    price_desc: t("list.sortPriceDesc"),
+  }
+
   return (
     <div className={cn("mb-7.5 flex justify-between items-center", className)}>
       <div className="flex items-center gap-2">
         <FilterDrawerButton />
         <h6 className="hidden xl:block text-sm text-accent-foreground/50">
-          Showing {products.length} of {totalCount} results
+          {t("list.showing", { count: products.length, total: totalCount })}
         </h6>
       </div>
       <div className="flex gap-2">
@@ -184,7 +194,7 @@ export function ProductListHeader({
           <SelectContent>
             {ITEMS_PER_PAGE_OPTIONS.map((count) => (
               <SelectItem key={count} value={count.toString()}>
-                {count} / page
+                {t("list.perPage", { count })}
               </SelectItem>
             ))}
           </SelectContent>
@@ -216,6 +226,7 @@ export function ProductListHeader({
 }
 
 export function ProductListContent() {
+  const t = useTranslations("product")
   const { display, products, isLoading } = useProductList((store) => ({
     display: store.display,
     products: store.products,
@@ -225,7 +236,7 @@ export function ProductListContent() {
   const { resetFilters } = useProductFilters()
 
   if (isLoading) {
-    return <div>Loading...</div>
+    return <div>{t("list.loading")}</div>
   }
 
   if (products.length === 0) {
@@ -235,16 +246,15 @@ export function ProductListContent() {
           <EmptyMedia variant="icon">
             <Search />
           </EmptyMedia>
-          <EmptyTitle>No Products Found</EmptyTitle>
+          <EmptyTitle>{t("list.noProducts")}</EmptyTitle>
           <EmptyDescription className="max-w-xs text-pretty">
-            We couldn&apos;t find any products matching your filters. Try
-            adjusting or clearing your filters.
+            {t("list.noProductsDesc")}
           </EmptyDescription>
         </EmptyHeader>
         <EmptyContent>
           <Button variant="outline" onClick={resetFilters}>
             <RefreshCcwIcon data-icon="inline-start" />
-            Clear filters
+            {t("list.clearFilters")}
           </Button>
         </EmptyContent>
       </Empty>

@@ -1,0 +1,286 @@
+{
+  "layout": {
+    "aboutUs": "من نحن",
+    "faq": "الأسئلة الشائعة",
+    "orderTracking": "تتبع الطلب",
+    "allCategories": "جميع الفئات",
+    "myGarage": "مرآبي",
+    "searchProduct": "بحث المنتجات",
+    "account": "الحساب",
+    "loginRegister": "تسجيل الدخول / التسجيل",
+    "shoppingCart": "عربة التسوق",
+    "customerService": "خدمة العملاء",
+    "helpContact": "المساعدة والتواصل",
+    "returnsRefunds": "الإرجاع والاسترداد",
+    "shippingInfo": "معلومات الشحن",
+    "aboutUsFooter": "من نحن",
+    "ourStory": "قصتنا",
+    "careers": "وظائف",
+    "press": "الصحافة",
+    "followUs": "تابعنا",
+    "copyright": "© {year} شركتكم. جميع الحقوق محفوظة.",
+    "settings": "الإعدادات"
+  },
+  "localeSwitcher": {
+    "label": "اللغة"
+  },
+  "notFound": {
+    "title": "الصفحة غير موجودة",
+    "goHome": "العودة إلى الرئيسية"
+  },
+  "home": {
+    "shopByCategory": "تسوق حسب الفئة",
+    "newArrivals": "الوافدون الجدد",
+    "bestSellers": "الأكثر مبيعاً",
+    "noProductsYet": "لا توجد منتجات متاحة حتى الآن.",
+    "heroSlides": {
+      "0": {
+        "eyebrow": "مجموعة الموسم الجديد",
+        "headline": "قطع المحرك\nمبنية لتدوم",
+        "tagline": "مكونات OEM عالية الجودة لكل طراز وموديل.",
+        "cta": "تسوق قطع المحرك"
+      },
+      "1": {
+        "eyebrow": "الأكثر مبيعاً",
+        "headline": "الكهربائيات\nوالإضاءة",
+        "tagline": "أضئ الطريق. طوّر نظامك الكهربائي اليوم.",
+        "cta": "تسوق الكهربائيات"
+      },
+      "2": {
+        "eyebrow": "علامات موثوقة",
+        "headline": "قطع أصلية،\nأداء حقيقي",
+        "tagline": "بوش، NGK، شل والمزيد — مصدر مباشر بسعر مناسب.",
+        "cta": "تصفح جميع القطع"
+      }
+    },
+    "trustBadges": {
+      "fastDelivery": {
+        "title": "توصيل سريع",
+        "desc": "شحن وطني خلال 24–48 ساعة"
+      },
+      "genuineParts": {
+        "title": "قطع أصلية",
+        "desc": "100% معتمدة OEM وOES"
+      },
+      "easyReturns": {
+        "title": "إرجاع سهل",
+        "desc": "إرجاع مريح خلال 30 يوماً"
+      },
+      "expertSupport": {
+        "title": "دعم متخصص",
+        "desc": "ميكانيكيون متاحون 7 أيام في الأسبوع"
+      }
+    },
+    "promoBanners": {
+      "0": {
+        "eyebrow": "عرض محدود",
+        "headline": "خصم يصل إلى 40%\nعلى قطع المحرك",
+        "cta": "اشتر الآن"
+      },
+      "1": {
+        "eyebrow": "شحن مجاني",
+        "headline": "الطلبات التي\nتتجاوز 200 دينار",
+        "cta": "ابدأ التسوق"
+      }
+    }
+  },
+  "cart": {
+    "empty": "لا توجد منتجات في العربة.",
+    "returnToShop": "العودة إلى المتجر",
+    "subtotal": "المجموع الفرعي",
+    "viewCartCheckout": "عرض العربة والدفع",
+    "orderSummary": "ملخص الطلب",
+    "discount": "الخصم",
+    "shipping": "الشحن",
+    "calculatedAtCheckout": "يُحسب عند الدفع",
+    "tax": "الضريبة",
+    "orderTotal": "إجمالي الطلب",
+    "couponLabel": "كوبون أو بطاقة هدية",
+    "couponPlaceholder": "أدخل الرمز",
+    "couponApply": "تطبيق",
+    "couponNote": "سيتم تطبيق رموز الكوبون عند الدفع.",
+    "proceedToCheckout": "المتابعة للدفع",
+    "secureCheckout": "دفع آمن",
+    "cartEmpty": "عربة التسوق فارغة",
+    "continueShopping": "مواصلة التسوق",
+    "shoppingCart": "عربة التسوق",
+    "item": "منتج",
+    "items": "منتجات",
+    "product": "المنتج",
+    "continueShoppingArrow": "→ مواصلة التسوق",
+    "noImg": "بدون صورة",
+    "eachPrice": "{price} للقطعة",
+    "freeShipping": "مجاني"
+  },
+  "checkout": {
+    "backToCart": "العودة إلى العربة",
+    "title": "الدفع",
+    "saving": "جارٍ الحفظ…",
+    "continue": "متابعة",
+    "edit": "تعديل",
+    "contact": {
+      "title": "١. التواصل",
+      "emailLabel": "البريد الإلكتروني",
+      "emailField": "عنوان البريد الإلكتروني",
+      "emailPlaceholder": "you@example.com",
+      "emailError": "الرجاء إدخال عنوان بريد إلكتروني صحيح.",
+      "saveError": "فشل حفظ البريد الإلكتروني."
+    },
+    "shippingAddress": {
+      "title": "٢. عنوان الشحن",
+      "firstName": "الاسم الأول",
+      "lastName": "اسم العائلة",
+      "address": "العنوان",
+      "addressPlaceholder": "عنوان الشارع",
+      "city": "المدينة",
+      "postalCode": "الرمز البريدي",
+      "country": "البلد",
+      "countryValue": "تونس",
+      "phone": "الهاتف",
+      "phonePlaceholder": "+216 XX XXX XXX",
+      "required": "مطلوب",
+      "saveError": "فشل حفظ العنوان."
+    },
+    "shippingMethod": {
+      "title": "٣. طريقة الشحن",
+      "loading": "جارٍ تحميل خيارات الشحن…",
+      "noOptions": "لا تتوفر خيارات شحن لعنوانك.",
+      "selectError": "الرجاء اختيار طريقة الشحن.",
+      "saveError": "فشل اختيار طريقة الشحن.",
+      "free": "مجاني"
+    },
+    "payment": {
+      "title": "٤. الدفع",
+      "selectError": "الرجاء اختيار طريقة الدفع.",
+      "saveError": "فشل إعداد الدفع.",
+      "payOnDelivery": "الدفع عند الاستلام",
+      "payOnDeliveryDesc": "دفع نقدي أو ببطاقة عند التسليم"
+    },
+    "review": {
+      "title": "٥. مراجعة وتأكيد الطلب",
+      "qty": "الكمية:",
+      "subtotal": "المجموع الفرعي",
+      "shipping": "الشحن",
+      "tax": "الضريبة",
+      "total": "الإجمالي",
+      "free": "مجاني",
+      "placeOrder": "تأكيد الطلب",
+      "placingOrder": "جارٍ تأكيد الطلب…",
+      "terms": "بتأكيد طلبك، أنت توافق على شروطنا وأحكامنا.",
+      "noImg": "بدون صورة"
+    }
+  },
+  "order": {
+    "confirmed": "تم تأكيد الطلب!",
+    "thankYou": "شكراً لشرائك. سنوصل قطعك قريباً.",
+    "orderNumber": "طلب",
+    "itemsOrdered": "المنتجات المطلوبة",
+    "shippingAddress": "عنوان الشحن",
+    "deliveryMethod": "طريقة التوصيل",
+    "subtotal": "المجموع الفرعي",
+    "shipping": "الشحن",
+    "tax": "الضريبة",
+    "total": "الإجمالي",
+    "free": "مجاني",
+    "continueShopping": "مواصلة التسوق",
+    "qty": "الكمية:",
+    "noImg": "بدون صورة",
+    "standardShipping": "قياسي"
+  },
+  "product": {
+    "home": "الرئيسية",
+    "compatibleWith": "متوافق مع سيارتك",
+    "notCompatibleWith": "غير متوافق مع سيارتك",
+    "compatibleVehicles": "{count} مركبة متوافقة",
+    "compatibleVehiclesPlural": "{count} مركبات متوافقة",
+    "seeFitmentTab": "— انظر تبويب التوافق",
+    "relatedProducts": "منتجات ذات صلة",
+    "viewAll": "عرض الكل",
+    "viewAllIn": "عرض الكل في {category}",
+    "inStock": "متوفر في المخزون",
+    "onlyLeft": "— {count} فقط",
+    "outOfStock": "غير متوفر",
+    "addToCart": "إضافة إلى العربة",
+    "adding": "جارٍ الإضافة...",
+    "selectOptions": "اختر الخيارات أعلاه للإضافة إلى العربة.",
+    "tabs": {
+      "description": "الوصف",
+      "specifications": "المواصفات",
+      "vehicleFitment": "توافق المركبة",
+      "noDescription": "لا يتوفر وصف.",
+      "noSpecs": "لا تتوفر مواصفات.",
+      "noFitment": "لا تتوفر بيانات توافق لهذا المنتج.",
+      "make": "الصانع",
+      "model": "الموديل",
+      "years": "السنوات",
+      "body": "الهيكل",
+      "engine": "المحرك",
+      "drive": "نظام الدفع",
+      "trans": "ناقل الحركة",
+      "weight": "الوزن",
+      "length": "الطول",
+      "width": "العرض",
+      "height": "الارتفاع"
+    },
+    "list": {
+      "clearAll": "مسح الكل",
+      "inStock": "متوفر",
+      "onSale": "عروض",
+      "showing": "عرض {count} من {total} نتيجة",
+      "loading": "جارٍ التحميل...",
+      "noProducts": "لم يتم العثور على منتجات",
+      "noProductsDesc": "لم نجد أي منتجات تطابق الفلاتر. حاول ضبط الفلاتر أو مسحها.",
+      "clearFilters": "مسح الفلاتر",
+      "perPage": "{count} / صفحة",
+      "sortNewest": "الأحدث أولاً",
+      "sortNameAsc": "الاسم أ–ي",
+      "sortNameDesc": "الاسم ي–أ",
+      "sortPriceAsc": "السعر تصاعدي",
+      "sortPriceDesc": "السعر تنازلي"
+    },
+    "sale": "تخفيض",
+    "addToCartBtn": "إضافة إلى العربة"
+  },
+  "filters": {
+    "price": "السعر",
+    "status": "الحالة",
+    "inStock": "متوفر",
+    "onSale": "عروض",
+    "title": "الفلاتر",
+    "description": "حسّن بحثك عن المنتجات"
+  },
+  "fitment": {
+    "myGarage": "مرآبي",
+    "findParts": "ابحث عن قطع\nلسيارتك",
+    "findPartsDesc": "اختر الصانع والموديل والسنة للحصول على قائمة القطع المناسبة تماماً لسيارتك.",
+    "dialogTitle": "مرآبي",
+    "dialogDesc": "أضف مركباتك لإيجاد القطع الصحيحة بسرعة.",
+    "addVehicle": "إضافة مركبة",
+    "clear": "مسح",
+    "selectYear": "اختر السنة",
+    "selectManufacturer": "اختر الصانع",
+    "selectModel": "اختر الموديل",
+    "selectEngine": "اختر المحرك",
+    "tabModel": "الموديل",
+    "tabVin": "رقم الهيكل",
+    "tabPlate": "لوحة الترقيم",
+    "searchByModel": "البحث بموديل المركبة",
+    "searchByVin": "البحث برقم الهيكل",
+    "vinPlaceholder": "رقم التعريف للمركبة",
+    "searchByPlate": "البحث بلوحة الترقيم",
+    "platePlaceholder": "رقم لوحة الترقيم",
+    "go": "بحث"
+  },
+  "categories": {
+    "allCategories": "جميع الفئات",
+    "settings": "الإعدادات",
+    "mostPopularParts": "القطع الأكثر طلباً"
+  },
+  "search": {
+    "placeholder": "بحث...",
+    "srOnly": "بحث"
+  },
+  "sectionHeading": {
+    "viewAll": "عرض الكل"
+  }
+}

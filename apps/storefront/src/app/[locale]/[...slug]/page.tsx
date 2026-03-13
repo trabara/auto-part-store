@@ -9,23 +9,25 @@ import ProductCategoryCard from "@/modules/categories/components/category-card"
 import { FitmentCTA } from "@/modules/fitment/components/fitment-cta"
 import ProductListTemplate from "@/modules/products/templates"
 import { parseSearchParams, SearchParams } from "@/modules/products/utils"
+import { getTranslations } from "next-intl/server"
 import { notFound } from "next/navigation"
 
 export default async function CategoryProducts({
   params,
   searchParams,
 }: {
-  params: Promise<{ slug: string[] }>
+  params: Promise<{ slug: string[]; locale: string }>
   searchParams: Promise<SearchParams>
 }) {
-  const [{ slug }, resolvedSearchParams] = await Promise.all([
+  const [{ slug, locale }, resolvedSearchParams] = await Promise.all([
     params,
     searchParams,
   ])
 
-  const [category, fitment] = await Promise.all([
+  const [category, fitment, t] = await Promise.all([
     getCategoryByHandle(slug),
-    retreiveFitment()
+    retreiveFitment(),
+    getTranslations({ locale, namespace: "categories" }),
   ])
 
   if (!category) {
@@ -42,7 +44,7 @@ export default async function CategoryProducts({
         </section>
 
         <h1 className="text-2xl font-medium mb-4 text-left! after:content-[''] after:block after:w-16 after:h-1 after:bg-primary">
-          Most Popular Parts
+          {t("mostPopularParts")}
         </h1>
         <div className="grid gap-3 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4">
           {category.category_children.map((child: StoreProductCategory) => {

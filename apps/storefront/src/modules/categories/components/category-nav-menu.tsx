@@ -1,9 +1,9 @@
 "use client"
 
 import { StoreProductCategory } from "@/lib/data/categories"
+import { Link } from "@/i18n/navigation"
 import { SheetClose } from "@repo/ui/components/sheet"
 import { ChevronRight } from "lucide-react"
-import Link from "next/link"
 
 type CategoryNavMenuProps = {
   category: StoreProductCategory
@@ -23,7 +23,7 @@ export function CategoryNavMenu({
     return (
       <SheetClose asChild>
         <Link
-          href={`/${currentPaths.join("/")}`}
+          href={`/${currentPaths.join("/")}` as any}
           className="flex items-center px-3 py-2 text-sm text-primary leading-none transition-colors hover:bg-accent hover:text-accent-foreground w-full"
         >
           {category.name}
@@ -42,7 +42,7 @@ export function CategoryNavMenu({
         {category.category_children?.map((subCategory) => (
           <CategoryNavMenu
             key={subCategory.handle}
-            category={subCategory}
+            category={subCategory as StoreProductCategory}
             paths={currentPaths}
           />
         ))}

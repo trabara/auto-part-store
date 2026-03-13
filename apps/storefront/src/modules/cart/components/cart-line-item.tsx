@@ -6,6 +6,7 @@ import { StoreCartLineItem } from "@medusajs/types"
 import { Button } from "@repo/ui/components/button"
 import { cn } from "@repo/ui/lib/utils"
 import { Minus, Plus, Trash2 } from "lucide-react"
+import { useTranslations } from "next-intl"
 import Image from "next/image"
 import { useTransition } from "react"
 import { useCartStore } from "../hooks/use-cart"
@@ -48,6 +49,7 @@ export default function CartLineItem({
     setLoading: store.setLoading,
     updateCartFromServer: store.updateCartFromServer,
   }))
+  const t = useTranslations("cart")
 
   const [isPending, startTransition] = useTransition()
 
@@ -114,7 +116,7 @@ export default function CartLineItem({
           />
         ) : (
           <div className="absolute inset-0 flex items-center justify-center text-muted-foreground/30 text-xs">
-            No img
+            {t("noImg")}
           </div>
         )}
       </div>
@@ -133,7 +135,9 @@ export default function CartLineItem({
         {item.subtitle && !variantLabel && (
           <p className="text-xs text-muted-foreground">{item.subtitle}</p>
         )}
-        <p className="text-xs text-muted-foreground">{unitPrice} each</p>
+        <p className="text-xs text-muted-foreground">
+          {t("eachPrice", { price: unitPrice })}
+        </p>
 
         {/* Quantity controls */}
         <div className="flex items-center gap-1 mt-auto">

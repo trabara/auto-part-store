@@ -7,14 +7,7 @@ import { Button } from "@repo/ui/components/button"
 import { RadioGroup, RadioGroupItem } from "@repo/ui/components/radio-group"
 import { CheckCircle2, CreditCard, Pencil } from "lucide-react"
 import { StoreCart } from "@medusajs/types"
-
-const PAYMENT_PROVIDERS = [
-  {
-    id: "pp_system_default",
-    label: "Pay on delivery",
-    description: "Cash or card payment upon delivery",
-  },
-]
+import { useTranslations } from "next-intl"
 
 type Props = {
   cart: StoreCart
@@ -26,6 +19,16 @@ export function PaymentSection({ cart, onSaved, disabled }: Props) {
   const store = useCartStore((s) => ({
     updateCartFromServer: s.updateCartFromServer,
   }))
+
+  const t = useTranslations("checkout")
+
+  const PAYMENT_PROVIDERS = [
+    {
+      id: "pp_system_default",
+      label: t("payment.payOnDelivery"),
+      description: t("payment.payOnDeliveryDesc"),
+    },
+  ]
 
   const existingProvider =
     (cart.payment_collection?.payment_sessions as any[])?.[0]?.provider_id ?? ""
@@ -40,7 +43,7 @@ export function PaymentSection({ cart, onSaved, disabled }: Props) {
 
   const handleSave = () => {
     if (!selected) {
-      setError("Please select a payment method.")
+      setError(t("payment.selectError"))
       return
     }
     setError(null)
@@ -54,7 +57,7 @@ export function PaymentSection({ cart, onSaved, disabled }: Props) {
         // Update global cart store after UI state is committed
         store.updateCartFromServer(updatedCart as StoreCart)
       } catch (e: any) {
-        setError(e?.message ?? "Failed to set up payment.")
+        setError(e?.message ?? t("payment.saveError"))
       }
     })
   }
@@ -73,7 +76,9 @@ export function PaymentSection({ cart, onSaved, disabled }: Props) {
           {saved && !editing && (
             <CheckCircle2 className="size-4 text-green-500 shrink-0" />
           )}
-          <h2 className="text-base font-semibold tracking-tight">4. Payment</h2>
+          <h2 className="text-base font-semibold tracking-tight">
+            {t("payment.title")}
+          </h2>
         </div>
         {saved && !editing && (
           <button
@@ -81,7 +86,7 @@ export function PaymentSection({ cart, onSaved, disabled }: Props) {
             onClick={() => setEditing(true)}
           >
             <Pencil className="size-3" />
-            Edit
+            {t("edit")}
           </button>
         )}
       </div>
@@ -135,7 +140,7 @@ export function PaymentSection({ cart, onSaved, disabled }: Props) {
             disabled={isPending || !selected}
             className="font-semibold tracking-widest uppercase text-xs h-9 px-6"
           >
-            {isPending ? "Saving…" : "Continue"}
+            {isPending ? t("saving") : t("continue")}
           </Button>
         </div>
       )}

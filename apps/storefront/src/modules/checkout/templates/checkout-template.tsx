@@ -7,8 +7,9 @@ import { ShippingAddressSection } from "@/modules/checkout/components/shipping-a
 import { ShippingMethodSection } from "@/modules/checkout/components/shipping-method-section"
 import { PaymentSection } from "@/modules/checkout/components/payment-section"
 import { OrderReviewSection } from "@/modules/checkout/components/order-review-section"
-import Link from "next/link"
+import { Link } from "@/i18n/navigation"
 import { ChevronLeft } from "lucide-react"
+import { useTranslations } from "next-intl"
 
 type Props = {
   initialCart: StoreCart
@@ -36,6 +37,8 @@ export function CheckoutTemplate({ initialCart }: Props) {
   // so totals always reflect the most recent server state.
   const [reviewCart, setReviewCart] = useState<StoreCart>(initialCart)
 
+  const t = useTranslations("checkout")
+
   return (
     <div className="min-h-screen bg-background">
       <div className="snap-container py-8 md:py-12">
@@ -45,10 +48,10 @@ export function CheckoutTemplate({ initialCart }: Props) {
           className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors mb-6"
         >
           <ChevronLeft className="size-4" />
-          Back to cart
+          {t("backToCart")}
         </Link>
 
-        <h1 className="text-2xl font-bold tracking-tight mb-8">Checkout</h1>
+        <h1 className="text-2xl font-bold tracking-tight mb-8">{t("title")}</h1>
 
         <div className="grid grid-cols-1 gap-4 max-w-2xl">
           {/* Step 1: Contact */}

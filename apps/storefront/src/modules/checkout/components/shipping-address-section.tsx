@@ -8,6 +8,7 @@ import { Input } from "@repo/ui/components/input"
 import { Field, FieldLabel, FieldError } from "@repo/ui/components/field"
 import { CheckCircle2, Pencil } from "lucide-react"
 import { HttpTypes, StoreCart } from "@medusajs/types"
+import { useTranslations } from "next-intl"
 
 type AddressForm = {
   first_name: string
@@ -64,18 +65,20 @@ export function ShippingAddressSection({
   const [serverError, setServerError] = useState<string | null>(null)
   const [isPending, startTransition] = useTransition()
 
+  const t = useTranslations("checkout")
+
   const set =
     (key: keyof AddressForm) => (e: React.ChangeEvent<HTMLInputElement>) =>
       setForm((prev) => ({ ...prev, [key]: e.target.value }))
 
   const validate = (): boolean => {
     const e: Partial<AddressForm> = {}
-    if (!form.first_name.trim()) e.first_name = "Required"
-    if (!form.last_name.trim()) e.last_name = "Required"
-    if (!form.address_1.trim()) e.address_1 = "Required"
-    if (!form.city.trim()) e.city = "Required"
-    if (!form.postal_code.trim()) e.postal_code = "Required"
-    if (!form.phone.trim()) e.phone = "Required"
+    if (!form.first_name.trim()) e.first_name = t("shippingAddress.required")
+    if (!form.last_name.trim()) e.last_name = t("shippingAddress.required")
+    if (!form.address_1.trim()) e.address_1 = t("shippingAddress.required")
+    if (!form.city.trim()) e.city = t("shippingAddress.required")
+    if (!form.postal_code.trim()) e.postal_code = t("shippingAddress.required")
+    if (!form.phone.trim()) e.phone = t("shippingAddress.required")
     setErrors(e)
     return Object.keys(e).length === 0
   }
@@ -93,7 +96,7 @@ export function ShippingAddressSection({
         // Update global cart store after UI state is committed
         store.updateCartFromServer(updatedCart as StoreCart)
       } catch (e: any) {
-        setServerError(e?.message ?? "Failed to save address.")
+        setServerError(e?.message ?? t("shippingAddress.saveError"))
       }
     })
   }
@@ -111,7 +114,7 @@ export function ShippingAddressSection({
             <CheckCircle2 className="size-4 text-green-500 shrink-0" />
           )}
           <h2 className="text-base font-semibold tracking-tight">
-            2. Shipping Address
+            {t("shippingAddress.title")}
           </h2>
         </div>
         {saved && !editing && (
@@ -120,7 +123,7 @@ export function ShippingAddressSection({
             onClick={() => setEditing(true)}
           >
             <Pencil className="size-3" />
-            Edit
+            {t("edit")}
           </button>
         )}
       </div>
@@ -146,7 +149,9 @@ export function ShippingAddressSection({
           {/* Name row */}
           <div className="grid grid-cols-2 gap-3">
             <Field>
-              <FieldLabel htmlFor="addr-first-name">First name</FieldLabel>
+              <FieldLabel htmlFor="addr-first-name">
+                {t("shippingAddress.firstName")}
+              </FieldLabel>
               <Input
                 id="addr-first-name"
                 value={form.first_name}
@@ -160,7 +165,9 @@ export function ShippingAddressSection({
               )}
             </Field>
             <Field>
-              <FieldLabel htmlFor="addr-last-name">Last name</FieldLabel>
+              <FieldLabel htmlFor="addr-last-name">
+                {t("shippingAddress.lastName")}
+              </FieldLabel>
               <Input
                 id="addr-last-name"
                 value={form.last_name}
@@ -175,14 +182,16 @@ export function ShippingAddressSection({
 
           {/* Address */}
           <Field>
-            <FieldLabel htmlFor="addr-address1">Address</FieldLabel>
+            <FieldLabel htmlFor="addr-address1">
+              {t("shippingAddress.address")}
+            </FieldLabel>
             <Input
               id="addr-address1"
               value={form.address_1}
               onChange={set("address_1")}
               disabled={isPending}
               autoComplete="address-line1"
-              placeholder="Street address"
+              placeholder={t("shippingAddress.addressPlaceholder")}
               className="h-10"
             />
             {errors.address_1 && <FieldError>{errors.address_1}</FieldError>}
@@ -191,7 +200,9 @@ export function ShippingAddressSection({
           {/* City + Postal */}
           <div className="grid grid-cols-2 gap-3">
             <Field>
-              <FieldLabel htmlFor="addr-city">City</FieldLabel>
+              <FieldLabel htmlFor="addr-city">
+                {t("shippingAddress.city")}
+              </FieldLabel>
               <Input
                 id="addr-city"
                 value={form.city}
@@ -203,7 +214,9 @@ export function ShippingAddressSection({
               {errors.city && <FieldError>{errors.city}</FieldError>}
             </Field>
             <Field>
-              <FieldLabel htmlFor="addr-postal">Postal code</FieldLabel>
+              <FieldLabel htmlFor="addr-postal">
+                {t("shippingAddress.postalCode")}
+              </FieldLabel>
               <Input
                 id="addr-postal"
                 value={form.postal_code}
@@ -220,10 +233,12 @@ export function ShippingAddressSection({
 
           {/* Country (fixed to Tunisia) */}
           <Field>
-            <FieldLabel htmlFor="addr-country">Country</FieldLabel>
+            <FieldLabel htmlFor="addr-country">
+              {t("shippingAddress.country")}
+            </FieldLabel>
             <Input
               id="addr-country"
-              value="Tunisia"
+              value={t("shippingAddress.countryValue")}
               disabled
               className="h-10 bg-muted/50"
             />
@@ -231,7 +246,9 @@ export function ShippingAddressSection({
 
           {/* Phone */}
           <Field>
-            <FieldLabel htmlFor="addr-phone">Phone</FieldLabel>
+            <FieldLabel htmlFor="addr-phone">
+              {t("shippingAddress.phone")}
+            </FieldLabel>
             <Input
               id="addr-phone"
               type="tel"
@@ -239,7 +256,7 @@ export function ShippingAddressSection({
               onChange={set("phone")}
               disabled={isPending}
               autoComplete="tel"
-              placeholder="+216 XX XXX XXX"
+              placeholder={t("shippingAddress.phonePlaceholder")}
               className="h-10"
             />
             {errors.phone && <FieldError>{errors.phone}</FieldError>}
@@ -254,7 +271,7 @@ export function ShippingAddressSection({
             disabled={isPending}
             className="font-semibold tracking-widest uppercase text-xs h-9 px-6"
           >
-            {isPending ? "Saving…" : "Continue"}
+            {isPending ? t("saving") : t("continue")}
           </Button>
         </div>
       )}

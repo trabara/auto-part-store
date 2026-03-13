@@ -7,11 +7,12 @@ import { getProductPrice } from "@/lib/util/product"
 import { useAddToCart } from "@/modules/cart/hooks/use-cart"
 import { StoreProduct } from "@medusajs/types"
 import Image from "next/image"
-import Link from "next/link"
+import { Link } from "@/i18n/navigation"
 import { createElement, HTMLAttributes } from "react"
 import { Display } from "../types"
 import { WishlistButton } from "./whishlist-button"
 import { Loader2, ShoppingCart, Tag } from "lucide-react"
+import { useTranslations } from "next-intl"
 
 type ProductItemProps = HTMLAttributes<HTMLDivElement> & {
   product: StoreProduct
@@ -38,6 +39,7 @@ export function ProductGridItem({
   className,
   ...props
 }: ProductItemProps) {
+  const t = useTranslations("product")
   const { cheapestPrice } = getProductPrice({ product })
   const isSale = cheapestPrice?.price_type === "sale"
   const { add, isPending } = useAddToCart()
@@ -54,7 +56,7 @@ export function ProductGridItem({
     >
       {/* Image */}
       <Link
-        href={`/p/${product.handle}`}
+        href={`/p/${product.handle}` as any}
         className="block relative aspect-square overflow-hidden bg-accent/40"
       >
         {isSale && (
@@ -100,7 +102,7 @@ export function ProductGridItem({
             ) : (
               <ShoppingCart className="size-3.5" />
             )}
-            Add to cart
+            {t("addToCartBtn")}
           </Button>
         </div>
       </Link>
@@ -108,7 +110,7 @@ export function ProductGridItem({
       {/* Info */}
       <div className="p-3 flex flex-col gap-2 border-t border-border/50">
         <Link
-          href={`/p/${product.handle}`}
+          href={`/p/${product.handle}` as any}
           className="hover:text-primary transition-colors"
         >
           <p className="text-sm font-medium leading-snug line-clamp-2 text-foreground">
@@ -136,6 +138,7 @@ export function ProductListItem({
   className,
   ...props
 }: ProductItemProps) {
+  const t = useTranslations("product")
   const { cheapestPrice } = getProductPrice({ product })
   const isSale = cheapestPrice?.price_type === "sale"
   const { add, isPending } = useAddToCart()
@@ -152,7 +155,7 @@ export function ProductListItem({
     >
       {/* Image */}
       <Link
-        href={`/p/${product.handle}`}
+        href={`/p/${product.handle}` as any}
         className="relative w-32 md:w-48 shrink-0 overflow-hidden bg-accent/40 block"
       >
         {product.thumbnail ? (
@@ -179,11 +182,11 @@ export function ProductListItem({
             <div className="flex items-start gap-2">
               {isSale && (
                 <Badge className="mt-0.5 shrink-0 bg-destructive text-destructive-foreground text-[10px] font-semibold tracking-wide px-1.5 py-0 ">
-                  SALE
+                  {t("sale")}
                 </Badge>
               )}
               <Link
-                href={`/p/${product.handle}`}
+                href={`/p/${product.handle}` as any}
                 className="hover:text-primary transition-colors"
               >
                 <h6 className="text-sm md:text-base font-semibold leading-snug line-clamp-2 text-foreground">
@@ -238,7 +241,7 @@ export function ProductListItem({
               ) : (
                 <ShoppingCart className="size-3.5" />
               )}
-              Add to cart
+              {t("addToCartBtn")}
             </Button>
           </div>
         </div>
@@ -251,7 +254,7 @@ export default function ProductQuantityItem({
   product,
 }: {
   product: StoreProduct
-}) { }
+}) {}
 
 export function createViewProductItem(display: Display) {
   return function ProductItem(props?: ProductItemProps) {

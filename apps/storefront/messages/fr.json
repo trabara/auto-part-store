@@ -1,0 +1,286 @@
+{
+  "layout": {
+    "aboutUs": "À propos",
+    "faq": "FAQ",
+    "orderTracking": "Suivi de commande",
+    "allCategories": "TOUTES LES CATÉGORIES",
+    "myGarage": "Mon Garage",
+    "searchProduct": "Rechercher",
+    "account": "Compte",
+    "loginRegister": "Connexion / Inscription",
+    "shoppingCart": "Panier",
+    "customerService": "Service Client",
+    "helpContact": "Aide & Contact",
+    "returnsRefunds": "Retours & Remboursements",
+    "shippingInfo": "Informations de livraison",
+    "aboutUsFooter": "À propos",
+    "ourStory": "Notre histoire",
+    "careers": "Carrières",
+    "press": "Presse",
+    "followUs": "Suivez-nous",
+    "copyright": "© {year} Votre Entreprise. Tous droits réservés.",
+    "settings": "PARAMÈTRES"
+  },
+  "localeSwitcher": {
+    "label": "Langue"
+  },
+  "notFound": {
+    "title": "Page introuvable",
+    "goHome": "Retour à l'accueil"
+  },
+  "home": {
+    "shopByCategory": "Acheter par catégorie",
+    "newArrivals": "Nouveautés",
+    "bestSellers": "Meilleures ventes",
+    "noProductsYet": "Aucun produit disponible pour l'instant.",
+    "heroSlides": {
+      "0": {
+        "eyebrow": "Nouvelle collection",
+        "headline": "Pièces moteur\npour durer",
+        "tagline": "Composants de qualité OEM pour toutes les marques et modèles.",
+        "cta": "Voir les pièces moteur"
+      },
+      "1": {
+        "eyebrow": "Meilleures ventes",
+        "headline": "Électrique &\nÉclairage",
+        "tagline": "Éclairez la route. Améliorez votre système électrique aujourd'hui.",
+        "cta": "Voir l'électrique"
+      },
+      "2": {
+        "eyebrow": "Marques de confiance",
+        "headline": "Pièces authentiques,\nvraies performances",
+        "tagline": "Bosch, NGK, Shell et plus — directement sourcés, au juste prix.",
+        "cta": "Voir toutes les pièces"
+      }
+    },
+    "trustBadges": {
+      "fastDelivery": {
+        "title": "Livraison rapide",
+        "desc": "Livraison nationale en 24–48h"
+      },
+      "genuineParts": {
+        "title": "Pièces authentiques",
+        "desc": "100% certifiées OEM & OES"
+      },
+      "easyReturns": {
+        "title": "Retours faciles",
+        "desc": "Retours sans tracas sous 30 jours"
+      },
+      "expertSupport": {
+        "title": "Support expert",
+        "desc": "Mécaniciens disponibles 7j/7"
+      }
+    },
+    "promoBanners": {
+      "0": {
+        "eyebrow": "Offre limitée",
+        "headline": "Jusqu'à 40% de réduction\nsur les pièces moteur",
+        "cta": "Acheter maintenant"
+      },
+      "1": {
+        "eyebrow": "Livraison gratuite",
+        "headline": "Commandes\nde plus de 200 TND",
+        "cta": "Commencer"
+      }
+    }
+  },
+  "cart": {
+    "empty": "Aucun produit dans le panier.",
+    "returnToShop": "Retour à la boutique",
+    "subtotal": "Sous-total",
+    "viewCartCheckout": "Voir le panier & Passer commande",
+    "orderSummary": "Récapitulatif",
+    "discount": "Remise",
+    "shipping": "Livraison",
+    "calculatedAtCheckout": "Calculé à la caisse",
+    "tax": "TVA",
+    "orderTotal": "Total de la commande",
+    "couponLabel": "Coupon ou carte cadeau",
+    "couponPlaceholder": "Entrer le code",
+    "couponApply": "Appliquer",
+    "couponNote": "Les codes coupon seront appliqués à la caisse.",
+    "proceedToCheckout": "Passer à la caisse",
+    "secureCheckout": "Paiement sécurisé",
+    "cartEmpty": "Votre panier est vide",
+    "continueShopping": "Continuer les achats",
+    "shoppingCart": "Panier",
+    "item": "article",
+    "items": "articles",
+    "product": "Produit",
+    "continueShoppingArrow": "← Continuer les achats",
+    "noImg": "Pas d'img",
+    "eachPrice": "{price} / unité",
+    "freeShipping": "Gratuit"
+  },
+  "checkout": {
+    "backToCart": "Retour au panier",
+    "title": "Paiement",
+    "saving": "Enregistrement…",
+    "continue": "Continuer",
+    "edit": "Modifier",
+    "contact": {
+      "title": "1. Contact",
+      "emailLabel": "E-mail",
+      "emailField": "Adresse e-mail",
+      "emailPlaceholder": "vous@exemple.com",
+      "emailError": "Veuillez entrer une adresse e-mail valide.",
+      "saveError": "Échec de l'enregistrement de l'e-mail."
+    },
+    "shippingAddress": {
+      "title": "2. Adresse de livraison",
+      "firstName": "Prénom",
+      "lastName": "Nom",
+      "address": "Adresse",
+      "addressPlaceholder": "Adresse de la rue",
+      "city": "Ville",
+      "postalCode": "Code postal",
+      "country": "Pays",
+      "countryValue": "Tunisie",
+      "phone": "Téléphone",
+      "phonePlaceholder": "+216 XX XXX XXX",
+      "required": "Obligatoire",
+      "saveError": "Échec de l'enregistrement de l'adresse."
+    },
+    "shippingMethod": {
+      "title": "3. Mode de livraison",
+      "loading": "Chargement des options de livraison…",
+      "noOptions": "Aucune option de livraison disponible pour votre adresse.",
+      "selectError": "Veuillez sélectionner un mode de livraison.",
+      "saveError": "Échec de la sélection du mode de livraison.",
+      "free": "Gratuit"
+    },
+    "payment": {
+      "title": "4. Paiement",
+      "selectError": "Veuillez sélectionner un mode de paiement.",
+      "saveError": "Échec de la configuration du paiement.",
+      "payOnDelivery": "Paiement à la livraison",
+      "payOnDeliveryDesc": "Paiement en espèces ou par carte à la livraison"
+    },
+    "review": {
+      "title": "5. Vérifier & Passer la commande",
+      "qty": "Qté :",
+      "subtotal": "Sous-total",
+      "shipping": "Livraison",
+      "tax": "TVA",
+      "total": "Total",
+      "free": "Gratuit",
+      "placeOrder": "Passer la commande",
+      "placingOrder": "Commande en cours…",
+      "terms": "En passant votre commande, vous acceptez nos conditions générales.",
+      "noImg": "Pas d'img"
+    }
+  },
+  "order": {
+    "confirmed": "Commande confirmée !",
+    "thankYou": "Merci pour votre achat. Nous vous livrerons vos pièces bientôt.",
+    "orderNumber": "Commande",
+    "itemsOrdered": "Articles commandés",
+    "shippingAddress": "Adresse de livraison",
+    "deliveryMethod": "Mode de livraison",
+    "subtotal": "Sous-total",
+    "shipping": "Livraison",
+    "tax": "TVA",
+    "total": "Total",
+    "free": "Gratuit",
+    "continueShopping": "Continuer les achats",
+    "qty": "Qté :",
+    "noImg": "Pas d'img",
+    "standardShipping": "Standard"
+  },
+  "product": {
+    "home": "Accueil",
+    "compatibleWith": "Compatible avec votre",
+    "notCompatibleWith": "Incompatible avec votre",
+    "compatibleVehicles": "{count} véhicule compatible",
+    "compatibleVehiclesPlural": "{count} véhicules compatibles",
+    "seeFitmentTab": "— voir l'onglet Compatibilité",
+    "relatedProducts": "Produits associés",
+    "viewAll": "Voir tout",
+    "viewAllIn": "Voir tout dans {category}",
+    "inStock": "En stock",
+    "onlyLeft": "— plus que {count}",
+    "outOfStock": "Rupture de stock",
+    "addToCart": "Ajouter au panier",
+    "adding": "Ajout en cours...",
+    "selectOptions": "Sélectionnez les options ci-dessus pour ajouter au panier.",
+    "tabs": {
+      "description": "Description",
+      "specifications": "Spécifications",
+      "vehicleFitment": "Compatibilité véhicule",
+      "noDescription": "Aucune description disponible.",
+      "noSpecs": "Aucune spécification disponible.",
+      "noFitment": "Aucune donnée de compatibilité véhicule disponible pour ce produit.",
+      "make": "Marque",
+      "model": "Modèle",
+      "years": "Années",
+      "body": "Carrosserie",
+      "engine": "Moteur",
+      "drive": "Transmission",
+      "trans": "Boîte",
+      "weight": "Poids",
+      "length": "Longueur",
+      "width": "Largeur",
+      "height": "Hauteur"
+    },
+    "list": {
+      "clearAll": "Tout effacer",
+      "inStock": "En stock",
+      "onSale": "En promotion",
+      "showing": "Affichage {count} sur {total} résultats",
+      "loading": "Chargement...",
+      "noProducts": "Aucun produit trouvé",
+      "noProductsDesc": "Nous n'avons trouvé aucun produit correspondant à vos filtres. Essayez d'ajuster ou d'effacer vos filtres.",
+      "clearFilters": "Effacer les filtres",
+      "perPage": "{count} / page",
+      "sortNewest": "Plus récents",
+      "sortNameAsc": "Nom A–Z",
+      "sortNameDesc": "Nom Z–A",
+      "sortPriceAsc": "Prix croissant",
+      "sortPriceDesc": "Prix décroissant"
+    },
+    "sale": "PROMO",
+    "addToCartBtn": "Ajouter au panier"
+  },
+  "filters": {
+    "price": "Prix",
+    "status": "Statut",
+    "inStock": "En stock",
+    "onSale": "En promotion",
+    "title": "Filtres",
+    "description": "Affinez votre recherche de produits"
+  },
+  "fitment": {
+    "myGarage": "Mon Garage",
+    "findParts": "Trouvez des pièces\npour votre\nvéhicule",
+    "findPartsDesc": "Sélectionnez votre marque, modèle et année pour obtenir la liste exacte des pièces pour votre voiture.",
+    "dialogTitle": "Mon Garage",
+    "dialogDesc": "Ajoutez vos véhicules pour trouver les bonnes pièces plus rapidement.",
+    "addVehicle": "Ajouter un véhicule",
+    "clear": "Effacer",
+    "selectYear": "Sélectionner l'année",
+    "selectManufacturer": "Sélectionner le fabricant",
+    "selectModel": "Sélectionner le modèle",
+    "selectEngine": "Sélectionner le moteur",
+    "tabModel": "Modèle",
+    "tabVin": "VIN",
+    "tabPlate": "Plaque d'immatriculation",
+    "searchByModel": "Rechercher par modèle de véhicule",
+    "searchByVin": "Rechercher par VIN",
+    "vinPlaceholder": "Numéro d'identification du véhicule",
+    "searchByPlate": "Rechercher par plaque d'immatriculation",
+    "platePlaceholder": "Numéro de plaque d'immatriculation",
+    "go": "Rechercher"
+  },
+  "categories": {
+    "allCategories": "TOUTES LES CATÉGORIES",
+    "settings": "PARAMÈTRES",
+    "mostPopularParts": "Pièces les plus populaires"
+  },
+  "search": {
+    "placeholder": "Rechercher...",
+    "srOnly": "Rechercher"
+  },
+  "sectionHeading": {
+    "viewAll": "Voir tout"
+  }
+}

@@ -1,7 +1,7 @@
 "use client"
 
 import { useTransition } from "react"
-import { useRouter } from "next/navigation"
+import { useRouter } from "@/i18n/navigation"
 import { useCartStore } from "@/modules/cart/hooks/use-cart"
 import { placeOrder } from "@/lib/data/checkout"
 import { convertToLocale } from "@/lib/util/product"
@@ -12,6 +12,7 @@ import { ShieldCheck, Loader2 } from "lucide-react"
 import Image from "next/image"
 import { StoreCart } from "@medusajs/types"
 import { useState } from "react"
+import { useTranslations } from "next-intl"
 
 type Props = {
   cart: StoreCart
@@ -23,6 +24,7 @@ export function OrderReviewSection({ cart, disabled }: Props) {
   const router = useRouter()
   const [error, setError] = useState<string | null>(null)
   const [isPending, startTransition] = useTransition()
+  const t = useTranslations("checkout")
 
   const currency = cart.currency_code ?? "usd"
   const fmt = (amount: number | null | undefined) =>
@@ -60,7 +62,7 @@ export function OrderReviewSection({ cart, disabled }: Props) {
     >
       <div className="px-6 py-4 border-b border-border bg-accent/30">
         <h2 className="text-base font-semibold tracking-tight">
-          5. Review &amp; Place Order
+          {t("review.title")}
         </h2>
       </div>
 
@@ -84,7 +86,7 @@ export function OrderReviewSection({ cart, disabled }: Props) {
                     />
                   ) : (
                     <div className="absolute inset-0 flex items-center justify-center text-muted-foreground/30 text-xs">
-                      No img
+                      {t("review.noImg")}
                     </div>
                   )}
                 </div>
@@ -99,7 +101,7 @@ export function OrderReviewSection({ cart, disabled }: Props) {
                       </p>
                     )}
                     <p className="text-xs text-muted-foreground">
-                      Qty: {item.quantity}
+                      {t("review.qty")} {item.quantity}
                     </p>
                   </div>
                   <span className="text-sm font-semibold tabular-nums shrink-0">
@@ -116,24 +118,28 @@ export function OrderReviewSection({ cart, disabled }: Props) {
         {/* Totals */}
         <div className="space-y-2">
           <div className="flex justify-between text-sm">
-            <span className="text-muted-foreground">Subtotal</span>
+            <span className="text-muted-foreground">
+              {t("review.subtotal")}
+            </span>
             <span className="tabular-nums">{subtotal}</span>
           </div>
           <div className="flex justify-between text-sm">
-            <span className="text-muted-foreground">Shipping</span>
+            <span className="text-muted-foreground">
+              {t("review.shipping")}
+            </span>
             <span className="tabular-nums">
-              {shippingTotal > 0 ? fmt(shippingTotal) : "Free"}
+              {shippingTotal > 0 ? fmt(shippingTotal) : t("review.free")}
             </span>
           </div>
           {taxTotal > 0 && (
             <div className="flex justify-between text-sm">
-              <span className="text-muted-foreground">Tax</span>
+              <span className="text-muted-foreground">{t("review.tax")}</span>
               <span className="tabular-nums">{fmt(taxTotal)}</span>
             </div>
           )}
           <Separator />
           <div className="flex justify-between">
-            <span className="font-semibold">Total</span>
+            <span className="font-semibold">{t("review.total")}</span>
             <span className="font-bold text-base tabular-nums">{total}</span>
           </div>
         </div>
@@ -152,18 +158,18 @@ export function OrderReviewSection({ cart, disabled }: Props) {
           {isPending ? (
             <>
               <Loader2 className="size-3.5 animate-spin" />
-              Placing Order…
+              {t("review.placingOrder")}
             </>
           ) : (
             <>
               <ShieldCheck className="size-3.5" />
-              Place Order
+              {t("review.placeOrder")}
             </>
           )}
         </Button>
 
         <p className="text-center text-xs text-muted-foreground">
-          By placing your order you agree to our terms and conditions.
+          {t("review.terms")}
         </p>
       </div>
     </section>

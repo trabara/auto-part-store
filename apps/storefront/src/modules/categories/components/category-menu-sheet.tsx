@@ -6,6 +6,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@repo/ui/components/sheet"
+import { getTranslations } from "next-intl/server"
 import { CategoryNavMenu } from "./category-nav-menu"
 
 type CategoryMenuSheetProps = {
@@ -17,15 +18,16 @@ export async function CategoryMenuSheet({
   categories,
   children,
 }: CategoryMenuSheetProps) {
+  const t = await getTranslations("categories")
 
   return (
     <Sheet>
-      <SheetTrigger asChild>
-        {children}
-      </SheetTrigger>
+      <SheetTrigger asChild>{children}</SheetTrigger>
       <SheetContent side="left">
         <SheetHeader>
-          <SheetTitle className="text-lg font-bold">ALL CATEGORIES</SheetTitle>
+          <SheetTitle className="text-lg font-bold">
+            {t("allCategories")}
+          </SheetTitle>
         </SheetHeader>
         <nav className="flex flex-col gap-4 p-4">
           <div className="flex flex-col gap-2">
@@ -34,7 +36,7 @@ export async function CategoryMenuSheet({
             ))}
           </div>
           <div className="flex flex-col gap-2">
-            <h3 className="font-semibold text-sm">SETTINGS</h3>
+            <h3 className="font-semibold text-sm">{t("settings")}</h3>
           </div>
         </nav>
       </SheetContent>

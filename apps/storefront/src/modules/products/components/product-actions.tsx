@@ -8,6 +8,7 @@ import { useAddToCart } from "@/modules/cart/hooks/use-cart"
 import { HttpTypes } from "@medusajs/types"
 import { Loader2, Minus, Plus, ShoppingCart } from "lucide-react"
 import { useState } from "react"
+import { useTranslations } from "next-intl"
 
 type ProductActionsProps = {
   product: HttpTypes.StoreProduct
@@ -22,6 +23,7 @@ export function ProductActions({
   product,
   selectedVariantId,
 }: ProductActionsProps) {
+  const t = useTranslations("product")
   const [quantity, setQuantity] = useState(1)
   const { add, isPending } = useAddToCart()
 
@@ -72,9 +74,11 @@ export function ProductActions({
               "rounded-none"
             )}
           >
-            In Stock
+            {t("inStock")}
             {stock > 0 && stock <= 10 && (
-              <span className="ml-1 text-orange-600">— only {stock} left</span>
+              <span className="ml-1 text-orange-600">
+                {t("onlyLeft", { count: stock })}
+              </span>
             )}
           </Badge>
         ) : (
@@ -82,7 +86,7 @@ export function ProductActions({
             variant="outline"
             className=" text-xs font-medium border-destructive/50 text-destructive bg-destructive/5 rounded-none"
           >
-            Out of Stock
+            {t("outOfStock")}
           </Badge>
         )}
       </div>
@@ -129,14 +133,12 @@ export function ProductActions({
           ) : (
             <ShoppingCart className="size-4" />
           )}
-          {isPending ? "Adding..." : "Add to Cart"}
+          {isPending ? t("adding") : t("addToCart")}
         </Button>
       </div>
 
       {!selectedVariantId && (product.options?.length ?? 0) > 0 && (
-        <p className="text-xs text-muted-foreground">
-          Select options above to add to cart.
-        </p>
+        <p className="text-xs text-muted-foreground">{t("selectOptions")}</p>
       )}
     </div>
   )

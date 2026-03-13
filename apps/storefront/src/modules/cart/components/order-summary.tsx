@@ -7,7 +7,8 @@ import { Input } from "@repo/ui/components/input"
 import { Separator } from "@repo/ui/components/separator"
 import { cn } from "@repo/ui/lib/utils"
 import { Tag, Truck, Lock } from "lucide-react"
-import Link from "next/link"
+import { useTranslations } from "next-intl"
+import { Link } from "@/i18n/navigation"
 import { useState } from "react"
 
 type SummaryRowProps = {
@@ -44,6 +45,7 @@ function SummaryRow({ label, value, hint, className, bold }: SummaryRowProps) {
 
 export function OrderSummary() {
   const { cart } = useCart()
+  const t = useTranslations("cart")
   const [coupon, setCoupon] = useState("")
 
   if (!cart) return null
@@ -68,18 +70,18 @@ export function OrderSummary() {
       {/* Header */}
       <div className="px-6 py-4 border-b border-border bg-accent/30">
         <h2 className="text-base font-semibold tracking-tight">
-          Order Summary
+          {t("orderSummary")}
         </h2>
       </div>
 
       <div className="px-6 py-5 space-y-3">
         {/* Subtotal */}
-        <SummaryRow label="Subtotal" value={subtotal} />
+        <SummaryRow label={t("subtotal")} value={subtotal} />
 
         {/* Discount */}
         {hasDiscount && (
           <SummaryRow
-            label="Discount"
+            label={t("discount")}
             value={`-${fmt(discountTotal)}`}
             className="text-green-600"
           />
@@ -89,7 +91,7 @@ export function OrderSummary() {
         <div className="flex items-center justify-between gap-4">
           <span className="text-sm text-muted-foreground flex items-center gap-1.5">
             <Truck className="size-3.5 shrink-0" />
-            Shipping
+            {t("shipping")}
           </span>
           <span
             className={cn(
@@ -97,38 +99,38 @@ export function OrderSummary() {
               !hasShipping && "text-muted-foreground italic"
             )}
           >
-            {hasShipping ? fmt(shippingTotal) : "Calculated at checkout"}
+            {hasShipping ? fmt(shippingTotal) : t("calculatedAtCheckout")}
           </span>
         </div>
 
         {/* Tax */}
         <div className="flex items-baseline justify-between gap-4">
-          <span className="text-sm text-muted-foreground">Tax</span>
+          <span className="text-sm text-muted-foreground">{t("tax")}</span>
           <span
             className={cn(
               "text-sm tabular-nums text-right shrink-0",
               !hasTax && "text-muted-foreground italic"
             )}
           >
-            {hasTax ? fmt(taxTotal) : "Calculated at checkout"}
+            {hasTax ? fmt(taxTotal) : t("calculatedAtCheckout")}
           </span>
         </div>
 
         <Separator />
 
         {/* Order Total */}
-        <SummaryRow label="Order Total" value={total} bold />
+        <SummaryRow label={t("orderTotal")} value={total} bold />
       </div>
 
       {/* Coupon */}
       <div className="px-6 pb-5 space-y-2">
         <p className="text-xs font-medium text-muted-foreground flex items-center gap-1.5">
           <Tag className="size-3.5 shrink-0" />
-          Coupon or gift card
+          {t("couponLabel")}
         </p>
         <div className="flex gap-2">
           <Input
-            placeholder="Enter code"
+            placeholder={t("couponPlaceholder")}
             value={coupon}
             onChange={(e) => setCoupon(e.target.value)}
             className="h-9 text-sm"
@@ -139,12 +141,10 @@ export function OrderSummary() {
             className="shrink-0 h-9 px-4 text-xs font-semibold tracking-widest uppercase"
             disabled={!coupon.trim()}
           >
-            Apply
+            {t("couponApply")}
           </Button>
         </div>
-        <p className="text-xs text-muted-foreground/60">
-          Coupon codes will be applied at checkout.
-        </p>
+        <p className="text-xs text-muted-foreground/60">{t("couponNote")}</p>
       </div>
 
       <Separator />
@@ -157,11 +157,11 @@ export function OrderSummary() {
         >
           <Link href="/checkout">
             <Lock className="size-3.5" />
-            Proceed to Checkout
+            {t("proceedToCheckout")}
           </Link>
         </Button>
         <p className="text-center text-xs text-muted-foreground">
-          Secure checkout
+          {t("secureCheckout")}
         </p>
       </div>
     </div>

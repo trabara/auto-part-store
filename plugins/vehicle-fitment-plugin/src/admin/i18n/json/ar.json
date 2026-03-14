@@ -189,5 +189,20 @@
   "engine.delete.confirm": "حذف",
   "engine.delete.cancel": "إلغاء",
   "engine.toast.deleted": "تم حذف المحرك بنجاح",
-  "engine.toast.deleteError": "فشل في حذف المحرك"
+  "engine.toast.deleteError": "فشل في حذف المحرك",
+  "invoice.page.title": "إعدادات الفاتورة",
+  "invoice.page.subtitle": "تكوين إعدادات الفاتورة الخاصة بك",
+  "invoice.field.companyName": "اسم الشركة",
+  "invoice.field.companyAddress": "عنوان الشركة",
+  "invoice.field.companyPhone": "هاتف الشركة",
+  "invoice.field.companyEmail": "بريد الشركة الإلكتروني",
+  "invoice.field.companyLogo": "شعار الشركة",
+  "invoice.field.notes": "ملاحظات",
+  "invoice.toast.saved": "تم تحديث إعدادات الفاتورة بنجاح",
+  "invoice.toast.error": "فشل في تحديث إعدادات الفاتورة",
+  "invoice.widget.title": "الفاتورة",
+  "invoice.widget.subtitle": "إنشاء وتنزيل الفاتورة لهذا الطلب",
+  "invoice.widget.download": "تنزيل الفاتورة",
+  "invoice.widget.toast.success": "تم إنشاء وتنزيل الفاتورة بنجاح",
+  "invoice.widget.toast.error": "فشل في إنشاء الفاتورة"
 }

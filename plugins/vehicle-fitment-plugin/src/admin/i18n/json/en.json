@@ -189,5 +189,20 @@
   "engine.delete.confirm": "Delete",
   "engine.delete.cancel": "Cancel",
   "engine.toast.deleted": "Engine deleted successfully",
-  "engine.toast.deleteError": "Failed to delete engine"
+  "engine.toast.deleteError": "Failed to delete engine",
+  "invoice.page.title": "Invoice Settings",
+  "invoice.page.subtitle": "Configure your invoice settings",
+  "invoice.field.companyName": "Company Name",
+  "invoice.field.companyAddress": "Company Address",
+  "invoice.field.companyPhone": "Company Phone",
+  "invoice.field.companyEmail": "Company Email",
+  "invoice.field.companyLogo": "Company Logo",
+  "invoice.field.notes": "Notes",
+  "invoice.toast.saved": "Invoice config updated successfully",
+  "invoice.toast.error": "Failed to update invoice config",
+  "invoice.widget.title": "Invoice",
+  "invoice.widget.subtitle": "Generate and download invoice for this order",
+  "invoice.widget.download": "Download Invoice",
+  "invoice.widget.toast.success": "Invoice generated and downloaded successfully",
+  "invoice.widget.toast.error": "Failed to generate invoice"
 }

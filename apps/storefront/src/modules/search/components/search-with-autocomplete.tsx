@@ -135,7 +135,7 @@ export function SearchWithAutocomplete({ className, ...props }: Props) {
             value={query}
             autoComplete="off"
             placeholder={t("placeholder")}
-            className="bg-white peer px-9 [&::-webkit-search-cancel-button]:appearance-none [&::-webkit-search-decoration]:appearance-none [&::-webkit-search-results-button]:appearance-none [&::-webkit-search-results-decoration]:appearance-none"
+            className="bg-background peer px-9 [&::-webkit-search-cancel-button]:appearance-none [&::-webkit-search-decoration]:appearance-none [&::-webkit-search-results-button]:appearance-none [&::-webkit-search-results-decoration]:appearance-none"
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={handleKeyDown}
             onFocus={() => {
@@ -151,8 +151,8 @@ export function SearchWithAutocomplete({ className, ...props }: Props) {
       </PopoverAnchor>
 
       <PopoverContent
-        className="p-0 overflow-hidden w-[var(--radix-popover-trigger-width)]"
         align="start"
+        className="p-0 overflow-hidden w-(--radix-popover-trigger-width)"
         onOpenAutoFocus={(e) => e.preventDefault()}
         onInteractOutside={() => setOpen(false)}
       >
@@ -175,7 +175,7 @@ export function SearchWithAutocomplete({ className, ...props }: Props) {
                 navigateToProduct(product.handle)
               }}
             >
-              <div className="size-10 shrink-0 rounded border bg-white overflow-hidden flex items-center justify-center">
+              <div className="size-10 shrink-0 rounded border bg-background overflow-hidden flex items-center justify-center">
                 {product.thumbnail ? (
                   <Image
                     src={product.thumbnail}

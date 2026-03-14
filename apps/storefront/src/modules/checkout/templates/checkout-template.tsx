@@ -51,7 +51,7 @@ export function CheckoutTemplate({ initialCart }: Props) {
           {t("backToCart")}
         </Link>
 
-        <h1 className="text-2xl font-bold tracking-tight mb-8">{t("title")}</h1>
+        <h1 className="text-2xl font-bold tracking-tight mb-8 text-left!">{t("title")}</h1>
 
         <div className="grid grid-cols-1 gap-4 max-w-2xl">
           {/* Step 1: Contact */}

@@ -19,7 +19,7 @@ export function SimpleSearchWithForm(props: ComponentProps<"form">) {
           name="q"
           type="search"
           placeholder={t("placeholder")}
-          className="bg-white peer px-9 [&::-webkit-search-cancel-button]:appearance-none [&::-webkit-search-decoration]:appearance-none [&::-webkit-search-results-button]:appearance-none [&::-webkit-search-results-decoration]:appearance-none"
+          className="bg-background peer px-9 [&::-webkit-search-cancel-button]:appearance-none [&::-webkit-search-decoration]:appearance-none [&::-webkit-search-results-button]:appearance-none [&::-webkit-search-results-decoration]:appearance-none"
         />
       </div>
     </form>

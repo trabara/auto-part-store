@@ -12,7 +12,7 @@ export default async function Layout({ children, params }: { children: React.Rea
     }
 
     return (
-        <div className="snap-container">
+        <div className="snap-container pb-10">
             <CategoryBreadcrumb className="py-8" category={category} />
             <h1 className="text-6xl font-bold uppercase text-left!">
                 {category.name}

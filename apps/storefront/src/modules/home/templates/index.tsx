@@ -3,7 +3,6 @@ import { listCategories, StoreProductCategory } from "@/lib/data/categories"
 import { retreiveFitment } from "@/lib/data/fitments"
 import { listProducts } from "@/lib/data/products"
 import ProductCategoryCard from "@/modules/categories/components/category-card"
-import AdvancedSearch from "@/modules/fitment/components/advanced-search"
 import { FitmentCTA } from "@/modules/fitment/components/fitment-cta"
 import { ProductGridItem } from "@/modules/products/components/product-item"
 import { Button } from "@repo/ui/components/button"
@@ -18,13 +17,12 @@ import { Marquee, MarqueeContent } from "@repo/ui/components/marquee"
 import { cn } from "@repo/ui/lib/utils"
 import {
   ArrowRight,
-  CarFront,
   Headphones,
   RefreshCw,
   ShieldCheck,
   Truck,
   Wrench,
-  Zap,
+  Zap
 } from "lucide-react"
 import { getTranslations } from "next-intl/server"
 import Link from "next/link"
@@ -54,12 +52,14 @@ export default async function HomeTemplate() {
     retreiveFitment(),
     listProducts({
       pageParam: 1,
-      queryParams: { sort: "created_at", limit: 8 },
+      queryParams: {
+        sort: "created_at",
+        limit: 8
+      },
     }),
     getTranslations("home"),
   ])
 
-  const bestSellers = productsData.response.products
   const newArrivals = productsData.response.products
 
   // ── Hero slides ──────────────────────────────────────────────────────────────
@@ -135,7 +135,7 @@ export default async function HomeTemplate() {
   ]
 
   return (
-    <div className="">
+    <>
       {/* ── 1. HERO CAROUSEL ─────────────────────────────────────────────── */}
       <Carousel className="w-full" opts={{ loop: true }}>
         <CarouselContent>
@@ -143,7 +143,7 @@ export default async function HomeTemplate() {
             <CarouselItem key={i}>
               <div
                 className={cn(
-                  "relative flex items-end min-h-[560px] bg-linear-to-br",
+                  "relative flex items-end min-h-140 bg-linear-to-br",
                   slide.accent
                 )}
               >
@@ -224,7 +224,7 @@ export default async function HomeTemplate() {
       </div>
 
       {/* ── 3. VEHICLE FITMENT CTA ───────────────────────────────────────── */}
-      <section className="bg-primary text-primary-foreground py-14">
+      <section className="bg-zinc-100 dark:bg-black py-14">
         <div className="snap-container">
           <FitmentCTA fitment={fitment} />
         </div>
@@ -278,7 +278,7 @@ export default async function HomeTemplate() {
                 key={i}
                 href={banner.href}
                 className={cn(
-                  "group relative flex flex-col justify-between overflow-hidden p-10 min-h-[260px]",
+                  "group relative flex flex-col justify-between overflow-hidden p-10 min-h-65",
                   banner.bg
                 )}
               >
@@ -350,6 +350,6 @@ export default async function HomeTemplate() {
           </div>
         </div>
       </section>
-    </div>
+    </>
   )
 }

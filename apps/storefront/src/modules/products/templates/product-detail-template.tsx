@@ -188,7 +188,7 @@ export function ProductDetailTemplate({
                 <Badge
                   key={tag.id}
                   variant="outline"
-                  className="text-xs border-border/80 flex items-center gap-1 rounded-none"
+                  className="text-xs border-border/80 flex items-center gap-1"
                 >
                   <Tag className="size-2.5" />
                   {tag.value}

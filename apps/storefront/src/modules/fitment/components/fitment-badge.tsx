@@ -6,10 +6,10 @@ import { FitmentDialog } from "./fitment-dialog"
 
 export default async function FitmentBadge({
   children,
-  className
+  className,
 }: {
   className?: string
-  children: React.ReactNode
+  children?: React.ReactNode
 }) {
   const fitment = await retreiveFitment()
   if (!fitment) {
@@ -17,11 +17,15 @@ export default async function FitmentBadge({
   }
 
   return (
-    <div className={cn("inline-flex items-center gap-2 px-3 py-1.5 border border-white/20 text-xs font-semibold", className)}>
+    <div
+      className={cn(
+        "inline-flex items-center gap-2 px-3 py-1.5 border border-border text-xs font-semibold rounded-md",
+        className
+      )}
+    >
       <span className="size-1.5 rounded-full bg-green-400 animate-pulse" />
       <span className="flex-1">
-        {fitment.model.make.name} · {fitment.model.name} ·{" "}
-        {fitment.year_start}
+        {fitment.model.make.name} · {fitment.model.name} · {fitment.year_start}
       </span>
 
       <Button
@@ -30,7 +34,7 @@ export default async function FitmentBadge({
         className="ml-2 size-2!"
         onClick={clearFitment}
       >
-        <X className='' />
+        <X className="" />
       </Button>
     </div>
   )

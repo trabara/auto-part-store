@@ -1,8 +1,9 @@
 "use client"
 
-import { useLocale, useTranslations } from "next-intl"
 import { usePathname, useRouter } from "@/i18n/navigation"
 import { routing } from "@/i18n/routing"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@repo/ui/components/select"
+import { useLocale, useTranslations } from "next-intl"
 
 const LOCALE_LABELS: Record<string, string> = {
   en: "EN",
@@ -21,17 +22,21 @@ export function LocaleSwitcher() {
   }
 
   return (
-    <select
+    <Select
+      defaultValue={locale}
       aria-label={t("label")}
-      value={locale}
-      onChange={(e) => handleChange(e.target.value)}
-      className="bg-transparent text-accent text-xs font-semibold border border-accent/30 px-2 py-1 cursor-pointer hover:border-accent/60 transition-colors focus:outline-none"
+      onValueChange={(newLocale) => handleChange(newLocale)}
     >
-      {routing.locales.map((loc) => (
-        <option key={loc} value={loc} className="text-foreground bg-background">
-          {LOCALE_LABELS[loc] ?? loc.toUpperCase()}
-        </option>
-      ))}
-    </select>
+      <SelectTrigger className="">
+        <SelectValue />
+      </SelectTrigger>
+      <SelectContent>
+        {routing.locales.map((loc) => (
+          <SelectItem key={loc} value={loc} className="text-foreground bg-background">
+            {LOCALE_LABELS[loc] ?? loc.toUpperCase()}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
   )
 }

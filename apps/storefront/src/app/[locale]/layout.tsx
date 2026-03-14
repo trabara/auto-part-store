@@ -1,9 +1,4 @@
-import { cn } from "@repo/ui/lib/utils"
-import { Akshar, Noto_Sans_Arabic } from "next/font/google"
-import { NextIntlClientProvider } from "next-intl"
-import { getMessages, getTranslations } from "next-intl/server"
-import { hasLocale } from "next-intl"
-import { notFound } from "next/navigation"
+import { LocaleSwitcher } from "@/components/locale-switcher"
 import { routing } from "@/i18n/routing"
 import { retrieveCart } from "@/lib/data/cart"
 import { listCategories } from "@/lib/data/categories"
@@ -13,9 +8,8 @@ import CartList from "@/modules/cart/components/cart-sheet"
 import { CartProvider } from "@/modules/cart/components/provider"
 import { CategoryMenuSheet } from "@/modules/categories/components/category-menu-sheet"
 import FitmentBadge from "@/modules/fitment/components/fitment-badge"
-import { SimpleSearchWithForm } from "@/modules/search/components/simple-search-with-form"
 import { SearchWithAutocomplete } from "@/modules/search/components/search-with-autocomplete"
-import { LocaleSwitcher } from "@/components/locale-switcher"
+import { SimpleSearchWithForm } from "@/modules/search/components/simple-search-with-form"
 import { Button } from "@repo/ui/components/button"
 import {
   ButtonGroup,
@@ -28,12 +22,20 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@repo/ui/components/sheet"
+import { cn } from "@repo/ui/lib/utils"
 import { Car, CarFront, Menu, Search, User } from "lucide-react"
+import { hasLocale, NextIntlClientProvider } from "next-intl"
+import { getMessages, getTranslations } from "next-intl/server"
 import { Metadata } from "next/dist/lib/metadata/types/metadata-interface"
+import { Akshar, Noto_Sans_Arabic } from "next/font/google"
 import Image from "next/image"
 import Link from "next/link"
+import { notFound } from "next/navigation"
 
+import { ModeToggle } from "@/components/mode-toogle"
+import { ThemeProvider } from "@/components/theme-provider"
 import "@/styles/globals.css"
+import SmapLogo from "@/components/smap-logo"
 
 const akshar = Akshar({
   subsets: ["latin"],
@@ -77,70 +79,134 @@ export default async function LocaleLayout({ children, params }: Props) {
   const initialCart = cartId ? await retrieveCart(cartId) : null
 
   return (
-    <html
-      lang={locale}
-      dir={dir}
-      data-mode="light"
-      className={cn(akshar.variable, notoSansArabic.variable)}
+    <ThemeProvider
+      attribute="class"
+      defaultTheme="system"
+      enableSystem
+      disableTransitionOnChange
     >
-      <body
-        className={cn(
-          isRtl
-            ? "font-[family-name:var(--font-noto-arabic)]"
-            : akshar.className,
-          "h-screen"
-        )}
+      <html
+        lang={locale}
+        dir={dir}
+        data-mode="light"
+        className={cn(akshar.variable, notoSansArabic.variable)}
       >
-        <NextIntlClientProvider messages={messages}>
-          <CartProvider initialCart={initialCart}>
-            {/** Header */}
-            <header className="relative h-22 xl:h-42.5">
-              <div className="fixed inset-0 z-50 w-full h-fit">
-                <div className="bg-primary">
-                  <div className="snap-container">
-                    <div className="hidden xl:block border-b border-b-accent/20 py-2">
-                      <div className="space-x-2 flex justify-between items-center">
-                        <div className="">
-                          <Link href="/about-us">
-                            <Button
-                              variant="link"
-                              size="sm"
-                              className="text-accent"
-                            >
-                              {t("aboutUs")}
-                            </Button>
-                          </Link>
-                          <Link href="/faq">
-                            <Button
-                              variant="link"
-                              size="sm"
-                              className="text-accent"
-                            >
-                              {t("faq")}
-                            </Button>
-                          </Link>
-                          <Link href="/order-tracking">
-                            <Button
-                              variant="link"
-                              size="sm"
-                              className="text-accent"
-                            >
-                              {t("orderTracking")}
-                            </Button>
-                          </Link>
+        <body
+          className={cn(
+            "h-screen",
+            {
+              "font-(family-name:--font-noto-sans-arabic)": isRtl,
+              [akshar.className]: !isRtl,
+            },
+          )}
+        >
+          <NextIntlClientProvider messages={messages}>
+            <CartProvider initialCart={initialCart}>
+              {/** Header **/}
+              <header className="relative h-22 xl:h-42.5">
+                <div className="fixed inset-0 z-50 w-full h-fit">
+                  <div className="bg-zinc-100 dark:bg-zinc-950">
+                    <div className="snap-container">
+                      <div className="hidden xl:block border-b border-b-accent/20 py-2">
+                        <div className="space-x-2 flex justify-between items-center">
+                          <div className="text-primary">
+                            <Link href="/about-us">
+                              <Button
+                                variant="link"
+                                size="sm"
+                              >
+                                {t("aboutUs")}
+                              </Button>
+                            </Link>
+                            <Link href="/faq">
+                              <Button
+                                variant="link"
+                                size="sm"
+                              >
+                                {t("faq")}
+                              </Button>
+                            </Link>
+                            <Link href="/order-tracking">
+                              <Button
+                                variant="link"
+                                size="sm"
+                              >
+                                {t("orderTracking")}
+                              </Button>
+                            </Link>
+                          </div>
+                          <div className="flex items-center gap-3">
+                            <span>🇹🇳</span>
+                            <LocaleSwitcher />
+                            <ModeToggle />
+                          </div>
                         </div>
-                        <div className="flex items-center gap-3">
-                          <span>🇹🇳</span>
-                          <LocaleSwitcher />
+                      </div>
+
+                      <div className="xl:mt-4 flex justify-between space-x-4 py-2 xl:py-4">
+                        <CategoryMenuSheet categories={categories}>
+                          <Button
+                            variant="ghost"
+                            className="inline-flex items-center xl:hidden hover:bg-accent-foreground/10 text-accent"
+                          >
+                            <Menu />
+                            <span className="hidden xl:block ml-2">
+                              {t("allCategories")}
+                            </span>
+                          </Button>
+                        </CategoryMenuSheet>
+
+                        <Link href="/">
+                          <SmapLogo className="w-32 text-primary" />
+                        </Link>
+
+                        <FitmentBadge className="hidden xl:inline-flex">
+                          <Button
+                            variant="ghost"
+                            className="hidden xl:inline-flex hover:bg-accent/50 cursor-pointer "
+                          >
+                            <CarFront />
+                            {t("myGarage")}
+                          </Button>
+                        </FitmentBadge>
+
+                        {/** Search Input */}
+                        <SearchWithAutocomplete className="hidden xl:block flex-1" />
+
+                        {/** User Actions */}
+                        <div className="flex space-x-2">
+                          <Button variant="ghost" className="hidden xl:flex hover:bg-accent/50 cursor-pointer">
+                            <User />
+                            <div className="flex-col text-left ml-2 hidden xl:flex">
+                              <div className="">{t("account")}</div>
+                              <div className="text-xs">{t("loginRegister")}</div>
+                            </div>
+                          </Button>
+
+                          <Sheet>
+                            <SheetTrigger asChild>
+                              <ShoppingCartButton variant="ghost" />
+                            </SheetTrigger>
+                            <SheetContent side="right">
+                              <SheetHeader>
+                                <SheetTitle className="text-lg font-bold">
+                                  {t("shoppingCart")}
+                                </SheetTitle>
+                              </SheetHeader>
+                              <CartList />
+                            </SheetContent>
+                          </Sheet>
                         </div>
                       </div>
                     </div>
+                  </div>
 
-                    <div className="xl:mt-4 flex justify-between space-x-4 py-2 xl:py-4">
+                  <div className="bg-zinc-100 dark:bg-zinc-950 border-y border-b-accent">
+                    <div className="snap-container py-1">
                       <CategoryMenuSheet categories={categories}>
                         <Button
                           variant="ghost"
-                          className="inline-flex items-center xl:hidden hover:bg-accent-foreground/10 text-accent"
+                          className="hidden xl:inline-flex hover:bg-accent-foreground/10"
                         >
                           <Menu />
                           <span className="hidden xl:block ml-2">
@@ -148,163 +214,100 @@ export default async function LocaleLayout({ children, params }: Props) {
                           </span>
                         </Button>
                       </CategoryMenuSheet>
+                      <ButtonGroup className="flex xl:hidden w-full">
+                        <FitmentBadge className="flex-1">
+                          <Button variant="ghost" className="flex-1">
+                            <Car />
+                            {t("myGarage")}
+                          </Button>
+                        </FitmentBadge>
 
-                      <Link href="/">
-                        <Image
-                          src="/logo.png"
-                          alt="Logo"
-                          width={150}
-                          height={50}
-                        />
-                      </Link>
-
-                      <FitmentBadge className="text-secondary hidden xl:inline-flex">
-                        <Button
-                          variant="ghost"
-                          className="hidden xl:inline-flex text-secondary hover:bg-accent/50 cursor-pointer "
-                        >
-                          <CarFront />
-                          {t("myGarage")}
-                        </Button>
-                      </FitmentBadge>
-
-                      {/** Search Input */}
-                      <SearchWithAutocomplete className="hidden xl:block flex-1" />
-
-                      {/** User Actions */}
-                      <div className="flex space-x-2">
-                        <Button className="hidden xl:flex hover:bg-accent/50 cursor-pointer">
-                          <User />
-                          <div className="flex-col text-left ml-2 hidden xl:flex">
-                            <div className="">{t("account")}</div>
-                            <div className="text-xs">{t("loginRegister")}</div>
-                          </div>
-                        </Button>
+                        <ButtonGroupSeparator orientation="vertical" />
 
                         <Sheet>
                           <SheetTrigger asChild>
-                            <ShoppingCartButton />
+                            <Button variant="ghost" className="flex-1">
+                              <Search />
+                              {t("searchProduct")}
+                            </Button>
                           </SheetTrigger>
-                          <SheetContent side="right">
-                            <SheetHeader>
-                              <SheetTitle className="text-lg font-bold">
-                                {t("shoppingCart")}
-                              </SheetTitle>
+                          <SheetContent side="top" className="pt-10">
+                            <SheetHeader className="sr-only">
+                              <SheetTitle>{t("searchProduct")}</SheetTitle>
                             </SheetHeader>
-                            <CartList />
+                            <div className="snap-container pb-4">
+                              <SimpleSearchWithForm />
+                            </div>
                           </SheetContent>
                         </Sheet>
-                      </div>
+                      </ButtonGroup>
                     </div>
                   </div>
                 </div>
-
-                <div className="bg-white border-b border-b-accent">
-                  <div className="snap-container py-1">
-                    <CategoryMenuSheet categories={categories}>
-                      <Button
-                        variant="ghost"
-                        className="hidden xl:inline-flex hover:bg-accent-foreground/10"
-                      >
-                        <Menu />
-                        <span className="hidden xl:block ml-2">
-                          {t("allCategories")}
-                        </span>
-                      </Button>
-                    </CategoryMenuSheet>
-                    <ButtonGroup className="flex xl:hidden w-full">
-                      <FitmentBadge className="flex-1">
-                        <Button variant="ghost" className="flex-1">
-                          <Car />
-                          {t("myGarage")}
-                        </Button>
-                      </FitmentBadge>
-
-                      <ButtonGroupSeparator orientation="vertical" />
-
-                      <Sheet>
-                        <SheetTrigger asChild>
-                          <Button variant="ghost" className="flex-1">
-                            <Search />
-                            {t("searchProduct")}
-                          </Button>
-                        </SheetTrigger>
-                        <SheetContent side="top" className="pt-10">
-                          <SheetHeader className="sr-only">
-                            <SheetTitle>{t("searchProduct")}</SheetTitle>
-                          </SheetHeader>
-                          <div className="snap-container pb-4">
-                            <SimpleSearchWithForm />
-                          </div>
-                        </SheetContent>
-                      </Sheet>
-                    </ButtonGroup>
+              </header>
+              {/** Main Content */}
+              <main>{children}</main>
+              {/** Footer */}
+              <footer className="border-t border-t-accent-foreground/10 bg-zinc-100 dark:bg-zinc-950">
+                <div className="snap-container mt-10 py-6 text-primary">
+                  <div className="flex justify-between">
+                    <Link href="/">
+                      <SmapLogo className="w-48 text-primary" />
+                    </Link>
+                    <div>
+                      <h3 className="font-semibold mb-2">
+                        {t("customerService")}
+                      </h3>
+                      <ul className="space-y-1 text-sm">
+                        <li>
+                          <Link href="/help">{t("helpContact")}</Link>
+                        </li>
+                        <li>
+                          <Link href="/returns">{t("returnsRefunds")}</Link>
+                        </li>
+                        <li>
+                          <Link href="/shipping">{t("shippingInfo")}</Link>
+                        </li>
+                      </ul>
+                    </div>
+                    <div>
+                      <h3 className="font-semibold mb-2">{t("aboutUsFooter")}</h3>
+                      <ul className="space-y-1 text-sm">
+                        <li>
+                          <Link href="/about">{t("ourStory")}</Link>
+                        </li>
+                        <li>
+                          <Link href="/careers">{t("careers")}</Link>
+                        </li>
+                        <li>
+                          <Link href="/press">{t("press")}</Link>
+                        </li>
+                      </ul>
+                    </div>
+                    <div>
+                      <h3 className="font-semibold mb-2">{t("followUs")}</h3>
+                      <ul className="space-y-1 text-sm">
+                        <li>
+                          <Link href="https://facebook.com">Facebook</Link>
+                        </li>
+                        <li>
+                          <Link href="https://twitter.com">Twitter</Link>
+                        </li>
+                        <li>
+                          <Link href="https://instagram.com">Instagram</Link>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                  <div className="text-center text-xs mt-4">
+                    {t("copyright", { year: new Date().getFullYear() })}
                   </div>
                 </div>
-              </div>
-            </header>
-            {/** Main Content */}
-            <main className="bg-accent/20 pb-20">{children}</main>
-            {/** Footer */}
-            <footer className="bg-primary border-t border-t-accent-foreground/10">
-              <div className="snap-container mt-10 py-6 text-secondary">
-                <div className="flex justify-between">
-                  <Link href="/">
-                    <Image src="/logo.png" alt="Logo" width={150} height={50} />
-                  </Link>
-                  <div>
-                    <h3 className="font-semibold mb-2">
-                      {t("customerService")}
-                    </h3>
-                    <ul className="space-y-1 text-sm">
-                      <li>
-                        <Link href="/help">{t("helpContact")}</Link>
-                      </li>
-                      <li>
-                        <Link href="/returns">{t("returnsRefunds")}</Link>
-                      </li>
-                      <li>
-                        <Link href="/shipping">{t("shippingInfo")}</Link>
-                      </li>
-                    </ul>
-                  </div>
-                  <div>
-                    <h3 className="font-semibold mb-2">{t("aboutUsFooter")}</h3>
-                    <ul className="space-y-1 text-sm">
-                      <li>
-                        <Link href="/about">{t("ourStory")}</Link>
-                      </li>
-                      <li>
-                        <Link href="/careers">{t("careers")}</Link>
-                      </li>
-                      <li>
-                        <Link href="/press">{t("press")}</Link>
-                      </li>
-                    </ul>
-                  </div>
-                  <div>
-                    <h3 className="font-semibold mb-2">{t("followUs")}</h3>
-                    <ul className="space-y-1 text-sm">
-                      <li>
-                        <Link href="https://facebook.com">Facebook</Link>
-                      </li>
-                      <li>
-                        <Link href="https://twitter.com">Twitter</Link>
-                      </li>
-                      <li>
-                        <Link href="https://instagram.com">Instagram</Link>
-                      </li>
-                    </ul>
-                  </div>
-                </div>
-                <div className="text-center text-xs mt-4">
-                  {t("copyright", { year: new Date().getFullYear() })}
-                </div>
-              </div>
-            </footer>
-          </CartProvider>
-        </NextIntlClientProvider>
-      </body>
-    </html>
+              </footer>
+            </CartProvider>
+          </NextIntlClientProvider>
+        </body>
+      </html>
+    </ThemeProvider>
   )
 }

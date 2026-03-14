@@ -1,18 +1,18 @@
 "use client"
 
-import { Badge } from "@repo/ui/components/badge"
-import { Button } from "@repo/ui/components/button"
-import { cn } from "@repo/ui/lib/utils"
+import { Link } from "@/i18n/navigation"
 import { getProductPrice } from "@/lib/util/product"
 import { useAddToCart } from "@/modules/cart/hooks/use-cart"
 import { StoreProduct } from "@medusajs/types"
+import { Badge } from "@repo/ui/components/badge"
+import { Button } from "@repo/ui/components/button"
+import { cn } from "@repo/ui/lib/utils"
+import { Loader2, ShoppingCart, Tag } from "lucide-react"
+import { useTranslations } from "next-intl"
 import Image from "next/image"
-import { Link } from "@/i18n/navigation"
 import { createElement, HTMLAttributes } from "react"
 import { Display } from "../types"
 import { WishlistButton } from "./whishlist-button"
-import { Loader2, ShoppingCart, Tag } from "lucide-react"
-import { useTranslations } from "next-intl"
 
 type ProductItemProps = HTMLAttributes<HTMLDivElement> & {
   product: StoreProduct
@@ -232,7 +232,7 @@ export function ProductListItem({
             <WishlistButton className="size-8" />
             <Button
               size="sm"
-              className="w-full gap-1.5  text-xs font-semibold tracking-widest uppercase"
+              className="w-full gap-1.5 text-xs font-semibold tracking-widest uppercase" 
               onClick={() => variantId && add(variantId, 1)}
               disabled={isPending || !variantId}
             >
@@ -249,12 +249,6 @@ export function ProductListItem({
     </div>
   )
 }
-
-export default function ProductQuantityItem({
-  product,
-}: {
-  product: StoreProduct
-}) {}
 
 export function createViewProductItem(display: Display) {
   return function ProductItem(props?: ProductItemProps) {

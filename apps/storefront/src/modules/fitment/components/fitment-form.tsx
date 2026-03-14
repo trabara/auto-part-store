@@ -9,21 +9,19 @@ import {
   SelectValue,
 } from "@repo/ui/components/select"
 import { cn } from "@repo/ui/lib/utils"
+import { useTranslations } from "next-intl"
 import { Controller, UseFormReturn } from "react-hook-form"
 import { useFitment } from "../hooks/use-fitment"
 import { FitmentFormType } from "../types"
-import { useTranslations } from "next-intl"
 
 type FitmentFormProps = {
   form: UseFormReturn<FitmentFormType>
   className?: string
-  orientation?: "vertical" | "horizontal"
 }
 
 export function FitmentForm({
   form,
   className,
-  orientation = "horizontal",
 }: FitmentFormProps) {
   const t = useTranslations("fitment")
   const {
@@ -83,11 +81,11 @@ export function FitmentForm({
             <FieldContent>
               <Select
                 {...field}
+                disabled={state.isPending}
                 onValueChange={(value) => {
                   field.onChange(value)
                   handleMakeChange(value)
                 }}
-                disabled={state.isPending}
               >
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder={t("selectManufacturer")} />
@@ -114,11 +112,11 @@ export function FitmentForm({
             <FieldContent>
               <Select
                 {...field}
+                disabled={state.isPending}
                 onValueChange={(value) => {
                   field.onChange(value)
                   handleModelChange(value)
                 }}
-                disabled={state.isPending}
               >
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder={t("selectModel")} />
@@ -145,11 +143,11 @@ export function FitmentForm({
             <FieldContent>
               <Select
                 {...field}
+                disabled={state.isPending}
                 onValueChange={(value) => {
                   field.onChange(value)
                   handleEngineChange(value)
                 }}
-                disabled={state.isPending}
               >
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder={t("selectEngine")} />

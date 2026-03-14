@@ -1,22 +1,19 @@
 "use client"
 
+import { useCartItemCount } from "@/modules/cart/hooks/use-cart"
 import { Badge } from "@repo/ui/components/badge"
 import { Button } from "@repo/ui/components/button"
-import { cn } from "@repo/ui/lib/utils"
 import { ShoppingCart } from "lucide-react"
 import { ComponentProps } from "react"
-import { useCartItemCount } from "@/modules/cart/hooks/use-cart"
 
 export default function ShoppingCartButton({
-  className,
   ...props
-}: ComponentProps<"button">) {
+}: ComponentProps<"button"> & { variant?: "ghost" | "outline" | "default" }) {
   const count = useCartItemCount()
 
   return (
     <div className="relative">
       <Button
-        className={cn("hover:bg-accent/50 cursor-pointer", className)}
         size='icon'
         {...props}
       >

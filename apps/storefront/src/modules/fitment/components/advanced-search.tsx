@@ -40,10 +40,7 @@ export default function AdvancedSearch({ className }: { className?: string }) {
         </TabsList>
         <TabsContent value="model" className="mt-2">
           <h5 className="font-medium mb-4">{t("searchByModel")}</h5>
-          <form
-            className="flex flex-col gap-4 xl:items-center xl:flex-row"
-            onSubmit={onSubmit}
-          >
+          <form className="flex flex-col gap-4 xl:items-center xl:flex-row" onSubmit={onSubmit}>
             <FitmentForm form={fitmentForm} className="flex-1" />
             <Button type="submit" className="w-full xl:w-auto self-end">
               {t("go")}
@@ -59,7 +56,6 @@ export default function AdvancedSearch({ className }: { className?: string }) {
                 name="vin"
                 type="text"
                 placeholder={t("vinPlaceholder")}
-                className="bg-white"
                 required
               />
             </FieldContent>
@@ -73,7 +69,6 @@ export default function AdvancedSearch({ className }: { className?: string }) {
                 name="plate"
                 type="text"
                 placeholder={t("platePlaceholder")}
-                className="bg-white"
                 required
               />
             </FieldContent>

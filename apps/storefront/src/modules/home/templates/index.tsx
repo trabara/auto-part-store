@@ -318,7 +318,7 @@ export default async function HomeTemplate() {
       <section className="snap-container mt-20">
         <SectionHeading title={t("newArrivals")} href="/" />
         {newArrivals.length > 0 ? (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 divide-x">
             {newArrivals.map((product) => (
               <ProductGridItem key={product.id} product={product} />
             ))}

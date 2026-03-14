@@ -36,6 +36,7 @@ import { ModeToggle } from "@/components/mode-toogle"
 import { ThemeProvider } from "@/components/theme-provider"
 import "@/styles/globals.css"
 import SmapLogo from "@/components/smap-logo"
+import SmapBaseLogo from "@/components/smap-base-logo"
 
 const akshar = Akshar({
   subsets: ["latin"],
@@ -92,13 +93,10 @@ export default async function LocaleLayout({ children, params }: Props) {
         className={cn(akshar.variable, notoSansArabic.variable)}
       >
         <body
-          className={cn(
-            "h-screen",
-            {
-              "font-(family-name:--font-noto-sans-arabic)": isRtl,
-              [akshar.className]: !isRtl,
-            },
-          )}
+          className={cn("h-screen", {
+            "font-(family-name:--font-noto-sans-arabic)": isRtl,
+            [akshar.className]: !isRtl,
+          })}
         >
           <NextIntlClientProvider messages={messages}>
             <CartProvider initialCart={initialCart}>
@@ -111,26 +109,17 @@ export default async function LocaleLayout({ children, params }: Props) {
                         <div className="space-x-2 flex justify-between items-center">
                           <div className="text-primary">
                             <Link href="/about-us">
-                              <Button
-                                variant="link"
-                                size="sm"
-                              >
+                              <Button variant="link" size="sm">
                                 {t("aboutUs")}
                               </Button>
                             </Link>
                             <Link href="/faq">
-                              <Button
-                                variant="link"
-                                size="sm"
-                              >
+                              <Button variant="link" size="sm">
                                 {t("faq")}
                               </Button>
                             </Link>
                             <Link href="/order-tracking">
-                              <Button
-                                variant="link"
-                                size="sm"
-                              >
+                              <Button variant="link" size="sm">
                                 {t("orderTracking")}
                               </Button>
                             </Link>
@@ -175,11 +164,16 @@ export default async function LocaleLayout({ children, params }: Props) {
 
                         {/** User Actions */}
                         <div className="flex space-x-2">
-                          <Button variant="ghost" className="hidden xl:flex hover:bg-accent/50 cursor-pointer">
+                          <Button
+                            variant="ghost"
+                            className="hidden xl:flex hover:bg-accent/50 cursor-pointer"
+                          >
                             <User />
                             <div className="flex-col text-left ml-2 hidden xl:flex">
                               <div className="">{t("account")}</div>
-                              <div className="text-xs">{t("loginRegister")}</div>
+                              <div className="text-xs">
+                                {t("loginRegister")}
+                              </div>
                             </div>
                           </Button>
 
@@ -249,11 +243,12 @@ export default async function LocaleLayout({ children, params }: Props) {
               <main>{children}</main>
               {/** Footer */}
               <footer className="border-t border-t-accent-foreground/10 bg-zinc-100 dark:bg-zinc-950">
-                <div className="snap-container mt-10 py-6 text-primary">
-                  <div className="flex justify-between">
+                <div className="snap-container py-6 text-primary">
+                  <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 lg:gap-8">
                     <Link href="/">
-                      <SmapLogo className="w-48 text-primary" />
+                      <SmapBaseLogo className="w-24 xl:w-48 text-primary" />
                     </Link>
+
                     <div>
                       <h3 className="font-semibold mb-2">
                         {t("customerService")}
@@ -271,7 +266,9 @@ export default async function LocaleLayout({ children, params }: Props) {
                       </ul>
                     </div>
                     <div>
-                      <h3 className="font-semibold mb-2">{t("aboutUsFooter")}</h3>
+                      <h3 className="font-semibold mb-2">
+                        {t("aboutUsFooter")}
+                      </h3>
                       <ul className="space-y-1 text-sm">
                         <li>
                           <Link href="/about">{t("ourStory")}</Link>
@@ -297,6 +294,20 @@ export default async function LocaleLayout({ children, params }: Props) {
                           <Link href="https://instagram.com">Instagram</Link>
                         </li>
                       </ul>
+                    </div>
+                    <div>
+                      <h3 className="font-semibold mb-2">{t("ourLocation")}</h3>
+                      <iframe
+                        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d6384.154704524563!2d10.173077315318264!3d36.8064819799226!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0:0x5a4b4a5a7a4b5a4b!2sTunisia!5e0!3m2!1sen!2stn!4v1600000000000"
+                        width="100%"
+                        height="120"
+                        style={{ border: 0 }}
+                        allowFullScreen
+                        loading="lazy"
+                        referrerPolicy="no-referrer-when-downgrade"
+                        className="rounded-md"
+                        title="Store Location"
+                      />
                     </div>
                   </div>
                   <div className="text-center text-xs mt-4">

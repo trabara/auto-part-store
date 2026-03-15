@@ -49,12 +49,12 @@
         },
         "content": {
           "name": "content",
-          "type": "text",
+          "type": "jsonb",
           "unsigned": false,
           "autoincrement": false,
           "primary": false,
-          "nullable": true,
-          "mappedType": "text"
+          "nullable": false,
+          "mappedType": "json"
         },
         "created_at": {
           "name": "created_at",

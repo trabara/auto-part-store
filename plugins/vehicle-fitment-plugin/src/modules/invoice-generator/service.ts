@@ -76,7 +76,7 @@ class InvoiceGeneratorService extends MedusaService({
     const customerName =
       firstName && lastName ? `${firstName} ${lastName}` : "Customer";
     const compamyLogo = invoiceConfig?.company_logo
-      ? await this.imageUrlToBase64(invoiceConfig.company_logo)
+      ? await this.imageUrlToBase64(invoiceConfig.company_logo).catch(() => undefined)
       : invoiceConfig?.company_name;
 
     const templateData = {
@@ -133,12 +133,16 @@ class InvoiceGeneratorService extends MedusaService({
       status: "latest",
     });
 
+    const locale = params.locale || "en";
     const invoice = invoices[0];
-    invoice.content = invoice.content ?? await this.createPdfContent(params, invoice).then((content) => content.toString("base64"));
+    if (!invoice.content) {
+      invoice.content = {};
+    }
+    invoice.content[locale] = invoice.content[locale] ?? await this.createPdfContent(params, invoice).then((content) => content.toString("base64"));
 
     await this.updateInvoices(invoice);
 
-    return Buffer.from(invoice.content!, "base64");
+    return Buffer.from(String(invoice.content[locale]), "base64");
   }
 
   async close(): Promise<void> {

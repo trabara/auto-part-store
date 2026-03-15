@@ -36,11 +36,12 @@ export default async function orderPlacedHandler({
     })
 
     const { result: {
-        pdf_buffer,
+        pdf_buffer, 
     } } = await generateInvoicePdfWorkflow(container)
         .run({
             input: {
                 order_id: data.id,
+                locale: 'en',
             },
         })
 

@@ -10,5 +10,5 @@ export const Invoice = model.define("invoice", {
     display_id: model.autoincrement(),
     order_id: model.text(),
     status: model.enum(InvoiceStatus).default(InvoiceStatus.LATEST),
-    content: model.text().nullable(),
+    content: model.json(),
 })

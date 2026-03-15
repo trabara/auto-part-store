@@ -1,17 +1,18 @@
 import { defineMiddlewares } from "@medusajs/framework";
+import { adminCategoriesMiddlewares } from "./admin/categories/middlewares";
 import { adminEnginesMiddlewares } from "./admin/engines/middlewares";
 import { adminFitmentProductMiddlewares } from "./admin/fitments/middlewares";
+import { adminInvoiceMiddlewares } from "./admin/invoice-config/middlewares";
 import { adminMakesMiddlewares } from "./admin/makes/middlewares";
 import { adminModelsMiddlewares } from "./admin/models/middlewares";
 import { adminProductFitmentMiddlewares } from "./admin/products/middlewares";
 import { storeEngineMiddlewares } from "./store/engines/middlewares";
 import { storeFitmentsMiddlewares } from "./store/fitments/middlewares";
-import { storeProductMiddlewares } from "./store/products/v2/middlewares";
-import { storeProductSearchMiddlewares } from "./store/products/search/middlewares";
-import { storeProductRelatedMiddlewares } from "./store/products/related/middlewares";
 import { storeMakeMiddlewares } from "./store/makes/middlewares";
-import { adminCategoriesMiddlewares } from "./admin/categories/middlewares";
-import { adminInvoiceMiddlewares } from "./admin/invoice-config/middlewares";
+import { storeOrdersMiddlewares } from "./store/orders/middlewares";
+import { storeProductRelatedMiddlewares } from "./store/products/related/middlewares";
+import { storeProductSearchMiddlewares } from "./store/products/search/middlewares";
+import { storeProductMiddlewares } from "./store/products/v2/middlewares";
 
 export default defineMiddlewares({
   routes: [
@@ -28,5 +29,6 @@ export default defineMiddlewares({
     ...storeProductMiddlewares,
     ...storeProductRelatedMiddlewares,
     ...storeProductSearchMiddlewares,
+    ...storeOrdersMiddlewares
   ],
 });

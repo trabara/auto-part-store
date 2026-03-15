@@ -6,9 +6,8 @@ export async function GET(
     res: MedusaResponse
 ): Promise<void> {
     const { id } = req.params
-
     const { locale } = req.query
-
+    
     const { result: {
         pdf_buffer,
     } } = await generateInvoicePdfWorkflow(req.scope)

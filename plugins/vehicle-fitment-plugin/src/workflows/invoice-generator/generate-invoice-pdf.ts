@@ -12,7 +12,7 @@ import { getOrderInvoiceStep } from "./steps/get-order-invoice";
 
 type WorkflowInput = {
   order_id: string;
-  locale?: string;
+  locale: string;
 };
 
 export const generateInvoicePdfWorkflow = createWorkflow(

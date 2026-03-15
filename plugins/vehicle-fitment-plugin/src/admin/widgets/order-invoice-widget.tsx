@@ -15,9 +15,12 @@ const OrderInvoiceWidget = ({ data: order }: DetailWidgetProps<AdminOrder>) => {
 
     try {
       const response: Response = await sdk.client.fetch(
-        `/admin/orders/${order.id}/invoices?locale=${locale}`,
+        `/admin/orders/${order.id}/invoices`,
         {
           method: "GET",
+          query: {
+            locale
+          },
           headers: {
             accept: "application/pdf",
           },

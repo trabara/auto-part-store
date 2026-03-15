@@ -1,33 +1,38 @@
 import { html } from "@codemirror/lang-html";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { AdminFile } from "@medusajs/framework/types";
 import {
   Button,
   Container,
   Heading,
+  Hint,
   Input,
   Label,
   Textarea,
   toast
 } from "@medusajs/ui";
+import { AvatarUpload } from "@repo/ui/components/avatar-upload";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { vscodeDark } from "@uiw/codemirror-theme-vscode";
 import CodeMirror from "@uiw/react-codemirror";
 import Handlebars from "handlebars";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Controller, FormProvider, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import {
   InvoiceConfig,
   PostInvoiceConfig,
+  PostInvoiceConfigSchema,
 } from "../../..//modules/invoice-generator/schema";
 import { sdk } from "../../lib/sdk";
 import { SAMPLE_DATA } from "./constant";
 
 
-
 export const InvoiceGenerator = () => {
   const { t } = useTranslation();
-
+  const logoFileRef = useRef<AdminFile | null>(null);
   const [previewHtml, setPreviewHtml] = useState("");
+
   const { data, isLoading, refetch } = useQuery<{
     invoice_config: InvoiceConfig;
   }>({
@@ -62,23 +67,23 @@ export const InvoiceGenerator = () => {
   }, [data]);
 
   const form = useForm<PostInvoiceConfig>({
+    resolver: zodResolver(PostInvoiceConfigSchema),
     defaultValues: getFormDefaultValues(),
   });
 
   const handleSubmit = form.handleSubmit((formData) => mutateAsync(formData));
 
-  const uploadLogo = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) {
-      return;
+  const uploadLogo = useCallback(async (files: File[]) => {
+    // If there's already an uploaded logo file that hasn't been saved, delete it before uploading a new one
+    if (!logoFileRef.current) {
+      const { files: uploadedFiles } = await sdk.admin.upload.create({
+        files: [files[0]],
+      });
+      logoFileRef.current = uploadedFiles[0];
+      form.setValue("company_logo", uploadedFiles[0].url);
     }
 
-    const { files } = await sdk.admin.upload.create({
-      files: [file],
-    });
-
-    form.setValue("company_logo", files[0].url);
-  };
+  }, [form]);
 
   const generatePreview = useCallback(() => {
     const template = form.getValues("template");
@@ -108,7 +113,6 @@ export const InvoiceGenerator = () => {
           date: t("invoice.template.date"),
           due: t("invoice.template.due"),
           billTo: t("invoice.template.billTo"),
-          item: t("invoice.template.item"),
           description: t("invoice.template.description"),
           quantity: t("invoice.template.quantity"),
           unitPrice: t("invoice.template.unitPrice"),
@@ -146,6 +150,20 @@ export const InvoiceGenerator = () => {
     }
   }, [formValues, generatePreview]);
 
+  useEffect(() => {
+    return () => {
+      if (!form.formState.isSubmitted && logoFileRef.current) {
+        sdk.admin.upload.delete(logoFileRef.current.id).then(() => {
+          console.log("Unused logo file deleted");
+        }).catch((error) => {
+          console.error("Error deleting unused logo file:", error);
+        }).finally(() => {
+          logoFileRef.current = null;
+        });
+      }
+    }
+  }, [form]);
+
   return (
     <FormProvider {...form}>
       <Container className="divide-y p-0">
@@ -157,12 +175,12 @@ export const InvoiceGenerator = () => {
             </Button>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 p-6">
+          <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 p-6">
             <div className="space-y-4">
               <Controller
                 control={form.control}
                 name="company_logo"
-                render={({ field }) => {
+                render={({ field, fieldState }) => {
                   return (
                     <div className="flex flex-col space-y-2">
                       <div className="flex items-center gap-x-1">
@@ -170,18 +188,8 @@ export const InvoiceGenerator = () => {
                           {t("invoice.field.companyLogo")}
                         </Label>
                       </div>
-                      <Input
-                        type="file"
-                        onChange={uploadLogo}
-                        className="py-1"
-                      />
-                      {field.value && (
-                        <img
-                          src={field.value}
-                          alt="Company Logo"
-                          className="mt-2 h-24 w-24"
-                        />
-                      )}
+                      <AvatarUpload className="w-24" onValueChange={uploadLogo} value={field.value} />
+                      {fieldState.error && (<Hint variant="error">{fieldState.error.message}</Hint>)}
                     </div>
                   );
                 }}
@@ -189,7 +197,7 @@ export const InvoiceGenerator = () => {
               <Controller
                 control={form.control}
                 name="company_name"
-                render={({ field }) => {
+                render={({ field, fieldState }) => {
                   return (
                     <div className="flex flex-col space-y-2">
                       <div className="flex items-center gap-x-1">
@@ -202,6 +210,7 @@ export const InvoiceGenerator = () => {
                         onChange={field.onChange}
                         value={field.value}
                       />
+                      {fieldState.error && (<Hint variant="error">{fieldState.error.message}</Hint>)}
                     </div>
                   );
                 }}
@@ -209,7 +218,7 @@ export const InvoiceGenerator = () => {
               <Controller
                 control={form.control}
                 name="company_address"
-                render={({ field }) => {
+                render={({ field, fieldState }) => {
                   return (
                     <div className="flex flex-col space-y-2">
                       <div className="flex items-center gap-x-1">
@@ -218,6 +227,7 @@ export const InvoiceGenerator = () => {
                         </Label>
                       </div>
                       <Textarea {...field} />
+                      {fieldState.error && (<Hint variant="error">{fieldState.error.message}</Hint>)}
                     </div>
                   );
                 }}
@@ -225,7 +235,7 @@ export const InvoiceGenerator = () => {
               <Controller
                 control={form.control}
                 name="company_phone"
-                render={({ field }) => {
+                render={({ field, fieldState }) => {
                   return (
                     <div className="flex flex-col space-y-2">
                       <div className="flex items-center gap-x-1">
@@ -234,6 +244,7 @@ export const InvoiceGenerator = () => {
                         </Label>
                       </div>
                       <Input {...field} />
+                      {fieldState.error && (<Hint variant="error">{fieldState.error.message}</Hint>)}
                     </div>
                   );
                 }}
@@ -241,7 +252,7 @@ export const InvoiceGenerator = () => {
               <Controller
                 control={form.control}
                 name="company_email"
-                render={({ field }) => {
+                render={({ field, fieldState }) => {
                   return (
                     <div className="flex flex-col space-y-2">
                       <div className="flex items-center gap-x-1">
@@ -250,6 +261,7 @@ export const InvoiceGenerator = () => {
                         </Label>
                       </div>
                       <Input {...field} />
+                      {fieldState.error && (<Hint variant="error">{fieldState.error.message}</Hint>)}
                     </div>
                   );
                 }}
@@ -257,7 +269,7 @@ export const InvoiceGenerator = () => {
               <Controller
                 control={form.control}
                 name="notes"
-                render={({ field }) => {
+                render={({ field, fieldState }) => {
                   return (
                     <div className="flex flex-col space-y-2">
                       <div className="flex items-center gap-x-1">
@@ -266,6 +278,7 @@ export const InvoiceGenerator = () => {
                         </Label>
                       </div>
                       <Textarea {...field} />
+                      {fieldState.error && (<Hint variant="error">{fieldState.error.message}</Hint>)}
                     </div>
                   );
                 }}
@@ -274,7 +287,7 @@ export const InvoiceGenerator = () => {
               <Controller
                 control={form.control}
                 name="template"
-                render={({ field }) => {
+                render={({ field, fieldState }) => {
                   return (
                     <div className="flex flex-col space-y-2">
                       <div className="flex items-center gap-x-1">
@@ -289,13 +302,14 @@ export const InvoiceGenerator = () => {
                         height="400px"
                         style={{ fontSize: 12 }}
                       />
+                      {fieldState.error && (<Hint variant="error">{fieldState.error.message}</Hint>)}
                     </div>
                   );
                 }}
               />
             </div>
 
-            <div className="flex flex-col space-y-2 min-h-[]">
+            <div className="flex flex-col space-y-2">
               <div className="flex items-center justify-between gap-x-1">
                 <Label size="small" weight="plus">
                   {t("invoice.preview.title")}
@@ -304,7 +318,7 @@ export const InvoiceGenerator = () => {
               <div className="flex-1 border rounded-lg overflow-hidden bg-gray-50">
                 <iframe
                   srcDoc={previewHtml}
-                  className="w-full h-full"
+                  className="aspect-[1/1.414]"
                   title="Invoice Preview"
                 />
               </div>

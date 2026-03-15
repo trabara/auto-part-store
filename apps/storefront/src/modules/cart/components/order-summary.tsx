@@ -144,7 +144,7 @@ export function OrderSummary() {
             {t("couponApply")}
           </Button>
         </div>
-        <p className="text-xs text-muted-foreground/60">{t("couponNote")}</p>
+        {/* <p className="text-xs text-muted-foreground/60">{t("couponNote")}</p> */}
       </div>
 
       <Separator />
@@ -160,9 +160,9 @@ export function OrderSummary() {
             {t("proceedToCheckout")}
           </Link>
         </Button>
-        <p className="text-center text-xs text-muted-foreground">
+        {/* <p className="text-center text-xs text-muted-foreground">
           {t("secureCheckout")}
-        </p>
+        </p> */}
       </div>
     </div>
   )

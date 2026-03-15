@@ -11,7 +11,7 @@ const OrderInvoiceWidget = ({ data: order }: DetailWidgetProps<AdminOrder>) => {
 
   const downloadInvoice = async () => {
     setIsDownloading(true);
-    const locale = localStorage.getItem("lng");
+    const locale = localStorage.getItem("lng") ?? 'en';
 
     try {
       const response: Response = await sdk.client.fetch(

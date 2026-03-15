@@ -6,6 +6,7 @@ import { CheckCircle2, Package, MapPin, Truck } from "lucide-react"
 import Image from "next/image"
 import { Link } from "@/i18n/navigation"
 import { getTranslations } from "next-intl/server"
+import InvoiceButton from "../components/invoice-button"
 
 type Props = {
   order: HttpTypes.StoreOrder
@@ -43,6 +44,8 @@ export async function OrderConfirmationTemplate({ order }: Props) {
               #{order.display_id ?? order.id.slice(-8).toUpperCase()}
             </span>
           </p>
+
+          <InvoiceButton order={order} />
         </div>
 
         <div className="space-y-4">

@@ -1,7 +1,8 @@
 import {
-    LoaderOptions,
     IMedusaInternalService,
+    LoaderOptions,
 } from "@medusajs/framework/types"
+import { DEFAULT_INVOICE_TEMPLATE } from "../contants"
 import { InvoiceConfig } from "../models/invoice-config"
 
 export default async function createDefaultConfigLoader({
@@ -22,5 +23,6 @@ export default async function createDefaultConfigLoader({
         company_address: "123 Acme St, Springfield, USA",
         company_phone: "+1 234 567 8900",
         company_email: "admin@example.com",
+        template: DEFAULT_INVOICE_TEMPLATE
     })
 }

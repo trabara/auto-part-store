@@ -8,6 +8,7 @@ export const InvoiceConfigSchema = z.object({
     company_email: z.string().optional(),
     company_logo: z.string().optional(),
     notes: z.string().optional(),
+    template: z.string()
 })
 
 export type InvoiceConfig = z.infer<typeof InvoiceConfigSchema>

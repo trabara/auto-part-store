@@ -21,7 +21,7 @@ export const getOrderInvoiceStep = createStep(
             invoice = await invoiceGeneratorService.createInvoices({
                 order_id,
                 status: InvoiceStatus.LATEST,
-                pdfContent: {},
+                content: null,
             })
             createdInvoice = true
         }

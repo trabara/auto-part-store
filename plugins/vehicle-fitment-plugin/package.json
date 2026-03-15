@@ -12,7 +12,7 @@
     "./workflows": "./.medusa/server/src/workflows/index.js",
     "./.medusa/server/src/modules/*": "./.medusa/server/src/modules/*/index.js",
     "./modules/*": "./.medusa/server/src/modules/*/index.js",
-    "./modules/templates/*": "./.medusa/server/src/modules/*/templates/*.hbs",
+    "./modules/i18n/*": "./.medusa/server/src/modules/i18n/*",
     "./providers/*": "./.medusa/server/src/providers/*/index.js",
     "./*": "./.medusa/server/src/*.js",
     "./admin": {
@@ -35,8 +35,11 @@
     "prepublishOnly": "medusa plugin:build"
   },
   "dependencies": {
+    "@codemirror/lang-html": "^6.4.11",
     "@hookform/resolvers": "^5.2.2",
     "@repo/common": "workspace:*",
+    "@uiw/codemirror-theme-vscode": "^4.25.8",
+    "@uiw/react-codemirror": "^4.25.8",
     "date-fns": "^4.1.0",
     "handlebars": "^4.7.8",
     "lodash": "^4.17.23",

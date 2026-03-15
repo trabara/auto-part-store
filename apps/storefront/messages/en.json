@@ -18,6 +18,7 @@
     "careers": "Careers",
     "press": "Press",
     "followUs": "Follow Us",
+    "ourLocation": "Our Location",
     "copyright": "© {year} Your Company. All rights reserved.",
     "settings": "SETTINGS"
   },
@@ -185,7 +186,9 @@
     "continueShopping": "Continue Shopping",
     "qty": "Qty:",
     "noImg": "No img",
-    "standardShipping": "Standard"
+    "standardShipping": "Standard",
+    "downloadInvoice": "Download Invoice",
+    "downloadingInvoice": "GGenerating Invoice…"
   },
   "product": {
     "home": "Home",

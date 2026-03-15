@@ -18,6 +18,7 @@
     "careers": "وظائف",
     "press": "الصحافة",
     "followUs": "تابعنا",
+    "ourLocation": "موقعنا",
     "copyright": "© {year} شركتكم. جميع الحقوق محفوظة.",
     "settings": "الإعدادات"
   },
@@ -185,7 +186,9 @@
     "continueShopping": "مواصلة التسوق",
     "qty": "الكمية:",
     "noImg": "بدون صورة",
-    "standardShipping": "قياسي"
+    "standardShipping": "قياسي",
+    "downloadInvoice": "تحميل الفاتورة",
+    "downloadingInvoice": "جارٍ تحميل الفاتورة…"
   },
   "product": {
     "home": "الرئيسية",

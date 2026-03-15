@@ -28,15 +28,14 @@ import { hasLocale, NextIntlClientProvider } from "next-intl"
 import { getMessages, getTranslations } from "next-intl/server"
 import { Metadata } from "next/dist/lib/metadata/types/metadata-interface"
 import { Akshar, Noto_Sans_Arabic } from "next/font/google"
-import Image from "next/image"
 import Link from "next/link"
 import { notFound } from "next/navigation"
 
 import { ModeToggle } from "@/components/mode-toogle"
+import SmapBaseLogo from "@/components/smap-base-logo"
+import SmapLogo from "@/components/smap-logo"
 import { ThemeProvider } from "@/components/theme-provider"
 import "@/styles/globals.css"
-import SmapLogo from "@/components/smap-logo"
-import SmapBaseLogo from "@/components/smap-base-logo"
 
 const akshar = Akshar({
   subsets: ["latin"],
@@ -181,13 +180,16 @@ export default async function LocaleLayout({ children, params }: Props) {
                             <SheetTrigger asChild>
                               <ShoppingCartButton variant="ghost" />
                             </SheetTrigger>
-                            <SheetContent side="right">
-                              <SheetHeader>
-                                <SheetTitle className="text-lg font-bold">
+                            <SheetContent
+                              side="right"
+                              className="flex flex-col w-full sm:max-w-sm h-full"
+                            >
+                              <SheetHeader className="px-4 py-3 border-b shrink-0">
+                                <SheetTitle className="text-xl font-bold border-none">
                                   {t("shoppingCart")}
                                 </SheetTitle>
                               </SheetHeader>
-                              <CartList />
+                              <CartList className="flex-1 overflow-hidden" />
                             </SheetContent>
                           </Sheet>
                         </div>

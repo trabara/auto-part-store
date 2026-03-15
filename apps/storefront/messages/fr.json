@@ -18,6 +18,7 @@
     "careers": "Carrières",
     "press": "Presse",
     "followUs": "Suivez-nous",
+    "ourLocation": "Notre emplacement",
     "copyright": "© {year} Votre Entreprise. Tous droits réservés.",
     "settings": "PARAMÈTRES"
   },
@@ -185,7 +186,9 @@
     "continueShopping": "Continuer les achats",
     "qty": "Qté :",
     "noImg": "Pas d'img",
-    "standardShipping": "Standard"
+    "standardShipping": "Standard",
+    "downloadInvoice": "Télécharger la facture",
+    "downloadingInvoice": "Génération de la facture…"
   },
   "product": {
     "home": "Accueil",

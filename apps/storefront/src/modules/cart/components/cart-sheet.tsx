@@ -17,7 +17,11 @@ import { useTranslations } from "next-intl"
 import { Link } from "@/i18n/navigation"
 import CartLineItem from "./cart-line-item"
 
-export default function CartList() {
+type CartListProps = {
+  className?: string
+}
+
+export default function CartList({ className }: CartListProps) {
   const { cart } = useCart()
   const t = useTranslations("cart")
 
@@ -53,7 +57,7 @@ export default function CartList() {
   }
 
   return (
-    <div className="flex flex-col h-full">
+    <div className={`flex flex-col h-full ${className}`}>
       {/* Items list */}
       <div className="flex-1 overflow-y-auto divide-y divide-border/50 px-4">
         {items.map((item) => (
@@ -67,15 +71,14 @@ export default function CartList() {
       </div>
 
       {/* Footer: subtotal + checkout */}
-      <div className="pt-4 space-y-3">
-        <Separator />
-        <div className="flex justify-between items-center text-sm font-medium px-4">
+      <div className="flex-shrink-0 space-y-3 bg-background border-t border-border">
+        <div className="pt-4 px-4 flex justify-between items-center text-sm font-medium">
           <span>{t("subtotal")}</span>
           <span className="text-base font-bold tabular-nums">{subtotal}</span>
         </div>
         <SheetClose asChild>
           <Button
-            className="w-full  font-semibold tracking-widest uppercase text-xs"
+            className="w-full font-semibold tracking-widest uppercase text-xs"
             asChild
           >
             <Link href="/cart">{t("viewCartCheckout")}</Link>

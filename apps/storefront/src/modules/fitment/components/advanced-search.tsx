@@ -17,11 +17,12 @@ import { useForm } from "react-hook-form"
 import { useFitment } from "../hooks/use-fitment"
 import { FitmentForm } from "./fitment-form"
 import { FitmentFormSchema } from "../schema"
+import { FitmentFormType } from "../types"
 import { useTranslations } from "next-intl"
 
 export default function AdvancedSearch({ className }: { className?: string }) {
   const t = useTranslations("fitment")
-  const fitmentForm = useForm({
+  const fitmentForm = useForm<FitmentFormType>({
     resolver: zodResolver(FitmentFormSchema as any),
   })
   const { handleSubmit } = useFitment(fitmentForm)
@@ -40,7 +41,10 @@ export default function AdvancedSearch({ className }: { className?: string }) {
         </TabsList>
         <TabsContent value="model" className="mt-2">
           <h5 className="font-medium mb-4">{t("searchByModel")}</h5>
-          <form className="flex flex-col gap-4 xl:items-center xl:flex-row" onSubmit={onSubmit}>
+          <form
+            className="flex flex-col gap-4 xl:items-center xl:flex-row"
+            onSubmit={onSubmit}
+          >
             <FitmentForm form={fitmentForm} className="flex-1" />
             <Button type="submit" className="w-full xl:w-auto self-end">
               {t("go")}

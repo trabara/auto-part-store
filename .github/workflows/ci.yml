@@ -27,7 +27,7 @@ jobs:
           cache: "yarn"
 
       - name: Install dependencies
-        run: yarn install
+        run: yarn install --immutable
 
       - name: Run lint
         run: yarn lint
@@ -49,7 +49,7 @@ jobs:
           cache: "yarn"
 
       - name: Install dependencies
-        run: yarn install
+        run: yarn install --immutable
 
       - name: Run unit tests
         run: yarn workspace medusa test:unit

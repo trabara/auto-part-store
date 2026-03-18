@@ -1,0 +1,104 @@
+import * as React from "react";
+import {
+  createDataTableColumnHelper,
+  useDataTable,
+  DataTable,
+} from "@medusajs/ui";
+import { useTranslation } from "react-i18next";
+
+import { Skeleton } from "../components/Skeleton";
+
+const dummyData = [
+  {
+    a: "a1",
+    b: "b",
+    c: 0,
+    d: 0,
+    e: new Date(),
+  },
+  {
+    a: "a2",
+    b: "b",
+    c: 0,
+    d: 0,
+    e: new Date(),
+  },
+  {
+    a: "a3",
+    b: "b",
+    c: 0,
+    d: 0,
+    e: new Date(),
+  },
+  {
+    a: "a4",
+    b: "b",
+    c: 0,
+    d: 0,
+    e: new Date(),
+  },
+  {
+    a: "a5",
+    b: "b",
+    c: 0,
+    d: 0,
+    e: new Date(),
+  },
+  {
+    a: "a6",
+    b: "b",
+    c: 0,
+    d: 0,
+    e: new Date(),
+  },
+];
+
+const columnHelper = createDataTableColumnHelper<(typeof dummyData)[0]>();
+
+const columns = [
+  columnHelper.accessor("a", {
+    header: () => null,
+    cell: () => <Skeleton className="w-full h-5" />,
+  }),
+  columnHelper.accessor("b", {
+    header: () => null,
+    cell: () => <Skeleton className="w-full h-5" />,
+  }),
+  columnHelper.accessor("c", {
+    header: () => null,
+    cell: () => <Skeleton className="w-full h-5" />,
+  }),
+  columnHelper.accessor("d", {
+    header: () => null,
+    cell: () => <Skeleton className="w-full h-5" />,
+  }),
+  columnHelper.accessor("e", {
+    header: () => null,
+    cell: () => <Skeleton className="w-full h-5" />,
+  }),
+];
+
+export const CustomersTableSkeleton = () => {
+  const { t } = useTranslation();
+  const [search, setSearch] = React.useState<string>("");
+
+  const table = useDataTable({
+    columns,
+    data: dummyData,
+    getRowId: (customer) => customer.a,
+    rowCount: dummyData.length,
+    search: {
+      state: search,
+      onSearchChange: setSearch,
+    },
+  });
+
+  return (
+    <DataTable instance={table}>
+      <DataTable.Toolbar className="px-0 pt-0">
+        <DataTable.Search placeholder={t("analytics.table.search")} />
+      </DataTable.Toolbar>
+      <DataTable.Table />
+    </DataTable>
+  );
+};

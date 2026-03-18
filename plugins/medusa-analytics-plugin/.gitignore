@@ -1,0 +1,32 @@
+/dist
+.env
+.DS_Store
+/uploads
+build
+.cache
+
+.idea
+
+coverage
+
+!src/**
+
+./tsconfig.tsbuildinfo
+medusa-db.sql
+
+# Dependencies
+node_modules
+
+# Yarn
+.yarn/cache
+.yarn/install-state.gz
+.yarn/build-state.yml
+.yarn/unplugged
+yarn-error.log
+yarn-debug.log*
+
+# Zero-installs / PnP (if ever switching back)
+.pnp.*
+
+# Medusa
+.medusa

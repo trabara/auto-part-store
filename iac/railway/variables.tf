@@ -10,19 +10,6 @@ variable "environment_name" {
   default     = "production"
 }
 
-variable "github_repo" {
-  description = "GitHub repo for monorepo (e.g., username/smap-store)"
-  type        = string
-  default     = ""
-  nullable    = true
-}
-
-variable "branch" {
-  description = "Branch to deploy"
-  type        = string
-  default     = "main"
-}
-
 variable "medusa_root_dir" {
   description = "Root directory for Medusa in monorepo (empty = deploy from root)"
   type        = string

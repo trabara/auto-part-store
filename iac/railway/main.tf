@@ -1,7 +1,6 @@
 locals {
   project_id     = railway_project.project.id
   environment_id = railway_project.project.default_environment.id
-  # has_github_repo = var.github_repo != null && var.github_repo != ""
 }
 
 resource "railway_project" "project" {
@@ -41,10 +40,6 @@ resource "railway_service" "medusa" {
   name       = "medusa"
   project_id = local.project_id
 
-  # GitHub monorepo deployment
-  # source_repo          = local.has_github_repo ? var.github_repo : null
-  # source_repo_branch  = local.has_github_repo ? var.branch : null
-  # root_directory      = local.has_github_repo && var.medusa_root_dir != "" ? var.medusa_root_dir : ""
   source_image = var.medusa_image_source
 }
 
@@ -60,10 +55,6 @@ resource "railway_service" "storefront" {
   name       = "storefront"
   project_id = local.project_id
 
-  # GitHub monorepo deployment
-  # source_repo          = local.has_github_repo ? var.github_repo : null
-  # source_repo_branch  = local.has_github_repo ? var.branch : null
-  # root_directory      = local.has_github_repo && var.storefront_root_dir != "" ? var.storefront_root_dir : ""
   source_image = var.storefront_image_source
 }
 
@@ -71,5 +62,5 @@ resource "railway_service" "storefront" {
 resource "railway_tcp_proxy" "storefront" {
   service_id       = railway_service.storefront.id
   environment_id   = local.environment_id
-  application_port = 8000
+  application_port = 3000
 }

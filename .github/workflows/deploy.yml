@@ -13,6 +13,10 @@ on:
       - ".github/workflows/deploy.yml"
   workflow_dispatch:
     inputs:
+      project_name:
+        description: "Railway project name"
+        required: true
+        type: string
       environment:
         description: "Environment to deploy"
         required: true
@@ -123,6 +127,7 @@ jobs:
     environment: ${{ github.event.inputs.environment || 'production' }}
     env:
       RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+      TF_VAR_project_name: ${{ github.event.inputs.project_name || 'smap-store' }}
       TF_VAR_jwt_secret: ${{ needs.setup-secrets.outputs.jwt_secret }}
       TF_VAR_cookie_secret: ${{ needs.setup-secrets.outputs.cookie_secret }}
       TF_VAR_revalidate_secret: ${{ needs.setup-secrets.outputs.revalidate_secret }}

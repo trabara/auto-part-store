@@ -32,12 +32,18 @@ FROM base AS runner
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 medusa
 USER medusa
-# Automatically leverage output traces to reduce image size
-# https://nextjs.org/docs/advanced-features/output-file-tracing
-COPY --from=builder --chown=medusa:nodejs /app/node_modules node_modules
-COPY --from=builder --chown=medusa:nodejs /app/apps/medusa/.medusa .medusa
-COPY --from=builder --chown=medusa:nodejs /app/.yarn/releases .yarn/releases
-COPY --from=builder --chown=medusa:nodejs /app/.yarn/patches .yarn/patches
-COPY --from=builder --chown=medusa:nodejs /app/apps/medusa/package.json package.json
 
-CMD yarn start
+# Automatically leverage output traces to reduce image size
+COPY --from=builder --chown=medusa:nodejs /app/apps/medusa/.medusa .medusa
+COPY --from=builder --chown=medusa:nodejs /app/apps/medusa/start.sh .medusa/server/start.sh
+COPY --from=builder --chown=medusa:nodejs /app/node_modules .medusa/server/node_modules
+COPY --from=builder --chown=medusa:nodejs /app/plugins/medusa-analytics-plugin/.medusa .medusa/server/plugins/medusa-analytics-plugin/.medusa
+COPY --from=builder --chown=medusa:nodejs /app/plugins/medusa-analytics-plugin/package.json .medusa/server/plugins/medusa-analytics-plugin/package.json
+COPY --from=builder --chown=medusa:nodejs /app/plugins/vehicle-fitment-plugin/.medusa .medusa/server/plugins/vehicle-fitment-plugin/.medusa
+COPY --from=builder --chown=medusa:nodejs /app/plugins/vehicle-fitment-plugin/package.json .medusa/server/plugins/vehicle-fitment-plugin/package.json
+COPY --from=builder --chown=medusa:nodejs /app/packages/common/dist .medusa/server/packages/common/dist
+COPY --from=builder --chown=medusa:nodejs /app/packages/common/package.json .medusa/server/packages/common/package.json
+
+RUN chmod +x .medusa/server/start.sh
+
+CMD ["sh", "-c", "cd .medusa/server && ./start.sh"]

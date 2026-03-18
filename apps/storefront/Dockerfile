@@ -1,4 +1,3 @@
-# Base stage for dependencies
 FROM node:20-alpine AS base
 RUN apk update
 RUN apk add --no-cache libc6-compat
@@ -6,6 +5,8 @@ RUN apk add --no-cache libc6-compat
 WORKDIR /app
 # ---
 FROM base AS prepare
+# Replace <your-major-version> with the major version installed in your repository. For example:
+# RUN yarn global add turbo@^2
 RUN yarn global add turbo@^2.7.6
 COPY . .
 # Add lockfile and package.json's of isolated subworkspace
@@ -33,7 +34,7 @@ RUN adduser --system --uid 1001 nextjs
 USER nextjs
 # Automatically leverage output traces to reduce image size
 # https://nextjs.org/docs/advanced-features/output-file-tracing
-COPY --from=builder --chown=nextjs:nodejs /app/apps/storefront/.next/standalone .next/standalone
-COPY --from=builder --chown=nextjs:nodejs /app/apps/storefront/.next/static .next/static
-COPY --from=builder --chown=nextjs:nodejs /app/apps/storefront/public public
-CMD node server.js
+COPY --from=builder --chown=nextjs:nodejs /app/apps/storefront/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/apps/storefront/.next/static ./apps/storefront/.next/static
+COPY --from=builder --chown=nextjs:nodejs /app/apps/storefront/public ./apps/storefront/public
+CMD node apps/storefront/server.js

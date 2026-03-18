@@ -1,6 +1,7 @@
 {
   "name": "medusa",
   "version": "0.0.1",
+  "private": true,
   "description": "A starter for Medusa projects.",
   "author": "Medusa (https://medusajs.com)",
   "license": "MIT",
@@ -48,9 +49,5 @@
     "typescript": "^5.6.2",
     "vite": "^5.4.14",
     "yalc": "^1.0.0-pre.53"
-  },
-  "engines": {
-    "node": ">=20"
-  },
-  "packageManager": "yarn@4.5.0"
+  }
 }

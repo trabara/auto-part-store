@@ -4,17 +4,14 @@ import createNextIntlPlugin from "next-intl/plugin"
 const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts")
 
 const nextConfig: NextConfig = {
+  output: 'standalone',
   /* config options here */
   reactStrictMode: true,
   images: {
     remotePatterns: [
       {
-        protocol: "https",
-        hostname: "placehold.co",
-      },
-      {
         protocol: "http",
-        hostname: "minio-api.localhost",
+        hostname: process.env.STORAGE_HOST || "localhost",
       },
     ],
     dangerouslyAllowSVG: false,

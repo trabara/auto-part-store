@@ -105,3 +105,22 @@ variable "revalidate_secret" {
   default     = ""
   sensitive   = true
 }
+
+variable "registry_host" {
+  description = "Docker registry host (e.g., ghcr.io)"
+  type        = string
+  default     = "ghcr.io"
+}
+
+variable "registry_username" {
+  description = "Docker registry username"
+  type        = string
+  default     = ""
+}
+
+variable "registry_token" {
+  description = "Docker registry token/password"
+  type        = string
+  default     = ""
+  sensitive   = true
+}

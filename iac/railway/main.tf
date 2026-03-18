@@ -41,6 +41,8 @@ resource "railway_service" "medusa" {
   project_id = local.project_id
 
   source_image = var.medusa_image_source
+  source_image_registry_password = var.registry_token
+  source_image_registry_username = var.registry_username
 }
 
 # TCP Proxy for Medusa
@@ -56,6 +58,8 @@ resource "railway_service" "storefront" {
   project_id = local.project_id
 
   source_image = var.storefront_image_source
+  source_image_registry_password = var.registry_token
+  source_image_registry_username = var.registry_username
 }
 
 # TCP Proxy for Storefront

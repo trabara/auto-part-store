@@ -48,11 +48,11 @@ jobs:
   #         node-version: "20"
   #         cache: "yarn"
 
-      # - name: Install dependencies
-      #   run: yarn install --immutable
+  # - name: Install dependencies
+  #   run: yarn install --immutable
 
-      # - name: Run unit tests
-      #   run: yarn workspace medusa test:unit
+  # - name: Run unit tests
+  #   run: yarn workspace medusa test:unit
 
   build-and-push:
     name: Build & Push Docker Images
@@ -83,7 +83,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/${{ matrix.service }}
+          images: ghcr.io/trabara/auto-part-store/${{ matrix.service }}
           tags: |
             type=ref,event=branch
             type=ref,event=pr

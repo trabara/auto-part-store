@@ -1,0 +1,184 @@
+name: Deploy to Railway
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "apps/medusa/**"
+      - "apps/storefront/**"
+      - "packages/**"
+      - "plugins/**"
+      - "iac/**"
+      - ".github/workflows/deploy.yml"
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Environment to deploy"
+        required: true
+        default: "production"
+        type: choice
+        options:
+          - production
+          - staging
+      regenerate_secrets:
+        description: "Regenerate secrets (use with caution!)"
+        required: false
+        default: "false"
+        type: boolean
+
+env:
+  TERRAFORM_VERSION: 1.7.0
+
+jobs:
+  setup-secrets:
+    name: Setup Secrets
+    runs-on: ubuntu-latest
+    outputs:
+      jwt_secret: ${{ steps.secrets.outputs.jwt_secret }}
+      cookie_secret: ${{ steps.secrets.outputs.cookie_secret }}
+      revalidate_secret: ${{ steps.secrets.outputs.revalidate_secret }}
+      minio_access_key: ${{ steps.secrets.outputs.minio_access_key }}
+      minio_secret_key: ${{ steps.secrets.outputs.minio_secret_key }}
+    steps:
+      - name: Check existing secrets
+        id: check-secrets
+        run: |
+          # Check if secrets already exist
+          if [[ "${{ github.event.inputs.regenerate_secrets }}" == "true" ]]; then
+            echo "regenerate=true" >> $GITHUB_OUTPUT
+          elif [[ -n "${{ secrets.JWT_SECRET }}" ]]; then
+            echo "regenerate=false" >> $GITHUB_OUTPUT
+          else
+            echo "regenerate=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Generate New Secrets
+        if: steps.check-secrets.outputs.regenerate == 'true'
+        id: generate
+        run: |
+          JWT_SECRET=$(openssl rand -hex 32)
+          COOKIE_SECRET=$(openssl rand -hex 32)
+          REVALIDATE_SECRET=$(openssl rand -hex 32)
+          MINIO_ACCESS_KEY="minio$(openssl rand -hex 8)"
+          MINIO_SECRET_KEY=$(openssl rand -hex 32)
+
+          echo "jwt_secret=$JWT_SECRET" >> $GITHUB_OUTPUT
+          echo "cookie_secret=$COOKIE_SECRET" >> $GITHUB_OUTPUT
+          echo "revalidate_secret=$REVALIDATE_SECRET" >> $GITHUB_OUTPUT
+          echo "minio_access_key=$MINIO_ACCESS_KEY" >> $GITHUB_OUTPUT
+          echo "minio_secret_key=$MINIO_SECRET_KEY" >> $GITHUB_OUTPUT
+
+          # Save to GitHub Secrets for persistence
+          echo "::add-mask::$JWT_SECRET"
+          echo "::add-mask::$COOKIE_SECRET"
+          echo "::add-mask::$REVALIDATE_SECRET"
+          echo "::add-mask::$MINIO_ACCESS_KEY"
+          echo "::add-mask::$MINIO_SECRET_KEY"
+
+      - name: Use Existing Secrets
+        if: steps.check-secrets.outputs.regenerate == 'false'
+        id: existing
+        run: |
+          echo "jwt_secret=${{ secrets.JWT_SECRET }}" >> $GITHUB_OUTPUT
+          echo "cookie_secret=${{ secrets.COOKIE_SECRET }}" >> $GITHUB_OUTPUT
+          echo "revalidate_secret=${{ secrets.REVALIDATE_SECRET }}" >> $GITHUB_OUTPUT
+          echo "minio_access_key=${{ secrets.MINIO_ACCESS_KEY }}" >> $GITHUB_OUTPUT
+          echo "minio_secret_key=${{ secrets.MINIO_SECRET_KEY }}" >> $GITHUB_OUTPUT
+
+      - name: Save Secrets to GitHub
+        if: steps.check-secrets.outputs.regenerate == 'true'
+        uses: actions/github-script@v6
+        with:
+          script: |
+            github.rest.actions.createOrUpdateRepoSecret({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              secret_name: 'JWT_SECRET',
+              encrypted_value: await import('${{ runner.temp }}/generate_secrets.json' || 'data').then(m => m.encrypt(process.env.JWT_SECRET)),
+              key_id: ''
+            });
+
+      - name: Save Secrets via CLI
+        if: steps.check-secrets.outputs.regenerate == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Install gh CLI if not available
+          if ! command -v gh &> /dev/null; then
+            npm install -g gh
+          fi
+
+          # Save secrets using gh cli
+          echo "${{ steps.generate.outputs.jwt_secret }}" | gh secret set JWT_SECRET --body stdin
+          echo "${{ steps.generate.outputs.cookie_secret }}" | gh secret set COOKIE_SECRET --body stdin
+          echo "${{ steps.generate.outputs.revalidate_secret }}" | gh secret set REVALIDATE_SECRET --body stdin
+          echo "${{ steps.generate.outputs.minio_access_key }}" | gh secret set MINIO_ACCESS_KEY --body stdin
+          echo "${{ steps.generate.outputs.minio_secret_key }}" | gh secret set MINIO_SECRET_KEY --body stdin
+
+  terraform:
+    name: Terraform Plan/Apply
+    needs: [setup-secrets]
+    runs-on: ubuntu-latest
+    environment: ${{ github.event.inputs.environment || 'production' }}
+    env:
+      RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+      TF_VAR_jwt_secret: ${{ needs.setup-secrets.outputs.jwt_secret }}
+      TF_VAR_cookie_secret: ${{ needs.setup-secrets.outputs.cookie_secret }}
+      TF_VAR_revalidate_secret: ${{ needs.setup-secrets.outputs.revalidate_secret }}
+      TF_VAR_minio_access_key: ${{ needs.setup-secrets.outputs.minio_access_key }}
+      TF_VAR_minio_secret_key: ${{ needs.setup-secrets.outputs.minio_secret_key }}
+      TF_VAR_minio_bucket: medusa-store
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TERRAFORM_VERSION }}
+          terraform_wrapper: true
+
+      - name: Terraform Init
+        id: init
+        working-directory: iac/railway
+        run: |
+          terraform init -upgrade=true
+
+      - name: Terraform Format Check
+        working-directory: iac/railway
+        run: |
+          terraform fmt -check -recursive
+
+      - name: Terraform Plan
+        id: plan
+        working-directory: iac/railway
+        run: |
+          terraform plan -no-color -out=tfplan
+
+      - name: Terraform Apply
+        if: github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch'
+        working-directory: iac/railway
+        run: |
+          terraform apply -auto-approve -no-color
+
+      - name: Extract Outputs
+        id: outputs
+        working-directory: iac/railway
+        run: |
+          echo "medusa_url=$(terraform output -raw medusa_url)" >> $GITHUB_OUTPUT
+          echo "storefront_url=$(terraform output -raw storefront_url)" >> $GITHUB_OUTPUT
+          echo "minio_api_url=$(terraform output -raw minio_api_url)" >> $GITHUB_OUTPUT
+          echo "minio_console_url=$(terraform output -raw minio_console_url)" >> $GITHUB_OUTPUT
+
+      - name: Deployment Summary
+        run: |
+          echo "## Deployment Complete" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### URLs" >> $GITHUB_STEP_SUMMARY
+          echo "| Service | URL |" >> $GITHUB_STEP_SUMMARY
+          echo "| -------- | --- |" >> $GITHUB_STEP_SUMMARY
+          echo "| Storefront | ${{ steps.outputs.outputs.storefront_url }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Medusa API | ${{ steps.outputs.outputs.medusa_url }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| MinIO API | ${{ steps.outputs.outputs.minio_api_url }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| MinIO Console | ${{ steps.outputs.outputs.minio_console_url }} |" >> $GITHUB_STEP_SUMMARY

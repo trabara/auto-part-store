@@ -1,16 +1,6 @@
 name: Deploy to Railway
 
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - "apps/medusa/**"
-      - "apps/storefront/**"
-      - "packages/**"
-      - "plugins/**"
-      - "iac/**"
-      - ".github/workflows/deploy.yml"
   workflow_dispatch:
     inputs:
       project_name:

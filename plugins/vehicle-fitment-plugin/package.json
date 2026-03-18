@@ -32,7 +32,8 @@
     "build": "medusa plugin:build",
     "dev": "plugin-dev-watch . ../../apps/medusa",
     "dev:init": "plugin-dev-init .",
-    "prepublishOnly": "medusa plugin:build"
+    "prepublishOnly": "medusa plugin:build",
+    "check-types": "tsc --noEmit"
   },
   "dependencies": {
     "@codemirror/lang-html": "^6.4.11",

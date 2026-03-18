@@ -21,7 +21,8 @@
     "src"
   ],
   "scripts": {
-    "build": "tsc -p tsconfig.json && tsc -p tsconfig.esm.json"
+    "build": "tsc -p tsconfig.json && tsc -p tsconfig.esm.json",
+    "check-types": "tsc --noEmit"
   },
   "peerDependencies": {
     "@medusajs/framework": ">=2.0.0"

@@ -28,13 +28,26 @@ COPY --from=prepare /app/out/full/ .
 RUN yarn turbo build
 # ---
 FROM base AS runner
-# Don't run production as root for security reasons
-RUN addgroup --system --gid 1001 nodejs
-RUN adduser --system --uid 1001 nextjs
-USER nextjs
+
+# Set working directory
+WORKDIR /app
+
+# Copy production assets
+COPY --from=builder --chown=node:node /app/apps/storefront/public ./public
+
+# Set the correct permission for prerender cache
+RUN mkdir .next
+RUN chown node:node .next
+
 # Automatically leverage output traces to reduce image size
 # https://nextjs.org/docs/advanced-features/output-file-tracing
-COPY --from=builder --chown=nextjs:nodejs /app/apps/storefront/.next/standalone ./
-COPY --from=builder --chown=nextjs:nodejs /app/apps/storefront/.next/static ./apps/storefront/.next/static
-COPY --from=builder --chown=nextjs:nodejs /app/apps/storefront/public ./apps/storefront/public
-CMD node apps/storefront/server.js
+COPY --from=builder --chown=node:node /app/apps/storefront/.next/standalone ./
+COPY --from=builder --chown=node:node /app/apps/storefront/.next/static ./.next/static
+
+# Switch to non-root user for security best practices
+USER node
+
+# Expose port 3000 to allow HTTP traffic
+EXPOSE 3000
+
+CMD ["node", "apps/storefront/server.js"]

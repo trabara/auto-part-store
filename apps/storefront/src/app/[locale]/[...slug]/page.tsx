@@ -4,7 +4,6 @@ import {
 } from "@/lib/data/categories"
 import { retreiveFitment } from "@/lib/data/fitments"
 import { listProducts } from "@/lib/data/products"
-import { CategoryBreadcrumb } from "@/modules/categories/components/category-breadcrumb"
 import ProductCategoryCard from "@/modules/categories/components/category-card"
 import { FitmentCTA } from "@/modules/fitment/components/fitment-cta"
 import ProductListTemplate from "@/modules/products/templates"

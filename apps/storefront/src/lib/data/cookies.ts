@@ -1,5 +1,5 @@
-import "server-only"
 import { cookies as nextCookies } from "next/headers"
+import "server-only"
 
 export const getAuthHeaders = async (): Promise<
     { authorization: string } | {}
@@ -28,7 +28,7 @@ export const getCacheTag = async (tag: string): Promise<string> => {
         }
 
         return `${tag}-${cacheId}`
-    } catch (error) {
+    } catch {
         return ""
     }
 }

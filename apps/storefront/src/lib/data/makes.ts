@@ -2,7 +2,6 @@
 
 import { sdk } from "../config"
 import { FitmentListResponse } from "../types"
-import { retreiveFitment } from "./fitments"
 
 export async function listMakesByYearRange(year_start: number, year_end?: number): Promise<FitmentListResponse> {
     const filters: Record<string, any> = {

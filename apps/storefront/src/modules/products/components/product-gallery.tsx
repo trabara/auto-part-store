@@ -12,7 +12,7 @@ import {
 import { HttpTypes } from "@medusajs/types"
 import Image from "next/image"
 import { Tag } from "lucide-react"
-import { useCallback, useEffect, useState } from "react"
+import { useCallback, useLayoutEffect, useState } from "react"
 
 type ProductGalleryProps = {
   product: HttpTypes.StoreProduct
@@ -66,14 +66,14 @@ export function ProductGallery({
   const images = buildImages(product, selectedVariant)
 
   // Reset carousel to first slide whenever the variant changes
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (api) {
       api.scrollTo(0, true)
       setCurrent(0)
     }
   }, [api, selectedVariant?.id])
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!api) return
     setCurrent(api.selectedScrollSnap())
     api.on("select", () => setCurrent(api.selectedScrollSnap()))

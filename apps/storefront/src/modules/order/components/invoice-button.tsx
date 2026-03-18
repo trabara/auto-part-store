@@ -40,7 +40,7 @@ export default function InvoiceButton({ order }: InvoiceDownloadButtonProps) {
       document.body.removeChild(a)
       setIsDownloading(false)
       // toast.success("Invoice generated and downloaded successfully")
-    } catch (error) {
+    } catch {
       // toast.error(`Failed to generate invoice: ${error}`)
       setIsDownloading(false)
     }

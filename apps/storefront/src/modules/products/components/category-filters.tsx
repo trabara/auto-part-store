@@ -46,7 +46,10 @@ export default function CategoryFilters({
             <AccordionContent className="max-h-64 overflow-y-auto">
               <div className="mt-4 flex flex-col gap-3">
                 {option.values.map(({ optionId, value }, index) => (
-                  <div className="flex items-center space-x-2">
+                  <div
+                    key={`${optionId}-${value}`}
+                    className="flex items-center space-x-2"
+                  >
                     <Checkbox
                       id={`${option.key}-${index}`}
                       checked={isOptionActive(optionId, value)}

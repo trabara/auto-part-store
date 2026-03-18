@@ -19,6 +19,7 @@ export function WishlistButton({ className, ...props }: WishlistButtonProps) {
       size="icon"
       onClick={() => setIsWishlisted(!isWishlisted)}
       className={cn("bg-primary/10 hover:bg-primary/20 rounded-full", className)}
+      {...props}
     >
       <HeartIcon
         className={cn(

@@ -1,11 +1,10 @@
 "use client"
 
 import { Fitment } from "@/lib/types"
-import { CarFront } from "lucide-react"
-import AdvancedSearch from "./advanced-search"
-import { useTranslations } from "next-intl"
 import { cn } from "@repo/ui/lib/utils"
-import FitmentBadge from "./fitment-badge"
+import { CarFront } from "lucide-react"
+import { useTranslations } from "next-intl"
+import AdvancedSearch from "./advanced-search"
 
 export function FitmentCTA({ fitment, className }: { fitment: Fitment | null, className?: string }) {
   const t = useTranslations("fitment")

@@ -1,9 +1,8 @@
+import { getProductFitments, retreiveFitment } from "@/lib/data/fitments"
+import { getProductByHandle, getRelatedProducts } from "@/lib/data/products"
+import { ProductDetailTemplate } from "@/modules/products/templates/product-detail-template"
 import { Metadata } from "next"
 import { notFound } from "next/navigation"
-import { getProductByHandle, getRelatedProducts } from "@/lib/data/products"
-import { getProductFitments, retreiveFitment } from "@/lib/data/fitments"
-import { ProductDetailTemplate } from "@/modules/products/templates/product-detail-template"
-import { HttpTypes } from "@medusajs/types"
 
 type Props = {
   params: Promise<{ handle: string }>

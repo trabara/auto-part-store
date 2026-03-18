@@ -1,8 +1,15 @@
 "use client"
 
+import { Link } from "@/i18n/navigation"
+import { type ProductFitment } from "@/lib/data/fitments"
+import { type Fitment } from "@/lib/types"
+import { ProductActions } from "@/modules/products/components/product-actions"
+import { ProductGallery } from "@/modules/products/components/product-gallery"
+import { ProductGridItem } from "@/modules/products/components/product-item"
+import { ProductTabs } from "@/modules/products/components/product-tabs"
+import { VariantSelector } from "@/modules/products/components/variant-selector"
+import { HttpTypes } from "@medusajs/types"
 import { Badge } from "@repo/ui/components/badge"
-import { Separator } from "@repo/ui/components/separator"
-import { cn } from "@repo/ui/lib/utils"
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -11,18 +18,10 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@repo/ui/components/breadcrumb"
-import { type ProductFitment } from "@/lib/data/fitments"
-import { type Fitment } from "@/lib/types"
-import { ProductGallery } from "@/modules/products/components/product-gallery"
-import { VariantSelector } from "@/modules/products/components/variant-selector"
-import { ProductActions } from "@/modules/products/components/product-actions"
-import { ProductTabs } from "@/modules/products/components/product-tabs"
-import { ProductGridItem } from "@/modules/products/components/product-item"
-import { HttpTypes } from "@medusajs/types"
-import { Link } from "@/i18n/navigation"
+import { Separator } from "@repo/ui/components/separator"
 import { ArrowRight, CheckCircle2, Tag, XCircle } from "lucide-react"
-import React, { useState } from "react"
 import { useTranslations } from "next-intl"
+import React, { useState } from "react"
 
 type BreadcrumbSegment = { name: string; href: string }
 

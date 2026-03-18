@@ -20,15 +20,15 @@ type AddressForm = {
   phone: string
 }
 
-const EMPTY_FORM: AddressForm = {
-  first_name: "",
-  last_name: "",
-  address_1: "",
-  city: "",
-  postal_code: "",
-  country_code: "tn",
-  phone: "",
-}
+// const EMPTY_FORM: AddressForm = {
+//   first_name: "",
+//   last_name: "",
+//   address_1: "",
+//   city: "",
+//   postal_code: "",
+//   country_code: "tn",
+//   phone: "",
+// }
 
 type Props = {
   initialAddress?: HttpTypes.StoreCartAddress | null

@@ -1,5 +1,8 @@
 "use client"
 
+import { Link } from "@/i18n/navigation"
+import { convertToLocale } from "@/lib/util/product"
+import { useCart } from "@/modules/cart/hooks/use-cart"
 import { EmptyShoppingCartIcon } from "@repo/icons"
 import { Button } from "@repo/ui/components/button"
 import {
@@ -10,11 +13,7 @@ import {
   EmptyTitle,
 } from "@repo/ui/components/empty"
 import { SheetClose } from "@repo/ui/components/sheet"
-import { Separator } from "@repo/ui/components/separator"
-import { convertToLocale } from "@/lib/util/product"
-import { useCart } from "@/modules/cart/hooks/use-cart"
 import { useTranslations } from "next-intl"
-import { Link } from "@/i18n/navigation"
 import CartLineItem from "./cart-line-item"
 
 type CartListProps = {

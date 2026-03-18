@@ -1,12 +1,11 @@
+import {
+  ProductListQueryParams,
+  ProductOptionMeta,
+  ProductPriceRange
+} from "@/lib/data/products"
+import { SortOptions } from "@/lib/types"
 import { StoreProduct } from "@medusajs/types"
 import { createStore } from "zustand/vanilla"
-import { SortOptions } from "@/lib/types"
-import {
-  ProductOptionMeta,
-  ProductOptionValueFilter,
-  ProductListQueryParams,
-  ProductPriceRange,
-} from "@/lib/data/products"
 import { Display } from "./types"
 
 export type ProductListState = {

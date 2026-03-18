@@ -7,6 +7,16 @@ on:
         description: "Railway project name"
         required: true
         type: string
+      medusa_image:
+        description: "Medusa Docker image (e.g., ghcr.io/user/repo/medusa:latest)"
+        required: true
+        type: string
+        default: "ghcr.io/trabara/auto-part-store/medusa:latest"
+      storefront_image:
+        description: "Storefront Docker image (e.g., ghcr.io/user/repo/storefront:latest)"
+        required: true
+        type: string
+        default: "ghcr.io/trabara/auto-part-store/storefront:latest"
       environment:
         description: "Environment to deploy"
         required: true
@@ -74,6 +84,8 @@ jobs:
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
           TF_VAR_project_name: ${{ github.event.inputs.project_name }}
+          TF_VAR_medusa_image_source: ${{ github.event.inputs.medusa_image }}
+          TF_VAR_storefront_image_source: ${{ github.event.inputs.storefront_image }}
           TF_VAR_jwt_secret: ${{ steps.secrets.outputs.JWT_SECRET }}
           TF_VAR_cookie_secret: ${{ steps.secrets.outputs.COOKIE_SECRET }}
           TF_VAR_revalidate_secret: ${{ steps.secrets.outputs.REVALIDATE_SECRET }}
@@ -88,6 +100,8 @@ jobs:
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
           TF_VAR_project_name: ${{ github.event.inputs.project_name }}
+          TF_VAR_medusa_image_source: ${{ github.event.inputs.medusa_image }}
+          TF_VAR_storefront_image_source: ${{ github.event.inputs.storefront_image }}
           TF_VAR_jwt_secret: ${{ steps.secrets.outputs.JWT_SECRET }}
           TF_VAR_cookie_secret: ${{ steps.secrets.outputs.COOKIE_SECRET }}
           TF_VAR_revalidate_secret: ${{ steps.secrets.outputs.REVALIDATE_SECRET }}

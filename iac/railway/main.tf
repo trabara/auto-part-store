@@ -18,7 +18,7 @@ resource "railway_service" "postgres" {
 
   source_image = "obha507/postgres-ssl:latest"
   volume = {
-    name = "postgres-data"
+    name       = "postgres-data"
     mount_path = "/var/lib/postgresql/data"
   }
 }

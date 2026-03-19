@@ -16,7 +16,7 @@ resource "railway_service" "postgres" {
   name       = "postgres"
   project_id = local.project_id
 
-  source_image = "ghcr.io/railwayapp-templates/postgres-ssl"
+  source_image = "docker.io/railwayapp-templates/postgres-ssl"
 }
 
 # Redis
@@ -40,9 +40,7 @@ resource "railway_service" "medusa" {
   name       = "medusa"
   project_id = local.project_id
 
-  source_image                   = var.medusa_image_source
-  source_image_registry_password = var.registry_token != "" ? var.registry_token : null
-  source_image_registry_username = var.registry_username != "" ? var.registry_username : null
+  source_image = var.medusa_image_source
 }
 
 # TCP Proxy for Medusa
@@ -57,9 +55,7 @@ resource "railway_service" "storefront" {
   name       = "storefront"
   project_id = local.project_id
 
-  source_image                   = var.storefront_image_source
-  source_image_registry_password = var.registry_token != "" ? var.registry_token : null
-  source_image_registry_username = var.registry_username != "" ? var.registry_username : null
+  source_image = var.storefront_image_source
 }
 
 # TCP Proxy for Storefront

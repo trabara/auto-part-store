@@ -47,13 +47,13 @@ variable "storefront_start_command" {
 }
 
 variable "medusa_image_source" {
-  description = "Docker image for Medusa (e.g., ghcr.io/org/medusa:latest)"
+  description = "Docker image for Medusa (e.g., docker.io/org/medusa:latest)"
   type        = string
   default     = ""
 }
 
 variable "storefront_image_source" {
-  description = "Docker image for Storefront (e.g., ghcr.io/org/storefront:latest)"
+  description = "Docker image for Storefront (e.g., docker.io/org/storefront:latest)"
   type        = string
   default     = ""
 }
@@ -101,25 +101,6 @@ variable "cookie_secret" {
 
 variable "revalidate_secret" {
   description = "Revalidate secret for Storefront"
-  type        = string
-  default     = ""
-  sensitive   = true
-}
-
-variable "registry_host" {
-  description = "Docker registry host (e.g., ghcr.io)"
-  type        = string
-  default     = "ghcr.io"
-}
-
-variable "registry_username" {
-  description = "Docker registry username"
-  type        = string
-  default     = ""
-}
-
-variable "registry_token" {
-  description = "Docker registry token/password"
   type        = string
   default     = ""
   sensitive   = true

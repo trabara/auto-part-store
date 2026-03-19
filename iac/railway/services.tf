@@ -5,23 +5,6 @@ locals {
   minio_console_domain = "${railway_service.minio.name}.console.up.railway.app"
 }
 
-# Shared Registry Credentials (for pulling private ghcr.io images)
-resource "railway_shared_variable" "registry_token" {
-  count          = var.registry_token != "" ? 1 : 0
-  name           = "RAILWAY_DOCKER_REGISTRY_TOKEN"
-  project_id     = local.project_id
-  environment_id = local.environment_id
-  value          = var.registry_token
-}
-
-resource "railway_shared_variable" "registry_username" {
-  count          = var.registry_token != "" ? 1 : 0
-  name           = "RAILWAY_DOCKER_REGISTRY_USERNAME"
-  project_id     = local.project_id
-  environment_id = local.environment_id
-  value          = var.registry_username
-}
-
 # MinIO environment variables
 resource "railway_variable_collection" "minio" {
   environment_id = local.environment_id

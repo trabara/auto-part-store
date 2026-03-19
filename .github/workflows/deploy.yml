@@ -8,15 +8,15 @@ on:
         required: true
         type: string
       medusa_image:
-        description: "Medusa Docker image (e.g., ghcr.io/user/repo/medusa:latest)"
+        description: "Medusa Docker image"
         required: true
         type: string
-        default: "ghcr.io/trabara/auto-part-store/medusa:latest"
+        default: "docker.io/trabara/auto-part-store/medusa:main"
       storefront_image:
-        description: "Storefront Docker image (e.g., ghcr.io/user/repo/storefront:latest)"
+        description: "Storefront Docker image"
         required: true
         type: string
-        default: "ghcr.io/trabara/auto-part-store/storefront:latest"
+        default: "docker.io/trabara/auto-part-store/storefront:main"
       environment:
         description: "Environment to deploy"
         required: true
@@ -38,13 +38,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Login to GitHub Container Registry
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:
@@ -65,8 +58,6 @@ jobs:
           echo "REVALIDATE_SECRET=$REVALIDATE_SECRET" >> $GITHUB_OUTPUT
           echo "MINIO_ACCESS_KEY=$MINIO_ACCESS_KEY" >> $GITHUB_OUTPUT
           echo "MINIO_SECRET_KEY=$MINIO_SECRET_KEY" >> $GITHUB_OUTPUT
-          echo "REGISTRY_TOKEN=${{ secrets.GITHUB_TOKEN }}" >> $GITHUB_OUTPUT
-          echo "REGISTRY_USERNAME=${{ github.actor }}" >> $GITHUB_OUTPUT
 
           echo "::add-mask::$JWT_SECRET"
           echo "::add-mask::$COOKIE_SECRET"
@@ -101,8 +92,6 @@ jobs:
           TF_VAR_minio_access_key: ${{ steps.secrets.outputs.MINIO_ACCESS_KEY }}
           TF_VAR_minio_secret_key: ${{ steps.secrets.outputs.MINIO_SECRET_KEY }}
           TF_VAR_minio_bucket: medusa-store
-          TF_VAR_registry_username: ${{ steps.secrets.outputs.REGISTRY_USERNAME }}
-          TF_VAR_registry_token: ${{ steps.secrets.outputs.REGISTRY_TOKEN }}
         run: |
           terraform plan -no-color -out=tfplan
 
@@ -119,8 +108,6 @@ jobs:
           TF_VAR_minio_access_key: ${{ steps.secrets.outputs.MINIO_ACCESS_KEY }}
           TF_VAR_minio_secret_key: ${{ steps.secrets.outputs.MINIO_SECRET_KEY }}
           TF_VAR_minio_bucket: medusa-store
-          TF_VAR_registry_username: ${{ steps.secrets.outputs.REGISTRY_USERNAME }}
-          TF_VAR_registry_token: ${{ steps.secrets.outputs.REGISTRY_TOKEN }}
         run: |
           terraform apply -auto-approve -no-color
 

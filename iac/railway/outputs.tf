@@ -30,7 +30,7 @@ output "minio_service_id" {
 
 output "minio_api_url" {
   description = "MinIO API URL"
-  value       = "https://${railway_service.minio.name}.up.railway.app"
+  value       = local.minio_api_domain
 }
 
 output "minio_console_url" {

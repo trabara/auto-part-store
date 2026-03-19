@@ -18,12 +18,12 @@ resource "railway_variable_collection" "postgres" {
 
   variables = [
     {
-      name  = "POSTGRES_PASSWORD"
-      value = var.postgres_password
-    },
-    {
       name  = "POSTGRES_USER"
       value = var.project_name
+    },
+    {
+      name  = "POSTGRES_PASSWORD"
+      value = var.postgres_password
     }
   ]
 }

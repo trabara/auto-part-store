@@ -115,7 +115,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: terraform-state-${{ github.event.inputs.project_name }}
-          path: iac/railway/.terraform/
+          path: iac/railway/*.tfstate
           retention-days: 30
 
       - name: Extract Outputs

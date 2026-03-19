@@ -16,7 +16,7 @@ resource "railway_service" "postgres" {
   name       = "postgres"
   project_id = local.project_id
 
-  source_image = "docker.io/railwayapp-templates/postgres-ssl"
+  source_image = "obha507/postgres-ssl:latest"
 }
 
 # Redis

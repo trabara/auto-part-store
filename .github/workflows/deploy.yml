@@ -50,6 +50,7 @@ jobs:
           JWT_SECRET=$(openssl rand -hex 32)
           COOKIE_SECRET=$(openssl rand -hex 32)
           REVALIDATE_SECRET=$(openssl rand -hex 32)
+          REDIS_PASSWORD=$(openssl rand -hex 32)
           POSTGRES_PASSWORD=$(openssl rand -hex 32)
           MINIO_ACCESS_KEY="minio$(openssl rand -hex 8)"
           MINIO_SECRET_KEY=$(openssl rand -hex 32)
@@ -57,6 +58,7 @@ jobs:
           echo "JWT_SECRET=$JWT_SECRET" >> $GITHUB_OUTPUT
           echo "COOKIE_SECRET=$COOKIE_SECRET" >> $GITHUB_OUTPUT
           echo "REVALIDATE_SECRET=$REVALIDATE_SECRET" >> $GITHUB_OUTPUT
+          echo "REDIS_PASSWORD=$POSTGRES_PASSWORD" >> $GITHUB_OUTPUT
           echo "POSTGRES_PASSWORD=$POSTGRES_PASSWORD" >> $GITHUB_OUTPUT
           echo "MINIO_ACCESS_KEY=$MINIO_ACCESS_KEY" >> $GITHUB_OUTPUT
           echo "MINIO_SECRET_KEY=$MINIO_SECRET_KEY" >> $GITHUB_OUTPUT
@@ -92,10 +94,12 @@ jobs:
           TF_VAR_jwt_secret: ${{ steps.secrets.outputs.JWT_SECRET }}
           TF_VAR_cookie_secret: ${{ steps.secrets.outputs.COOKIE_SECRET }}
           TF_VAR_revalidate_secret: ${{ steps.secrets.outputs.REVALIDATE_SECRET }}
+          TF_VAR_redis_password: ${{ steps.secrets.outputs.REDIS_PASSWORD }}
           TF_VAR_postgres_password: ${{ steps.secrets.outputs.POSTGRES_PASSWORD }}
           TF_VAR_minio_access_key: ${{ steps.secrets.outputs.MINIO_ACCESS_KEY }}
           TF_VAR_minio_secret_key: ${{ steps.secrets.outputs.MINIO_SECRET_KEY }}
           TF_VAR_minio_bucket: medusa-store
+        
         run: |
           terraform plan -no-color -out=tfplan
 
@@ -110,6 +114,7 @@ jobs:
           TF_VAR_cookie_secret: ${{ steps.secrets.outputs.COOKIE_SECRET }}
           TF_VAR_revalidate_secret: ${{ steps.secrets.outputs.REVALIDATE_SECRET }}
           TF_VAR_postgres_password: ${{ steps.secrets.outputs.POSTGRES_PASSWORD }}
+          TF_VAR_redis_password: ${{ steps.secrets.outputs.REDIS_PASSWORD }}
           TF_VAR_minio_access_key: ${{ steps.secrets.outputs.MINIO_ACCESS_KEY }}
           TF_VAR_minio_secret_key: ${{ steps.secrets.outputs.MINIO_SECRET_KEY }}
           TF_VAR_minio_bucket: medusa-store
@@ -150,6 +155,7 @@ jobs:
           echo "| JWT_SECRET | \`${{ steps.secrets.outputs.JWT_SECRET }}\` |" >> $GITHUB_STEP_SUMMARY
           echo "| COOKIE_SECRET | \`${{ steps.secrets.outputs.COOKIE_SECRET }}\` |" >> $GITHUB_STEP_SUMMARY
           echo "| REVALIDATE_SECRET | \`${{ steps.secrets.outputs.REVALIDATE_SECRET }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| REDIS_PASSWORD | \`${{ steps.secrets.outputs.REDIS_PASSWORD }}\` |" >> $GITHUB_STEP_SUMMARY
           echo "| POSTGRES_PASSWORD | \`${{ steps.secrets.outputs.POSTGRES_PASSWORD }}\` |" >> $GITHUB_STEP_SUMMARY
           echo "| MINIO_ACCESS_KEY | \`${{ steps.secrets.outputs.MINIO_ACCESS_KEY }}\` |" >> $GITHUB_STEP_SUMMARY
           echo "| MINIO_SECRET_KEY | \`${{ steps.secrets.outputs.MINIO_SECRET_KEY }}\` |" >> $GITHUB_STEP_SUMMARY

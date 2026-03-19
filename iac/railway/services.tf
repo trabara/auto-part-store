@@ -18,11 +18,23 @@ resource "railway_variable_collection" "postgres" {
 
   variables = [
     {
+      name  = "DATABASE_URL",
+      value = local.database_url
+    },
+    {
+      name  = "POSTGRES_USER"
+      value = var.project_name
+    },
+    {
       name  = "PGUSER"
       value = var.project_name
     },
     {
       name  = "PGPASSWORD"
+      value = var.postgres_password
+    },
+    {
+      name  = "POSTGRES_PASSWORD",
       value = var.postgres_password
     },
     {
@@ -36,8 +48,67 @@ resource "railway_variable_collection" "postgres" {
     {
       name  = "PGDATABASE"
       value = var.postgres_database
+    },
+    {
+      name  = "POSTGRES_DB"
+      value = var.postgres_database
+    },
+    {
+      name  = "PGDATA"
+      value = "/var/lib/postgresql/data/pgdata"
+    },
+    # {
+    #   name  = "RAILWAY_DEPLOYMENT_DRAINING_SECONDS"
+    #   value = "60"
+    # },
+    # {
+    #   name  = "SSL_CERT_DAYS"
+    #   value = "820"
+    # }
+  ]
+}
+
+resource "railway_variable_collection" "redis" {
+  environment_id = local.environment_id
+  service_id     = railway_service.redis.id
+
+  variables = [
+    {
+      name  = "REDISHOST",
+      value = local.redis_internal_host
+    },
+    {
+      name  = "REDIS_HOST",
+      value = local.redis_internal_host
+    },
+    { name  = "REDISUSER",
+      value = var.project_name
+    },
+    {
+      name  = "REDIS_USER",
+      value = var.project_name
+    },
+    {
+      name  = "REDISPORT",
+      value = var.redis_port
+    },
+    { name  = "REDIS_PORT",
+      value = var.redis_port
+    },
+    {
+      name  = "REDISPASSWORD",
+      value = var.redis_password
+    },
+    {
+      name  = "REDIS_PASSWORD",
+      value = var.redis_password
+    },
+    {
+      name  = "REDIS_URL",
+      value = local.redis_url
     }
   ]
+
 }
 
 # MinIO environment variables
@@ -122,6 +193,14 @@ resource "railway_variable_collection" "medusa" {
     {
       name  = "NODE_ENV"
       value = "production"
+    },
+    {
+      name  = "ADMIN_USER_EMAIL"
+      value = var.medusa_admin_user_email
+    },
+    {
+      name  = "ADMIN_USER_PASSWORD"
+      value = var.medusa_admin_user_password
     }
   ]
 }

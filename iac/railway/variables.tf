@@ -10,6 +10,12 @@ variable "environment_name" {
   default     = "production"
 }
 
+variable "postgres_image_source" {
+  description = "Docker image for PostgreSQL (e.g., docker.io/org/postgres:latest)"
+  type        = string
+  default     = ""
+}
+
 variable "postgres_database" {
   description = "Name of the PostgreSQL database"
   type        = string
@@ -29,50 +35,27 @@ variable "postgres_password" {
   sensitive   = true
 }
 
-variable "medusa_root_dir" {
-  description = "Root directory for Medusa in monorepo (empty = deploy from root)"
-  type        = string
-  default     = "" # Deploy from monorepo root for Yarn workspaces
-}
-
-variable "storefront_root_dir" {
-  description = "Root directory for Storefront in monorepo (empty = deploy from root)"
-  type        = string
-  default     = "" # Deploy from monorepo root for Yarn workspaces
-}
-
-variable "medusa_build_command" {
-  description = "Build command for Medusa (optional)"
-  type        = string
-  default     = "yarn workspace medusa build"
-}
-
-variable "storefront_build_command" {
-  description = "Build command for Storefront (optional)"
-  type        = string
-  default     = "yarn workspace storefront build"
-}
-
-variable "medusa_start_command" {
-  description = "Start command for Medusa"
-  type        = string
-  default     = "cd apps/medusa && medusa start"
-}
-
-variable "storefront_start_command" {
-  description = "Start command for Storefront"
-  type        = string
-  default     = "cd apps/storefront && node server.js"
-}
-
-variable "medusa_image_source" {
-  description = "Docker image for Medusa (e.g., docker.io/org/medusa:latest)"
+variable "redis_image_source" {
+  description = "Docker image for Redis (e.g., docker.io/org/redis:latest)"
   type        = string
   default     = ""
 }
 
-variable "storefront_image_source" {
-  description = "Docker image for Storefront (e.g., docker.io/org/storefront:latest)"
+variable "redis_port" {
+  description = "Redis port"
+  type        = string
+  default     = "6379"
+}
+
+variable "redis_password" {
+  description = "Redis password"
+  type        = string
+  default     = ""
+  sensitive   = true
+}
+
+variable "minio_image_source" {
+  description = "Docker image for MinIO (e.g., docker.io/org/minio:latest)"
   type        = string
   default     = ""
 }
@@ -102,6 +85,31 @@ variable "minio_endpoint" {
   description = "MinIO/S3 endpoint (e.g., s3.amazonaws.com for AWS)"
   type        = string
   default     = "s3.amazonaws.com"
+}
+
+variable "medusa_image_source" {
+  description = "Docker image for Medusa (e.g., docker.io/org/medusa:latest)"
+  type        = string
+  default     = ""
+}
+
+variable "medusa_admin_user_email" {
+  description = "Email address for the Medusa admin user"
+  type        = string
+  default     = ""
+}
+
+variable "medusa_admin_user_password" {
+  description = "Password for the Medusa admin user"
+  type        = string
+  default     = ""
+  sensitive   = true
+}
+
+variable "storefront_image_source" {
+  description = "Docker image for Storefront (e.g., docker.io/org/storefront:latest)"
+  type        = string
+  default     = ""
 }
 
 variable "jwt_secret" {

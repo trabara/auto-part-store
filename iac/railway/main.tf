@@ -16,11 +16,11 @@ resource "railway_service" "postgres" {
   name       = "postgres"
   project_id = local.project_id
 
-  source_image = "obha507/postgres-ssl:latest"
-  # volume = {
-  #   name       = "postgres-data"
-  #   mount_path = "/var/lib/postgresql/data"
-  # }
+  source_image = var.postgres_image_source
+  volume = {
+    name       = "postgres-volume"
+    mount_path = "/var/lib/postgresql/data"
+  }
 }
 
 # Redis
@@ -28,7 +28,7 @@ resource "railway_service" "redis" {
   name       = "redis"
   project_id = local.project_id
 
-  source_image = "redis"
+  source_image = var.redis_image_source
 }
 
 # MinIO Object Storage
@@ -36,7 +36,7 @@ resource "railway_service" "minio" {
   name       = "minio"
   project_id = local.project_id
 
-  source_image = "minio/minio:latest"
+  source_image = var.minio_image_source
 }
 
 # Medusa Backend Service

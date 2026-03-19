@@ -11,12 +11,12 @@ on:
         description: "Medusa Docker image"
         required: true
         type: string
-        default: "obha507/medusa:main"
+        default: "obha507/medusa:{{ github.ref_name }}"
       storefront_image:
         description: "Storefront Docker image"
         required: true
         type: string
-        default: "obha507/storefront:main"
+        default: "obha507/storefront:{{ github.ref_name }}"
       environment:
         description: "Environment to deploy"
         required: true

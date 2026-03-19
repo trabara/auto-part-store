@@ -7,7 +7,7 @@ locals {
   # Internal Railway connection strings
   postgres_internal_host = "${railway_service.postgres.name}.railway.internal"
   redis_internal_host    = "${railway_service.redis.name}.railway.internal"
-  database_url           = "postgres://${var.project_name}:${var.postgres_password}@${local.postgres_internal_host}:5432"
+  database_url           = "postgres://${var.project_name}:${var.postgres_password}@${local.postgres_internal_host}:${var.postgres_port}/${var.postgres_database}"
   redis_url              = "redis://${local.redis_internal_host}:6379"
 }
 
@@ -18,12 +18,24 @@ resource "railway_variable_collection" "postgres" {
 
   variables = [
     {
-      name  = "POSTGRES_USER"
+      name  = "PGUSER"
       value = var.project_name
     },
     {
-      name  = "POSTGRES_PASSWORD"
+      name  = "PGPASSWORD"
       value = var.postgres_password
+    },
+    {
+      name  = "PGHOST"
+      value = local.postgres_internal_host
+    },
+    {
+      name  = "PGPORT"
+      value = var.postgres_port
+    },
+    {
+      name  = "PGDATABASE"
+      value = var.postgres_database
     }
   ]
 }

@@ -10,6 +10,18 @@ variable "environment_name" {
   default     = "production"
 }
 
+variable "postgres_database" {
+  description = "Name of the PostgreSQL database"
+  type        = string
+  default     = "medusa-v2"
+}
+
+variable "postgres_port" {
+  description = "PostgreSQL port"
+  type        = string
+  default     = "5432"
+}
+
 variable "postgres_password" {
   description = "PostgreSQL password"
   type        = string

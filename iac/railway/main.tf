@@ -17,10 +17,10 @@ resource "railway_service" "postgres" {
   project_id = local.project_id
 
   source_image = "obha507/postgres-ssl:latest"
-  volume = {
-    name       = "postgres-data"
-    mount_path = "/var/lib/postgresql/data"
-  }
+  # volume = {
+  #   name       = "postgres-data"
+  #   mount_path = "/var/lib/postgresql/data"
+  # }
 }
 
 # Redis

@@ -11,8 +11,8 @@
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.1",
-    "@medusajs/js-sdk": "^2.13.3",
-    "@medusajs/types": "^2.13.3",
+    "@medusajs/js-sdk": "^2.13.4",
+    "@medusajs/types": "^2.13.4",
     "@repo/icons": "workspace:*",
     "@repo/ui": "workspace:*",
     "lodash": "^4.17.23",

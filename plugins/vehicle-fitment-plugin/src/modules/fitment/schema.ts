@@ -3,7 +3,31 @@ import {
   createFindParams,
   createOperatorMap,
 } from "@medusajs/medusa/api/utils/validators";
-import { BASE_MASK, BaseSchema } from "@repo/common";
+// import { BASE_MASK, BaseSchema } from "@repo/common/esm";
+
+export const BaseSchema = z.object({
+  id: z.string(),
+  created_at: z.date(),
+  updated_at: z.date(),
+  deleted_at: z.date().nullable(),
+});
+
+export type Base = z.infer<typeof BaseSchema>;
+
+type BaseMaskType = {
+  created_at: true;
+  updated_at: true;
+  deleted_at: true;
+  id: true;
+};
+
+export const BASE_MASK = {
+  created_at: true,
+  updated_at: true,
+  deleted_at: true,
+  id: true,
+} as z.util.Exactly<BaseMaskType, Base>;
+
 
 export const FuelTypeSchema = z.enum([
   "GASOLINE",

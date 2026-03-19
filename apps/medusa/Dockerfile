@@ -46,4 +46,6 @@ COPY --from=builder --chown=medusa:nodejs /app/packages/common/package.json .med
 
 RUN chmod +x .medusa/server/start.sh
 
+EXPOSE 9000
+
 CMD ["sh", "-c", "cd .medusa/server && ./start.sh"]

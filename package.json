@@ -31,11 +31,11 @@
     "plugins/*"
   ],
   "resolutions": {
-    "@medusajs/core-flows": "2.13.3",
-    "@medusajs/framework": "2.13.3",
-    "@medusajs/medusa": "patch:@medusajs/medusa@npm%3A2.13.3#./.yarn/patches/@medusajs-medusa-npm-2.13.3-a5f2a940af.patch",
-    "@medusajs/orchestration": "2.13.3",
-    "@medusajs/workflows-sdk": "2.13.3",
+    "@medusajs/core-flows": "2.13.4",
+    "@medusajs/framework": "2.13.4",
+    "@medusajs/medusa": "2.13.4",
+    "@medusajs/orchestration": "2.13.4",
+    "@medusajs/workflows-sdk": "2.13.4",
     "@types/react": "^19",
     "@types/react-dom": "^19"
   }

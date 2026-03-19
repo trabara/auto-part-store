@@ -6,14 +6,14 @@
   "types": "dist/index.d.ts",
   "exports": {
     ".": {
-      "import": "./dist/esm/index.js",
+      "import": "./dist/index.js",
       "require": "./dist/index.js",
       "types": "./dist/index.d.ts"
     },
-    "./schemas": {
-      "import": "./dist/esm/schemas/index.js",
-      "require": "./dist/schemas/index.js",
-      "types": "./dist/schemas/index.d.ts"
+    "./esm": {
+      "import": "./dist/esm/index.js",
+      "require": "./dist/index.js",
+      "types": "./dist/index.d.ts"
     }
   },
   "files": [
@@ -28,7 +28,7 @@
     "@medusajs/framework": ">=2.0.0"
   },
   "devDependencies": {
-    "@medusajs/framework": "2.13.3",
+    "@medusajs/framework": "2.13.4",
     "@types/node": "^20.0.0",
     "typescript": "^5.0.0"
   }

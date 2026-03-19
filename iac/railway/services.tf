@@ -11,6 +11,22 @@ locals {
   redis_url              = "redis://${local.redis_internal_host}:6379"
 }
 
+resource "railway_variable_collection" "postgres" {
+  environment_id = local.environment_id
+  service_id     = railway_service.postgres.id
+
+  variables = [
+    {
+      name  = "POSTGRES_PASSWORD"
+      value = var.postgres_password
+    },
+    {
+      name  = "POSTGRES_USER"
+      value = var.project_name
+    }
+  ]
+}
+
 # MinIO environment variables
 resource "railway_variable_collection" "minio" {
   environment_id = local.environment_id

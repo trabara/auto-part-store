@@ -1,0 +1,86 @@
+name: Destroy Railway Infrastructure
+
+on:
+  workflow_dispatch:
+    inputs:
+      project_name:
+        description: "Railway project name to destroy"
+        required: true
+        type: string
+      environment:
+        description: "Environment to destroy"
+        required: true
+        default: "production"
+        type: choice
+        options:
+          - production
+          - staging
+      confirm:
+        description: "I understand this will permanently destroy all resources"
+        required: true
+        type: boolean
+
+env:
+  TERRAFORM_VERSION: 1.7.0
+
+jobs:
+  destroy:
+    name: Destroy Infrastructure
+    runs-on: ubuntu-latest
+    environment: ${{ github.event.inputs.environment }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download Terraform State
+        uses: actions/download-artifact@v4
+        with:
+          name: terraform-state-${{ github.event.inputs.project_name }}
+          path: iac/railway/.terraform/
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TERRAFORM_VERSION }}
+          terraform_wrapper: true
+
+      - name: Terraform Init
+        id: init
+        working-directory: iac/railway
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+        run: |
+          terraform init -upgrade=true
+
+      - name: Terraform Destroy
+        if: github.event.inputs.confirm == 'true'
+        working-directory: iac/railway
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+          TF_VAR_project_name: ${{ github.event.inputs.project_name }}
+        run: |
+          terraform destroy -auto-approve -no-color
+
+      - name: Cleanup Terraform State
+        if: github.event.inputs.confirm == 'true'
+        run: |
+          rm -rf iac/railway/.terraform/
+
+      - name: Cleanup Artifacts
+        if: github.event.inputs.confirm == 'true'
+        uses: actions/github-script@v6
+        with:
+          script: |
+            github.rest.actions.deleteArtifact({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              name: 'terraform-state-${{ github.event.inputs.project_name }}'
+            })
+
+      - name: Destruction Summary
+        run: |
+          echo "## Destruction Complete" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Project **${{ github.event.inputs.project_name }}** has been destroyed." >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "> All resources including database, redis, minio, medusa, and storefront have been permanently deleted." >> $GITHUB_STEP_SUMMARY

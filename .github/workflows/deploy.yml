@@ -111,6 +111,13 @@ jobs:
         run: |
           terraform apply -auto-approve -no-color
 
+      - name: Upload Terraform State
+        uses: actions/upload-artifact@v4
+        with:
+          name: terraform-state-${{ github.event.inputs.project_name }}
+          path: iac/railway/.terraform/
+          retention-days: 30
+
       - name: Extract Outputs
         id: outputs
         working-directory: iac/railway

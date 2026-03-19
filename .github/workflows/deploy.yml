@@ -16,7 +16,7 @@ on:
         description: "Storefront Docker image"
         required: true
         type: string
-        default: "obha507/storefront/storefront:main"
+        default: "obha507/storefront:main"
       environment:
         description: "Environment to deploy"
         required: true

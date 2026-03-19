@@ -11,6 +11,7 @@ locals {
   redis_url              = "redis://${local.redis_internal_host}:6379"
 }
 
+# Database environment variables
 resource "railway_variable_collection" "postgres" {
   environment_id = local.environment_id
   service_id     = railway_service.postgres.id

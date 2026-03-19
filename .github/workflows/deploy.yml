@@ -11,12 +11,12 @@ on:
         description: "Medusa Docker image"
         required: true
         type: string
-        default: "obha507/medusa:{{ github.ref_name }}"
+        default: "obha507/medusa:main"
       storefront_image:
         description: "Storefront Docker image"
         required: true
         type: string
-        default: "obha507/storefront:{{ github.ref_name }}"
+        default: "obha507/storefront:main"
       environment:
         description: "Environment to deploy"
         required: true
@@ -50,18 +50,21 @@ jobs:
           JWT_SECRET=$(openssl rand -hex 32)
           COOKIE_SECRET=$(openssl rand -hex 32)
           REVALIDATE_SECRET=$(openssl rand -hex 32)
+          POSTGRES_PASSWORD=$(openssl rand -hex 32)
           MINIO_ACCESS_KEY="minio$(openssl rand -hex 8)"
           MINIO_SECRET_KEY=$(openssl rand -hex 32)
 
           echo "JWT_SECRET=$JWT_SECRET" >> $GITHUB_OUTPUT
           echo "COOKIE_SECRET=$COOKIE_SECRET" >> $GITHUB_OUTPUT
           echo "REVALIDATE_SECRET=$REVALIDATE_SECRET" >> $GITHUB_OUTPUT
+          echo "POSTGRES_PASSWORD=$POSTGRES_PASSWORD" >> $GITHUB_OUTPUT
           echo "MINIO_ACCESS_KEY=$MINIO_ACCESS_KEY" >> $GITHUB_OUTPUT
           echo "MINIO_SECRET_KEY=$MINIO_SECRET_KEY" >> $GITHUB_OUTPUT
 
           echo "::add-mask::$JWT_SECRET"
           echo "::add-mask::$COOKIE_SECRET"
           echo "::add-mask::$REVALIDATE_SECRET"
+          echo "::add-mask::$POSTGRES_PASSWORD"
           echo "::add-mask::$MINIO_ACCESS_KEY"
           echo "::add-mask::$MINIO_SECRET_KEY"
 
@@ -89,6 +92,7 @@ jobs:
           TF_VAR_jwt_secret: ${{ steps.secrets.outputs.JWT_SECRET }}
           TF_VAR_cookie_secret: ${{ steps.secrets.outputs.COOKIE_SECRET }}
           TF_VAR_revalidate_secret: ${{ steps.secrets.outputs.REVALIDATE_SECRET }}
+          TF_VAR_postgres_password: ${{ steps.secrets.outputs.POSTGRES_PASSWORD }}
           TF_VAR_minio_access_key: ${{ steps.secrets.outputs.MINIO_ACCESS_KEY }}
           TF_VAR_minio_secret_key: ${{ steps.secrets.outputs.MINIO_SECRET_KEY }}
           TF_VAR_minio_bucket: medusa-store
@@ -105,6 +109,7 @@ jobs:
           TF_VAR_jwt_secret: ${{ steps.secrets.outputs.JWT_SECRET }}
           TF_VAR_cookie_secret: ${{ steps.secrets.outputs.COOKIE_SECRET }}
           TF_VAR_revalidate_secret: ${{ steps.secrets.outputs.REVALIDATE_SECRET }}
+          TF_VAR_postgres_password: ${{ steps.secrets.outputs.POSTGRES_PASSWORD }}
           TF_VAR_minio_access_key: ${{ steps.secrets.outputs.MINIO_ACCESS_KEY }}
           TF_VAR_minio_secret_key: ${{ steps.secrets.outputs.MINIO_SECRET_KEY }}
           TF_VAR_minio_bucket: medusa-store
@@ -145,6 +150,7 @@ jobs:
           echo "| JWT_SECRET | \`${{ steps.secrets.outputs.JWT_SECRET }}\` |" >> $GITHUB_STEP_SUMMARY
           echo "| COOKIE_SECRET | \`${{ steps.secrets.outputs.COOKIE_SECRET }}\` |" >> $GITHUB_STEP_SUMMARY
           echo "| REVALIDATE_SECRET | \`${{ steps.secrets.outputs.REVALIDATE_SECRET }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| POSTGRES_PASSWORD | \`${{ steps.secrets.outputs.POSTGRES_PASSWORD }}\` |" >> $GITHUB_STEP_SUMMARY
           echo "| MINIO_ACCESS_KEY | \`${{ steps.secrets.outputs.MINIO_ACCESS_KEY }}\` |" >> $GITHUB_STEP_SUMMARY
           echo "| MINIO_SECRET_KEY | \`${{ steps.secrets.outputs.MINIO_SECRET_KEY }}\` |" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY

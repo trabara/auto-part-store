@@ -3,6 +3,12 @@ locals {
   storefront_domain    = "${railway_service.storefront.name}.up.railway.app"
   minio_api_domain     = "${railway_service.minio.name}.up.railway.app"
   minio_console_domain = "${railway_service.minio.name}.console.up.railway.app"
+
+  # Internal Railway connection strings
+  postgres_internal_host = "${railway_service.postgres.name}.railway.internal"
+  redis_internal_host    = "${railway_service.redis.name}.railway.internal"
+  database_url           = "postgres://${var.project_name}:${var.postgres_password}@${local.postgres_internal_host}:5432"
+  redis_url              = "redis://${local.redis_internal_host}:6379"
 }
 
 # MinIO environment variables
@@ -34,11 +40,11 @@ resource "railway_variable_collection" "medusa" {
   variables = [
     {
       name  = "DATABASE_URL"
-      value = "@railway:ref:postgres/DATABASE_URL"
+      value = local.database_url
     },
     {
       name  = "REDIS_URL"
-      value = "@railway:ref:redis/REDIS_URL"
+      value = local.redis_url
     },
     {
       name  = "MINIO_ENDPOINT"

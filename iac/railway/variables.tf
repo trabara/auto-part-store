@@ -10,6 +10,13 @@ variable "environment_name" {
   default     = "production"
 }
 
+variable "postgres_password" {
+  description = "PostgreSQL password"
+  type        = string
+  default     = ""
+  sensitive   = true
+}
+
 variable "medusa_root_dir" {
   description = "Root directory for Medusa in monorepo (empty = deploy from root)"
   type        = string

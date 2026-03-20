@@ -112,6 +112,13 @@ variable "storefront_image_source" {
   default     = ""
 }
 
+variable "storefront_medusa_publishable_key" {
+  description = "Publishable key for Medusa used in the Storefront"
+  type        = string
+  default     = ""
+  sensitive   = true
+}
+
 variable "jwt_secret" {
   description = "JWT secret for Medusa"
   type        = string

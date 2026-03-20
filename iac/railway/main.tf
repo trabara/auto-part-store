@@ -49,8 +49,9 @@ resource "railway_service" "medusa" {
 
 # TCP Proxy for Medusa
 resource "railway_tcp_proxy" "medusa" {
-  service_id       = railway_service.medusa.id
-  environment_id   = local.environment_id
+  service_id     = railway_service.medusa.id
+  environment_id = local.environment_id
+
   application_port = 9000
 }
 
@@ -64,7 +65,38 @@ resource "railway_service" "storefront" {
 
 # TCP Proxy for Storefront
 resource "railway_tcp_proxy" "storefront" {
-  service_id       = railway_service.storefront.id
-  environment_id   = local.environment_id
+  service_id     = railway_service.storefront.id
+  environment_id = local.environment_id
+
   application_port = 3000
+}
+
+resource "railway_tcp_proxy" "minio-api" {
+  service_id     = railway_service.minio.id
+  environment_id = local.environment_id
+
+  application_port = 9002
+}
+
+# Custom domains for Medusa and Storefront
+resource "railway_service_domain" "storefront" {
+  service_id     = railway_service.storefront.id
+  environment_id = local.environment_id
+
+  subdomain = "${var.project_name}-store"
+}
+
+# Custom domain for Medusa API
+resource "railway_service_domain" "medusa" {
+  service_id     = railway_service.medusa.id
+  environment_id = local.environment_id
+
+  subdomain = "${var.project_name}-api"
+}
+
+resource "railway_service_domain" "minio_api" {
+  service_id     = railway_service.minio.id
+  environment_id = local.environment_id
+
+  subdomain = "${var.project_name}-minio-api"
 }

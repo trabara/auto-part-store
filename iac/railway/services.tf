@@ -1,8 +1,8 @@
 locals {
-  medusa_domain        = "${railway_service.medusa.name}.up.railway.app"
-  storefront_domain    = "${railway_service.storefront.name}.up.railway.app"
-  minio_api_domain     = "${railway_service.minio.name}.up.railway.app"
-  minio_console_domain = "${railway_service.minio.name}.console.up.railway.app"
+  # medusa_domain        = "${railway_service.medusa.name}.up.railway.app"
+  # storefront_domain    = "${railway_service.storefront.name}.up.railway.app"
+  # minio_api_domain     = "${railway_service.minio.name}.up.railway.app"
+  # minio_console_domain = "${railway_service.minio.name}.console.up.railway.app"
 
   # Internal Railway connection strings
   postgres_internal_host = "${railway_service.postgres.name}.railway.internal"
@@ -148,7 +148,7 @@ resource "railway_variable_collection" "medusa" {
     },
     {
       name  = "MINIO_ENDPOINT"
-      value = local.minio_api_domain
+      value = railway_service_domain.minio_api.domain
     },
     {
       name  = "MINIO_BUCKET"
@@ -172,15 +172,15 @@ resource "railway_variable_collection" "medusa" {
     },
     {
       name  = "STORE_CORS"
-      value = "https://${local.storefront_domain}"
+      value = "https://${railway_service_domain.storefront.domain}"
     },
     {
       name  = "ADMIN_CORS"
-      value = "https://${local.storefront_domain}"
+      value = "https://${railway_service_domain.storefront.domain}"
     },
     {
       name  = "AUTH_CORS"
-      value = "https://${local.storefront_domain}"
+      value = "https://${railway_service_domain.storefront.domain}"
     },
     {
       name  = "JWT_SECRET"
@@ -212,20 +212,16 @@ resource "railway_variable_collection" "storefront" {
 
   variables = [
     {
-      name  = "MEDUSA_BACKEND_URL"
-      value = "https://${local.medusa_domain}"
-    },
-    {
       name  = "NEXT_PUBLIC_BASE_URL"
-      value = "https://${local.storefront_domain}"
+      value = "https://${railway_service_domain.storefront.domain}"
     },
     {
       name  = "NEXT_PUBLIC_MEDUSA_BACKEND_URL"
-      value = "https://${local.medusa_domain}"
+      value = "https://${railway_service_domain.medusa.domain}"
     },
     {
       name  = "NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY"
-      value = "@railway:ref:medusa/MEDUSA_PUBLISHABLE_KEY"
+      value = var.storefront_medusa_publishable_key
     },
     {
       name  = "REVALIDATE_SECRET"

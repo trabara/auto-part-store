@@ -30,13 +30,13 @@ output "minio_service_id" {
 
 output "minio_api_url" {
   description = "MinIO API URL"
-  value       = local.minio_api_domain
+  value       = "https://${railway_service_domain.minio_api.domain}"
 }
 
-output "minio_console_url" {
-  description = "MinIO Console URL"
-  value       = "https://${railway_service.minio.name}.console.up.railway.app"
-}
+# output "minio_console_url" {
+#   description = "MinIO Console URL"
+#   value       = "https://${railway_service.minio.name}.console.up.railway.app"
+# }
 
 output "medusa_service_id" {
   description = "Medusa backend service ID"
@@ -45,7 +45,7 @@ output "medusa_service_id" {
 
 output "medusa_url" {
   description = "Medusa backend URL"
-  value       = "https://${railway_service.medusa.name}.railway.app"
+  value       = "https://${railway_service_domain.medusa.domain}"
 }
 
 output "storefront_service_id" {
@@ -55,5 +55,5 @@ output "storefront_service_id" {
 
 output "storefront_url" {
   description = "Storefront URL"
-  value       = "https://${railway_service.storefront.name}.railway.app"
+  value       = "https://${railway_service_domain.storefront.domain}"
 }

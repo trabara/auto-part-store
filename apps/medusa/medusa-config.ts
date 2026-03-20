@@ -1,4 +1,4 @@
-import { defineConfig, loadEnv } from "@medusajs/framework/utils";
+import { ContainerRegistrationKeys, defineConfig, loadEnv, Modules } from "@medusajs/framework/utils";
 
 // Load environment variables based on the current NODE_ENV
 loadEnv(process.env.NODE_ENV || "development", process.cwd());
@@ -6,6 +6,7 @@ loadEnv(process.env.NODE_ENV || "development", process.cwd());
 export default defineConfig({
   projectConfig: {
     databaseUrl: process.env.DATABASE_URL,
+    redisUrl: process.env.REDIS_URL,
     cookieOptions: {
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
@@ -20,9 +21,36 @@ export default defineConfig({
   },
   modules: [
     {
-      resolve: "@medusajs/medusa/cache-redis",
+      resolve: "@medusajs/medusa/caching",
       options: {
-        redisUrl: process.env.REDIS_URL,
+        providers: [
+          {
+            resolve: "@medusajs/caching-redis",
+            id: "caching-redis",
+            is_default: true,
+            options: {
+              redisUrl: process.env.REDIS_URL,
+              prefix: "medusa-cache",
+            },
+          }
+        ]
+      },
+    },
+    {
+      resolve: "@medusajs/medusa/locking",
+      options: {
+        providers: [
+          {
+            resolve: "@medusajs/medusa/locking-redis",
+            id: "locking-redis",
+            // set this if you want this provider to be used by default
+            // and you have other Locking Module Providers registered.
+            is_default: true,
+            options: {
+              redisUrl: process.env.REDIS_URL,
+            },
+          },
+        ],
       },
     },
     {
@@ -67,6 +95,18 @@ export default defineConfig({
         ],
       },
     },
+    {
+      resolve: "@medusajs/medusa/auth",
+      dependencies: [Modules.CACHE, ContainerRegistrationKeys.LOGGER],
+      options: {
+        providers: [
+          {
+            resolve: "@medusajs/medusa/auth-emailpass",
+            id: "emailpass",
+          },
+        ],
+      },
+    },
   ],
   plugins: [
     {
@@ -80,6 +120,6 @@ export default defineConfig({
       options: {
         // Plugin-specific options can be added here
       },
-    }
+    },
   ],
 });

@@ -33,7 +33,7 @@ FROM base AS runner
 WORKDIR /app
 
 # Copy production assets
-COPY --from=builder --chown=node:node /app/apps/storefront/public ./public
+COPY --from=builder --chown=node:node /app/apps/storefront/public ./apps/storefront/public
 
 # Set the correct permission for prerender cache
 RUN mkdir .next
@@ -42,7 +42,7 @@ RUN chown node:node .next
 # Automatically leverage output traces to reduce image size
 # https://nextjs.org/docs/advanced-features/output-file-tracing
 COPY --from=builder --chown=node:node /app/apps/storefront/.next/standalone ./
-COPY --from=builder --chown=node:node /app/apps/storefront/.next/static ./.next/static
+COPY --from=builder --chown=node:node /app/apps/storefront/.next/static ./apps/storefront/.next/static
 
 # Switch to non-root user for security best practices
 USER node

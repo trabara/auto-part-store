@@ -10,7 +10,6 @@ Turborepo monorepo for auto-parts e-commerce. Yarn 4 workspaces, Node >= 20.
 | `storefront`                     | `apps/storefront`                 | Next.js 16, React 19, Tailwind CSS v4 |
 | `@repo/common`                   | `packages/common`                 | Shared controllers, services          |
 | `@repo/ui`                       | `packages/ui`                     | UI components (shadcn/ui)             |
-| `@repo/icons`                    | `packages/icons`                  | SVG icons                             |
 | `@repo/vehicle-fitment-plugin`   | `plugins/vehicle-fitment-plugin`  | Fitment data                          |
 | `@agilo/medusa-analytics-plugin` | `plugins/medusa-analytics-plugin` | Analytics                             |
 
@@ -65,9 +64,8 @@ Test locations: HTTP: `apps/medusa/integration-tests/http/*.spec.ts`, Modules: `
 
 ## Code Style
 
-### Storefront (Prettier: no semicolons, double quotes, 2-space indent)
-
-### Medusa/Backend (semicolons, single quotes, 4-space indent)
+**Storefront**: No semicolons, double quotes, 2-space indent  
+**Medusa/Backend**: Semicolons, single quotes, 4-space indent
 
 ### TypeScript
 
@@ -76,23 +74,21 @@ Test locations: HTTP: `apps/medusa/integration-tests/http/*.spec.ts`, Modules: `
 
 ### Import Conventions
 
-**Storefront** - Use `@/` alias, order: `next/*, react` → `@/lib/*` → `@/modules/*` → `@/repo/*` → third-party
-
-**Medusa/Plugins** - Relative imports; `@medusajs/framework/*` for framework; `@repo/common` for shared
+**Storefront**: `@/` alias, order: `next/*, react` → `@/lib/*` → `@/modules/*` → `@/repo/*` → third-party  
+**Medusa/Plugins**: Relative imports; `@medusajs/framework/*` for framework; `@repo/common` for shared
 
 ### Naming Conventions
 
-| Type             | Convention                                         | Example                           |
-| ---------------- | -------------------------------------------------- | --------------------------------- |
-| Files            | kebab-case                                         | `fitment-module.service.ts`       |
-| React components | PascalCase function, named export, kebab-case file | `product-card.tsx`                |
-| Types/Interfaces | PascalCase, prefix `I`                             | `ILogger`                         |
-| Zod schemas      | PascalCase + `Schema`                              | `CreateProductSchema`             |
-| Constants        | UPPER_SNAKE_CASE                                   | `FITMENT_MODULE`                  |
-| Services         | PascalCase + `.service.ts`. Protected: `_` suffix  | `fitmentMakeRepository_`          |
-| Controllers      | PascalCase + `Controller`                          | `ProductController`               |
-| Workflows/Steps  | kebab-case IDs, camelCase export                   | `createFitmentsWorkflow`          |
-| API routes       | kebab-case folders                                 | `src/api/admin/products/route.ts` |
+| Type             | Convention                                         | Example                     |
+| ---------------- | -------------------------------------------------- | --------------------------- |
+| Files            | kebab-case                                         | `fitment-module.service.ts` |
+| React components | PascalCase function, named export, kebab-case file | `product-card.tsx`          |
+| Types/Interfaces | PascalCase, prefix `I`                             | `ILogger`                   |
+| Zod schemas      | PascalCase + `Schema`                              | `CreateProductSchema`       |
+| Constants        | UPPER_SNAKE_CASE                                   | `FITMENT_MODULE`            |
+| Services         | PascalCase + `.service.ts`. Protected: `_` suffix  | `fitmentMakeRepository_`    |
+| Controllers      | PascalCase + `Controller`                          | `ProductController`         |
+| Workflows/Steps  | kebab-case IDs, camelCase export                   | `createFitmentsWorkflow`    |
 
 ## React / Next.js Patterns
 
@@ -101,8 +97,7 @@ Test locations: HTTP: `apps/medusa/integration-tests/http/*.spec.ts`, Modules: `
 - `"use server"` for data modules in `src/lib/data/*.ts`
 - State: Zustand `createStore` from `zustand/vanilla`
 - UI: `@repo/ui` — CVA + Radix + `cn()` utility
-
-Route structure: `src/app/[locale]/page.tsx`, `src/app/[locale]/cart/page.tsx`, `src/app/[locale]/p/[handle]/page.tsx`
+- Route structure: `src/app/[locale]/page.tsx`, `src/app/[locale]/cart/page.tsx`, `src/app/[locale]/p/[handle]/page.tsx`
 
 ## Medusa Backend Patterns
 
@@ -130,15 +125,12 @@ export const myWorkflow = createWorkflow("my-workflow", (input) =>
   myStep(input),
 );
 
-// Validation
-const Schema = z.object({ name: z.string() });
-// In route: req.validatedBody (Zod via middleware)
+// Validation: req.validatedBody (Zod via middleware)
 ```
 
 ## Error Handling
 
-**Backend**: Throw `new Error("Entity not found")` — handler matches "not found" for 404
-
+**Backend**: Throw `new Error("Entity not found")` — handler matches "not found" for 404  
 **Storefront**: `medusaError(error)` from `src/lib/util/error.ts`. Chain `.catch(medusaError)`
 
 ## @repo/common Exports
@@ -147,8 +139,7 @@ const Schema = z.object({ name: z.string() });
 
 ## Environment
 
-`.env` files: `apps/medusa/.env`, `apps/storefront/.env`
-
+`.env` files: `apps/medusa/.env`, `apps/storefront/.env`  
 Key vars: `DATABASE_URL`, `REDIS_URL`, `STORE_CORS`, `ADMIN_CORS`, `JWT_SECRET`, `COOKIE_SECRET`, `MINIO_*`, `MEDUSA_BACKEND_URL`
 
 ## Agent Skills (REQUIRED)

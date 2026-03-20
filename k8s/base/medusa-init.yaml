@@ -1,0 +1,123 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: medusa-init
+  namespace: smap-store
+  labels:
+    app: medusa
+    tier: backend
+spec:
+  ttlSecondsAfterFinished: 3600
+  template:
+    spec:
+      restartPolicy: Never
+      initContainers:
+        - name: wait-for-postgres
+          image: busybox:1.36
+          command: ["sh", "-c"]
+          args:
+            - |
+              echo "Waiting for postgres..."
+              until nc -z postgres.smap-store 5432; do
+                echo "postgres not ready, waiting..."
+                sleep 2
+              done
+              echo "postgres is ready"
+        - name: wait-for-redis
+          image: busybox:1.36
+          command: ["sh", "-c"]
+          args:
+            - |
+              echo "Waiting for redis..."
+              until nc -z redis.smap-store 6379; do
+                echo "redis not ready, waiting..."
+                sleep 2
+              done
+              echo "redis is ready"
+      containers:
+        - name: migrate
+          image: obha507/medusa:develop
+          command: ["sh", "-c"]
+          args:
+            - |
+              echo "Running migrations..."
+              cd /app/.medusa/server && yarn medusa db:migrate
+          envFrom:
+            - secretRef:
+                name: medusa-secret
+            - configMapRef:
+                name: medusa-config
+          resources:
+            requests:
+              cpu: "50m"
+              memory: "128Mi"
+            limits:
+              cpu: "200m"
+              memory: "256Mi"
+        - name: seed
+          image: obha507/medusa:develop
+          command: ["sh", "-c"]
+          args:
+            - |
+              echo "Running seed..."
+              cd /app/.medusa/server && yarn medusa exec ./src/scripts/seed.js
+          envFrom:
+            - secretRef:
+                name: medusa-secret
+            - configMapRef:
+                name: medusa-config
+          resources:
+            requests:
+              cpu: "50m"
+              memory: "128Mi"
+            limits:
+              cpu: "200m"
+              memory: "256Mi"
+        - name: extract-key
+          image: postgres:16-alpine
+          command: ["sh", "-c"]
+          args:
+            - |
+              apk add --no-cache curl > /dev/null 2>&1
+              echo "Waiting for API server..."
+              until curl -sk https://kubernetes.default.svc/api/v1/namespaces/smap-store/secrets/storefront-key > /dev/null 2>&1; do
+                sleep 2
+              done
+              echo "Extracting publishable API key..."
+              KEY=$(PGPASSWORD=$POSTGRES_PASSWORD psql -h postgres -U $POSTGRES_USER -d $POSTGRES_DB -t -c "SELECT token FROM api_key WHERE type = 'publishable' LIMIT 1;" 2>/dev/null | tr -d ' \n')
+              echo "Found key: $KEY"
+              if [ -n "$KEY" ]; then
+                TOKEN=$(cat /var/run/secrets/kubernetes.io/serviceaccount/token)
+                CACERT=/var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+                curl -sk -X POST https://kubernetes.default.svc/api/v1/namespaces/smap-store/secrets \
+                  -H "Authorization: Bearer $TOKEN" \
+                  -H "Content-Type: application/json" \
+                  -d "{\"apiVersion\":\"v1\",\"kind\":\"Secret\",\"metadata\":{\"name\":\"storefront-key\",\"namespace\":\"smap-store\"},\"type\":\"Opaque\",\"data\":{\"NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY\":\"$(echo -n $KEY | base64)\"}}"
+                echo "Secret storefront-key created successfully"
+              else
+                echo "No publishable key found in database"
+                exit 1
+              fi
+          env:
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: POSTGRES_PASSWORD
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: POSTGRES_USER
+            - name: POSTGRES_DB
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: POSTGRES_DB
+          resources:
+            requests:
+              cpu: "50m"
+              memory: "64Mi"
+            limits:
+              cpu: "100m"
+              memory: "128Mi"

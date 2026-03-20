@@ -1,0 +1,16 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: smap-store
+
+resources:
+  - ../../base
+
+commonLabels:
+  environment: staging
+
+images:
+  - name: smap-store-medusa
+    newTag: "latest"
+  - name: smap-store-storefront
+    newTag: "latest"

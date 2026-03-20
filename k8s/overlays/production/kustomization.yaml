@@ -1,0 +1,32 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: smap-store
+
+resources:
+  - ../../base
+
+commonLabels:
+  environment: production
+
+images:
+  - name: smap-store-medusa
+    newTag: "latest"
+  - name: smap-store-storefront
+    newTag: "latest"
+
+patches:
+  - patch: |-
+      - op: replace
+        path: /spec/replicas
+        value: 3
+    target:
+      kind: Deployment
+      name: medusa
+  - patch: |-
+      - op: replace
+        path: /spec/replicas
+        value: 3
+    target:
+      kind: Deployment
+      name: storefront

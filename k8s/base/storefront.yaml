@@ -1,0 +1,115 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: storefront-sa
+  namespace: smap-store
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: storefront-secret
+  namespace: smap-store
+type: Opaque
+stringData:
+  REVALIDATE_SECRET: "CHANGE_ME_revalidate_secret"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: storefront
+  namespace: smap-store
+  labels:
+    app: storefront
+    tier: frontend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: storefront
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: storefront
+        tier: frontend
+    spec:
+      serviceAccountName: storefront-sa
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 101
+        fsGroup: 101
+      containers:
+        - name: storefront
+          image: obha507/storefront:develop
+          ports:
+            - containerPort: 3000
+              name: http
+          envFrom:
+            - secretRef:
+                name: storefront-secret
+            - configMapRef:
+                name: storefront-config
+            - secretRef:
+                name: storefront-key
+          resources:
+            requests:
+              cpu: "50m"
+              memory: "128Mi"
+            limits:
+              cpu: "300m"
+              memory: "512Mi"
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 3000
+            initialDelaySeconds: 10
+            periodSeconds: 15
+            failureThreshold: 3
+          readinessProbe:
+            tcpSocket:
+              port: 3000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            failureThreshold: 3
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchLabels:
+                    app: storefront
+                topologyKey: kubernetes.io/hostname
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: storefront
+  namespace: smap-store
+spec:
+  ports:
+    - port: 80
+      targetPort: 3000
+      name: http
+  selector:
+    app: storefront
+  type: ClusterIP
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: storefront-config
+  namespace: smap-store
+data:
+  NODE_ENV: "production"
+  NEXT_PUBLIC_BASE_URL: "http://shop.localhost"
+  NEXT_PUBLIC_MEDUSA_BACKEND_URL: "http://api.localhost"

@@ -116,6 +116,7 @@ services:
       minio:
         condition: service_healthy
     ports:
+      - "9000:9000"
       - "5173:5173"
     environment:
       - ADMIN_CORS=${ADMIN_CORS}
@@ -128,8 +129,10 @@ services:
       - MINIO_ENDPOINT=${MINIO_ENDPOINT}
       - MINIO_SECRET_KEY=${MINIO_SECRET_KEY}
       - MINIO_USE_SSL=false
-      - NODE_ENV=production
+      - NODE_ENV=${NODE_ENV}
       - REDIS_URL=${REDIS_URL}
+      - ADMIN_USER_EMAIL=${ADMIN_USER_EMAIL}
+      - ADMIN_USER_PASSWORD=${ADMIN_USER_PASSWORD}
     networks:
       - medusa_network
     labels:
@@ -164,19 +167,21 @@ services:
     depends_on:
       medusa:
         condition: service_healthy
+    ports:
+      - "3000:3000"
     environment:
       - NEXT_PUBLIC_BASE_URL=${STORE_BASE_URL}
       - NEXT_PUBLIC_MEDUSA_BACKEND_URL=${BACKEND_URL}
       - NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY=${PUBLISHABLE_KEY}
       - STORAGE_HOST=${MINIO_API_HOST}
-      - NODE_ENV=production
+      - NODE_ENV=${NODE_ENV}
       - REVALIDATE_SECRET=${REVALIDATE_SECRET}
     networks:
       - medusa_network
     labels:
       - "traefik.enable=true"
-      - "traefik.http.services.storefront.loadbalancer.server.port=8000"
-      - "traefik.http.routers.storefront.rule=Host(`shop.localhost`) || Host(`localhost`)"
+      - "traefik.http.services.storefront.loadbalancer.server.port=3000"
+      - "traefik.http.routers.storefront.rule=Host(`store.localhost`) || Host(`localhost`)"
       - "traefik.http.routers.storefront.entrypoints=web"
       - "traefik.http.routers.storefront.service=storefront"
       - "traefik.http.routers.storefront.priority=1"
@@ -190,7 +195,7 @@ services:
           "--quiet",
           "--tries=1",
           "--spider",
-          "http://localhost:8000",
+          "http://localhost:3000",
         ]
       interval: 30s
       timeout: 10s

@@ -8,6 +8,7 @@ resources:
   - postgres.yaml
   - redis.yaml
   - minio.yaml
+  - minio-init.yaml
   - medusa-init.yaml
   - medusa.yaml
   - storefront.yaml

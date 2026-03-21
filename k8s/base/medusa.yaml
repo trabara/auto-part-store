@@ -47,6 +47,7 @@ stringData:
   COOKIE_SECRET: "CHANGE_ME_cookie_secret_32chars"
   MINIO_ACCESS_KEY: "CHANGE_ME_minio_user"
   MINIO_SECRET_KEY: "CHANGE_ME_minio_password"
+  MINIO_BUCKET: "medusa"
   MEDUSA_ADMIN_EMAIL: "admin@smap-store.local"
   MEDUSA_ADMIN_PASSWORD: "supersecret"
 ---

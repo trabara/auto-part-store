@@ -108,26 +108,41 @@ spec:
               }
 
               async function waitForDependencies() {
-                console.log('Waiting for medusa to be ready (migrations complete)...');
+                console.log('Waiting for storefront-key secret with valid publishable key...');
                 const maxAttempts = 60;
                 
                 for (let attempt = 1; attempt <= maxAttempts; attempt++) {
                   try {
-                    const healthRes = await httpGet('http://api.localhost/health');
+                    const secretRes = await httpGet(
+                      'https://kubernetes.default.svc/api/v1/namespaces/smap-store/secrets/storefront-key',
+                      { 'Authorization': `Bearer ${token}` }
+                    );
                     
-                    if (healthRes.status === 200) {
-                      console.log('Medusa is ready');
-                      process.exit(0);
+                    if (secretRes.status === 200 && secretRes.data) {
+                      const match = secretRes.data.match(/"NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY":"([^"]+)"/);
+                      if (match) {
+                        const decoded = Buffer.from(match[1], 'base64').toString();
+                        // Check if it's a real key (starts with pk_ and has hex chars)
+                        if (/^pk_[a-f0-9]{32,}$/.test(decoded)) {
+                          console.log(`Valid storefront-key found: ${decoded.substring(0, 20)}...`);
+                          process.exit(0);
+                        } else {
+                          console.log(`  Attempt ${attempt}/${maxAttempts} - secret exists but key is not valid yet, waiting 5s...`);
+                        }
+                      } else {
+                        console.log(`  Attempt ${attempt}/${maxAttempts} - secret data not ready, waiting 5s...`);
+                      }
+                    } else if (secretRes.status === 403 || secretRes.status === 404) {
+                      console.log(`  Attempt ${attempt}/${maxAttempts} - secret not ready (${secretRes.status}), waiting 5s...`);
                     }
                   } catch (e) {
-                    // Ignore errors and retry
+                    console.log(`  Attempt ${attempt}/${maxAttempts} - error: ${e.message}, waiting 5s...`);
                   }
                   
-                  console.log(`  Attempt ${attempt}/${maxAttempts} - medusa not ready, waiting 5s...`);
                   await new Promise(r => setTimeout(r, 5000));
                 }
                 
-                console.log('WARNING: Timeout waiting for medusa');
+                console.log('WARNING: Timeout waiting for valid storefront-key');
                 process.exit(1);
               }
 

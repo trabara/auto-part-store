@@ -9,7 +9,6 @@ resources:
   - redis.yaml
   - minio.yaml
   - medusa-init.yaml
-  - medusa-init-key.yaml
   - medusa.yaml
   - storefront.yaml
   - ingress.yaml

@@ -46,7 +46,7 @@ metadata:
     app: storefront
     tier: frontend
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: storefront

@@ -13,6 +13,9 @@ rules:
   - apiGroups: ["apps"]
     resources: ["deployments", "pods"]
     verbs: ["get", "list", "watch"]
+  - apiGroups: ["batch"]
+    resources: ["jobs"]
+    verbs: ["get", "list", "watch"]
   - apiGroups: [""]
     resources: ["pods", "pods/exec", "secrets"]
     verbs: ["get", "list", "create", "delete", "patch"]
@@ -67,6 +70,38 @@ spec:
         tier: backend
     spec:
       serviceAccountName: medusa-sa
+      initContainers:
+        - name: wait-for-dependencies
+          image: localhost:5000/smap-store-medusa:latest
+          command: ["sh", "-c"]
+          args:
+            - |
+              echo "Waiting for dependencies..."
+
+              # Wait for postgres
+              echo "Checking postgres..."
+              until nc -z postgres.smap-store 5432; do
+                echo "postgres not ready, waiting..."
+                sleep 2
+              done
+              echo "postgres is ready"
+
+              # Wait for redis
+              echo "Checking redis..."
+              until nc -z redis.smap-store 6379; do
+                echo "redis not ready, waiting..."
+                sleep 2
+              done
+              echo "redis is ready"
+
+              echo "All dependencies ready"
+          resources:
+            requests:
+              cpu: "10m"
+              memory: "32Mi"
+            limits:
+              cpu: "100m"
+              memory: "64Mi"
       containers:
         - name: medusa
           image: localhost:5000/smap-store-medusa:latest

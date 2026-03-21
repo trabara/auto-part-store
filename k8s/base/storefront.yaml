@@ -49,6 +49,33 @@ spec:
         runAsNonRoot: true
         runAsUser: 101
         fsGroup: 101
+      initContainers:
+        - name: wait-for-medusa
+          image: localhost:5000/smap-store-storefront:latest
+          command: ["sh", "-c"]
+          args:
+            - |
+              set -e
+              echo "Waiting for medusa to be ready..."
+              MAX_ATTEMPTS=30
+              ATTEMPT=1
+              while [ $ATTEMPT -le $MAX_ATTEMPTS ]; do
+                if wget -q --timeout=2 -O /dev/null http://api.localhost/health 2>/dev/null; then
+                  echo "medusa is ready"
+                  exit 0
+                fi
+                echo "  Attempt $ATTEMPT/$MAX_ATTEMPTS - medusa not ready, waiting 5s..."
+                sleep 5
+                ATTEMPT=$((ATTEMPT + 1))
+              done
+              echo "WARNING: medusa not ready after $MAX_ATTEMPTS attempts, continuing anyway"
+          resources:
+            requests:
+              cpu: "10m"
+              memory: "32Mi"
+            limits:
+              cpu: "100m"
+              memory: "64Mi"
       containers:
         - name: storefront
           image: localhost:5000/smap-store-storefront:latest
@@ -92,25 +119,6 @@ spec:
               mountPath: /app/.next/cache
             - name: storefront-cache
               mountPath: /app/apps/storefront/.next/cache
-      initContainers:
-        - name: init-cache
-          image: localhost:5000/smap-store-storefront:latest
-          command: ["sh", "-c"]
-          args:
-            - |
-              mkdir -p /app/.next/cache /app/apps/storefront/.next/cache
-          volumeMounts:
-            - name: cache
-              mountPath: /app/.next/cache
-            - name: storefront-cache
-              mountPath: /app/apps/storefront/.next/cache
-          resources:
-            requests:
-              cpu: "10m"
-              memory: "32Mi"
-            limits:
-              cpu: "100m"
-              memory: "64Mi"
       volumes:
         - name: cache
           emptyDir: {}

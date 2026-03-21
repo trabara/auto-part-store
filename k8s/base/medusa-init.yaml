@@ -8,7 +8,8 @@ metadata:
     tier: backend
 spec:
   ttlSecondsAfterFinished: 3600
-  backoffLimit: 3
+  backoffLimit: 5
+  activeDeadlineSeconds: 300
   template:
     spec:
       restartPolicy: Never
@@ -22,21 +23,36 @@ spec:
 
               echo "=== Medusa Init Starting ==="
 
-              # Wait for postgres
-              echo "Waiting for postgres..."
-              until nc -z postgres.smap-store 5432; do
-                echo "postgres not ready, waiting..."
-                sleep 2
-              done
-              echo "postgres is ready"
+              wait_for_service() {
+                local host=$1
+                local port=$2
+                local name=$3
+                echo "Waiting for $name ($host:$port)..."
+                local max_attempts=30
+                local attempt=1
+                while [ $attempt -le $max_attempts ]; do
+                  if wget -q --timeout=2 -O /dev/null "http://$host:$port" 2>/dev/null || \
+                     (echo "" | nc -w2 "$host" "$port" 2>/dev/null); then
+                    echo "$name is ready"
+                    return 0
+                  fi
+                  echo "  Attempt $attempt/$max_attempts - $name not ready, waiting 2s..."
+                  sleep 2
+                  attempt=$((attempt + 1))
+                done
+                echo "ERROR: $name failed to become ready after ${max_attempts} attempts"
+                return 1
+              }
 
-              # Wait for redis
-              echo "Waiting for redis..."
-              until nc -z redis.smap-store 6379; do
-                echo "redis not ready, waiting..."
-                sleep 2
-              done
-              echo "redis is ready"
+              # Wait for postgres
+              wait_for_service "postgres.smap-store" "5432" "postgres"
+
+              # Wait for redis  
+              wait_for_service "redis.smap-store" "6379" "redis"
+
+              # Wait for medusa (optional - allows migrations to work)
+              echo "Waiting for medusa database to accept connections..."
+              sleep 5
 
               # Run migrations (idempotent)
               echo "Running migrations..."

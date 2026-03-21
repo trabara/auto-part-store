@@ -1,0 +1,150 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: medusa-init-key
+  namespace: smap-store
+  labels:
+    app: medusa
+    tier: backend
+spec:
+  ttlSecondsAfterFinished: 3600
+  backoffLimit: 3
+  template:
+    spec:
+      restartPolicy: Never
+      serviceAccountName: medusa-sa
+      containers:
+        - name: medusa
+          image: localhost:5000/smap-store-medusa:latest
+          command: ["sh", "-c"]
+          args:
+            - |
+              set -e
+
+              echo "=== Medusa Init Key Starting ==="
+
+              # Wait for postgres
+              echo "Waiting for postgres..."
+              until nc -z postgres.smap-store 5432; do
+                echo "postgres not ready, waiting..."
+                sleep 2
+              done
+              echo "postgres is ready"
+
+              # Wait for medusa database to be ready
+              echo "Waiting for medusa database..."
+              cd /app/.medusa/server
+
+              # Get publishable key using medusa exec
+              echo "Extracting publishable key via medusa exec..."
+              OUTPUT=$(yarn medusa exec ./src/scripts/init.js 2>/dev/null)
+              KEY=$(echo "$OUTPUT" | sed -n 's/.*__KEY__\(.*\)__KEY__.*/\1/p' | head -1)
+
+              if [ -z "$KEY" ]; then
+                echo "ERROR: No publishable key found in api_key table"
+                echo "Make sure medusa-init job completed successfully"
+                echo "Debug output: [$OUTPUT]"
+                exit 1
+              fi
+
+              echo "Found key: $KEY"
+
+              # Create secret using Node.js - pass key via environment variable
+              export API_KEY="$KEY"
+              node << 'NODEEOF'
+              const https = require('https');
+              const fs = require('fs');
+
+              const token = fs.readFileSync('/var/run/secrets/kubernetes.io/serviceaccount/token', 'utf8').trim();
+              const ca = fs.readFileSync('/var/run/secrets/kubernetes.io/serviceaccount/ca.crt');
+              const namespace = 'smap-store';
+              const key = process.env.API_KEY;
+
+              console.log('Key from env:', key ? 'received' : 'undefined');
+
+              // Base64 encode the key value
+              const data = Buffer.from(`NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY=${key}`).toString('base64');
+
+              const secret = JSON.stringify({
+                apiVersion: 'v1',
+                kind: 'Secret',
+                metadata: {
+                  name: 'storefront-key',
+                  namespace: namespace
+                },
+                type: 'Opaque',
+                data: {
+                  NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY: Buffer.from(key).toString('base64')
+                }
+              });
+
+              // Delete existing secret
+              const deleteReq = https.request({
+                hostname: 'kubernetes.default.svc',
+                path: `/api/v1/namespaces/${namespace}/secrets/storefront-key`,
+                method: 'DELETE',
+                headers: {
+                  'Authorization': `Bearer ${token}`,
+                  'Content-Type': 'application/json'
+                },
+                ca: ca
+              }, (res) => {
+                console.log('Delete response status:', res.statusCode);
+              });
+
+              deleteReq.on('error', (e) => {
+                // Ignore errors (secret might not exist)
+              });
+
+              deleteReq.end();
+
+              // Create secret
+              const createReq = https.request({
+                hostname: 'kubernetes.default.svc',
+                path: `/api/v1/namespaces/${namespace}/secrets`,
+                method: 'POST',
+                headers: {
+                  'Authorization': `Bearer ${token}`,
+                  'Content-Type': 'application/json'
+                },
+                ca: ca
+              }, (res) => {
+                let data = '';
+                res.on('data', chunk => data += chunk);
+                res.on('end', () => {
+                  console.log('Create response status:', res.statusCode);
+                  console.log('Response:', data);
+                  if (res.statusCode >= 200 && res.statusCode < 300) {
+                    console.log('Secret created successfully!');
+                    console.log('=== Done ===');
+                  } else {
+                    console.error('Failed to create secret');
+                    process.exit(1);
+                  }
+                });
+              });
+
+              createReq.on('error', (e) => {
+                console.error('Error:', e.message);
+                process.exit(1);
+              });
+
+              createReq.write(secret);
+              createReq.end();
+              NODEEOF
+
+          envFrom:
+            - secretRef:
+                name: medusa-secret
+            - configMapRef:
+                name: medusa-config
+          env:
+            - name: KUBECONFIG
+              value: /tmp/kubeconfig
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "256Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"

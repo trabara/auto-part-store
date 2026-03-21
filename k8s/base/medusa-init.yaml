@@ -8,96 +8,72 @@ metadata:
     tier: backend
 spec:
   ttlSecondsAfterFinished: 3600
+  backoffLimit: 3
   template:
     spec:
       restartPolicy: Never
-      initContainers:
-        - name: wait-for-postgres
-          image: busybox:1.36
+      containers:
+        - name: medusa-init
+          image: localhost:5000/smap-store-medusa:latest
           command: ["sh", "-c"]
           args:
             - |
+              set -e
+
+              echo "=== Medusa Init Starting ==="
+
+              # Wait for postgres
               echo "Waiting for postgres..."
               until nc -z postgres.smap-store 5432; do
                 echo "postgres not ready, waiting..."
                 sleep 2
               done
               echo "postgres is ready"
-        - name: wait-for-redis
-          image: busybox:1.36
-          command: ["sh", "-c"]
-          args:
-            - |
+
+              # Wait for redis
               echo "Waiting for redis..."
               until nc -z redis.smap-store 6379; do
                 echo "redis not ready, waiting..."
                 sleep 2
               done
               echo "redis is ready"
-      containers:
-        - name: migrate
-          image: obha507/medusa:develop
-          command: ["sh", "-c"]
-          args:
-            - |
+
+              # Run migrations (idempotent)
               echo "Running migrations..."
-              cd /app/.medusa/server && yarn medusa db:migrate
-          envFrom:
-            - secretRef:
-                name: medusa-secret
-            - configMapRef:
-                name: medusa-config
-          resources:
-            requests:
-              cpu: "50m"
-              memory: "128Mi"
-            limits:
-              cpu: "200m"
-              memory: "256Mi"
-        - name: seed
-          image: obha507/medusa:develop
-          command: ["sh", "-c"]
-          args:
-            - |
+              cd /app/.medusa/server && yarn medusa db:migrate || echo "Migrations already applied"
+
+              # Run seed (idempotent - may fail if already seeded)
               echo "Running seed..."
-              cd /app/.medusa/server && yarn medusa exec ./src/scripts/seed.js
-          envFrom:
-            - secretRef:
-                name: medusa-secret
-            - configMapRef:
-                name: medusa-config
-          resources:
-            requests:
-              cpu: "50m"
-              memory: "128Mi"
-            limits:
-              cpu: "200m"
-              memory: "256Mi"
-        - name: extract-key
-          image: postgres:16-alpine
-          command: ["sh", "-c"]
-          args:
-            - |
-              apk add --no-cache curl > /dev/null 2>&1
-              echo "Waiting for API server..."
-              until curl -sk https://kubernetes.default.svc/api/v1/namespaces/smap-store/secrets/storefront-key > /dev/null 2>&1; do
-                sleep 2
-              done
+              cd /app/.medusa/server && yarn medusa exec ./src/scripts/seed.js || echo "Seed already applied or skipped"
+
+              # Add Tunisia to region (idempotent)
+              echo "Ensuring Tunisia is assigned to region..."
+              PGPASSWORD=$POSTGRES_PASSWORD psql -h postgres -U $POSTGRES_USER -d $POSTGRES_DB -c "
+                INSERT INTO region_country (region_id, country_id)
+                SELECT r.id, c.id FROM region r, country c WHERE r.name = 'Europe' AND c.iso_2 = 'tn'
+                ON CONFLICT DO NOTHING;
+              " 2>/dev/null || echo "Tunisia may already be assigned"
+
+              # Extract publishable key (for logging)
               echo "Extracting publishable API key..."
-              KEY=$(PGPASSWORD=$POSTGRES_PASSWORD psql -h postgres -U $POSTGRES_USER -d $POSTGRES_DB -t -c "SELECT token FROM api_key WHERE type = 'publishable' LIMIT 1;" 2>/dev/null | tr -d ' \n')
-              echo "Found key: $KEY"
+              OUTPUT=$(cd /app/.medusa/server && yarn medusa exec ./src/scripts/init.js 2>/dev/null)
+              KEY=$(echo "$OUTPUT" | sed -n 's/.*__KEY__\(.*\)__KEY__.*/\1/p' | head -1)
+
               if [ -n "$KEY" ]; then
-                TOKEN=$(cat /var/run/secrets/kubernetes.io/serviceaccount/token)
-                CACERT=/var/run/secrets/kubernetes.io/serviceaccount/ca.crt
-                curl -sk -X POST https://kubernetes.default.svc/api/v1/namespaces/smap-store/secrets \
-                  -H "Authorization: Bearer $TOKEN" \
-                  -H "Content-Type: application/json" \
-                  -d "{\"apiVersion\":\"v1\",\"kind\":\"Secret\",\"metadata\":{\"name\":\"storefront-key\",\"namespace\":\"smap-store\"},\"type\":\"Opaque\",\"data\":{\"NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY\":\"$(echo -n $KEY | base64)\"}}"
-                echo "Secret storefront-key created successfully"
+                echo "Found key: $KEY"
+                echo "Note: Use medusa-init-key job to create the secret"
+                echo ""
+                echo "=== Medusa Init Complete ==="
               else
-                echo "No publishable key found in database"
+                echo "ERROR: No publishable key found"
+                echo "Output was: $OUTPUT"
                 exit 1
               fi
+          envFrom:
+            - secretRef:
+                name: medusa-secret
+            - configMapRef:
+                name: medusa-config
           env:
             - name: POSTGRES_PASSWORD
               valueFrom:
@@ -116,8 +92,8 @@ spec:
                   key: POSTGRES_DB
           resources:
             requests:
-              cpu: "50m"
-              memory: "64Mi"
-            limits:
               cpu: "100m"
-              memory: "128Mi"
+              memory: "256Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"

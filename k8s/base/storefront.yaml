@@ -38,13 +38,17 @@ spec:
         tier: frontend
     spec:
       serviceAccountName: storefront-sa
+      hostAliases:
+        - ip: "10.42.0.126"
+          hostnames:
+            - api.localhost
       securityContext:
         runAsNonRoot: true
         runAsUser: 101
         fsGroup: 101
       containers:
         - name: storefront
-          image: obha507/storefront:develop
+          image: localhost:5000/smap-store-storefront:latest
           ports:
             - containerPort: 3000
               name: http
@@ -112,4 +116,4 @@ metadata:
 data:
   NODE_ENV: "production"
   NEXT_PUBLIC_BASE_URL: "http://shop.localhost"
-  NEXT_PUBLIC_MEDUSA_BACKEND_URL: "http://api.localhost"
+  NEXT_PUBLIC_MEDUSA_BACKEND_URL: "http://api.localhost:9000"

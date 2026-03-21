@@ -33,46 +33,46 @@ k8s/
 │   ├── minio.yaml           # MinIO Deployment
 │   ├── medusa.yaml          # Medusa backend
 │   ├── storefront.yaml      # Next.js storefront
+│   ├── medusa-init.yaml     # Init Job (migrations, seed)
 │   ├── network-policies.yaml # Network security
 │   ├── ingress.yaml         # Traefik Ingress routes
 │   └── kustomization.yaml
 ├── overlays/
 │   ├── production/          # Production (3 replicas)
-│   └── staging/             # Staging (2 replicas)
+│   └── staging/            # Staging (2 replicas)
 └── kustomization.yaml
+```
+
+## Local Registry Setup
+
+Images are built locally and pushed to a local Docker registry:
+
+```bash
+# Build images
+cd apps/medusa && docker build -t smap-store-medusa:latest .
+cd apps/storefront && docker build -t smap-store-storefront:latest .
+
+# Start local registry
+docker run -d --name registry --network host -v /tmp/registry:/var/lib/registry registry:2
+
+# Tag and push images
+docker tag smap-store-medusa:latest localhost:5000/smap-store-medusa:latest
+docker push localhost:5000/smap-store-medusa:latest
+docker tag smap-store-storefront:latest localhost:5000/smap-store-storefront:latest
+docker push localhost:5000/smap-store-storefront:latest
+
+# Load into k3s (if not using registry)
+sudo ctr -a /run/k3s/containerd/containerd.sock -n k8s.io images import /tmp/smap-images.tar
 ```
 
 ## Deploy
 
 ```bash
-# Generate manifests
-kustomize build k8s/overlays/staging > staging.yaml
-kustomize build k8s/overlays/production > production.yaml
-
-# Apply
-kubectl apply -k k8s/overlays/staging
+# Apply base manifests
+kubectl apply -k k8s/base/
 
 # Or apply generated yaml
 kubectl apply -f staging.yaml
-```
-
-## Verify
-
-```bash
-# Check pods
-kubectl get pods -n smap-store
-
-# Watch status
-kubectl get pods -n smap-store -w
-
-# Check services
-kubectl get svc -n smap-store
-
-# Check ingress
-kubectl get ingress -n smap-store
-
-# View logs
-kubectl logs -l app=medusa -n smap-store -f
 ```
 
 ## DNS Configuration
@@ -80,17 +80,11 @@ kubectl logs -l app=medusa -n smap-store -f
 Add to `/etc/hosts` for local testing:
 
 ```
-<NODE_IP> api.smap-store.example.com
-<NODE_IP> shop.smap-store.example.com
-<NODE_IP> minio.smap-store.example.com
-<NODE_IP> minio-console.smap-store.example.com
+<NODE_IP> api.localhost
+<NODE_IP> shop.localhost
+<NODE_IP> minio.localhost
+<NODE_IP> minio-console.localhost
 ```
-
-Or configure your DNS server:
-
-| Host                       | Target      |
-| -------------------------- | ----------- |
-| `*.smap-store.example.com` | k3s node IP |
 
 ## Secrets Setup
 
@@ -123,9 +117,45 @@ kubectl create secret generic minio-secret \
 kubectl create secret generic storefront-secret \
   -n smap-store \
   --from-literal=REVALIDATE_SECRET=your-secret
+
+kubectl create secret generic storefront-key \
+  -n smap-store \
+  --from-literal=NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY=pk_your_key_here
 ```
 
-Then apply with `--skip-config` if using kustomize.
+## Init Job (medusa-init)
+
+The `medusa-init` Job runs on deployment to:
+
+1. Wait for postgres and redis
+2. Run database migrations
+3. Run seed script (if needed)
+4. Extract publishable API key
+
+```bash
+# Run init job manually
+kubectl apply -f k8s/base/medusa-init.yaml
+kubectl logs job/medusa-init -n smap-store -f
+```
+
+## Verify
+
+```bash
+# Check pods
+kubectl get pods -n smap-store
+
+# Watch status
+kubectl get pods -n smap-store -w
+
+# Check services
+kubectl get svc -n smap-store
+
+# Check ingress
+kubectl get ingress -n smap-store
+
+# View logs
+kubectl logs -l app=medusa -n smap-store -f
+```
 
 ## Resource Limits
 

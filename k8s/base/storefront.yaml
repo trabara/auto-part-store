@@ -4,6 +4,30 @@ metadata:
   name: storefront-sa
   namespace: smap-store
 ---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: storefront-secret-reader
+  namespace: smap-store
+rules:
+  - apiGroups: [""]
+    resources: ["secrets"]
+    verbs: ["get", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: storefront-secret-reader-binding
+  namespace: smap-store
+subjects:
+  - kind: ServiceAccount
+    name: storefront-sa
+    namespace: smap-store
+roleRef:
+  kind: Role
+  name: storefront-secret-reader
+  apiGroup: rbac.authorization.k8s.io
+---
 apiVersion: v1
 kind: Secret
 metadata:
@@ -52,23 +76,62 @@ spec:
       initContainers:
         - name: wait-for-medusa
           image: localhost:5000/smap-store-storefront:latest
-          command: ["sh", "-c"]
+          command: ["node", "-e"]
           args:
             - |
-              set -e
-              echo "Waiting for medusa to be ready..."
-              MAX_ATTEMPTS=30
-              ATTEMPT=1
-              while [ $ATTEMPT -le $MAX_ATTEMPTS ]; do
-                if wget -q --timeout=2 -O /dev/null http://api.localhost/health 2>/dev/null; then
-                  echo "medusa is ready"
-                  exit 0
-                fi
-                echo "  Attempt $ATTEMPT/$MAX_ATTEMPTS - medusa not ready, waiting 5s..."
-                sleep 5
-                ATTEMPT=$((ATTEMPT + 1))
-              done
-              echo "WARNING: medusa not ready after $MAX_ATTEMPTS attempts, continuing anyway"
+              const https = require('https');
+              const fs = require('fs');
+              const http = require('http');
+
+              const token = fs.readFileSync('/var/run/secrets/kubernetes.io/serviceaccount/token', 'utf8').trim();
+              const ca = fs.readFileSync('/var/run/secrets/kubernetes.io/serviceaccount/ca.crt');
+              const namespace = 'smap-store';
+
+              function httpGet(url, headers = {}) {
+                return new Promise((resolve, reject) => {
+                  const lib = url.startsWith('https') ? https : http;
+                  const opts = {
+                    hostname: url.replace(/^https?:\/\//, '').split('/')[0],
+                    path: '/' + url.split('/').slice(3).join('/'),
+                    method: 'GET',
+                    headers: { ...headers },
+                    ca: url.startsWith('https') ? ca : undefined
+                  };
+                  const req = lib.request(opts, (res) => {
+                    let data = '';
+                    res.on('data', chunk => data += chunk);
+                    res.on('end', () => resolve({ status: res.statusCode, data }));
+                  });
+                  req.on('error', reject);
+                  req.end();
+                });
+              }
+
+              async function waitForDependencies() {
+                console.log('Waiting for medusa to be ready (migrations complete)...');
+                const maxAttempts = 60;
+                
+                for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+                  try {
+                    const healthRes = await httpGet('http://api.localhost/health');
+                    
+                    if (healthRes.status === 200) {
+                      console.log('Medusa is ready');
+                      process.exit(0);
+                    }
+                  } catch (e) {
+                    // Ignore errors and retry
+                  }
+                  
+                  console.log(`  Attempt ${attempt}/${maxAttempts} - medusa not ready, waiting 5s...`);
+                  await new Promise(r => setTimeout(r, 5000));
+                }
+                
+                console.log('WARNING: Timeout waiting for medusa');
+                process.exit(1);
+              }
+
+              waitForDependencies();
           resources:
             requests:
               cpu: "10m"
@@ -89,6 +152,7 @@ spec:
                 name: storefront-config
             - secretRef:
                 name: storefront-key
+                optional: true
           resources:
             requests:
               cpu: "50m"

@@ -46,50 +46,27 @@ spec:
               echo "Running seed..."
               cd /app/.medusa/server && yarn medusa exec ./src/scripts/seed.js || echo "Seed already applied or skipped"
 
-              # Add Tunisia to region (idempotent)
-              echo "Ensuring Tunisia is assigned to region..."
-              PGPASSWORD=$POSTGRES_PASSWORD psql -h postgres -U $POSTGRES_USER -d $POSTGRES_DB -c "
-                INSERT INTO region_country (region_id, country_id)
-                SELECT r.id, c.id FROM region r, country c WHERE r.name = 'Europe' AND c.iso_2 = 'tn'
-                ON CONFLICT DO NOTHING;
-              " 2>/dev/null || echo "Tunisia may already be assigned"
+              # Create admin user
+              echo "Creating admin user..."
+              cd /app/.medusa/server && yarn medusa user -e "$MEDUSA_ADMIN_EMAIL" -p "$MEDUSA_ADMIN_PASSWORD" || echo "Admin user created or already exists"
 
-              # Extract publishable key (for logging)
-              echo "Extracting publishable API key..."
-              OUTPUT=$(cd /app/.medusa/server && yarn medusa exec ./src/scripts/init.js 2>/dev/null)
-              KEY=$(echo "$OUTPUT" | sed -n 's/.*__KEY__\(.*\)__KEY__.*/\1/p' | head -1)
-
-              if [ -n "$KEY" ]; then
-                echo "Found key: $KEY"
-                echo "Note: Use medusa-init-key job to create the secret"
-                echo ""
-                echo "=== Medusa Init Complete ==="
-              else
-                echo "ERROR: No publishable key found"
-                echo "Output was: $OUTPUT"
-                exit 1
-              fi
+              echo "=== Medusa Init Complete ==="
           envFrom:
             - secretRef:
                 name: medusa-secret
             - configMapRef:
                 name: medusa-config
           env:
-            - name: POSTGRES_PASSWORD
+            - name: MEDUSA_ADMIN_EMAIL
               valueFrom:
                 secretKeyRef:
-                  name: postgres-secret
-                  key: POSTGRES_PASSWORD
-            - name: POSTGRES_USER
+                  name: medusa-secret
+                  key: MEDUSA_ADMIN_EMAIL
+            - name: MEDUSA_ADMIN_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: postgres-secret
-                  key: POSTGRES_USER
-            - name: POSTGRES_DB
-              valueFrom:
-                secretKeyRef:
-                  name: postgres-secret
-                  key: POSTGRES_DB
+                  name: medusa-secret
+                  key: MEDUSA_ADMIN_PASSWORD
           resources:
             requests:
               cpu: "100m"

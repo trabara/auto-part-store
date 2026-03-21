@@ -8,10 +8,10 @@ resources:
   - postgres.yaml
   - redis.yaml
   - minio.yaml
-  - medusa.yaml
-  - storefront.yaml
   - medusa-init.yaml
   - medusa-init-key.yaml
+  - medusa.yaml
+  - storefront.yaml
   - ingress.yaml
 
 commonLabels:

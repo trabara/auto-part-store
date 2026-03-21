@@ -44,6 +44,8 @@ stringData:
   COOKIE_SECRET: "CHANGE_ME_cookie_secret_32chars"
   MINIO_ACCESS_KEY: "CHANGE_ME_minio_user"
   MINIO_SECRET_KEY: "CHANGE_ME_minio_password"
+  MEDUSA_ADMIN_EMAIL: "admin@smap-store.local"
+  MEDUSA_ADMIN_PASSWORD: "supersecret"
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -141,6 +143,8 @@ data:
   STORE_CORS: "http://shop.localhost"
   ADMIN_CORS: "http://admin.localhost"
   AUTH_CORS: "http://shop.localhost"
+  ADMIN_EMAIL: "admin@smap-store.local"
+  ADMIN_URL: "http://admin.localhost"
   MINIO_ENDPOINT: "minio.localhost:9000"
   MINIO_USE_SSL: "false"
   MINIO_REGION: "us-east-1"

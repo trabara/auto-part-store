@@ -39,9 +39,12 @@ spec:
     spec:
       serviceAccountName: storefront-sa
       hostAliases:
-        - ip: "10.42.0.126"
+        - ip: "10.43.173.17"
           hostnames:
             - api.localhost
+            - shop.localhost
+            - minio.localhost
+            - minio-console.localhost
       securityContext:
         runAsNonRoot: true
         runAsUser: 101
@@ -84,6 +87,35 @@ spec:
             readOnlyRootFilesystem: true
             capabilities:
               drop: ["ALL"]
+          volumeMounts:
+            - name: cache
+              mountPath: /app/.next/cache
+            - name: storefront-cache
+              mountPath: /app/apps/storefront/.next/cache
+      initContainers:
+        - name: init-cache
+          image: localhost:5000/smap-store-storefront:latest
+          command: ["sh", "-c"]
+          args:
+            - |
+              mkdir -p /app/.next/cache /app/apps/storefront/.next/cache
+          volumeMounts:
+            - name: cache
+              mountPath: /app/.next/cache
+            - name: storefront-cache
+              mountPath: /app/apps/storefront/.next/cache
+          resources:
+            requests:
+              cpu: "10m"
+              memory: "32Mi"
+            limits:
+              cpu: "100m"
+              memory: "64Mi"
+      volumes:
+        - name: cache
+          emptyDir: {}
+        - name: storefront-cache
+          emptyDir: {}
       affinity:
         podAntiAffinity:
           preferredDuringSchedulingIgnoredDuringExecution:
@@ -116,4 +148,4 @@ metadata:
 data:
   NODE_ENV: "production"
   NEXT_PUBLIC_BASE_URL: "http://shop.localhost"
-  NEXT_PUBLIC_MEDUSA_BACKEND_URL: "http://api.localhost:9000"
+  NEXT_PUBLIC_MEDUSA_BACKEND_URL: "http://api.localhost"

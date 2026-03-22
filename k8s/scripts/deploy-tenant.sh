@@ -80,6 +80,13 @@ MANIFEST=$(echo "$MANIFEST" | sed "s/REDIS_HOST/${TENANT_NAME}-redis/g")
 MANIFEST=$(echo "$MANIFEST" | sed "s/MINIO_HOST/${TENANT_NAME}-minio/g")
 MANIFEST=$(echo "$MANIFEST" | sed "s/STOREFRONT_KEY_SECRET/${TENANT_NAME}-storefront-key/g")
 
+# Replace TENANT prefixes in service names and middleware names
+MANIFEST=$(echo "$MANIFEST" | sed "s/TENANT-medusa/${TENANT_NAME}-medusa/g")
+MANIFEST=$(echo "$MANIFEST" | sed "s/TENANT-storefront/${TENANT_NAME}-storefront/g")
+MANIFEST=$(echo "$MANIFEST" | sed "s/TENANT-minio/${TENANT_NAME}-minio/g")
+MANIFEST=$(echo "$MANIFEST" | sed "s/TENANT-api-app-redirect/${TENANT_NAME}-api-app-redirect/g")
+MANIFEST=$(echo "$MANIFEST" | sed "s/TENANT-admin-redirect/${TENANT_NAME}-admin-redirect/g")
+
 # Replace namespace name
 MANIFEST=$(echo "$MANIFEST" | sed "s/NAMESPACE_NAME/smap-store-${TENANT_NAME}/g")
 

@@ -1,21 +1,18 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 
-namespace: smap-store-production
+namespace: smap-store-development
 
 resources:
   - ../../base
 
-labels:
-  environment: production
-
 images:
   - name: medusa
-    newName: REGISTRY/smap-store-medusa
-    newTag: IMAGE_TAG
+    newName: localhost:5000/smap-store-medusa
+    newTag: latest
   - name: storefront
-    newName: REGISTRY/smap-store-storefront
-    newTag: IMAGE_TAG
+    newName: localhost:5000/smap-store-storefront
+    newTag: latest
 
 patches:
   - path: patches/replicas.yaml

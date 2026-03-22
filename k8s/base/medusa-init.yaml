@@ -2,7 +2,6 @@ apiVersion: batch/v1
 kind: Job
 metadata:
   name: medusa-init
-  namespace: smap-store
   labels:
     app: medusa
     tier: backend
@@ -16,7 +15,7 @@ spec:
       serviceAccountName: medusa-sa
       containers:
         - name: medusa-init
-          image: localhost:5000/smap-store-medusa:latest
+          image: medusa
           command: ["sh", "-c"]
           args:
             - |
@@ -46,10 +45,10 @@ spec:
               }
 
               # Wait for postgres
-              wait_for_service "postgres.smap-store" "5432" "postgres"
+              wait_for_service "postgres" "5432" "postgres"
 
               # Wait for redis
-              wait_for_service "redis.smap-store" "6379" "redis"
+              wait_for_service "redis" "6379" "redis"
 
               # Wait for medusa database to accept connections
               echo "Waiting for medusa database to accept connections..."
@@ -89,7 +88,6 @@ spec:
 
               const token = fs.readFileSync('/var/run/secrets/kubernetes.io/serviceaccount/token', 'utf8').trim();
               const ca = fs.readFileSync('/var/run/secrets/kubernetes.io/serviceaccount/ca.crt');
-              const namespace = 'smap-store';
               const key = process.env.API_KEY;
 
               console.log('Key from env:', key ? 'received' : 'undefined');
@@ -98,8 +96,7 @@ spec:
                 apiVersion: 'v1',
                 kind: 'Secret',
                 metadata: {
-                  name: 'storefront-key',
-                  namespace: namespace
+                  name: 'storefront-key'
                 },
                 type: 'Opaque',
                 data: {
@@ -110,7 +107,7 @@ spec:
               // Delete existing secret
               const deleteReq = https.request({
                 hostname: 'kubernetes.default.svc',
-                path: `/api/v1/namespaces/${namespace}/secrets/storefront-key`,
+                path: '/api/v1/namespaces/default/secrets/storefront-key',
                 method: 'DELETE',
                 headers: {
                   'Authorization': `Bearer ${token}`,
@@ -130,7 +127,7 @@ spec:
               // Create secret
               const createReq = https.request({
                 hostname: 'kubernetes.default.svc',
-                path: `/api/v1/namespaces/${namespace}/secrets`,
+                path: '/api/v1/namespaces/default/secrets',
                 method: 'POST',
                 headers: {
                   'Authorization': `Bearer ${token}`,

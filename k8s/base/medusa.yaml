@@ -2,13 +2,11 @@ apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: medusa-sa
-  namespace: smap-store
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
   name: medusa-init-role
-  namespace: smap-store
 rules:
   - apiGroups: ["apps"]
     resources: ["deployments", "pods"]
@@ -24,11 +22,9 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
   name: medusa-init-rolebinding
-  namespace: smap-store
 subjects:
   - kind: ServiceAccount
     name: medusa-sa
-    namespace: smap-store
 roleRef:
   kind: Role
   name: medusa-init-role
@@ -38,15 +34,14 @@ apiVersion: v1
 kind: Secret
 metadata:
   name: medusa-secret
-  namespace: smap-store
 type: Opaque
 stringData:
-  DATABASE_URL: "postgresql://medusa:CHANGE_ME_postgres_password@postgres.smap-store:5432/medusa-v2?sslmode=disable"
-  REDIS_URL: "redis://:CHANGE_ME_redis_password@redis.smap-store:6379"
-  JWT_SECRET: "CHANGE_ME_jwt_secret_32chars_min"
-  COOKIE_SECRET: "CHANGE_ME_cookie_secret_32chars"
-  MINIO_ACCESS_KEY: "CHANGE_ME_minio_user"
-  MINIO_SECRET_KEY: "CHANGE_ME_minio_password"
+  DATABASE_URL: "postgresql://medusa:CHANGE_ME@postgres:5432/medusa-v2?sslmode=disable"
+  REDIS_URL: "redis://:CHANGE_ME@redis:6379"
+  JWT_SECRET: "CHANGE_ME"
+  COOKIE_SECRET: "CHANGE_ME"
+  MINIO_ACCESS_KEY: "CHANGE_ME"
+  MINIO_SECRET_KEY: "CHANGE_ME"
   MINIO_BUCKET: "medusa"
   MEDUSA_ADMIN_EMAIL: "admin@smap-store.local"
   MEDUSA_ADMIN_PASSWORD: "supersecret"
@@ -55,7 +50,6 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: medusa
-  namespace: smap-store
   labels:
     app: medusa
     tier: backend
@@ -73,7 +67,7 @@ spec:
       serviceAccountName: medusa-sa
       initContainers:
         - name: wait-for-dependencies
-          image: localhost:5000/smap-store-medusa:latest
+          image: medusa
           command: ["sh", "-c"]
           args:
             - |
@@ -81,7 +75,7 @@ spec:
 
               # Wait for postgres
               echo "Checking postgres..."
-              until nc -z postgres.smap-store 5432; do
+              until nc -z postgres 5432; do
                 echo "postgres not ready, waiting..."
                 sleep 2
               done
@@ -89,7 +83,7 @@ spec:
 
               # Wait for redis
               echo "Checking redis..."
-              until nc -z redis.smap-store 6379; do
+              until nc -z redis 6379; do
                 echo "redis not ready, waiting..."
                 sleep 2
               done
@@ -105,7 +99,7 @@ spec:
               memory: "64Mi"
       containers:
         - name: medusa
-          image: localhost:5000/smap-store-medusa:latest
+          image: medusa
           command: ["sh", "-c"]
           args:
             - |
@@ -159,7 +153,6 @@ apiVersion: v1
 kind: Service
 metadata:
   name: medusa
-  namespace: smap-store
 spec:
   ports:
     - port: 9000
@@ -173,14 +166,13 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: medusa-config
-  namespace: smap-store
 data:
   NODE_ENV: "production"
-  STORE_CORS: "http://shop.localhost"
-  ADMIN_CORS: "http://admin.localhost"
-  AUTH_CORS: "http://shop.localhost"
+  STORE_CORS: "http://SHOP_DOMAIN"
+  ADMIN_CORS: "http://ADMIN_DOMAIN"
+  AUTH_CORS: "http://SHOP_DOMAIN"
   ADMIN_EMAIL: "admin@smap-store.local"
-  ADMIN_URL: "http://admin.localhost"
-  MINIO_ENDPOINT: "minio.localhost:9000"
+  ADMIN_URL: "http://ADMIN_DOMAIN"
+  MINIO_ENDPOINT: "MINIO_DOMAIN:9000"
   MINIO_USE_SSL: "false"
   MINIO_REGION: "us-east-1"

@@ -1,15 +1,14 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: smap-store-ingress
-  namespace: smap-store
+  name: api-ingress
   annotations:
     ingress.kubernetes.io/ssl-redirect: "false"
-    traefik.ingress.kubernetes.io/router.middlewares: smap-store-api-app-redirect@kubernetescrd
+    traefik.ingress.kubernetes.io/router.middlewares: api-app-redirect@kubernetescrd
 spec:
   ingressClassName: traefik
   rules:
-    - host: "api.localhost"
+    - host: "API_DOMAIN"
       http:
         paths:
           - path: /app
@@ -19,7 +18,7 @@ spec:
                 name: medusa
                 port:
                   number: 9000
-    - host: "api.localhost"
+    - host: "API_DOMAIN"
       http:
         paths:
           - path: /
@@ -29,7 +28,7 @@ spec:
                 name: medusa
                 port:
                   number: 9000
-    - host: "shop.localhost"
+    - host: "SHOP_DOMAIN"
       http:
         paths:
           - path: /
@@ -39,7 +38,7 @@ spec:
                 name: storefront
                 port:
                   number: 80
-    - host: "minio.localhost"
+    - host: "MINIO_DOMAIN"
       http:
         paths:
           - path: /
@@ -53,14 +52,13 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: smap-store-admin-ingress
-  namespace: smap-store
+  name: admin-ingress
   annotations:
     ingress.kubernetes.io/ssl-redirect: "false"
 spec:
   ingressClassName: traefik
   rules:
-    - host: "admin.localhost"
+    - host: "ADMIN_DOMAIN"
       http:
         paths:
           - path: /app
@@ -74,15 +72,14 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: smap-store-admin-root-redirect
-  namespace: smap-store
+  name: admin-root-redirect
   annotations:
     ingress.kubernetes.io/ssl-redirect: "false"
-    traefik.ingress.kubernetes.io/router.middlewares: smap-store-admin-redirect@kubernetescrd
+    traefik.ingress.kubernetes.io/router.middlewares: admin-redirect@kubernetescrd
 spec:
   ingressClassName: traefik
   rules:
-    - host: "admin.localhost"
+    - host: "ADMIN_DOMAIN"
       http:
         paths:
           - path: /
@@ -97,13 +94,12 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: minio-console-ingress
-  namespace: smap-store
   annotations:
     ingress.kubernetes.io/ssl-redirect: "false"
 spec:
   ingressClassName: traefik
   rules:
-    - host: "minio-console.localhost"
+    - host: "MINIO_CONSOLE_DOMAIN"
       http:
         paths:
           - path: /
@@ -118,20 +114,18 @@ apiVersion: traefik.io/v1alpha1
 kind: Middleware
 metadata:
   name: admin-redirect
-  namespace: smap-store
 spec:
   redirectRegex:
-    regex: "^http://admin\\.localhost/?$"
-    replacement: "http://admin.localhost/app"
+    regex: "^http://ADMIN_DOMAIN/?$"
+    replacement: "http://ADMIN_DOMAIN/app"
     permanent: false
 ---
 apiVersion: traefik.io/v1alpha1
 kind: Middleware
 metadata:
   name: api-app-redirect
-  namespace: smap-store
 spec:
   redirectRegex:
-    regex: "^http://api\\.localhost/app"
-    replacement: "http://admin.localhost"
+    regex: "^http://API_DOMAIN/app"
+    replacement: "http://ADMIN_DOMAIN"
     permanent: true

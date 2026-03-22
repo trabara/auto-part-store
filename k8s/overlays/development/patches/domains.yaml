@@ -1,0 +1,10 @@
+- op: replace
+  path: /spec/template/spec/hostAliases/0/ip
+  value: "10.43.173.17"
+- op: replace
+  path: /spec/template/spec/hostAliases/0/hostnames
+  value:
+    - "api.localhost"
+    - "shop.localhost"
+    - "minio.localhost"
+    - "minio-console.localhost"

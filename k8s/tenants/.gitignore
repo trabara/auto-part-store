@@ -1,0 +1,5 @@
+# Exclude all secret files
+*/
+
+# But allow templates
+!.env.tpl

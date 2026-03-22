@@ -1,0 +1,10 @@
+- op: replace
+  path: /spec/template/spec/hostAliases/0/ip
+  value: "TRAEFIK_IP"
+- op: replace
+  path: /spec/template/spec/hostAliases/0/hostnames
+  value:
+    - "api.TENANT_DOMAIN"
+    - "shop.TENANT_DOMAIN"
+    - "minio.TENANT_DOMAIN"
+    - "minio-console.TENANT_DOMAIN"

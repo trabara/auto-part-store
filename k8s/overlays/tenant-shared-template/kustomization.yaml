@@ -49,3 +49,6 @@ patches:
   - path: patches/remove-minio-init.yaml
   - path: patches/remove-minio-console-ingress.yaml
   - path: patches/medusa-init-patch.yaml
+    target:
+      kind: Job
+      name: medusa-init

@@ -66,6 +66,10 @@ spec:
               echo "Creating admin user..."
               cd /app/.medusa/server && yarn medusa user -e "$MEDUSA_ADMIN_EMAIL" -p "$MEDUSA_ADMIN_PASSWORD" || echo "Admin user created or already exists"
 
+              # Initialize RBAC - create admin role and assign to user
+              echo "Initializing RBAC..."
+              cd /app/.medusa/server && yarn medusa exec ./src/scripts/init-rbac.js || echo "RBAC init skipped or failed"
+
               # Extract publishable key
               echo "Extracting publishable key..."
               cd /app/.medusa/server

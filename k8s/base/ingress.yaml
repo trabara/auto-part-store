@@ -4,6 +4,8 @@ metadata:
   name: api-ingress
   annotations:
     ingress.kubernetes.io/ssl-redirect: "false"
+    traefik.ingress.kubernetes.io/proxy-headers-force-forward: "true"
+    traefik.ingress.kubernetes.io/pass-host-header: "true"
 spec:
   ingressClassName: traefik
   rules:
@@ -54,6 +56,8 @@ metadata:
   name: admin-ingress
   annotations:
     ingress.kubernetes.io/ssl-redirect: "false"
+    traefik.ingress.kubernetes.io/proxy-headers-force-forward: "true"
+    traefik.ingress.kubernetes.io/pass-host-header: "true"
 spec:
   ingressClassName: traefik
   rules:
@@ -61,6 +65,27 @@ spec:
       http:
         paths:
           - path: /app
+            pathType: Prefix
+            backend:
+              service:
+                name: medusa
+                port:
+                  number: 9000
+          - path: /admin
+            pathType: Prefix
+            backend:
+              service:
+                name: medusa
+                port:
+                  number: 9000
+          - path: /auth
+            pathType: Prefix
+            backend:
+              service:
+                name: medusa
+                port:
+                  number: 9000
+          - path: /cloud
             pathType: Prefix
             backend:
               service:

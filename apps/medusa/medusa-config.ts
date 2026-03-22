@@ -1,4 +1,9 @@
-import { ContainerRegistrationKeys, defineConfig, loadEnv, Modules } from "@medusajs/framework/utils";
+import {
+  ContainerRegistrationKeys,
+  defineConfig,
+  loadEnv,
+  Modules,
+} from "@medusajs/framework/utils";
 
 // Load environment variables based on the current NODE_ENV
 loadEnv(process.env.NODE_ENV || "development", process.cwd());
@@ -8,7 +13,7 @@ export default defineConfig({
     databaseUrl: process.env.DATABASE_URL,
     redisUrl: process.env.REDIS_URL,
     cookieOptions: {
-      secure: process.env.NODE_ENV === "production",
+      secure: process.env.COOKIE_SECURE === "true",
       sameSite: "lax",
     },
     http: {
@@ -32,8 +37,8 @@ export default defineConfig({
               redisUrl: process.env.REDIS_URL,
               prefix: "medusa-cache",
             },
-          }
-        ]
+          },
+        ],
       },
     },
     {

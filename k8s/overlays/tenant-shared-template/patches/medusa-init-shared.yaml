@@ -1,0 +1,198 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: medusa-init
+$patch: replace
+spec:
+  ttlSecondsAfterFinished: 3600
+  backoffLimit: 5
+  activeDeadlineSeconds: 300
+  template:
+    spec:
+      restartPolicy: Never
+      serviceAccountName: medusa-sa
+      containers:
+        - name: medusa-init
+          image: medusa
+          command: ["sh", "-c"]
+          args:
+            - |
+              set -e
+
+              echo "=== Medusa Init Starting (Shared Tier) ==="
+
+              # Extract host and port from DATABASE_URL
+              DB_URL="${DATABASE_URL}"
+              PG_HOST=$(echo "$DB_URL" | sed -n 's|.*@\([^:]*\):\([0-9]*\)/.*|\1|p')
+              PG_PORT=$(echo "$DB_URL" | sed -n 's|.*@[^:]*:\([0-9]*\)/.*|\1|p')
+
+              # Extract host and port from REDIS_URL
+              REDIS_URL_STR="${REDIS_URL}"
+              REDIS_HOST=$(echo "$REDIS_URL_STR" | sed -n 's|redis://:[^@]*@\([^:]*\):\([0-9]*\)|\1|p')
+              REDIS_PORT=$(echo "$REDIS_URL_STR" | sed -n 's|redis://:[^@]*@[^:]*:\([0-9]*\)|\1|p')
+
+              echo "PostgreSQL: $PG_HOST:$PG_PORT"
+              echo "Redis: $REDIS_HOST:$REDIS_PORT"
+
+              wait_for_service() {
+                local host=$1
+                local port=$2
+                local name=$3
+                echo "Waiting for $name ($host:$port)..."
+                local max_attempts=30
+                local attempt=1
+                while [ $attempt -le $max_attempts ]; do
+                  if (echo "" | nc -w2 "$host" "$port" 2>/dev/null); then
+                    echo "$name is ready"
+                    return 0
+                  fi
+                  echo "  Attempt $attempt/$max_attempts - $name not ready, waiting 2s..."
+                  sleep 2
+                  attempt=$((attempt + 1))
+                done
+                echo "ERROR: $name failed to become ready after ${max_attempts} attempts"
+                return 1
+              }
+
+              # Wait for postgres
+              wait_for_service "$PG_HOST" "${PG_PORT:-5432}" "postgres"
+
+              # Wait for redis
+              wait_for_service "$REDIS_HOST" "${REDIS_PORT:-6379}" "redis"
+
+              # Wait for medusa database to accept connections
+              echo "Waiting for medusa database to accept connections..."
+              sleep 5
+
+              # Run migrations (idempotent)
+              echo "Running migrations..."
+              cd /app/.medusa/server && yarn medusa db:migrate || echo "Migrations already applied"
+
+              # Run seed (idempotent - may fail if already seeded)
+              echo "Running seed..."
+              cd /app/.medusa/server && yarn medusa exec ./src/scripts/seed.js || echo "Seed already applied or skipped"
+
+              # Create admin user
+              echo "Creating admin user..."
+              cd /app/.medusa/server && yarn medusa user -e "$MEDUSA_ADMIN_EMAIL" -p "$MEDUSA_ADMIN_PASSWORD" || echo "Admin user created or already exists"
+
+              # Initialize RBAC
+              echo "Initializing RBAC..."
+              cd /app/.medusa/server && yarn medusa exec ./src/scripts/init-rbac.js || echo "RBAC init skipped or failed"
+
+              # Extract publishable key
+              echo "Extracting publishable key..."
+              cd /app/.medusa/server
+              OUTPUT=$(yarn medusa exec ./src/scripts/init.js 2>/dev/null)
+              KEY=$(echo "$OUTPUT" | sed -n 's/.*__KEY__\(.*\)__KEY__.*/\1/p' | head -1)
+
+              if [ -z "$KEY" ]; then
+                echo "ERROR: No publishable key found in api_key table"
+                echo "Debug output: [$OUTPUT]"
+                exit 1
+              fi
+
+              echo "Found key: $KEY"
+
+              # Create TENANT-storefront-key secret using Node.js
+              export API_KEY="$KEY"
+              node << 'NODEEOF'
+              const https = require('https');
+              const fs = require('fs');
+
+              const token = fs.readFileSync('/var/run/secrets/kubernetes.io/serviceaccount/token', 'utf8').trim();
+              const ca = fs.readFileSync('/var/run/secrets/kubernetes.io/serviceaccount/ca.crt');
+              const namespace = fs.readFileSync('/var/run/secrets/kubernetes.io/serviceaccount/namespace', 'utf8').trim();
+              const key = process.env.API_KEY;
+
+              console.log('Key from env:', key ? 'received' : 'undefined');
+              console.log('Namespace:', namespace);
+
+              const secret = JSON.stringify({
+                apiVersion: 'v1',
+                kind: 'Secret',
+                metadata: {
+                  name: 'TENANT-storefront-key'
+                },
+                type: 'Opaque',
+                data: {
+                  NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY: Buffer.from(key).toString('base64')
+                }
+              });
+
+              // Delete existing secret
+              const deleteReq = https.request({
+                hostname: 'kubernetes.default.svc',
+                path: '/api/v1/namespaces/' + namespace + '/secrets/TENANT-storefront-key',
+                method: 'DELETE',
+                headers: {
+                  'Authorization': `Bearer ${token}`,
+                  'Content-Type': 'application/json'
+                },
+                ca: ca
+              }, (res) => {
+                console.log('Delete response status:', res.statusCode);
+              });
+
+              deleteReq.on('error', (e) => {};
+
+              deleteReq.end();
+
+              // Create secret
+              const createReq = https.request({
+                hostname: 'kubernetes.default.svc',
+                path: '/api/v1/namespaces/' + namespace + '/secrets',
+                method: 'POST',
+                headers: {
+                  'Authorization': `Bearer ${token}`,
+                  'Content-Type': 'application/json'
+                },
+                ca: ca
+              }, (res) => {
+                let data = '';
+                res.on('data', chunk => data += chunk);
+                res.on('end', () => {
+                  console.log('Create response status:', res.statusCode);
+                  if (res.statusCode >= 200 && res.statusCode < 300) {
+                    console.log('Secret created successfully!');
+                    console.log('=== Medusa Init Complete ===');
+                    process.exit(0);
+                  } else {
+                    console.error('Failed to create secret:', data);
+                    process.exit(1);
+                  }
+                });
+              });
+
+              createReq.on('error', (e) => {
+                console.error('Error:', e.message);
+                process.exit(1);
+              });
+
+              createReq.write(secret);
+              createReq.end();
+              NODEEOF
+
+          envFrom:
+            - secretRef:
+                name: medusa-secret
+            - configMapRef:
+                name: medusa-config
+          env:
+            - name: MEDUSA_ADMIN_EMAIL
+              valueFrom:
+                secretKeyRef:
+                  name: medusa-secret
+                  key: MEDUSA_ADMIN_EMAIL
+            - name: MEDUSA_ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: medusa-secret
+                  key: MEDUSA_ADMIN_PASSWORD
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "256Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"

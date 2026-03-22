@@ -102,13 +102,13 @@ spec:
               }
 
               async function waitForDependencies() {
-                console.log('Waiting for STOREFRONT_KEY_SECRET secret with valid publishable key...');
+                console.log('Waiting for storefront-key secret with valid publishable key...');
                 const maxAttempts = 60;
                 
                 for (let attempt = 1; attempt <= maxAttempts; attempt++) {
                   try {
                     const secretRes = await httpGet(
-                      `https://kubernetes.default.svc/api/v1/namespaces/${namespace}/secrets/STOREFRONT_KEY_SECRET`,
+                      `https://kubernetes.default.svc/api/v1/namespaces/${namespace}/secrets/storefront-key`,
                       { 'Authorization': `Bearer ${token}` }
                     );
                     
@@ -117,7 +117,7 @@ spec:
                       if (match) {
                         const decoded = Buffer.from(match[1], 'base64').toString();
                         if (/^pk_[a-f0-9]{32,}$/.test(decoded)) {
-                          console.log(`Valid STOREFRONT_KEY_SECRET found: ${decoded.substring(0, 20)}...`);
+                          console.log(`Valid storefront-key found: ${decoded.substring(0, 20)}...`);
                           process.exit(0);
                         } else {
                           console.log(`  Attempt ${attempt}/${maxAttempts} - secret exists but key is not valid yet, waiting 5s...`);
@@ -135,7 +135,7 @@ spec:
                   await new Promise(r => setTimeout(r, 5000));
                 }
                 
-                console.log('WARNING: Timeout waiting for valid STOREFRONT_KEY_SECRET');
+                console.log('WARNING: Timeout waiting for valid storefront-key');
                 process.exit(1);
               }
 
@@ -159,7 +159,7 @@ spec:
             - configMapRef:
                 name: storefront-config
             - secretRef:
-                name: STOREFRONT_KEY_SECRET
+                name: storefront-key
                 optional: true
           resources:
             requests:

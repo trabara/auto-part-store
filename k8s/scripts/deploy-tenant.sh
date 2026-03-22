@@ -6,7 +6,7 @@ TENANT_NAME="${1:-}"
 ENVIRONMENT="${2:-development}"
 
 usage() {
-    cat <<EOF
+    cat <<USAGE
 Usage: $(basename "$0") <TENANT_NAME> [ENVIRONMENT]
 
 Deploy a tenant to the specified environment.
@@ -18,7 +18,7 @@ Arguments:
 Examples:
     $(basename "$0") acme              # Deploy acme tenant to development
     $(basename "$0") acme production    # Deploy acme tenant to production
-EOF
+USAGE
     exit 1
 }
 
@@ -60,6 +60,14 @@ set -a
 source "$DOMAINS_FILE"
 set +a
 
+# Set default HOST_IP if not defined (for Docker Desktop compatibility)
+HOST_IP="${HOST_IP:-$(hostname -I | awk '{print $1}')}"
+
+# Kustomize namePrefix adds prefix to all resources including middleware metadata names
+# Extract the actual service prefix from TENANT_NAME (first hyphen-separated part)
+# For example: "demo-shared" -> "demo", "smap" -> "smap"
+SERVICE_PREFIX=$(echo "$TENANT_NAME" | cut -d'-' -f1)
+
 # Replace all domain placeholders
 MANIFEST=$(echo "$MANIFEST" | sed "s/TENANT_DOMAIN/${TENANT_DOMAIN}/g")
 MANIFEST=$(echo "$MANIFEST" | sed "s/API_DOMAIN/${API_DOMAIN}/g")
@@ -70,22 +78,34 @@ MANIFEST=$(echo "$MANIFEST" | sed "s/MINIO_CONSOLE_DOMAIN/${MINIO_CONSOLE_DOMAIN
 
 # Replace other placeholders
 MANIFEST=$(echo "$MANIFEST" | sed "s/TRAEFIK_IP/${TRAEFIK_IP}/g")
+MANIFEST=$(echo "$MANIFEST" | sed "s/HOST_IP/${HOST_IP}/g")
 MANIFEST=$(echo "$MANIFEST" | sed "s/:IMAGE_TAG/:${IMAGE_TAG}/g")
 MANIFEST=$(echo "$MANIFEST" | sed "s|REGISTRY/smap-store-|${REGISTRY}/smap-store-|g")
 
 # Replace service hostnames (derived from namePrefix)
-# The namePrefix in kustomization adds prefix to all resources including services
-MANIFEST=$(echo "$MANIFEST" | sed "s/POSTGRES_HOST/${TENANT_NAME}-postgres/g")
-MANIFEST=$(echo "$MANIFEST" | sed "s/REDIS_HOST/${TENANT_NAME}-redis/g")
-MANIFEST=$(echo "$MANIFEST" | sed "s/MINIO_HOST/${TENANT_NAME}-minio/g")
-MANIFEST=$(echo "$MANIFEST" | sed "s/STOREFRONT_KEY_SECRET/${TENANT_NAME}-storefront-key/g")
+MANIFEST=$(echo "$MANIFEST" | sed "s/POSTGRES_HOST/${SERVICE_PREFIX}-postgres/g")
+MANIFEST=$(echo "$MANIFEST" | sed "s/MINIO_HOST/${SERVICE_PREFIX}-minio/g")
 
-# Replace TENANT prefixes in service names and middleware names
-MANIFEST=$(echo "$MANIFEST" | sed "s/TENANT-medusa/${TENANT_NAME}-medusa/g")
-MANIFEST=$(echo "$MANIFEST" | sed "s/TENANT-storefront/${TENANT_NAME}-storefront/g")
-MANIFEST=$(echo "$MANIFEST" | sed "s/TENANT-minio/${TENANT_NAME}-minio/g")
-MANIFEST=$(echo "$MANIFEST" | sed "s/TENANT-api-app-redirect/${TENANT_NAME}-api-app-redirect/g")
-MANIFEST=$(echo "$MANIFEST" | sed "s/TENANT-admin-redirect/${TENANT_NAME}-admin-redirect/g")
+# Replace TENANT prefix in middleware names in IngressRoute routes (NOT the middleware metadata name)
+# Kustomize namePrefix adds prefix to middleware metadata name, so we don't need to replace it
+# The ingress route references use the prefixed name automatically from kustomize
+
+# Replace service names in IngressRoute specs (kustomize namePrefix doesn't apply to nested service refs)
+# Use SERVICE_PREFIX for correct service naming
+MANIFEST=$(echo "$MANIFEST" | sed "s/    - name: medusa$/    - name: ${SERVICE_PREFIX}-medusa/g")
+
+# Replace TENANT-medusa references (used in ConfigMaps for NEXT_PUBLIC_MEDUSA_BACKEND_URL)
+MANIFEST=$(echo "$MANIFEST" | sed "s/TENANT-medusa/${SERVICE_PREFIX}-medusa/g")
+MANIFEST=$(echo "$MANIFEST" | sed "s/    - name: storefront$/    - name: ${SERVICE_PREFIX}-storefront/g")
+MANIFEST=$(echo "$MANIFEST" | sed "s/    - name: minio$/    - name: ${SERVICE_PREFIX}-minio/g")
+MANIFEST=$(echo "$MANIFEST" | sed "s/    - name: postgres$/    - name: ${SERVICE_PREFIX}-postgres/g")
+MANIFEST=$(echo "$MANIFEST" | sed "s/    - name: redis$/    - name: ${SERVICE_PREFIX}-redis/g")
+
+# Replace middleware references in IngressRoute routes (kustomize namePrefix doesn't apply here)
+# The base middleware name is "TENANT-admin-redirect" and "TENANT-api-app-redirect"
+# After kustomize, these become "${SERVICE_PREFIX}-admin-redirect" etc.
+MANIFEST=$(echo "$MANIFEST" | sed "s/TENANT-api-app-redirect/${SERVICE_PREFIX}-api-app-redirect/g")
+MANIFEST=$(echo "$MANIFEST" | sed "s/TENANT-admin-redirect/${SERVICE_PREFIX}-admin-redirect/g")
 
 # Replace namespace name
 MANIFEST=$(echo "$MANIFEST" | sed "s/NAMESPACE_NAME/smap-store-${TENANT_NAME}/g")

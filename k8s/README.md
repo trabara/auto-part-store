@@ -239,3 +239,139 @@ All secrets are defined in the manifests with placeholder values. Update these i
 | redis-secret      | REDIS_PASSWORD                                                                                                                                  |
 | minio-secret      | MINIO_ROOT_USER, MINIO_ROOT_PASSWORD                                                                                                            |
 | storefront-secret | REVALIDATE_SECRET                                                                                                                               |
+
+---
+
+# Multi-Tenant Deployment (Production-Grade)
+
+This section covers the production multi-tenant deployment architecture.
+
+## Architecture Tiers
+
+### PRO TIER (Dedicated Infrastructure)
+Each tenant gets dedicated PostgreSQL, Redis, and MinIO instances.
+
+| Resource | CPU | RAM | Storage |
+|----------|-----|-----|---------|
+| Medusa | 100m | 256Mi | - |
+| Storefront | 50m | 128Mi | - |
+| Redis | 50m | 64Mi | - |
+| MinIO | 100m | 256Mi | 5Gi |
+| PostgreSQL | 100m | 256Mi | 5Gi |
+| **Per Tenant** | **400m** | **~1Gi** | **10Gi** |
+
+### SHARED TIER (Managed Services)
+All tenants share managed PostgreSQL, Redis, and S3 storage.
+
+| Resource | CPU | RAM |
+|----------|-----|-----|
+| Medusa | 100m | 256Mi |
+| Storefront | 50m | 128Mi |
+| **Per Tenant** | **150m** | **~400Mi** |
+
+## Directory Structure
+
+```
+k8s/
+├── base/                         # Base manifests
+├── overlays/
+│   ├── tenant-template/          # PRO TIER overlay
+│   │   ├── patches/
+│   │   ├── secrets/
+│   │   └── config/
+│   └── tenant-shared-template/   # SHARED TIER overlay
+│       ├── patches/
+│       ├── secrets/
+│       └── config/
+└── tenants/
+    ├── smap/                     # PRO TIER tenant
+    ├── mytek/                    # PRO TIER tenant
+    └── demo-shared/              # SHARED TIER tenant
+```
+
+## Deploying a Tenant
+
+### PRO TIER (Dedicated)
+
+```bash
+# 1. Create tenant directory
+mkdir -p k8s/tenants/my-new-tenant/{secrets,config}
+
+# 2. Copy template files from existing tenant
+cp k8s/tenants/smap/kustomization.yaml k8s/tenants/my-new-tenant/
+cp -r k8s/tenants/smap/secrets k8s/tenants/my-new-tenant/
+cp -r k8s/tenants/smap/config k8s/tenants/my-new-tenant/
+
+# 3. Edit tenant-specific files
+# - Update TENANT_NAME in config/domains.env
+# - Update secrets in secrets/*.env
+# - Rename TENANT references in kustomization.yaml
+
+# 4. Deploy
+./k8s/scripts/deploy-tenant.sh my-new-tenant
+```
+
+### SHARED TIER (Managed Services)
+
+```bash
+# 1. Create tenant directory
+mkdir -p k8s/tenants/my-shared-tenant/{secrets,config}
+
+# 2. Copy template files from demo-shared
+cp k8s/tenants/demo-shared/kustomization.yaml k8s/tenants/my-shared-tenant/
+cp -r k8s/tenants/demo-shared/secrets k8s/tenants/my-shared-tenant/
+cp -r k8s/tenants/demo-shared/config k8s/tenants/my-shared-tenant/
+
+# 3. Edit tenant-specific files
+# - Update TENANT_NAME in config/domains.env
+# - Update SHARED_DB_* and SHARED_REDIS_* in secrets/medusa.env
+# - Update SHARED_SPACES_* for S3 storage
+
+# 4. Deploy
+./k8s/scripts/deploy-tenant.sh my-shared-tenant
+```
+
+## Required Managed Services
+
+For SHARED TIER, provision the following:
+
+### PostgreSQL (DigitalOcean Managed PostgreSQL)
+
+```bash
+# Create database
+# Connection format: postgresql://user:password@host:port/database
+
+# Grant permissions for tenant database
+GRANT ALL PRIVILEGES ON DATABASE tenant_db TO shared_user;
+```
+
+### Redis (DigitalOcean Managed Redis)
+
+```bash
+# Connection format: redis://:password@host:port
+```
+
+### S3/Spaces (DigitalOcean Spaces)
+
+```bash
+# Create bucket: smap-store-shared
+# Or use tenant-specific prefixes within the bucket
+```
+
+## Cost Comparison
+
+| Tier | Per Tenant | 10 Tenants | Infrastructure |
+|------|------------|------------|----------------|
+| PRO | ~$37/mo | ~$370/mo | Dedicated DB/storage |
+| SHARED | ~$12/mo | ~$79/mo | Managed services |
+
+**Minimum DOKS Cluster**: 2x s-2vcpu-4gb = $24/mo + $10 management = $34/mo
+
+## Quick Reference
+
+| Command | Description |
+|---------|-------------|
+| `./k8s/scripts/deploy-tenant.sh <name>` | Deploy tenant |
+| `kubectl get pods -n smap-store-<name>` | Check tenant pods |
+| `kubectl logs -n smap-store-<name> -l app=medusa` | View tenant logs |
+

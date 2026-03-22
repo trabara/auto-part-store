@@ -1,0 +1,51 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: smap-store-TENANT_NAME
+
+resources:
+  - ../../base
+
+images:
+  - name: medusa
+    newName: REGISTRY/smap-store-medusa
+    newTag: IMAGE_TAG
+  - name: storefront
+    newName: REGISTRY/smap-store-storefront
+    newTag: IMAGE_TAG
+
+configMapGenerator:
+  - name: medusa-config
+    behavior: replace
+    envs:
+      - config/medusa.env
+  - name: storefront-config
+    behavior: replace
+    envs:
+      - config/storefront.env
+
+secretGenerator:
+  - name: medusa-secret
+    behavior: replace
+    envs:
+      - secrets/medusa.env
+
+patches:
+  - path: patches/replicas.yaml
+    target:
+      kind: Deployment
+      name: medusa
+  - path: patches/medusa-init-container.yaml
+    target:
+      kind: Deployment
+      name: medusa
+  - path: patches/storefront-hostaliases.yaml
+    target:
+      kind: Deployment
+      name: storefront
+  - path: patches/remove-postgres.yaml
+  - path: patches/remove-redis.yaml
+  - path: patches/remove-minio.yaml
+  - path: patches/remove-minio-init.yaml
+  - path: patches/remove-minio-console-ingress.yaml
+  - path: patches/medusa-init-patch.yaml

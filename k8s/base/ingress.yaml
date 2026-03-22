@@ -11,22 +11,22 @@ spec:
       middlewares:
         - name: TENANT-api-app-redirect
       services:
-        - name: TENANT-medusa
+        - name: medusa
           port: 9000
     - match: Host(`API_DOMAIN`) && PathPrefix(`/`)
       kind: Rule
       services:
-        - name: TENANT-medusa
+        - name: medusa
           port: 9000
     - match: Host(`SHOP_DOMAIN`) && PathPrefix(`/`)
       kind: Rule
       services:
-        - name: TENANT-storefront
+        - name: storefront
           port: 80
     - match: Host(`MINIO_DOMAIN`) && PathPrefix(`/`)
       kind: Rule
       services:
-        - name: TENANT-minio
+        - name: minio
           port: 9000
 ---
 apiVersion: networking.k8s.io/v1
@@ -85,7 +85,7 @@ spec:
       middlewares:
         - name: TENANT-admin-redirect
       services:
-        - name: TENANT-medusa
+        - name: medusa
           port: 9000
 ---
 apiVersion: networking.k8s.io/v1

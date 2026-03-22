@@ -36,8 +36,8 @@ if [[ ! -d "$TENANT_DIR" ]]; then
     exit 1
 fi
 
-if [[ ! -f "$TENANT_DIR/secrets/secrets.env" ]]; then
-    echo "Error: Secrets file not found: $TENANT_DIR/secrets/secrets.env"
+if [[ ! -d "$TENANT_DIR/secrets" ]]; then
+    echo "Error: Secrets directory not found: $TENANT_DIR/secrets"
     echo "Run generate-secrets.sh to create secrets first."
     exit 1
 fi

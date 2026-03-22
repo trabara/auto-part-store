@@ -4,7 +4,6 @@ metadata:
   name: api-ingress
   annotations:
     ingress.kubernetes.io/ssl-redirect: "false"
-    traefik.ingress.kubernetes.io/router.middlewares: api-app-redirect@kubernetescrd
 spec:
   ingressClassName: traefik
   rules:
@@ -75,7 +74,7 @@ metadata:
   name: admin-root-redirect
   annotations:
     ingress.kubernetes.io/ssl-redirect: "false"
-    traefik.ingress.kubernetes.io/router.middlewares: admin-redirect@kubernetescrd
+    traefik.ingress.kubernetes.io/router.middlewares: MIDDLEWARE_PREFIX-admin-redirect@kubernetescrd
 spec:
   ingressClassName: traefik
   rules:

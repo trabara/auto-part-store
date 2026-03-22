@@ -73,6 +73,14 @@ MANIFEST=$(echo "$MANIFEST" | sed "s/TRAEFIK_IP/${TRAEFIK_IP}/g")
 MANIFEST=$(echo "$MANIFEST" | sed "s/:IMAGE_TAG/:${IMAGE_TAG}/g")
 MANIFEST=$(echo "$MANIFEST" | sed "s|REGISTRY/smap-store-|${REGISTRY}/smap-store-|g")
 
+# Replace service hostnames (derived from namePrefix)
+# The namePrefix in kustomization adds prefix to all resources including services
+MANIFEST=$(echo "$MANIFEST" | sed "s/POSTGRES_HOST/${TENANT_NAME}-postgres/g")
+MANIFEST=$(echo "$MANIFEST" | sed "s/REDIS_HOST/${TENANT_NAME}-redis/g")
+MANIFEST=$(echo "$MANIFEST" | sed "s/MINIO_HOST/${TENANT_NAME}-minio/g")
+MANIFEST=$(echo "$MANIFEST" | sed "s/STOREFRONT_KEY_SECRET/${TENANT_NAME}-storefront-key/g")
+MANIFEST=$(echo "$MANIFEST" | sed "s/MIDDLEWARE_PREFIX/${TENANT_NAME}/g")
+
 # Apply the manifest
 echo "$MANIFEST" | kubectl apply -f -
 

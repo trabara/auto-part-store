@@ -36,8 +36,8 @@ metadata:
   name: medusa-secret
 type: Opaque
 stringData:
-  DATABASE_URL: "postgresql://medusa:CHANGE_ME@postgres:5432/medusa-v2?sslmode=disable"
-  REDIS_URL: "redis://:CHANGE_ME@redis:6379"
+  DATABASE_URL: "postgresql://medusa:CHANGE_ME@POSTGRES_HOST:5432/medusa-v2?sslmode=disable"
+  REDIS_URL: "redis://:CHANGE_ME@REDIS_HOST:6379"
   JWT_SECRET: "CHANGE_ME"
   COOKIE_SECRET: "CHANGE_ME"
   MINIO_ACCESS_KEY: "CHANGE_ME"
@@ -75,7 +75,7 @@ spec:
 
               # Wait for postgres
               echo "Checking postgres..."
-              until nc -z postgres 5432; do
+              until nc -z POSTGRES_HOST 5432; do
                 echo "postgres not ready, waiting..."
                 sleep 2
               done
@@ -83,7 +83,7 @@ spec:
 
               # Wait for redis
               echo "Checking redis..."
-              until nc -z redis 6379; do
+              until nc -z REDIS_HOST 6379; do
                 echo "redis not ready, waiting..."
                 sleep 2
               done

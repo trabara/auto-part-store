@@ -45,10 +45,10 @@ spec:
               }
 
               # Wait for postgres
-              wait_for_service "postgres" "5432" "postgres"
+              wait_for_service "POSTGRES_HOST" "5432" "postgres"
 
               # Wait for redis
-              wait_for_service "redis" "6379" "redis"
+              wait_for_service "REDIS_HOST" "6379" "redis"
 
               # Wait for medusa database to accept connections
               echo "Waiting for medusa database to accept connections..."
@@ -80,7 +80,7 @@ spec:
 
               echo "Found key: $KEY"
 
-              # Create storefront-key secret using Node.js
+              # Create STOREFRONT_KEY_SECRET secret using Node.js
               export API_KEY="$KEY"
               node << 'NODEEOF'
               const https = require('https');
@@ -88,16 +88,18 @@ spec:
 
               const token = fs.readFileSync('/var/run/secrets/kubernetes.io/serviceaccount/token', 'utf8').trim();
               const ca = fs.readFileSync('/var/run/secrets/kubernetes.io/serviceaccount/ca.crt');
+              const namespace = fs.readFileSync('/var/run/secrets/kubernetes.io/serviceaccount/namespace', 'utf8').trim();
               const key = process.env.API_KEY;
 
               console.log('Key from env:', key ? 'received' : 'undefined');
+              console.log('Namespace:', namespace);
 
               const secret = JSON.stringify({
                 apiVersion: 'v1',
                 kind: 'Secret',
-                metadata: {
-                  name: 'storefront-key'
-                },
+                  metadata: {
+                    name: 'STOREFRONT_KEY_SECRET'
+                  },
                 type: 'Opaque',
                 data: {
                   NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY: Buffer.from(key).toString('base64')
@@ -107,7 +109,7 @@ spec:
               // Delete existing secret
               const deleteReq = https.request({
                 hostname: 'kubernetes.default.svc',
-                path: '/api/v1/namespaces/default/secrets/storefront-key',
+                path: '/api/v1/namespaces/' + namespace + '/secrets/STOREFRONT_KEY_SECRET',
                 method: 'DELETE',
                 headers: {
                   'Authorization': `Bearer ${token}`,
@@ -127,7 +129,7 @@ spec:
               // Create secret
               const createReq = https.request({
                 hostname: 'kubernetes.default.svc',
-                path: '/api/v1/namespaces/default/secrets',
+                path: '/api/v1/namespaces/' + namespace + '/secrets',
                 method: 'POST',
                 headers: {
                   'Authorization': `Bearer ${token}`,
@@ -142,6 +144,7 @@ spec:
                   if (res.statusCode >= 200 && res.statusCode < 300) {
                     console.log('Secret created successfully!');
                     console.log('=== Medusa Init Complete ===');
+                    process.exit(0);
                   } else {
                     console.error('Failed to create secret:', data);
                     process.exit(1);

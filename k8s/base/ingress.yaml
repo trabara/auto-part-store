@@ -5,9 +5,20 @@ metadata:
   namespace: smap-store
   annotations:
     ingress.kubernetes.io/ssl-redirect: "false"
+    traefik.ingress.kubernetes.io/router.middlewares: smap-store-api-app-redirect@kubernetescrd
 spec:
   ingressClassName: traefik
   rules:
+    - host: "api.localhost"
+      http:
+        paths:
+          - path: /app
+            pathType: Prefix
+            backend:
+              service:
+                name: medusa
+                port:
+                  number: 9000
     - host: "api.localhost"
       http:
         paths:
@@ -42,6 +53,49 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
+  name: smap-store-admin-ingress
+  namespace: smap-store
+  annotations:
+    ingress.kubernetes.io/ssl-redirect: "false"
+spec:
+  ingressClassName: traefik
+  rules:
+    - host: "admin.localhost"
+      http:
+        paths:
+          - path: /app
+            pathType: Prefix
+            backend:
+              service:
+                name: medusa
+                port:
+                  number: 9000
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: smap-store-admin-root-redirect
+  namespace: smap-store
+  annotations:
+    ingress.kubernetes.io/ssl-redirect: "false"
+    traefik.ingress.kubernetes.io/router.middlewares: smap-store-admin-redirect@kubernetescrd
+spec:
+  ingressClassName: traefik
+  rules:
+    - host: "admin.localhost"
+      http:
+        paths:
+          - path: /
+            pathType: Exact
+            backend:
+              service:
+                name: medusa
+                port:
+                  number: 9000
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
   name: minio-console-ingress
   namespace: smap-store
   annotations:
@@ -59,3 +113,25 @@ spec:
                 name: minio
                 port:
                   number: 9001
+---
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: admin-redirect
+  namespace: smap-store
+spec:
+  redirectRegex:
+    regex: "^http://admin\\.localhost/?$"
+    replacement: "http://admin.localhost/app"
+    permanent: false
+---
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: api-app-redirect
+  namespace: smap-store
+spec:
+  redirectRegex:
+    regex: "^http://api\\.localhost/app"
+    replacement: "http://admin.localhost"
+    permanent: true

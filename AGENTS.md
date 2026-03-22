@@ -32,7 +32,8 @@ yarn workspace storefront check-types # tsc
 
 # Medusa
 yarn workspace medusa dev            # medusa develop (http://localhost:9000)
-yarn workspace medusa seed           # run seed script
+yarn workspace medusa seed:dev       # run seed script (dev mode)
+yarn workspace medusa seed           # run seed script (prod mode)
 
 # Docker
 yarn docker:build    # Build containers
@@ -144,6 +145,14 @@ const Schema = z.object({ name: z.string() });
 ## @repo/common Exports
 
 `BaseController`, `BaseSchema`, `BASE_MASK`, `ILogger`, `MedusaLoggerAdapter`, `IErrorHandler`, `ApiErrorHandler`
+
+## API Response Format
+
+Backend always returns `{ ...data }` not raw arrays. Use `this.success(data)` in controllers.
+
+## Middleware
+
+Use `@router` decorator chaining. Example: `@router.get([path], [middlewares...])`
 
 ## Environment
 

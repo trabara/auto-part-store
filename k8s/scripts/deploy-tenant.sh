@@ -80,6 +80,9 @@ MANIFEST=$(echo "$MANIFEST" | sed "s/REDIS_HOST/${TENANT_NAME}-redis/g")
 MANIFEST=$(echo "$MANIFEST" | sed "s/MINIO_HOST/${TENANT_NAME}-minio/g")
 MANIFEST=$(echo "$MANIFEST" | sed "s/STOREFRONT_KEY_SECRET/${TENANT_NAME}-storefront-key/g")
 
+# Replace namespace name
+MANIFEST=$(echo "$MANIFEST" | sed "s/NAMESPACE_NAME/smap-store-${TENANT_NAME}/g")
+
 # Apply the manifest
 echo "$MANIFEST" | kubectl apply -f -
 

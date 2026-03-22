@@ -2,82 +2,92 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-K8S_DIR="$(dirname "$SCRIPT_DIR")"
-SECRETS_FILE="${1:-}"
+TENANT_NAME="${1:-}"
 
 usage() {
     cat <<EOF
-Usage: $(basename "$0") [SECRETS_FILE]
+Usage: $(basename "$0") <TENANT_NAME>
 
-Generate a new secrets.env file with random passwords.
+Regenerate secrets for an existing tenant.
 
 Arguments:
-    SECRETS_FILE    Path to secrets.env file to generate (optional)
+    TENANT_NAME    Name of the tenant (e.g., acme, globex, mytek)
 
 Examples:
-    $(basename "$0")                                   # Generate to stdout
-    $(basename "$0") k8s/tenants/acme/secrets/secrets.env  # Generate to file
+    $(basename "$0") acme    # Regenerate acme secrets
+    $(basename "$0") mytek  # Regenerate mytek secrets
 EOF
     exit 1
 }
 
-if [[ "${1:-}" == "-h" ]] || [[ "${1:-}" == "--help" ]]; then
+if [[ -z "$TENANT_NAME" ]]; then
+    echo "Error: TENANT_NAME is required"
     usage
 fi
 
-generate_password() {
-    tr -dc 'A-Za-z0-9!@#$%^&*' < /dev/urandom | head -c 32
-}
+TENANT_DIR="$SCRIPT_DIR/../tenants/$TENANT_NAME"
+SECRETS_DIR="$TENANT_DIR/secrets"
 
-generate_minio_user() {
-    tr -dc 'a-z0-9' < /dev/urandom | head -c 16
-}
+if [[ ! -d "$SECRETS_DIR" ]]; then
+    echo "Error: Tenant secrets directory not found: $SECRETS_DIR"
+    echo "Use add-tenant.sh first to create the tenant."
+    exit 1
+fi
 
-generate_hex() {
-    tr -dc 'a-f0-9' < /dev/urandom | head -c 32
-}
+echo "=== Regenerating secrets for tenant: $TENANT_NAME ==="
+echo ""
 
-DB_PASSWORD=$(generate_password)
-REDIS_PASSWORD=$(generate_password)
-MINIO_ROOT_USER=$(generate_minio_user)
-MINIO_ROOT_PASSWORD=$(generate_password)
-JWT_SECRET=$(generate_hex)
-COOKIE_SECRET=$(generate_hex)
-REVALIDATE_SECRET=$(generate_hex)
+# Generate random passwords
+DB_PASSWORD=$(openssl rand -base64 24 | tr -dc 'A-Za-z0-9!@#$%' | head -c 24)
+REDIS_PASSWORD=$(openssl rand -base64 24 | tr -dc 'A-Za-z0-9!@#$%' | head -c 24)
+MINIO_PASSWORD=$(openssl rand -base64 24 | tr -dc 'A-Za-z0-9!@#$%' | head -c 24)
+JWT_SECRET=$(openssl rand -hex 32)
+COOKIE_SECRET=$(openssl rand -hex 16)
+ADMIN_PASSWORD=$(openssl rand -base64 16 | tr -dc 'A-Za-z0-9' | head -c 12)
+REVALIDATE_SECRET=$(openssl rand -hex 24)
 
-SECRETS_CONTENT="# Generated on $(date -u +"%Y-%m-%dT%H:%M:%SZ")
-# Run 'openssl rand -base64 32' to generate new values
-
-# Database
-DB_USERNAME=medusa
-DB_PASSWORD=${DB_PASSWORD}
-
-# Redis
-REDIS_PASSWORD=${REDIS_PASSWORD}
-
-# MinIO
-MINIO_ROOT_USER=${MINIO_ROOT_USER}
-MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD}
-
-# Medusa
+# medusa.env
+cat > "$SECRETS_DIR/medusa.env" << SECRETSEOF
+DATABASE_URL=postgresql://medusa:${DB_PASSWORD}@${TENANT_NAME}-postgres:5432/medusa-v2?sslmode=disable
+REDIS_URL=redis://:${REDIS_PASSWORD}@${TENANT_NAME}-redis:6379
 JWT_SECRET=${JWT_SECRET}
 COOKIE_SECRET=${COOKIE_SECRET}
+MINIO_ACCESS_KEY=${TENANT_NAME}minio
+MINIO_SECRET_KEY=${MINIO_PASSWORD}
+MINIO_BUCKET=medusa
+MEDUSA_ADMIN_EMAIL=admin@${TENANT_NAME}.localhost
+MEDUSA_ADMIN_PASSWORD=${ADMIN_PASSWORD}
+SECRETSEOF
 
-# Storefront
+# postgres.env
+cat > "$SECRETS_DIR/postgres.env" << SECRETSEOF
+POSTGRES_USER=medusa
+POSTGRES_PASSWORD=${DB_PASSWORD}
+POSTGRES_DB=medusa-v2
+SECRETSEOF
+
+# redis.env
+cat > "$SECRETS_DIR/redis.env" << SECRETSEOF
+REDIS_PASSWORD=${REDIS_PASSWORD}
+SECRETSEOF
+
+# minio.env
+cat > "$SECRETS_DIR/minio.env" << SECRETSEOF
+MINIO_ROOT_USER=${TENANT_NAME}minio
+MINIO_ROOT_PASSWORD=${MINIO_PASSWORD}
+SECRETSEOF
+
+# storefront.env
+cat > "$SECRETS_DIR/storefront.env" << SECRETSEOF
 REVALIDATE_SECRET=${REVALIDATE_SECRET}
+SECRETSEOF
 
-# Configuration
-TENANT_DOMAIN=CHANGE_ME.localhost
-TRAEFIK_IP=10.43.173.17
-IMAGE_TAG=latest
-REGISTRY=localhost:5000
-"
-
-if [[ -n "${SECRETS_FILE:-}" ]]; then
-    echo "$SECRETS_CONTENT" > "$SECRETS_FILE"
-    echo "Generated secrets file: $SECRETS_FILE"
-    echo ""
-    echo "IMPORTANT: Review and update TENANT_DOMAIN and other values as needed."
-else
-    echo "$SECRETS_CONTENT"
-fi
+echo "=== Secrets regenerated successfully ==="
+echo ""
+echo "Next steps:"
+echo ""
+echo "1. Deploy to apply new secrets:"
+echo "   $SCRIPT_DIR/deploy-tenant.sh $TENANT_NAME"
+echo ""
+echo "2. Note: This will rotate all credentials."
+echo "   Existing data may need to be re-initialized."

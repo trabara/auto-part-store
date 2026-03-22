@@ -74,7 +74,6 @@ metadata:
   name: admin-root-redirect
   annotations:
     ingress.kubernetes.io/ssl-redirect: "false"
-    traefik.ingress.kubernetes.io/router.middlewares: MIDDLEWARE_PREFIX-admin-redirect@kubernetescrd
 spec:
   ingressClassName: traefik
   rules:

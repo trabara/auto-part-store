@@ -36,6 +36,7 @@ metadata:
   name: medusa-secret
 type: Opaque
 stringData:
+  TENANT_NAME: "TENANT_NAME"
   DATABASE_URL: "postgresql://medusa:CHANGE_ME@POSTGRES_HOST:5432/medusa-v2?sslmode=disable"
   REDIS_URL: "redis://:CHANGE_ME@REDIS_HOST:6379"
   JWT_SECRET: "CHANGE_ME"

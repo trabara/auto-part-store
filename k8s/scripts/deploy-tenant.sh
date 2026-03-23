@@ -68,6 +68,30 @@ HOST_IP="${HOST_IP:-$(hostname -I | awk '{print $1}')}"
 # For example: "demo-shared" -> "demo", "smap" -> "smap"
 SERVICE_PREFIX=$(echo "$TENANT_NAME" | cut -d'-' -f1)
 
+# Check if tenant uses shared template (has shared-config marker)
+IS_SHARED=false
+if [[ -f "$TENANT_DIR/config/shared.env" ]]; then
+    IS_SHARED=true
+fi
+
+# Extract Docker host IPs from secrets for shared tier
+if [[ "$IS_SHARED" == "true" ]]; then
+    MEDUSA_SECRETS_FILE="$TENANT_DIR/secrets/medusa.env"
+    if [[ -f "$MEDUSA_SECRETS_FILE" ]]; then
+        set -a
+        source "$MEDUSA_SECRETS_FILE"
+        set +a
+        
+        # Extract PostgreSQL host from DATABASE_URL
+        DOCKER_PG_HOST=$(echo "$DATABASE_URL" | sed -n 's|.*@\([^:]*\):.*|\1|p')
+        DOCKER_REDIS_HOST=$(echo "$REDIS_URL" | sed -n 's|redis://:[^@]*@\([^:]*\):.*|\1|p')
+        
+        echo "Shared tier detected - using Docker hosts:"
+        echo "  PostgreSQL: $DOCKER_PG_HOST"
+        echo "  Redis: $DOCKER_REDIS_HOST"
+    fi
+fi
+
 # Replace all domain placeholders
 MANIFEST=$(echo "$MANIFEST" | sed "s/TENANT_DOMAIN/${TENANT_DOMAIN}/g")
 MANIFEST=$(echo "$MANIFEST" | sed "s/API_DOMAIN/${API_DOMAIN}/g")
@@ -83,8 +107,16 @@ MANIFEST=$(echo "$MANIFEST" | sed "s/:IMAGE_TAG/:${IMAGE_TAG}/g")
 MANIFEST=$(echo "$MANIFEST" | sed "s|REGISTRY/smap-store-|${REGISTRY}/smap-store-|g")
 
 # Replace service hostnames (derived from namePrefix)
-MANIFEST=$(echo "$MANIFEST" | sed "s/POSTGRES_HOST/${SERVICE_PREFIX}-postgres/g")
-MANIFEST=$(echo "$MANIFEST" | sed "s/MINIO_HOST/${SERVICE_PREFIX}-minio/g")
+# For shared tier, use Docker host IPs extracted from secrets
+if [[ "$IS_SHARED" == "true" ]]; then
+    MANIFEST=$(echo "$MANIFEST" | sed "s/POSTGRES_HOST/${DOCKER_PG_HOST}/g")
+    MANIFEST=$(echo "$MANIFEST" | sed "s/REDIS_HOST/${DOCKER_REDIS_HOST}/g")
+    MANIFEST=$(echo "$MANIFEST" | sed "s/MINIO_HOST/${DOCKER_PG_HOST}/g")
+else
+    MANIFEST=$(echo "$MANIFEST" | sed "s/POSTGRES_HOST/${SERVICE_PREFIX}-postgres/g")
+    MANIFEST=$(echo "$MANIFEST" | sed "s/REDIS_HOST/${SERVICE_PREFIX}-redis/g")
+    MANIFEST=$(echo "$MANIFEST" | sed "s/MINIO_HOST/${SERVICE_PREFIX}-minio/g")
+fi
 
 # Replace TENANT prefix in middleware names in IngressRoute routes (NOT the middleware metadata name)
 # Kustomize namePrefix adds prefix to middleware metadata name, so we don't need to replace it

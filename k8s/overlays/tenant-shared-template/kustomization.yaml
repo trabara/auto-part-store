@@ -35,20 +35,9 @@ patches:
     target:
       kind: Deployment
       name: medusa
-  - path: patches/medusa-init-container.yaml
-    target:
-      kind: Deployment
-      name: medusa
   - path: patches/storefront-hostaliases.yaml
     target:
       kind: Deployment
       name: storefront
-  - path: patches/remove-postgres.yaml
-  - path: patches/remove-redis.yaml
-  - path: patches/remove-minio.yaml
-  - path: patches/remove-minio-init.yaml
-  - path: patches/remove-minio-console-ingress.yaml
-  - path: patches/medusa-init-patch.yaml
-    target:
-      kind: Job
-      name: medusa-init
+  - path: patches/delete-infrastructure.yaml
+  - path: patches/replace-ingress.yaml

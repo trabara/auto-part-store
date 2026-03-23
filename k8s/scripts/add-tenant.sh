@@ -106,6 +106,22 @@ images:
     newName: localhost:5000/smap-store-storefront
     newTag: latest
 
+configMapGenerator:
+  - name: medusa-config
+    behavior: replace
+    envs:
+      - config/medusa.env
+  - name: storefront-config
+    behavior: replace
+    envs:
+      - config/storefront.env
+
+secretGenerator:
+  - name: medusa-secret
+    behavior: replace
+    envs:
+      - secrets/medusa.env
+
 namePrefix: ${TENANT_NAME}-
 KUSTOMIZEEOF
 

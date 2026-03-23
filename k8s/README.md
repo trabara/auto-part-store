@@ -86,7 +86,7 @@ Add to `/etc/hosts` for local testing:
 
 ```
 <NODE_IP> api.localhost
-<NODE_IP> shop.localhost
+<NODE_IP> localhost
 <NODE_IP> admin.localhost
 <NODE_IP> minio.localhost
 <NODE_IP> minio-console.localhost
@@ -97,7 +97,7 @@ Add to `/etc/hosts` for local testing:
 | URL                            | Service    | Description           |
 | ------------------------------ | ---------- | --------------------- |
 | http://api.localhost           | medusa     | Admin/Store API       |
-| http://shop.localhost          | storefront | E-commerce storefront |
+| http://localhost          | storefront | E-commerce storefront |
 | http://admin.localhost         | medusa     | Admin dashboard       |
 | http://minio.localhost         | minio      | S3-compatible storage |
 | http://minio-console.localhost | minio      | MinIO management      |

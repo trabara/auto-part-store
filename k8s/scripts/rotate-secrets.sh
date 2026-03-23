@@ -2,26 +2,61 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-TENANT_NAME="${1:-}"
+
+# Default values
+TENANT_NAME=""
+TIER="auto"
 
 usage() {
-    cat <<EOF
-Usage: $(basename "$0") <TENANT_NAME>
+    cat <<USAGE
+Usage: $(basename "$0") <TENANT_NAME> [OPTIONS]
 
 Rotate secrets for a tenant and trigger redeployment.
 
 Arguments:
-    TENANT_NAME    Name of the tenant (e.g., acme, globex)
+    TENANT_NAME    Name of the tenant (e.g., acme, demo-shared)
+
+Options:
+    -t, --tier TIER     Deployment tier: "pro", "shared", or "auto" (default: auto)
+    -h, --help          Show this help message
 
 Examples:
-    $(basename "$0") acme    # Rotate secrets and redeploy acme
-EOF
+    $(basename "$0") acme              # Rotate PRO tier secrets (auto-detect)
+    $(basename "$0") demo-shared -t shared  # Force rotate as shared tier
+USAGE
     exit 1
 }
+
+# Parse arguments
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        -t|--tier)
+            TIER="$2"
+            shift 2
+            ;;
+        -h|--help)
+            usage
+            ;;
+        *)
+            if [[ -z "$TENANT_NAME" ]]; then
+                TENANT_NAME="$1"
+            else
+                echo "Unknown argument: $1"
+                usage
+            fi
+            shift
+            ;;
+    esac
+done
 
 if [[ -z "$TENANT_NAME" ]]; then
     echo "Error: TENANT_NAME is required"
     usage
+fi
+
+if [[ "$TIER" != "pro" && "$TIER" != "shared" && "$TIER" != "auto" ]]; then
+    echo "Error: Invalid tier '$TIER'. Must be 'pro', 'shared', or 'auto'."
+    exit 1
 fi
 
 TENANT_DIR="$SCRIPT_DIR/../tenants/$TENANT_NAME"
@@ -31,40 +66,28 @@ if [[ ! -d "$TENANT_DIR" ]]; then
     exit 1
 fi
 
+# Auto-detect tier
+if [[ "$TIER" == "auto" ]]; then
+    if [[ -f "$TENANT_DIR/config/shared.env" ]]; then
+        TIER="shared"
+    else
+        TIER="pro"
+    fi
+fi
+
 echo "=== Rotating secrets for tenant: $TENANT_NAME ==="
+echo "Tier: $TIER"
 echo ""
 
 # Generate new secrets
 echo "Generating new secrets..."
-"$SCRIPT_DIR/generate-secrets.sh" "$TENANT_DIR/secrets/secrets.env"
-
-# Copy TENANT_DOMAIN from old backup if exists
-BACKUP_FILE="$TENANT_DIR/secrets/secrets.env.bak"
-if [[ -f "$BACKUP_FILE" ]]; then
-    OLD_DOMAIN=$(grep TENANT_DOMAIN "$BACKUP_FILE" | cut -d= -f2)
-    sed -i "s|TENANT_DOMAIN=.*|TENANT_DOMAIN=${OLD_DOMAIN}|" "$TENANT_DIR/secrets/secrets.env"
-    echo "Preserved TENANT_DOMAIN: $OLD_DOMAIN"
-fi
-
-# Copy TRAEFIK_IP and other config from old backup if exists
-if [[ -f "$BACKUP_FILE" ]]; then
-    for key in TRAEFIK_IP IMAGE_TAG REGISTRY; do
-        OLD_VALUE=$(grep "^${key}=" "$BACKUP_FILE" | cut -d= -f2)
-        if [[ -n "$OLD_VALUE" ]]; then
-            sed -i "s|${key}=.*|${key}=${OLD_VALUE}|" "$TENANT_DIR/secrets/secrets.env"
-        fi
-    done
-fi
-
-echo ""
-echo "Backing up old secrets..."
-cp "$TENANT_DIR/secrets/secrets.env" "$BACKUP_FILE"
+"$SCRIPT_DIR/generate-secrets.sh" "$TENANT_NAME" -t "$TIER"
 
 echo ""
 echo "Applying new secrets to cluster..."
-"$SCRIPT_DIR/deploy-tenant.sh" "$TENANT_NAME"
+"$SCRIPT_DIR/deploy-tenant.sh" "$TENANT_NAME" --tier "$TIER"
 
 echo ""
 echo "=== Secrets rotated successfully ==="
 echo ""
-echo "Old secrets backed up to: $BACKUP_FILE"
+echo "Old secrets backed up to: $TENANT_DIR/secrets/.backup/"

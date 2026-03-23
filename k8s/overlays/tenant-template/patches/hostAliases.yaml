@@ -5,6 +5,6 @@
   path: /spec/template/spec/hostAliases/0/hostnames
   value:
     - "api.TENANT_DOMAIN"
-    - "shop.TENANT_DOMAIN"
+    - "TENANT_DOMAIN"
     - "minio.TENANT_DOMAIN"
     - "minio-console.TENANT_DOMAIN"

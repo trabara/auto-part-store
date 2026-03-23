@@ -60,7 +60,7 @@ spec:
         - ip: "10.43.173.17"
           hostnames:
             - "api.localhost"
-            - "shop.localhost"
+            - "localhost"
             - "minio.localhost"
             - "minio-console.localhost"
       securityContext:

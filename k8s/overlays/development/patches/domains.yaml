@@ -5,6 +5,6 @@
   path: /spec/template/spec/hostAliases/0/hostnames
   value:
     - "api.localhost"
-    - "shop.localhost"
+    - "localhost"
     - "minio.localhost"
     - "minio-console.localhost"

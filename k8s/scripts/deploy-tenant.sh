@@ -2,25 +2,63 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-TENANT_NAME="${1:-}"
-ENVIRONMENT="${2:-development}"
+
+# Default values
+TENANT_NAME=""
+ENVIRONMENT="development"
+TIER="pro"
 
 usage() {
     cat <<USAGE
-Usage: $(basename "$0") <TENANT_NAME> [ENVIRONMENT]
+Usage: $(basename "$0") <TENANT_NAME> [OPTIONS]
 
 Deploy a tenant to the specified environment.
 
 Arguments:
-    TENANT_NAME    Name of the tenant (e.g., acme, globex)
-    ENVIRONMENT    Environment to deploy to (default: development)
+    TENANT_NAME    Name of the tenant (e.g., acme, globex, demo-shared)
+
+Options:
+    -t, --tier TIER     Deployment tier: "pro" or "shared" (default: auto-detect from tenant config)
+    -e, --env ENV       Environment to deploy to (default: development)
+    -h, --help          Show this help message
 
 Examples:
-    $(basename "$0") acme              # Deploy acme tenant to development
-    $(basename "$0") acme production    # Deploy acme tenant to production
+    $(basename "$0") acme              # Deploy acme tenant (auto-detect tier)
+    $(basename "$0") demo-shared --tier shared   # Deploy as shared tier
+    $(basename "$0") acme --env production --tier pro
 USAGE
     exit 1
 }
+
+# Parse arguments
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        -t|--tier)
+            TIER="$2"
+            shift 2
+            ;;
+        -e|--env)
+            ENVIRONMENT="$2"
+            shift 2
+            ;;
+        -h|--help)
+            usage
+            ;;
+        -*)
+            echo "Unknown option: $1"
+            usage
+            ;;
+        *)
+            if [[ -z "$TENANT_NAME" ]]; then
+                TENANT_NAME="$1"
+            else
+                echo "Unknown argument: $1"
+                usage
+            fi
+            shift
+            ;;
+    esac
+done
 
 if [[ -z "$TENANT_NAME" ]]; then
     echo "Error: TENANT_NAME is required"
@@ -48,12 +86,47 @@ if [[ ! -f "$DOMAINS_FILE" ]]; then
     exit 1
 fi
 
+# Auto-detect tier from config if set to "auto" or not explicitly provided
+if [[ "$TIER" == "auto" ]] || [[ ! -f "$TENANT_DIR/config/shared.env" && "$TIER" == "pro" ]]; then
+    if [[ -f "$TENANT_DIR/config/shared.env" ]]; then
+        TIER="shared"
+    else
+        TIER="pro"
+    fi
+fi
+
+# Validate tier
+if [[ "$TIER" != "pro" && "$TIER" != "shared" ]]; then
+    echo "Error: Invalid tier '$TIER'. Must be 'pro' or 'shared'."
+    exit 1
+fi
+
+IS_SHARED=false
+if [[ "$TIER" == "shared" ]]; then
+    IS_SHARED=true
+    
+    # Create shared.env marker if it doesn't exist
+    if [[ ! -f "$TENANT_DIR/config/shared.env" ]]; then
+        echo "SHARED=true" > "$TENANT_DIR/config/shared.env"
+        echo "Created shared.env marker file"
+    fi
+fi
+
 echo "=== Deploying tenant: $TENANT_NAME ==="
+echo "Tier: $TIER"
 echo "Environment: $ENVIRONMENT"
 echo ""
 
 echo "Building manifest with kustomize..."
-MANIFEST=$(kubectl kustomize "$TENANT_DIR")
+
+# Determine which template to use based on tier
+if [[ "$IS_SHARED" == "true" ]]; then
+    KUSTOMIZE_DIR="$TENANT_DIR"
+else
+    KUSTOMIZE_DIR="$TENANT_DIR"
+fi
+
+MANIFEST=$(kubectl kustomize "$KUSTOMIZE_DIR")
 
 # Load domain variables from domains.env
 set -a
@@ -67,12 +140,6 @@ HOST_IP="${HOST_IP:-$(hostname -I | awk '{print $1}')}"
 # Extract the actual service prefix from TENANT_NAME (first hyphen-separated part)
 # For example: "demo-shared" -> "demo", "smap" -> "smap"
 SERVICE_PREFIX=$(echo "$TENANT_NAME" | cut -d'-' -f1)
-
-# Check if tenant uses shared template (has shared-config marker)
-IS_SHARED=false
-if [[ -f "$TENANT_DIR/config/shared.env" ]]; then
-    IS_SHARED=true
-fi
 
 # Extract Docker host IPs from secrets for shared tier
 if [[ "$IS_SHARED" == "true" ]]; then
@@ -92,14 +159,9 @@ if [[ "$IS_SHARED" == "true" ]]; then
         
         # Create database if it doesn't exist (for shared tier)
         echo "Creating database '$TENANT_NAME' if not exists..."
-        PG_USER=$(echo "$DATABASE_URL" | sed -n 's|postgresql://\([^:]*\):.*|\1|p')
-        PG_PASS=$(echo "$DATABASE_URL" | sed -n 's|postgresql://[^:]*:\([^@]*\)@.*|\1|p')
-        PG_HOST=$(echo "$DATABASE_URL" | sed -n 's|.*@\([^:]*\):.*|\1|p')
+        docker exec smap-shared-postgres psql -U medusa -d demo_shared -c "CREATE DATABASE \"$TENANT_NAME\";" 2>/dev/null || echo "Database may already exist"
         
-        # Create database using psql (install if needed)
-        docker exec smap-shared-postgres psql -U medusa -c "CREATE DATABASE \"$TENANT_NAME\";" 2>/dev/null || echo "Database may already exist"
-        
-        echo "Shared tier detected - using Docker hosts:"
+        echo "Shared tier - using Docker hosts:"
         echo "  PostgreSQL: $DOCKER_PG_HOST"
         echo "  Redis: $DOCKER_REDIS_HOST"
         echo "  Database: $TENANT_NAME"
@@ -134,10 +196,6 @@ else
     MANIFEST=$(echo "$MANIFEST" | sed "s/MINIO_HOST/${SERVICE_PREFIX}-minio/g")
 fi
 
-# Replace TENANT prefix in middleware names in IngressRoute routes (NOT the middleware metadata name)
-# Kustomize namePrefix adds prefix to middleware metadata name, so we don't need to replace it
-# The ingress route references use the prefixed name automatically from kustomize
-
 # Replace service names in IngressRoute specs (kustomize namePrefix doesn't apply to nested service refs)
 # Use SERVICE_PREFIX for correct service naming
 MANIFEST=$(echo "$MANIFEST" | sed "s/    - name: medusa$/    - name: ${SERVICE_PREFIX}-medusa/g")
@@ -150,15 +208,11 @@ MANIFEST=$(echo "$MANIFEST" | sed "s/    - name: postgres$/    - name: ${SERVICE
 MANIFEST=$(echo "$MANIFEST" | sed "s/    - name: redis$/    - name: ${SERVICE_PREFIX}-redis/g")
 
 # Replace middleware references in IngressRoute routes (kustomize namePrefix doesn't apply here)
-# The base middleware name is "TENANT-admin-redirect" and "TENANT-api-app-redirect"
-# After kustomize, these become "${SERVICE_PREFIX}-admin-redirect" etc.
 MANIFEST=$(echo "$MANIFEST" | sed "s/TENANT-api-app-redirect/${SERVICE_PREFIX}-api-app-redirect/g")
 MANIFEST=$(echo "$MANIFEST" | sed "s/TENANT-admin-redirect/${SERVICE_PREFIX}-admin-redirect/g")
 
-# Replace secret names for shared tier
-if [[ "$IS_SHARED" == "true" ]]; then
-    MANIFEST=$(echo "$MANIFEST" | sed "s/STOREFRONT_KEY_SECRET/storefront-key/g")
-fi
+# Replace secret names (storefront-key is used by both PRO and SHARED tiers)
+MANIFEST=$(echo "$MANIFEST" | sed "s/STOREFRONT_KEY_SECRET/storefront-key/g")
 
 # Replace namespace name
 MANIFEST=$(echo "$MANIFEST" | sed "s/NAMESPACE_NAME/smap-store-${TENANT_NAME}/g")

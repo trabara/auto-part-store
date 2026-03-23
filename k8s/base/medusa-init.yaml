@@ -58,6 +58,10 @@ spec:
               echo "Running migrations..."
               cd /app/.medusa/server && yarn medusa db:migrate || echo "Migrations already applied"
 
+              # Setup shared DB user (skipped for non-shared tenants)
+              echo "Setting up shared DB user (if applicable)..."
+              cd /app/.medusa/server && yarn medusa exec ./src/scripts/setup-shared-db.js || echo "Shared DB setup skipped (not shared tier)"
+
               # Run seed (idempotent - may fail if already seeded)
               echo "Running seed..."
               cd /app/.medusa/server && yarn medusa exec ./src/scripts/seed.js || echo "Seed already applied or skipped"
@@ -94,9 +98,12 @@ spec:
               const ca = fs.readFileSync('/var/run/secrets/kubernetes.io/serviceaccount/ca.crt');
               const namespace = fs.readFileSync('/var/run/secrets/kubernetes.io/serviceaccount/namespace', 'utf8').trim();
               const key = process.env.API_KEY;
+              const apiHost = process.env.KUBERNETES_API_HOST || 'kubernetes.default.svc';
+              const apiPort = parseInt(process.env.KUBERNETES_API_PORT || '443', 10);
 
               console.log('Key from env:', key ? 'received' : 'undefined');
               console.log('Namespace:', namespace);
+              console.log('K8s API:', apiHost + ':' + apiPort);
 
               const secret = JSON.stringify({
                 apiVersion: 'v1',
@@ -112,14 +119,16 @@ spec:
 
               // Delete existing secret
               const deleteReq = https.request({
-                hostname: 'kubernetes.default.svc',
+                hostname: apiHost,
+                port: apiPort,
                 path: '/api/v1/namespaces/' + namespace + '/secrets/STOREFRONT_KEY_SECRET',
                 method: 'DELETE',
                 headers: {
                   'Authorization': `Bearer ${token}`,
                   'Content-Type': 'application/json'
                 },
-                ca: ca
+                ca: ca,
+                rejectUnauthorized: apiHost === 'kubernetes.default.svc'
               }, (res) => {
                 console.log('Delete response status:', res.statusCode);
               });
@@ -132,14 +141,16 @@ spec:
 
               // Create secret
               const createReq = https.request({
-                hostname: 'kubernetes.default.svc',
+                hostname: apiHost,
+                port: apiPort,
                 path: '/api/v1/namespaces/' + namespace + '/secrets',
                 method: 'POST',
                 headers: {
                   'Authorization': `Bearer ${token}`,
                   'Content-Type': 'application/json'
                 },
-                ca: ca
+                ca: ca,
+                rejectUnauthorized: apiHost === 'kubernetes.default.svc'
               }, (res) => {
                 let data = '';
                 res.on('data', chunk => data += chunk);
@@ -181,6 +192,12 @@ spec:
                 secretKeyRef:
                   name: medusa-secret
                   key: MEDUSA_ADMIN_PASSWORD
+            - name: SHARED_DB_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: medusa-secret
+                  key: SHARED_DB_PASS
+                  optional: true
           resources:
             requests:
               cpu: "100m"

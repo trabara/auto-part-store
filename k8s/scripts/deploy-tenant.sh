@@ -133,13 +133,8 @@ set -a
 source "$DOMAINS_FILE"
 set +a
 
-# Set default HOST_IP if not defined (for Docker Desktop compatibility)
-HOST_IP="${HOST_IP:-$(hostname -I | awk '{print $1}')}"
-
-# Kustomize namePrefix adds prefix to all resources including middleware metadata names
-# Extract the actual service prefix from TENANT_NAME (first hyphen-separated part)
-# For example: "demo-shared" -> "demo", "smap" -> "smap"
-SERVICE_PREFIX=$(echo "$TENANT_NAME" | cut -d'-' -f1)
+# SERVICE_PREFIX is the full TENANT_NAME (kustomize namePrefix uses the full name)
+SERVICE_PREFIX="${TENANT_NAME}"
 
 # Extract Docker host IPs from secrets for shared tier
 if [[ "$IS_SHARED" == "true" ]]; then
@@ -148,24 +143,34 @@ if [[ "$IS_SHARED" == "true" ]]; then
         set -a
         source "$MEDUSA_SECRETS_FILE"
         set +a
-        
+
         # Extract PostgreSQL host from DATABASE_URL
         DOCKER_PG_HOST=$(echo "$DATABASE_URL" | sed -n 's|.*@\([^:]*\):.*|\1|p')
         DOCKER_REDIS_HOST=$(echo "$REDIS_URL" | sed -n 's|redis://:[^@]*@\([^:]*\):.*|\1|p')
-        
+
         # Replace database name in DATABASE_URL with tenant name
         # Format: postgresql://user:pass@host:port/TENANT_NAME?sslmode=...
         DATABASE_URL=$(echo "$DATABASE_URL" | sed "s|/[^?]*|/${TENANT_NAME}|")
-        
-        # Create database if it doesn't exist (for shared tier)
-        echo "Creating database '$TENANT_NAME' if not exists..."
-        docker exec smap-shared-postgres psql -U medusa -d demo_shared -c "CREATE DATABASE \"$TENANT_NAME\";" 2>/dev/null || echo "Database may already exist"
-        
+
+        # Create database if it doesn't exist (shared PostgreSQL)
+        echo "Ensuring database '$TENANT_NAME' exists..."
+        docker exec smap-shared-postgres psql -U medusa -d postgres -c \
+            "SELECT 1 FROM pg_database WHERE datname = '${TENANT_NAME}'" | grep -q 1 || \
+            docker exec smap-shared-postgres psql -U medusa -d postgres -c "CREATE DATABASE \"${TENANT_NAME}\";"
+        echo "Database '$TENANT_NAME' ready."
+
+        # HOST_IP for shared tier is the Docker bridge gateway (accessible from K8s pods)
+        HOST_IP="${DOCKER_PG_HOST}"
+
         echo "Shared tier - using Docker hosts:"
         echo "  PostgreSQL: $DOCKER_PG_HOST"
         echo "  Redis: $DOCKER_REDIS_HOST"
+        echo "  MinIO: $DOCKER_PG_HOST"
         echo "  Database: $TENANT_NAME"
     fi
+else
+    # PRO tier - use K8s node IP
+    HOST_IP="${HOST_IP:-$(kubectl get node -o jsonpath='{.items[0].status.addresses[?(@.type=="InternalIP")].address}' 2>/dev/null)}"
 fi
 
 # Replace all domain placeholders

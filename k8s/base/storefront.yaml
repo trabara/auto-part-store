@@ -80,16 +80,24 @@ spec:
               const token = fs.readFileSync('/var/run/secrets/kubernetes.io/serviceaccount/token', 'utf8').trim();
               const ca = fs.readFileSync('/var/run/secrets/kubernetes.io/serviceaccount/ca.crt');
               const namespace = fs.readFileSync('/var/run/secrets/kubernetes.io/serviceaccount/namespace', 'utf8').trim();
+              const apiHost = process.env.KUBERNETES_API_HOST || 'kubernetes.default.svc';
+              const apiPort = process.env.KUBERNETES_API_PORT || '443';
 
               function httpGet(url, headers = {}) {
                 return new Promise((resolve, reject) => {
                   const lib = url.startsWith('https') ? https : http;
+                  const hostPart = url.replace(/^https?:\/\//, '').split('/')[0];
+                  const hostname = hostPart.split(':')[0];
+                  const port = parseInt(hostPart.split(':')[1] || (url.startsWith('https') ? '443' : '80'), 10);
+                  const path = '/' + url.split('/').slice(3).join('/');
                   const opts = {
-                    hostname: url.replace(/^https?:\/\//, '').split('/')[0],
-                    path: '/' + url.split('/').slice(3).join('/'),
+                    hostname,
+                    port,
+                    path,
                     method: 'GET',
                     headers: { ...headers },
-                    ca: url.startsWith('https') ? ca : undefined
+                    ca: url.startsWith('https') ? ca : undefined,
+                    rejectUnauthorized: apiHost === 'kubernetes.default.svc'
                   };
                   const req = lib.request(opts, (res) => {
                     let data = '';
@@ -104,13 +112,12 @@ spec:
               async function waitForDependencies() {
                 console.log('Waiting for storefront-key secret with valid publishable key...');
                 const maxAttempts = 60;
+                const apiUrl = `https://${apiHost}:${apiPort}/api/v1/namespaces/${namespace}/secrets/storefront-key`;
+                console.log('K8s API URL:', apiUrl);
                 
                 for (let attempt = 1; attempt <= maxAttempts; attempt++) {
                   try {
-                    const secretRes = await httpGet(
-                      `https://kubernetes.default.svc/api/v1/namespaces/${namespace}/secrets/storefront-key`,
-                      { 'Authorization': `Bearer ${token}` }
-                    );
+                    const secretRes = await httpGet(apiUrl, { 'Authorization': `Bearer ${token}` });
                     
                     if (secretRes.status === 200 && secretRes.data) {
                       const match = secretRes.data.match(/"NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY":"([^"]+)"/);
@@ -140,6 +147,9 @@ spec:
               }
 
               waitForDependencies();
+          envFrom:
+            - secretRef:
+                name: storefront-secret
           resources:
             requests:
               cpu: "10m"

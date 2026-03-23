@@ -121,6 +121,31 @@ secretGenerator:
     behavior: replace
     envs:
       - secrets/medusa.env
+  - name: storefront-secret
+    behavior: replace
+    envs:
+      - secrets/storefront.env
+KUSTOMIZEEOF
+
+# Add PRO-tier-specific secret generators
+if [[ "$TIER" != "shared" ]]; then
+    cat >> "$TENANT_DIR/kustomization.yaml" << 'KUSTOMIZEEOF'
+  - name: postgres-secret
+    behavior: replace
+    envs:
+      - secrets/postgres.env
+  - name: redis-secret
+    behavior: replace
+    envs:
+      - secrets/redis.env
+  - name: minio-secret
+    behavior: replace
+    envs:
+      - secrets/minio.env
+KUSTOMIZEEOF
+fi
+
+cat >> "$TENANT_DIR/kustomization.yaml" << KUSTOMIZEEOF
 
 namePrefix: ${TENANT_NAME}-
 KUSTOMIZEEOF
@@ -142,6 +167,26 @@ IMAGE_TAG=latest
 REGISTRY=localhost:5000
 DOMAINSEOF
 
+# Create config/medusa.env (placeholder values replaced during deploy)
+cat > "$TENANT_DIR/config/medusa.env" << CONFIGEOF
+NODE_ENV=production
+STORE_CORS=http://SHOP_DOMAIN
+ADMIN_CORS=http://ADMIN_DOMAIN
+AUTH_CORS=http://SHOP_DOMAIN
+ADMIN_EMAIL=admin@TENANT_DOMAIN
+ADMIN_URL=http://ADMIN_DOMAIN
+MINIO_ENDPOINT=HOST_IP:9000
+MINIO_USE_SSL=false
+MINIO_REGION=us-east-1
+CONFIGEOF
+
+# Create config/storefront.env (placeholder values replaced during deploy)
+cat > "$TENANT_DIR/config/storefront.env" << CONFIGEOF
+NEXT_PUBLIC_BASE_URL=http://SHOP_DOMAIN
+NEXT_PUBLIC_MEDUSA_BACKEND_URL=http://TENANT-medusa:9000
+NODE_ENV=production
+CONFIGEOF
+
 # Create shared.env marker for shared tier
 if [[ "$TIER" == "shared" ]]; then
     echo "SHARED=true" > "$TENANT_DIR/config/shared.env"
@@ -151,13 +196,17 @@ fi
 echo "Generating secrets..."
 
 if [[ "$TIER" == "shared" ]]; then
-    # SHARED TIER - Uses Docker host
-    # Get Docker host IP (default to HOST_IP)
-    DOCKER_HOST="${SHARED_PG_HOST:-$(hostname -I | awk '{print $1}')}"
-    
-    DB_PASSWORD=$(openssl rand -base64 24 | tr -dc 'A-Za-z0-9!@#$%' | head -c 24)
-    REDIS_PASSWORD=$(openssl rand -base64 24 | tr -dc 'A-Za-z0-9!@#$%' | head -c 24)
-    MINIO_PASSWORD=$(openssl rand -base64 24 | tr -dc 'A-Za-z0-9!@#$%' | head -c 24)
+    # SHARED TIER - Uses shared Docker containers
+    # Use Docker bridge gateway IP - accessible from both host and K8s pods
+    DOCKER_HOST="172.17.0.1"
+
+    # Shared PostgreSQL medusa superuser password (matches Docker container)
+    DB_PASSWORD="shared_db_pass_2026"
+    # Shared Redis password (matches Docker container)
+    REDIS_PASSWORD="shared_redis_pass_2026"
+    # Generated secrets per tenant
+    SHARED_DB_PASS=$(openssl rand -base64 24 | tr -dc 'A-Za-z0-9' | head -c 24)
+    MINIO_PASSWORD=$(openssl rand -base64 24 | tr -dc 'A-Za-z0-9' | head -c 24)
     JWT_SECRET=$(openssl rand -hex 32)
     COOKIE_SECRET=$(openssl rand -hex 16)
     ADMIN_PASSWORD=$(openssl rand -base64 16 | tr -dc 'A-Za-z0-9' | head -c 12)
@@ -168,8 +217,11 @@ if [[ "$TIER" == "shared" ]]; then
 # SHARED TIER - Uses shared Docker containers
 TENANT_NAME=${TENANT_NAME}
 
-# PostgreSQL (shared Docker container)
+# PostgreSQL - medusa superuser (for migrations and runtime)
 DATABASE_URL=postgresql://medusa:${DB_PASSWORD}@${DOCKER_HOST}:5432/${TENANT_NAME}?sslmode=disable
+
+# Shared PostgreSQL - shared_user password (created by medusa-init via setup-shared-db.js)
+SHARED_DB_PASS=${SHARED_DB_PASS}
 
 # Redis (shared Docker container)
 REDIS_URL=redis://:${REDIS_PASSWORD}@${DOCKER_HOST}:6379
@@ -192,6 +244,10 @@ MEDUSA_ADMIN_PASSWORD=${ADMIN_PASSWORD}
 
 # Required for Medusa (set to false for HTTP/Traefik)
 COOKIE_SECURE=false
+
+# K8s API host for init job (shared tier pods can't reach cluster IP 10.43.0.1)
+KUBERNETES_API_HOST=172.17.0.1
+KUBERNETES_API_PORT=6443
 SECRETSEOF
 
     # storefront.env for shared tier
@@ -199,6 +255,8 @@ SECRETSEOF
 REVALIDATE_SECRET=${REVALIDATE_SECRET}
 NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY=
 NEXT_PUBLIC_STOREFRONT_URL=http://${TENANT_NAME}.localhost
+KUBERNETES_API_HOST=172.17.0.1
+KUBERNETES_API_PORT=6443
 SECRETSEOF
 
 else

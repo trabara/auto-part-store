@@ -86,9 +86,23 @@ if [[ "$IS_SHARED" == "true" ]]; then
         DOCKER_PG_HOST=$(echo "$DATABASE_URL" | sed -n 's|.*@\([^:]*\):.*|\1|p')
         DOCKER_REDIS_HOST=$(echo "$REDIS_URL" | sed -n 's|redis://:[^@]*@\([^:]*\):.*|\1|p')
         
+        # Replace database name in DATABASE_URL with tenant name
+        # Format: postgresql://user:pass@host:port/TENANT_NAME?sslmode=...
+        DATABASE_URL=$(echo "$DATABASE_URL" | sed "s|/[^?]*|/${TENANT_NAME}|")
+        
+        # Create database if it doesn't exist (for shared tier)
+        echo "Creating database '$TENANT_NAME' if not exists..."
+        PG_USER=$(echo "$DATABASE_URL" | sed -n 's|postgresql://\([^:]*\):.*|\1|p')
+        PG_PASS=$(echo "$DATABASE_URL" | sed -n 's|postgresql://[^:]*:\([^@]*\)@.*|\1|p')
+        PG_HOST=$(echo "$DATABASE_URL" | sed -n 's|.*@\([^:]*\):.*|\1|p')
+        
+        # Create database using psql (install if needed)
+        docker exec smap-shared-postgres psql -U medusa -c "CREATE DATABASE \"$TENANT_NAME\";" 2>/dev/null || echo "Database may already exist"
+        
         echo "Shared tier detected - using Docker hosts:"
         echo "  PostgreSQL: $DOCKER_PG_HOST"
         echo "  Redis: $DOCKER_REDIS_HOST"
+        echo "  Database: $TENANT_NAME"
     fi
 fi
 
@@ -112,6 +126,8 @@ if [[ "$IS_SHARED" == "true" ]]; then
     MANIFEST=$(echo "$MANIFEST" | sed "s/POSTGRES_HOST/${DOCKER_PG_HOST}/g")
     MANIFEST=$(echo "$MANIFEST" | sed "s/REDIS_HOST/${DOCKER_REDIS_HOST}/g")
     MANIFEST=$(echo "$MANIFEST" | sed "s/MINIO_HOST/${DOCKER_PG_HOST}/g")
+    # Replace DATABASE_URL with tenant-specific database name
+    MANIFEST=$(echo "$MANIFEST" | sed "s|DATABASE_URL=.*|DATABASE_URL=${DATABASE_URL}|g")
 else
     MANIFEST=$(echo "$MANIFEST" | sed "s/POSTGRES_HOST/${SERVICE_PREFIX}-postgres/g")
     MANIFEST=$(echo "$MANIFEST" | sed "s/REDIS_HOST/${SERVICE_PREFIX}-redis/g")
@@ -138,6 +154,11 @@ MANIFEST=$(echo "$MANIFEST" | sed "s/    - name: redis$/    - name: ${SERVICE_PR
 # After kustomize, these become "${SERVICE_PREFIX}-admin-redirect" etc.
 MANIFEST=$(echo "$MANIFEST" | sed "s/TENANT-api-app-redirect/${SERVICE_PREFIX}-api-app-redirect/g")
 MANIFEST=$(echo "$MANIFEST" | sed "s/TENANT-admin-redirect/${SERVICE_PREFIX}-admin-redirect/g")
+
+# Replace secret names for shared tier
+if [[ "$IS_SHARED" == "true" ]]; then
+    MANIFEST=$(echo "$MANIFEST" | sed "s/STOREFRONT_KEY_SECRET/storefront-key/g")
+fi
 
 # Replace namespace name
 MANIFEST=$(echo "$MANIFEST" | sed "s/NAMESPACE_NAME/smap-store-${TENANT_NAME}/g")

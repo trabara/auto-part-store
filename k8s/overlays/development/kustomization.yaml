@@ -4,7 +4,20 @@ kind: Kustomization
 namespace: smap-store-development
 
 resources:
-  - ../../base
+  - ../../base/namespace.yaml
+  - ../../base/postgres.yaml
+  - ../../base/redis.yaml
+  - ../../base/minio.yaml
+  - ../../base/minio-init.yaml
+  - ../../base/medusa.yaml
+  - ../../base/medusa-init.yaml
+  - ../../base/storefront.yaml
+  - ../../base/ingress.yaml
+
+labels:
+  - pairs:
+      app.kubernetes.io/part-of: smap-store
+    includeSelectors: true
 
 images:
   - name: medusa

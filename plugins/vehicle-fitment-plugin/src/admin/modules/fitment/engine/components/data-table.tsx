@@ -6,7 +6,6 @@ import {
   useDataTable,
 } from "@medusajs/ui";
 import { useTranslation } from "react-i18next";
-import { Link } from "react-router-dom";
 import { Engine } from "../../../../../modules/fitment/schema";
 import { useCrudContext } from "../../../../context/crud-context";
 import { usePaginatedQuery } from "../../../../hooks";
@@ -17,7 +16,7 @@ import { createEngineColumns } from "./data-table-columns";
 
 const EngineList = () => {
   const { t } = useTranslation();
-  const { edit } = useCrudContext<Engine>();
+  const { edit, setIsCreate } = useCrudContext<Engine>();
 
   // Use paginated query hook
   const queryConfig = usePaginatedQuery({
@@ -55,10 +54,8 @@ const EngineList = () => {
             </p>
           </div>
 
-          <Button variant="secondary" size="small" asChild>
-            <Link to="/fitments/engines/create">
-              {t("common.create")}
-            </Link>
+          <Button variant="secondary" size="small" onClick={() => setIsCreate(true)}>
+            {t("common.create")}
           </Button>
         </DataTable.Toolbar>
         <DataTable.Table />

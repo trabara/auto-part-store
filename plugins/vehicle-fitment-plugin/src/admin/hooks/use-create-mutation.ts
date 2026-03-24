@@ -57,7 +57,7 @@ export function useCreateMutation({
         mutationFn: createFn,
         onSuccess: () => {
             toast.success(successMessage);
-            invalidateKeys.forEach((key) => queryClient.invalidateQueries({ queryKey: [[key]] }));
+            invalidateKeys.forEach((key) => queryClient.invalidateQueries({ queryKey: [key] }));
         },
         onError: (error: any) => {
             toast.error(errorMessage, {

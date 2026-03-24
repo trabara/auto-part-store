@@ -30,10 +30,10 @@ import Link from "next/link"
 import { notFound } from "next/navigation"
 
 import { ModeToggle } from "@/components/mode-toogle"
-import SmapBaseLogo from "@/components/smap-base-logo"
-import SmapLogo from "@/components/smap-logo"
 import { ThemeProvider } from "@/components/theme-provider"
-import { sdk } from "@/lib/config"
+import { retrieveStoreDetails } from "@/lib/data/store"
+import Image from "next/image"
+
 import "@/styles/globals.css"
 
 const akshar = Akshar({
@@ -70,15 +70,16 @@ export default async function LocaleLayout({ children, params }: Props) {
   const isRtl = locale.startsWith("ar")
   const dir = isRtl ? "rtl" : "ltr"
 
+  const [messages, t, categories, initialCart, storeDetails] =
+    await Promise.all([
+      await getMessages(),
+      await getTranslations({ locale, namespace: "layout" }),
+      await listCategories().catch(() => []),
+      await retrieveCart().catch(() => null),
+      await retrieveStoreDetails().catch(() => null),
+    ])
 
-  const [messages, t, categories, initialCart, locals] = await Promise.all([
-    await getMessages(),
-    await getTranslations({ locale, namespace: "layout" }),
-    await listCategories().catch(() => []),
-    await retrieveCart().catch(() => null),
-    await sdk.store.locale.list().then((res) => res.locales).catch(() => []),
-  ])
-
+  console.log("Store Details:", storeDetails) // Debug log for store details
   return (
     <ThemeProvider
       attribute="class"
@@ -146,7 +147,12 @@ export default async function LocaleLayout({ children, params }: Props) {
                         </CategoryMenuSheet>
 
                         <Link href="/">
-                          <SmapLogo className="w-32 text-primary" />
+                          <Image
+                            width={128}
+                            height={32}
+                            src={storeDetails?.logo_url || "/default-logo.png"}
+                            alt="Store Logo"
+                          />
                         </Link>
 
                         <FitmentBadge className="hidden xl:inline-flex">
@@ -177,9 +183,10 @@ export default async function LocaleLayout({ children, params }: Props) {
                             </div>
                           </Button>
 
-
-                          <CartSheet className="flex-1 overflow-hidden" direction={isRtl ? "left" : "right"} />
-
+                          <CartSheet
+                            className="flex-1 overflow-hidden"
+                            direction={isRtl ? "left" : "right"}
+                          />
                         </div>
                       </div>
                     </div>
@@ -187,7 +194,10 @@ export default async function LocaleLayout({ children, params }: Props) {
 
                   <div className="bg-zinc-100 dark:bg-zinc-950 border-y border-b-accent">
                     <div className="snap-container py-1">
-                      <CategoryMenuSheet categories={categories} direction={isRtl ? "right" : "left"}>
+                      <CategoryMenuSheet
+                        categories={categories}
+                        direction={isRtl ? "right" : "left"}
+                      >
                         <Button
                           variant="ghost"
                           className="hidden xl:inline-flex hover:bg-accent-foreground/10"
@@ -235,9 +245,17 @@ export default async function LocaleLayout({ children, params }: Props) {
               <footer className="border-t border-t-accent-foreground/10 bg-zinc-100 dark:bg-zinc-950">
                 <div className="snap-container py-6 text-primary">
                   <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 lg:gap-8">
-                    <Link href="/">
-                      <SmapBaseLogo className="w-24 xl:w-48 text-primary" />
-                    </Link>
+                    {storeDetails?.logo_url && (
+                      <Link href="/">
+                        <Image
+                          width={128}
+                          height={64}
+                          src={storeDetails?.logo_url}
+                          alt="Store Logo"
+                        />
+                      </Link>
+                    )}
+
 
                     <div>
                       <h3 className="font-semibold mb-2">
@@ -274,34 +292,64 @@ export default async function LocaleLayout({ children, params }: Props) {
                     <div>
                       <h3 className="font-semibold mb-2">{t("followUs")}</h3>
                       <ul className="space-y-1 text-sm">
-                        <li>
-                          <Link href="https://facebook.com">Facebook</Link>
-                        </li>
-                        <li>
-                          <Link href="https://twitter.com">Twitter</Link>
-                        </li>
-                        <li>
-                          <Link href="https://instagram.com">Instagram</Link>
-                        </li>
+                        {Object.keys(storeDetails?.social_links ?? {}).map((key) => {
+                          return <li key={key}>
+                            <Link href={storeDetails?.social_links?.[key] || "#"}>
+                              {key}
+                            </Link>
+                          </li>
+                        })}
                       </ul>
+
+                      {storeDetails?.contact_emails?.length ? (
+                        <div className="mt-3 text-sm">
+                          {storeDetails.contact_emails.map((email) => (
+                            <div key={email}>
+                              <a href={`mailto:${email}`}>{email}</a>
+                            </div>
+                          ))}
+                        </div>
+                      ) : null}
+
+                      {storeDetails?.contact_phone_numbers?.length ? (
+                        <div className="mt-1 text-sm">
+                          {storeDetails.contact_phone_numbers.map((phone) => (
+                            <div key={phone}>{phone}</div>
+                          ))}
+                        </div>
+                      ) : null}
+                      {storeDetails?.address ? (
+                        <div className="mt-1 text-sm text-muted-foreground">
+                          {storeDetails.address}
+                        </div>
+                      ) : null}
+
                     </div>
-                    <div>
-                      <h3 className="font-semibold mb-2">{t("ourLocation")}</h3>
-                      <iframe
-                        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d6384.154704524563!2d10.173077315318264!3d36.8064819799226!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0:0x5a4b4a5a7a4b5a4b!2sTunisia!5e0!3m2!1sen!2stn!4v1600000000000"
-                        width="100%"
-                        height="120"
-                        style={{ border: 0 }}
-                        allowFullScreen
-                        loading="lazy"
-                        referrerPolicy="no-referrer-when-downgrade"
-                        className="rounded-md"
-                        title="Store Location"
-                      />
-                    </div>
+
+                    {storeDetails?.map_url && (
+                      <div>
+                        <h3 className="font-semibold mb-2">{t("ourLocation")}</h3>
+
+                        <iframe
+                          src={storeDetails.map_url}
+                          width="100%"
+                          height="120"
+                          style={{ border: 0 }}
+                          allowFullScreen
+                          loading="lazy"
+                          referrerPolicy="no-referrer-when-downgrade"
+                          className="rounded-md"
+                          title="Store Location"
+                        />
+
+                      </div>
+                    )}
                   </div>
                   <div className="text-center text-xs mt-4">
-                    {t("copyright", { year: new Date().getFullYear() })}
+                    {t("copyright", {
+                      year: new Date().getFullYear(),
+                      name: storeDetails?.name ?? "Store",
+                    })}
                   </div>
                 </div>
               </footer>

@@ -37,10 +37,10 @@ USER medusa
 COPY --from=builder --chown=medusa:nodejs /app/apps/medusa/.medusa .medusa
 COPY --from=builder --chown=medusa:nodejs /app/apps/medusa/start.sh .medusa/server/start.sh
 COPY --from=builder --chown=medusa:nodejs /app/node_modules .medusa/server/node_modules
-COPY --from=builder --chown=medusa:nodejs /app/plugins/medusa-analytics-plugin/.medusa .medusa/server/plugins/medusa-analytics-plugin/.medusa
-COPY --from=builder --chown=medusa:nodejs /app/plugins/medusa-analytics-plugin/package.json .medusa/server/plugins/medusa-analytics-plugin/package.json
-COPY --from=builder --chown=medusa:nodejs /app/plugins/vehicle-fitment-plugin/.medusa .medusa/server/plugins/vehicle-fitment-plugin/.medusa
-COPY --from=builder --chown=medusa:nodejs /app/plugins/vehicle-fitment-plugin/package.json .medusa/server/plugins/vehicle-fitment-plugin/package.json
+COPY --from=builder --chown=medusa:nodejs /app/packages/medusa-analytics-plugin/.medusa .medusa/server/packages/medusa-analytics-plugin/.medusa
+COPY --from=builder --chown=medusa:nodejs /app/packages/medusa-analytics-plugin/package.json .medusa/server/packages/medusa-analytics-plugin/package.json
+COPY --from=builder --chown=medusa:nodejs /app/packages/vehicle-fitment-plugin/.medusa .medusa/server/packages/vehicle-fitment-plugin/.medusa
+COPY --from=builder --chown=medusa:nodejs /app/packages/vehicle-fitment-plugin/package.json .medusa/server/packages/vehicle-fitment-plugin/package.json
 COPY --from=builder --chown=medusa:nodejs /app/packages/common/dist .medusa/server/packages/common/dist
 COPY --from=builder --chown=medusa:nodejs /app/packages/common/package.json .medusa/server/packages/common/package.json
 

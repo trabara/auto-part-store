@@ -41,6 +41,9 @@ services:
       MINIO_ROOT_USER: ${MINIO_ACCESS_KEY:-minioadmin}
       MINIO_ROOT_PASSWORD: ${MINIO_SECRET_KEY:-minioadmin}
     command: server /data --console-address ":9001" --address ":9002"
+    ports:
+      - "9001:9001" # Console
+      - "9002:9002" # API
     volumes:
       - minio_data:/data
     networks:
@@ -62,3 +65,20 @@ services:
       interval: 30s
       timeout: 20s
       retries: 3
+
+  minio-policy:
+    image: minio/mc:latest
+    container_name: medusa_minio_policy
+    restart: "no"
+    depends_on:
+      minio:
+        condition: service_healthy
+    entrypoint: >
+      sh -c "
+        sleep 5 &&
+        mc alias set local http://minio:9002 ${MINIO_ACCESS_KEY:-minioadmin} ${MINIO_SECRET_KEY:-minioadmin} &&
+        mc mb ${MINIO_BUCKET:-medusa-v2} --ignore-existing &&
+        mc policy set public ${MINIO_BUCKET:-medusa-v2}
+      "
+    networks:
+      - medusa_network

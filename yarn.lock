@@ -5,9 +5,9 @@ __metadata:
   version: 8
   cacheKey: 10c0
 
-"@agilo/medusa-analytics-plugin@workspace:*, @agilo/medusa-analytics-plugin@workspace:plugins/medusa-analytics-plugin":
+"@agilo/medusa-analytics-plugin@workspace:*, @agilo/medusa-analytics-plugin@workspace:packages/medusa-analytics-plugin":
   version: 0.0.0-use.local
-  resolution: "@agilo/medusa-analytics-plugin@workspace:plugins/medusa-analytics-plugin"
+  resolution: "@agilo/medusa-analytics-plugin@workspace:packages/medusa-analytics-plugin"
   dependencies:
     "@medusajs/admin-sdk": "npm:2.13.1"
     "@medusajs/cli": "npm:2.13.1"
@@ -10027,9 +10027,9 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@repo/vehicle-fitment-plugin@workspace:*, @repo/vehicle-fitment-plugin@workspace:plugins/vehicle-fitment-plugin":
+"@repo/vehicle-fitment-plugin@workspace:*, @repo/vehicle-fitment-plugin@workspace:packages/vehicle-fitment-plugin":
   version: 0.0.0-use.local
-  resolution: "@repo/vehicle-fitment-plugin@workspace:plugins/vehicle-fitment-plugin"
+  resolution: "@repo/vehicle-fitment-plugin@workspace:packages/vehicle-fitment-plugin"
   dependencies:
     "@codemirror/lang-html": "npm:^6.4.11"
     "@hookform/resolvers": "npm:^5.2.2"

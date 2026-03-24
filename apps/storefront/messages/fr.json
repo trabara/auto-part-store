@@ -19,7 +19,7 @@
     "press": "Presse",
     "followUs": "Suivez-nous",
     "ourLocation": "Notre emplacement",
-    "copyright": "© {year} Votre Entreprise. Tous droits réservés.",
+    "copyright": "© {year} {name}. Tous droits réservés.",
     "settings": "PARAMÈTRES"
   },
   "localeSwitcher": {

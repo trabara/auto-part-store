@@ -19,7 +19,7 @@
     "press": "الصحافة",
     "followUs": "تابعنا",
     "ourLocation": "موقعنا",
-    "copyright": "© {year} شركتكم. جميع الحقوق محفوظة.",
+    "copyright": "© {year} {name}. جميع الحقوق محفوظة.",
     "settings": "الإعدادات"
   },
   "localeSwitcher": {

@@ -19,7 +19,7 @@
     "press": "Press",
     "followUs": "Follow Us",
     "ourLocation": "Our Location",
-    "copyright": "© {year} Your Company. All rights reserved.",
+    "copyright": "© {year} {name}. All rights reserved.",
     "settings": "SETTINGS"
   },
   "localeSwitcher": {

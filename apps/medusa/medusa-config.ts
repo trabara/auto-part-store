@@ -1,4 +1,9 @@
-import { ContainerRegistrationKeys, defineConfig, loadEnv, Modules } from "@medusajs/framework/utils";
+import {
+  ContainerRegistrationKeys,
+  defineConfig,
+  loadEnv,
+  Modules,
+} from "@medusajs/framework/utils";
 
 // Load environment variables based on the current NODE_ENV
 loadEnv(process.env.NODE_ENV || "development", process.cwd());
@@ -32,8 +37,8 @@ export default defineConfig({
               redisUrl: process.env.REDIS_URL,
               prefix: "medusa-cache",
             },
-          }
-        ]
+          },
+        ],
       },
     },
     {
@@ -109,7 +114,7 @@ export default defineConfig({
     },
     {
       resolve: "@medusajs/medusa/translation",
-    }
+    },
   ],
   featureFlags: {
     translation: true,
@@ -126,6 +131,6 @@ export default defineConfig({
       options: {
         // Plugin-specific options can be added here
       },
-    },
+    }
   ],
 });

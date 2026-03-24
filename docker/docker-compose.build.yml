@@ -1,0 +1,96 @@
+services:
+  medusa:
+    build:
+      context: ..
+      dockerfile: ./apps/medusa/Dockerfile
+      network: host
+    container_name: medusa_backend
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+    ports:
+      - "5173:5173"
+    environment:
+      - ADMIN_CORS=${ADMIN_CORS}
+      - AUTH_CORS=${AUTH_CORS}
+      - COOKIE_SECRET=${COOKIE_SECRET}
+      - DATABASE_URL=${DATABASE_URL}
+      - JWT_SECRET=${JWT_SECRET}
+      - MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY}
+      - MINIO_BUCKET=${MINIO_BUCKET}
+      - MINIO_ENDPOINT=${MINIO_ENDPOINT}
+      - MINIO_SECRET_KEY=${MINIO_SECRET_KEY}
+      - MINIO_USE_SSL=false
+      - NODE_ENV=production
+      - REDIS_URL=${REDIS_URL}
+    networks:
+      - medusa_network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.services.medusa-backend.loadbalancer.server.port=9000"
+      - "traefik.http.routers.medusa-backend.rule=Host(`api.localhost`)"
+      - "traefik.http.routers.medusa-backend.entrypoints=web"
+      - "traefik.http.routers.medusa-backend.service=medusa-backend"
+      - "traefik.http.middlewares.medusa-backend-headers.headers.customrequestheaders.X-Forwarded-Proto=http"
+      - "traefik.http.routers.medusa-backend.middlewares=medusa-backend-headers"
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "wget",
+          "--quiet",
+          "--tries=1",
+          "--spider",
+          "http://localhost:9000/health",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  storefront:
+    build:
+      context: ..
+      dockerfile: ./apps/storefront/Dockerfile
+    container_name: medusa_storefront
+    restart: unless-stopped
+    depends_on:
+      medusa:
+        condition: service_healthy
+    environment:
+      - NEXT_PUBLIC_BASE_URL=${STORE_BASE_URL}
+      - NEXT_PUBLIC_MEDUSA_BACKEND_URL=${BACKEND_URL}
+      - NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY=${PUBLISHABLE_KEY}
+      - STORAGE_HOST=${MINIO_API_HOST}
+      - NODE_ENV=production
+      - REVALIDATE_SECRET=${REVALIDATE_SECRET}
+    networks:
+      - medusa_network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.services.storefront.loadbalancer.server.port=8000"
+      - "traefik.http.routers.storefront.rule=Host(`shop.localhost`) || Host(`localhost`)"
+      - "traefik.http.routers.storefront.entrypoints=web"
+      - "traefik.http.routers.storefront.service=storefront"
+      - "traefik.http.routers.storefront.priority=1"
+      - "traefik.http.middlewares.storefront-headers.headers.customrequestheaders.X-Forwarded-Proto=http"
+      - "traefik.http.routers.storefront.middlewares=storefront-headers"
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "wget",
+          "--quiet",
+          "--tries=1",
+          "--spider",
+          "http://localhost:8000",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s

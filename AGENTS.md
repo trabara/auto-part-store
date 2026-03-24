@@ -10,34 +10,37 @@ Turborepo monorepo for auto-parts e-commerce. Yarn 4 workspaces, Node >= 20.
 | `storefront`                     | `apps/storefront`                 | Next.js 16, React 19, Tailwind CSS v4 |
 | `@repo/common`                   | `packages/common`                 | Shared controllers, services          |
 | `@repo/ui`                       | `packages/ui`                     | UI components (shadcn/ui)             |
+<<<<<<< Updated upstream
 | `@repo/vehicle-fitment-plugin`   | `plugins/vehicle-fitment-plugin`  | Fitment data                          |
+=======
+| `@repo/vehicle-fitment-plugin`   | `plugins/vehicle-fitment-plugin`  | Fitment data, API routes, workflows   |
+>>>>>>> Stashed changes
 | `@agilo/medusa-analytics-plugin` | `plugins/medusa-analytics-plugin` | Analytics                             |
+
+All custom backend logic (API routes, modules, workflows, subscribers) lives in **plugins**, not in `apps/medusa`.
 
 ## Build/Lint/Test Commands
 
 ```bash
 # Monorepo
-yarn build           # turbo run build
-yarn dev             # turbo run dev
-yarn lint            # turbo run lint (storefront only)
-yarn format          # prettier --write "**/*.{ts,tsx,md}"
-yarn check-types     # turbo run check-types
-yarn clean           # remove node_modules, .turbo, .medusa, .next
+yarn build / yarn dev / yarn lint / yarn check-types / yarn format / yarn clean
 
 # Storefront
-yarn workspace storefront dev        # next dev (http://localhost:3000)
+yarn workspace storefront dev         # next dev (http://localhost:3000)
 yarn workspace storefront lint        # eslint
-yarn workspace storefront check-types # tsc
+yarn workspace storefront check-types # tsc --noEmit
 
 # Medusa
+<<<<<<< Updated upstream
 yarn workspace medusa dev            # medusa develop (http://localhost:9000)
 yarn workspace medusa seed           # run seed script
+=======
+yarn workspace medusa dev             # medusa develop (http://localhost:9000)
+yarn workspace medusa seed:dev        # run seed script
+>>>>>>> Stashed changes
 
 # Docker
-yarn docker:build    # Build containers
-yarn docker:up       # Start production
-yarn docker:dev      # Start dev environment
-yarn docker:down     # Stop containers
+yarn docker:build / yarn docker:up / yarn docker:down / yarn docker:logs
 ```
 
 Services: `api.localhost` (Medusa), `shop.localhost` (Storefront), `minio.localhost` (MinIO).
@@ -45,18 +48,8 @@ Services: `api.localhost` (Medusa), `shop.localhost` (Storefront), `minio.localh
 ### Running Tests (Medusa)
 
 ```bash
-# HTTP integration tests
 yarn workspace medusa test:integration:http -- --testPathPattern="health"
-
-# Module integration tests
 yarn workspace medusa test:integration:modules -- --testPathPattern="cart"
-
-# Unit tests
-yarn workspace medusa test:unit -- --testPathPattern="make.unit"
-
-# Running a single test file:
-yarn workspace medusa test:integration:http -- --testPathPattern="health.spec"
-yarn workspace medusa test:integration:modules -- --testPathPattern="cart/confirm"
 yarn workspace medusa test:unit -- --testPathPattern="make.unit"
 ```
 
@@ -64,18 +57,32 @@ Test locations: HTTP: `apps/medusa/integration-tests/http/*.spec.ts`, Modules: `
 
 ## Code Style
 
+<<<<<<< Updated upstream
 **Storefront**: No semicolons, double quotes, 2-space indent  
 **Medusa/Backend**: Semicolons, single quotes, 4-space indent
+=======
+### Formatting
 
-### TypeScript
+| Scope          | Semicolons | Quotes | Indent  |
+| -------------- | ---------- | ------ | ------- |
+| Storefront     | No         | Double | 2-space |
+| Medusa/Plugins | Yes        | Single | 4-space |
+>>>>>>> Stashed changes
 
-- **Storefront**: Strict, `noUncheckedIndexedAccess`, ES2022, path alias `@/*` → `./src/*`
-- **Medusa/Plugins**: ES2021, Node16, `strictNullChecks`, decorators enabled
+Storefront has `.prettierrc`; backend has no enforced formatter — follow the conventions above.
 
+### TypeScript & Imports
+
+<<<<<<< Updated upstream
 ### Import Conventions
 
 **Storefront**: `@/` alias, order: `next/*, react` → `@/lib/*` → `@/modules/*` → `@/repo/*` → third-party  
 **Medusa/Plugins**: Relative imports; `@medusajs/framework/*` for framework; `@repo/common` for shared
+=======
+- **Storefront**: Strict, `noUncheckedIndexedAccess`, ES2022, path alias `@/*` → `./src/*`. Imports: use `@/` alias, order: `next/*`, `react` → `@/lib/*` → `@/modules/*` → `@/repo/*` → third-party
+- **Medusa/Plugins**: ES2021, Node16, `strictNullChecks`, decorators. Imports: relative; `@medusajs/framework/*` for framework; `@repo/common` for shared
+- **@repo/ui**: `import { Button } from "@repo/ui/components/button"`, `import { cn } from "@repo/ui/lib/utils"`
+>>>>>>> Stashed changes
 
 ### Naming Conventions
 
@@ -92,46 +99,68 @@ Test locations: HTTP: `apps/medusa/integration-tests/http/*.spec.ts`, Modules: `
 
 ## React / Next.js Patterns
 
+<<<<<<< Updated upstream
 - Routes under `[locale]/`. Locales: `en`, `fr`, `ar` (RTL)
 - Pages: `async` server components
 - `"use server"` for data modules in `src/lib/data/*.ts`
 - State: Zustand `createStore` from `zustand/vanilla`
 - UI: `@repo/ui` — CVA + Radix + `cn()` utility
+=======
+- Routes under `[locale]/`. Locales: `en`, `fr`, `ar` (RTL). Pages: `async` server components
+- `"use server"` for data modules in `src/lib/data/*.ts`. State: Zustand `createStore` from `zustand/vanilla`
+- UI: `@repo/ui` — CVA + Radix + `cn()` utility. Forms: `react-hook-form` + `zod` via `@hookform/resolvers`
+>>>>>>> Stashed changes
 - Route structure: `src/app/[locale]/page.tsx`, `src/app/[locale]/cart/page.tsx`, `src/app/[locale]/p/[handle]/page.tsx`
 
 ## Medusa Backend Patterns
 
 ```typescript
-// API Routes: src/api/{store|admin}/{resource}/route.ts
-export async function GET(req: MedusaRequest, res: MedusaResponse) {
-  res.sendStatus(200);
+// API Routes: thin handlers delegating to controllers
+export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
+  const controller = new MakeController(req, res);
+  await controller.list();
 }
 
-// Controllers: extend BaseController
-export class ProductController extends BaseController {
-  protected async execute() {
-    return this.success({});
+// Controllers: extend BaseController from @repo/common
+export class MakeController extends BaseController {
+  async list(): Promise<void> {
+    await this.execute(async () => {
+      const query = this.req.scope.resolve(ContainerRegistrationKeys.QUERY);
+      const { data, metadata } = await query.graph({...});
+      this.success({ data, metadata });
+    });
   }
 }
 
-// Services: MedusaService([Model1, Model2])
+// Services: MedusaService([Model1, Model2]) facade pattern
 export const MY_MODULE = Module("my-module", { service: MyService });
 
-// Workflows
-const myStep = createStep("my-step", async (input, context) => {
+// Workflows + Steps with compensation
+const myStep = createStep("my-step", async (input, { container }) => {
   return new StepResponse(result, compensationData);
-});
-export const myWorkflow = createWorkflow("my-workflow", (input) =>
-  myStep(input),
-);
+}, async (comp) => { /* rollback */ });
+export const myWorkflow = createWorkflow("my-workflow", (input) => myStep(input));
 
-// Validation: req.validatedBody (Zod via middleware)
+// Middleware: registered in api/middlewares.ts
+export const storeMakeMiddlewares: MiddlewareRoute[] = [{
+  matcher: "/store/makes", method: "GET",
+  middlewares: [validateAndTransformQuery(Schema, { defaults: [...], isList: true })],
+}]
+
+// Module links
+defineLink(
+  { linkable: ProductModule.linkable.product, isList: true, deleteCascade: true },
+  { linkable: FitmentModule.linkable.fitment, isList: true, deleteCascade: true },
+);
 ```
 
-## Error Handling
+## Validation & Error Handling
 
-**Backend**: Throw `new Error("Entity not found")` — handler matches "not found" for 404  
-**Storefront**: `medusaError(error)` from `src/lib/util/error.ts`. Chain `.catch(medusaError)`
+Use `@medusajs/framework/zod`. Schemas in `schema.ts` per module. Access validated data via `req.validatedBody` / `req.validatedQuery`.
+
+**Backend**: Throw `new Error("Entity not found")` — handler matches "not found" for 404. `ApiErrorHandler` from `@repo/common` maps errors to status codes (404, 400, 401, 403, 500). API returns `{ ...data }` not raw arrays; use `this.success(data)` in controllers.
+
+**Storefront**: `medusaError(error)` from `src/lib/util/error.ts`. Chain `.catch(medusaError)`.
 
 ## @repo/common Exports
 
@@ -139,8 +168,7 @@ export const myWorkflow = createWorkflow("my-workflow", (input) =>
 
 ## Environment
 
-`.env` files: `apps/medusa/.env`, `apps/storefront/.env`  
-Key vars: `DATABASE_URL`, `REDIS_URL`, `STORE_CORS`, `ADMIN_CORS`, `JWT_SECRET`, `COOKIE_SECRET`, `MINIO_*`, `MEDUSA_BACKEND_URL`
+`.env` files: `apps/medusa/.env`, `apps/storefront/.env`. Key vars: `DATABASE_URL`, `REDIS_URL`, `STORE_CORS`, `ADMIN_CORS`, `JWT_SECRET`, `COOKIE_SECRET`, `MINIO_*`, `MEDUSA_BACKEND_URL`
 
 ## Agent Skills (REQUIRED)
 

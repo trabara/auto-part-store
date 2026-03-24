@@ -5,6 +5,8 @@ import { SortOptions } from "@/lib/types"
 import { HttpTypes } from "@medusajs/types"
 import { retreiveFitment } from "./fitments"
 import { getRegion } from "./regions"
+import { getLocaleHeader } from "./cookies"
+import { ClientHeaders } from "@medusajs/js-sdk"
 
 export type ProductOptionValueFilter = {
   option_id: string
@@ -134,6 +136,10 @@ export async function listProducts({
     })
   }
 
+  const headers = {
+    ...(await getLocaleHeader()),
+  } as ClientHeaders
+
   const { products, metadata, price_range, options } = await sdk.client.fetch<
     HttpTypes.StoreProductListResponse & {
       metadata?: { count?: number }
@@ -142,6 +148,7 @@ export async function listProducts({
     }
   >(`/store/products/v2`, {
     method: "GET",
+    headers,
     query,
   })
 
@@ -185,10 +192,15 @@ export async function getProductByHandle(
   const region = await getRegion("tn")
   if (!region) return null
 
+  const headers = {
+    ...(await getLocaleHeader()),
+  } as ClientHeaders
+
   const { products } = await sdk.client.fetch<{
     products: HttpTypes.StoreProduct[]
   }>("/store/products", {
     method: "GET",
+    headers,
     query: {
       handle,
       region_id: region.id,
@@ -226,10 +238,15 @@ export async function getRelatedProducts(
 
   const fitment = await retreiveFitment()
 
+  const headers = {
+    ...(await getLocaleHeader()),
+  } as ClientHeaders
+
   const { products } = await sdk.client.fetch<{
     products: HttpTypes.StoreProduct[]
   }>("/store/products/related", {
     method: "GET",
+    headers,
     query: {
       product_id: product.id,
       limit,
@@ -268,10 +285,15 @@ export async function searchProducts(
 
   const fitment = await retreiveFitment()
 
+  const headers = {
+    ...(await getLocaleHeader()),
+  } as ClientHeaders
+
   const { products } = await sdk.client.fetch<{ products: SearchSuggestion[] }>(
     "/store/products/search",
     {
       method: "GET",
+      headers,
       query: {
         q: q.trim(),
         limit,
@@ -286,10 +308,17 @@ export async function searchProducts(
 }
 
 export const getProductTypes = async () => {
+  
+  const headers = {
+    ...(await getLocaleHeader()),
+  } as ClientHeaders
+
   const { product_types } =
     await sdk.client.fetch<HttpTypes.StoreProductTypeListResponse>(
       "/store/product-types",
       {
+        method: "GET",
+        headers,
         query: {
           limit: 100,
         },
@@ -300,10 +329,16 @@ export const getProductTypes = async () => {
 }
 
 export const getProductTags = async () => {
+  const headers = {
+    ...(await getLocaleHeader()),
+  } as ClientHeaders
+
   const { product_tags } =
     await sdk.client.fetch<HttpTypes.StoreProductTagListResponse>(
       "/store/product-tags",
       {
+        method: "GET",
+        headers,
         query: {
           limit: 100,
         },

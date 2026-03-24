@@ -34,26 +34,26 @@ export default function AdvancedSearch({ className }: { className?: string }) {
   return (
     <div className={cn("flex flex-col flex-1 justify-between", className)}>
       <Tabs defaultValue="model" orientation="horizontal">
-        <TabsList variant="default">
+        <TabsList variant="default" className="rtl:self-end">
           <TabsTrigger value="model">{t("tabModel")}</TabsTrigger>
           <TabsTrigger value="vin">{t("tabVin")}</TabsTrigger>
           <TabsTrigger value="plate">{t("tabPlate")}</TabsTrigger>
         </TabsList>
         <TabsContent value="model" className="mt-2">
-          <h5 className="font-medium mb-4">{t("searchByModel")}</h5>
+          <h5 className="font-medium mb-4 rtl:text-right">{t("searchByModel")}</h5>
           <form
-            className="flex flex-col gap-4 xl:items-center xl:flex-row"
+            className="flex flex-col gap-4 xl:items-center xl:flex-row rtl:xl:flex-row-reverse"
             onSubmit={onSubmit}
           >
-            <FitmentForm form={fitmentForm} className="flex-1" />
-            <Button type="submit" className="w-full xl:w-auto self-end">
+            <FitmentForm form={fitmentForm} className="flex-1 rtl:xl:flex-row-reverse xl:flex-row xl:gap-4 xl:space-y-0" />
+            <Button type="submit" className="w-full xl:w-auto self-start flex flex-row-reverse">
               {t("go")}
-              <ArrowRight className="ml-2" />
+              <ArrowRight className="ml-2 rtl:rotate-180" />
             </Button>
           </form>
         </TabsContent>
         <TabsContent value="vin" className="mt-2">
-          <h5 className="font-medium mb-4">{t("searchByVin")}</h5>
+          <h5 className="font-medium mb-4 rtl:text-right">{t("searchByVin")}</h5>
           <Field>
             <FieldContent>
               <Input
@@ -66,7 +66,7 @@ export default function AdvancedSearch({ className }: { className?: string }) {
           </Field>
         </TabsContent>
         <TabsContent value="plate" className="mt-2">
-          <h5 className="font-medium mb-4">{t("searchByPlate")}</h5>
+          <h5 className="font-medium mb-4 rtl:text-right">{t("searchByPlate")}</h5>
           <Field>
             <FieldContent>
               <Input

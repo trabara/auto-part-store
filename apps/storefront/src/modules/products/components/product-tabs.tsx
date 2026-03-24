@@ -133,28 +133,28 @@ function FitmentTab({ fitments }: { fitments: ProductFitment[] }) {
 
   return (
     <div className="py-2 overflow-x-auto">
-      <table className="w-full text-sm border-collapse min-w-[600px]">
+      <table className="w-full text-sm border-collapse min-w-150">
         <thead>
           <tr className="border-b border-border bg-accent/30">
-            <th className="text-left py-2 px-3 font-medium text-muted-foreground text-xs uppercase tracking-wider">
+            <th className=" py-2 px-3 font-medium text-muted-foreground text-xs uppercase tracking-wider">
               {t("tabs.make")}
             </th>
-            <th className="text-left py-2 px-3 font-medium text-muted-foreground text-xs uppercase tracking-wider">
+            <th className=" py-2 px-3 font-medium text-muted-foreground text-xs uppercase tracking-wider">
               {t("tabs.model")}
             </th>
-            <th className="text-left py-2 px-3 font-medium text-muted-foreground text-xs uppercase tracking-wider">
+            <th className=" py-2 px-3 font-medium text-muted-foreground text-xs uppercase tracking-wider">
               {t("tabs.years")}
             </th>
-            <th className="text-left py-2 px-3 font-medium text-muted-foreground text-xs uppercase tracking-wider">
+            <th className=" py-2 px-3 font-medium text-muted-foreground text-xs uppercase tracking-wider">
               {t("tabs.body")}
             </th>
-            <th className="text-left py-2 px-3 font-medium text-muted-foreground text-xs uppercase tracking-wider">
+            <th className=" py-2 px-3 font-medium text-muted-foreground text-xs uppercase tracking-wider">
               {t("tabs.engine")}
             </th>
-            <th className="text-left py-2 px-3 font-medium text-muted-foreground text-xs uppercase tracking-wider">
+            <th className=" py-2 px-3 font-medium text-muted-foreground text-xs uppercase tracking-wider">
               {t("tabs.drive")}
             </th>
-            <th className="text-left py-2 px-3 font-medium text-muted-foreground text-xs uppercase tracking-wider">
+            <th className=" py-2 px-3 font-medium text-muted-foreground text-xs uppercase tracking-wider">
               {t("tabs.trans")}
             </th>
           </tr>

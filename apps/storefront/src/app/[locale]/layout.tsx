@@ -2,9 +2,7 @@ import { LocaleSwitcher } from "@/components/locale-switcher"
 import { routing } from "@/i18n/routing"
 import { retrieveCart } from "@/lib/data/cart"
 import { listCategories } from "@/lib/data/categories"
-import { getCartId } from "@/lib/data/cookies"
-import ShoppingCartButton from "@/modules/cart/components/cart-button"
-import CartList from "@/modules/cart/components/cart-sheet"
+import CartSheet from "@/modules/cart/components/cart-sheet"
 import { CartProvider } from "@/modules/cart/components/provider"
 import { CategoryMenuSheet } from "@/modules/categories/components/category-menu-sheet"
 import FitmentBadge from "@/modules/fitment/components/fitment-badge"
@@ -35,6 +33,7 @@ import { ModeToggle } from "@/components/mode-toogle"
 import SmapBaseLogo from "@/components/smap-base-logo"
 import SmapLogo from "@/components/smap-logo"
 import { ThemeProvider } from "@/components/theme-provider"
+import { sdk } from "@/lib/config"
 import "@/styles/globals.css"
 
 const akshar = Akshar({
@@ -68,15 +67,17 @@ export default async function LocaleLayout({ children, params }: Props) {
     notFound()
   }
 
-  const isRtl = locale === "ar"
+  const isRtl = locale.startsWith("ar")
   const dir = isRtl ? "rtl" : "ltr"
 
-  const messages = await getMessages()
-  const t = await getTranslations({ locale, namespace: "layout" })
 
-  const categories = await listCategories().catch(() => [])
-  const cartId = await getCartId().catch(() => undefined)
-  const initialCart = cartId ? await retrieveCart(cartId) : null
+  const [messages, t, categories, initialCart, locals] = await Promise.all([
+    await getMessages(),
+    await getTranslations({ locale, namespace: "layout" }),
+    await listCategories().catch(() => []),
+    await retrieveCart().catch(() => null),
+    await sdk.store.locale.list().then((res) => res.locales).catch(() => []),
+  ])
 
   return (
     <ThemeProvider
@@ -168,7 +169,7 @@ export default async function LocaleLayout({ children, params }: Props) {
                             className="hidden xl:flex hover:bg-accent/50 cursor-pointer"
                           >
                             <User />
-                            <div className="flex-col text-left ml-2 hidden xl:flex">
+                            <div className="flex-col  ml-2 hidden xl:flex">
                               <div className="">{t("account")}</div>
                               <div className="text-xs">
                                 {t("loginRegister")}
@@ -176,22 +177,9 @@ export default async function LocaleLayout({ children, params }: Props) {
                             </div>
                           </Button>
 
-                          <Sheet>
-                            <SheetTrigger asChild>
-                              <ShoppingCartButton variant="ghost" />
-                            </SheetTrigger>
-                            <SheetContent
-                              side="right"
-                              className="flex flex-col w-full sm:max-w-sm h-full"
-                            >
-                              <SheetHeader className="px-4 py-3 border-b shrink-0">
-                                <SheetTitle className="text-xl font-bold border-none">
-                                  {t("shoppingCart")}
-                                </SheetTitle>
-                              </SheetHeader>
-                              <CartList className="flex-1 overflow-hidden" />
-                            </SheetContent>
-                          </Sheet>
+
+                          <CartSheet className="flex-1 overflow-hidden" direction={isRtl ? "left" : "right"} />
+
                         </div>
                       </div>
                     </div>
@@ -199,7 +187,7 @@ export default async function LocaleLayout({ children, params }: Props) {
 
                   <div className="bg-zinc-100 dark:bg-zinc-950 border-y border-b-accent">
                     <div className="snap-container py-1">
-                      <CategoryMenuSheet categories={categories}>
+                      <CategoryMenuSheet categories={categories} direction={isRtl ? "right" : "left"}>
                         <Button
                           variant="ghost"
                           className="hidden xl:inline-flex hover:bg-accent-foreground/10"

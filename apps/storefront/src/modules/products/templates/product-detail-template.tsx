@@ -170,11 +170,11 @@ export function ProductDetailTemplate({
                 {product.subtitle}
               </p>
             )}
-            <h1 className="text-left! text-2xl md:text-3xl font-bold leading-tight tracking-tight text-foreground">
+            <h1 className="text-2xl md:text-3xl font-bold leading-tight tracking-tight text-foreground">
               {product.title}
             </h1>
             {selectedVariant?.sku && (
-              <p className="!mt-0 text-xs text-muted-foreground font-mono tracking-wider">
+              <p className="mt-0! text-xs text-muted-foreground font-mono tracking-wider">
                 SKU: {selectedVariant.sku}
               </p>
             )}

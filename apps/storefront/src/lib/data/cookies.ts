@@ -1,5 +1,7 @@
+'use server'
+
 import { cookies as nextCookies } from "next/headers"
-import "server-only"
+// import "server-only"
 
 export const getAuthHeaders = async (): Promise<
     { authorization: string } | {}
@@ -47,6 +49,24 @@ export const getCacheOptions = async (
     }
 
     return { tags: [`${cacheTag}`] }
+}
+
+export const setLocale = async (locale: string) => {
+    const cookies_ = await nextCookies()
+    cookies_.set("_medusa_locale", locale, {
+        maxAge: 60 * 60 * 24 * 7,
+    })
+}
+
+export const getLocaleHeader = async () => {
+    try {
+        const cookies_ = await nextCookies()
+        const locale = cookies_.get("_medusa_locale")?.value
+
+        return { "x-medusa-locale": locale }
+    } catch {
+        return {}
+    }
 }
 
 export const setAuthToken = async (token: string) => {

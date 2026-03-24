@@ -7,6 +7,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@repo/ui/components/breadcrumb"
+import { useTranslations } from "next-intl"
 import Link from "next/link"
 import React from "react"
 
@@ -22,6 +23,7 @@ export function CategoryBreadcrumb({
   category: StoreProductCategory
   className?: string
 }) {
+  const t = useTranslations('product')
   // Build ancestor chain: root → ... → current
   const chain: BreadcrumbPath[] = []
   let cur: StoreProductCategory | null | undefined = category
@@ -48,7 +50,7 @@ export function CategoryBreadcrumb({
         <BreadcrumbItem>
           <BreadcrumbLink asChild>
             <Link href="/" className="uppercase">
-              Home
+              {t("home") /* TODO: i18n */}
             </Link>
           </BreadcrumbLink>
         </BreadcrumbItem>

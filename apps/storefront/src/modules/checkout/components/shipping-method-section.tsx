@@ -9,6 +9,7 @@ import { convertToLocale } from "@/lib/util/product"
 import { CheckCircle2, Loader2, Pencil, Truck } from "lucide-react"
 import { HttpTypes, StoreCart } from "@medusajs/types"
 import { useTranslations } from "next-intl"
+import { cn } from "@repo/ui/lib/utils"
 
 type Props = {
   cart: StoreCart
@@ -35,7 +36,7 @@ export function ShippingMethodSection({ cart, onSaved, disabled }: Props) {
 
   const currency = cart.currency_code ?? "usd"
   const t = useTranslations("checkout")
-
+console.log(options)
   useEffect(() => {
     listShippingOptions()
       .then(setOptions)
@@ -69,15 +70,15 @@ export function ShippingMethodSection({ cart, onSaved, disabled }: Props) {
   // Collapsed summary: show the selected option name + price
   const savedSummary = selectedOption
     ? {
-        name: selectedOption.name,
-        price:
-          selectedOption.amount === 0
-            ? t("shippingMethod.free")
-            : convertToLocale({
-                amount: selectedOption.amount ?? 0,
-                currency_code: currency,
-              }),
-      }
+      name: selectedOption.name,
+      price:
+        selectedOption.amount === 0
+          ? t("shippingMethod.free")
+          : convertToLocale({
+            amount: selectedOption.amount ?? 0,
+            currency_code: currency,
+          }),
+    }
     : null
 
   return (
@@ -145,24 +146,22 @@ export function ShippingMethodSection({ cart, onSaved, disabled }: Props) {
                   <label
                     key={option.id}
                     htmlFor={`shipping-${option.id}`}
-                    className={
-                      "flex items-center justify-between gap-4 border px-4 py-3 cursor-pointer transition-colors " +
-                      (selected === option.id
-                        ? "border-primary bg-primary/5"
-                        : "border-border hover:border-muted-foreground/40")
-                    }
+                    className={cn("flex items-center justify-between gap-4 border px-4 py-3 cursor-pointer transition-colors", {
+                      "border-primary bg-primary/5": selected === option.id,
+                      "border-border hover:border-muted-foreground/40": selected !== option.id,
+                    })}
                   >
                     <div className="flex items-center gap-3">
                       <RadioGroupItem
                         value={option.id}
                         id={`shipping-${option.id}`}
                       />
-                      <div>
-                        <p className="text-sm font-medium flex items-center gap-1.5">
-                          <Truck className="size-3.5 text-muted-foreground" />
-                          {option.name}
-                        </p>
+
+                      <div className="text-sm font-medium flex items-center gap-1.5">
+                        <Truck className="size-3.5 text-muted-foreground" />
+                        {option.name}
                       </div>
+
                     </div>
                     <span className="text-sm font-semibold tabular-nums shrink-0">
                       {option.amount === 0 ? t("shippingMethod.free") : price}

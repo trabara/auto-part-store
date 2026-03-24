@@ -16,7 +16,6 @@ export const listRegions = async () => {
             {
                 method: "GET",
                 next,
-                cache: "force-cache",
             })
         .then(({ regions }) => regions)
         .catch(medusaError)
@@ -41,14 +40,13 @@ export const retrieveRegion = async (id: string) => {
 
 const regionMap = new Map<string, HttpTypes.StoreRegion>()
 
-export const getRegion = async (countryCode: string) => {
+export const getRegion = async (countryCode?: string) => {
     try {
-        if (regionMap.has(countryCode)) {
+        if (countryCode && regionMap.has(countryCode)) {
             return regionMap.get(countryCode)
         }
 
         const regions = await listRegions()
-
         if (!regions) {
             return null
         }
@@ -61,7 +59,8 @@ export const getRegion = async (countryCode: string) => {
 
         const region = countryCode
             ? regionMap.get(countryCode)
-            : regionMap.get("us")
+            : Array.from(regionMap.values())[0]
+
 
         return region
     } catch {

@@ -8,6 +8,7 @@ import { RadioGroup, RadioGroupItem } from "@repo/ui/components/radio-group"
 import { CheckCircle2, CreditCard, Pencil } from "lucide-react"
 import { StoreCart } from "@medusajs/types"
 import { useTranslations } from "next-intl"
+import { cn } from "@repo/ui/lib/utils"
 
 type Props = {
   cart: StoreCart
@@ -109,18 +110,16 @@ export function PaymentSection({ cart, onSaved, disabled }: Props) {
               <label
                 key={provider.id}
                 htmlFor={`payment-${provider.id}`}
-                className={
-                  "flex items-center gap-4 border px-4 py-3 cursor-pointer transition-colors " +
-                  (selected === provider.id
-                    ? "border-primary bg-primary/5"
-                    : "border-border hover:border-muted-foreground/40")
-                }
+                className={cn("flex items-center gap-4 border px-4 py-3 cursor-pointer transition-colors", {
+                  "border-primary bg-primary/5": selected === provider.id,
+                  "border-border hover:border-muted-foreground/40": selected !== provider.id,
+                })}
               >
                 <RadioGroupItem
                   value={provider.id}
                   id={`payment-${provider.id}`}
                 />
-                <div className="flex items-center gap-3">
+                <div className="flex-1 flex items-center gap-3 rtl:flex-row-reverse">
                   <CreditCard className="size-4 text-muted-foreground shrink-0" />
                   <div>
                     <p className="text-sm font-medium">{provider.label}</p>

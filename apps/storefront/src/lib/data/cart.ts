@@ -1,9 +1,10 @@
 "use server"
 
 import { sdk } from "@/lib/config"
-import { getCartId, setCartId } from "@/lib/data/cookies"
+import { getCartId, getLocaleHeader, setCartId } from "@/lib/data/cookies"
 import { getRegion } from "@/lib/data/regions"
 import { medusaError } from "@/lib/util/error"
+import { ClientHeaders } from "@medusajs/js-sdk"
 import { StoreCart } from "@medusajs/types"
 
 const CART_FIELDS =
@@ -18,11 +19,16 @@ const CART_FIELDS =
   "+shipping_methods,+shipping_methods.shipping_option," +
   "+shipping_methods.shipping_option.name,+shipping_methods.amount"
 
-export const retrieveCart = async (
-  cartId: string
-): Promise<StoreCart | null> => {
+export const retrieveCart = async (): Promise<StoreCart | null> => {
+  const headers = {
+    ...(await getLocaleHeader()),
+  } as ClientHeaders
+
+  const cartId = await getCartId().catch(() => undefined)
+  if (!cartId) return null
+  
   return sdk.store.cart
-    .retrieve(cartId, { fields: CART_FIELDS })
+    .retrieve(cartId, { fields: CART_FIELDS, }, headers)
     .then(({ cart }) => cart as StoreCart)
     .catch(() => null)
 }
@@ -31,7 +37,7 @@ export const getOrCreateCart = async (): Promise<StoreCart> => {
   const cartId = await getCartId()
 
   if (cartId) {
-    const cart = await retrieveCart(cartId)
+    const cart = await retrieveCart()
     if (cart) return cart
   }
 

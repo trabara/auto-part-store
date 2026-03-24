@@ -35,7 +35,7 @@ export function FitmentForm({
   return (
     <div
       className={cn(
-        "flex flex-col space-y-4 xl:flex-row xl:space-x-4 xl:space-y-0",
+        "flex flex-col space-y-4",
         className
       )}
     >
@@ -68,7 +68,7 @@ export function FitmentForm({
                 </SelectContent>
               </Select>
             </FieldContent>
-            {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+            {fieldState.invalid && <FieldError className="rtl:text-right" errors={[fieldState.error]} />}
           </Field>
         )}
       />
@@ -99,7 +99,7 @@ export function FitmentForm({
                 </SelectContent>
               </Select>
             </FieldContent>
-            {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+            {fieldState.invalid && <FieldError className="rtl:text-right" errors={[fieldState.error]} />}
           </Field>
         )}
       />
@@ -130,7 +130,7 @@ export function FitmentForm({
                 </SelectContent>
               </Select>
             </FieldContent>
-            {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+            {fieldState.invalid && <FieldError className="rtl:text-right" errors={[fieldState.error]} />}
           </Field>
         )}
       />
@@ -161,7 +161,7 @@ export function FitmentForm({
                 </SelectContent>
               </Select>
             </FieldContent>
-            {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+            {fieldState.invalid && <FieldError className="rtl:text-right" errors={[fieldState.error]} />}
           </Field>
         )}
       />

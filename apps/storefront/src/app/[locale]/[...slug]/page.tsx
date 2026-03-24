@@ -42,7 +42,7 @@ export default async function CategoryProducts({
           </div>
         </section>
 
-        <h1 className="text-2xl font-medium mb-4 text-left! after:content-[''] after:block after:w-16 after:h-1 after:bg-primary">
+        <h1 className="text-2xl font-medium mb-4  after:content-[''] after:block after:w-16 after:h-1 after:bg-primary">
           {t("mostPopularParts")}
         </h1>
         <div className="grid gap-3 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4">

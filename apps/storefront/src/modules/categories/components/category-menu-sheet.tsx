@@ -11,11 +11,13 @@ import { CategoryNavMenu } from "./category-nav-menu"
 
 type CategoryMenuSheetProps = {
   categories: StoreProductCategory[]
+  direction?: "left" | "top" | "right" | "bottom"
   children: React.ReactNode
 }
 
 export async function CategoryMenuSheet({
   categories,
+  direction,
   children,
 }: CategoryMenuSheetProps) {
   const t = await getTranslations("categories")
@@ -23,7 +25,7 @@ export async function CategoryMenuSheet({
   return (
     <Sheet>
       <SheetTrigger asChild>{children}</SheetTrigger>
-      <SheetContent side="left">
+      <SheetContent side={direction}>
         <SheetHeader>
           <SheetTitle className="text-lg font-bold">
             {t("allCategories")}

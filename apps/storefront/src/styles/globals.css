@@ -176,7 +176,7 @@
   }
 
   h1 {
-    @apply scroll-m-20 text-center text-4xl font-extrabold tracking-tight text-balance;
+    @apply scroll-m-20 text-4xl font-extrabold tracking-tight text-balance;
   }
 
   h2 {
@@ -192,7 +192,7 @@
   }
 
   p {
-    @apply leading-7 [&:not(:first-child)]:mt-6;
+    @apply mt-0! leading-7 not-first:mt-6;
   }
 
   blockquote {
@@ -202,5 +202,4 @@
   .snap-container {
     @apply max-w-340 mx-auto px-2 sm:px-4;
   }
-
 }

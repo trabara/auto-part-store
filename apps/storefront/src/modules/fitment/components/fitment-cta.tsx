@@ -18,7 +18,7 @@ export function FitmentCTA({ fitment, className }: { fitment: Fitment | null, cl
             {t("myGarage")}
           </span>
         </div>
-        <p className="mt-0! text-3xl md:text-4xl font-extrabold uppercase tracking-tight leading-[1.05] mb-4 text-left whitespace-pre-line">
+        <p className="mt-0! text-3xl md:text-4xl font-extrabold uppercase tracking-tight leading-[1.05] mb-4 whitespace-pre-line">
           {t("findParts")}
         </p>
         <p className="mt-0! text-sm leading-relaxed max-w-xs">

@@ -168,7 +168,7 @@ export default async function HomeTemplate() {
                     </p>
 
                     {/* Headline — div avoids global h1 text-center rule */}
-                    <div className="text-5xl md:text-7xl font-extrabold uppercase tracking-tight text-white leading-[0.95] mb-6 whitespace-pre-line text-left">
+                    <div className="text-5xl md:text-7xl font-extrabold uppercase tracking-tight text-white leading-[0.95] mb-6 whitespace-pre-line ">
                       {slide.headline}
                     </div>
 

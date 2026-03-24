@@ -107,7 +107,13 @@ export default defineConfig({
         ],
       },
     },
+    {
+      resolve: "@medusajs/medusa/translation",
+    }
   ],
+  featureFlags: {
+    translation: true,
+  },
   plugins: [
     {
       resolve: "@agilo/medusa-analytics-plugin",

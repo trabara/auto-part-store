@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 
 export default async function CartPage() {
   const cartId = await getCartId().catch(() => undefined)
-  const initialCart = cartId ? await retrieveCart(cartId) : null
+  const initialCart = cartId ? await retrieveCart() : null
 
   return <CartPageTemplate initialCart={initialCart} />
 }

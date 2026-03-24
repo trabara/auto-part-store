@@ -1,8 +1,9 @@
 "use server"
 
 import { sdk } from "@/lib/config"
-import { getCartId, removeCartId } from "@/lib/data/cookies"
+import { getCartId, getLocaleHeader, removeCartId } from "@/lib/data/cookies"
 import { medusaError } from "@/lib/util/error"
+import { ClientHeaders } from "@medusajs/js-sdk"
 import { HttpTypes, StoreCart } from "@medusajs/types"
 
 const CART_FIELDS =
@@ -20,8 +21,12 @@ export const updateCartContact = async (email: string): Promise<StoreCart> => {
   const cartId = await getCartId()
   if (!cartId) throw new Error("No cart found")
 
+  const headers = {
+    ...(await getLocaleHeader()),
+  } as ClientHeaders
+
   const { cart } = await sdk.store.cart
-    .update(cartId, { email }, { fields: CART_FIELDS })
+    .update(cartId, { email }, { fields: CART_FIELDS }, headers)
     .catch(medusaError)
 
   return cart as StoreCart
@@ -33,6 +38,11 @@ export const updateCartAddress = async (
   const cartId = await getCartId()
   if (!cartId) throw new Error("No cart found")
 
+  const headers = {
+    ...(await getLocaleHeader()),
+  } as ClientHeaders
+
+
   const { cart } = await sdk.store.cart
     .update(
       cartId,
@@ -40,7 +50,8 @@ export const updateCartAddress = async (
         shipping_address: address,
         billing_address: address,
       },
-      { fields: CART_FIELDS }
+      { fields: CART_FIELDS },
+      headers
     )
     .catch(medusaError)
 
@@ -53,8 +64,12 @@ export const listShippingOptions = async (): Promise<
   const cartId = await getCartId()
   if (!cartId) return []
 
+  const headers = {
+    ...(await getLocaleHeader()),
+  } as ClientHeaders
+
   const { shipping_options } = await sdk.store.fulfillment
-    .listCartOptions({ cart_id: cartId })
+    .listCartOptions({ cart_id: cartId }, headers)
     .catch(() => ({
       shipping_options: [] as HttpTypes.StoreCartShippingOption[],
     }))
@@ -68,8 +83,12 @@ export const selectShippingMethod = async (
   const cartId = await getCartId()
   if (!cartId) throw new Error("No cart found")
 
+  const headers = {
+    ...(await getLocaleHeader()),
+  } as ClientHeaders
+
   const { cart } = await sdk.store.cart
-    .addShippingMethod(cartId, { option_id: optionId }, { fields: CART_FIELDS })
+    .addShippingMethod(cartId, { option_id: optionId }, { fields: CART_FIELDS }, headers)
     .catch(medusaError)
 
   return cart as StoreCart
@@ -81,19 +100,22 @@ export const initiatePayment = async (
   const cartId = await getCartId()
   if (!cartId) throw new Error("No cart found")
 
+  const headers = {
+  } as ClientHeaders
+
   // Fetch the full cart first (needed by initiatePaymentSession)
   const { cart } = await sdk.store.cart
-    .retrieve(cartId, { fields: CART_FIELDS })
+    .retrieve(cartId, { fields: CART_FIELDS }, headers)
     .catch(medusaError)
 
   // initiatePaymentSession returns { payment_collection }, not the cart
   await sdk.store.payment
-    .initiatePaymentSession(cart as StoreCart, { provider_id: providerId })
+    .initiatePaymentSession(cart as StoreCart, { provider_id: providerId }, headers)
     .catch(medusaError)
 
   // Re-fetch the cart so the updated payment_collection is included
   const { cart: updatedCart } = await sdk.store.cart
-    .retrieve(cartId, { fields: CART_FIELDS })
+    .retrieve(cartId, { fields: CART_FIELDS }, headers)
     .catch(medusaError)
 
   return updatedCart as StoreCart
@@ -107,7 +129,10 @@ export const placeOrder = async (): Promise<PlaceOrderResult> => {
   const cartId = await getCartId()
   if (!cartId) return { type: "error", message: "No cart found" }
 
-  const result = await sdk.store.cart.complete(cartId).catch(medusaError)
+  const headers = {
+  } as ClientHeaders
+
+  const result = await sdk.store.cart.complete(cartId, headers).catch(medusaError)
 
   if (result.type === "order") {
     await removeCartId()
@@ -123,6 +148,10 @@ export const placeOrder = async (): Promise<PlaceOrderResult> => {
 export const retrieveOrder = async (
   orderId: string
 ): Promise<HttpTypes.StoreOrder | null> => {
+  const headers = {
+    ...(await getLocaleHeader()),
+  } as ClientHeaders
+
   return sdk.store.order
     .retrieve(orderId, {
       fields:
@@ -131,7 +160,7 @@ export const retrieveOrder = async (
         "+subtotal,+total,+tax_total,+shipping_total,+discount_total," +
         "+shipping_address,+payment_collections,+payment_collections.payment_sessions," +
         "+shipping_methods,+shipping_methods.shipping_option",
-    })
+    }, headers)
     .then(({ order }) => order)
     .catch(() => null)
 }

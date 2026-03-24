@@ -6,7 +6,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # Default values
 TENANT_NAME=""
 ENVIRONMENT="development"
-TIER="pro"
+TIER="auto"
 
 usage() {
     cat <<USAGE
@@ -18,14 +18,14 @@ Arguments:
     TENANT_NAME    Name of the tenant (e.g., acme, globex, demo-shared)
 
 Options:
-    -t, --tier TIER     Deployment tier: "pro" or "shared" (default: auto-detect from tenant config)
+    -t, --tier TIER     Deployment tier: "dedicated" or "shared" (default: auto-detect from tenant config)
     -e, --env ENV       Environment to deploy to (default: development)
     -h, --help          Show this help message
 
 Examples:
     $(basename "$0") acme              # Deploy acme tenant (auto-detect tier)
     $(basename "$0") demo-shared --tier shared   # Deploy as shared tier
-    $(basename "$0") acme --env production --tier pro
+    $(basename "$0") acme --env production --tier dedicated
 USAGE
     exit 1
 }
@@ -87,17 +87,17 @@ if [[ ! -f "$DOMAINS_FILE" ]]; then
 fi
 
 # Auto-detect tier from config if set to "auto" or not explicitly provided
-if [[ "$TIER" == "auto" ]] || [[ ! -f "$TENANT_DIR/config/shared.env" && "$TIER" == "pro" ]]; then
+if [[ "$TIER" == "auto" ]] || [[ ! -f "$TENANT_DIR/config/shared.env" && "$TIER" == "dedicated" ]]; then
     if [[ -f "$TENANT_DIR/config/shared.env" ]]; then
         TIER="shared"
     else
-        TIER="pro"
+        TIER="dedicated"
     fi
 fi
 
 # Validate tier
-if [[ "$TIER" != "pro" && "$TIER" != "shared" ]]; then
-    echo "Error: Invalid tier '$TIER'. Must be 'pro' or 'shared'."
+if [[ "$TIER" != "dedicated" && "$TIER" != "shared" ]]; then
+    echo "Error: Invalid tier '$TIER'. Must be 'dedicated' or 'shared'."
     exit 1
 fi
 
@@ -169,7 +169,7 @@ if [[ "$IS_SHARED" == "true" ]]; then
         echo "  Database: $TENANT_NAME"
     fi
 else
-    # PRO tier - use K8s node IP
+    # Dedicated tier - use K8s node IP
     HOST_IP="${HOST_IP:-$(kubectl get node -o jsonpath='{.items[0].status.addresses[?(@.type=="InternalIP")].address}' 2>/dev/null)}"
 fi
 
@@ -216,11 +216,24 @@ MANIFEST=$(echo "$MANIFEST" | sed "s/    - name: redis$/    - name: ${SERVICE_PR
 MANIFEST=$(echo "$MANIFEST" | sed "s/TENANT-api-app-redirect/${SERVICE_PREFIX}-api-app-redirect/g")
 MANIFEST=$(echo "$MANIFEST" | sed "s/TENANT-admin-redirect/${SERVICE_PREFIX}-admin-redirect/g")
 
-# Replace secret names (storefront-key is used by both PRO and SHARED tiers)
+# Replace secret names (storefront-key is used by both dedicated and shared tiers)
 MANIFEST=$(echo "$MANIFEST" | sed "s/STOREFRONT_KEY_SECRET/storefront-key/g")
 
 # Replace namespace name
 MANIFEST=$(echo "$MANIFEST" | sed "s/NAMESPACE_NAME/smap-store-${TENANT_NAME}/g")
+
+# Wait for namespace to be fully deleted if it exists and is terminating
+NAMESPACE="smap-store-${TENANT_NAME}"
+if kubectl get namespace "$NAMESPACE" &>/dev/null; then
+    echo "Waiting for namespace $NAMESPACE to be fully deleted..."
+    kubectl wait --for=delete namespace/"$NAMESPACE" --timeout=120s 2>/dev/null || true
+    # Force delete if still exists
+    if kubectl get namespace "$NAMESPACE" &>/dev/null; then
+        echo "Force deleting namespace $NAMESPACE..."
+        kubectl get namespace "$NAMESPACE" -o json | python3 -c "import sys,json; d=json.load(sys.stdin); d['spec']['finalizers']=[]; print(json.dumps(d))" | kubectl replace --raw "/api/v1/namespaces/$NAMESPACE/finalize" -f - &>/dev/null || true
+        sleep 5
+    fi
+fi
 
 # Apply the manifest
 echo "$MANIFEST" | kubectl apply -f -

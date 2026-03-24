@@ -5,7 +5,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # Default values
 TENANT_NAME=""
-TIER="pro"
+TIER="dedicated"
 
 usage() {
     cat <<USAGE
@@ -17,11 +17,11 @@ Arguments:
     TENANT_NAME    Name of the new tenant (e.g., acme, globex, demo-shared)
 
 Options:
-    -t, --tier TIER     Deployment tier: "pro" or "shared" (default: pro)
+    -t, --tier TIER     Deployment tier: "dedicated" or "shared" (default: dedicated)
     -h, --help           Show this help message
 
 Examples:
-    $(basename "$0") acme              # Create PRO tier tenant
+    $(basename "$0") acme              # Create dedicated tier tenant
     $(basename "$0") demo-shared -t shared  # Create SHARED tier tenant
 USAGE
     exit 1
@@ -54,8 +54,8 @@ if [[ -z "$TENANT_NAME" ]]; then
     usage
 fi
 
-if [[ "$TIER" != "pro" && "$TIER" != "shared" ]]; then
-    echo "Error: Invalid tier '$TIER'. Must be 'pro' or 'shared'."
+if [[ "$TIER" != "dedicated" && "$TIER" != "shared" ]]; then
+    echo "Error: Invalid tier '$TIER'. Must be 'dedicated' or 'shared'."
     exit 1
 fi
 
@@ -85,7 +85,7 @@ if [[ "$TIER" == "shared" ]]; then
     echo "Using shared tier template"
 else
     TEMPLATE_OVERLAY="../../overlays/tenant-template"
-    echo "Using PRO tier template"
+    echo "Using dedicated tier template"
 fi
 
 # Create tenant kustomization.yaml (references the template overlay)
@@ -127,7 +127,7 @@ secretGenerator:
       - secrets/storefront.env
 KUSTOMIZEEOF
 
-# Add PRO-tier-specific secret generators
+# Add dedicated-tier-specific secret generators
 if [[ "$TIER" != "shared" ]]; then
     cat >> "$TENANT_DIR/kustomization.yaml" << 'KUSTOMIZEEOF'
   - name: postgres-secret
@@ -260,7 +260,7 @@ KUBERNETES_API_PORT=6443
 SECRETSEOF
 
 else
-    # PRO TIER - Uses Kubernetes services
+    # DEDICATED TIER - Uses Kubernetes services
     DB_PASSWORD=$(openssl rand -base64 24 | tr -dc 'A-Za-z0-9!@#$%' | head -c 24)
     REDIS_PASSWORD=$(openssl rand -base64 24 | tr -dc 'A-Za-z0-9!@#$%' | head -c 24)
     MINIO_PASSWORD=$(openssl rand -base64 24 | tr -dc 'A-Za-z0-9!@#$%' | head -c 24)
@@ -269,7 +269,7 @@ else
     ADMIN_PASSWORD=$(openssl rand -base64 16 | tr -dc 'A-Za-z0-9' | head -c 12)
     REVALIDATE_SECRET=$(openssl rand -hex 24)
 
-    # medusa.env for PRO tier
+    # medusa.env for dedicated tier
     cat > "$TENANT_DIR/secrets/medusa.env" << SECRETSEOF
 DATABASE_URL=postgresql://medusa:${DB_PASSWORD}@${TENANT_NAME}-postgres:5432/medusa-v2?sslmode=disable
 REDIS_URL=redis://:${REDIS_PASSWORD}@${TENANT_NAME}-redis:6379

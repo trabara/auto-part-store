@@ -17,11 +17,11 @@ Arguments:
     TENANT_NAME    Name of the tenant (e.g., acme, demo-shared)
 
 Options:
-    -t, --tier TIER     Deployment tier: "pro", "shared", or "auto" (default: auto)
+    -t, --tier TIER     Deployment tier: "dedicated", "shared", or "auto" (default: auto)
     -h, --help          Show this help message
 
 Examples:
-    $(basename "$0") acme              # Rotate PRO tier secrets (auto-detect)
+    $(basename "$0") acme              # Rotate dedicated tier secrets (auto-detect)
     $(basename "$0") demo-shared -t shared  # Force rotate as shared tier
 USAGE
     exit 1
@@ -54,8 +54,8 @@ if [[ -z "$TENANT_NAME" ]]; then
     usage
 fi
 
-if [[ "$TIER" != "pro" && "$TIER" != "shared" && "$TIER" != "auto" ]]; then
-    echo "Error: Invalid tier '$TIER'. Must be 'pro', 'shared', or 'auto'."
+if [[ "$TIER" != "dedicated" && "$TIER" != "shared" && "$TIER" != "auto" ]]; then
+    echo "Error: Invalid tier '$TIER'. Must be 'dedicated', 'shared', or 'auto'."
     exit 1
 fi
 
@@ -71,7 +71,7 @@ if [[ "$TIER" == "auto" ]]; then
     if [[ -f "$TENANT_DIR/config/shared.env" ]]; then
         TIER="shared"
     else
-        TIER="pro"
+        TIER="dedicated"
     fi
 fi
 

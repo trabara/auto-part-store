@@ -17,11 +17,11 @@ Arguments:
     TENANT_NAME    Name of the tenant (e.g., acme, demo-shared)
 
 Options:
-    -t, --tier TIER     Deployment tier: "pro", "shared", or "auto" (default: auto)
+    -t, --tier TIER     Deployment tier: "dedicated", "shared", or "auto" (default: auto)
     -h, --help          Show this help message
 
 Examples:
-    $(basename "$0") acme              # Regenerate PRO tier secrets (auto-detect)
+    $(basename "$0") acme              # Regenerate dedicated tier secrets (auto-detect)
     $(basename "$0") demo-shared -t shared  # Force regenerate as shared tier
 USAGE
     exit 1
@@ -54,8 +54,8 @@ if [[ -z "$TENANT_NAME" ]]; then
     usage
 fi
 
-if [[ "$TIER" != "pro" && "$TIER" != "shared" && "$TIER" != "auto" ]]; then
-    echo "Error: Invalid tier '$TIER'. Must be 'pro', 'shared', or 'auto'."
+if [[ "$TIER" != "dedicated" && "$TIER" != "shared" && "$TIER" != "auto" ]]; then
+    echo "Error: Invalid tier '$TIER'. Must be 'dedicated', 'shared', or 'auto'."
     exit 1
 fi
 
@@ -73,7 +73,7 @@ if [[ "$TIER" == "auto" ]]; then
     if [[ -f "$TENANT_DIR/config/shared.env" ]]; then
         TIER="shared"
     else
-        TIER="pro"
+        TIER="dedicated"
     fi
 fi
 
@@ -138,7 +138,7 @@ NEXT_PUBLIC_STOREFRONT_URL=http://${TENANT_NAME}.localhost
 SECRETSEOF
 
 else
-    # PRO TIER - Uses Kubernetes services
+    # DEDICATED TIER - Uses Kubernetes services
     DB_PASSWORD=$(openssl rand -base64 24 | tr -dc 'A-Za-z0-9!@#$%' | head -c 24)
     REDIS_PASSWORD=$(openssl rand -base64 24 | tr -dc 'A-Za-z0-9!@#$%' | head -c 24)
     MINIO_PASSWORD=$(openssl rand -base64 24 | tr -dc 'A-Za-z0-9!@#$%' | head -c 24)
@@ -152,7 +152,7 @@ else
     mkdir -p "$SECRETS_DIR/.backup"
     cp "$SECRETS_DIR/"*.env "$SECRETS_DIR/.backup/" 2>/dev/null || true
 
-    # medusa.env for PRO tier
+    # medusa.env for dedicated tier
     cat > "$SECRETS_DIR/medusa.env" << SECRETSEOF
 DATABASE_URL=postgresql://medusa:${DB_PASSWORD}@${TENANT_NAME}-postgres:5432/medusa-v2?sslmode=disable
 REDIS_URL=redis://:${REDIS_PASSWORD}@${TENANT_NAME}-redis:6379

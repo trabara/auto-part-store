@@ -18,13 +18,13 @@ Arguments:
     TENANT_NAME    Name of the tenant to destroy
 
 Options:
-    -t, --tier TIER         Tier: "pro", "shared", or "auto" (default: auto-detect)
+    -t, --tier TIER         Tier: "dedicated", "shared", or "auto" (default: auto-detect)
     -k, --keep-secrets      Keep the tenant directory (don't delete config/secrets)
     -h, --help              Show this help message
 
 Examples:
     $(basename "$0") smap-shared              # Destroy shared tenant
-    $(basename "$0") smap-dedicated --tier pro # Destroy PRO tier tenant
+    $(basename "$0") smap-dedicated --tier dedicated # Destroy dedicated tier tenant
     $(basename "$0") smap-shared --keep-secrets # Destroy but keep config
 USAGE
     exit 1
@@ -73,7 +73,7 @@ if [[ "$TIER" == "auto" ]]; then
     if [[ -f "$TENANT_DIR/config/shared.env" ]]; then
         TIER="shared"
     else
-        TIER="pro"
+        TIER="dedicated"
     fi
 fi
 

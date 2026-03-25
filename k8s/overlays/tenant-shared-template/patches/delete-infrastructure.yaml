@@ -1,0 +1,84 @@
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: postgres-secret
+$patch: delete
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgres-config
+$patch: delete
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: postgres
+$patch: delete
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres
+$patch: delete
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: postgres-pvc
+$patch: delete
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: redis-secret
+$patch: delete
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis
+$patch: delete
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis
+$patch: delete
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: minio-secret
+$patch: delete
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: minio
+$patch: delete
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: minio
+$patch: delete
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: minio-pvc
+$patch: delete
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: minio-init
+$patch: delete
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: minio-console-ingress
+$patch: delete

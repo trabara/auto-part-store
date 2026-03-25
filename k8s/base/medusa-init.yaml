@@ -1,0 +1,207 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: medusa-init
+  labels:
+    app: medusa
+    tier: backend
+spec:
+  ttlSecondsAfterFinished: 3600
+  backoffLimit: 5
+  activeDeadlineSeconds: 300
+  template:
+    spec:
+      restartPolicy: Never
+      serviceAccountName: medusa-sa
+      containers:
+        - name: medusa-init
+          image: medusa
+          command: ["sh", "-c"]
+          args:
+            - |
+              set -e
+
+              echo "=== Medusa Init Starting ==="
+
+              wait_for_service() {
+                local host=$1
+                local port=$2
+                local name=$3
+                echo "Waiting for $name ($host:$port)..."
+                local max_attempts=30
+                local attempt=1
+                while [ $attempt -le $max_attempts ]; do
+                  if wget -q --timeout=2 -O /dev/null "http://$host:$port" 2>/dev/null || \
+                     (echo "" | nc -w2 "$host" "$port" 2>/dev/null); then
+                    echo "$name is ready"
+                    return 0
+                  fi
+                  echo "  Attempt $attempt/$max_attempts - $name not ready, waiting 2s..."
+                  sleep 2
+                  attempt=$((attempt + 1))
+                done
+                echo "ERROR: $name failed to become ready after ${max_attempts} attempts"
+                return 1
+              }
+
+              # Wait for postgres
+              wait_for_service "POSTGRES_HOST" "5432" "postgres"
+
+              # Wait for redis
+              wait_for_service "REDIS_HOST" "6379" "redis"
+
+              # Wait for medusa database to accept connections
+              echo "Waiting for medusa database to accept connections..."
+              sleep 5
+
+              # Run migrations (idempotent)
+              echo "Running migrations..."
+              cd /app/.medusa/server && yarn medusa db:migrate || echo "Migrations already applied"
+
+              # Setup shared DB user (skipped for non-shared tenants)
+              echo "Setting up shared DB user (if applicable)..."
+              cd /app/.medusa/server && yarn medusa exec ./src/scripts/setup-shared-db.js || echo "Shared DB setup skipped (not shared tier)"
+
+              # Run seed (idempotent - may fail if already seeded)
+              echo "Running seed..."
+              cd /app/.medusa/server && yarn medusa exec ./src/scripts/seed.js || echo "Seed already applied or skipped"
+
+              # Create admin user
+              echo "Creating admin user..."
+              cd /app/.medusa/server && yarn medusa user -e "$MEDUSA_ADMIN_EMAIL" -p "$MEDUSA_ADMIN_PASSWORD" || echo "Admin user created or already exists"
+
+              # Initialize RBAC - create admin role and assign to user
+              echo "Initializing RBAC..."
+              cd /app/.medusa/server && yarn medusa exec ./src/scripts/init-rbac.js || echo "RBAC init skipped or failed"
+
+              # Extract publishable key
+              echo "Extracting publishable key..."
+              cd /app/.medusa/server
+              OUTPUT=$(yarn medusa exec ./src/scripts/init.js 2>/dev/null)
+              KEY=$(echo "$OUTPUT" | sed -n 's/.*__KEY__\(.*\)__KEY__.*/\1/p' | head -1)
+
+              if [ -z "$KEY" ]; then
+                echo "ERROR: No publishable key found in api_key table"
+                echo "Debug output: [$OUTPUT]"
+                exit 1
+              fi
+
+              echo "Found key: $KEY"
+
+              # Create STOREFRONT_KEY_SECRET secret using Node.js
+              export API_KEY="$KEY"
+              node << 'NODEEOF'
+              const https = require('https');
+              const fs = require('fs');
+
+              const token = fs.readFileSync('/var/run/secrets/kubernetes.io/serviceaccount/token', 'utf8').trim();
+              const ca = fs.readFileSync('/var/run/secrets/kubernetes.io/serviceaccount/ca.crt');
+              const namespace = fs.readFileSync('/var/run/secrets/kubernetes.io/serviceaccount/namespace', 'utf8').trim();
+              const key = process.env.API_KEY;
+              const apiHost = process.env.KUBERNETES_API_HOST || 'kubernetes.default.svc';
+              const apiPort = parseInt(process.env.KUBERNETES_API_PORT || '443', 10);
+
+              console.log('Key from env:', key ? 'received' : 'undefined');
+              console.log('Namespace:', namespace);
+              console.log('K8s API:', apiHost + ':' + apiPort);
+
+              const secret = JSON.stringify({
+                apiVersion: 'v1',
+                kind: 'Secret',
+                  metadata: {
+                    name: 'STOREFRONT_KEY_SECRET'
+                  },
+                type: 'Opaque',
+                data: {
+                  NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY: Buffer.from(key).toString('base64')
+                }
+              });
+
+              // Delete existing secret
+              const deleteReq = https.request({
+                hostname: apiHost,
+                port: apiPort,
+                path: '/api/v1/namespaces/' + namespace + '/secrets/STOREFRONT_KEY_SECRET',
+                method: 'DELETE',
+                headers: {
+                  'Authorization': `Bearer ${token}`,
+                  'Content-Type': 'application/json'
+                },
+                ca: ca,
+                rejectUnauthorized: apiHost === 'kubernetes.default.svc'
+              }, (res) => {
+                console.log('Delete response status:', res.statusCode);
+              });
+
+              deleteReq.on('error', (e) => {
+                // Ignore errors (secret might not exist)
+              });
+
+              deleteReq.end();
+
+              // Create secret
+              const createReq = https.request({
+                hostname: apiHost,
+                port: apiPort,
+                path: '/api/v1/namespaces/' + namespace + '/secrets',
+                method: 'POST',
+                headers: {
+                  'Authorization': `Bearer ${token}`,
+                  'Content-Type': 'application/json'
+                },
+                ca: ca,
+                rejectUnauthorized: apiHost === 'kubernetes.default.svc'
+              }, (res) => {
+                let data = '';
+                res.on('data', chunk => data += chunk);
+                res.on('end', () => {
+                  console.log('Create response status:', res.statusCode);
+                  if (res.statusCode >= 200 && res.statusCode < 300) {
+                    console.log('Secret created successfully!');
+                    console.log('=== Medusa Init Complete ===');
+                    process.exit(0);
+                  } else {
+                    console.error('Failed to create secret:', data);
+                    process.exit(1);
+                  }
+                });
+              });
+
+              createReq.on('error', (e) => {
+                console.error('Error:', e.message);
+                process.exit(1);
+              });
+
+              createReq.write(secret);
+              createReq.end();
+              NODEEOF
+
+          envFrom:
+            - secretRef:
+                name: medusa-secret
+            - configMapRef:
+                name: medusa-config
+          env:
+            - name: MEDUSA_ADMIN_EMAIL
+              valueFrom:
+                secretKeyRef:
+                  name: medusa-secret
+                  key: MEDUSA_ADMIN_EMAIL
+            - name: MEDUSA_ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: medusa-secret
+                  key: MEDUSA_ADMIN_PASSWORD
+            - name: SHARED_DB_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: medusa-secret
+                  key: SHARED_DB_PASS
+                  optional: true
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "256Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"

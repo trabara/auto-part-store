@@ -1,0 +1,61 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: minio-init
+  labels:
+    app: minio
+    tier: storage
+spec:
+  ttlSecondsAfterFinished: 3600
+  backoffLimit: 3
+  activeDeadlineSeconds: 120
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: minio-init
+          image: minio/mc:latest
+          command: ["sh", "-c"]
+          args:
+            - |
+              set -e
+
+              echo "=== MinIO Init Starting ==="
+
+              # Wait for MinIO to be ready
+              echo "Waiting for MinIO..."
+              until mc alias set myminio http://minio:9000 $MINIO_ROOT_USER $MINIO_ROOT_PASSWORD 2>/dev/null; do
+                echo "  MinIO not ready, waiting 2s..."
+                sleep 2
+              done
+              echo "MinIO is ready"
+
+              # Create bucket (idempotent)
+              echo "Creating bucket 'medusa'..."
+              mc mb myminio/medusa --ignore-existing
+
+              # Set download policy (public read for files)
+              echo "Setting download policy..."
+              mc anonymous set download myminio/medusa
+
+              # Verify bucket exists
+              mc ls myminio/medusa
+              echo "=== MinIO Init Complete ==="
+          env:
+            - name: MINIO_ROOT_USER
+              valueFrom:
+                secretKeyRef:
+                  name: minio-secret
+                  key: MINIO_ROOT_USER
+            - name: MINIO_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: minio-secret
+                  key: MINIO_ROOT_PASSWORD
+          resources:
+            requests:
+              cpu: "50m"
+              memory: "64Mi"
+            limits:
+              cpu: "200m"
+              memory: "128Mi"

@@ -1,0 +1,39 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: smap-store-production
+
+resources:
+  - ../../base/namespace.yaml
+  - ../../base/postgres.yaml
+  - ../../base/redis.yaml
+  - ../../base/minio.yaml
+  - ../../base/minio-init.yaml
+  - ../../base/medusa.yaml
+  - ../../base/medusa-init.yaml
+  - ../../base/storefront.yaml
+  - ../../base/ingress.yaml
+
+labels:
+  - pairs:
+      app.kubernetes.io/part-of: smap-store
+      environment: production
+    includeSelectors: true
+
+images:
+  - name: medusa
+    newName: REGISTRY/smap-store-medusa
+    newTag: IMAGE_TAG
+  - name: storefront
+    newName: REGISTRY/smap-store-storefront
+    newTag: IMAGE_TAG
+
+patches:
+  - path: patches/replicas.yaml
+    target:
+      kind: Deployment
+      name: medusa
+  - path: patches/replicas.yaml
+    target:
+      kind: Deployment
+      name: storefront

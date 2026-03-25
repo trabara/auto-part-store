@@ -10,11 +10,7 @@ Turborepo monorepo for auto-parts e-commerce. Yarn 4 workspaces, Node >= 20.
 | `storefront`                     | `apps/storefront`                 | Next.js 16, React 19, Tailwind CSS v4 |
 | `@repo/common`                   | `packages/common`                 | Shared controllers, services          |
 | `@repo/ui`                       | `packages/ui`                     | UI components (shadcn/ui)             |
-<<<<<<< Updated upstream
-| `@repo/vehicle-fitment-plugin`   | `plugins/vehicle-fitment-plugin`  | Fitment data                          |
-=======
 | `@repo/vehicle-fitment-plugin`   | `plugins/vehicle-fitment-plugin`  | Fitment data, API routes, workflows   |
->>>>>>> Stashed changes
 | `@agilo/medusa-analytics-plugin` | `plugins/medusa-analytics-plugin` | Analytics                             |
 
 All custom backend logic (API routes, modules, workflows, subscribers) lives in **plugins**, not in `apps/medusa`.
@@ -33,11 +29,16 @@ yarn workspace storefront check-types # tsc --noEmit
 # Medusa
 <<<<<<< Updated upstream
 yarn workspace medusa dev            # medusa develop (http://localhost:9000)
+<<<<<<< HEAD
 yarn workspace medusa seed           # run seed script
 =======
 yarn workspace medusa dev             # medusa develop (http://localhost:9000)
 yarn workspace medusa seed:dev        # run seed script
 >>>>>>> Stashed changes
+=======
+yarn workspace medusa seed:dev       # run seed script (dev mode)
+yarn workspace medusa seed           # run seed script (prod mode)
+>>>>>>> feat/k8s
 
 # Docker
 yarn docker:build / yarn docker:up / yarn docker:down / yarn docker:logs
@@ -165,6 +166,14 @@ Use `@medusajs/framework/zod`. Schemas in `schema.ts` per module. Access validat
 ## @repo/common Exports
 
 `BaseController`, `BaseSchema`, `BASE_MASK`, `ILogger`, `MedusaLoggerAdapter`, `IErrorHandler`, `ApiErrorHandler`
+
+## API Response Format
+
+Backend always returns `{ ...data }` not raw arrays. Use `this.success(data)` in controllers.
+
+## Middleware
+
+Use `@router` decorator chaining. Example: `@router.get([path], [middlewares...])`
 
 ## Environment
 

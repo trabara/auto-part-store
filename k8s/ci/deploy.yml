@@ -1,0 +1,80 @@
+name: Deploy to Kubernetes
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+    inputs:
+      tenants:
+        description: "Tenants to deploy (comma-separated)"
+        required: false
+        default: "acme,globex"
+      environment:
+        description: "Environment"
+        required: true
+        default: "production"
+        type: choice
+        options:
+          - production
+          - development
+
+env:
+  REGISTRY: ${{ secrets.REGISTRY }}
+  IMAGE_TAG: ${{ github.ref_name }}
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment || 'production' }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup kubeconfig
+        run: |
+          echo "${{ secrets.KUBECONFIG }}" | base64 -d > kubeconfig
+          echo "KUBECONFIG=$(pwd)/kubeconfig" >> $GITHUB_ENV
+
+      - name: Deploy tenants
+        run: |
+          TENANTS="${{ inputs.tenants || env.TENANTS }}"
+          IFS=',' read -ra TENANT_ARRAY <<< "$TENANTS"
+
+          for tenant in "${TENANT_ARRAY[@]}"; do
+            tenant=$(echo "$tenant" | tr -d '[:space:]')
+            echo "=== Deploying tenant: $tenant ==="
+            
+            # Update secrets.env with CI values
+            sed -i "s|REGISTRY=.*|REGISTRY=${REGISTRY}|" k8s/tenants/$tenant/secrets/secrets.env
+            sed -i "s|IMAGE_TAG=.*|IMAGE_TAG=${IMAGE_TAG}|" k8s/tenants/$tenant/secrets/secrets.env
+            
+            # Deploy
+            ./k8s/scripts/deploy-tenant.sh "$tenant" "${{ inputs.environment || 'production' }}"
+          done
+
+      - name: Wait for rollout
+        run: |
+          sleep 30
+
+          TENANTS="${{ inputs.tenants || env.TENANTS }}"
+          IFS=',' read -ra TENANT_ARRAY <<< "$TENANTS"
+
+          for tenant in "${TENANT_ARRAY[@]}"; do
+            tenant=$(echo "$tenant" | tr -d '[:space:]')
+            echo "Checking rollout status for: $tenant"
+            kubectl rollout status deployment/$tenant-medusa -n smap-store-$tenant --timeout=300s || true
+            kubectl rollout status deployment/$tenant-storefront -n smap-store-$tenant --timeout=300s || true
+          done
+
+      - name: Verify deployment
+        run: |
+          TENANTS="${{ inputs.tenants || env.TENANTS }}"
+          IFS=',' read -ra TENANT_ARRAY <<< "$TENANTS"
+
+          for tenant in "${TENANT_ARRAY[@]}"; do
+            tenant=$(echo "$tenant" | tr -d '[:space:]')
+            echo "=== Deployment status for: $tenant ==="
+            kubectl get pods,svc -n smap-store-$tenant
+          done

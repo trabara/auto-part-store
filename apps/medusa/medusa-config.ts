@@ -8,12 +8,14 @@ import {
 // Load environment variables based on the current NODE_ENV
 loadEnv(process.env.NODE_ENV || "development", process.cwd());
 
+const tenant = process.env.TENANT_NAME || "default";
+
 export default defineConfig({
   projectConfig: {
     databaseUrl: process.env.DATABASE_URL,
     redisUrl: process.env.REDIS_URL,
     cookieOptions: {
-      secure: process.env.NODE_ENV === "production",
+      secure: process.env.COOKIE_SECURE === "true",
       sameSite: "lax",
     },
     http: {
@@ -35,7 +37,7 @@ export default defineConfig({
             is_default: true,
             options: {
               redisUrl: process.env.REDIS_URL,
-              prefix: "medusa-cache",
+              prefix: `${tenant}-medusa-cache`,
             },
           },
         ],

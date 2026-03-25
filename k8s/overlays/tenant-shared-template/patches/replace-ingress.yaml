@@ -1,0 +1,105 @@
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: api-ingress
+spec:
+  entryPoints:
+    - web
+  routes:
+    - match: Host(`API_DOMAIN`) && PathPrefix(`/app`)
+      kind: Rule
+      middlewares:
+        - name: TENANT-api-app-redirect
+      services:
+        - name: medusa
+          port: 9000
+    - match: Host(`API_DOMAIN`) && PathPrefix(`/`)
+      kind: Rule
+      services:
+        - name: medusa
+          port: 9000
+    - match: Host(`SHOP_DOMAIN`) && PathPrefix(`/`)
+      kind: Rule
+      services:
+        - name: storefront
+          port: 80
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: admin-ingress
+  annotations:
+    ingress.kubernetes.io/ssl-redirect: "false"
+    traefik.ingress.kubernetes.io/proxy-headers-force-forward: "true"
+    traefik.ingress.kubernetes.io/pass-host-header: "true"
+spec:
+  ingressClassName: traefik
+  rules:
+    - host: "ADMIN_DOMAIN"
+      http:
+        paths:
+          - path: /app
+            pathType: Prefix
+            backend:
+              service:
+                name: medusa
+                port:
+                  number: 9000
+          - path: /admin
+            pathType: Prefix
+            backend:
+              service:
+                name: medusa
+                port:
+                  number: 9000
+          - path: /auth
+            pathType: Prefix
+            backend:
+              service:
+                name: medusa
+                port:
+                  number: 9000
+          - path: /cloud
+            pathType: Prefix
+            backend:
+              service:
+                name: medusa
+                port:
+                  number: 9000
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: admin-root-redirect
+spec:
+  entryPoints:
+    - web
+  routes:
+    - match: Host(`ADMIN_DOMAIN`) && Path(`/`)
+      kind: Rule
+      middlewares:
+        - name: TENANT-admin-redirect
+      services:
+        - name: medusa
+          port: 9000
+---
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: admin-redirect
+spec:
+  redirectRegex:
+    regex: "^http://ADMIN_DOMAIN/?$"
+    replacement: "http://ADMIN_DOMAIN/app"
+    permanent: false
+---
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: api-app-redirect
+spec:
+  redirectRegex:
+    regex: "^http://API_DOMAIN/app(/.*)?$"
+    replacement: "http://ADMIN_DOMAIN$1"
+    permanent: true

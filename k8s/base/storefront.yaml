@@ -1,0 +1,239 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: storefront-sa
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: storefront-secret-reader
+rules:
+  - apiGroups: [""]
+    resources: ["secrets"]
+    verbs: ["get", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: storefront-secret-reader-binding
+subjects:
+  - kind: ServiceAccount
+    name: storefront-sa
+roleRef:
+  kind: Role
+  name: storefront-secret-reader
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: storefront-secret
+type: Opaque
+stringData:
+  REVALIDATE_SECRET: "CHANGE_ME"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: storefront
+  labels:
+    app: storefront
+    tier: frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: storefront
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: storefront
+        tier: frontend
+    spec:
+      serviceAccountName: storefront-sa
+      hostAliases:
+        - ip: "10.43.173.17"
+          hostnames:
+            - "api.localhost"
+            - "localhost"
+            - "minio.localhost"
+            - "minio-console.localhost"
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 101
+        fsGroup: 101
+      initContainers:
+        - name: wait-for-medusa
+          image: storefront
+          command: ["node", "-e"]
+          args:
+            - |
+              const https = require('https');
+              const fs = require('fs');
+              const http = require('http');
+
+              const token = fs.readFileSync('/var/run/secrets/kubernetes.io/serviceaccount/token', 'utf8').trim();
+              const ca = fs.readFileSync('/var/run/secrets/kubernetes.io/serviceaccount/ca.crt');
+              const namespace = fs.readFileSync('/var/run/secrets/kubernetes.io/serviceaccount/namespace', 'utf8').trim();
+              const apiHost = process.env.KUBERNETES_API_HOST || 'kubernetes.default.svc';
+              const apiPort = process.env.KUBERNETES_API_PORT || '443';
+
+              function httpGet(url, headers = {}) {
+                return new Promise((resolve, reject) => {
+                  const lib = url.startsWith('https') ? https : http;
+                  const hostPart = url.replace(/^https?:\/\//, '').split('/')[0];
+                  const hostname = hostPart.split(':')[0];
+                  const port = parseInt(hostPart.split(':')[1] || (url.startsWith('https') ? '443' : '80'), 10);
+                  const path = '/' + url.split('/').slice(3).join('/');
+                  const opts = {
+                    hostname,
+                    port,
+                    path,
+                    method: 'GET',
+                    headers: { ...headers },
+                    ca: url.startsWith('https') ? ca : undefined,
+                    rejectUnauthorized: apiHost === 'kubernetes.default.svc'
+                  };
+                  const req = lib.request(opts, (res) => {
+                    let data = '';
+                    res.on('data', chunk => data += chunk);
+                    res.on('end', () => resolve({ status: res.statusCode, data }));
+                  });
+                  req.on('error', reject);
+                  req.end();
+                });
+              }
+
+              async function waitForDependencies() {
+                console.log('Waiting for storefront-key secret with valid publishable key...');
+                const maxAttempts = 60;
+                const apiUrl = `https://${apiHost}:${apiPort}/api/v1/namespaces/${namespace}/secrets/storefront-key`;
+                console.log('K8s API URL:', apiUrl);
+                
+                for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+                  try {
+                    const secretRes = await httpGet(apiUrl, { 'Authorization': `Bearer ${token}` });
+                    
+                    if (secretRes.status === 200 && secretRes.data) {
+                      const match = secretRes.data.match(/"NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY":"([^"]+)"/);
+                      if (match) {
+                        const decoded = Buffer.from(match[1], 'base64').toString();
+                        if (/^pk_[a-f0-9]{32,}$/.test(decoded)) {
+                          console.log(`Valid storefront-key found: ${decoded.substring(0, 20)}...`);
+                          process.exit(0);
+                        } else {
+                          console.log(`  Attempt ${attempt}/${maxAttempts} - secret exists but key is not valid yet, waiting 5s...`);
+                        }
+                      } else {
+                        console.log(`  Attempt ${attempt}/${maxAttempts} - secret data not ready, waiting 5s...`);
+                      }
+                    } else if (secretRes.status === 403 || secretRes.status === 404) {
+                      console.log(`  Attempt ${attempt}/${maxAttempts} - secret not ready (${secretRes.status}), waiting 5s...`);
+                    }
+                  } catch (e) {
+                    console.log(`  Attempt ${attempt}/${maxAttempts} - error: ${e.message}, waiting 5s...`);
+                  }
+                  
+                  await new Promise(r => setTimeout(r, 5000));
+                }
+                
+                console.log('WARNING: Timeout waiting for valid storefront-key');
+                process.exit(1);
+              }
+
+              waitForDependencies();
+          envFrom:
+            - secretRef:
+                name: storefront-secret
+          resources:
+            requests:
+              cpu: "10m"
+              memory: "32Mi"
+            limits:
+              cpu: "100m"
+              memory: "64Mi"
+      containers:
+        - name: storefront
+          image: storefront
+          ports:
+            - containerPort: 3000
+              name: http
+          envFrom:
+            - secretRef:
+                name: storefront-secret
+            - configMapRef:
+                name: storefront-config
+            - secretRef:
+                name: storefront-key
+                optional: true
+          resources:
+            requests:
+              cpu: "50m"
+              memory: "128Mi"
+            limits:
+              cpu: "300m"
+              memory: "512Mi"
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 3000
+            initialDelaySeconds: 10
+            periodSeconds: 15
+            failureThreshold: 3
+          readinessProbe:
+            tcpSocket:
+              port: 3000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            failureThreshold: 3
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+          volumeMounts:
+            - name: cache
+              mountPath: /app/.next/cache
+            - name: storefront-cache
+              mountPath: /app/apps/storefront/.next/cache
+      volumes:
+        - name: cache
+          emptyDir: {}
+        - name: storefront-cache
+          emptyDir: {}
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchLabels:
+                    app: storefront
+                topologyKey: kubernetes.io/hostname
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: storefront
+spec:
+  ports:
+    - port: 80
+      targetPort: 3000
+      name: http
+  selector:
+    app: storefront
+  type: ClusterIP
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: storefront-config
+data:
+  NODE_ENV: "production"
+  NEXT_PUBLIC_BASE_URL: "http://SHOP_DOMAIN"
+  NEXT_PUBLIC_MEDUSA_BACKEND_URL: "http://API_DOMAIN"

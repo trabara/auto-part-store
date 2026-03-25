@@ -1,6 +1,6 @@
-import { ModelController } from "../../../../modules/fitment/controllers/model";
-import { UpdateModelInput } from "../../../../modules/fitment/schema";
 import { MedusaRequest, MedusaResponse } from "@medusajs/framework";
+import { UpdateModelInput } from "../../../../modules/fitment/schema";
+import { ModelController } from "../../../controllers/model";
 
 /**
  * GET /admin/models/:id

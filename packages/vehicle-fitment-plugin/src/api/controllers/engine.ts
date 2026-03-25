@@ -1,5 +1,5 @@
-import { FITMENT_MODULE } from "..";
-import { CreateEngineInput, UpdateEngineInput } from "../schema";
+import { FITMENT_MODULE } from "../../modules/fitment";
+import { CreateEngineInput, UpdateEngineInput } from "../../modules/fitment/schema";
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils";
 import { BaseController } from "@repo/common";
 

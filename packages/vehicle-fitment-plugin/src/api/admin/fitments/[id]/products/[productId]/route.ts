@@ -1,4 +1,4 @@
-import { ProductController } from "../../../../../../modules/fitment/controllers/product";
+import { ProductController } from "../../../../../controllers/product";
 import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http";
 
 /**

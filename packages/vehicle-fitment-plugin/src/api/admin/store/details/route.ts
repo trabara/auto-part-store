@@ -3,8 +3,8 @@ import {
   MedusaResponse,
 } from "@medusajs/framework/http";
 import { ContainerRegistrationKeys, Modules } from "@medusajs/framework/utils";
-import { STORE_DETAILS_MODULE } from "../../../../modules/store-details";
-import type { UpdateStoreDetailsInput } from "../../../../modules/store-details/schema";
+import { STORE_DETAILS_MODULE } from "../../../../modules/store";
+import type { UpdateStoreDetailsInput } from "../../../../modules/store/schema";
 
 export const GET = async (
   req: AuthenticatedMedusaRequest,

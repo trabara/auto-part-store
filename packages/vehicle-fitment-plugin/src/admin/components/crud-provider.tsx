@@ -3,7 +3,7 @@ import { CrudContext } from "../context/crud-context";
 
 
 
-export function CrudProvider({ children, entityName }: { children: React.ReactNode, entityName: string }) {
+export function EntityCrudProvider({ children, entityName }: { children: React.ReactNode, entityName: string }) {
 
   const [state, setState] = useState({
     entity: null,

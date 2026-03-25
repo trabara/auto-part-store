@@ -3,7 +3,7 @@ import {
   MiddlewareRoute,
   validateAndTransformBody
 } from "@medusajs/framework/http";
-import { UpdateStoreDetailsSchema } from "../../../../modules/store-details/schema";
+import { UpdateStoreDetailsSchema } from "../../../../modules/store/schema";
 
 const authenticateMiddleware = authenticate(["*"], ["session"]);
 

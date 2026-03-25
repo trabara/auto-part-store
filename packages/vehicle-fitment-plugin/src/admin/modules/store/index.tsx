@@ -17,7 +17,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { Controller, FormProvider, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
-import { UpdateStoreDetailsInput, UpdateStoreDetailsSchema } from "../../../modules/store-details/schema";
+import { UpdateStoreDetailsInput, UpdateStoreDetailsSchema } from "../../../modules/store/schema";
 import { sdk } from "../../lib/sdk";
 
 import { EllipsisHorizontal, Pencil } from '@medusajs/icons';

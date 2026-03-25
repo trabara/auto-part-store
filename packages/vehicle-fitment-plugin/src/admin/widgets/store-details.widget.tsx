@@ -1,5 +1,5 @@
 import { defineWidgetConfig } from "@medusajs/admin-sdk";
-import { StoreDetailsForm } from "../modules/store-details";
+import { StoreDetailsForm } from "../modules/store";
 
 const StoreDetailsWidget = () => {
   return <StoreDetailsForm />;

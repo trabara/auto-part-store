@@ -1,16 +1,16 @@
 import { defineRouteConfig } from "@medusajs/admin-sdk";
-import { CrudProvider } from "../../../components/crud-provider";
+import { EntityCrudProvider } from "../../../components/crud-provider";
 import MakeCreateModal from "../../../modules/fitment/make/components/create-modal";
 import MakeDataTable from "../../../modules/fitment/make/components/data-table";
 import MakeEditDrawer from "../../../modules/fitment/make/components/edit-drawer";
 
 const MakesPage = () => {
   return (
-    <CrudProvider entityName="make">
+    <EntityCrudProvider entityName="make">
       <MakeDataTable />
       <MakeEditDrawer />
       <MakeCreateModal />
-    </CrudProvider>
+    </EntityCrudProvider>
   );
 };
 

@@ -1,6 +1,6 @@
 import { defineLink } from "@medusajs/framework/utils";
 import StoreModule from "@medusajs/medusa/store";
-import StoreDetailsModule from "../modules/store-details";
+import StoreDetailsModule from "../modules/store";
 
 export default defineLink(
   {

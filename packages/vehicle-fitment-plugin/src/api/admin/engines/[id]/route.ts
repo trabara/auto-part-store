@@ -1,4 +1,4 @@
-import { EngineController } from "../../../controllers/engine";
+import { EngineController } from "../../../_controllers/engine";
 import { UpdateEngineInput } from "../../../../modules/fitment/schema";
 import { MedusaRequest, MedusaResponse } from "@medusajs/framework";
 

@@ -1,7 +1,7 @@
 
 import { MedusaRequest, MedusaResponse } from "@medusajs/framework";
 import { UpdateMakeInput } from "../../../../modules/fitment/schema";
-import { MakeController } from "../../../controllers/make";
+import { MakeController } from "../../../_controllers/make";
 
 /**
  * GET /admin/makes/:id

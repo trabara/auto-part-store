@@ -3,7 +3,7 @@ import {
   CreateEngineInput,
   UpdateEngineInput,
 } from "../../../modules/fitment/schema";
-import { EngineController } from "../../controllers/engine";
+import { EngineController } from "../../_controllers/engine";
 
 /**
  * GET /admin/engines

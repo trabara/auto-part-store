@@ -1,5 +1,5 @@
 import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http";
-import { MediaController } from "../../../../controllers/media";
+import { MediaController } from "../../../../_controllers/media";
 
 
 export async function POST(

@@ -1,5 +1,5 @@
 import { MedusaRequest, MedusaResponse } from "@medusajs/framework";
-import { ProductController } from "../../../../controllers/product";
+import { ProductController } from "../../../../_controllers/product";
 
 /**
  * GET /admin/fitments/:id/products

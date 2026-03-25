@@ -1,4 +1,4 @@
-import { FitmentController } from "../../../controllers/fitment";
+import { FitmentController } from "../../../_controllers/fitment";
 import { UpdateFitmentInput } from "../../../../modules/fitment/schema";
 import { MedusaRequest, MedusaResponse } from "@medusajs/framework";
 

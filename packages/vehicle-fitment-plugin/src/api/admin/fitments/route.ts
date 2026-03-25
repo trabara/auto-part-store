@@ -1,6 +1,6 @@
 import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http";
 import { CreateFitmentInput } from "../../../modules/fitment/schema";
-import { FitmentController } from "../../controllers/fitment";
+import { FitmentController } from "../../_controllers/fitment";
 
 /**
  * GET /admin/fitments

@@ -70,14 +70,14 @@ const ProductFitmentsWidget = () => {
     <Container className="p-0">
       <DataTable instance={table}>
         <DataTable.Toolbar className="flex justify-between items-center">
-          <Heading level="h2">{t("widget.fitments.title")}</Heading>
+          <Heading level="h2">{t("fitment.widget.title")}</Heading>
           <div>
             <Button
               size="small"
               variant="secondary"
               onClick={() => navigate(`/products/${productId}/fitments`)}
             >
-              {t("widget.fitments.link")}
+              {t("fitment.widget.link")}
             </Button>
           </div>
         </DataTable.Toolbar>

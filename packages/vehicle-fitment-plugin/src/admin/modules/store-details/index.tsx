@@ -5,6 +5,7 @@ import {
   Drawer,
   DropdownMenu,
   Heading,
+  Hint,
   IconButton,
   Input,
   Label,
@@ -83,7 +84,10 @@ export const StoreDetailsForm = () => {
   return (
     <Container className="divide-y p-0">
       <div className="flex items-center justify-between px-6 py-4">
-        <Heading level="h2">{t('store.widget.title')}</Heading>
+        <div>
+          <Heading level="h2">{t('store.widget.title')}</Heading>
+          <Hint>{t('store.widget.subtitle')}</Hint>
+        </div>
         <DropdownMenu>
           <DropdownMenu.Trigger asChild>
             <IconButton variant="transparent">

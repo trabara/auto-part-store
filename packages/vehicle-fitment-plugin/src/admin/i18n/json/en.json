@@ -17,6 +17,7 @@
   "common.selected": "{{count}} selected",
   "common.createNew": "Creating a new option",
   "common.selectExisting": "Select an existing option",
+
   "fitment.page.title": "Fitments",
   "fitment.page.subtitle": "Manage vehicle fitments and compatible products",
   "fitment.create.title": "Create Fitment",
@@ -77,6 +78,7 @@
   "fitment.toast.unlinked": "Product unlinked successfully",
   "fitment.toast.unlinkError": "Failed to unlink product",
   "fitment.toast.errorOccurred": "An error occurred",
+
   "make.page.title": "Makes",
   "make.page.subtitle": "Manage vehicle makes and manufacturers",
   "make.create.title": "Create Make",
@@ -100,6 +102,7 @@
   "make.toast.createError": "Failed to create make. Please try again.",
   "make.toast.updated": "Make updated successfully.",
   "make.toast.updateError": "Failed to update make. Please try again.",
+
   "model.page.title": "Models",
   "model.page.subtitle": "Manage vehicle models by manufacturer",
   "model.create.title": "Create Model",
@@ -124,6 +127,7 @@
   "model.toast.createError": "Failed to create model. Please try again.",
   "model.toast.updated": "Model updated successfully",
   "model.toast.updateError": "Failed to update model",
+
   "engine.page.title": "Engines",
   "engine.page.subtitle": "Manage vehicle engines and specifications",
   "engine.create.title": "Create Engine",
@@ -158,6 +162,7 @@
   "engine.toast.updateError": "Failed to update engine. Please try again.",
   "engine.toast.bulkDeleted": "Engines deleted successfully",
   "engine.toast.bulkDeleteError": "Failed to delete engines",
+
   "product.page.title": "Products",
   "product.column.title": "Title",
   "product.column.subtitle": "Subtitle",
@@ -170,8 +175,8 @@
   "product.column.notLinked": "Not Linked",
   "product.bulk.linkTooltip": "Link selected products to fitment",
   "product.bulk.unlinkTooltip": "Unlink selected products from fitment",
-  "widget.fitments.title": "Fitments",
-  "widget.fitments.link": "Link",
+  "fitment.widget.title": "Fitments",
+  "fitment.widget.link": "Link",
   "make.delete.title": "Delete Make",
   "make.delete.description": "Are you sure you want to delete \"{{name}}\"? This will also delete all associated models and fitments.",
   "make.delete.confirm": "Delete",
@@ -190,6 +195,7 @@
   "engine.delete.cancel": "Cancel",
   "engine.toast.deleted": "Engine deleted successfully",
   "engine.toast.deleteError": "Failed to delete engine",
+
   "invoice.page.title": "Invoice Settings",
   "invoice.page.subtitle": "Configure your invoice settings",
   "invoice.field.companyName": "Company Name",
@@ -224,6 +230,7 @@
   "invoice.template.date": "Date",
   "invoice.template.due": "Due",
   "invoice.template.quantity": "Quantity",
+
   "store.field.name": "Store Name",
   "store.field.name.placeholder": "Enter your store name",
   "store.field.name.hint": "This is the name that will be displayed to your customers",
@@ -250,5 +257,20 @@
   "store.widget.title": "Additional Details",
   "store.widget.subtitle": "Add more details about your store to display to customers",
   "store.widget.toast.success": "Store details updated successfully",
-  "store.widget.toast.error": "Failed to update store details"
+  "store.widget.toast.error": "Failed to update store details",
+
+  "media.gallery.heading": "Media Gallery",
+  "media.gallery.loading": "Loading media...",
+  "media.gallery.no_images": "No images added yet",
+  "media.modal.title": "Manage Media for {{entityName}}",
+  "media.toast.save.success": "Media updated successfully",
+  "media.toast.save.error": "Failed to update media. Please try again.",
+  "media.command.setThumbnail": "Set as thumbnail",
+  "media.command.selected": "{{count}} image selected",
+  "media.upload.label": "Media",
+  "media.upload.optional": "(Optional)",
+  "media.upload.description": "Add media to the product to showcase it in your storefront.",
+  "media.upload.uploading": "Uploading...",
+  "media.upload.button": "Upload images",
+  "media.upload.dragAndDrop": "Drag and drop images here or click to upload."
 }

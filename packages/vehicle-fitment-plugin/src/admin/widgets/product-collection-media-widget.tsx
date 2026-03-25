@@ -1,13 +1,13 @@
 import { defineWidgetConfig } from "@medusajs/admin-sdk"
-import { AdminProductCategory, DetailWidgetProps } from "@medusajs/framework/types"
+import { AdminCollection, DetailWidgetProps } from "@medusajs/framework/types"
 import EntityMediaWidget from "../modules/entity-media/components/entity-media-widget"
 
-const CategoryMediaWidget = ({ data }: DetailWidgetProps<AdminProductCategory>) => {
+const ProductCollectionMediaWidget = ({ data }: DetailWidgetProps<AdminCollection>) => {
     return <EntityMediaWidget entityId={data.id} entityName="medias" />
 }
 
 export const config = defineWidgetConfig({
-    zone: "product_category.details.side.before",
+    zone: "product_collection.details.before",
 })
 
-export default CategoryMediaWidget
+export default ProductCollectionMediaWidget

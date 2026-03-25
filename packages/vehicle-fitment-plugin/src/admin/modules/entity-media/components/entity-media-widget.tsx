@@ -40,12 +40,12 @@ export default function EntityMediaWidget({ entityId, entityName }: EntityMediaW
                 <div className="grid grid-cols-[repeat(auto-fill,96px)] gap-4">
                     {isLoading && (
                         <div className="col-span-full">
-                            <p className="text-ui-fg-subtle text-sm">{t("media.gallery.loading")}</p>
+                            <p className="font-normal font-sans txt-small text-ui-fg-muted">{t("media.gallery.loading")}</p>
                         </div>
                     )}
                     {!isLoading && images.length === 0 && (
                         <div className="col-span-full">
-                            <p className="text-ui-fg-subtle text-sm">{t("media.gallery.no_images")}</p>
+                            <p className="font-normal font-sans txt-small text-ui-fg-muted">{t("media.gallery.no_images")}</p>
                         </div>
                     )}
                     {images.map((image: EntityImage) => (

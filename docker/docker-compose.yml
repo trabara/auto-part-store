@@ -1,9 +1,5 @@
 name: ${PROJECT_NAME:-smap-store}
 
-# include:
-#   - docker-compose.infra.yml
-#   - docker-compose.build.yml
-#   - docker-compose.ingress.yml
 
 volumes:
   postgres_data:

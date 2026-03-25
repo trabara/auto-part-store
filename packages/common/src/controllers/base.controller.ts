@@ -82,4 +82,12 @@ export abstract class BaseController {
   protected noContent(): void {
     this.res.status(204).send();
   }
+
+  /**
+   * Send not found response
+   * @param message 
+   */
+  protected notFound(message: string = "Resource not found"): void {
+    this.res.status(404).json({ message });
+  }
 }

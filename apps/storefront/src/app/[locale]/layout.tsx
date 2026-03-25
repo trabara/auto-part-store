@@ -78,8 +78,7 @@ export default async function LocaleLayout({ children, params }: Props) {
       await retrieveCart().catch(() => null),
       await retrieveStoreDetails().catch(() => null),
     ])
-
-  console.log("Store Details:", storeDetails) // Debug log for store details
+    
   return (
     <ThemeProvider
       attribute="class"

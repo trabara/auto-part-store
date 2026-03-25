@@ -1,45 +1,80 @@
 {
   "version": 1,
   "skills": {
+    "building-admin-dashboard-customizations": {
+      "source": "medusajs/medusa-agent-skills",
+      "sourceType": "github",
+      "computedHash": "4cd60098a12fcfd682ae4f7668bd1cf0c5986c27e2ebfcf45166e3d69c4e5f1c"
+    },
+    "building-storefronts": {
+      "source": "medusajs/medusa-agent-skills",
+      "sourceType": "github",
+      "computedHash": "288f645ffd2b29f925f5c70077b9e57af6b787843fc98b276e84150d253511a7"
+    },
     "building-with-medusa": {
-      "source": "./.agents/skills/building-with-medusa/SKILL.md",
-      "sourceType": "local",
-      "computedHash": "b5c56f31cfd8ce88ae5e754fadb8376eb40ec97e321bbd78258dffc962084fee"
-    },
-    "next-best-practices": {
-      "source": "./.agents/skills/next-best-practices/SKILL.md",
-      "sourceType": "local",
-      "computedHash": "c78f952d4e98bf3694856dbf70c03a6037d4e258ff3701f2642bfdf108549a25"
-    },
-    "vercel-react-best-practices": {
-      "source": "./.agents/skills/vercel-react-best-practices/SKILL.md",
-      "sourceType": "local",
-      "computedHash": "61860fd4249cf5e5ec917a08aceebed48ccf9b38d526e3cb73e0b18aaf261dac"
-    },
-    "frontend-design": {
-      "source": "./.agents/skills/frontend-design/SKILL.md",
-      "sourceType": "local",
-      "computedHash": "b81e2ff87ed8fa4d6c377ccb127a7254c9e6a77e3ae94f21e6b514f7bb2945a0"
-    },
-    "use-railway": {
-      "source": "./.agents/skills/use-railway/SKILL.md",
-      "sourceType": "local",
-      "computedHash": "21c0bb432593e1428665c20f4911d95517fd9e1422c13e25a56ebe5b7704f1a4"
+      "source": "medusajs/medusa-agent-skills",
+      "sourceType": "github",
+      "computedHash": "fef62d911eba65523b679baea2ce9bf1c253211f18499115374dc9727c024e4f"
     },
     "chrome-devtools": {
       "source": "./.agents/skills/chrome-devtools/SKILL.md",
       "sourceType": "local",
       "computedHash": "893563ea6ee597b247f289589aeb6d20fb0f53b204be62d125cb79083e776664"
     },
-    "terraform-style-guide": {
-      "source": "./.agents/skills/terraform-style-guide/SKILL.md",
+    "db-generate": {
+      "source": "medusajs/medusa-agent-skills",
+      "sourceType": "github",
+      "computedHash": "054793865ece11794c7d0738304257775ca9a86460301e91233f4633c06cc9c5"
+    },
+    "db-migrate": {
+      "source": "medusajs/medusa-agent-skills",
+      "sourceType": "github",
+      "computedHash": "67e08aa2633481106be84d196381320a4ba88410e6d710395234e23e394cd07e"
+    },
+    "frontend-design": {
+      "source": "./.agents/skills/frontend-design/SKILL.md",
       "sourceType": "local",
-      "computedHash": "9d08cde101042ff656c473b6db9e8a7bcfc0cc191441b8613be3b47f11fec060"
+      "computedHash": "b81e2ff87ed8fa4d6c377ccb127a7254c9e6a77e3ae94f21e6b514f7bb2945a0"
     },
     "kubernetes-specialist": {
       "source": "./.agents/skills/kubernetes-specialist/SKILL.md",
       "sourceType": "local",
       "computedHash": "a53962a8d166ad68b653a594ce0d1e9477947b617200a21f1d602e66cb3cb511"
+    },
+    "learning-medusa": {
+      "source": "medusajs/medusa-agent-skills",
+      "sourceType": "github",
+      "computedHash": "0e23645defdc43d1ab3337818673889a13e0904f8ab534a0057f5a61219e87fa"
+    },
+    "new-user": {
+      "source": "medusajs/medusa-agent-skills",
+      "sourceType": "github",
+      "computedHash": "8474aef2e05fc8cf48e793d3ca1eca74095bfe23e8be8242b7c4613d401f52ac"
+    },
+    "next-best-practices": {
+      "source": "./.agents/skills/next-best-practices/SKILL.md",
+      "sourceType": "local",
+      "computedHash": "c78f952d4e98bf3694856dbf70c03a6037d4e258ff3701f2642bfdf108549a25"
+    },
+    "storefront-best-practices": {
+      "source": "medusajs/medusa-agent-skills",
+      "sourceType": "github",
+      "computedHash": "633f757031071344075cce6450ff8c5bf209691a8d072bb6cc73be153faa4ba4"
+    },
+    "terraform-style-guide": {
+      "source": "./.agents/skills/terraform-style-guide/SKILL.md",
+      "sourceType": "local",
+      "computedHash": "9d08cde101042ff656c473b6db9e8a7bcfc0cc191441b8613be3b47f11fec060"
+    },
+    "use-railway": {
+      "source": "./.agents/skills/use-railway/SKILL.md",
+      "sourceType": "local",
+      "computedHash": "21c0bb432593e1428665c20f4911d95517fd9e1422c13e25a56ebe5b7704f1a4"
+    },
+    "vercel-react-best-practices": {
+      "source": "./.agents/skills/vercel-react-best-practices/SKILL.md",
+      "sourceType": "local",
+      "computedHash": "61860fd4249cf5e5ec917a08aceebed48ccf9b38d526e3cb73e0b18aaf261dac"
     }
   }
 }

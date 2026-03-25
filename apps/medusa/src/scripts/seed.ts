@@ -110,19 +110,13 @@ export default async function seedDemoData({ container }: ExecArgs) {
     input: {
       selector: { id: store.id },
       update: {
-        name: "SnapStore",
-      },
-    },
-  });
-
-  await updateStoresWorkflow(container).run({
-    input: {
-      selector: { id: store.id },
-      update: {
+        name: "Smap Store",
         default_sales_channel_id: defaultSalesChannel[0].id,
       },
     },
   });
+
+
   logger.info("Seeding region data...");
   const { result: regionResult } = await createRegionsWorkflow(container).run({
     input: {
@@ -184,44 +178,6 @@ export default async function seedDemoData({ container }: ExecArgs) {
       fulfillment_provider_id: "manual_manual",
     },
   });
-
-  // Seed store details
-  const STORE_DETAILS_MODULE = "storeDetails";
-  try {
-    const storeDetailsService = container.resolve<any>(STORE_DETAILS_MODULE);
-    const query = container.resolve(ContainerRegistrationKeys.QUERY);
-
-    const { data: storeCheck } = await query.graph({
-      entity: "store",
-      fields: ["id", "store_details.*"],
-    });
-
-    if (storeCheck[0] && !(storeCheck[0] as any).store_details) {
-      logger.info("Seeding store details...");
-      const [storeDetails] = await storeDetailsService.createStoreDetailses([
-        {
-          logo_url: null,
-          map_url: null,
-          address: null,
-          contact_emails: ["contact@smapstore.com"],
-          contact_phone_numbers: ["+216 XX XXX XXX"],
-          social_links: {
-            facebook: "https://facebook.com",
-            twitter: "https://twitter.com",
-            instagram: "https://instagram.com",
-          },
-        },
-      ]);
-
-      await link.create({
-        [Modules.STORE]: { store_id: store.id },
-        [STORE_DETAILS_MODULE]: { store_details_id: storeDetails.id },
-      });
-      logger.info("Finished seeding store details.");
-    }
-  } catch (err) {
-    logger.warn(`Store details seeding skipped: ${(err as Error).message}`);
-  }
 
   logger.info("Seeding fulfillment data...");
   const shippingProfiles = await fulfillmentModuleService.listShippingProfiles({

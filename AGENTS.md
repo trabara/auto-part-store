@@ -27,18 +27,9 @@ yarn workspace storefront lint        # eslint
 yarn workspace storefront check-types # tsc --noEmit
 
 # Medusa
-<<<<<<< Updated upstream
 yarn workspace medusa dev            # medusa develop (http://localhost:9000)
-<<<<<<< HEAD
-yarn workspace medusa seed           # run seed script
-=======
-yarn workspace medusa dev             # medusa develop (http://localhost:9000)
-yarn workspace medusa seed:dev        # run seed script
->>>>>>> Stashed changes
-=======
 yarn workspace medusa seed:dev       # run seed script (dev mode)
 yarn workspace medusa seed           # run seed script (prod mode)
->>>>>>> feat/k8s
 
 # Docker
 yarn docker:build / yarn docker:up / yarn docker:down / yarn docker:logs
@@ -48,42 +39,45 @@ Services: `api.localhost` (Medusa), `shop.localhost` (Storefront), `minio.localh
 
 ### Running Tests (Medusa)
 
+Run all tests of a type:
+
 ```bash
-yarn workspace medusa test:integration:http -- --testPathPattern="health"
-yarn workspace medusa test:integration:modules -- --testPathPattern="cart"
+yarn workspace medusa test:integration:http
+yarn workspace medusa test:integration:modules
+yarn workspace medusa test:unit
+```
+
+Run a single test file:
+
+```bash
 yarn workspace medusa test:unit -- --testPathPattern="make.unit"
+yarn workspace medusa test:integration:http -- --testPathPattern="health"
+```
+
+Run specific test:
+
+```bash
+yarn workspace medusa test:unit -- --testPathPattern="create-product" --testNamePattern="should create"
 ```
 
 Test locations: HTTP: `apps/medusa/integration-tests/http/*.spec.ts`, Modules: `apps/medusa/src/modules/*/__tests__/**`, Unit: `apps/medusa/src/**/__tests__/**/*.unit.spec.[jt]s`
 
 ## Code Style
 
-<<<<<<< Updated upstream
-**Storefront**: No semicolons, double quotes, 2-space indent  
-**Medusa/Backend**: Semicolons, single quotes, 4-space indent
-=======
 ### Formatting
 
 | Scope          | Semicolons | Quotes | Indent  |
 | -------------- | ---------- | ------ | ------- |
 | Storefront     | No         | Double | 2-space |
 | Medusa/Plugins | Yes        | Single | 4-space |
->>>>>>> Stashed changes
 
-Storefront has `.prettierrc`; backend has no enforced formatter — follow the conventions above.
+Storefront has `.prettierrc`; backend has no enforced formatter — follow conventions above.
 
 ### TypeScript & Imports
 
-<<<<<<< Updated upstream
-### Import Conventions
-
-**Storefront**: `@/` alias, order: `next/*, react` → `@/lib/*` → `@/modules/*` → `@/repo/*` → third-party  
-**Medusa/Plugins**: Relative imports; `@medusajs/framework/*` for framework; `@repo/common` for shared
-=======
-- **Storefront**: Strict, `noUncheckedIndexedAccess`, ES2022, path alias `@/*` → `./src/*`. Imports: use `@/` alias, order: `next/*`, `react` → `@/lib/*` → `@/modules/*` → `@/repo/*` → third-party
+- **Storefront**: Strict, `noUncheckedIndexedAccess`, ES2022, path alias `@/*` → `./src/*`. Imports order: `next/*`, `react` → `@/lib/*` → `@/modules/*` → `@/repo/*` → third-party
 - **Medusa/Plugins**: ES2021, Node16, `strictNullChecks`, decorators. Imports: relative; `@medusajs/framework/*` for framework; `@repo/common` for shared
 - **@repo/ui**: `import { Button } from "@repo/ui/components/button"`, `import { cn } from "@repo/ui/lib/utils"`
->>>>>>> Stashed changes
 
 ### Naming Conventions
 
@@ -100,17 +94,9 @@ Storefront has `.prettierrc`; backend has no enforced formatter — follow the c
 
 ## React / Next.js Patterns
 
-<<<<<<< Updated upstream
-- Routes under `[locale]/`. Locales: `en`, `fr`, `ar` (RTL)
-- Pages: `async` server components
-- `"use server"` for data modules in `src/lib/data/*.ts`
-- State: Zustand `createStore` from `zustand/vanilla`
-- UI: `@repo/ui` — CVA + Radix + `cn()` utility
-=======
 - Routes under `[locale]/`. Locales: `en`, `fr`, `ar` (RTL). Pages: `async` server components
 - `"use server"` for data modules in `src/lib/data/*.ts`. State: Zustand `createStore` from `zustand/vanilla`
 - UI: `@repo/ui` — CVA + Radix + `cn()` utility. Forms: `react-hook-form` + `zod` via `@hookform/resolvers`
->>>>>>> Stashed changes
 - Route structure: `src/app/[locale]/page.tsx`, `src/app/[locale]/cart/page.tsx`, `src/app/[locale]/p/[handle]/page.tsx`
 
 ## Medusa Backend Patterns
@@ -147,12 +133,6 @@ export const storeMakeMiddlewares: MiddlewareRoute[] = [{
   matcher: "/store/makes", method: "GET",
   middlewares: [validateAndTransformQuery(Schema, { defaults: [...], isList: true })],
 }]
-
-// Module links
-defineLink(
-  { linkable: ProductModule.linkable.product, isList: true, deleteCascade: true },
-  { linkable: FitmentModule.linkable.fitment, isList: true, deleteCascade: true },
-);
 ```
 
 ## Validation & Error Handling
@@ -166,14 +146,6 @@ Use `@medusajs/framework/zod`. Schemas in `schema.ts` per module. Access validat
 ## @repo/common Exports
 
 `BaseController`, `BaseSchema`, `BASE_MASK`, `ILogger`, `MedusaLoggerAdapter`, `IErrorHandler`, `ApiErrorHandler`
-
-## API Response Format
-
-Backend always returns `{ ...data }` not raw arrays. Use `this.success(data)` in controllers.
-
-## Middleware
-
-Use `@router` decorator chaining. Example: `@router.get([path], [middlewares...])`
 
 ## Environment
 
@@ -189,4 +161,5 @@ Load via `skill` tool.
 | `next-best-practices`         | Next.js, RSC patterns, data fetching                                     |
 | `vercel-react-best-practices` | React/Next.js performance                                                |
 | `frontend-design`             | UI components, pages                                                     |
+| `storefront-best-practices`   | Storefront/checkout/cart/e-commerce features                             |
 | `use-railway`                 | Deployment, infrastructure                                               |

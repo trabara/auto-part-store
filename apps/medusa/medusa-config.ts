@@ -118,20 +118,7 @@ export default defineConfig({
       resolve: "@medusajs/medusa/translation",
     },
   ],
-  featureFlags: {
-    translation: true,
-  },
   plugins: [
-    {
-      resolve: 'medusa-custom-attributes',
-      options: {
-        enableUI: true,
-        projectConfig: {
-          store_cors: process.env.STORE_CORS,
-          admin_cors: process.env.ADMIN_CORS,
-        },
-      },
-    },
     {
       resolve: "@agilo/medusa-analytics-plugin",
       options: {
@@ -142,8 +129,14 @@ export default defineConfig({
       resolve: "@repo/vehicle-fitment-plugin",
       options: {
         // Plugin-specific options can be added here
-        logoUrl: 'https://smap.tn/assets/blanc-CcIuouBN.png'
+        logoUrl: "https://smap.tn/assets/blanc-CcIuouBN.png",
       },
-    }
+    },
+    {
+      resolve: "@repo/rbac-plugin",
+      options: {
+        seed: true,
+      },
+    },
   ],
 });

@@ -30,8 +30,8 @@
     "@medusajs/cli": "2.13.4",
     "@medusajs/framework": "2.13.4",
     "@medusajs/medusa": "2.13.4",
-    "@repo/vehicle-fitment-plugin": "workspace:*",
-    "medusa-custom-attributes": "^1.0.19"
+    "@repo/rbac-plugin": "workspace:^",
+    "@repo/vehicle-fitment-plugin": "workspace:*"
   },
   "devDependencies": {
     "@medusajs/test-utils": "2.13.4",

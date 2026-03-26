@@ -1,5 +1,11 @@
 import { z } from "@medusajs/framework/zod";
-import { BaseSchema } from '@repo/common';
+
+export const BaseSchema = z.object({
+    id: z.string(),
+    created_at: z.date(),
+    updated_at: z.date(),
+    deleted_at: z.date().nullable(),
+});
 
 export const CategorySchema = BaseSchema.extend({
   name: z.string(),
@@ -15,7 +21,6 @@ export const PermissionSchema = BaseSchema.extend({
 
 export const PolicySchema = BaseSchema.extend({
   name: z.enum(["ALLOW", "DENY"]),
-  permission: PermissionSchema,
 });
 
 export const RoleSchema = BaseSchema.extend({
@@ -38,20 +43,22 @@ export const CreateRoleSchema = z.object({
   name: z.string(),
   description: z.string().optional(),
   is_default: z.boolean().default(false),
-  policies: z
-    .array(
-      z.object({
-        permission_id: z.string(),
-        name: z.enum(["ALLOW", "DENY"]),
-      }),
-    )
-    .default([]),
 });
 
 export const UpdateRoleSchema = z.object({
   name: z.string().optional(),
   description: z.string().optional(),
   is_default: z.boolean().optional(),
+});
+
+export const CreatePolicySchema = z.object({
+  name: z.enum(["ALLOW", "DENY"]),
+  permission: z.object({
+    kind: z.enum(["read", "write", "delete"]),
+    target: z.string(),
+    type: z.enum(["predefined", "custom"]),
+    category_id: z.string().optional(),
+  }),
 });
 
 export const AssignRoleSchema = z.object({

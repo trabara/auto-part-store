@@ -1,9 +1,10 @@
 import {
+  createStep,
   createWorkflow,
+  StepResponse,
   WorkflowResponse,
 } from "@medusajs/framework/workflows-sdk";
-import { createStep, StepResponse } from "@medusajs/framework/workflows-sdk";
-import { RBAC_MODULE } from "../modules/rbac";
+import { RBAC_MODULE, RbacModuleService } from "../modules/rbac";
 
 type PolicyInput = {
   permission_id: string;
@@ -20,30 +21,28 @@ type CreateRoleWorkflowInput = {
 const createRoleStep = createStep(
   "create-role-step",
   async (input: CreateRoleWorkflowInput, { container }) => {
-    const service = container.resolve<any>(RBAC_MODULE);
+    const service = container.resolve<RbacModuleService>(RBAC_MODULE);
+
+    const policies = await service.createRbacPolicies(
+      input.policies
+    );
 
     const role = await service.createRbacRoles({
       name: input.name,
       description: input.description,
       is_default: input.is_default,
+      policies: policies.map((p) => p.id),
     });
 
-    const policies = await service.createRbacPolicies(
-      input.policies.map((p) => ({
-        ...p,
-        role_id: role.id,
-      })),
-    );
-
     return new StepResponse(
-      { role, policies },
+      { role },
       { roleId: role.id, policyIds: policies.map((p: any) => p.id) },
     );
   },
   async (compensation, { container }) => {
     if (!compensation) return;
 
-    const service = container.resolve<any>(RBAC_MODULE);
+    const service = container.resolve<RbacModuleService>(RBAC_MODULE);
 
     if (compensation.policyIds?.length) {
       await service.deleteRbacPolicies(compensation.policyIds);

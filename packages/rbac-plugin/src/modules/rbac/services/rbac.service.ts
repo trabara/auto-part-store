@@ -1,4 +1,5 @@
 import { MedusaService } from "@medusajs/framework/utils";
+import { EXCLUDED_ROUTES } from "../constant";
 import {
   RbacCategory,
   RbacMember,
@@ -6,8 +7,7 @@ import {
   RbacPolicy,
   RbacRole,
 } from "../models";
-import { Role } from "../schema";
-import { EXCLUDED_ROUTES } from "../constant";
+import { Member, Role } from "../schema";
 
 class RbacModuleService extends MedusaService({
   RbacCategory,
@@ -17,7 +17,7 @@ class RbacModuleService extends MedusaService({
   RbacRole,
 }) {
 
-  public async hasAccess(userId: string, path: string, resource: string) {
+  public async hasAccess(userId: string, path: string, resource: string): Promise<boolean> {
 
     if (this.isExcludedRoute(path)) {
       return true;
@@ -58,6 +58,25 @@ class RbacModuleService extends MedusaService({
     });
 
     return matchedPolicy?.name !== "DENY";
+  }
+
+  public async assignRole(userId: string, roleId: string): Promise<Member> {
+    const existingMembers = await this.listRbacMembers({
+      user_id: userId,
+    });
+
+    let member;
+    if (existingMembers.length > 0) {
+      member = existingMembers[0];
+      await this.updateRbacMembers(member.id, { role_id: roleId });
+    } else {
+      member = await this.createRbacMembers({
+        user_id: userId,
+        role_id: roleId,
+      });
+    }
+
+    return member;
   }
 
   private isExcludedRoute(path: string): boolean {

@@ -1,4 +1,4 @@
-import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http";
+import { AuthenticatedMedusaRequest, MedusaRequest, MedusaResponse } from "@medusajs/framework/http";
 import { ILogger } from "../interfaces/logger.interface";
 import { IErrorHandler } from "../interfaces/error-handler.interface";
 import { MedusaLoggerAdapter } from "../services/logger.service";
@@ -17,7 +17,7 @@ export abstract class BaseController {
   protected errorHandler: IErrorHandler;
 
   constructor(
-    protected readonly req: MedusaRequest,
+    protected readonly req: AuthenticatedMedusaRequest,
     protected readonly res: MedusaResponse
   ) {
     this.logger = MedusaLoggerAdapter.fromScope(req.scope, this.constructor.name);

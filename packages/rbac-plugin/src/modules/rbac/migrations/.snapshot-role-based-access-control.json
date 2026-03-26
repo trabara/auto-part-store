@@ -113,95 +113,6 @@
           "nullable": false,
           "mappedType": "text"
         },
-        "user_id": {
-          "name": "user_id",
-          "type": "text",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "mappedType": "text"
-        },
-        "role_id": {
-          "name": "role_id",
-          "type": "text",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": true,
-          "mappedType": "text"
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamptz",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "length": 6,
-          "default": "now()",
-          "mappedType": "datetime"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamptz",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "length": 6,
-          "default": "now()",
-          "mappedType": "datetime"
-        },
-        "deleted_at": {
-          "name": "deleted_at",
-          "type": "timestamptz",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": true,
-          "length": 6,
-          "mappedType": "datetime"
-        }
-      },
-      "name": "rbac_member",
-      "schema": "public",
-      "indexes": [
-        {
-          "keyName": "IDX_rbac_member_deleted_at",
-          "columnNames": [],
-          "composite": false,
-          "constraint": false,
-          "primary": false,
-          "unique": false,
-          "expression": "CREATE INDEX IF NOT EXISTS \"IDX_rbac_member_deleted_at\" ON \"rbac_member\" (\"deleted_at\") WHERE deleted_at IS NULL"
-        },
-        {
-          "keyName": "rbac_member_pkey",
-          "columnNames": [
-            "id"
-          ],
-          "composite": false,
-          "constraint": true,
-          "primary": true,
-          "unique": true
-        }
-      ],
-      "checks": [],
-      "foreignKeys": {},
-      "nativeEnums": {}
-    },
-    {
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "text",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "mappedType": "text"
-        },
         "kind": {
           "name": "kind",
           "type": "text",
@@ -245,7 +156,7 @@
           "unsigned": false,
           "autoincrement": false,
           "primary": false,
-          "nullable": true,
+          "nullable": false,
           "mappedType": "text"
         },
         "created_at": {
@@ -285,6 +196,15 @@
       "schema": "public",
       "indexes": [
         {
+          "keyName": "IDX_rbac_permission_category_id",
+          "columnNames": [],
+          "composite": false,
+          "constraint": false,
+          "primary": false,
+          "unique": false,
+          "expression": "CREATE INDEX IF NOT EXISTS \"IDX_rbac_permission_category_id\" ON \"rbac_permission\" (\"category_id\") WHERE deleted_at IS NULL"
+        },
+        {
           "keyName": "IDX_rbac_permission_deleted_at",
           "columnNames": [],
           "composite": false,
@@ -314,109 +234,20 @@
         }
       ],
       "checks": [],
-      "foreignKeys": {},
-      "nativeEnums": {}
-    },
-    {
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "text",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "mappedType": "text"
-        },
-        "name": {
-          "name": "name",
-          "type": "text",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "enumItems": [
-            "ALLOW",
-            "DENY"
-          ],
-          "mappedType": "enum"
-        },
-        "permission_id": {
-          "name": "permission_id",
-          "type": "text",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "mappedType": "text"
-        },
-        "role_id": {
-          "name": "role_id",
-          "type": "text",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "mappedType": "text"
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamptz",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "length": 6,
-          "default": "now()",
-          "mappedType": "datetime"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamptz",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "length": 6,
-          "default": "now()",
-          "mappedType": "datetime"
-        },
-        "deleted_at": {
-          "name": "deleted_at",
-          "type": "timestamptz",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": true,
-          "length": 6,
-          "mappedType": "datetime"
-        }
-      },
-      "name": "rbac_policy",
-      "schema": "public",
-      "indexes": [
-        {
-          "keyName": "IDX_rbac_policy_deleted_at",
-          "columnNames": [],
-          "composite": false,
-          "constraint": false,
-          "primary": false,
-          "unique": false,
-          "expression": "CREATE INDEX IF NOT EXISTS \"IDX_rbac_policy_deleted_at\" ON \"rbac_policy\" (\"deleted_at\") WHERE deleted_at IS NULL"
-        },
-        {
-          "keyName": "rbac_policy_pkey",
+      "foreignKeys": {
+        "rbac_permission_category_id_foreign": {
+          "constraintName": "rbac_permission_category_id_foreign",
           "columnNames": [
+            "category_id"
+          ],
+          "localTableName": "public.rbac_permission",
+          "referencedColumnNames": [
             "id"
           ],
-          "composite": false,
-          "constraint": true,
-          "primary": true,
-          "unique": true
+          "referencedTableName": "public.rbac_category",
+          "updateRule": "cascade"
         }
-      ],
-      "checks": [],
-      "foreignKeys": {},
+      },
       "nativeEnums": {}
     },
     {
@@ -516,6 +347,262 @@
       ],
       "checks": [],
       "foreignKeys": {},
+      "nativeEnums": {}
+    },
+    {
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "text"
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "enumItems": [
+            "ALLOW",
+            "DENY"
+          ],
+          "mappedType": "enum"
+        },
+        "role_id": {
+          "name": "role_id",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "text"
+        },
+        "permission_id": {
+          "name": "permission_id",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "text"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamptz",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": 6,
+          "default": "now()",
+          "mappedType": "datetime"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamptz",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": 6,
+          "default": "now()",
+          "mappedType": "datetime"
+        },
+        "deleted_at": {
+          "name": "deleted_at",
+          "type": "timestamptz",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "length": 6,
+          "mappedType": "datetime"
+        }
+      },
+      "name": "rbac_policy",
+      "schema": "public",
+      "indexes": [
+        {
+          "keyName": "IDX_rbac_policy_role_id",
+          "columnNames": [],
+          "composite": false,
+          "constraint": false,
+          "primary": false,
+          "unique": false,
+          "expression": "CREATE INDEX IF NOT EXISTS \"IDX_rbac_policy_role_id\" ON \"rbac_policy\" (\"role_id\") WHERE deleted_at IS NULL"
+        },
+        {
+          "keyName": "IDX_rbac_policy_permission_id",
+          "columnNames": [],
+          "composite": false,
+          "constraint": false,
+          "primary": false,
+          "unique": false,
+          "expression": "CREATE INDEX IF NOT EXISTS \"IDX_rbac_policy_permission_id\" ON \"rbac_policy\" (\"permission_id\") WHERE deleted_at IS NULL"
+        },
+        {
+          "keyName": "IDX_rbac_policy_deleted_at",
+          "columnNames": [],
+          "composite": false,
+          "constraint": false,
+          "primary": false,
+          "unique": false,
+          "expression": "CREATE INDEX IF NOT EXISTS \"IDX_rbac_policy_deleted_at\" ON \"rbac_policy\" (\"deleted_at\") WHERE deleted_at IS NULL"
+        },
+        {
+          "keyName": "rbac_policy_pkey",
+          "columnNames": [
+            "id"
+          ],
+          "composite": false,
+          "constraint": true,
+          "primary": true,
+          "unique": true
+        }
+      ],
+      "checks": [],
+      "foreignKeys": {
+        "rbac_policy_role_id_foreign": {
+          "constraintName": "rbac_policy_role_id_foreign",
+          "columnNames": [
+            "role_id"
+          ],
+          "localTableName": "public.rbac_policy",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "public.rbac_role",
+          "updateRule": "cascade"
+        },
+        "rbac_policy_permission_id_foreign": {
+          "constraintName": "rbac_policy_permission_id_foreign",
+          "columnNames": [
+            "permission_id"
+          ],
+          "localTableName": "public.rbac_policy",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "public.rbac_permission",
+          "updateRule": "cascade"
+        }
+      },
+      "nativeEnums": {}
+    },
+    {
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "text"
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "text"
+        },
+        "role_id": {
+          "name": "role_id",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "text"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamptz",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": 6,
+          "default": "now()",
+          "mappedType": "datetime"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamptz",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": 6,
+          "default": "now()",
+          "mappedType": "datetime"
+        },
+        "deleted_at": {
+          "name": "deleted_at",
+          "type": "timestamptz",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "length": 6,
+          "mappedType": "datetime"
+        }
+      },
+      "name": "rbac_member",
+      "schema": "public",
+      "indexes": [
+        {
+          "keyName": "IDX_rbac_member_role_id",
+          "columnNames": [],
+          "composite": false,
+          "constraint": false,
+          "primary": false,
+          "unique": false,
+          "expression": "CREATE INDEX IF NOT EXISTS \"IDX_rbac_member_role_id\" ON \"rbac_member\" (\"role_id\") WHERE deleted_at IS NULL"
+        },
+        {
+          "keyName": "IDX_rbac_member_deleted_at",
+          "columnNames": [],
+          "composite": false,
+          "constraint": false,
+          "primary": false,
+          "unique": false,
+          "expression": "CREATE INDEX IF NOT EXISTS \"IDX_rbac_member_deleted_at\" ON \"rbac_member\" (\"deleted_at\") WHERE deleted_at IS NULL"
+        },
+        {
+          "keyName": "rbac_member_pkey",
+          "columnNames": [
+            "id"
+          ],
+          "composite": false,
+          "constraint": true,
+          "primary": true,
+          "unique": true
+        }
+      ],
+      "checks": [],
+      "foreignKeys": {
+        "rbac_member_role_id_foreign": {
+          "constraintName": "rbac_member_role_id_foreign",
+          "columnNames": [
+            "role_id"
+          ],
+          "localTableName": "public.rbac_member",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "public.rbac_role",
+          "updateRule": "cascade"
+        }
+      },
       "nativeEnums": {}
     }
   ],

@@ -13,6 +13,7 @@
     "./.medusa/server/src/modules/*": "./.medusa/server/src/modules/*/index.js",
     "./modules/*": "./.medusa/server/src/modules/*/index.js",
     "./modules/i18n/*": "./.medusa/server/src/modules/i18n/*",
+    "./middlewares/*": "./.medusa/server/src/middlewares/*/index.js",
     "./providers/*": "./.medusa/server/src/providers/*/index.js",
     "./*": "./.medusa/server/src/*.js",
     "./admin": {

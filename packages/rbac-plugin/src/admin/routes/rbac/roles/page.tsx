@@ -2,7 +2,7 @@ import { defineRouteConfig } from "@medusajs/admin-sdk";
 import { MedusaPage } from '@repo/dashboard/components/medusa-page';
 import { sdk } from '@repo/dashboard/lib/sdk';
 import { PageResponse } from '@repo/dashboard/types/query';
-import { User } from 'lucide-react';
+import { User } from "lucide-react";
 import { CreateRoleInput, CreateRoleSchema, Role, RoleSchema, UpdateRoleInput, UpdateRoleSchema } from '../../../../modules/rbac/schema';
 import PermissionDataTable from "../components/permission-data-table";
 
@@ -32,7 +32,7 @@ export default function RolesPage() {
       fields={{
         name: {
           label: "Name",
-          description: "The name of the role"
+          description: "The name of the role",
         },
         description: {
           label: "Description",
@@ -45,10 +45,11 @@ export default function RolesPage() {
       }}
       create={{
         mutateFn: (data) => createRole(data),
+        schema: CreateRoleSchema,
         fields: {
           policies: {
             hideLabel: true,
-            render: ({ onChange }: any) => <PermissionDataTable
+            render: ({ onChange }) => <PermissionDataTable
               className="absolute inset-0"
               onChange={onChange}
             />
@@ -69,7 +70,6 @@ export default function RolesPage() {
             schema: CreateRoleSchema.pick({ policies: true })
           }
         ]
-
       }}
       edit={{
         schema: UpdateRoleSchema,

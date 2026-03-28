@@ -16,7 +16,7 @@ import { FieldOverrides } from "@snowpact/react-rhf-zod-form/src/types";
 import { useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
 import { createSchemaDataTableColumnDef } from "../helpers/column-def";
-import { CreateConfig, EditConfig } from "../types/config";
+import { CellOverrides, CreateConfig, EditConfig } from "../types/config";
 import { PageResponse, QueryFn } from "../types/query";
 import CreateModal from "./create-modal";
 import DataTable from "./data-table";
@@ -24,7 +24,6 @@ import EditDrawer from "./edit-drawer";
 
 setupSnowForm({
   translate: (key) => key,
-  // Essential components (a warning is logged if any are missing)
   components: {
     text: ({ componentProps, ...rest }) => <Input {...rest} type="text" />,
     email: ({ componentProps, ...rest }) => <Input {...rest} type="email" />,
@@ -100,10 +99,10 @@ interface MedusaPageProps<
 > {
   name: string;
   schema: LS;
-  fields: FieldOverrides<z.infer<LS>>;
+  fields: FieldOverrides<z.infer<LS>> | CellOverrides<z.infer<LS>>;
   queryFn: QueryFn<z.infer<LS>, R>;
-  create: CreateConfig<CS>;
-  edit: EditConfig<ES>;
+  create?: CreateConfig<CS>;
+  edit?: EditConfig<ES>;
 }
 
 export function MedusaPage<
@@ -111,12 +110,12 @@ export function MedusaPage<
   CS extends z.AnyZodObject,
   ES extends z.AnyZodObject,
   R extends PageResponse<z.infer<LS>>,
->({ name, schema, queryFn, create, edit }: MedusaPageProps<LS, CS, ES, R>) {
+>({ name, schema, queryFn, fields, create, edit }: MedusaPageProps<LS, CS, ES, R>) {
   const [searchParams, setSearchParams] = useSearchParams();
 
   const columns = useMemo(() => {
-    return createSchemaDataTableColumnDef(schema);
-  }, [schema]);
+    return createSchemaDataTableColumnDef(schema, fields);
+  }, [schema, fields]);
 
   const filters = useMemo((): DataTableFilter[] => {
     return [];
@@ -132,24 +131,28 @@ export function MedusaPage<
         onCreateClicked={() => setSearchParams({ op: "create" })}
       />
 
-      <CreateModal
-        name={name}
-        schema={create.schema}
-        steps={create.steps}
-        mutateFn={create.mutateFn}
-        fields={create.fields}
-        open={searchParams.get("op") === "create"}
-        onOpenChange={() => setSearchParams({})}
-      />
+      {create && (
+        <CreateModal
+          name={name}
+          schema={create.schema}
+          steps={create.steps}
+          mutateFn={create.mutateFn}
+          fields={{ ...fields, ...create.fields }}
+          open={searchParams.get("op") === "create"}
+          onOpenChange={() => setSearchParams({})}
+        />
+      )}
 
-      <EditDrawer
-        name={name}
-        schema={edit.schema}
-        mutateFn={edit.mutateFn}
-        fields={edit.fields}
-        open={searchParams.get("op") === "edit"}
-        onOpenChange={() => setSearchParams({})}
-      />
+      {edit &&
+        <EditDrawer
+          name={name}
+          schema={edit.schema}
+          mutateFn={edit.mutateFn}
+          fields={{ ...fields, ...edit.fields }}
+          open={searchParams.get("op") === "edit"}
+          onOpenChange={() => setSearchParams({})}
+        />
+      }
     </Container>
   );
 }

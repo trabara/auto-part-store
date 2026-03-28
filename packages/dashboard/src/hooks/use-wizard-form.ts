@@ -9,7 +9,7 @@ type UseWizardFormReturn<S extends z.AnyZodObject> = [
         fields: string[];
         hasNext: boolean;
         schema: z.AnyZodObject;
-        step: string;
+        step?: string;
     },
     {
         handleChange: (tabId: string, form: UseFormReturn<z.infer<S>>) => void;
@@ -17,10 +17,10 @@ type UseWizardFormReturn<S extends z.AnyZodObject> = [
     }
 ]
 export const useWizardForm = <S extends z.AnyZodObject>(
-    steps: StepConfig<S>[],
+    steps: StepConfig<S>[] = [],
     onSuccess: (values: z.infer<S>) => void
 ): UseWizardFormReturn<S> => {
-    const [activeStep, setActiveStep] = useState(() => steps[0]!.id);
+    const [activeStep, setActiveStep] = useState(() => steps[0]?.id);
     const [allValues, setAllValues] = useState<Record<string, unknown>>({});
 
     const currentStep = useMemo(() => {
@@ -52,7 +52,7 @@ export const useWizardForm = <S extends z.AnyZodObject>(
         return steps.reduce(
             (acc, step) => acc.merge(step.schema),
             z.object({}),
-        ) as z.AnyZodObject;
+        ) as S;
     }, [steps]);
 
 

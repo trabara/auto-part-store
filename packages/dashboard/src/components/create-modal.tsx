@@ -1,17 +1,14 @@
-import { StepConfig } from "@/types/config";
+import { CreateConfig } from "@/types/config";
 import { z } from "@medusajs/framework/zod";
 import { Button, FocusModal, Heading, Hint, ProgressTabs } from "@medusajs/ui";
-import { SnowForm } from "@snowpact/react-rhf-zod-form";
-import React, { useMemo } from "react";
+import { getZodShape, SnowForm } from "@snowpact/react-rhf-zod-form";
+import React from "react";
 import { useCreateMutation } from "../hooks/use-create-mutation";
 import { useWizardForm } from "../hooks/use-wizard-form";
 
-interface CreateModalProps<S extends z.AnyZodObject> {
+interface CreateModalProps<S extends z.AnyZodObject> extends CreateConfig<S> {
   open?: boolean;
   name: string;
-  schema?: S;
-  steps?: StepConfig<S>[];
-  fields?: Record<string, any>;
   onOpenChange?: (open: boolean) => void;
   mutateFn: (data: z.infer<S>) => Promise<any>;
 }
@@ -38,6 +35,11 @@ export default function CreateModal<S extends z.AnyZodObject>({
     onOpenChange?.(false);
   });
 
+  const activeSchema = (steps.length > 0 ? state.schema : schema) as S;
+  if (!activeSchema) {
+    throw new Error("Schema is required if no steps are provided");
+  }
+
   const handleSubmit = async (values: z.infer<S>) => {
     if (steps.length > 0) {
       await action.handleSubmit(values);
@@ -48,22 +50,16 @@ export default function CreateModal<S extends z.AnyZodObject>({
     onOpenChange?.(false);
   }
 
-  const formSchema = useMemo(() => schema ?? state.schema, [state.schema, schema]);
-
-  if (!formSchema) {
-    throw new Error("Schema is required if no steps are provided");
-  }
-
   return (
     <FocusModal open={open} onOpenChange={onOpenChange}>
       <FocusModal.Content>
-        <SnowForm<S>
+        <SnowForm
           overrides={fields}
-          schema={formSchema as any}
+          schema={activeSchema}
           onSubmit={handleSubmit}
         >
           {({ renderField, renderSubmitButton, form }) => {
-            if (!schema && steps.length > 0) {
+            if (steps.length > 0) {
               return (
                 <ProgressTabs
                   value={state.step}
@@ -126,12 +122,14 @@ export default function CreateModal<S extends z.AnyZodObject>({
               );
             }
 
+            const fieldKeys = Object.keys(getZodShape(activeSchema)) as (keyof z.infer<S>)[];
+
             return <>
               <FocusModal.Header>
                 <Heading level="h1">Create {name}</Heading>
               </FocusModal.Header>
               <FocusModal.Body className="mx-auto max-w-lg flex flex-col py-16 px-4">
-                {state.fields.map((key) => renderField(key))}
+                {fieldKeys.map((key) => renderField(key))}
               </FocusModal.Body>
               <FocusModal.Footer>
                 <div className="flex items-center justify-end gap-x-2">

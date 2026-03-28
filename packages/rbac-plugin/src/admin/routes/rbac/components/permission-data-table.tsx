@@ -1,9 +1,8 @@
-import { UseDataTableReturn } from "@medusajs/ui"
 import DataTable from "@repo/dashboard/components/data-table"
 import { createSchemaDataTableColumnDef } from "@repo/dashboard/helpers/column-def"
 import { sdk } from "@repo/dashboard/lib/sdk"
 import { PageResponse } from "@repo/dashboard/types/query"
-import { useMemo, useRef } from "react"
+import { useMemo } from "react"
 import { CreatePolicyInput, Permission, PermissionSchema, Policy } from "../../../../modules/rbac/schema"
 
 
@@ -20,7 +19,7 @@ export default function PermissionDataTable({ defaultValues, onChange, ...props 
         return createSchemaDataTableColumnDef(
             PermissionSchema.omit({ category: true }),
             {
-                target:{
+                target: {
                     label: "Resource",
                 },
                 type: {

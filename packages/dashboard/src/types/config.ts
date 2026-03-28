@@ -6,7 +6,7 @@ import {
 import { CellContext, ColumnDefTemplate } from "@tanstack/react-table";
 import { PageResponse, QueryFn } from "./query";
 
-export type StepConfig<S extends z.AnyZodObject> = {
+export interface StepConfig<S extends z.AnyZodObject> {
   description?: string;
   header?: boolean;
   icon: React.ReactNode;
@@ -15,28 +15,26 @@ export type StepConfig<S extends z.AnyZodObject> = {
   schema: S;
 };
 
-export type ActionConfig<S extends z.AnyZodObject> = {
-  name: string;
-  fields: FieldOverrides<z.infer<S>>;
+export interface ActionConfig<S extends z.AnyZodObject> {
+  fields?: FieldOverrides<z.infer<S>>;
+  schema: S;
 };
 
-export type ListConfig<
+export interface ListConfig<
   S extends z.AnyZodObject,
   R extends PageResponse<z.infer<S>>,
-> = ActionConfig<S> & {
+> extends ActionConfig<S> {
+  name: string;
   queryFn: QueryFn<z.infer<S>, R>;
-  schema: S;
 };
 
-export type CreateConfig<S extends z.AnyZodObject> = ActionConfig<S> & {
-  mutateFn: <R>(data: z.infer<S>) => Promise<R>;
-  schema?: S;
-  steps: StepConfig<S>[];
+export interface CreateConfig<S extends z.AnyZodObject> extends ActionConfig<S> {
+  mutateFn: (data: z.infer<S>) => Promise<any>;
+  steps?: StepConfig<any>[];
 };
 
-export type EditConfig<S extends z.AnyZodObject> = ActionConfig<S> & {
-  mutateFn: <R>(data: z.infer<S>) => Promise<R>;
-  schema: S;
+export interface EditConfig<S extends z.AnyZodObject> extends ActionConfig<S> {
+  mutateFn: (data: z.infer<S>) => Promise<any>;
 };
 
 export interface CellOverride<

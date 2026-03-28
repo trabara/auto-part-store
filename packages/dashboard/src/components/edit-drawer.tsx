@@ -1,17 +1,14 @@
+import { EditConfig } from "@/types/config";
 import { z } from "@medusajs/framework/zod";
 import { Button, Drawer, Heading, Hint } from "@medusajs/ui";
 import { SnowForm } from "@snowpact/react-rhf-zod-form";
-import { FieldOverrides } from "@snowpact/react-rhf-zod-form/src/types";
 import { useUpdateMutation } from "../hooks/use-update-mutation";
 
 
-interface EditDrawerProps<S extends z.AnyZodObject> {
+interface EditDrawerProps<S extends z.AnyZodObject> extends EditConfig<S> {
   name: string;
-  schema: S;
-  fields?: FieldOverrides<z.infer<S>>;
   open?: boolean;
   defaultValues?: z.infer<S>;
-  mutateFn: <R>(data: z.infer<S>) => Promise<R>;
   onOpenChange?: (open: boolean) => void;
 }
 

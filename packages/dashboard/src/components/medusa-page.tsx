@@ -7,9 +7,8 @@ import { createSchemaDataTableColumnDef } from "../helpers/column-def";
 import { CrudConfig } from "../types/config";
 import { PageResponse } from "../types/query";
 import CreateModal from "./create-modal";
-import DataTableList from "./data-table";
+import DataTable from "./data-table";
 import EditDrawer from "./edit-drawer";
-import { DataTableBulkActionsToolbar } from "./bulk-actions-toolbar";
 
 setupSnowForm({
   translate: (key) => key,
@@ -91,7 +90,7 @@ export function MedusaPage<
 
   return (
     <Container className="divide-y p-0">
-      <DataTableList<T, R>
+      <DataTable
         name={name}
         columns={columns as any}
         filters={filters}

@@ -39,5 +39,4 @@ export type CrudConfig<T extends { id: string }, Response extends PageResponse<T
     list: ListConfig<T, Response>;
     create: CreateConfig<T>;
     update: UpdateConfig<T>;
-    delete: DeleteConfig<T>;
 }

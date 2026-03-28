@@ -6,7 +6,7 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
   await controller.get();
 };
 
-export const PUT = async (req: MedusaRequest, res: MedusaResponse) => {
+export const PATCH = async (req: MedusaRequest, res: MedusaResponse) => {
   const controller = new RoleController(req, res);
   await controller.update();
 };

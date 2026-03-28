@@ -16,11 +16,11 @@ export class RoleController extends BaseController {
   async list(): Promise<void> {
     await this.execute(async () => {
       const query = this.req.scope.resolve(ContainerRegistrationKeys.QUERY);
-      const validated = RoleFiltersSchema.parse(this.req.query || {});
+      // const validated = RoleFiltersSchema.parse(this.req.query || {});
 
       const { data, metadata } = await query.graph({
         entity: "rbac_role",
-        filters: validated,
+        // filters: validated,
         ...this.req.queryConfig,
       });
 
@@ -31,20 +31,26 @@ export class RoleController extends BaseController {
   async create(): Promise<void> {
     await this.execute(async () => {
       const service = this.req.scope.resolve<RbacModuleService>(RBAC_MODULE);
-      const validated = CreateRoleSchema.parse(this.req.validatedBody);
+      const validated = CreateRoleSchema.parse(this.req.body);
 
       this.logger.info("Creating new role", {
         data: validated,
       });
 
-      const createdPolicies = await service.createRbacPolicies(validated.policies);
-
       const role = await service.createRbacRoles({
         name: validated.name,
         description: validated.description,
         is_default: validated.is_default,
-        policies: createdPolicies.map((p) => p.id),
       });
+
+
+      await service.createRbacPolicies(validated.policies.map((policy) => ({
+        name: policy.name,
+        permission_id: policy.permission_id,
+        role_id: role.id,
+      })));
+
+
 
       this.logger.info("Role created successfully", {
         role_id: role.id,

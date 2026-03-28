@@ -1,43 +1,51 @@
 import { PageResponse, QueryFn } from "@/types/query";
 import {
   Button,
-  DataTable,
   DataTableFilter,
+  DataTable as DataTableUI,
   Heading,
   Hint,
   useDataTable,
   type DataTableColumnDef
 } from "@medusajs/ui";
+import { useEffect } from "react";
 import { usePageQuery } from "../hooks/use-page-query";
 import { DataTableBulkActionsToolbar } from "./bulk-actions-toolbar";
 
-interface DataTableListProps<T, Response extends PageResponse<T>> {
+interface DataTableListProps<T, R extends PageResponse<T>> {
   name: string;
   columns: DataTableColumnDef<T, any>[]; // This should be typed according to the DataTable column definitions
   filters: DataTableFilter[];
-  queryFn: QueryFn<T, Response>;
-  onCreateClicked?: () => void;
   className?: string;
+  queryFn: QueryFn<T, R>;
+  onCreateClicked?: () => void;
   onRowClick?: (row: T) => void;
+  onRowSelectChange?: (rows: T[]) => void;
 }
 
-const DataTableList = <T extends { id: string }, R extends PageResponse<T>>({
-  name,
-  columns,
-  filters,
-  className,
-  queryFn,
-  onCreateClicked,
-  onRowClick,
-}: DataTableListProps<T, R>) => {
+const DataTable = <T extends { id: string }, R extends PageResponse<T>>(
+  props: DataTableListProps<T, R>,
+) => {
+
+  const {
+    name,
+    columns,
+    filters,
+    className,
+    queryFn,
+    onCreateClicked,
+    onRowClick,
+    onRowSelectChange,
+  } = props;
+
   // Use paginated query hook
   const queryConfig = usePageQuery({
     queryKey: name,
     queryFn,
-    selectFn: (response: R | undefined) => {
+    selectFn: (resp: R | undefined) => {
       return {
-        data: response?.data,
-        rowCount: response?.metadata?.count
+        data: resp?.data,
+        rowCount: resp?.metadata?.count
       }
     }
   });
@@ -48,15 +56,25 @@ const DataTableList = <T extends { id: string }, R extends PageResponse<T>>({
     filters,
     onRowClick: (_, row) => {
       onRowClick?.(row);
-    }
+    },
   });
 
+  useEffect(() => {
+    const selectedRows = table
+      .getRowModel()
+      .rows.filter((row) => row.getIsSelected())
+      .map(row => row.original)
+    onRowSelectChange?.(selectedRows)
+  }, [table])
+
   return (
-    <DataTable instance={table} className={className}>
-      <DataTable.Toolbar className="flex items-center justify-between px-6 py-4">
+    <DataTableUI instance={table} className={className}>
+      <DataTableUI.Toolbar
+        className="flex items-center justify-between px-6 py-4"
+      >
         <div>
           <Heading level="h1">
-            {name}
+            <span className="capitalize">{name}</span>
           </Heading>
           <Hint></Hint>
         </div>
@@ -65,15 +83,16 @@ const DataTableList = <T extends { id: string }, R extends PageResponse<T>>({
             Create
           </Button>
         )}
-      </DataTable.Toolbar>
-      <DataTable.Table />
-      <DataTable.Pagination />
+      </DataTableUI.Toolbar>
+
+      <DataTableUI.Table />
+      <DataTableUI.Pagination />
 
       <DataTableBulkActionsToolbar table={table} entityName={name}>
         <div></div>
       </DataTableBulkActionsToolbar>
-    </DataTable>
+    </DataTableUI>
   );
-};
+}
 
-export default DataTableList;
+export default DataTable;

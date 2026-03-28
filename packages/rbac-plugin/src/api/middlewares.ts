@@ -23,10 +23,10 @@ export const BaseFindParams = createFindParams();
 export const adminRolesMiddlewares: MiddlewareRoute[] = [
   {
     matcher: "/admin/rbac/roles",
-    methods: ["GET"],
+    method: "GET",
     middlewares: [
       authenticateMiddleware,
-      validateAndTransformQuery(BaseFindParams.merge(RoleFiltersSchema), {
+      validateAndTransformQuery(BaseFindParams, {
         defaults: ["id", "name", "description", "is_default", "created_at"],
         isList: true,
       }),
@@ -37,19 +37,19 @@ export const adminRolesMiddlewares: MiddlewareRoute[] = [
     method: "POST",
     middlewares: [
       authenticateMiddleware,
-      validateAndTransformBody(CreateRoleSchema),
+      // validateAndTransformBody(CreateRoleSchema),
     ],
   },
   {
     matcher: "/admin/rbac/roles/:id",
-    methods: ["GET"],
+    method: "GET",
     middlewares: [
       authenticateMiddleware
     ],
   },
   {
     matcher: "/admin/rbac/roles/:id",
-    method: "PUT",
+    method: "PATCH",
     middlewares: [
       authenticateMiddleware,
       validateAndTransformBody(UpdateRoleSchema),
@@ -75,7 +75,7 @@ export const adminRolesMiddlewares: MiddlewareRoute[] = [
 export const adminPermissionsMiddlewares: MiddlewareRoute[] = [
   {
     matcher: "/admin/rbac/permissions",
-    methods: ["GET"],
+    method: "GET",
     middlewares: [
       authenticateMiddleware,
       validateAndTransformQuery(BaseFindParams, {
@@ -102,7 +102,7 @@ export const adminPermissionsMiddlewares: MiddlewareRoute[] = [
 export const adminCategoriesMiddlewares: MiddlewareRoute[] = [
   {
     matcher: "/admin/rbac/categories",
-    methods: ["GET"],
+    method: "GET",
     middlewares: [
       authenticateMiddleware,
       validateAndTransformQuery(BaseFindParams, {

@@ -6,11 +6,11 @@ import {
     type DataTableColumnDef,
 } from "@medusajs/ui";
 
-type DataTableColumnHelper<TData extends DataTableRowData> = ReturnType<typeof createDataTableColumnHelper<TData>>;
+type DataTableColumnHelper<TData extends DataTableRowData, TValue> = ReturnType<typeof createDataTableColumnHelper<TData>>;
 
-type CreateColumnsCallback<TData extends DataTableRowData> = (columnHelper: DataTableColumnHelper<TData>) => Array<DataTableColumnDef<TData>>;
+type CreateColumnsCallback<TData extends DataTableRowData, TValue> = (columnHelper: DataTableColumnHelper<TData, TValue>) => Array<DataTableColumnDef<TData, TValue>>;
 
-export function createSelectDataTableColumns<TData extends DataTableRowData>(createColumns: CreateColumnsCallback<TData>): Array<DataTableColumnDef<TData>> {
+export function createSelectDataTableColumns<TData extends DataTableRowData, TValue = unknown>(createColumns: CreateColumnsCallback<TData, TValue>): Array<DataTableColumnDef<TData, TValue>> {
     const columnHelper = createDataTableColumnHelper<TData>();
     return [
         columnHelper.display({

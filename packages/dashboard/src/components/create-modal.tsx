@@ -2,7 +2,7 @@ import { CreateConfig } from "@/types/config";
 import { z } from "@medusajs/framework/zod";
 import { Button, FocusModal, Heading, Hint, ProgressTabs } from "@medusajs/ui";
 import { getZodShape, SnowForm } from "@snowpact/react-rhf-zod-form";
-import React from "react";
+import React, { useMemo } from "react";
 import { useCreateMutation } from "../hooks/use-create-mutation";
 import { useWizardForm } from "../hooks/use-wizard-form";
 
@@ -30,12 +30,13 @@ export default function CreateModal<S extends z.AnyZodObject>({
     createFn: mutateFn,
   });
 
-  const [state, action] = useWizardForm(steps, async (values) => {
+  const [wizardState, action] = useWizardForm(steps, async (values) => {
     await mutate.mutateAsync(values);
     onOpenChange?.(false);
   });
 
-  const activeSchema = (steps.length > 0 ? state.schema : schema) as S;
+  const activeSchema = useMemo(() => (steps.length > 0 ? wizardState.schema : schema) as S, [wizardState.schema, schema]) as S;
+
   if (!activeSchema) {
     throw new Error("Schema is required if no steps are provided");
   }
@@ -62,7 +63,7 @@ export default function CreateModal<S extends z.AnyZodObject>({
             if (steps.length > 0) {
               return (
                 <ProgressTabs
-                  value={state.step}
+                  value={wizardState.step}
                   className="flex flex-col h-full"
                   onValueChange={(tabId) =>
                     action.handleChange(tabId, form)
@@ -80,7 +81,7 @@ export default function CreateModal<S extends z.AnyZodObject>({
 
                   <FocusModal.Body className="relative flex-1">
                     {steps.map(({ id, label, description, header }) => {
-                      if (state.step !== id) {
+                      if (wizardState.step !== id) {
                         return <React.Fragment key={id} />;
                       }
                       return (
@@ -98,7 +99,7 @@ export default function CreateModal<S extends z.AnyZodObject>({
                             </div>
                           )}
 
-                          {state.fields.map((key) => renderField(key))}
+                          {wizardState.fields.map((key) => renderField(key))}
                         </ProgressTabs.Content>
                       );
                     })}
@@ -113,8 +114,8 @@ export default function CreateModal<S extends z.AnyZodObject>({
                         Cancel
                       </Button>
                       {renderSubmitButton({
-                        disabled: !form.formState.isValid && !state.hasNext,
-                        children: state.hasNext ? "Next" : "Create",
+                        disabled: !form.formState.isValid && !wizardState.hasNext,
+                        children: wizardState.hasNext ? "Next" : "Create",
                       })}
                     </div>
                   </FocusModal.Footer>

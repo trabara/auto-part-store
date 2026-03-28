@@ -1,18 +1,26 @@
 import { CellOverrides } from "@/types/config";
 import { z } from "@medusajs/framework/zod";
-import { DataTableColumnDef } from '@medusajs/ui';
+import { EllipsisHorizontal, Pencil } from "@medusajs/icons";
+import { DataTableColumnDef, DropdownMenu, IconButton } from '@medusajs/ui';
 import { getZodShape } from "@snowpact/react-rhf-zod-form";
 import { getZodFieldInfo, resolveFieldType } from "@snowpact/react-rhf-zod-form/src/utils";
 import { format } from 'date-fns';
 import { createSelectDataTableColumns } from "./create-select-columns";
 
+type SchemaConfig<S extends z.AnyZodObject, T = z.infer<S>> = {
+    schema: S,
+    fields?: CellOverrides<T>
+    onRowAction?: (action: string, row: T) => void,
+}
 export function createSchemaDataTableColumnDef<
-    S extends z.ZodTypeAny,
+    S extends z.AnyZodObject,
     T extends { id: string },
     K extends keyof T = keyof T
->(schema: S, fields?: CellOverrides<T>): DataTableColumnDef<T, K>[] {
+>(config: SchemaConfig<S, T>): DataTableColumnDef<T, K>[] {
 
-    return createSelectDataTableColumns<T>((columnHelper) => {
+    const { schema, fields } = config;
+
+    return createSelectDataTableColumns<T, K>((columnHelper) => {
 
         const shape = getZodShape(schema) as Record<K, z.ZodTypeAny>;
 
@@ -21,18 +29,10 @@ export function createSchemaDataTableColumnDef<
 
         const keys = fields && Object.keys(fields).length > 0 ? Object.keys(fields) as K[] : (Object.keys(shape) as K[]);
 
-        const columns = keys.map((key) => {
+        const columns: DataTableColumnDef<T, K>[] = keys.map((key) => {
             const fieldInfo = getZodFieldInfo(shape[key]);
             const fieldType = resolveFieldType(fieldInfo);
             const override = fields?.[key]
-
-            // if (override) {
-            //     return columnHelper.accessor(key as any, {
-            //         header: () => <span className="capitalize">{override.label}</span>,
-            //         enableSorting: true,
-            //         cell: override.cell,
-            //     })
-            // }
 
             return columnHelper.accessor(key as any, {
                 header: () => <span className="capitalize">{override?.label || String(key)}</span>,
@@ -50,6 +50,31 @@ export function createSchemaDataTableColumnDef<
                 }
             })
         })
+
+        columns.push(columnHelper.display({
+            id: "actions",
+            header: "",
+            size: 50,
+            cell: (info) => {
+                return (
+                    <DropdownMenu>
+                        <DropdownMenu.Trigger asChild>
+                            <IconButton variant="transparent" size="small" className="p-2">
+                                <EllipsisHorizontal />
+                            </IconButton>
+                        </DropdownMenu.Trigger>
+                        <DropdownMenu.Content>
+                            <DropdownMenu.Item onSelect={() => {
+                                config.onRowAction?.("edit", info.row.original)
+                            }}>
+                                <Pencil />
+                                Edit
+                            </DropdownMenu.Item>
+                        </DropdownMenu.Content>
+                    </DropdownMenu>
+                )
+            },
+        }));
 
         return columns;
     })

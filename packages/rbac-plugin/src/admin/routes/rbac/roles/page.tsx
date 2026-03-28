@@ -1,28 +1,29 @@
 import { defineRouteConfig } from "@medusajs/admin-sdk";
 import { MedusaPage } from '@repo/dashboard/components/medusa-page';
 import { sdk } from '@repo/dashboard/lib/sdk';
-import { PageResponse } from '@repo/dashboard/types/query';
+import { PageQueryParams, PageResponse } from '@repo/dashboard/types/query';
 import { User } from "lucide-react";
 import { CreateRoleInput, CreateRoleSchema, Role, RoleSchema, UpdateRoleInput, UpdateRoleSchema } from '../../../../modules/rbac/schema';
 import PermissionDataTable from "../components/permission-data-table";
 
 export default function RolesPage() {
-  const listRoles = async (signal: AbortSignal, params: Record<string, any> = {}) => {
-    return sdk.client.fetch<PageResponse<Role>>("/admin/rbac/roles", {
+
+  const listRoles = (signal: AbortSignal, params?: PageQueryParams) =>
+    sdk.client.fetch<PageResponse<Role>>("/admin/rbac/roles", {
       method: "GET",
       signal,
       query: {
+        ...(params || {}),
         fields: 'id,name,description,is_default,created_at',
-        ...params
       },
     })
-  }
-  const createRole = async (data: CreateRoleInput) => {
-    await sdk.client.fetch("/admin/rbac/roles", { method: "POST", body: data })
-  }
-  const updateRole = async (data: UpdateRoleInput) => {
-    await sdk.client.fetch("/admin/rbac/roles", { method: "PATCH", body: data })
-  }
+
+  const createRole = (data: CreateRoleInput) =>
+    sdk.client.fetch("/admin/rbac/roles", { method: "POST", body: data })
+
+  const updateRole = (data: UpdateRoleInput) =>
+    sdk.client.fetch("/admin/rbac/roles", { method: "PATCH", body: data })
+
 
   return (
     <MedusaPage
@@ -39,9 +40,11 @@ export default function RolesPage() {
           description: "A brief description of the role"
         },
         is_default: {
-          label: "Default Role",
+          label: "Default",
           description: "Users with this role will be assigned it by default",
+          cell: ({ getValue }) => <span>{getValue() ? "Yes" : "No"}</span>
         },
+        
       }}
       create={{
         mutateFn: (data) => createRole(data),

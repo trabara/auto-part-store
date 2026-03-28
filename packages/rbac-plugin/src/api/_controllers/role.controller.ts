@@ -4,8 +4,7 @@ import { RBAC_MODULE, RbacModuleService } from "../../modules/rbac";
 import {
   AssignRoleSchema,
   CreateRoleSchema,
-  RoleFiltersSchema,
-  UpdateRoleSchema,
+  UpdateRoleSchema
 } from "../../modules/rbac/schema";
 
 export class RoleController extends BaseController {
@@ -16,22 +15,30 @@ export class RoleController extends BaseController {
   async list(): Promise<void> {
     await this.execute(async () => {
       const query = this.req.scope.resolve(ContainerRegistrationKeys.QUERY);
-      // const validated = RoleFiltersSchema.parse(this.req.query || {});
+      console.log("this.req.filterableFields", this.req.filterableFields);
+      console.log("this.req.queryConfig", this.req.queryConfig);
+      
+      this.logger.info("Fetching roles list", {
+        filters: this.req.filterableFields,
+        config: this.req.queryConfig,
+      });
 
       const { data, metadata } = await query.graph({
         entity: "rbac_role",
-        // filters: validated,
         ...this.req.queryConfig,
+        ...this.req.filterableFields,
       });
 
+      this.logger.info(`Found ${data.length} roles`);
+
       this.success({ data, metadata });
-    });
+    }, "Roles retrieved successfully");
   }
 
   async create(): Promise<void> {
     await this.execute(async () => {
       const service = this.req.scope.resolve<RbacModuleService>(RBAC_MODULE);
-      const validated = CreateRoleSchema.parse(this.req.body);
+      const validated = CreateRoleSchema.parse(this.req.validatedBody);
 
       this.logger.info("Creating new role", {
         data: validated,
@@ -50,13 +57,12 @@ export class RoleController extends BaseController {
         role_id: role.id,
       })));
 
-
-
       this.logger.info("Role created successfully", {
         role_id: role.id,
       });
+
       this.created({ role });
-    });
+    }, "Role created successfully");
   }
 
   async get(): Promise<void> {
@@ -76,7 +82,7 @@ export class RoleController extends BaseController {
       }
 
       this.success({ role: roles[0] });
-    });
+    }, "Role retrieved successfully");
   }
 
   async update(): Promise<void> {
@@ -93,7 +99,7 @@ export class RoleController extends BaseController {
       }
 
       this.success({ role });
-    });
+    }, "Role updated successfully");
   }
 
   async delete(): Promise<void> {
@@ -104,7 +110,7 @@ export class RoleController extends BaseController {
       await service.deleteRbacRoles([id]);
 
       this.noContent();
-    });
+    }, "Role deleted successfully");
   }
 
   async assign(): Promise<void> {
@@ -116,6 +122,6 @@ export class RoleController extends BaseController {
       const member = await service.assignRole(validated.user_id, id);
 
       this.success({ member });
-    });
+    }, "Role assigned successfully");
   }
 }

@@ -13,7 +13,7 @@ import {
 } from "@medusajs/ui";
 import { setupSnowForm } from "@snowpact/react-rhf-zod-form";
 import { FieldOverrides } from "@snowpact/react-rhf-zod-form/src/types";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { createSchemaDataTableColumnDef } from "../helpers/column-def";
 import { CellOverrides, CreateConfig, EditConfig } from "../types/config";
@@ -101,20 +101,34 @@ interface MedusaPageProps<
   schema: LS;
   fields: FieldOverrides<z.infer<LS>> | CellOverrides<z.infer<LS>>;
   queryFn: QueryFn<z.infer<LS>, R>;
-  create?: CreateConfig<CS>;
-  edit?: EditConfig<ES>;
+  create: CreateConfig<CS>;
+  edit: EditConfig<ES>;
 }
 
 export function MedusaPage<
-  LS extends z.ZodObject<any>,
+  LS extends z.AnyZodObject,
   CS extends z.AnyZodObject,
   ES extends z.AnyZodObject,
   R extends PageResponse<z.infer<LS>>,
 >({ name, schema, queryFn, fields, create, edit }: MedusaPageProps<LS, CS, ES, R>) {
   const [searchParams, setSearchParams] = useSearchParams();
-
+  const [selectedRow, setSelectedRow] = useState<z.infer<LS>>();
+  console.log("selectedRow", selectedRow)
   const columns = useMemo(() => {
-    return createSchemaDataTableColumnDef(schema, fields);
+    return createSchemaDataTableColumnDef({
+      schema,
+      fields,
+      onRowAction: (action, data) => {
+        switch (action) {
+          case "edit":
+            setSelectedRow(data);
+            setSearchParams({ op: "edit" });
+            break;
+          default:
+            break;
+        }
+      }
+    });
   }, [schema, fields]);
 
   const filters = useMemo((): DataTableFilter[] => {
@@ -131,28 +145,26 @@ export function MedusaPage<
         onCreateClicked={() => setSearchParams({ op: "create" })}
       />
 
-      {create && (
-        <CreateModal
-          name={name}
-          schema={create.schema}
-          steps={create.steps}
-          mutateFn={create.mutateFn}
-          fields={{ ...fields, ...create.fields }}
-          open={searchParams.get("op") === "create"}
-          onOpenChange={() => setSearchParams({})}
-        />
-      )}
+      <CreateModal
+        name={name}
+        schema={create.schema}
+        steps={create.steps}
+        mutateFn={create.mutateFn}
+        fields={{ ...fields, ...create.fields }}
+        open={searchParams.get("op") === "create"}
+        onOpenChange={() => setSearchParams({})}
+      />
 
-      {edit &&
-        <EditDrawer
-          name={name}
-          schema={edit.schema}
-          mutateFn={edit.mutateFn}
-          fields={{ ...fields, ...edit.fields }}
-          open={searchParams.get("op") === "edit"}
-          onOpenChange={() => setSearchParams({})}
-        />
-      }
+      <EditDrawer
+        name={name}
+        schema={edit.schema}
+        mutateFn={edit.mutateFn}
+        fields={{ ...fields, ...edit.fields }}
+        defaultValues={selectedRow}
+        open={searchParams.get("op") === "edit"}
+        onOpenChange={() => setSearchParams({})}
+      />
+
     </Container>
   );
 }

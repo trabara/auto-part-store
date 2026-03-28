@@ -22,7 +22,7 @@ export const useWizardForm = <S extends z.AnyZodObject>(
 ): UseWizardFormReturn<S> => {
     const [activeStep, setActiveStep] = useState(() => steps[0]?.id);
     const [allValues, setAllValues] = useState<Record<string, unknown>>({});
-
+    
     const currentStep = useMemo(() => {
         return steps.find((tab) => tab.id === activeStep) || steps[0]!;
     }, [steps, activeStep]);
@@ -94,7 +94,7 @@ export const useWizardForm = <S extends z.AnyZodObject>(
     );
 
     const handleSubmit = useCallback(
-        async (values: any) => {
+        async (values: z.infer<S>) => {
             const schema = currentStep?.schema || mergedSchema;
             const valid = schema.safeParse(values);
 

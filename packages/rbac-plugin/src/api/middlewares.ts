@@ -5,7 +5,6 @@ import {
   validateAndTransformBody,
   validateAndTransformQuery,
 } from "@medusajs/framework";
-import { z } from "@medusajs/framework/zod";
 import {
   createFindParams
 } from "@medusajs/medusa/api/utils/validators";
@@ -14,11 +13,11 @@ import {
   CheckAccessSchema,
   CreatePermissionSchema,
   CreateRoleSchema,
-  PermissionFiltersSchema,
-  RoleFiltersSchema
+  RoleFiltersSchema,
+  UpdateRoleSchema
 } from "../modules/rbac/schema";
 
-const authenticateMiddleware = authenticate(["*"], ["session"]);
+const authenticateMiddleware = authenticate(["*"], ["session", "bearer"]);
 export const BaseFindParams = createFindParams();
 
 export const adminRolesMiddlewares: MiddlewareRoute[] = [
@@ -26,7 +25,7 @@ export const adminRolesMiddlewares: MiddlewareRoute[] = [
     matcher: "/admin/rbac/roles",
     methods: ["GET"],
     middlewares: [
-      // authenticateMiddleware,
+      authenticateMiddleware,
       validateAndTransformQuery(BaseFindParams.merge(RoleFiltersSchema), {
         defaults: ["id", "name", "description", "is_default", "created_at"],
         isList: true,
@@ -37,7 +36,7 @@ export const adminRolesMiddlewares: MiddlewareRoute[] = [
     matcher: "/admin/rbac/roles",
     method: "POST",
     middlewares: [
-      // authenticateMiddleware,
+      authenticateMiddleware,
       validateAndTransformBody(CreateRoleSchema),
     ],
   },
@@ -45,29 +44,29 @@ export const adminRolesMiddlewares: MiddlewareRoute[] = [
     matcher: "/admin/rbac/roles/:id",
     methods: ["GET"],
     middlewares: [
-      // authenticateMiddleware
+      authenticateMiddleware
     ],
   },
   {
     matcher: "/admin/rbac/roles/:id",
     method: "PUT",
     middlewares: [
-      // authenticateMiddleware,
-      validateAndTransformBody(CreateRoleSchema),
+      authenticateMiddleware,
+      validateAndTransformBody(UpdateRoleSchema),
     ],
   },
   {
     matcher: "/admin/rbac/roles/:id",
     method: "DELETE",
     middlewares: [
-      // authenticateMiddleware
+      authenticateMiddleware
     ],
   },
   {
     matcher: "/admin/rbac/roles/:id/assign",
     method: "POST",
     middlewares: [
-      // authenticateMiddleware,
+      authenticateMiddleware,
       validateAndTransformBody(AssignRoleSchema),
     ],
   },
@@ -163,8 +162,8 @@ export default defineMiddlewares({
   routes: [
     ...adminRolesMiddlewares,
     ...adminPermissionsMiddlewares,
-    ...adminCategoriesMiddlewares,
-    ...adminCheckMiddlewares,
-    ...adminRbacEnforcement,
+    // ...adminCategoriesMiddlewares,
+    // ...adminCheckMiddlewares,
+    // ...adminRbacEnforcement,
   ]
 });

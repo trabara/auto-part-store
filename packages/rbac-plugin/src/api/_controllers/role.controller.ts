@@ -3,8 +3,9 @@ import { BaseController } from "@repo/common";
 import { RBAC_MODULE, RbacModuleService } from "../../modules/rbac";
 import {
   AssignRoleSchema,
+  CreateRoleSchema,
   RoleFiltersSchema,
-  UpdateRoleSchema
+  UpdateRoleSchema,
 } from "../../modules/rbac/schema";
 
 export class RoleController extends BaseController {
@@ -30,14 +31,19 @@ export class RoleController extends BaseController {
   async create(): Promise<void> {
     await this.execute(async () => {
       const service = this.req.scope.resolve<RbacModuleService>(RBAC_MODULE);
-      // const validated = CreateRoleSchema.parse(this.req.validatedBody);
+      const validated = CreateRoleSchema.parse(this.req.validatedBody);
 
       this.logger.info("Creating new role", {
-        data: this.req.validatedBody,
+        data: validated,
       });
 
+      const createdPolicies = await service.createRbacPolicies(validated.policies);
+
       const role = await service.createRbacRoles({
-        ...this.req.validatedBody as any,
+        name: validated.name,
+        description: validated.description,
+        is_default: validated.is_default,
+        policies: createdPolicies.map((p) => p.id),
       });
 
       this.logger.info("Role created successfully", {
@@ -101,10 +107,7 @@ export class RoleController extends BaseController {
       const { id } = this.req.params;
       const validated = AssignRoleSchema.parse(this.req.validatedBody);
 
-      const member = await service.assignRole(
-        validated.user_id,
-        id
-      );
+      const member = await service.assignRole(validated.user_id, id);
 
       this.success({ member });
     });

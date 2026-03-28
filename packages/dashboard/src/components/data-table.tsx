@@ -9,13 +9,16 @@ import {
   type DataTableColumnDef,
 } from "@medusajs/ui";
 import { useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { usePageQuery } from "../hooks/use-page-query";
 import { DataTableBulkActionsToolbar } from "./bulk-actions-toolbar";
 
 interface DataTableListProps<T, R extends PageResponse<T>> {
   name: string;
+  description?: string;
   columns: DataTableColumnDef<T, keyof T>[]; // This should be typed according to the DataTable column definitions
   filters: DataTableFilter[];
+  actionToolBar?: boolean
   className?: string;
   queryFn: QueryFn<T, R>;
   onCreateClicked?: () => void;
@@ -28,14 +31,18 @@ const DataTable = <T extends { id: string }, R extends PageResponse<T>>(
 ) => {
   const {
     name,
+    description,
     columns,
     filters,
     className,
+    actionToolBar,
     queryFn,
     onCreateClicked,
     onRowClick,
     onRowSelectChange,
   } = props;
+
+  const { t } = useTranslation()
 
   // Use paginated query hook
   const queryConfig = usePageQuery({
@@ -73,21 +80,23 @@ const DataTable = <T extends { id: string }, R extends PageResponse<T>>(
           <Heading level="h1">
             <span className="capitalize">{name}</span>
           </Heading>
-          <Hint></Hint>
+          {description && <Hint>{description}</Hint>}
         </div>
         {onCreateClicked && (
           <Button variant="secondary" size="small" onClick={onCreateClicked}>
-            Create
+            {t("common.create")}
           </Button>
         )}
       </DataTableUI.Toolbar>
 
       <DataTableUI.Table />
       <DataTableUI.Pagination />
+      {actionToolBar &&
+        <DataTableBulkActionsToolbar table={table} entityName={name}>
+          <div></div>
+        </DataTableBulkActionsToolbar>
+      }
 
-      <DataTableBulkActionsToolbar table={table} entityName={name}>
-        <div></div>
-      </DataTableBulkActionsToolbar>
     </DataTableUI>
   );
 };

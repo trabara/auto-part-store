@@ -27,7 +27,8 @@ export default function RolesPage() {
 
   return (
     <MedusaPage
-      name="role"
+      name="roles"
+      description="Manage user roles and their permissions"
       schema={RoleSchema.omit({ policies: true })}
       queryFn={listRoles}
       fields={{

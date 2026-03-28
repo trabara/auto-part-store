@@ -98,6 +98,7 @@ interface MedusaPageProps<
   R extends PageResponse<z.infer<LS>>,
 > {
   name: string;
+  description?: string;
   schema: LS;
   fields: FieldOverrides<z.infer<LS>> | CellOverrides<z.infer<LS>>;
   queryFn: QueryFn<z.infer<LS>, R>;
@@ -110,7 +111,7 @@ export function MedusaPage<
   CS extends z.AnyZodObject,
   ES extends z.AnyZodObject,
   R extends PageResponse<z.infer<LS>>,
->({ name, schema, queryFn, fields, create, edit }: MedusaPageProps<LS, CS, ES, R>) {
+>({ name, description, schema, queryFn, fields, create, edit }: MedusaPageProps<LS, CS, ES, R>) {
   const [searchParams, setSearchParams] = useSearchParams();
   const [selectedRow, setSelectedRow] = useState<z.infer<LS>>();
   console.log("selectedRow", selectedRow)
@@ -139,6 +140,7 @@ export function MedusaPage<
     <Container className="divide-y p-0">
       <DataTable
         name={name}
+        description={description}
         columns={columns}
         filters={filters}
         queryFn={queryFn as any}

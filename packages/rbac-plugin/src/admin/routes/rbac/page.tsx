@@ -1,14 +1,15 @@
 import { defineRouteConfig } from "@medusajs/admin-sdk";
 import { Badge, Container, Heading, Hint } from "@medusajs/ui";
-import { FolderTree, Key, Link, Users } from "lucide-react";
+import { FolderTree, Key, Shield, Users } from "lucide-react";
 import { useLayoutEffect } from "react";
+import { Link } from "react-router-dom";
 
 export default function RbacStatsPage() {
 
     useLayoutEffect(() => {
         document.title = "RBAC - Medusa Admin"
     }, [])
-    
+
     return <Container className="divide-y p-0">
         <div className="px-6 py-4 flex flex-col items-start justify-between gap-2 md:flex-row md:items-center">
             <div>
@@ -22,7 +23,7 @@ export default function RbacStatsPage() {
 
         <div className="px-6 py-4 grid grid-cols-1 md:grid-cols-3 gap-32">
             <Link
-                to="/settings/users/roles"
+                to="/rbac/roles"
             >
                 <div className="flex items-center justify-between">
 
@@ -41,7 +42,7 @@ export default function RbacStatsPage() {
             </Link>
 
             <Link
-                to="/settings/users/permissions"
+                to="/rbac/permissions"
             >
                 <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
@@ -59,7 +60,7 @@ export default function RbacStatsPage() {
             </Link>
 
             <Link
-                to="/settings/users/categories"
+                to="/rbac/categories"
             >
                 <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
@@ -81,4 +82,5 @@ export default function RbacStatsPage() {
 
 export const config = defineRouteConfig({
     label: "RBAC",
+    icon: () => <Shield size={15}/>
 });

@@ -30,11 +30,11 @@
     "packages/*"
   ],
   "resolutions": {
-    "@medusajs/core-flows": "2.13.4",
-    "@medusajs/framework": "2.13.4",
-    "@medusajs/medusa": "2.13.4",
-    "@medusajs/orchestration": "2.13.4",
-    "@medusajs/workflows-sdk": "2.13.4",
+    "@medusajs/core-flows": "2.13.5",
+    "@medusajs/framework": "2.13.5",
+    "@medusajs/medusa": "2.13.5",
+    "@medusajs/orchestration": "2.13.5",
+    "@medusajs/workflows-sdk": "2.13.5",
     "@types/react": "^19",
     "@types/react-dom": "^19"
   }

@@ -3,7 +3,6 @@ import { BaseController } from "@repo/common";
 import { RBAC_MODULE, RbacModuleService } from "../../modules/rbac";
 import {
   AssignRoleSchema,
-  CreateRoleSchema,
   RoleFiltersSchema,
   UpdateRoleSchema
 } from "../../modules/rbac/schema";
@@ -24,21 +23,26 @@ export class RoleController extends BaseController {
         ...this.req.queryConfig,
       });
 
-      this.success({ roles: data, metadata });
+      this.success({ data, metadata });
     });
   }
 
   async create(): Promise<void> {
     await this.execute(async () => {
       const service = this.req.scope.resolve<RbacModuleService>(RBAC_MODULE);
-      const validated = CreateRoleSchema.parse(this.req.validatedBody);
+      // const validated = CreateRoleSchema.parse(this.req.validatedBody);
 
-      const role = await service.createRbacRoles({
-        name: validated.name,
-        description: validated.description,
-        is_default: validated.is_default,
+      this.logger.info("Creating new role", {
+        data: this.req.validatedBody,
       });
 
+      const role = await service.createRbacRoles({
+        ...this.req.validatedBody as any,
+      });
+
+      this.logger.info("Role created successfully", {
+        role_id: role.id,
+      });
       this.created({ role });
     });
   }

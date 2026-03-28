@@ -6,7 +6,9 @@ import {
   validateAndTransformQuery,
 } from "@medusajs/framework";
 import { z } from "@medusajs/framework/zod";
-import { rbacCheckMiddleware } from "../middlewares";
+import {
+  createFindParams
+} from "@medusajs/medusa/api/utils/validators";
 import {
   AssignRoleSchema,
   CheckAccessSchema,
@@ -17,14 +19,15 @@ import {
 } from "../modules/rbac/schema";
 
 const authenticateMiddleware = authenticate(["*"], ["session"]);
+export const BaseFindParams = createFindParams();
 
 export const adminRolesMiddlewares: MiddlewareRoute[] = [
   {
     matcher: "/admin/rbac/roles",
     methods: ["GET"],
     middlewares: [
-      authenticateMiddleware,
-      validateAndTransformQuery(RoleFiltersSchema, {
+      // authenticateMiddleware,
+      validateAndTransformQuery(BaseFindParams.merge(RoleFiltersSchema), {
         defaults: ["id", "name", "description", "is_default", "created_at"],
         isList: true,
       }),
@@ -34,20 +37,37 @@ export const adminRolesMiddlewares: MiddlewareRoute[] = [
     matcher: "/admin/rbac/roles",
     method: "POST",
     middlewares: [
-      authenticateMiddleware,
+      // authenticateMiddleware,
       validateAndTransformBody(CreateRoleSchema),
     ],
   },
   {
     matcher: "/admin/rbac/roles/:id",
-    methods: ["GET", "PUT", "DELETE"],
-    middlewares: [authenticateMiddleware],
+    methods: ["GET"],
+    middlewares: [
+      // authenticateMiddleware
+    ],
+  },
+  {
+    matcher: "/admin/rbac/roles/:id",
+    method: "PUT",
+    middlewares: [
+      // authenticateMiddleware,
+      validateAndTransformBody(CreateRoleSchema),
+    ],
+  },
+  {
+    matcher: "/admin/rbac/roles/:id",
+    method: "DELETE",
+    middlewares: [
+      // authenticateMiddleware
+    ],
   },
   {
     matcher: "/admin/rbac/roles/:id/assign",
     method: "POST",
     middlewares: [
-      authenticateMiddleware,
+      // authenticateMiddleware,
       validateAndTransformBody(AssignRoleSchema),
     ],
   },
@@ -59,7 +79,7 @@ export const adminPermissionsMiddlewares: MiddlewareRoute[] = [
     methods: ["GET"],
     middlewares: [
       authenticateMiddleware,
-      validateAndTransformQuery(PermissionFiltersSchema, {
+      validateAndTransformQuery(BaseFindParams, {
         defaults: ["id", "kind", "target", "type", "category_id", "created_at"],
         isList: true,
       }),
@@ -86,7 +106,7 @@ export const adminCategoriesMiddlewares: MiddlewareRoute[] = [
     methods: ["GET"],
     middlewares: [
       authenticateMiddleware,
-      validateAndTransformQuery(z.object({}), {
+      validateAndTransformQuery(BaseFindParams, {
         defaults: ["id", "name", "description", "created_at"],
         isList: true,
       }),
@@ -141,10 +161,10 @@ export const adminRbacEnforcement: MiddlewareRoute[] = [
 
 export default defineMiddlewares({
   routes: [
-    // ...adminRolesMiddlewares,
-    // ...adminPermissionsMiddlewares,
-    // ...adminCategoriesMiddlewares,
-    // ...adminCheckMiddlewares,
-    // ...adminRbacEnforcement,
+    ...adminRolesMiddlewares,
+    ...adminPermissionsMiddlewares,
+    ...adminCategoriesMiddlewares,
+    ...adminCheckMiddlewares,
+    ...adminRbacEnforcement,
   ]
 });

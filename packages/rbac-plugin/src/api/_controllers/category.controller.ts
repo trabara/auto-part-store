@@ -15,7 +15,7 @@ export class CategoryController extends BaseController {
         ...this.req.queryConfig,
       });
 
-      this.success({ categories: data, metadata });
+      this.success({ data, metadata });
     });
   }
 }

@@ -19,7 +19,7 @@ export class PermissionController extends BaseController {
         ...this.req.queryConfig,
       });
 
-      this.success({ permissions: data, metadata });
+      this.success({ data, metadata });
     });
   }
 

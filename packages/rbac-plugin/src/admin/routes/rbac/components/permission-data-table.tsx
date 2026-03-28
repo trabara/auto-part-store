@@ -19,7 +19,17 @@ export default function PermissionDataTable({ defaultValues, onChange, ...props 
     const columns: any[] = useMemo(() => {
         return createSchemaDataTableColumnDef(
             PermissionSchema.omit({ category: true }),
-            ["target", "type", "kind"]
+            {
+                target:{
+                    label: "Resource",
+                },
+                type: {
+                    label: "Type",
+                },
+                kind: {
+                    label: "Kind",
+                },
+            }
         )
     }, [])
 

@@ -25,8 +25,10 @@ export default function RolesPage() {
   }
 
   return (
-    <MedusaPage<Role>
+    <MedusaPage
       name="role"
+      schema={RoleSchema.omit({ policies: true })}
+      queryFn={listRoles}
       fields={{
         name: {
           label: "Name",
@@ -41,44 +43,37 @@ export default function RolesPage() {
           description: "Users with this role will be assigned it by default",
         },
       }}
-      config={{
-        list: {
-          schema: RoleSchema.omit({ policies: true }),
-          fetcher: listRoles
-        },
-        create: {
-          schema: CreateRoleSchema,
-          fetcher: createRole,
-          fields: {
-            policies: {
-              hideLabel: true,
-              render: ({ onChange }: any) => <PermissionDataTable
-                className="absolute inset-0"
-                onChange={onChange}
-              />
-            },
+      create={{
+        mutateFn: (data) => createRole(data),
+        fields: {
+          policies: {
+            hideLabel: true,
+            render: ({ onChange }: any) => <PermissionDataTable
+              className="absolute inset-0"
+              onChange={onChange}
+            />
           },
-          steps: [
-            {
-              id: "general",
-              label: "General",
-              icon: <User />,
-              schema: CreateRoleSchema.omit({ policies: true })
-            },
-            {
-              id: "permissions",
-              label: "Permissions",
-              header: false,
-              icon: <User />,
-              schema: CreateRoleSchema.pick({ policies: true })
-            }
-          ]
+        },
+        steps: [
+          {
+            id: "general",
+            label: "General",
+            icon: <User />,
+            schema: CreateRoleSchema.omit({ policies: true })
+          },
+          {
+            id: "permissions",
+            label: "Permissions",
+            header: false,
+            icon: <User />,
+            schema: CreateRoleSchema.pick({ policies: true })
+          }
+        ]
 
-        },
-        update: {
-          schema: UpdateRoleSchema,
-          fetcher: updateRole
-        },
+      }}
+      edit={{
+        schema: UpdateRoleSchema,
+        mutateFn: updateRole
       }}
     />
   );

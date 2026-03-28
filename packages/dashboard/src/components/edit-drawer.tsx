@@ -1,34 +1,35 @@
 import { z } from "@medusajs/framework/zod";
 import { Button, Drawer, Heading, Hint } from "@medusajs/ui";
 import { SnowForm } from "@snowpact/react-rhf-zod-form";
+import { FieldOverrides } from "@snowpact/react-rhf-zod-form/src/types";
 import { useUpdateMutation } from "../hooks/use-update-mutation";
 
 
-interface EditDrawerProps<TSchema extends z.AnyZodObject> {
+interface EditDrawerProps<S extends z.AnyZodObject> {
   name: string;
-  schema: TSchema;
-  fields?: {};
+  schema: S;
+  fields?: FieldOverrides<z.infer<S>>;
   open?: boolean;
-  defaultValues?: any;
-  fetcher: (data: any) => Promise<any>;
+  defaultValues?: z.infer<S>;
+  mutateFn: <R>(data: z.infer<S>) => Promise<R>;
   onOpenChange?: (open: boolean) => void;
 }
 
-const EditDrawer = <TSchema extends z.AnyZodObject>({
+const EditDrawer = <S extends z.AnyZodObject>({
   name,
   open,
   schema,
   fields = {},
   defaultValues,
-  fetcher,
+  mutateFn,
   onOpenChange,
-}: EditDrawerProps<TSchema>) => {
+}: EditDrawerProps<S>) => {
 
   const mutate = useUpdateMutation({
     invalidateKeys: [name],
     errorMessage: `Failed to update ${name}`,
     successMessage: `Successfully updated ${name}`,
-    updateFn: fetcher
+    updateFn: mutateFn
   })
 
   return (
@@ -36,8 +37,8 @@ const EditDrawer = <TSchema extends z.AnyZodObject>({
       <Drawer.Content asChild>
         <SnowForm
           defaultValues={defaultValues}
-          schema={z.object({}).merge(schema)}
-          overrides={fields}
+          schema={schema}
+          overrides={fields as {}}
           onSubmit={async (values) => {
             await mutate.mutateAsync(values);
           }}

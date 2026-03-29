@@ -7,12 +7,19 @@ import {
 import { CellContext, ColumnDefTemplate } from "@tanstack/react-table";
 import { Entity } from "./data";
 
-interface ToolBarAction<T extends Entity> {
+export interface BaseAction {
   id: string;
   label: string;
   icon: React.ReactNode;
   variant?: "danger" | "default";
+}
+
+export interface ToolbarAction<T> extends BaseAction {
   onClick: (table: UseDataTableReturn<T>) => void;
+}
+
+export interface RowAction<T> extends BaseAction {
+  onClick: (row: T) => void;
 }
 
 export interface StepConfig<S extends z.ZodTypeAny> {
@@ -34,7 +41,8 @@ export interface ListConfig<
 > extends ActionConfig<T> {
   name: string;
   description?: string;
-  toolbarActions?: ToolBarAction<T>[];
+  toolbarActions?: ToolbarAction<T>[];
+  rowActions?: RowAction<T>[];
 };
 
 export interface CreateConfig<T extends {}> extends ActionConfig<T> {

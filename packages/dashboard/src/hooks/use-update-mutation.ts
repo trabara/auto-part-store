@@ -57,7 +57,7 @@ export function useUpdateMutation({
         mutationFn: updateFn,
         onSuccess: () => {
             toast.success(successMessage);
-            invalidateKeys.forEach((key) => queryClient.invalidateQueries({ queryKey: [[key]] }));
+            queryClient.invalidateQueries({ queryKey: invalidateKeys });
         },
         onError: (error: any) => {
             toast.error(errorMessage, {
@@ -67,5 +67,5 @@ export function useUpdateMutation({
         ...mutationOptions,
     });
 
-    return mutation
+    return mutation;
 }

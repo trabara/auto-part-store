@@ -12,7 +12,7 @@ import {
 import { cn } from '@repo/ui/lib/utils';
 import { useEffect, useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import { createZodDataTableColumnDef } from "../helpers/zod-column-def";
+import { createZodDataTableColumnDef } from "./data-table-columns";
 import { usePageQuery } from "../hooks/use-page-query";
 import { ListConfig } from "../types/config";
 import { Entity } from "../types/data";
@@ -41,6 +41,7 @@ const DataTable = <
     description,
     fields = {},
     toolbarActions = [],
+    rowActions = [],
     queryFn,
     onCreateClicked,
     onRowClick,
@@ -64,17 +65,7 @@ const DataTable = <
     createZodDataTableColumnDef({
       schema,
       fields,
-      onRowAction(action, row) {
-        switch (action) {
-          case "edit":
-            // setSelectedRow(row);
-            // openEditDrawer();
-            break;
-          case "delete":
-            // deleteMutation.mutateAsync(row.id);
-            break;
-        }
-      },
+      actions: rowActions,
     }) as DataTableColumnDef<T, any>[], []);
 
   const filters = useMemo((): DataTableFilter[] => {

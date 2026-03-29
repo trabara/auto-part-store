@@ -66,7 +66,12 @@ const DataTable = <
       schema,
       fields,
       actions: rowActions,
-    }) as DataTableColumnDef<T, any>[], []);
+    }),
+    [
+      schema,
+      fields,
+      rowActions
+    ]);
 
   const filters = useMemo((): DataTableFilter[] => {
     return [];

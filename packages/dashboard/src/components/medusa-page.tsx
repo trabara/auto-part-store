@@ -14,13 +14,14 @@ import {
   useToggleState
 } from "@medusajs/ui";
 import { setupSnowForm } from "@snowpact/react-rhf-zod-form";
-import { useLayoutEffect, useState } from "react";
+import { useLayoutEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useDeleteMutation } from "../hooks/use-delete-mutation";
 import { sdk } from "../lib/sdk";
 import { CreateConfig, EditConfig, ListConfig } from "../types/config";
 import { Entity } from "../types/data";
 import { PageQueryParams, PageResponse } from "../types/query";
+import { zodQueryResolve } from "../utils/zod";
 import CreateModal from "./create-modal";
 import DataTable from "./data-table";
 import EditDrawer from "./edit-drawer";
@@ -48,6 +49,7 @@ export function MedusaPage<
   const [isEditDrawerOpen, openEditDrawer, closeEditDrawer] = useToggleState()
   const [selectedRow, setSelectedRow] = useState<T>()
 
+  const queryFields = useMemo(() => zodQueryResolve(schema), [])
 
   const listAction = (signal: AbortSignal, params?: PageQueryParams) =>
     sdk.client.fetch<PageResponse<T>>(path, {
@@ -55,6 +57,7 @@ export function MedusaPage<
       signal,
       query: {
         ...(params || {}),
+        fields: queryFields,
       },
     })
 

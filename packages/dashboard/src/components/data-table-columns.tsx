@@ -5,8 +5,8 @@ import { DataTableColumnDef, DropdownMenu, IconButton } from '@medusajs/ui';
 import { getZodShape } from "@snowpact/react-rhf-zod-form";
 import { getZodFieldInfo } from "@snowpact/react-rhf-zod-form/src/utils";
 import { format } from 'date-fns';
-import { CellOverride, MedusaFieldOverrides, RowAction } from "../types/config";
 import { createSelectDataTableColumns } from "../helpers/create-select-columns";
+import { CellOverride, MedusaFieldOverrides, RowAction } from "../types/config";
 
 type ColumnDefConfig<S extends z.AnyZodObject, T extends Entity = Entity<z.infer<S>>> = {
     schema: S,
@@ -20,7 +20,7 @@ export function createZodDataTableColumnDef<
     K extends keyof T = keyof T
 >(config: ColumnDefConfig<S, T>): DataTableColumnDef<T, K>[] {
 
-    const { schema, fields } = config;
+    const { schema, fields, actions } = config;
 
     return createSelectDataTableColumns<T, K>((columnHelper) => {
 
@@ -30,10 +30,10 @@ export function createZodDataTableColumnDef<
         // columns must follow the fields order, so we iterate over the fields array and check if they exist in the schema
         const keys = fields && Object.keys(fields).length > 0 ? Object.keys(fields) as K[] : (Object.keys(shape) as K[]);
 
-        const columns: DataTableColumnDef<T, K>[] = keys.map((key) => {
+        const columns = keys.reduce((prev, key) => {
             const fieldInfo = getZodFieldInfo(shape[key]);
             const override = (fields?.[key] as CellOverride<T, K>)
-            return columnHelper.accessor(key as any, {
+            const accessor = columnHelper.accessor(key as any, {
                 header: () => <span className="capitalize">{override?.label || String(key)}</span>,
                 enableSorting: true,
                 cell: (info) => {
@@ -54,35 +54,45 @@ export function createZodDataTableColumnDef<
                     return String(value);
                 }
             })
-        })
 
-        columns.push(
-            columnHelper.display({
-                id: "actions",
-                cell: (info) => {
-                    return (
-                        <DropdownMenu>
-                            <DropdownMenu.Trigger asChild>
-                                <IconButton variant="transparent" className="h-7 w-7 p-1">
-                                    <EllipsisHorizontal />
-                                </IconButton>
-                            </DropdownMenu.Trigger>
-                            <DropdownMenu.Content>
-                                {config.actions?.map((action) => (
-                                    <DropdownMenu.Item
-                                        key={action.id}
-                                        className="[&_svg]:text-ui-fg-subtle flex items-center gap-x-2"
-                                        onSelect={() => action.onClick(info.row.original)}>
-                                        {action.icon}
-                                        <span>{action.label}</span>
-                                    </DropdownMenu.Item>
-                                ))}
-                            </DropdownMenu.Content>
-                        </DropdownMenu>
-                    )
-                },
-            })
-        );
+            if (override && override.hideLabel) {
+                return prev;
+            }
+
+            prev.push(accessor);
+
+            return prev;
+        }, [] as DataTableColumnDef<T, K>[])
+
+        if (actions && actions.length > 0) {
+            columns.push(
+                columnHelper.display({
+                    id: "actions",
+                    cell: (info) => {
+                        return (
+                            <DropdownMenu>
+                                <DropdownMenu.Trigger asChild>
+                                    <IconButton variant="transparent" className="h-7 w-7 p-1">
+                                        <EllipsisHorizontal />
+                                    </IconButton>
+                                </DropdownMenu.Trigger>
+                                <DropdownMenu.Content>
+                                    {actions.map((action) => (
+                                        <DropdownMenu.Item
+                                            key={action.id}
+                                            className="[&_svg]:text-ui-fg-subtle flex items-center gap-x-2"
+                                            onSelect={() => action.onClick(info.row.original)}>
+                                            {action.icon}
+                                            <span>{action.label}</span>
+                                        </DropdownMenu.Item>
+                                    ))}
+                                </DropdownMenu.Content>
+                            </DropdownMenu>
+                        )
+                    },
+                })
+            );
+        }
 
         return columns;
     })

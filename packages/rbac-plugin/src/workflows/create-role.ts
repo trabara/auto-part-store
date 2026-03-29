@@ -23,14 +23,13 @@ const createRoleStep = createStep(
   async (input: CreateRoleWorkflowInput, { container }) => {
     const service = container.resolve<RbacModuleService>(RBAC_MODULE);
 
-    const policies = await service.createRbacPolicies(
+    const policies = await service.createPolicyEntities(
       input.policies
     );
 
-    const role = await service.createRbacRoles({
+    const role = await service.createRoleEntities({
       name: input.name,
       description: input.description,
-      is_default: input.is_default,
       policies: policies.map((p) => p.id),
     });
 
@@ -45,10 +44,10 @@ const createRoleStep = createStep(
     const service = container.resolve<RbacModuleService>(RBAC_MODULE);
 
     if (compensation.policyIds?.length) {
-      await service.deleteRbacPolicies(compensation.policyIds);
+      await service.deletePolicyEntities(compensation.policyIds);
     }
     if (compensation.roleId) {
-      await service.deleteRbacRoles([compensation.roleId]);
+      await service.deleteRoleEntities([compensation.roleId]);
     }
   },
 );

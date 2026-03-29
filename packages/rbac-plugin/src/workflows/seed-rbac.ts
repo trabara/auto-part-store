@@ -1,9 +1,10 @@
 import {
+  createStep,
   createWorkflow,
+  StepResponse,
   WorkflowResponse,
 } from "@medusajs/framework/workflows-sdk";
-import { createStep, StepResponse } from "@medusajs/framework/workflows-sdk";
-import { RBAC_MODULE } from "../modules/rbac";
+import { RBAC_MODULE, RbacModuleService } from "../modules/rbac";
 
 const DEFAULT_CATEGORIES = [
   { name: "Products", description: "Manage products and inventory" },
@@ -48,23 +49,23 @@ const PREDEFINED_PERMISSIONS = [
 const seedRbacStep = createStep(
   "seed-rbac-step",
   async (_, { container }) => {
-    const service = container.resolve<any>(RBAC_MODULE);
+    const service = container.resolve<RbacModuleService>(RBAC_MODULE);
 
-    const [existingCategories] = await service.listAndCountRbacCategories({});
+    const [existingCategories] = await service.listAndCountCategoryEntities({});
     if (existingCategories.length > 0) {
       return new StepResponse({ seeded: false }, null);
     }
 
     const categoryMap = new Map<string, string>();
     for (const cat of DEFAULT_CATEGORIES) {
-      const created = await service.createRbacCategories(cat);
+      const created = await service.createCategoryEntities(cat);
       categoryMap.set(cat.name, created.id);
     }
 
     const permissions: string[] = [];
     for (const perm of PREDEFINED_PERMISSIONS) {
       const categoryId = categoryMap.get(perm.category) || null;
-      const created = await service.createRbacPermissions({
+      const created = await service.createPermEntities({
         kind: perm.kind as "read" | "write" | "delete",
         target: perm.target,
         type: "predefined",
@@ -88,13 +89,13 @@ const seedRbacStep = createStep(
   async (compensation, { container }) => {
     if (!compensation || !compensation.permissionIds) return;
 
-    const service = container.resolve<any>(RBAC_MODULE);
+    const service = container.resolve<RbacModuleService>(RBAC_MODULE);
 
     if (compensation.permissionIds?.length) {
-      await service.deleteRbacPermissions(compensation.permissionIds);
+      await service.deletePermEntities(compensation.permissionIds);
     }
     if (compensation.categoryIds?.length) {
-      await service.deleteRbacCategories(compensation.categoryIds);
+      await service.deleteCategoryEntities(compensation.categoryIds);
     }
   },
 );

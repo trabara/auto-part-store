@@ -1,21 +1,22 @@
 import {
+  createStep,
   createWorkflow,
+  StepResponse,
   WorkflowResponse,
 } from "@medusajs/framework/workflows-sdk";
-import { createStep, StepResponse } from "@medusajs/framework/workflows-sdk";
-import { RBAC_MODULE } from "../modules/rbac";
+import { RBAC_MODULE, RbacModuleService } from "../modules/rbac";
 
 type AssignRoleWorkflowInput = {
   user_id: string;
-  role_id: string | null;
+  role_id?: string;
 };
 
 const assignRoleStep = createStep(
   "assign-role-step",
   async (input: AssignRoleWorkflowInput, { container }) => {
-    const service = container.resolve<any>(RBAC_MODULE);
+    const service = container.resolve<RbacModuleService>(RBAC_MODULE);
 
-    const [existingMembers] = await service.listAndCountRbacMembers({
+    const [existingMembers] = await service.listAndCountMemberEntities({
       user_id: input.user_id,
     });
 
@@ -24,12 +25,12 @@ const assignRoleStep = createStep(
     if (existingMembers.length > 0) {
       member = existingMembers[0];
       if (input.role_id === null) {
-        await service.updateRbacMembers(member.id, { role_id: null });
+        await service.updateMemberEntities(member.id, { role_id: null });
       } else {
-        await service.updateRbacMembers(member.id, { role_id: input.role_id });
+        await service.updateMemberEntities(member.id, { role_id: input.role_id });
       }
     } else {
-      member = await service.createRbacMembers({
+      member = await service.createMemberEntities({
         user_id: input.user_id,
         role_id: input.role_id,
       });
@@ -43,9 +44,9 @@ const assignRoleStep = createStep(
   async (compensation, { container }) => {
     if (!compensation) return;
 
-    const service = container.resolve<any>(RBAC_MODULE);
+    const service = container.resolve<RbacModuleService>(RBAC_MODULE);
 
-    await service.updateRbacMembers(compensation.memberId, {
+    await service.updateMemberEntities(compensation.memberId, {
       role_id: compensation.previousRoleId,
     });
   },

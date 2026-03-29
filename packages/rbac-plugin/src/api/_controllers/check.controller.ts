@@ -12,7 +12,7 @@ export class CheckController extends BaseController {
       const service = this.req.scope.resolve<RbacModuleService>(RBAC_MODULE);
       const validated = CheckAccessSchema.parse(this.req.validatedBody);
 
-      const matchedPolicy = await service.hasAccess(
+      const matchedPolicy = await service.userHasAccess(
         this.req.auth_context.actor_id,
         validated.path,
         validated.method,

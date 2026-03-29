@@ -1,17 +1,18 @@
+import { Infer } from "@medusajs/framework/types";
 import { model } from "@medusajs/framework/utils";
-import { RbacCategory } from "./category";
-import { RbacPolicy } from "./policy";
+import { CategoryEntity } from "./category";
+import { PolicyEntity } from "./policy";
 
-export const RbacPermission = model
+export const PermEntity = model
   .define("rbac_permission", {
     id: model.id().primaryKey(),
     kind: model.enum(["read", "write", "delete"]),
-    target: model.text(),
+    target: model.text().searchable(),
     type: model.enum(["predefined", "custom"]).default("custom"),
-    category: model.belongsTo(() => RbacCategory, {
+    category: model.belongsTo(() => CategoryEntity, {
       mappedBy: "permissions",
     }).nullable(),
-    policies: model.hasMany(() => RbacPolicy, {
+    policies: model.hasMany(() => PolicyEntity, {
       mappedBy: "permission",
     })
   })
@@ -22,5 +23,8 @@ export const RbacPermission = model
     {
       on: ["kind", "target"],
       unique: true,
+      where: "deleted_at IS NULL"
     },
   ]);
+
+export type Permission = Infer<typeof PermEntity>;

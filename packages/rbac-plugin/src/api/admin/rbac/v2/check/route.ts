@@ -1,7 +1,7 @@
 import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http";
-import { RoleController } from "../../../../../_controllers";
+import { CheckController } from "../../../../_controllers";
 
 export const POST = async (req: MedusaRequest, res: MedusaResponse) => {
-  const controller = new RoleController(req, res);
-  await controller.assign();
+  const controller = new CheckController(req, res);
+  await controller.check();
 };

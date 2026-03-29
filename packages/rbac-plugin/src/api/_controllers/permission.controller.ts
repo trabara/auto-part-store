@@ -28,7 +28,7 @@ export class PermissionController extends BaseController {
       const service = this.req.scope.resolve<RbacModuleService>(RBAC_MODULE);
       const validated = CreatePermissionSchema.parse(this.req.validatedBody);
 
-      const permission = await service.createRbacPermissions({
+      const permission = await service.createPermEntities({
         kind: validated.kind,
         target: validated.target,
         type: "custom",
@@ -44,7 +44,7 @@ export class PermissionController extends BaseController {
       const service = this.req.scope.resolve<RbacModuleService>(RBAC_MODULE);
       const { id } = this.req.params;
 
-      const [permission] = await service.listRbacPermissions({ id });
+      const [permission] = await service.listPermEntities({ id });
 
       if (!permission) {
         this.notFound("Permission not found");
@@ -58,7 +58,7 @@ export class PermissionController extends BaseController {
         return;
       }
 
-      await service.deleteRbacPermissions([id]);
+      await service.deletePermEntities([id]);
 
       this.noContent();
     });

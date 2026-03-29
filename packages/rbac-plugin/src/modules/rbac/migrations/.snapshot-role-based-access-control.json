@@ -156,7 +156,7 @@
           "unsigned": false,
           "autoincrement": false,
           "primary": false,
-          "nullable": false,
+          "nullable": true,
           "mappedType": "text"
         },
         "created_at": {
@@ -245,6 +245,7 @@
             "id"
           ],
           "referencedTableName": "public.rbac_category",
+          "deleteRule": "cascade",
           "updateRule": "cascade"
         }
       },
@@ -477,6 +478,7 @@
             "id"
           ],
           "referencedTableName": "public.rbac_role",
+          "deleteRule": "cascade",
           "updateRule": "cascade"
         },
         "rbac_policy_permission_id_foreign": {
@@ -489,6 +491,7 @@
             "id"
           ],
           "referencedTableName": "public.rbac_permission",
+          "deleteRule": "cascade",
           "updateRule": "cascade"
         }
       },

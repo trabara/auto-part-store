@@ -10,7 +10,9 @@ export const RbacCategory = model
       mappedBy: "category",
     })
   })
-
+  .cascades({
+    delete: ["permissions"]
+  })
   .indexes([
     {
       on: ["name"],

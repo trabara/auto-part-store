@@ -107,7 +107,10 @@ export class RoleController extends BaseController {
       const service = this.req.scope.resolve<RbacModuleService>(RBAC_MODULE);
       const { id } = this.req.params;
 
-      await service.deleteRbacRoles([id]);
+      this.logger.info(`Deleting role ${id}`, {
+        role_id: id,
+      });
+      await service.deleteRbacRoles(id);
 
       this.noContent();
     }, "Role deleted successfully");

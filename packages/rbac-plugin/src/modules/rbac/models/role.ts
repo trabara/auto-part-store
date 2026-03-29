@@ -9,5 +9,7 @@ export const RbacRole = model.define("rbac_role", {
   policies: model.hasMany(() => RbacPolicy, {
     mappedBy: "role",
   })
+}).cascades({
+  delete: ["policies"]
 })
 

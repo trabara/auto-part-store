@@ -10,10 +10,13 @@ export const RbacPermission = model
     type: model.enum(["predefined", "custom"]).default("custom"),
     category: model.belongsTo(() => RbacCategory, {
       mappedBy: "permissions",
-    }),
+    }).nullable(),
     policies: model.hasMany(() => RbacPolicy, {
       mappedBy: "permission",
     })
+  })
+  .cascades({
+    delete: ["policies"]
   })
   .indexes([
     {

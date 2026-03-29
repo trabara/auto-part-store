@@ -11,4 +11,4 @@ export const RbacPolicy = model.define("rbac_policy", {
   permission: model.belongsTo(() => RbacPermission, {
     mappedBy: "policies",
   }),
-});
+})

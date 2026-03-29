@@ -1,66 +1,29 @@
 import { defineRouteConfig } from "@medusajs/admin-sdk";
+import { User } from "@medusajs/icons";
 import { MedusaPage } from '@repo/dashboard/components/medusa-page';
-import { sdk } from '@repo/dashboard/lib/sdk';
-import { PageQueryParams, PageResponse } from '@repo/dashboard/types/query';
-import { User } from "lucide-react";
-import { CreateRoleInput, CreateRoleSchema, Role, RoleSchema, UpdateRoleInput, UpdateRoleSchema } from '../../../../modules/rbac/schema';
-import PermissionDataTable from "../components/permission-data-table";
+import { useState } from "react";
+import { Fragment } from "react/jsx-runtime";
+import {
+  CreateRoleSchema,
+  RoleSchema,
+  UpdateRoleSchema
+} from '../../../../modules/rbac/schema';
+import AssignUsersDrawer from "../components/assign-users-drawer";
+import PermDataTable from "../components/perm-data-table";
+
+const RoleListSchema = RoleSchema.omit({ policies: true })
 
 export default function RolesPage() {
-
-  const listRoles = (signal: AbortSignal, params?: PageQueryParams) =>
-    sdk.client.fetch<PageResponse<Role>>("/admin/rbac/roles", {
-      method: "GET",
-      signal,
-      query: {
-        ...(params || {}),
-        fields: 'id,name,description,is_default,created_at,*policies.id',
-      },
-    })
-
-  const createRole = (data: CreateRoleInput) =>
-    sdk.client.fetch("/admin/rbac/roles", { method: "POST", body: data })
-
-  const updateRole = (id: string, data: UpdateRoleInput) =>
-    sdk.client.fetch(`/admin/rbac/roles/${id}`, { method: "PATCH", body: data })
-
-  const deleteRole = (id: string) =>
-    sdk.client.fetch(`/admin/rbac/roles/${id}`, { method: "DELETE" })
+  const [assignableRoleId, setAssignableRoleId] = useState<string | null>(null);
 
   return (
-    <MedusaPage
-      name="roles"
-      description="Manage user roles and their permissions"
-      schema={RoleSchema}
-      queryFn={listRoles}
-      deleteFn={deleteRole}
-      actionToolBar
-      fields={{
-        // id:{
-        //   label: "ID",
-        //   description: "The unique identifier of the role",
-        // },
-        name: {
-          label: "Name",
-          description: "The name of the role",
-        },
-        description: {
-          label: "Description",
-          description: "A brief description of the role"
-        },
-        is_default: {
-          label: "Default",
-          description: "Users with this role will be assigned it by default",
-          cell: ({ getValue }) => <span>{getValue() ? "Yes" : "No"}</span>
-        },
-        policies: {
-          label: "Permissions",
-        }
-      }}
-      create={{
-        mutateFn: (data) => createRole(data),
-        schema: CreateRoleSchema,
-        fields: {
+    <Fragment>
+      <MedusaPage
+        name="roles"
+        path="/admin/rbac/v2/roles"
+        description="Manage user roles and their permissions"
+        schema={RoleListSchema}
+        fields={{
           name: {
             label: "Name",
             description: "The name of the role",
@@ -72,36 +35,77 @@ export default function RolesPage() {
           is_default: {
             label: "Default",
             description: "Users with this role will be assigned it by default",
+            cell: (info) => <span>{info.getValue() ? "Yes" : "No"}</span>
           },
-          policies: {
-            hideLabel: true,
-            render: ({ onChange }) => <PermissionDataTable
-              className="absolute inset-0"
-              onChange={onChange}
-            />
-          },
-        },
-        steps: [
+        }}
+        rowActions={[
           {
-            id: "general",
-            label: "General",
+            id: "assign-user",
+            label: "Assign Users",
             icon: <User />,
-            schema: CreateRoleSchema.omit({ policies: true })
-          },
-          {
-            id: "permissions",
-            label: "Permissions",
-            header: false,
-            icon: <User />,
-            schema: CreateRoleSchema.pick({ policies: true })
+            onClick: (role) => {
+              setAssignableRoleId(role.id);
+            }
           }
-        ]
-      }}
-      edit={{
-        schema: UpdateRoleSchema,
-        mutateFn: updateRole,
-      }}
-    />
+        ]}
+        toolbarActions={[
+
+        ]}
+        create={{
+          schema: CreateRoleSchema,
+          fields: {
+            name: {
+              label: "Name",
+              description: "The name of the role",
+            },
+            description: {
+              label: "Description",
+              description: "A brief description of the role"
+            },
+            is_default: {
+              label: "Default",
+              description: "Users with this role will be assigned it by default",
+            },
+            policies: {
+              hideLabel: true,
+              render: ({ onChange }) => <PermDataTable
+                className="absolute inset-0"
+                onChange={onChange}
+              />
+            },
+          },
+          steps: [
+            {
+              id: "general",
+              label: "General",
+              icon: <User />,
+              schema: CreateRoleSchema.omit({ policies: true })
+            },
+            {
+              id: "permissions",
+              label: "Permissions",
+              header: false,
+              icon: <User />,
+              schema: CreateRoleSchema.pick({ policies: true })
+            }
+          ]
+        }}
+        edit={{
+          schema: UpdateRoleSchema,
+        }}
+      />
+      {assignableRoleId && (
+        <AssignUsersDrawer
+          roleId={assignableRoleId}
+          open={!!assignableRoleId}
+          onOpenChange={(open) => {
+            if (!open) {
+              setAssignableRoleId(null);
+            }
+          }}
+        />
+      )}
+    </Fragment>
   );
 }
 

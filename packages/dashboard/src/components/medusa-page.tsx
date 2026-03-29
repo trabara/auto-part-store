@@ -43,7 +43,7 @@ export function MedusaPage<
   CS extends z.AnyZodObject,
   ES extends z.AnyZodObject,
   T extends Entity<z.infer<LS>>
->({ name, path, schema, fields, create, edit, toolbarActions, ...restProps }: MedusaPageProps<LS, CS, ES, T>) {
+>({ name, path, schema, fields, create, edit, toolbarActions, rowActions, ...restProps }: MedusaPageProps<LS, CS, ES, T>) {
   const { t } = useTranslation();
   const [isCreateModalOpen, openCreateModal, closeCreateModal] = useToggleState()
   const [isEditDrawerOpen, openEditDrawer, closeEditDrawer] = useToggleState()
@@ -187,7 +187,8 @@ export function MedusaPage<
               onClick: (row) => {
                 deleteMutation.mutateAsync(row.id)
               }
-            }
+            },
+            ...(rowActions || [])
           ]
         }
         toolbarActions={[

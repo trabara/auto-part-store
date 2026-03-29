@@ -14,24 +14,32 @@ export default function RolesPage() {
       signal,
       query: {
         ...(params || {}),
-        fields: 'id,name,description,is_default,created_at',
+        fields: 'id,name,description,is_default,created_at,*policies.id',
       },
     })
 
   const createRole = (data: CreateRoleInput) =>
     sdk.client.fetch("/admin/rbac/roles", { method: "POST", body: data })
 
-  const updateRole = (data: UpdateRoleInput) =>
-    sdk.client.fetch("/admin/rbac/roles", { method: "PATCH", body: data })
+  const updateRole = (id: string, data: UpdateRoleInput) =>
+    sdk.client.fetch(`/admin/rbac/roles/${id}`, { method: "PATCH", body: data })
 
+  const deleteRole = (id: string) =>
+    sdk.client.fetch(`/admin/rbac/roles/${id}`, { method: "DELETE" })
 
   return (
     <MedusaPage
       name="roles"
       description="Manage user roles and their permissions"
-      schema={RoleSchema.omit({ policies: true })}
+      schema={RoleSchema}
       queryFn={listRoles}
+      deleteFn={deleteRole}
+      actionToolBar
       fields={{
+        // id:{
+        //   label: "ID",
+        //   description: "The unique identifier of the role",
+        // },
         name: {
           label: "Name",
           description: "The name of the role",
@@ -45,12 +53,26 @@ export default function RolesPage() {
           description: "Users with this role will be assigned it by default",
           cell: ({ getValue }) => <span>{getValue() ? "Yes" : "No"}</span>
         },
-        
+        policies: {
+          label: "Permissions",
+        }
       }}
       create={{
         mutateFn: (data) => createRole(data),
         schema: CreateRoleSchema,
         fields: {
+          name: {
+            label: "Name",
+            description: "The name of the role",
+          },
+          description: {
+            label: "Description",
+            description: "A brief description of the role"
+          },
+          is_default: {
+            label: "Default",
+            description: "Users with this role will be assigned it by default",
+          },
           policies: {
             hideLabel: true,
             render: ({ onChange }) => <PermissionDataTable
@@ -77,7 +99,7 @@ export default function RolesPage() {
       }}
       edit={{
         schema: UpdateRoleSchema,
-        mutateFn: updateRole
+        mutateFn: updateRole,
       }}
     />
   );

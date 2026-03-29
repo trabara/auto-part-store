@@ -1,6 +1,7 @@
 import { defineRouteConfig } from "@medusajs/admin-sdk";
+import { ShieldCheck } from "@medusajs/icons";
 import { Badge, Container, Heading, Hint } from "@medusajs/ui";
-import { FolderTree, Key, Shield, Users } from "lucide-react";
+import { FolderTree, Key, Users } from "lucide-react";
 import { useLayoutEffect } from "react";
 import { Link } from "react-router-dom";
 
@@ -82,5 +83,5 @@ export default function RbacStatsPage() {
 
 export const config = defineRouteConfig({
     label: "RBAC",
-    icon: () => <Shield size={15}/>
+    icon: () => <ShieldCheck />
 });

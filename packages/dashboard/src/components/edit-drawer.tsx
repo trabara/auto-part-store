@@ -26,19 +26,23 @@ const EditDrawer = <S extends z.AnyZodObject>({
     invalidateKeys: [name],
     errorMessage: `Failed to update ${name}`,
     successMessage: `Successfully updated ${name}`,
-    updateFn: mutateFn
+    updateFn: (data) => mutateFn(defaultValues?.id, data)
   })
+
+  const handleSubmit = async (values: z.infer<S>) => {
+    await mutate.mutateAsync(values);
+    onOpenChange?.(false);
+  }
 
   return (
     <Drawer open={open} onOpenChange={onOpenChange}>
-      <Drawer.Content asChild>
+      <Drawer.Content>
         <SnowForm
           defaultValues={defaultValues}
           schema={schema}
-          overrides={fields as {}}
-          onSubmit={async (values) => {
-            await mutate.mutateAsync(values);
-          }}
+          overrides={fields}
+          onSubmit={handleSubmit}
+          className="flex flex-col h-full"
         >
           {({ renderField, renderSubmitButton }, fieldKeys) => {
             return <>

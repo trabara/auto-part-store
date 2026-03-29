@@ -9,14 +9,16 @@ import {
   Label,
   Select,
   Textarea,
+  usePrompt,
+  useToggleState,
   type DataTableFilter,
 } from "@medusajs/ui";
 import { setupSnowForm } from "@snowpact/react-rhf-zod-form";
-import { FieldOverrides } from "@snowpact/react-rhf-zod-form/src/types";
 import { useMemo, useState } from "react";
-import { useSearchParams } from "react-router-dom";
-import { createSchemaDataTableColumnDef } from "../helpers/column-def";
-import { CellOverrides, CreateConfig, EditConfig } from "../types/config";
+import { createZodDataTableColumnDef } from "../helpers/zod-column-def";
+import { useDeleteMutation } from "../hooks/use-delete-mutation";
+import { CreateConfig, EditConfig, MedusaFieldOverrides } from "../types/config";
+import { Entity } from "../types/data";
 import { PageResponse, QueryFn } from "../types/query";
 import CreateModal from "./create-modal";
 import DataTable from "./data-table";
@@ -25,12 +27,12 @@ import EditDrawer from "./edit-drawer";
 setupSnowForm({
   translate: (key) => key,
   components: {
-    text: ({ componentProps, ...rest }) => <Input {...rest} type="text" />,
-    email: ({ componentProps, ...rest }) => <Input {...rest} type="email" />,
-    password: ({ componentProps, ...rest }) => (
-      <Input {...rest} type="password" />
+    text: ({ componentProps, invalid, ...rest }) => <Input {...rest} type="text" aria-invalid={invalid} />,
+    email: ({ componentProps, invalid, ...rest }) => <Input {...rest} type="email" aria-invalid={invalid} />,
+    password: ({ componentProps, invalid, ...rest }) => (
+      <Input {...rest} type="password" aria-invalid={invalid} />
     ),
-    textarea: ({ componentProps, ...rest }) => <Textarea {...rest} />,
+    textarea: ({ componentProps, invalid, ...rest }) => <Textarea {...rest} aria-invalid={invalid} />,
     checkbox: ({ componentProps, onChange, value, ...rest }) => (
       <Checkbox {...rest} onCheckedChange={onChange} checked={value} />
     ),
@@ -91,17 +93,21 @@ setupSnowForm({
   },
 });
 
+
 interface MedusaPageProps<
-  LS extends z.ZodObject<any>,
+  LS extends z.AnyZodObject,
   CS extends z.AnyZodObject,
   ES extends z.AnyZodObject,
-  R extends PageResponse<z.infer<LS>>,
+  T extends Entity<z.infer<LS>>,
+  R extends PageResponse<T>,
 > {
   name: string;
   description?: string;
+  actionToolBar?: boolean;
   schema: LS;
-  fields: FieldOverrides<z.infer<LS>> | CellOverrides<z.infer<LS>>;
-  queryFn: QueryFn<z.infer<LS>, R>;
+  fields: MedusaFieldOverrides<T>;
+  deleteFn: (id: string) => Promise<any>;
+  queryFn: QueryFn<T, R>;
   create: CreateConfig<CS>;
   edit: EditConfig<ES>;
 }
@@ -110,27 +116,38 @@ export function MedusaPage<
   LS extends z.AnyZodObject,
   CS extends z.AnyZodObject,
   ES extends z.AnyZodObject,
-  R extends PageResponse<z.infer<LS>>,
->({ name, description, schema, queryFn, fields, create, edit }: MedusaPageProps<LS, CS, ES, R>) {
-  const [searchParams, setSearchParams] = useSearchParams();
-  const [selectedRow, setSelectedRow] = useState<z.infer<LS>>();
-  console.log("selectedRow", selectedRow)
+  T extends Entity<z.infer<LS>>,
+  R extends PageResponse<T>,
+>({ name, schema, fields, create, edit, queryFn, deleteFn, ...restProps }: MedusaPageProps<LS, CS, ES, T, R>) {
+  const [isCreateModalOpen, openCreateModal, closeCreateModal] = useToggleState()
+  const [isEditDrawerOpen, openEditDrawer, closeEditDrawer] = useToggleState()
+  const [selectedRow, setSelectedRow] = useState<T>()
+  const prompt = usePrompt()
+
+  const deleteMutation = useDeleteMutation({
+    invalidateKeys: [name],
+    errorMessage: 'Failed to delete item',
+    successMessage: 'Item deleted successfully',
+    deleteFn: (id: string) => deleteFn?.(id) || Promise.resolve(),
+  })
+
   const columns = useMemo(() => {
-    return createSchemaDataTableColumnDef({
+    return createZodDataTableColumnDef({
       schema,
       fields,
-      onRowAction: (action, data) => {
+      onRowAction(action, row) {
         switch (action) {
           case "edit":
-            setSelectedRow(data);
-            setSearchParams({ op: "edit" });
+            setSelectedRow(row);
+            openEditDrawer();
             break;
-          default:
+          case "delete":
+            deleteMutation.mutateAsync(row.id);
             break;
         }
-      }
+      },
     });
-  }, [schema, fields]);
+  }, []);
 
   const filters = useMemo((): DataTableFilter[] => {
     return [];
@@ -140,31 +157,32 @@ export function MedusaPage<
     <Container className="divide-y p-0">
       <DataTable
         name={name}
-        description={description}
         columns={columns}
         filters={filters}
-        queryFn={queryFn as any}
-        onCreateClicked={() => setSearchParams({ op: "create" })}
+        queryFn={queryFn}
+        deleteFn={deleteFn}
+        onCreateClicked={() => openCreateModal()}
+        {...restProps}
       />
 
       <CreateModal
         name={name}
         schema={create.schema}
         steps={create.steps}
+        fields={create.fields}
         mutateFn={create.mutateFn}
-        fields={{ ...fields, ...create.fields }}
-        open={searchParams.get("op") === "create"}
-        onOpenChange={() => setSearchParams({})}
+        open={isCreateModalOpen}
+        onOpenChange={() => closeCreateModal()}
       />
 
       <EditDrawer
         name={name}
         schema={edit.schema}
+        fields={edit.fields}
         mutateFn={edit.mutateFn}
-        fields={{ ...fields, ...edit.fields }}
         defaultValues={selectedRow}
-        open={searchParams.get("op") === "edit"}
-        onOpenChange={() => setSearchParams({})}
+        open={isEditDrawerOpen}
+        onOpenChange={() => closeEditDrawer()}
       />
 
     </Container>

@@ -1,19 +1,23 @@
 import { PageResponse, QueryFn } from "@/types/query";
+import { Trash } from "@medusajs/icons";
 import {
   Button,
   DataTableFilter,
   DataTable as DataTableUI,
   Heading,
   Hint,
+  IconButton,
   useDataTable,
   type DataTableColumnDef,
 } from "@medusajs/ui";
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
+import { useDeleteMutation } from "../hooks/use-delete-mutation";
 import { usePageQuery } from "../hooks/use-page-query";
+import { Entity } from "../types/data";
 import { DataTableBulkActionsToolbar } from "./bulk-actions-toolbar";
 
-interface DataTableListProps<T, R extends PageResponse<T>> {
+interface DataTableListProps<T extends Entity, R extends PageResponse<T>> {
   name: string;
   description?: string;
   columns: DataTableColumnDef<T, keyof T>[]; // This should be typed according to the DataTable column definitions
@@ -21,12 +25,13 @@ interface DataTableListProps<T, R extends PageResponse<T>> {
   actionToolBar?: boolean
   className?: string;
   queryFn: QueryFn<T, R>;
+  deleteFn?: (id: string) => Promise<any>;
   onCreateClicked?: () => void;
   onRowClick?: (row: T) => void;
   onRowSelectChange?: (rows: T[]) => void;
 }
 
-const DataTable = <T extends { id: string }, R extends PageResponse<T>>(
+const DataTable = <T extends Entity, R extends PageResponse<T>>(
   props: DataTableListProps<T, R>,
 ) => {
   const {
@@ -37,6 +42,7 @@ const DataTable = <T extends { id: string }, R extends PageResponse<T>>(
     className,
     actionToolBar,
     queryFn,
+    deleteFn,
     onCreateClicked,
     onRowClick,
     onRowSelectChange,
@@ -44,20 +50,17 @@ const DataTable = <T extends { id: string }, R extends PageResponse<T>>(
 
   const { t } = useTranslation()
 
-  // Use paginated query hook
-  const queryConfig = usePageQuery({
-    queryKey: name,
-    queryFn,
-    selectFn: (resp: R | undefined) => {
-      return {
-        data: resp?.data,
-        rowCount: resp?.metadata?.count,
-      };
-    },
-  });
-
   const table = useDataTable({
-    ...queryConfig,
+    ...usePageQuery({
+      queryKey: name,
+      queryFn,
+      selectFn: (resp: R | undefined) => {
+        return {
+          data: resp?.data,
+          rowCount: resp?.metadata?.count,
+        };
+      },
+    }),
     columns,
     filters,
     onRowClick: (_, row) => {
@@ -65,13 +68,29 @@ const DataTable = <T extends { id: string }, R extends PageResponse<T>>(
     },
   });
 
+  const deleteMutation = useDeleteMutation({
+    invalidateKeys: [name],
+    errorMessage: 'Failed to delete item',
+    successMessage: 'Item deleted successfully',
+    deleteFn: (id: string) => deleteFn?.(id) || Promise.resolve(),
+  })
+
+  const handleBulkDelete = async () => {
+    const selectedRows = table
+      .getRowModel()
+      .rows.filter((row) => row.getIsSelected())
+      .map((row) => row.original);
+    const selectedIds = selectedRows.map((row) => row.id);
+    await deleteMutation.mutateAsync(...selectedIds);
+  }
+
   useEffect(() => {
     const selectedRows = table
       .getRowModel()
       .rows.filter((row) => row.getIsSelected())
       .map((row) => row.original);
     onRowSelectChange?.(selectedRows);
-  }, [table]);
+  }, [table, onRowSelectChange]);
 
   return (
     <DataTableUI instance={table} className={className}>
@@ -93,7 +112,14 @@ const DataTable = <T extends { id: string }, R extends PageResponse<T>>(
       <DataTableUI.Pagination />
       {actionToolBar &&
         <DataTableBulkActionsToolbar table={table} entityName={name}>
-          <div></div>
+          <IconButton
+            size="large"
+            className="rounded-none text-ui-fg-error hover:bg-ui-error/10 data-[state=active]:bg-ui-error/20"
+            variant="transparent"
+            onClick={handleBulkDelete}
+          >
+            <Trash />
+          </IconButton>
         </DataTableBulkActionsToolbar>
       }
 

@@ -10,7 +10,6 @@ interface CreateModalProps<S extends z.AnyZodObject> extends CreateConfig<S> {
   open?: boolean;
   name: string;
   onOpenChange?: (open: boolean) => void;
-  mutateFn: (data: z.infer<S>) => Promise<any>;
 }
 
 export default function CreateModal<S extends z.AnyZodObject>({
@@ -46,9 +45,8 @@ export default function CreateModal<S extends z.AnyZodObject>({
       await action.handleSubmit(values);
     } else {
       await mutate.mutateAsync(values);
+      onOpenChange?.(false);
     }
-
-    onOpenChange?.(false);
   }
 
   return (

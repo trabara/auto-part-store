@@ -1,4 +1,4 @@
-import { toast } from "@medusajs/ui";
+import { toast, usePrompt } from "@medusajs/ui";
 import {
   useMutation,
   UseMutationOptions,
@@ -28,8 +28,6 @@ export interface DeleteMutationConfig {
  * Return type from useDeleteMutation
  */
 export interface UseDeleteMutationReturn {
-  /** Execute the delete mutation */
-  mutate: (...ids: string[]) => void;
   /** Execute the delete mutation with async/await */
   mutateAsync: (...ids: string[]) => Promise<any>;
   /** Whether the mutation is currently running */
@@ -70,6 +68,7 @@ export function useDeleteMutation({
   mutationOptions,
 }: DeleteMutationConfig): UseDeleteMutationReturn {
   const queryClient = useQueryClient();
+  const prompt = usePrompt();
 
   const mutation = useMutation({
     mutationFn: async (ids) => {
@@ -87,17 +86,27 @@ export function useDeleteMutation({
         queryClient.invalidateQueries({ queryKey: [key] });
       });
     },
-    onError: (error: any) => {
+    onError: (error) => {
       toast.error(errorMessage, {
-        description: error?.message || "An error occurred",
+        description: error?.message
       });
     },
     ...mutationOptions,
   });
 
   return {
-    mutate: (...ids: string[]) => mutation.mutate(ids),
-    mutateAsync: (...ids: string[]) => mutation.mutateAsync(ids),
+    mutateAsync: async (...ids: string[]) => {
+      const confirmed = await prompt({
+        title: `Are you sure you want to delete ${ids.length} item(s)?`,
+        description: "This action cannot be undone.",
+        confirmText: "Delete",
+        cancelText: "Cancel",
+      })
+      if (!confirmed) {
+        return;
+      }
+      return mutation.mutateAsync(ids)
+    },
     isPending: mutation.isPending,
     isSuccess: mutation.isSuccess,
     isError: mutation.isError,

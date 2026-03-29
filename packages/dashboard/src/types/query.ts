@@ -1,10 +1,12 @@
+import { Entity } from "./data";
+
 export interface PageResponseMeta {
   count: number;
   take: number;
   skip: number;
 }
 
-export interface PageResponse<T> {
+export interface PageResponse<T extends Entity> {
   data: T[];
   metadata: PageResponseMeta
 }
@@ -24,9 +26,9 @@ export interface PageQueryParams {
 /**
  * Type definition for the query function used in paginated queries
  */
-export type QueryFn<T, Response extends PageResponse<T>> = (signal: AbortSignal, params: PageQueryParams) => Promise<Response>
+export type QueryFn<R> = (signal: AbortSignal, params: PageQueryParams) => Promise<R>
 
 /**
  * Type definition for the select function used to transform query data
  */
-export type SelectFn<T, Response extends PageResponse<T>> = (data: Response | undefined) => ({ data: T[] | undefined, rowCount: number | undefined })
+export type SelectFn<T extends Entity, Response extends PageResponse<T>> = (data: Response | undefined) => ({ data: T[] | undefined, rowCount: number | undefined })

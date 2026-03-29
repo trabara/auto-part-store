@@ -5,10 +5,11 @@ import { SnowForm } from "@snowpact/react-rhf-zod-form";
 import { useUpdateMutation } from "../hooks/use-update-mutation";
 
 
-interface EditDrawerProps<S extends z.AnyZodObject> extends EditConfig<S> {
+interface EditDrawerProps<S extends z.AnyZodObject> extends EditConfig<z.infer<S>> {
   name: string;
   open?: boolean;
   defaultValues?: z.infer<S>;
+  mutateFn: (id: string, data: z.infer<S>) => Promise<void>;
   onOpenChange?: (open: boolean) => void;
 }
 
@@ -39,7 +40,7 @@ const EditDrawer = <S extends z.AnyZodObject>({
       <Drawer.Content>
         <SnowForm
           defaultValues={defaultValues}
-          schema={schema}
+          schema={schema as any}
           overrides={fields}
           onSubmit={handleSubmit}
           className="flex flex-col h-full"

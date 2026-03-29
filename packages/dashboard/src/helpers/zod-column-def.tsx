@@ -9,15 +9,15 @@ import { useTranslation } from 'react-i18next';
 import { CellOverride, MedusaFieldOverrides } from "../types/config";
 import { createSelectDataTableColumns } from "./create-select-columns";
 
-type SchemaConfig<S extends z.ZodTypeAny, T extends Entity = Entity<z.infer<S>>> = {
+type SchemaConfig<S extends z.AnyZodObject, T extends Entity = Entity<z.infer<S>>> = {
     schema: S,
     fields?: MedusaFieldOverrides<T>,
     onRowAction?: (action: string, row: T) => void,
 }
 
 export function createZodDataTableColumnDef<
-    S extends z.ZodTypeAny,
-    T extends Entity,
+    S extends z.AnyZodObject,
+    T extends Entity = Entity<z.infer<S>>,
     K extends keyof T = keyof T
 >(config: SchemaConfig<S, T>): DataTableColumnDef<T, K>[] {
 
@@ -31,7 +31,7 @@ export function createZodDataTableColumnDef<
         // columns must follow the fields order, so we iterate over the fields array and check if they exist in the schema
 
         const keys = fields && Object.keys(fields).length > 0 ? Object.keys(fields) as K[] : (Object.keys(shape) as K[]);
-
+       
         const columns: DataTableColumnDef<T, K>[] = keys.map((key) => {
             const fieldInfo = getZodFieldInfo(shape[key]);
             const override = (fields?.[key] as CellOverride<T, K>)
@@ -44,7 +44,11 @@ export function createZodDataTableColumnDef<
                         return override.cell(info);
                     }
                     const value = info.getValue<any>();
+                    if (!value) {
+                        return <span>-</span>
+                    }
                     if (fieldInfo.baseType === "date") {
+                        console.log("Formatting date", value)
                         return format(new Date(value), "dd/MM/yyyy");
                     } if (fieldInfo.baseType === 'array') {
                         return <span>{value?.length}</span>

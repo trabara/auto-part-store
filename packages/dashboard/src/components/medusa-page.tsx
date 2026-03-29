@@ -1,4 +1,5 @@
 import { z } from "@medusajs/framework/zod";
+import { Trash } from "@medusajs/icons";
 import {
   Button,
   Checkbox,
@@ -9,17 +10,16 @@ import {
   Label,
   Select,
   Textarea,
-  usePrompt,
-  useToggleState,
-  type DataTableFilter,
+  UseDataTableReturn,
+  useToggleState
 } from "@medusajs/ui";
 import { setupSnowForm } from "@snowpact/react-rhf-zod-form";
-import { useMemo, useState } from "react";
-import { createZodDataTableColumnDef } from "../helpers/zod-column-def";
+import { useState } from "react";
 import { useDeleteMutation } from "../hooks/use-delete-mutation";
-import { CreateConfig, EditConfig, MedusaFieldOverrides } from "../types/config";
+import { sdk } from "../lib/sdk";
+import { CreateConfig, EditConfig, ListConfig } from "../types/config";
 import { Entity } from "../types/data";
-import { PageResponse, QueryFn } from "../types/query";
+import { PageQueryParams, PageResponse } from "../types/query";
 import CreateModal from "./create-modal";
 import DataTable from "./data-table";
 import EditDrawer from "./edit-drawer";
@@ -98,70 +98,78 @@ interface MedusaPageProps<
   LS extends z.AnyZodObject,
   CS extends z.AnyZodObject,
   ES extends z.AnyZodObject,
-  T extends Entity<z.infer<LS>>,
-  R extends PageResponse<T>,
-> {
-  name: string;
-  description?: string;
-  actionToolBar?: boolean;
-  schema: LS;
-  fields: MedusaFieldOverrides<T>;
-  deleteFn: (id: string) => Promise<any>;
-  queryFn: QueryFn<T, R>;
-  create: CreateConfig<CS>;
-  edit: EditConfig<ES>;
+  T extends Entity<z.infer<LS>>
+> extends ListConfig<T> {
+  path: string;
+  create: CreateConfig<z.infer<CS>>;
+  edit: EditConfig<z.infer<ES>>;
 }
 
 export function MedusaPage<
   LS extends z.AnyZodObject,
   CS extends z.AnyZodObject,
   ES extends z.AnyZodObject,
-  T extends Entity<z.infer<LS>>,
-  R extends PageResponse<T>,
->({ name, schema, fields, create, edit, queryFn, deleteFn, ...restProps }: MedusaPageProps<LS, CS, ES, T, R>) {
+  T extends Entity<z.infer<LS>>
+>({ name, path, schema, fields, create, edit, toolbarActions, ...restProps }: MedusaPageProps<LS, CS, ES, T>) {
   const [isCreateModalOpen, openCreateModal, closeCreateModal] = useToggleState()
   const [isEditDrawerOpen, openEditDrawer, closeEditDrawer] = useToggleState()
   const [selectedRow, setSelectedRow] = useState<T>()
-  const prompt = usePrompt()
+
+
+  const listAction = (signal: AbortSignal, params?: PageQueryParams) =>
+    sdk.client.fetch<PageResponse<T>>(path, {
+      method: "GET",
+      signal,
+      query: {
+        ...(params || {}),
+      },
+    })
+
+  const createAction = (data: z.infer<CS>): Promise<void> =>
+    sdk.client.fetch(path, { method: "POST", body: data })
+
+  const updateAction = (id: string, data: z.infer<ES>): Promise<void> =>
+    sdk.client.fetch(`${path}/${id}`, { method: "PATCH", body: data })
+
+  const deleteAction = (id: string) =>
+    sdk.client.fetch(`${path}/${id}`, { method: "DELETE" })
+
 
   const deleteMutation = useDeleteMutation({
     invalidateKeys: [name],
     errorMessage: 'Failed to delete item',
     successMessage: 'Item deleted successfully',
-    deleteFn: (id: string) => deleteFn?.(id) || Promise.resolve(),
+    deleteFn: (id: string) => deleteAction(id),
   })
 
-  const columns = useMemo(() => {
-    return createZodDataTableColumnDef({
-      schema,
-      fields,
-      onRowAction(action, row) {
-        switch (action) {
-          case "edit":
-            setSelectedRow(row);
-            openEditDrawer();
-            break;
-          case "delete":
-            deleteMutation.mutateAsync(row.id);
-            break;
-        }
-      },
-    });
-  }, []);
+  const handleBulkDelete = async (table: UseDataTableReturn<T>) => {
+    const selectedRows = table
+      .getRowModel()
+      .rows.filter((row) => row.getIsSelected())
+      .map((row) => row.original);
+    const selectedIds = selectedRows.map((row) => row.id);
+    await deleteMutation.mutateAsync(...selectedIds);
+  }
 
-  const filters = useMemo((): DataTableFilter[] => {
-    return [];
-  }, []);
 
   return (
     <Container className="divide-y p-0">
       <DataTable
         name={name}
-        columns={columns}
-        filters={filters}
-        queryFn={queryFn}
-        deleteFn={deleteFn}
+        schema={schema}
+        fields={fields}
+        queryFn={listAction}
         onCreateClicked={() => openCreateModal()}
+        toolbarActions={[
+          {
+            id: 'delete',
+            icon: <Trash />,
+            variant: "danger",
+            label: "Delete",
+            onClick: (table) => handleBulkDelete(table)
+          },
+          ...(toolbarActions || [])
+        ]}
         {...restProps}
       />
 
@@ -170,7 +178,7 @@ export function MedusaPage<
         schema={create.schema}
         steps={create.steps}
         fields={create.fields}
-        mutateFn={create.mutateFn}
+        mutateFn={createAction}
         open={isCreateModalOpen}
         onOpenChange={() => closeCreateModal()}
       />
@@ -179,7 +187,7 @@ export function MedusaPage<
         name={name}
         schema={edit.schema}
         fields={edit.fields}
-        mutateFn={edit.mutateFn}
+        mutateFn={updateAction}
         defaultValues={selectedRow}
         open={isEditDrawerOpen}
         onOpenChange={() => closeEditDrawer()}

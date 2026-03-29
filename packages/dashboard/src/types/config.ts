@@ -1,11 +1,19 @@
 import { z } from "@medusajs/framework/zod";
+import { UseDataTableReturn } from "@medusajs/ui";
 import {
   BaseFieldConfig,
   FieldOverrides,
 } from "@snowpact/react-rhf-zod-form/src/types";
 import { CellContext, ColumnDefTemplate } from "@tanstack/react-table";
 import { Entity } from "./data";
-import { PageResponse, QueryFn } from "./query";
+
+interface ToolBarAction<T extends Entity> {
+  id: string;
+  label: string;
+  icon: React.ReactNode;
+  variant?: "danger" | "default";
+  onClick: (table: UseDataTableReturn<T>) => void;
+}
 
 export interface StepConfig<S extends z.ZodTypeAny> {
   description?: string;
@@ -16,37 +24,35 @@ export interface StepConfig<S extends z.ZodTypeAny> {
   schema: S;
 };
 
-export interface ActionConfig<S extends z.ZodTypeAny> {
-  fields?: FieldOverrides<z.infer<S>>;
-  schema: S;
+export interface ActionConfig<T extends {}> {
+  fields?: MedusaFieldOverrides<T>;
+  schema: z.AnyZodObject;
 };
 
 export interface ListConfig<
-  S extends z.ZodTypeAny,
-  R extends PageResponse<z.infer<S>>,
-> extends ActionConfig<S> {
+  T extends Entity
+> extends ActionConfig<T> {
   name: string;
-  queryFn: QueryFn<z.infer<S>, R>;
+  description?: string;
+  toolbarActions?: ToolBarAction<T>[];
 };
 
-export interface CreateConfig<S extends z.ZodTypeAny> extends ActionConfig<S> {
-  mutateFn: (data: z.infer<S>) => Promise<any>;
+export interface CreateConfig<T extends {}> extends ActionConfig<T> {
   steps?: StepConfig<any>[];
 };
 
-export interface EditConfig<S extends z.ZodTypeAny> extends ActionConfig<S> {
-  mutateFn: (id: string, data: z.infer<S>) => Promise<any>;
+export interface EditConfig<T extends {}> extends ActionConfig<T> {
 };
 
 export interface CellOverride<
   T = unknown,
   TValue = unknown,
 > extends BaseFieldConfig {
-  cell: ColumnDefTemplate<CellContext<T, TValue>>;
+  cell?: ColumnDefTemplate<CellContext<T, TValue>>;
 }
 
 export type CellOverrides<T> = {
   [K in keyof T]?: CellOverride<T, T[K]>;
 };
 
-export type MedusaFieldOverrides<T extends Entity> = FieldOverrides<T> | CellOverrides<T>;
+export type MedusaFieldOverrides<T extends {}> = FieldOverrides<T> | CellOverrides<T>;

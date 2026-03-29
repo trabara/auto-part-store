@@ -10,6 +10,7 @@ interface CreateModalProps<S extends z.AnyZodObject> extends CreateConfig<S> {
   open?: boolean;
   name: string;
   onOpenChange?: (open: boolean) => void;
+  mutateFn: (data: z.infer<S>) => Promise<void>;
 }
 
 export default function CreateModal<S extends z.AnyZodObject>({
@@ -53,7 +54,7 @@ export default function CreateModal<S extends z.AnyZodObject>({
     <FocusModal open={open} onOpenChange={onOpenChange}>
       <FocusModal.Content>
         <SnowForm
-          overrides={fields}
+          overrides={fields as any}
           schema={activeSchema}
           onSubmit={handleSubmit}
         >
@@ -123,11 +124,11 @@ export default function CreateModal<S extends z.AnyZodObject>({
 
             const fieldKeys = Object.keys(getZodShape(activeSchema)) as (keyof z.infer<S>)[];
 
-            return <>
+            return <div className="flex flex-col h-full">
               <FocusModal.Header>
                 <Heading level="h1">Create {name}</Heading>
               </FocusModal.Header>
-              <FocusModal.Body className="mx-auto max-w-lg flex flex-col py-16 px-4">
+              <FocusModal.Body className="relative">
                 {fieldKeys.map((key) => renderField(key))}
               </FocusModal.Body>
               <FocusModal.Footer>
@@ -145,7 +146,7 @@ export default function CreateModal<S extends z.AnyZodObject>({
                   })}
                 </div>
               </FocusModal.Footer>
-            </>
+            </div>
           }}
         </SnowForm>
       </FocusModal.Content>

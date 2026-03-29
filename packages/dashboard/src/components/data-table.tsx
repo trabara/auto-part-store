@@ -1,48 +1,47 @@
-import { PageResponse, QueryFn } from "@/types/query";
-import { Trash } from "@medusajs/icons";
+import { z } from "@medusajs/framework/zod";
 import {
   Button,
+  DataTableColumnDef,
   DataTableFilter,
   DataTable as DataTableUI,
   Heading,
   Hint,
   IconButton,
-  useDataTable,
-  type DataTableColumnDef,
+  useDataTable
 } from "@medusajs/ui";
-import { useEffect } from "react";
+import { cn } from '@repo/ui/lib/utils';
+import { useEffect, useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import { useDeleteMutation } from "../hooks/use-delete-mutation";
+import { createZodDataTableColumnDef } from "../helpers/zod-column-def";
 import { usePageQuery } from "../hooks/use-page-query";
+import { ListConfig } from "../types/config";
 import { Entity } from "../types/data";
+import { PageResponse, QueryFn } from "../types/query";
 import { DataTableBulkActionsToolbar } from "./bulk-actions-toolbar";
 
-interface DataTableListProps<T extends Entity, R extends PageResponse<T>> {
-  name: string;
-  description?: string;
-  columns: DataTableColumnDef<T, keyof T>[]; // This should be typed according to the DataTable column definitions
-  filters: DataTableFilter[];
-  actionToolBar?: boolean
+interface DataTableListProps<
+  S extends z.AnyZodObject,
+  T extends Entity<z.infer<S>>,
+> extends ListConfig<T> {
   className?: string;
-  queryFn: QueryFn<T, R>;
-  deleteFn?: (id: string) => Promise<any>;
+  queryFn: QueryFn<PageResponse<T>>;
   onCreateClicked?: () => void;
   onRowClick?: (row: T) => void;
   onRowSelectChange?: (rows: T[]) => void;
 }
 
-const DataTable = <T extends Entity, R extends PageResponse<T>>(
-  props: DataTableListProps<T, R>,
-) => {
+const DataTable = <
+  S extends z.AnyZodObject,
+  T extends Entity<z.infer<S>>,
+>(props: DataTableListProps<S, T>) => {
   const {
     name,
-    description,
-    columns,
-    filters,
     className,
-    actionToolBar,
+    schema,
+    description,
+    fields = {},
+    toolbarActions = [],
     queryFn,
-    deleteFn,
     onCreateClicked,
     onRowClick,
     onRowSelectChange,
@@ -50,39 +49,45 @@ const DataTable = <T extends Entity, R extends PageResponse<T>>(
 
   const { t } = useTranslation()
 
-  const table = useDataTable({
-    ...usePageQuery({
-      queryKey: name,
-      queryFn,
-      selectFn: (resp: R | undefined) => {
-        return {
-          data: resp?.data,
-          rowCount: resp?.metadata?.count,
-        };
-      },
-    }),
-    columns,
-    filters,
-    onRowClick: (_, row) => {
-      onRowClick?.(row);
+  const queryConfig = usePageQuery({
+    queryKey: name,
+    queryFn,
+    selectFn: (resp: PageResponse<T> | undefined) => {
+      return {
+        data: resp?.data,
+        rowCount: resp?.metadata?.count,
+      };
     },
   });
 
-  const deleteMutation = useDeleteMutation({
-    invalidateKeys: [name],
-    errorMessage: 'Failed to delete item',
-    successMessage: 'Item deleted successfully',
-    deleteFn: (id: string) => deleteFn?.(id) || Promise.resolve(),
-  })
+  const columns = useMemo(() =>
+    createZodDataTableColumnDef({
+      schema,
+      fields,
+      onRowAction(action, row) {
+        switch (action) {
+          case "edit":
+            // setSelectedRow(row);
+            // openEditDrawer();
+            break;
+          case "delete":
+            // deleteMutation.mutateAsync(row.id);
+            break;
+        }
+      },
+    }) as DataTableColumnDef<T, any>[], []);
 
-  const handleBulkDelete = async () => {
-    const selectedRows = table
-      .getRowModel()
-      .rows.filter((row) => row.getIsSelected())
-      .map((row) => row.original);
-    const selectedIds = selectedRows.map((row) => row.id);
-    await deleteMutation.mutateAsync(...selectedIds);
-  }
+  const filters = useMemo((): DataTableFilter[] => {
+    return [];
+  }, []);
+
+  const table = useDataTable<T>({
+    ...queryConfig,
+    columns,
+    filters,
+    onRowClick: (_, row) =>
+      onRowClick?.(row)
+  });
 
   useEffect(() => {
     const selectedRows = table
@@ -110,20 +115,25 @@ const DataTable = <T extends Entity, R extends PageResponse<T>>(
 
       <DataTableUI.Table />
       <DataTableUI.Pagination />
-      {actionToolBar &&
-        <DataTableBulkActionsToolbar table={table} entityName={name}>
-          <IconButton
-            size="large"
-            className="rounded-none text-ui-fg-error hover:bg-ui-error/10 data-[state=active]:bg-ui-error/20"
-            variant="transparent"
-            onClick={handleBulkDelete}
-          >
-            <Trash />
-          </IconButton>
-        </DataTableBulkActionsToolbar>
-      }
 
-    </DataTableUI>
+      {toolbarActions.length > 0 && (
+        <DataTableBulkActionsToolbar table={table} entityName={name}>
+          {toolbarActions?.map((action) => (
+            <IconButton
+              key={action.id}
+              size="large"
+              className={cn("rounded-none", {
+                "text-ui-fg-error hover:bg-ui-error/10 data-[state=active]:bg-ui-error/20": action.variant === "danger",
+              })}
+              variant="transparent"
+              onClick={() => action.onClick(table)}
+            >
+              {action.icon}
+            </IconButton>
+          ))}
+        </DataTableBulkActionsToolbar>
+      )}
+    </DataTableUI >
   );
 };
 

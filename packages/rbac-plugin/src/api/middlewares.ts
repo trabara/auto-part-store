@@ -1,10 +1,21 @@
-import { authenticate, defineMiddlewares, MiddlewareRoute, validateAndTransformBody, validateAndTransformQuery } from "@medusajs/framework";
+import {
+  authenticate,
+  defineMiddlewares,
+  MiddlewareRoute,
+  validateAndTransformBody,
+  validateAndTransformQuery,
+} from "@medusajs/framework";
 import { createFindParams } from "@medusajs/medusa/api/utils/validators";
-import { AssignUsersSchema, CreatePermissionSchema, CreateRoleSchema, UpdateRoleSchema } from "../modules/rbac-v2/schema";
+import {
+  AssignUsersSchema,
+  CreatePermissionSchema,
+  CreateRoleSchema,
+  UpdateRoleSchema,
+} from "../modules/authz/schema";
 
 const authenticateMiddleware = authenticate(["*"], ["session"]);
 
-const BaseFindParams = createFindParams()
+const BaseFindParams = createFindParams();
 
 export const adminRolesMiddlewares: MiddlewareRoute[] = [
   {
@@ -52,7 +63,6 @@ export const adminRolesMiddlewares: MiddlewareRoute[] = [
       validateAndTransformBody(CreateRoleSchema),
     ],
   },
-
 ];
 
 export const adminPermissionsMiddlewares: MiddlewareRoute[] = [
@@ -81,7 +91,6 @@ export const adminPermissionsMiddlewares: MiddlewareRoute[] = [
     middlewares: [authenticateMiddleware],
   },
 ];
-
 
 export default defineMiddlewares({
   routes: [

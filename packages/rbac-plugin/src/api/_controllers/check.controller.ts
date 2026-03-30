@@ -1,6 +1,6 @@
 import { BaseController } from "@repo/common";
-import { RBAC_V2_MODULE, RbacV2ModuleService } from "../../modules/rbac-v2";
-import { CheckAccessSchema } from "../../modules/rbac-v2/schema";
+import { AUTHZ_MODULE, AuthzModuleService } from "../../modules/authz";
+import { CheckAccessSchema } from "../../modules/authz/schema";
 
 export class CheckController extends BaseController {
   constructor(req, res) {
@@ -9,14 +9,14 @@ export class CheckController extends BaseController {
 
   async check(): Promise<void> {
     await this.execute(async () => {
-      const service = this.req.scope.resolve<RbacV2ModuleService>(RBAC_V2_MODULE);
+      const service = this.req.scope.resolve<AuthzModuleService>(AUTHZ_MODULE);
       const validated = CheckAccessSchema.parse(this.req.validatedBody);
 
       const matchedPolicy = await service.userHasAccess(
         this.req.auth_context.actor_id,
         validated.path,
         validated.method,
-      )
+      );
 
       this.success({ allowed: matchedPolicy });
     });

@@ -1,7 +1,10 @@
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils";
 import { BaseController } from "@repo/common";
-import { RBAC_V2_MODULE, RbacV2ModuleService } from "../../modules/rbac-v2";
-import { CreatePermissionSchema, PermissionFiltersSchema } from "../../modules/rbac-v2/schema";
+import { AUTHZ_MODULE, AuthzModuleService } from "../../modules/authz";
+import {
+  CreatePermissionSchema,
+  PermissionFiltersSchema,
+} from "../../modules/authz/schema";
 
 export class PermissionController extends BaseController {
   constructor(req, res) {
@@ -14,7 +17,7 @@ export class PermissionController extends BaseController {
       const validated = PermissionFiltersSchema.parse(this.req.query || {});
 
       const { data, metadata } = await query.graph({
-        entity: "rbac_v2_permission",
+        entity: "authz_permission",
         filters: validated,
         ...this.req.queryConfig,
       });
@@ -25,10 +28,10 @@ export class PermissionController extends BaseController {
 
   async create(): Promise<void> {
     await this.execute(async () => {
-      const service = this.req.scope.resolve<RbacV2ModuleService>(RBAC_V2_MODULE);
+      const service = this.req.scope.resolve<AuthzModuleService>(AUTHZ_MODULE);
       const validated = CreatePermissionSchema.parse(this.req.validatedBody);
 
-      const permission = await service.createRbacV2Permissions({
+      const permission = await service.createAuthzPermissions({
         kind: validated.kind,
         target: validated.target,
         type: "custom",
@@ -41,10 +44,10 @@ export class PermissionController extends BaseController {
 
   async delete(): Promise<void> {
     await this.execute(async () => {
-      const service = this.req.scope.resolve<RbacV2ModuleService>(RBAC_V2_MODULE);
+      const service = this.req.scope.resolve<AuthzModuleService>(AUTHZ_MODULE);
       const { id } = this.req.params;
 
-      const result = await service.retrieveRbacV2Permission(id);
+      const result = await service.retrieveAuthzPermission(id);
 
       if (!result) {
         this.notFound("Permission not found");
@@ -58,7 +61,7 @@ export class PermissionController extends BaseController {
         return;
       }
 
-      await service.deleteRbacV2Permissions(id);
+      await service.deleteAuthzPermissions([id]);
 
       this.noContent();
     });

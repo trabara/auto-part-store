@@ -6,10 +6,14 @@ import {
   MedusaContext,
   MedusaService,
 } from "@medusajs/framework/utils";
-import { DEFAULT_CATEGORIES, EXCLUDED_ROUTES, PREDEFINED_PERMISSIONS } from "../constant";
+import {
+  DEFAULT_CATEGORIES,
+  EXCLUDED_ROUTES,
+  PREDEFINED_PERMISSIONS,
+} from "../constant";
 import * as Models from "../models";
 
-export default class RbacV2ModuleService extends MedusaService(Models) {
+export default class AuthzModuleService extends MedusaService(Models) {
   __hooks = {
     onApplicationStart: async () => {
       this.onApplicationStart()
@@ -17,33 +21,42 @@ export default class RbacV2ModuleService extends MedusaService(Models) {
   }
 
   async onApplicationStart(): Promise<void> {
+    console.log("Syncing registered policies...")
     await this.syncRegisteredPolicies()
   }
 
   @InjectManager()
   private async syncRegisteredPolicies(
     @MedusaContext()
-    sharedContext?: Context<EntityManager>
+    sharedContext?: Context<EntityManager>,
   ): Promise<void> {
-    const [, count] = await this.listAndCountRbacV2Categories({}, {}, sharedContext);
+    const [_, count] = await this.listAndCountAuthzCategories(
+      {},
+      {},
+      sharedContext,
+    );
+    console.log(`Found ${count} existing categories.`)
     if (count > 0) {
       return;
     }
 
     const categoryMap = new Map<string, string>();
     for (const cat of DEFAULT_CATEGORIES) {
-      const created = await this.createRbacV2Categories(cat, sharedContext);
+      const created = await this.createAuthzCategories(cat, sharedContext);
       categoryMap.set(cat.name, created.id);
     }
 
     for (const p of PREDEFINED_PERMISSIONS) {
       const categoryId = categoryMap.get(p.category) || null;
-      await this.createRbacV2Permissions({
-        kind: p.kind as "read" | "write" | "delete",
-        target: p.target,
-        type: "predefined",
-        category_id: categoryId,
-      }, sharedContext);
+      await this.createAuthzPermissions(
+        {
+          kind: p.kind as "read" | "write" | "delete",
+          target: p.target,
+          type: "predefined",
+          category_id: categoryId,
+        },
+        sharedContext,
+      );
     }
   }
 
@@ -101,7 +114,7 @@ export default class RbacV2ModuleService extends MedusaService(Models) {
     @MedusaContext()
     sharedContext?: Context<EntityManager>,
   ): Promise<void> {
-    const membersResult = await this.listRbacV2Members(
+    const membersResult = await this.listAuthzMembers(
       {
         user_id: userIds,
       },
@@ -114,13 +127,13 @@ export default class RbacV2ModuleService extends MedusaService(Models) {
       member = membersResult.find((m) => m.user_id === userId);
 
       if (member) {
-        await this.updateRbacV2Members(
+        await this.updateAuthzMembers(
           member.id,
           { role_id: roleId },
           sharedContext,
         );
       } else {
-        await this.createRbacV2Members(
+        await this.createAuthzMembers(
           {
             user_id: userId,
             role_id: roleId,

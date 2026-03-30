@@ -1,16 +1,16 @@
 import { Infer } from "@medusajs/framework/types";
 import { model } from "@medusajs/framework/utils";
-import { RbacV2Member } from "./member";
-import { RbacV2Policy } from "./policy";
+import { AuthzMember } from "./member";
+import { AuthzPolicy } from "./policy";
 
-export const RbacV2Role = model.define("rbac_v2_role", {
+export const AuthzRole = model.define("authz_role", {
   id: model.id().primaryKey(),
   name: model.text(),
   description: model.text().nullable(),
-  policies: model.hasMany(() => RbacV2Policy, {
+  policies: model.hasMany(() => AuthzPolicy, {
     mappedBy: "role",
   }),
-  members: model.hasMany(() => RbacV2Member, {
+  members: model.hasMany(() => AuthzMember, {
     mappedBy: "role",
   }),
 }).cascades({
@@ -23,4 +23,4 @@ export const RbacV2Role = model.define("rbac_v2_role", {
   },
 ]);
 
-export type Role = Infer<typeof RbacV2Role>;
+export type AuthzRole = Infer<typeof AuthzRole>;

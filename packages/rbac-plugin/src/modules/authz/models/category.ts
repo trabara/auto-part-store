@@ -1,22 +1,22 @@
 import { Infer } from "@medusajs/framework/types";
 import { model } from "@medusajs/framework/utils";
-import { RbacV2Permission } from "./permission";
+import { AuthzPermission } from "./permission";
 
-export const RbacV2Category = model
-  .define("rbac_v2_category", {
+export const AuthzCategory = model
+  .define("authz_category", {
     id: model.id().primaryKey(),
     name: model.text().searchable(),
     description: model.text().nullable(),
     parent_category: model.
-      belongsTo(() => RbacV2Category, {
+      belongsTo(() => AuthzCategory, {
         mappedBy: "child_categories",
       })
       .nullable(),
     child_categories: model.
-      hasMany(() => RbacV2Category, {
+      hasMany(() => AuthzCategory, {
         mappedBy: "parent_category",
       }),
-    permissions: model.hasMany(() => RbacV2Permission, {
+    permissions: model.hasMany(() => AuthzPermission, {
       mappedBy: "category",
     }),
   })
@@ -31,4 +31,4 @@ export const RbacV2Category = model
     },
   ]);
 
-export type Category = Infer<typeof RbacV2Category>;
+export type AuthzCategory = Infer<typeof AuthzCategory>;

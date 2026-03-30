@@ -1,15 +1,15 @@
 import { Infer } from "@medusajs/framework/types";
 import { model } from "@medusajs/framework/utils";
-import { RbacV2Permission } from "./permission";
-import { RbacV2Role } from "./role";
+import { AuthzPermission } from "./permission";
+import { AuthzRole } from "./role";
 
-export const RbacV2Policy = model.define("rbac_v2_policy", {
+export const AuthzPolicy = model.define("authz_policy", {
   id: model.id().primaryKey(),
   name: model.text().searchable(),
-  role: model.belongsTo(() => RbacV2Role, {
+  role: model.belongsTo(() => AuthzRole, {
     mappedBy: "policies",
   }),
-  permission: model.belongsTo(() => RbacV2Permission, {
+  permission: model.belongsTo(() => AuthzPermission, {
     mappedBy: "policies",
   }),
   metadata: model.json().nullable(),
@@ -31,4 +31,4 @@ export const RbacV2Policy = model.define("rbac_v2_policy", {
   }
 ]);
 
-export type Policy = Infer<typeof RbacV2Policy>;
+export type AuthzPolicy = Infer<typeof AuthzPolicy>;

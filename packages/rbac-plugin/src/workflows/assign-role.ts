@@ -4,7 +4,7 @@ import {
   StepResponse,
   WorkflowResponse,
 } from "@medusajs/framework/workflows-sdk";
-import { RBAC_V2_MODULE, RbacV2ModuleService } from "../modules/rbac-v2";
+import { AUTHZ_MODULE, AuthzModuleService } from "../modules/authz";
 
 type AssignRoleWorkflowInput = {
   user_id: string;
@@ -14,9 +14,9 @@ type AssignRoleWorkflowInput = {
 const assignRoleStep = createStep(
   "assign-role-step",
   async (input: AssignRoleWorkflowInput, { container }) => {
-    const service = container.resolve<RbacV2ModuleService>(RBAC_V2_MODULE);
+    const service = container.resolve<AuthzModuleService>(AUTHZ_MODULE);
 
-    const [existingMembers] = await service.listAndCountRbacV2Members({
+    const [existingMembers] = await service.listAndCountAuthzMembers({
       user_id: input.user_id,
     });
 
@@ -25,12 +25,14 @@ const assignRoleStep = createStep(
     if (existingMembers.length > 0) {
       member = existingMembers[0];
       if (input.role_id === null) {
-        await service.updateRbacV2Members(member.id, { role_id: null });
+        await service.updateAuthzMembers(member.id, { role_id: null });
       } else {
-        await service.updateRbacV2Members(member.id, { role_id: input.role_id });
+        await service.updateAuthzMembers(member.id, {
+          role_id: input.role_id,
+        });
       }
     } else {
-      member = await service.createRbacV2Members({
+      member = await service.createAuthzMembers({
         user_id: input.user_id,
         role_id: input.role_id,
       });
@@ -44,9 +46,9 @@ const assignRoleStep = createStep(
   async (compensation, { container }) => {
     if (!compensation) return;
 
-    const service = container.resolve<RbacV2ModuleService>(RBAC_V2_MODULE);
+    const service = container.resolve<AuthzModuleService>(AUTHZ_MODULE);
 
-    await service.updateRbacV2Members(compensation.memberId, {
+    await service.updateAuthzMembers(compensation.memberId, {
       role_id: compensation.previousRoleId,
     });
   },

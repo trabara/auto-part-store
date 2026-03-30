@@ -1,15 +1,15 @@
 import { Infer } from "@medusajs/framework/types";
 import { model } from "@medusajs/framework/utils";
-import { PermissionEntity } from "./permission";
-import { RoleEntity } from "./role";
+import { RbacV2Permission } from "./permission";
+import { RbacV2Role } from "./role";
 
-export const PolicyEntity = model.define("rbac_policy", {
+export const RbacV2Policy = model.define("rbac_v2_policy", {
   id: model.id().primaryKey(),
   name: model.text().searchable(),
-  role: model.belongsTo(() => RoleEntity, {
+  role: model.belongsTo(() => RbacV2Role, {
     mappedBy: "policies",
   }),
-  permission: model.belongsTo(() => PermissionEntity, {
+  permission: model.belongsTo(() => RbacV2Permission, {
     mappedBy: "policies",
   }),
   metadata: model.json().nullable(),
@@ -31,4 +31,4 @@ export const PolicyEntity = model.define("rbac_policy", {
   }
 ]);
 
-export type Policy = Infer<typeof PolicyEntity>;
+export type Policy = Infer<typeof RbacV2Policy>;

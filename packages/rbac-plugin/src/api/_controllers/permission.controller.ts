@@ -1,6 +1,6 @@
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils";
 import { BaseController } from "@repo/common";
-import { RBAC_MODULE, RbacModuleService } from "../../modules/rbac";
+import { RBAC_V2_MODULE, RbacV2ModuleService } from "../../modules/rbac";
 import { CreatePermissionSchema, PermissionFiltersSchema } from "../../modules/rbac/schema";
 
 export class PermissionController extends BaseController {
@@ -14,7 +14,7 @@ export class PermissionController extends BaseController {
       const validated = PermissionFiltersSchema.parse(this.req.query || {});
 
       const { data, metadata } = await query.graph({
-        entity: "rbac_permission",
+        entity: "rbac_v2_permission",
         filters: validated,
         ...this.req.queryConfig,
       });
@@ -25,10 +25,10 @@ export class PermissionController extends BaseController {
 
   async create(): Promise<void> {
     await this.execute(async () => {
-      const service = this.req.scope.resolve<RbacModuleService>(RBAC_MODULE);
+      const service = this.req.scope.resolve<RbacV2ModuleService>(RBAC_V2_MODULE);
       const validated = CreatePermissionSchema.parse(this.req.validatedBody);
 
-      const permission = await service.createPermissions({
+      const permission = await service.createRbacV2Permissions({
         kind: validated.kind,
         target: validated.target,
         type: "custom",
@@ -41,24 +41,24 @@ export class PermissionController extends BaseController {
 
   async delete(): Promise<void> {
     await this.execute(async () => {
-      const service = this.req.scope.resolve<RbacModuleService>(RBAC_MODULE);
+      const service = this.req.scope.resolve<RbacV2ModuleService>(RBAC_V2_MODULE);
       const { id } = this.req.params;
 
-      const permission = await service.retrievePermission(id);
+      const result = await service.retrieveRbacV2Permission(id);
 
-      if (!permission) {
+      if (!result) {
         this.notFound("Permission not found");
         return;
       }
 
-      if (permission.type === "predefined") {
+      if (result.type === "predefined") {
         this.res.status(400).json({
           message: "Cannot delete predefined permissions",
         });
         return;
       }
 
-      await service.deletePermissions(id);
+      await service.deleteRbacV2Permissions(id);
 
       this.noContent();
     });

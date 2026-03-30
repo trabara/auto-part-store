@@ -1,7 +1,7 @@
 import { Infer } from "@medusajs/framework/types";
 import { model } from "@medusajs/framework/utils";
-import { CategoryEntity } from "./category";
-import { PolicyEntity } from "./policy";
+import { RbacV2Category } from "./category";
+import { RbacV2Policy } from "./policy";
 
 const KindEnum = model.enum(["read", "write", "delete"])
 export type PermissionKind = Infer<typeof KindEnum>;
@@ -9,16 +9,16 @@ export type PermissionKind = Infer<typeof KindEnum>;
 const TypeEnum = model.enum(["predefined", "custom"]);
 export type PermissionType = Infer<typeof TypeEnum>;
 
-export const PermissionEntity = model
-  .define("rbac_permission", {
+export const RbacV2Permission = model
+  .define("rbac_v2_permission", {
     id: model.id().primaryKey(),
     kind: KindEnum,
     target: model.text().searchable(),
     type: TypeEnum.default("custom"),
-    category: model.belongsTo(() => CategoryEntity, {
+    category: model.belongsTo(() => RbacV2Category, {
       mappedBy: "permissions",
     }).nullable(),
-    policies: model.hasMany(() => PolicyEntity, {
+    policies: model.hasMany(() => RbacV2Policy, {
       mappedBy: "permission",
     })
   })
@@ -33,4 +33,4 @@ export const PermissionEntity = model
     },
   ]);
 
-export type Permission = Infer<typeof PermissionEntity>;
+export type Permission = Infer<typeof RbacV2Permission>;

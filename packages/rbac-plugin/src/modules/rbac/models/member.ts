@@ -1,12 +1,12 @@
 import { Infer } from "@medusajs/framework/types";
 import { model } from "@medusajs/framework/utils";
-import { RoleEntity } from "./role";
+import { RbacV2Role } from "./role";
 
-export const MemberEntity = model
-  .define("rbac_member", {
+export const RbacV2Member = model
+  .define("rbac_v2_member", {
     id: model.id().primaryKey(),
     user_id: model.text(),
-    role: model.belongsTo(() => RoleEntity, {
+    role: model.belongsTo(() => RbacV2Role, {
       mappedBy: "members",
     }),
   })
@@ -18,4 +18,4 @@ export const MemberEntity = model
     },
   ]);
 
-export type Member = Infer<typeof MemberEntity>;
+export type Member = Infer<typeof RbacV2Member>;

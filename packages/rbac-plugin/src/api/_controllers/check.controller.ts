@@ -1,5 +1,5 @@
 import { BaseController } from "@repo/common";
-import { RBAC_MODULE, RbacModuleService } from "../../modules/rbac";
+import { RBAC_V2_MODULE, RbacV2ModuleService } from "../../modules/rbac";
 import { CheckAccessSchema } from "../../modules/rbac/schema";
 
 export class CheckController extends BaseController {
@@ -9,7 +9,7 @@ export class CheckController extends BaseController {
 
   async check(): Promise<void> {
     await this.execute(async () => {
-      const service = this.req.scope.resolve<RbacModuleService>(RBAC_MODULE);
+      const service = this.req.scope.resolve<RbacV2ModuleService>(RBAC_V2_MODULE);
       const validated = CheckAccessSchema.parse(this.req.validatedBody);
 
       const matchedPolicy = await service.userHasAccess(

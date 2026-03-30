@@ -1,6 +1,6 @@
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils";
 import { BaseController } from "@repo/common";
-import { RBAC_MODULE, RbacModuleService } from "../../modules/rbac";
+import { RBAC_V2_MODULE, RbacV2ModuleService } from "../../modules/rbac";
 import {
   AssignUsersSchema,
   CreateRoleSchema,
@@ -22,7 +22,7 @@ export class RoleController extends BaseController {
       });
 
       const { data, metadata } = await query.graph({
-        entity: "rbac_role",
+        entity: "rbac_v2_role",
         ...this.req.queryConfig,
         ...this.req.filterableFields,
       });
@@ -35,20 +35,20 @@ export class RoleController extends BaseController {
 
   async create(): Promise<void> {
     await this.execute(async () => {
-      const service = this.req.scope.resolve<RbacModuleService>(RBAC_MODULE);
+      const service = this.req.scope.resolve<RbacV2ModuleService>(RBAC_V2_MODULE);
       const validated = CreateRoleSchema.parse(this.req.validatedBody);
 
       this.logger.info("Creating new role", {
         data: validated,
       });
 
-      const role = await service.createRoles({
+      const role = await service.createRbacV2Roles({
         name: validated.name,
         description: validated.description,
       });
 
 
-      await service.createPolicies(validated.policies.map((policy) => ({
+      await service.createRbacV2Policies(validated.policies.map((policy) => ({
         permission_id: policy.permission_id,
         role_id: role.id,
       })));
@@ -67,7 +67,7 @@ export class RoleController extends BaseController {
       const { id } = this.req.params;
 
       const { data: roles } = await query.graph({
-        entity: "rbac_role",
+        entity: "rbac_v2_role",
         ...this.req.queryConfig,
         filters: { id },
       });
@@ -87,9 +87,9 @@ export class RoleController extends BaseController {
       
       const validated = UpdateRoleSchema.parse(this.req.validatedBody);
       
-      const service = this.req.scope.resolve<RbacModuleService>(RBAC_MODULE);
+      const service = this.req.scope.resolve<RbacV2ModuleService>(RBAC_V2_MODULE);
 
-      const role = await service.updateRoles({ id, ...validated });
+      const role = await service.updateRbacV2Roles({ id, ...validated });
 
       if (!role) {
         this.notFound("Role not found");
@@ -102,13 +102,13 @@ export class RoleController extends BaseController {
 
   async delete(): Promise<void> {
     await this.execute(async () => {
-      const service = this.req.scope.resolve<RbacModuleService>(RBAC_MODULE);
+      const service = this.req.scope.resolve<RbacV2ModuleService>(RBAC_V2_MODULE);
       const { id } = this.req.params;
 
       this.logger.info(`Deleting role ${id}`, {
         role_id: id,
       });
-      await service.deleteRoles([id]);
+      await service.deleteRbacV2Roles([id]);
 
       this.noContent();
     }, "Role deleted successfully");
@@ -116,7 +116,7 @@ export class RoleController extends BaseController {
 
   async assign(): Promise<void> {
     await this.execute(async () => {
-      const service = this.req.scope.resolve<RbacModuleService>(RBAC_MODULE);
+      const service = this.req.scope.resolve<RbacV2ModuleService>(RBAC_V2_MODULE);
       const { id } = this.req.params;
       const validated = AssignUsersSchema.parse(this.req.validatedBody);
 
@@ -127,7 +127,7 @@ export class RoleController extends BaseController {
         user_ids: userIds,
       });
 
-      await service.assignUsers(id, userIds);
+      await service.assignRbacUsers(id, userIds);
 
       this.noContent();
     }, "Role assigned successfully");

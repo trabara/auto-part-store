@@ -55,14 +55,12 @@ export const CreatePolicySchema = z.object({
 export const CreateRoleSchema = z.object({
   name: z.string().min(3, "Name must be at least 3 characters"),
   description: z.string().optional(),
-  is_default: z.boolean().default(false),
   policies: z.array(CreatePolicySchema).min(1, "At least one policy is required"),
 });
 
 export const UpdateRoleSchema = z.object({
   name: z.string().optional(),
   description: z.string().optional(),
-  is_default: z.boolean().optional(),
 });
 
 export const AssignUsersSchema = z.object({

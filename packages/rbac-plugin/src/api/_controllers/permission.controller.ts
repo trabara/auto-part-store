@@ -1,7 +1,7 @@
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils";
 import { BaseController } from "@repo/common";
 import { RBAC_MODULE, RbacModuleService } from "../../modules/rbac";
-import { PermissionFiltersSchema, CreatePermissionSchema } from "../../modules/rbac/schema";
+import { CreatePermissionSchema, PermissionFiltersSchema } from "../../modules/rbac/schema";
 
 export class PermissionController extends BaseController {
   constructor(req, res) {
@@ -28,7 +28,7 @@ export class PermissionController extends BaseController {
       const service = this.req.scope.resolve<RbacModuleService>(RBAC_MODULE);
       const validated = CreatePermissionSchema.parse(this.req.validatedBody);
 
-      const permission = await service.createPermEntities({
+      const permission = await service.createPermissions({
         kind: validated.kind,
         target: validated.target,
         type: "custom",
@@ -44,7 +44,7 @@ export class PermissionController extends BaseController {
       const service = this.req.scope.resolve<RbacModuleService>(RBAC_MODULE);
       const { id } = this.req.params;
 
-      const [permission] = await service.listPermEntities({ id });
+      const permission = await service.retrievePermission(id);
 
       if (!permission) {
         this.notFound("Permission not found");
@@ -58,7 +58,7 @@ export class PermissionController extends BaseController {
         return;
       }
 
-      await service.deletePermEntities([id]);
+      await service.deletePermissions(id);
 
       this.noContent();
     });

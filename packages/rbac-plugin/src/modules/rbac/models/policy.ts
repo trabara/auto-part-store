@@ -1,6 +1,6 @@
 import { Infer } from "@medusajs/framework/types";
 import { model } from "@medusajs/framework/utils";
-import { PermEntity } from "./permission";
+import { PermissionEntity } from "./permission";
 import { RoleEntity } from "./role";
 
 export const PolicyEntity = model.define("rbac_policy", {
@@ -9,7 +9,7 @@ export const PolicyEntity = model.define("rbac_policy", {
   role: model.belongsTo(() => RoleEntity, {
     mappedBy: "policies",
   }),
-  permission: model.belongsTo(() => PermEntity, {
+  permission: model.belongsTo(() => PermissionEntity, {
     mappedBy: "policies",
   }),
   metadata: model.json().nullable(),

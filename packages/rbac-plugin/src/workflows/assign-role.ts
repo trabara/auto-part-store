@@ -16,7 +16,7 @@ const assignRoleStep = createStep(
   async (input: AssignRoleWorkflowInput, { container }) => {
     const service = container.resolve<RbacModuleService>(RBAC_MODULE);
 
-    const [existingMembers] = await service.listAndCountMemberEntities({
+    const [existingMembers] = await service.listAndCountMembers({
       user_id: input.user_id,
     });
 
@@ -25,12 +25,12 @@ const assignRoleStep = createStep(
     if (existingMembers.length > 0) {
       member = existingMembers[0];
       if (input.role_id === null) {
-        await service.updateMemberEntities(member.id, { role_id: null });
+        await service.updateMembers(member.id, { role_id: null });
       } else {
-        await service.updateMemberEntities(member.id, { role_id: input.role_id });
+        await service.updateMembers(member.id, { role_id: input.role_id });
       }
     } else {
-      member = await service.createMemberEntities({
+      member = await service.createMembers({
         user_id: input.user_id,
         role_id: input.role_id,
       });
@@ -46,7 +46,7 @@ const assignRoleStep = createStep(
 
     const service = container.resolve<RbacModuleService>(RBAC_MODULE);
 
-    await service.updateMemberEntities(compensation.memberId, {
+    await service.updateMembers(compensation.memberId, {
       role_id: compensation.previousRoleId,
     });
   },

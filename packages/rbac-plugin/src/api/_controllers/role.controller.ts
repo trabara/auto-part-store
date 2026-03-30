@@ -15,8 +15,6 @@ export class RoleController extends BaseController {
   async list(): Promise<void> {
     await this.execute(async () => {
       const query = this.req.scope.resolve(ContainerRegistrationKeys.QUERY);
-      console.log("this.req.filterableFields", this.req.filterableFields);
-      console.log("this.req.queryConfig", this.req.queryConfig);
 
       this.logger.info("Fetching roles list", {
         filters: this.req.filterableFields,
@@ -44,13 +42,13 @@ export class RoleController extends BaseController {
         data: validated,
       });
 
-      const role = await service.createRoleEntities({
+      const role = await service.createRoles({
         name: validated.name,
         description: validated.description,
       });
 
 
-      await service.createPolicyEntities(validated.policies.map((policy) => ({
+      await service.createPolicies(validated.policies.map((policy) => ({
         permission_id: policy.permission_id,
         role_id: role.id,
       })));
@@ -70,7 +68,7 @@ export class RoleController extends BaseController {
 
       const { data: roles } = await query.graph({
         entity: "rbac_role",
-        fields: ["*"],
+        ...this.req.queryConfig,
         filters: { id },
       });
 
@@ -85,11 +83,13 @@ export class RoleController extends BaseController {
 
   async update(): Promise<void> {
     await this.execute(async () => {
-      const service = this.req.scope.resolve<RbacModuleService>(RBAC_MODULE);
       const { id } = this.req.params;
+      
       const validated = UpdateRoleSchema.parse(this.req.validatedBody);
+      
+      const service = this.req.scope.resolve<RbacModuleService>(RBAC_MODULE);
 
-      const role = await service.updateRoleEntities({ id, ...validated });
+      const role = await service.updateRoles({ id, ...validated });
 
       if (!role) {
         this.notFound("Role not found");
@@ -108,7 +108,7 @@ export class RoleController extends BaseController {
       this.logger.info(`Deleting role ${id}`, {
         role_id: id,
       });
-      await service.deleteRoleEntities(id);
+      await service.deleteRoles([id]);
 
       this.noContent();
     }, "Role deleted successfully");

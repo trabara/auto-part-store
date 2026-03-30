@@ -3,12 +3,18 @@ import { model } from "@medusajs/framework/utils";
 import { CategoryEntity } from "./category";
 import { PolicyEntity } from "./policy";
 
-export const PermEntity = model
+const KindEnum = model.enum(["read", "write", "delete"])
+export type PermissionKind = Infer<typeof KindEnum>;
+
+const TypeEnum = model.enum(["predefined", "custom"]);
+export type PermissionType = Infer<typeof TypeEnum>;
+
+export const PermissionEntity = model
   .define("rbac_permission", {
     id: model.id().primaryKey(),
-    kind: model.enum(["read", "write", "delete"]),
+    kind: KindEnum,
     target: model.text().searchable(),
-    type: model.enum(["predefined", "custom"]).default("custom"),
+    type: TypeEnum.default("custom"),
     category: model.belongsTo(() => CategoryEntity, {
       mappedBy: "permissions",
     }).nullable(),
@@ -27,4 +33,4 @@ export const PermEntity = model
     },
   ]);
 
-export type Permission = Infer<typeof PermEntity>;
+export type Permission = Infer<typeof PermissionEntity>;

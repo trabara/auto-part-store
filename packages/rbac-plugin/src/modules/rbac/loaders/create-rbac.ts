@@ -1,5 +1,5 @@
 import { IMedusaInternalService, LoaderOptions } from "@medusajs/framework/types";
-import { CategoryEntity, PermEntity } from "../models";
+import { CategoryEntity, PermissionEntity } from "../models";
 
 interface RbacPluginOptions {
   seed?: boolean;
@@ -69,7 +69,7 @@ export default async function createRbacLoader({
   }
 
   const permissionService: IMedusaInternalService<
-    typeof PermEntity
+    typeof PermissionEntity
   > = container.resolve('rbacPermissionService');
 
   for (const perm of PREDEFINED_PERMISSIONS) {

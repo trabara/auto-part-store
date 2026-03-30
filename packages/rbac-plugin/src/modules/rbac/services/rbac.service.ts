@@ -1,13 +1,21 @@
-import { InjectManager, InjectTransactionManager, MedusaService } from "@medusajs/framework/utils";
+import { EntityManager } from "@medusajs/framework/mikro-orm/knex";
+import { Context } from "@medusajs/framework/types";
+import { InjectManager, InjectTransactionManager, MedusaContext, MedusaService } from "@medusajs/framework/utils";
 import { EXCLUDED_ROUTES } from "../constant";
-import { CategoryEntity, MemberEntity, PermEntity, PolicyEntity, RoleEntity } from "../models";
-
-class RbacModuleService extends MedusaService({
+import {
   CategoryEntity,
-  PermEntity,
+  MemberEntity,
+  PermissionEntity,
   PolicyEntity,
   RoleEntity,
-  MemberEntity,
+} from "../models";
+
+class RbacModuleService extends MedusaService({
+  Category: CategoryEntity,
+  Member: MemberEntity,
+  Role: RoleEntity,
+  Permission: PermissionEntity,
+  Policy: PolicyEntity,
 }) {
 
   public async userHasAccess(userId: string, path: string, resource: string): Promise<boolean> {
@@ -58,32 +66,38 @@ class RbacModuleService extends MedusaService({
   @InjectTransactionManager()
   protected async assignUsers_(
     roleId: string,
-    userIds: string[]
+    userIds: string[],
+    @MedusaContext()
+    sharedContext?: Context<EntityManager>
   ): Promise<void> {
 
-    // const existingMembers = await this.listRbacMembers({
-    //   user_id: userIds
-    // });
+    const existingMembers = await this.listMembers({
+      user_id: userIds
+    }, {}, sharedContext);
 
-    // // let member;
-    // for (const userId of userIds) {
-    //   await this.createRbacMembers({
-    //     user_id: userId,
-    //     role_id: roleId,
-    //   });
-    //   // member = existingMembers.find((member) => member.user_id === userId);
+    let member;
+    for (const userId of userIds) {
+      member = existingMembers.find((m) => m.user_id === userId)
 
-    //   // if (member) {
-    //   //   await this.updateRbacMembers(member.id, { role_id: roleId });
-    //   // } else {
-
-    //   // }
-    // }
+      if (member) {
+        await this.updateMembers(member.id, { role_id: roleId }, sharedContext);
+      } else {
+        await this.createMembers({
+          user_id: userId,
+          role_id: roleId,
+        }, sharedContext);
+      }
+    }
   }
 
   @InjectManager()
-  async assignUsers(roleId: string, userIds: string[]): Promise<void> {
-    await this.assignUsers_(roleId, userIds);
+  async assignUsers(
+    roleId: string,
+    userIds: string[],
+    @MedusaContext()
+    sharedContext?: Context<EntityManager>
+  ): Promise<void> {
+    await this.assignUsers_(roleId, userIds, sharedContext);
   }
 
   private isExcludedRoute(path: string): boolean {

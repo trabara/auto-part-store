@@ -97,7 +97,7 @@ export class RoleController extends BaseController {
         return;
       }
 
-      this.success({ role });
+      this.success({ role }, 201);
     }, "Role updated successfully");
   }
 
@@ -111,7 +111,7 @@ export class RoleController extends BaseController {
       });
       await service.deleteAuthzRoles([id]);
 
-      this.noContent();
+      this.success({});
     }, "Role deleted successfully");
   }
 
@@ -121,16 +121,14 @@ export class RoleController extends BaseController {
       const { id } = this.req.params;
       const validated = AssignUsersSchema.parse(this.req.validatedBody);
 
-      const userIds = validated.users.map((user) => user.id);
-
       this.logger.info(`Assigning role ${id} to users`, {
         role_id: id,
-        user_ids: userIds,
+        users: validated.users.length,
       });
 
-      await service.assignRbacUsers(id, userIds);
+      await service.assignRbacUsers(id, validated);
 
-      this.noContent();
+      this.success({}, 201);
     }, "Role assigned successfully");
   }
 }

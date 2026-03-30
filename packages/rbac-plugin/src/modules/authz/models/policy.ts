@@ -5,7 +5,6 @@ import { AuthzRole } from "./role";
 
 export const AuthzPolicy = model.define("authz_policy", {
   id: model.id().primaryKey(),
-  name: model.text().searchable(),
   role: model.belongsTo(() => AuthzRole, {
     mappedBy: "policies",
   }),
@@ -16,17 +15,10 @@ export const AuthzPolicy = model.define("authz_policy", {
 }).indexes([
   {
     on: ["role_id"],
-    unique: true,
     where: "deleted_at IS NULL"
   },
   {
     on: ["permission_id"],
-    unique: true,
-    where: "deleted_at IS NULL"
-  },
-  {
-    on: ["name"],
-    unique: true,
     where: "deleted_at IS NULL"
   }
 ]);

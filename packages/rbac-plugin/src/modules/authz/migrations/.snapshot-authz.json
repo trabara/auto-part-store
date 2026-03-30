@@ -392,15 +392,6 @@
           "nullable": false,
           "mappedType": "text"
         },
-        "name": {
-          "name": "name",
-          "type": "text",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "mappedType": "text"
-        },
         "role_id": {
           "name": "role_id",
           "type": "text",
@@ -490,33 +481,6 @@
           "primary": false,
           "unique": false,
           "expression": "CREATE INDEX IF NOT EXISTS \"IDX_authz_policy_deleted_at\" ON \"authz_policy\" (\"deleted_at\") WHERE deleted_at IS NULL"
-        },
-        {
-          "keyName": "IDX_authz_policy_role_id_unique",
-          "columnNames": [],
-          "composite": false,
-          "constraint": false,
-          "primary": false,
-          "unique": false,
-          "expression": "CREATE UNIQUE INDEX IF NOT EXISTS \"IDX_authz_policy_role_id_unique\" ON \"authz_policy\" (\"role_id\") WHERE deleted_at IS NULL"
-        },
-        {
-          "keyName": "IDX_authz_policy_permission_id_unique",
-          "columnNames": [],
-          "composite": false,
-          "constraint": false,
-          "primary": false,
-          "unique": false,
-          "expression": "CREATE UNIQUE INDEX IF NOT EXISTS \"IDX_authz_policy_permission_id_unique\" ON \"authz_policy\" (\"permission_id\") WHERE deleted_at IS NULL"
-        },
-        {
-          "keyName": "IDX_authz_policy_name_unique",
-          "columnNames": [],
-          "composite": false,
-          "constraint": false,
-          "primary": false,
-          "unique": false,
-          "expression": "CREATE UNIQUE INDEX IF NOT EXISTS \"IDX_authz_policy_name_unique\" ON \"authz_policy\" (\"name\") WHERE deleted_at IS NULL"
         },
         {
           "keyName": "authz_policy_pkey",

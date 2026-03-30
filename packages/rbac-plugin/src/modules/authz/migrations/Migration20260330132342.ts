@@ -1,12 +1,9 @@
 import { Migration } from "@medusajs/framework/mikro-orm/migrations";
 
-export class Migration20260330125908 extends Migration {
+export class Migration20260330132342 extends Migration {
 
   override async up(): Promise<void> {
     this.addSql(`alter table if exists "authz_member" drop constraint if exists "authz_member_user_id_role_id_unique";`);
-    this.addSql(`alter table if exists "authz_policy" drop constraint if exists "authz_policy_name_unique";`);
-    this.addSql(`alter table if exists "authz_policy" drop constraint if exists "authz_policy_permission_id_unique";`);
-    this.addSql(`alter table if exists "authz_policy" drop constraint if exists "authz_policy_role_id_unique";`);
     this.addSql(`alter table if exists "authz_role" drop constraint if exists "authz_role_name_unique";`);
     this.addSql(`alter table if exists "authz_permission" drop constraint if exists "authz_permission_kind_target_unique";`);
     this.addSql(`alter table if exists "authz_category" drop constraint if exists "authz_category_name_unique";`);
@@ -24,13 +21,10 @@ export class Migration20260330125908 extends Migration {
     this.addSql(`CREATE INDEX IF NOT EXISTS "IDX_authz_role_deleted_at" ON "authz_role" ("deleted_at") WHERE deleted_at IS NULL;`);
     this.addSql(`CREATE UNIQUE INDEX IF NOT EXISTS "IDX_authz_role_name_unique" ON "authz_role" ("name") WHERE deleted_at IS NULL;`);
 
-    this.addSql(`create table if not exists "authz_policy" ("id" text not null, "name" text not null, "role_id" text not null, "permission_id" text not null, "metadata" jsonb null, "created_at" timestamptz not null default now(), "updated_at" timestamptz not null default now(), "deleted_at" timestamptz null, constraint "authz_policy_pkey" primary key ("id"));`);
+    this.addSql(`create table if not exists "authz_policy" ("id" text not null, "role_id" text not null, "permission_id" text not null, "metadata" jsonb null, "created_at" timestamptz not null default now(), "updated_at" timestamptz not null default now(), "deleted_at" timestamptz null, constraint "authz_policy_pkey" primary key ("id"));`);
     this.addSql(`CREATE INDEX IF NOT EXISTS "IDX_authz_policy_role_id" ON "authz_policy" ("role_id") WHERE deleted_at IS NULL;`);
     this.addSql(`CREATE INDEX IF NOT EXISTS "IDX_authz_policy_permission_id" ON "authz_policy" ("permission_id") WHERE deleted_at IS NULL;`);
     this.addSql(`CREATE INDEX IF NOT EXISTS "IDX_authz_policy_deleted_at" ON "authz_policy" ("deleted_at") WHERE deleted_at IS NULL;`);
-    this.addSql(`CREATE UNIQUE INDEX IF NOT EXISTS "IDX_authz_policy_role_id_unique" ON "authz_policy" ("role_id") WHERE deleted_at IS NULL;`);
-    this.addSql(`CREATE UNIQUE INDEX IF NOT EXISTS "IDX_authz_policy_permission_id_unique" ON "authz_policy" ("permission_id") WHERE deleted_at IS NULL;`);
-    this.addSql(`CREATE UNIQUE INDEX IF NOT EXISTS "IDX_authz_policy_name_unique" ON "authz_policy" ("name") WHERE deleted_at IS NULL;`);
 
     this.addSql(`create table if not exists "authz_member" ("id" text not null, "user_id" text not null, "role_id" text not null, "created_at" timestamptz not null default now(), "updated_at" timestamptz not null default now(), "deleted_at" timestamptz null, constraint "authz_member_pkey" primary key ("id"));`);
     this.addSql(`CREATE INDEX IF NOT EXISTS "IDX_authz_member_role_id" ON "authz_member" ("role_id") WHERE deleted_at IS NULL;`);

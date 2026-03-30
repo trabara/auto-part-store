@@ -12,6 +12,7 @@ import {
   PREDEFINED_PERMISSIONS,
 } from "../constant";
 import * as Models from "../models";
+import { AssignUsersInput } from "../schema";
 
 export default class AuthzModuleService extends MedusaService(Models) {
   __hooks = {
@@ -26,7 +27,7 @@ export default class AuthzModuleService extends MedusaService(Models) {
   }
 
   @InjectManager()
-  private async syncRegisteredPolicies(
+  async syncRegisteredPolicies(
     @MedusaContext()
     sharedContext?: Context<EntityManager>,
   ): Promise<void> {
@@ -107,6 +108,17 @@ export default class AuthzModuleService extends MedusaService(Models) {
     return false;
   }
 
+  @InjectManager()
+  public async assignRbacUsers(
+    roleId: string,
+    input: AssignUsersInput,
+    @MedusaContext()
+    sharedContext?: Context<EntityManager>,
+  ): Promise<void> {
+    const userIds = input.users.map((user) => user.id);
+    await this.assignRbacUsers_(roleId, userIds, sharedContext);
+  }
+
   @InjectTransactionManager()
   protected async assignRbacUsers_(
     roleId: string,
@@ -127,32 +139,19 @@ export default class AuthzModuleService extends MedusaService(Models) {
       member = membersResult.find((m) => m.user_id === userId);
 
       if (member) {
-        await this.updateAuthzMembers(
-          member.id,
-          { role_id: roleId },
-          sharedContext,
-        );
+        await this.updateAuthzMembers([
+          { ...member, role_id: roleId },
+        ], sharedContext);
       } else {
-        await this.createAuthzMembers(
-          {
-            user_id: userId,
-            role_id: roleId,
-          },
-          sharedContext,
-        );
+        await this.createAuthzMembers([{
+          user_id: userId,
+          role_id: roleId,
+        }], sharedContext);
       }
     }
   }
 
-  @InjectManager()
-  async assignRbacUsers(
-    roleId: string,
-    userIds: string[],
-    @MedusaContext()
-    sharedContext?: Context<EntityManager>,
-  ): Promise<void> {
-    await this.assignRbacUsers_(roleId, userIds, sharedContext);
-  }
+
 
   private isExcludedRoute(path: string): boolean {
     return EXCLUDED_ROUTES.some((route) => path.startsWith(route));

@@ -3,30 +3,75 @@
   "ui": "stream",
   "tasks": {
     "build": {
-      "dependsOn": ["^build"],
-      "inputs": ["$TURBO_DEFAULT$", ".env*"],
-      "outputs": ["build", "dist", ".medusa/server/**"]
+      "dependsOn": [
+        "^build"
+      ],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        ".env*"
+      ],
+      "outputs": [
+        "build",
+        "dist",
+        ".medusa/server/**"
+      ]
     },
     "lint": {
-      "dependsOn": ["^lint"]
+      "dependsOn": [
+        "^lint"
+      ]
     },
     "check-types": {},
     "format": {
-      "dependsOn": ["^format"]
+      "dependsOn": [
+        "^format"
+      ]
     },
     "start": {
-      "dependsOn": ["^start"]
+      "dependsOn": [
+        "^start"
+      ]
     },
     "dev": {
-      "dependsOn": ["^build", "^dev:init"],
+      "dependsOn": [
+        "^build",
+        "^dev:init"
+      ],
       "cache": false,
       "persistent": true
     },
     "dev:init": {
-      "outputs": [".medusa/server/**"],
+      "outputs": [
+        ".medusa/server/**"
+      ],
+      "cache": false
+    },
+    "test": {
+      "dependsOn": [
+        "^build",
+        "^test:unit"
+      ],
+      "cache": false
+    },
+    "test:unit": {
+      "dependsOn": [
+        "build"
+      ],
       "cache": false
     },
     "medusa:init": {
+      "cache": false
+    },
+    "medusa:user:create": {
+      "cache": false
+    },
+    "medusa:db:migrate": {
+      "cache": false
+    },
+    "medusa:db:generate": {
+      "cache": false
+    },
+    "medusa:db:rollback": {
       "cache": false
     },
     "typecheck": {}

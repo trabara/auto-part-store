@@ -10254,7 +10254,7 @@ __metadata:
     "@repo/common": "workspace:*"
     "@repo/ui": "workspace:*"
     "@snowpact/react-rhf-zod-form": "workspace:*"
-    "@swc/core": "npm:^1.7.28"
+    "@swc/core": "npm:1.12.2"
     "@types/node": "npm:^20.0.0"
     "@types/react": "npm:^18.3.2"
     "@types/react-dom": "npm:^18.2.25"
@@ -10313,7 +10313,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@repo/rbac-plugin@workspace:^, @repo/rbac-plugin@workspace:packages/rbac-plugin":
+"@repo/rbac-plugin@workspace:*, @repo/rbac-plugin@workspace:packages/rbac-plugin":
   version: 0.0.0-use.local
   resolution: "@repo/rbac-plugin@workspace:packages/rbac-plugin"
   dependencies:
@@ -10331,14 +10331,18 @@ __metadata:
     "@repo/scripts": "workspace:*"
     "@repo/ui": "workspace:*"
     "@snowpact/react-rhf-zod-form": "workspace:*"
-    "@swc/core": "npm:^1.7.28"
+    "@swc/core": "npm:1.12.2"
+    "@swc/jest": "npm:^0.2.38"
+    "@types/jest": "npm:^29.5.13"
     "@types/node": "npm:^20.0.0"
     "@types/react": "npm:^18.3.2"
     "@types/react-dom": "npm:^18.2.25"
     chokidar: "npm:^4.0.3"
     date-fns: "npm:^4.1.0"
+    jest: "npm:^29.7.0"
     lodash: "npm:^4.17.23"
     lucide-react: "npm:^0.563.0"
+    pg-god: "npm:^1.0.12"
     react: "npm:^18.2.0"
     react-dom: "npm:^18.2.0"
     react-hook-form: "npm:^7.71.1"
@@ -10434,7 +10438,7 @@ __metadata:
     "@repo/common": "workspace:*"
     "@repo/scripts": "workspace:*"
     "@repo/ui": "workspace:*"
-    "@swc/core": "npm:^1.7.28"
+    "@swc/core": "npm:1.12.2"
     "@types/node": "npm:^20.0.0"
     "@types/react": "npm:^18.3.2"
     "@types/react-dom": "npm:^18.2.25"
@@ -11721,7 +11725,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@swc/core@npm:^1.15.2, @swc/core@npm:^1.7.28":
+"@swc/core@npm:^1.15.2":
   version: 1.15.21
   resolution: "@swc/core@npm:1.15.21"
   dependencies:
@@ -19406,9 +19410,9 @@ __metadata:
     "@medusajs/framework": "npm:2.13.5"
     "@medusajs/medusa": "npm:2.13.5"
     "@medusajs/test-utils": "npm:2.13.5"
-    "@repo/rbac-plugin": "workspace:^"
+    "@repo/rbac-plugin": "workspace:*"
     "@repo/vehicle-fitment-plugin": "workspace:*"
-    "@swc/core": "npm:^1.7.28"
+    "@swc/core": "npm:1.12.2"
     "@swc/jest": "npm:^0.2.36"
     "@types/jest": "npm:^29.5.13"
     "@types/node": "npm:^20.12.11"

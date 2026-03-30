@@ -7,7 +7,7 @@ import {
   CreateRoleSchema,
   RoleSchema,
   UpdateRoleSchema
-} from '../../../../modules/rbac/schema';
+} from '../../../../modules/rbac-v2/schema';
 import AssignUsersDrawer from "../components/assign-users-drawer";
 import PermDataTable from "../components/perm-data-table";
 

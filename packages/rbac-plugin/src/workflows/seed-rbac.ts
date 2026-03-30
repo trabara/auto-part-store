@@ -4,8 +4,8 @@ import {
   StepResponse,
   WorkflowResponse,
 } from "@medusajs/framework/workflows-sdk";
-import { RBAC_V2_MODULE, RbacV2ModuleService } from "../modules/rbac";
-import { DEFAULT_CATEGORIES, PREDEFINED_PERMISSIONS } from "../modules/rbac/constant";
+import { RBAC_V2_MODULE, RbacV2ModuleService } from "../modules/rbac-v2";
+import { DEFAULT_CATEGORIES, PREDEFINED_PERMISSIONS } from "../modules/rbac-v2/constant";
 
 
 const seedRbacStep = createStep(

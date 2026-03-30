@@ -4,7 +4,7 @@ import {
   StepResponse,
   WorkflowResponse,
 } from "@medusajs/framework/workflows-sdk";
-import { RBAC_V2_MODULE, RbacV2ModuleService } from "../modules/rbac";
+import { RBAC_V2_MODULE, RbacV2ModuleService } from "../modules/rbac-v2";
 
 type PolicyInput = {
   permission_id: string;

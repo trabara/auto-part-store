@@ -9,7 +9,7 @@ import { zodQueryResolve } from "@repo/dashboard/utils/zod";
 import { useMutation } from "@tanstack/react-query";
 import { memo } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { AssignUsersInput, AssignUsersSchema, UserSchema } from '../../../../modules/rbac/schema';
+import { AssignUsersInput, AssignUsersSchema, UserSchema } from '../../../../modules/rbac-v2/schema';
 
 type User = z.infer<typeof UserSchema>
 

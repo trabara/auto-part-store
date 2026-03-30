@@ -1,7 +1,7 @@
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils";
 import { BaseController } from "@repo/common";
-import { RBAC_V2_MODULE, RbacV2ModuleService } from "../../modules/rbac";
-import { CreatePermissionSchema, PermissionFiltersSchema } from "../../modules/rbac/schema";
+import { RBAC_V2_MODULE, RbacV2ModuleService } from "../../modules/rbac-v2";
+import { CreatePermissionSchema, PermissionFiltersSchema } from "../../modules/rbac-v2/schema";
 
 export class PermissionController extends BaseController {
   constructor(req, res) {

@@ -3,7 +3,7 @@ import DataTable from "@repo/dashboard/components/data-table"
 import { sdk } from "@repo/dashboard/lib/sdk"
 import { PageQueryParams, PageResponse } from "@repo/dashboard/types/query"
 import { memo, useCallback } from "react"
-import { CreatePolicyInput, PermissionSchema, Policy } from "../../../../modules/rbac/schema"
+import { CreatePolicyInput, PermissionSchema, Policy } from "../../../../modules/rbac-v2/schema"
 
 
 type PermissionDataTableProps = {

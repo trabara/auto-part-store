@@ -3,7 +3,7 @@ import DataTable from "@repo/dashboard/components/data-table"
 import { sdk } from "@repo/dashboard/lib/sdk"
 import { PageResponse } from "@repo/dashboard/types/query"
 import { memo } from "react"
-import { Policy, RoleSchema } from "../../../../modules/rbac/schema"
+import { Policy, RoleSchema } from "../../../../modules/rbac-v2/schema"
 
 
 type RoleDataTableProps = {

@@ -1,6 +1,6 @@
 import { authenticate, defineMiddlewares, MiddlewareRoute, validateAndTransformBody, validateAndTransformQuery } from "@medusajs/framework";
 import { createFindParams } from "@medusajs/medusa/api/utils/validators";
-import { AssignUsersSchema, CreatePermissionSchema, CreateRoleSchema, UpdateRoleSchema } from "../modules/rbac/schema";
+import { AssignUsersSchema, CreatePermissionSchema, CreateRoleSchema, UpdateRoleSchema } from "../modules/rbac-v2/schema";
 
 const authenticateMiddleware = authenticate(["*"], ["session"]);
 

@@ -1,11 +1,11 @@
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils";
 import { BaseController } from "@repo/common";
-import { RBAC_V2_MODULE, RbacV2ModuleService } from "../../modules/rbac";
+import { RBAC_V2_MODULE, RbacV2ModuleService } from "../../modules/rbac-v2";
 import {
   AssignUsersSchema,
   CreateRoleSchema,
   UpdateRoleSchema
-} from "../../modules/rbac/schema";
+} from "../../modules/rbac-v2/schema";
 
 export class RoleController extends BaseController {
   constructor(req, res) {

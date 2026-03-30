@@ -1,11 +1,15 @@
 import { EntityManager } from "@medusajs/framework/mikro-orm/knex";
 import { Context } from "@medusajs/framework/types";
-import { InjectManager, InjectTransactionManager, MedusaContext, MedusaService } from "@medusajs/framework/utils";
+import {
+  InjectManager,
+  InjectTransactionManager,
+  MedusaContext,
+  MedusaService,
+} from "@medusajs/framework/utils";
 import { DEFAULT_CATEGORIES, EXCLUDED_ROUTES, PREDEFINED_PERMISSIONS } from "../constant";
 import * as Models from "../models";
 
 export default class RbacV2ModuleService extends MedusaService(Models) {
-
   __hooks = {
     onApplicationStart: async () => {
       this.onApplicationStart()
@@ -21,8 +25,8 @@ export default class RbacV2ModuleService extends MedusaService(Models) {
     @MedusaContext()
     sharedContext?: Context<EntityManager>
   ): Promise<void> {
-    const existingCategories = await this.listRbacV2Categories({}, {}, sharedContext);
-    if (existingCategories.length > 0) {
+    const [, count] = await this.listAndCountRbacV2Categories({}, {}, sharedContext);
+    if (count > 0) {
       return;
     }
 
@@ -43,12 +47,14 @@ export default class RbacV2ModuleService extends MedusaService(Models) {
     }
   }
 
-  public async userHasAccess(userId: string, path: string, resource: string): Promise<boolean> {
-
+  public async userHasAccess(
+    userId: string,
+    path: string,
+    resource: string,
+  ): Promise<boolean> {
     // if (this.isExcludedRoute(path)) {
     //   return true;
     // }
-
 
     // const [member] = await this.listRbacMembers({
     //   user_id: userId,
@@ -88,31 +94,38 @@ export default class RbacV2ModuleService extends MedusaService(Models) {
     return false;
   }
 
-
   @InjectTransactionManager()
   protected async assignRbacUsers_(
     roleId: string,
     userIds: string[],
     @MedusaContext()
-    sharedContext?: Context<EntityManager>
+    sharedContext?: Context<EntityManager>,
   ): Promise<void> {
-
-    const membersResult = await this.listRbacV2Members({
-      user_id: userIds
-    }, {}, sharedContext);
+    const membersResult = await this.listRbacV2Members(
+      {
+        user_id: userIds,
+      },
+      {},
+      sharedContext,
+    );
 
     let member;
     for (const userId of userIds) {
-      member = membersResult.find((m) => m.user_id === userId)
+      member = membersResult.find((m) => m.user_id === userId);
 
       if (member) {
-        await this.updateRbacV2Members(member.id, { role_id: roleId }, sharedContext);
+        await this.updateRbacV2Members(
+          member.id,
+          { role_id: roleId },
+          sharedContext,
+        );
       } else {
-        await this.createRbacV2Members({
-          user_id: userId,
-          role_id: roleId,
-        },
-          sharedContext
+        await this.createRbacV2Members(
+          {
+            user_id: userId,
+            role_id: roleId,
+          },
+          sharedContext,
         );
       }
     }
@@ -123,14 +136,14 @@ export default class RbacV2ModuleService extends MedusaService(Models) {
     roleId: string,
     userIds: string[],
     @MedusaContext()
-    sharedContext?: Context<EntityManager>
+    sharedContext?: Context<EntityManager>,
   ): Promise<void> {
     await this.assignRbacUsers_(roleId, userIds, sharedContext);
   }
 
   private isExcludedRoute(path: string): boolean {
     return EXCLUDED_ROUTES.some((route) => path.startsWith(route));
-  };
+  }
 
   private methodToAction(method: string): string {
     const map: Record<string, string> = {
@@ -140,6 +153,5 @@ export default class RbacV2ModuleService extends MedusaService(Models) {
       DELETE: "delete",
     };
     return map[method] || method.toLowerCase();
-  };
+  }
 }
-

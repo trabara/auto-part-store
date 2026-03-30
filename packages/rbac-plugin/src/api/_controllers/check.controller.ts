@@ -1,6 +1,6 @@
 import { BaseController } from "@repo/common";
-import { RBAC_V2_MODULE, RbacV2ModuleService } from "../../modules/rbac";
-import { CheckAccessSchema } from "../../modules/rbac/schema";
+import { RBAC_V2_MODULE, RbacV2ModuleService } from "../../modules/rbac-v2";
+import { CheckAccessSchema } from "../../modules/rbac-v2/schema";
 
 export class CheckController extends BaseController {
   constructor(req, res) {

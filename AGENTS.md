@@ -6,14 +6,14 @@ Turborepo monorepo for auto-parts e-commerce. Yarn 4 workspaces, Node >= 20.
 
 | Workspace                        | Path                              | Stack                                 |
 | -------------------------------- | --------------------------------- | ------------------------------------- |
-| `medusa`                         | `apps/medusa`                     | Medusa v2 (2.13.3), PostgreSQL, Redis |
+| `medusa`                         | `apps/medusa`                     | Medusa v2, PostgreSQL, Redis          |
 | `storefront`                     | `apps/storefront`                 | Next.js 16, React 19, Tailwind CSS v4 |
 | `@repo/common`                   | `packages/common`                 | Shared controllers, services          |
 | `@repo/ui`                       | `packages/ui`                     | UI components (shadcn/ui)             |
 | `@repo/vehicle-fitment-plugin`   | `plugins/vehicle-fitment-plugin`  | Fitment data, API routes, workflows   |
 | `@agilo/medusa-analytics-plugin` | `plugins/medusa-analytics-plugin` | Analytics                             |
 
-All custom backend logic (API routes, modules, workflows, subscribers) lives in **plugins**, not in `apps/medusa`.
+All custom backend logic lives in **plugins**, not in `apps/medusa`.
 
 ## Build/Lint/Test Commands
 
@@ -21,42 +21,28 @@ All custom backend logic (API routes, modules, workflows, subscribers) lives in 
 # Monorepo
 yarn build / yarn dev / yarn lint / yarn check-types / yarn format / yarn clean
 
-# Storefront
-yarn workspace storefront dev         # next dev (http://localhost:3000)
-yarn workspace storefront lint        # eslint
-yarn workspace storefront check-types # tsc --noEmit
+# Storefront (http://localhost:3000)
+yarn workspace storefront dev / lint / check-types
 
-# Medusa
-yarn workspace medusa dev            # medusa develop (http://localhost:9000)
-yarn workspace medusa seed:dev       # run seed script (dev mode)
-yarn workspace medusa seed           # run seed script (prod mode)
+# Medusa (http://localhost:9000)
+yarn workspace medusa dev / seed / seed:dev
 
 # Docker
 yarn docker:build / yarn docker:up / yarn docker:down / yarn docker:logs
 ```
 
-Services: `api.localhost` (Medusa), `shop.localhost` (Storefront), `minio.localhost` (MinIO).
-
 ### Running Tests (Medusa)
 
-Run all tests of a type:
-
 ```bash
+# All tests
+yarn workspace medusa test:unit
 yarn workspace medusa test:integration:http
 yarn workspace medusa test:integration:modules
-yarn workspace medusa test:unit
-```
 
-Run a single test file:
-
-```bash
+# Single test file
 yarn workspace medusa test:unit -- --testPathPattern="make.unit"
-yarn workspace medusa test:integration:http -- --testPathPattern="health"
-```
 
-Run specific test:
-
-```bash
+# Specific test
 yarn workspace medusa test:unit -- --testPathPattern="create-product" --testNamePattern="should create"
 ```
 
@@ -119,20 +105,11 @@ export class MakeController extends BaseController {
   }
 }
 
-// Services: MedusaService([Model1, Model2]) facade pattern
-export const MY_MODULE = Module("my-module", { service: MyService });
-
 // Workflows + Steps with compensation
 const myStep = createStep("my-step", async (input, { container }) => {
   return new StepResponse(result, compensationData);
 }, async (comp) => { /* rollback */ });
 export const myWorkflow = createWorkflow("my-workflow", (input) => myStep(input));
-
-// Middleware: registered in api/middlewares.ts
-export const storeMakeMiddlewares: MiddlewareRoute[] = [{
-  matcher: "/store/makes", method: "GET",
-  middlewares: [validateAndTransformQuery(Schema, { defaults: [...], isList: true })],
-}]
 ```
 
 ## Validation & Error Handling

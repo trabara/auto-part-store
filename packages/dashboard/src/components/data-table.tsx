@@ -1,7 +1,6 @@
 import { z } from "@medusajs/framework/zod";
 import {
   Button,
-  DataTableColumnDef,
   DataTableFilter,
   DataTable as DataTableUI,
   Heading,
@@ -10,20 +9,21 @@ import {
   useDataTable
 } from "@medusajs/ui";
 import { cn } from '@repo/ui/lib/utils';
-import { useEffect, useMemo } from "react";
+import { memo, useEffect, useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import { createZodDataTableColumnDef } from "./data-table-columns";
 import { usePageQuery } from "../hooks/use-page-query";
 import { ListConfig } from "../types/config";
 import { Entity } from "../types/data";
 import { PageResponse, QueryFn } from "../types/query";
 import { DataTableBulkActionsToolbar } from "./bulk-actions-toolbar";
+import { createZodDataTableColumnDef } from "./data-table-columns";
 
 interface DataTableListProps<
   S extends z.AnyZodObject,
   T extends Entity<z.infer<S>>,
 > extends ListConfig<T> {
   className?: string;
+  selectedIds?: string[];
   queryFn: QueryFn<PageResponse<T>>;
   onCreateClicked?: () => void;
   onRowClick?: (row: T) => void;
@@ -42,6 +42,7 @@ const DataTable = <
     fields = {},
     toolbarActions = [],
     rowActions = [],
+    selectedIds = [],
     queryFn,
     onCreateClicked,
     onRowClick,
@@ -50,16 +51,15 @@ const DataTable = <
 
   const { t } = useTranslation()
 
-  const queryConfig = usePageQuery({
-    queryKey: name,
-    queryFn,
-    selectFn: (resp: PageResponse<T> | undefined) => {
-      return {
-        data: resp?.data,
-        rowCount: resp?.metadata?.count,
-      };
-    },
-  });
+
+  const defaultRowsSelection = useMemo(
+    () =>
+      selectedIds.reduce((acc, id) => {
+        acc[id] = true;
+        return acc;
+      }, {} as Record<string, boolean>),
+    []
+  );
 
   const columns = useMemo(() =>
     createZodDataTableColumnDef({
@@ -77,6 +77,18 @@ const DataTable = <
     return [];
   }, []);
 
+  const [queryConfig] = usePageQuery({
+    queryKey: name,
+    defaultRowsSelection,
+    queryFn,
+    selectFn: (resp: PageResponse<T> | undefined) => {
+      return {
+        data: resp?.data,
+        rowCount: resp?.metadata?.count,
+      };
+    },
+  });
+
   const table = useDataTable<T>({
     ...queryConfig,
     columns,
@@ -85,13 +97,13 @@ const DataTable = <
       onRowClick?.(row)
   });
 
+  const rowSelection = table.getRowSelection();
+
   useEffect(() => {
-    const selectedRows = table
-      .getRowModel()
-      .rows.filter((row) => row.getIsSelected())
-      .map((row) => row.original);
-    onRowSelectChange?.(selectedRows);
-  }, [table, onRowSelectChange]);
+    const rows = table.getRowModel().rows.filter(r => r.getIsSelected()).map(r => r.original);
+    onRowSelectChange?.(rows);
+  }, [rowSelection, onRowSelectChange]);
+
 
   return (
     <DataTableUI instance={table} className={className}>

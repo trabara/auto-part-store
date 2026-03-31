@@ -61,6 +61,15 @@ function PermissionDataTable({
         id: {
           hideLabel: true,
         },
+        target: {
+          label: "Resource",
+        },
+        type: {
+          label: "Action",
+        },
+        kind: {
+          label: "Kind",
+        },
       }}
       queryFn={fetchPermissions}
       onRowSelectChange={handleChange}

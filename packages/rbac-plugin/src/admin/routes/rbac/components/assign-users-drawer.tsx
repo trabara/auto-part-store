@@ -1,23 +1,31 @@
-import { zodResolver } from "@hookform/resolvers/zod";
 import { AdminUserListResponse } from "@medusajs/framework/types";
 import { z } from "@medusajs/framework/zod";
+import { User } from "@medusajs/icons";
 import { Button, Drawer, Heading, Hint, toast } from "@medusajs/ui";
 import DataTable from "@repo/dashboard/components/data-table";
 import { sdk } from "@repo/dashboard/lib/sdk";
 import { PageQueryParams, PageResponse } from "@repo/dashboard/types/query";
 import { zodQueryResolve } from "@repo/dashboard/utils/zod";
 import { useMutation } from "@tanstack/react-query";
-import { memo } from "react";
-import { Controller, useForm } from "react-hook-form";
+import { memo, useRef, useState } from "react";
 import {
   AssignUsersInput,
-  AssignUsersSchema,
-  UserSchema,
+  MemberSchema,
+  UserSchema
 } from "../../../../modules/authz/schema";
-
+import {} from '@repo/ui/hooks/use-as-ref';
+import { useAsRef } from "@repo/ui/hooks/use-as-ref";
 type User = z.infer<typeof UserSchema>;
+type Member = z.infer<typeof MemberSchema>;
 
-const fetchUsers = async (signal: AbortSignal, params?: PageQueryParams) => {
+const assignUsersToRole = (roleId: string, input: AssignUsersInput) => {
+  return sdk.client.fetch(`/admin/rbac/v2/roles/${roleId}/assign`, {
+    method: "POST",
+    body: input,
+  });
+};
+
+const fetchUsers = (signal: AbortSignal, params?: PageQueryParams) => {
   return sdk.client
     .fetch<AdminUserListResponse>("/admin/users", {
       method: "GET",
@@ -45,46 +53,17 @@ const fetchUsers = async (signal: AbortSignal, params?: PageQueryParams) => {
     );
 };
 
-const assignUsersToRole = (roleId: string, input: AssignUsersInput) => {
-  return sdk.client.fetch(`/admin/rbac/v2/roles/${roleId}/assign`, {
-    method: "POST",
-    body: input,
-  });
-};
-
 interface AssignUsersDrawerProps {
   roleId: string;
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  onValueChange?: (users: User[]) => void;
+  members: Member[];
 }
 
-const UsersDatTable = memo((props: any) => {
-  return (
-    <DataTable
-      name="users"
-      // fields={{
-      //     id: {
-      //         hideLabel: true
-      //     }
-      // }}
-      schema={UserSchema}
-      queryFn={fetchUsers}
-      {...props}
-    />
-  );
-});
 
 function AssignUsersDrawer({
   roleId,
-  open,
-  onOpenChange,
-  onValueChange,
+  members
 }: AssignUsersDrawerProps) {
-  const form = useForm({
-    resolver: zodResolver(AssignUsersSchema),
-    defaultValues: { users: [] },
-  });
+  const userIds = useAsRef(members.map((m) => m.user_id));
 
   const mutation = useMutation({
     mutationFn: (input: AssignUsersInput) => assignUsersToRole(roleId, input),
@@ -96,43 +75,52 @@ function AssignUsersDrawer({
     },
   });
 
-  const onSubmit = form.handleSubmit(
-    async (data) => {
-      await mutation.mutateAsync(data);
-    },
-    (errors) => {
-      console.log("Form validation error", errors);
-      toast.error("Please select at least one user");
-    },
-  );
-
-  console.log("Selected users", form.watch("users"));
   return (
-    <Drawer open={open} onOpenChange={onOpenChange}>
-      <Drawer.Content asChild>
-        <form onSubmit={onSubmit}>
-          <Drawer.Header>
-            <Drawer.Title>
-              <Heading level="h2">Assign Users</Heading>
-              <Hint>Select users to assign to the role</Hint>
-            </Drawer.Title>
-          </Drawer.Header>
-          <Drawer.Body className="!px-0 !py-0">
-            <Controller
-              control={form.control}
-              name="users"
-              render={({ field }) => {
-                return <UsersDatTable onRowSelectChange={field.onChange} />;
-              }}
-            />
-          </Drawer.Body>
-          <Drawer.Footer>
-            <Drawer.Close asChild>
-              <Button variant="secondary">Close</Button>
-            </Drawer.Close>
-            <Button type="submit">Assign</Button>
-          </Drawer.Footer>
-        </form>
+    <Drawer>
+      <Drawer.Trigger asChild>
+        <Button variant="transparent" size="small" className="w-full justify-start [&_svg]:text-ui-fg-subtle flex items-center gap-x-2">
+          <User />
+          Assign Users
+        </Button>
+      </Drawer.Trigger>
+      <Drawer.Content >
+        <Drawer.Header>
+          <Drawer.Title>
+            <Heading level="h2">Assign Users</Heading>
+            <Hint>Select users to assign to the role</Hint>
+          </Drawer.Title>
+        </Drawer.Header>
+        <Drawer.Body className="!px-0 !py-0">
+          <DataTable
+            name="users"
+            schema={UserSchema}
+            queryFn={fetchUsers}
+            selectedIds={userIds.current}
+            onRowSelectChange={(users) => {
+              userIds.current = users.map((u) => u.id);
+            }}
+            fields={{
+              id: {
+                hideLabel: true
+              },
+              email: {
+                label: "Email",
+              },
+              first_name: {
+                label: "First Name",
+              },
+              last_name: {
+                label: "Last Name",
+              },
+            }}
+          />
+        </Drawer.Body>
+        <Drawer.Footer>
+          <Drawer.Close asChild>
+            <Button variant="secondary">Close</Button>
+          </Drawer.Close>
+          <Button onClick={() => mutation.mutate({ userIds: userIds.current })}>Assign</Button>
+        </Drawer.Footer>
       </Drawer.Content>
     </Drawer>
   );

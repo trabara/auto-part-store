@@ -18,8 +18,20 @@ export interface ToolbarAction<T> extends BaseAction {
   onClick: (table: UseDataTableReturn<T>) => void;
 }
 
+type DrawerDef = {
+  title: string;
+  content: React.ReactNode;
+  actions: {
+    label: string;
+    onClick: () => void;
+    variant?: "danger" | "default";
+  }[]
+}
+
+
 export interface RowAction<T> extends BaseAction {
-  onClick: (row: T) => void;
+  onClick?: (row: T) => void;
+  render?: (row: T) => React.ReactNode;
 }
 
 export interface StepConfig<S extends z.ZodTypeAny> {

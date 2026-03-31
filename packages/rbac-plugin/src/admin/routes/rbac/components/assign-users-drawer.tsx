@@ -1,19 +1,19 @@
 import { AdminUserListResponse } from "@medusajs/framework/types";
 import { z } from "@medusajs/framework/zod";
 import { User } from "@medusajs/icons";
-import { Button, Drawer, Heading, Hint, toast } from "@medusajs/ui";
+import { Button, Drawer, Heading, Hint, toast, usePrompt } from "@medusajs/ui";
 import DataTable from "@repo/dashboard/components/data-table";
 import { sdk } from "@repo/dashboard/lib/sdk";
 import { PageQueryParams, PageResponse } from "@repo/dashboard/types/query";
 import { zodQueryResolve } from "@repo/dashboard/utils/zod";
 import { useMutation } from "@tanstack/react-query";
-import { memo, useRef, useState } from "react";
+import { memo, use, useRef, useState } from "react";
 import {
   AssignUsersInput,
   MemberSchema,
   UserSchema
 } from "../../../../modules/authz/schema";
-import {} from '@repo/ui/hooks/use-as-ref';
+import { } from '@repo/ui/hooks/use-as-ref';
 import { useAsRef } from "@repo/ui/hooks/use-as-ref";
 type User = z.infer<typeof UserSchema>;
 type Member = z.infer<typeof MemberSchema>;
@@ -63,20 +63,41 @@ function AssignUsersDrawer({
   roleId,
   members
 }: AssignUsersDrawerProps) {
-  const userIds = useAsRef(members.map((m) => m.user_id));
+  const initialUserIds = members.map((m) => m.user_id);
 
-  const mutation = useMutation({
+  const userIdsRef = useAsRef(initialUserIds);
+
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+
+  const prompt = usePrompt();
+
+  const assignUsersMutation = useMutation({
     mutationFn: (input: AssignUsersInput) => assignUsersToRole(roleId, input),
     onSuccess: () => {
-      toast.success("Users assigned successfully");
+      toast.success("Updated successfully");
     },
     onError: () => {
-      toast.error("Failed to assign users");
+      toast.error("Failed to update users");
     },
   });
 
+  const handleSaveClick = async () => {
+    const confirmed = await prompt({
+      title: `Confirm Updates`,
+      description: "Are you sure you want to update the users assigned to this role?",
+      confirmText: "Yes, Update",
+      cancelText: "No, Cancel",
+      variant: "confirmation"
+    });
+    if (!confirmed) {
+      return;
+    }
+    await assignUsersMutation.mutateAsync({ userIds: userIdsRef.current });
+    setIsDrawerOpen(false);
+  }
+
   return (
-    <Drawer>
+    <Drawer open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
       <Drawer.Trigger asChild>
         <Button variant="transparent" size="small" className="w-full justify-start [&_svg]:text-ui-fg-subtle flex items-center gap-x-2">
           <User />
@@ -92,12 +113,12 @@ function AssignUsersDrawer({
         </Drawer.Header>
         <Drawer.Body className="!px-0 !py-0">
           <DataTable
-            name="users"
+            id="users"
             schema={UserSchema}
             queryFn={fetchUsers}
-            selectedIds={userIds.current}
+            selectedIds={userIdsRef.current}
             onRowSelectChange={(users) => {
-              userIds.current = users.map((u) => u.id);
+              userIdsRef.current = users.map((u) => u.id);
             }}
             fields={{
               id: {
@@ -119,7 +140,9 @@ function AssignUsersDrawer({
           <Drawer.Close asChild>
             <Button variant="secondary">Close</Button>
           </Drawer.Close>
-          <Button onClick={() => mutation.mutate({ userIds: userIds.current })}>Assign</Button>
+          <Button onClick={handleSaveClick}>
+            Save
+          </Button>
         </Drawer.Footer>
       </Drawer.Content>
     </Drawer>

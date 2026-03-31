@@ -6,7 +6,6 @@ import { useUpdateMutation } from "../hooks/use-update-mutation";
 
 
 interface EditDrawerProps<S extends z.AnyZodObject> extends EditConfig<z.infer<S>> {
-  name: string;
   open?: boolean;
   defaultValues?: z.infer<S>;
   mutateFn: (id: string, data: z.infer<S>) => Promise<void>;
@@ -14,7 +13,7 @@ interface EditDrawerProps<S extends z.AnyZodObject> extends EditConfig<z.infer<S
 }
 
 const EditDrawer = <S extends z.AnyZodObject>({
-  name,
+  id,
   open,
   schema,
   fields = {},
@@ -24,9 +23,9 @@ const EditDrawer = <S extends z.AnyZodObject>({
 }: EditDrawerProps<S>) => {
 
   const mutate = useUpdateMutation({
-    invalidateKeys: [name],
-    errorMessage: `Failed to update ${name}`,
-    successMessage: `Successfully updated ${name}`,
+    invalidateKeys: [id],
+    errorMessage: `Failed to update ${id}`,
+    successMessage: `Successfully updated ${id}`,
     updateFn: (data) => mutateFn(defaultValues?.id, data)
   })
 
@@ -49,7 +48,7 @@ const EditDrawer = <S extends z.AnyZodObject>({
             return <>
               <Drawer.Header>
                 <Heading level="h2">
-
+                  Edit <span className="capitalize">{id}</span>
                 </Heading>
                 <Hint className="text-ui-fg-subtle text-sm mt-1">
 
@@ -66,7 +65,7 @@ const EditDrawer = <S extends z.AnyZodObject>({
                 >
                   Cancel
                 </Button>
-                {renderSubmitButton({ children: <>Save <span className="capitalize">{name}</span></> })}
+                {renderSubmitButton({ children: <>Save <span className="capitalize">{id}</span></> })}
               </Drawer.Footer>
             </>
           }}

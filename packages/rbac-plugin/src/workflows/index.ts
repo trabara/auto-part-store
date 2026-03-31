@@ -1,3 +1,2 @@
-export * from "./create-role";
+export * from "./create-categories";
 export * from "./assign-role";
-export * from "./seed-rbac";

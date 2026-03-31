@@ -105,9 +105,9 @@ export function usePageQuery<
     limit: pageSize,
     offset,
     fields,
+    q: search || undefined,
     order: sorting ? `${sorting.desc ? "-" : ""}${sorting.id}` : undefined,
     filters: filterValues,
-    search: search || undefined,
   };
 
   // Fetch data
@@ -137,6 +137,7 @@ export function usePageQuery<
         onPaginationChange: setPagination,
       },
       search: {
+        debounce: 1000,
         state: search,
         onSearchChange: setSearch,
       },

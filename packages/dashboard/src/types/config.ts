@@ -18,16 +18,6 @@ export interface ToolbarAction<T> extends BaseAction {
   onClick: (table: UseDataTableReturn<T>) => void;
 }
 
-type DrawerDef = {
-  title: string;
-  content: React.ReactNode;
-  actions: {
-    label: string;
-    onClick: () => void;
-    variant?: "danger" | "default";
-  }[]
-}
-
 
 export interface RowAction<T> extends BaseAction {
   onClick?: (row: T) => void;
@@ -44,6 +34,9 @@ export interface StepConfig<S extends z.ZodTypeAny> {
 };
 
 export interface ActionConfig<T extends {}> {
+  id: string
+  title?: string;
+  description?: string;
   fields?: MedusaFieldOverrides<T>;
   schema: z.AnyZodObject;
 };
@@ -51,8 +44,6 @@ export interface ActionConfig<T extends {}> {
 export interface ListConfig<
   T extends Entity
 > extends ActionConfig<T> {
-  name: string;
-  description?: string;
   toolbarActions?: ToolbarAction<T>[];
   rowActions?: RowAction<T>[];
 };

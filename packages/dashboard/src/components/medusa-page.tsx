@@ -43,7 +43,7 @@ export function MedusaPage<
   CS extends z.AnyZodObject,
   ES extends z.AnyZodObject,
   T extends Entity<z.infer<LS>>
->({ name, path, schema, fields, create, edit, toolbarActions, rowActions, ...restProps }: MedusaPageProps<LS, CS, ES, T>) {
+>({ id, path, schema, fields, create, edit, toolbarActions, rowActions, ...restProps }: MedusaPageProps<LS, CS, ES, T>) {
   const { t } = useTranslation();
   const [isCreateModalOpen, openCreateModal, closeCreateModal] = useToggleState()
   const [isEditDrawerOpen, openEditDrawer, closeEditDrawer] = useToggleState()
@@ -72,7 +72,7 @@ export function MedusaPage<
 
 
   const deleteMutation = useDeleteMutation({
-    invalidateKeys: [name],
+    invalidateKeys: [id],
     errorMessage: 'Failed to delete item',
     successMessage: 'Item deleted successfully',
     deleteFn: (id: string) => deleteAction(id),
@@ -163,7 +163,7 @@ export function MedusaPage<
   return (
     <Container className="divide-y p-0">
       <DataTable
-        name={name}
+        id={id}
         schema={schema}
         fields={fields}
         queryFn={listAction}
@@ -205,7 +205,7 @@ export function MedusaPage<
       />
 
       <CreateModal
-        name={name}
+        id={id}
         schema={create.schema}
         steps={create.steps}
         fields={create.fields}
@@ -215,7 +215,7 @@ export function MedusaPage<
       />
 
       <EditDrawer
-        name={name}
+        id={id}
         schema={edit.schema}
         fields={edit.fields}
         mutateFn={updateAction}

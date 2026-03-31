@@ -10,29 +10,23 @@ import {
 } from "../../../../modules/authz/schema";
 import AssignUsersDrawer from "../components/assign-users-drawer";
 import PermDataTable from "../components/perm-data-table";
+import { COMMON_FIELDS } from "./constant";
 
 const RoleListSchema = RoleSchema.extend({ members: z.array(MemberSchema) });
 
-export default function RolesPage() {
 
+export default function RolesPage() {
   return (
     <MedusaPage
-      name="roles"
+      id="role"
       path="/admin/rbac/v2/roles"
+      title="Roles"
       description="Manage user roles and their permissions"
       schema={RoleListSchema}
       fields={{
-        name: {
-          label: "Name",
-          description: "The name of the role",
-        },
-        description: {
-          label: "Description",
-          description: "A brief description of the role",
-        },
+        ...COMMON_FIELDS,
         is_default: {
-          label: "Default",
-          description: "Users with this role will be assigned it by default",
+          ...COMMON_FIELDS.is_default,
           cell: (info) => <span>{info.getValue() ? "Yes" : "No"}</span>,
         },
       }}
@@ -44,23 +38,11 @@ export default function RolesPage() {
           render: (role) => <AssignUsersDrawer roleId={role.id} members={role.members} />,
         },
       ]}
-      toolbarActions={[]}
       create={{
+        id: "role",
         schema: CreateRoleSchema,
         fields: {
-          name: {
-            label: "Name",
-            description: "The name of the role",
-          },
-          description: {
-            label: "Description",
-            description: "A brief description of the role",
-          },
-          is_default: {
-            label: "Default",
-            description:
-              "Users with this role will be assigned it by default",
-          },
+          ...COMMON_FIELDS,
           policies: {
             hideLabel: true,
             render: ({ onChange }) => (
@@ -89,11 +71,15 @@ export default function RolesPage() {
       }}
       edit={{
         schema: UpdateRoleSchema,
+        id: "role",
       }}
     />
   );
 }
 
+export const handle = {
+  breadcrumb: () => "Roles",
+};
 
 export const config = defineRouteConfig({
   label: "Roles",

@@ -8,13 +8,12 @@ import { useWizardForm } from "../hooks/use-wizard-form";
 
 interface CreateModalProps<S extends z.AnyZodObject> extends CreateConfig<S> {
   open?: boolean;
-  name: string;
   onOpenChange?: (open: boolean) => void;
   mutateFn: (data: z.infer<S>) => Promise<void>;
 }
 
 export default function CreateModal<S extends z.AnyZodObject>({
-  name,
+  id,
   steps = [],
   fields = {},
   schema,
@@ -24,9 +23,9 @@ export default function CreateModal<S extends z.AnyZodObject>({
 }: CreateModalProps<S>) {
 
   const mutate = useCreateMutation({
-    invalidateKeys: [name],
-    errorMessage: `Failed to create ${name}`,
-    successMessage: `Successfully created ${name}`,
+    invalidateKeys: [id],
+    errorMessage: `Failed to create ${id}`,
+    successMessage: `Successfully created ${id}`,
     createFn: mutateFn,
   });
 
@@ -114,7 +113,7 @@ export default function CreateModal<S extends z.AnyZodObject>({
                       </Button>
                       {renderSubmitButton({
                         disabled: !form.formState.isValid && !wizardState.hasNext,
-                        children: wizardState.hasNext ? "Next" : "Create",
+                        children: wizardState.hasNext ? "Next" : <>Create <span className="capitalize">{id}</span></>,
                       })}
                     </div>
                   </FocusModal.Footer>
@@ -126,7 +125,7 @@ export default function CreateModal<S extends z.AnyZodObject>({
 
             return <div className="flex flex-col h-full">
               <FocusModal.Header>
-                <Heading level="h1">Create {name}</Heading>
+                <Heading level="h1">Create <span className="capitalize">{id}</span></Heading>
               </FocusModal.Header>
               <FocusModal.Body className="relative">
                 {fieldKeys.map((key) => renderField(key))}
@@ -142,7 +141,7 @@ export default function CreateModal<S extends z.AnyZodObject>({
                   </Button>
                   {renderSubmitButton({
                     disabled: !form.formState.isValid,
-                    children: "Create",
+                    children: <>Create <span className="capitalize">{id}</span></>,
                   })}
                 </div>
               </FocusModal.Footer>

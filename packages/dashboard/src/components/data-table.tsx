@@ -9,7 +9,8 @@ import {
   useDataTable
 } from "@medusajs/ui";
 import { cn } from '@repo/ui/lib/utils';
-import { memo, useEffect, useMemo } from "react";
+import { Row } from '@tanstack/react-table';
+import { useEffect, useMemo, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { usePageQuery } from "../hooks/use-page-query";
 import { ListConfig } from "../types/config";
@@ -17,6 +18,7 @@ import { Entity } from "../types/data";
 import { PageResponse, QueryFn } from "../types/query";
 import { DataTableBulkActionsToolbar } from "./bulk-actions-toolbar";
 import { createZodDataTableColumnDef } from "./data-table-columns";
+import createZodDataTableFilterDef from "./data-table-filters";
 
 interface DataTableListProps<
   S extends z.AnyZodObject,
@@ -35,9 +37,10 @@ const DataTable = <
   T extends Entity<z.infer<S>>,
 >(props: DataTableListProps<S, T>) => {
   const {
-    name,
+    id,
     className,
     schema,
+    title,
     description,
     fields = {},
     toolbarActions = [],
@@ -50,7 +53,7 @@ const DataTable = <
   } = props;
 
   const { t } = useTranslation()
-
+  const rowsRef = useRef<Row<T>[]>([]);
 
   const defaultRowsSelection = useMemo(
     () =>
@@ -74,11 +77,11 @@ const DataTable = <
     ]);
 
   const filters = useMemo((): DataTableFilter[] => {
-    return [];
-  }, []);
+    return createZodDataTableFilterDef(schema, fields);
+  }, [schema, fields]);
 
   const [queryConfig] = usePageQuery({
-    queryKey: name,
+    queryKey: id,
     defaultRowsSelection,
     queryFn,
     selectFn: (resp: PageResponse<T> | undefined) => {
@@ -94,38 +97,59 @@ const DataTable = <
     columns,
     filters,
     onRowClick: (_, row) =>
-      onRowClick?.(row)
+      onRowClick?.(row),
   });
 
-  const rowSelection = table.getRowSelection();
-
+  const rows = table.getRowModel().rows
   useEffect(() => {
-    const rows = table.getRowModel().rows.filter(r => r.getIsSelected()).map(r => r.original);
-    onRowSelectChange?.(rows);
+    rowsRef.current = [...rowsRef.current, ...rows];
+  }, [rows]);
+
+  const rowSelection = table.getRowSelection();
+  useEffect(() => {
+    const selectedRows = Object.keys(rowSelection).map(id => rowsRef.current.find(r => r.id === id))
+    onRowSelectChange?.(selectedRows as unknown as T[]);
   }, [rowSelection, onRowSelectChange]);
 
 
   return (
     <DataTableUI instance={table} className={className}>
-      <DataTableUI.Toolbar className="flex items-center justify-between px-6 py-4">
-        <div>
-          <Heading level="h1">
-            <span className="capitalize">{name}</span>
-          </Heading>
-          {description && <Hint>{description}</Hint>}
+      <div className="flex flex-col divide-y">
+        <div className="flex items-center justify-between px-6 py-4">
+          <div className="flex-1">
+            {title && (
+              <Heading level="h1">
+                <span className="capitalize">{title}</span>
+              </Heading>
+            )}
+            {description && <Hint>{description}</Hint>}
+          </div>
+
+          {onCreateClicked && (
+            <Button variant="secondary" size="small" onClick={onCreateClicked}>
+              {t("common.create")}
+            </Button>
+          )}
+
+          <div>
+          </div>
         </div>
-        {onCreateClicked && (
-          <Button variant="secondary" size="small" onClick={onCreateClicked}>
-            {t("common.create")}
-          </Button>
-        )}
-      </DataTableUI.Toolbar>
+        <div className="bg-ui-bg-subtle flex w-full flex-nowrap items-center justify-between gap-2 overflow-x-auto border-t px-6 py-2">
+          {/* <DataTableUI.FilterMenu tooltip="Filter" /> */}
+          <div></div>
+          <div className="flex gap-x-2">
+            <DataTableUI.Search placeholder="Search..." />
+            <DataTableUI.SortingMenu tooltip="Sort" />
+          </div>
+
+        </div>
+      </div>
 
       <DataTableUI.Table />
       <DataTableUI.Pagination />
 
       {toolbarActions.length > 0 && (
-        <DataTableBulkActionsToolbar table={table} entityName={name}>
+        <DataTableBulkActionsToolbar table={table} entityName={id}>
           {toolbarActions?.map((action) => (
             <IconButton
               key={action.id}

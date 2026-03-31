@@ -19,6 +19,7 @@ export interface PageQueryParams {
   offset: number;
   fields?: string;
   order?: string;
+  q?: string;
   filters?: Record<string, any>;
   search?: string;
 }

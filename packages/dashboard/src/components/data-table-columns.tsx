@@ -1,13 +1,12 @@
 import { Entity } from "@/types/data";
 import { z } from "@medusajs/framework/zod";
-import { EllipsisHorizontal } from "@medusajs/icons";
-import { DataTableColumnDef, DropdownMenu, IconButton } from '@medusajs/ui';
+import { DataTableColumnDef } from '@medusajs/ui';
 import { getZodShape } from "@snowpact/react-rhf-zod-form";
 import { getZodFieldInfo } from "@snowpact/react-rhf-zod-form/src/utils";
-import { CellContext } from '@tanstack/react-table';
 import { format } from 'date-fns';
 import { createSelectDataTableColumns } from "../helpers/create-select-columns";
 import { CellOverride, MedusaFieldOverrides, RowAction } from "../types/config";
+import ActionCell from "./action-cell";
 
 
 type ColumnDefConfig<S extends z.AnyZodObject, T extends Entity = Entity<z.infer<S>>> = {
@@ -16,35 +15,7 @@ type ColumnDefConfig<S extends z.AnyZodObject, T extends Entity = Entity<z.infer
     actions?: RowAction<T>[]
 }
 
-const ActionCell = ({ info, actions }: { info: CellContext<any, any>, actions: RowAction<any>[] }) => {
 
-    return (
-        <DropdownMenu>
-            <DropdownMenu.Trigger asChild>
-                <IconButton variant="transparent" className="h-7 w-7 p-1">
-                    <EllipsisHorizontal />
-                </IconButton>
-            </DropdownMenu.Trigger>
-            <DropdownMenu.Content>
-                {actions.map((action) => {
-                    if (action.render) {
-                        return action.render(info.row.original)
-                    }
-                    return (
-                        <DropdownMenu.Item
-                            key={action.id}
-                            className="[&_svg]:text-ui-fg-subtle flex items-center gap-x-2"
-                            onClick={() => action.onClick?.(info.row.original)}
-                        >
-                            {action.icon}
-                            <span>{action.label}</span>
-                        </DropdownMenu.Item>
-                    )
-                })}
-            </DropdownMenu.Content>
-        </DropdownMenu>
-    )
-}
 
 export function createZodDataTableColumnDef<
     S extends z.AnyZodObject,

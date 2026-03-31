@@ -16,7 +16,6 @@ type PermissionDataTableProps = {
 };
 
 const PermRowSchema = PermissionSchema.omit({
-  category: true,
   created_at: true,
   updated_at: true,
   deleted_at: true,
@@ -42,20 +41,10 @@ function PermissionDataTable({
   onChange,
   ...props
 }: PermissionDataTableProps) {
-  const handleChange = useCallback(
-    (row: PermRow[]) => {
-      const policies: CreatePolicyInput[] = row.map((p) => ({
-        permission_id: p.id,
-        name: "ALLOW",
-      }));
-      onChange?.(policies);
-    },
-    [onChange],
-  );
 
   return (
     <DataTable
-      name="Permissions"
+      id="perm"
       schema={PermRowSchema}
       fields={{
         id: {
@@ -72,7 +61,7 @@ function PermissionDataTable({
         },
       }}
       queryFn={fetchPermissions}
-      onRowSelectChange={handleChange}
+      onRowSelectChange={(perms) => onChange?.(perms.map(p => ({ permission_id: p.id })))}
       {...props}
     />
   );

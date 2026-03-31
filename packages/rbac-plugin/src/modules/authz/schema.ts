@@ -19,15 +19,10 @@ export const CategorySchema = BaseSchema.extend({
   description: z.string().nullable(),
 })
 
-export const CategoryWithParentSchema = CategorySchema.extend({
-  parent: CategorySchema.nullable(),
-})
-
 export const PermissionSchema = BaseSchema.extend({
   kind: z.enum(["read", "write", "delete"]),
   target: z.string(),
   type: z.enum(["predefined", "custom"]),
-  category: CategoryWithParentSchema
 });
 
 export const PolicySchema = BaseSchema.extend({
@@ -41,11 +36,6 @@ export const MemberSchema = BaseSchema.extend({
 export const RoleSchema = BaseSchema.extend({
   name: z.string(),
   description: z.string().nullable(),
-  policies: z.array(PolicySchema),
-  members: z.array(MemberSchema)
-});
-
-export const RoleFiltersSchema = z.object({
 });
 
 export const CreatePolicySchema = z.object({
@@ -64,7 +54,7 @@ export const UpdateRoleSchema = z.object({
 });
 
 export const AssignUsersSchema = z.object({
-  users: z.array(UserSchema).min(1, "At least one user ID is required"),
+  userIds: z.array(z.string()).default([]),
 });
 
 export const PermissionFiltersSchema = z.object({
@@ -89,7 +79,6 @@ export type Permission = z.infer<typeof PermissionSchema>;
 export type Category = z.infer<typeof CategorySchema>;
 export type Policy = z.infer<typeof PolicySchema>;
 export type Member = z.infer<typeof MemberSchema>;
-export type RoleFilters = z.infer<typeof RoleFiltersSchema>;
 export type CreateRoleInput = z.infer<typeof CreateRoleSchema>;
 export type UpdateRoleInput = z.infer<typeof UpdateRoleSchema>;
 export type CreatePolicyInput = z.infer<typeof CreatePolicySchema>;

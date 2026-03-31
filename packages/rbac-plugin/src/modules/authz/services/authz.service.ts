@@ -115,8 +115,7 @@ export default class AuthzModuleService extends MedusaService(Models) {
     @MedusaContext()
     sharedContext?: Context<EntityManager>,
   ): Promise<void> {
-    const userIds = input.users.map((user) => user.id);
-    await this.assignRbacUsers_(roleId, userIds, sharedContext);
+    await this.assignRbacUsers_(roleId, input.userIds, sharedContext);
   }
 
   @InjectTransactionManager()
@@ -126,6 +125,8 @@ export default class AuthzModuleService extends MedusaService(Models) {
     @MedusaContext()
     sharedContext?: Context<EntityManager>,
   ): Promise<void> {
+
+
     const membersResult = await this.listAuthzMembers(
       {
         user_id: userIds,
@@ -133,6 +134,16 @@ export default class AuthzModuleService extends MedusaService(Models) {
       {},
       sharedContext,
     );
+
+    // if userIds is empty, we should still remove all existing members from the role
+    // if(userIds.length === 0) {
+    //   const membersToRemove = membersResult.filter((m) => m.role_id === roleId).map((m) => m.id);
+    //   await this.updateAuthzMembers(
+    //     [{}],
+    //     sharedContext,
+    //   );
+    //   return;
+    // }
 
     let member;
     for (const userId of userIds) {

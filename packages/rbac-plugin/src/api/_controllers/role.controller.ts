@@ -123,7 +123,7 @@ export class RoleController extends BaseController {
 
       this.logger.info(`Assigning role ${id} to users`, {
         role_id: id,
-        users: validated.users.length,
+        users: validated.userIds.length,
       });
 
       await service.assignRbacUsers(id, validated);

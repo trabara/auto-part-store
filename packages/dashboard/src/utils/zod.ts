@@ -14,7 +14,7 @@ export function zodQueryResolve(schema: z.AnyZodObject, query: string = ""): str
             if (field instanceof z.ZodObject) {
                 return zodQueryResolve(field, query ? `${query}.${key}` : key);
             } else if (field instanceof z.ZodArray && field._def.type instanceof z.ZodObject) {
-                return zodQueryResolve(field._def.type, query ? `${query}.${key}` : '*' + key);
+                return zodQueryResolve(field._def.type, query ? `${query}.${key}` : '+' + key);
             }
             return query ? `${query}.${key}` : key;
         })

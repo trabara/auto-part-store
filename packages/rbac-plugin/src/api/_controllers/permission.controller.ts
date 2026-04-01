@@ -1,4 +1,7 @@
-import { AuthenticatedMedusaRequest, MedusaResponse } from "@medusajs/framework/http";
+import {
+  AuthenticatedMedusaRequest,
+  MedusaResponse,
+} from "@medusajs/framework/http";
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils";
 import { BaseController } from "@repo/common";
 import { AUTHZ_MODULE, AuthzModuleService } from "../../modules/authz";
@@ -15,23 +18,21 @@ export class PermissionController extends BaseController {
 
   async get(): Promise<void> {
     await this.execute(async () => {
-      const query = this.req.scope.resolve(ContainerRegistrationKeys.QUERY);
+      const service = this.req.scope.resolve<AuthzModuleService>(AUTHZ_MODULE);
       const { id } = this.req.params;
 
-      const { data: [permission] } = await query.graph({
-        entity: "authz_permission",
-        filters: { id },
-        ...this.req.queryConfig,
-        ...this.req.filterableFields
-      });
+      try {
+        const permission = await service.retrieveAuthzPermission(id, {
+          relations: ["category"],
+        });
 
-      if (!permission) {
-        return this.notFound("Permission not found");
+        this.success({ permission }, 200);
+      } catch (e) {
+        this.notFound("Permission not found");
       }
-
-      this.success({ permission }, 200);
     });
   }
+
   async list(): Promise<void> {
     await this.execute(async () => {
       const query = this.req.scope.resolve(ContainerRegistrationKeys.QUERY);
@@ -64,8 +65,9 @@ export class PermissionController extends BaseController {
       const { id } = this.req.params;
       const validated = UpdatePermissionSchema.parse(this.req.validatedBody);
 
-      const permission = await service.updateAuthzPermissions([{ id, ...validated }]);
-
+      const [permission] = await service.updateAuthzPermissions([
+        { id, ...validated },
+      ]);
 
       this.success({ permission }, 200);
     });

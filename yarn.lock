@@ -10334,6 +10334,7 @@ __metadata:
     "@swc/core": "npm:1.12.2"
     "@swc/jest": "npm:^0.2.38"
     "@types/jest": "npm:^29.5.13"
+    "@types/jsonwebtoken": "npm:^9.0.10"
     "@types/node": "npm:^20.0.0"
     "@types/react": "npm:^18.3.2"
     "@types/react-dom": "npm:^18.2.25"
@@ -22676,6 +22677,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "smap-store@workspace:."
   dependencies:
+    "@types/jest": "npm:^29.5.13"
     prettier: "npm:^3.7.4"
     rimraf: "npm:^6.1.2"
     ts-node: "npm:^10.9.2"

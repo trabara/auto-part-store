@@ -1,7 +1,15 @@
-import { AuthenticatedMedusaRequest, MedusaResponse } from "@medusajs/framework/http";
+import {
+  AuthenticatedMedusaRequest,
+  MedusaResponse,
+} from "@medusajs/framework/http";
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils";
 import { BaseController } from "@repo/common";
-import { AUTHZ_MODULE, AuthzModuleService, CreateCategorySchema, UpdateCategorySchema } from "../../modules/authz";
+import {
+  AUTHZ_MODULE,
+  AuthzModuleService,
+  CreateCategorySchema,
+  UpdateCategorySchema,
+} from "../../modules/authz";
 
 export class CategoryController extends BaseController {
   constructor(req: AuthenticatedMedusaRequest, res: MedusaResponse) {
@@ -10,21 +18,18 @@ export class CategoryController extends BaseController {
 
   async get(): Promise<void> {
     await this.execute(async () => {
-      const query = this.req.scope.resolve(ContainerRegistrationKeys.QUERY);
+      const service = this.req.scope.resolve<AuthzModuleService>(AUTHZ_MODULE);
       const { id } = this.req.params;
 
-      const { data: [category] } = await query.graph({
-        entity: "authz_category",
-        filters: { id },
-        ...this.req.queryConfig,
-        ...this.req.filterableFields
-      });
+      try {
+        const category = await service.retrieveAuthzCategory(id, {
+          relations: ["permissions"],
+        });
 
-      if (!category) {
-        return this.notFound("Category not found");
+        this.success({ category }, 200);
+      } catch (e) {
+        this.notFound("Category not found");
       }
-
-      this.success({ category }, 200);
     });
   }
 
@@ -35,7 +40,7 @@ export class CategoryController extends BaseController {
       const { data, metadata } = await query.graph({
         entity: "authz_category",
         ...this.req.queryConfig,
-        ...this.req.filterableFields
+        ...this.req.filterableFields,
       });
 
       this.success({ data, metadata });
@@ -59,12 +64,15 @@ export class CategoryController extends BaseController {
       const { id } = this.req.params;
       const validated = UpdateCategorySchema.parse(this.req.validatedBody);
 
-      const category = await service.updateAuthzCategories([
-        {
-          id, name: validated.name,
-          description: validated.description
-        }
-      ]);
+      const updateData: Record<string, any> = { id };
+      if (validated.name !== undefined) {
+        updateData.name = validated.name;
+      }
+      if (validated.description !== undefined) {
+        updateData.description = validated.description;
+      }
+
+      const [category] = await service.updateAuthzCategories([updateData]);
 
       this.success({ category }, 200);
     }, "Update category");

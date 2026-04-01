@@ -18,6 +18,9 @@
     "resolveJsonModule": true,
     "checkJs": false,
     "strictNullChecks": true,
+    "types": [
+      "jest"
+    ]
   },
   "ts-node": {
     "swc": true

@@ -1,4 +1,7 @@
-import { AuthenticatedMedusaRequest, MedusaResponse } from "@medusajs/framework/http";
+import {
+  AuthenticatedMedusaRequest,
+  MedusaResponse,
+} from "@medusajs/framework/http";
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils";
 import { BaseController } from "@repo/common";
 import { AUTHZ_MODULE, AuthzModuleService } from "../../modules/authz";
@@ -15,23 +18,18 @@ export class RoleController extends BaseController {
 
   async get(): Promise<void> {
     await this.execute(async () => {
-      const query = this.req.scope.resolve(ContainerRegistrationKeys.QUERY);
+      const service = this.req.scope.resolve<AuthzModuleService>(AUTHZ_MODULE);
       const { id } = this.req.params;
 
-      const { data: [role] } = await query.graph({
-        entity: "authz_role",
-        ...this.req.queryConfig,
-        ...this.req.filterableFields,
-        filters: { id },
-      });
+      try {
+        const role = await service.retrieveAuthzRole(id, {
+          relations: ["policies", "policies.permission", "members"],
+        });
 
-      if (!role) {
+        this.success({ role });
+      } catch (e) {
         this.notFound("Role not found");
-        return;
       }
-
-      this.success({ role });
-
     }, "Role retrieved successfully");
   }
 
@@ -65,10 +63,7 @@ export class RoleController extends BaseController {
         data: validated,
       });
 
-      const [role] = await service.createRoles([
-        validated,
-      ])
-
+      const [role] = await service.createRoles([validated]);
 
       this.logger.info("Role created successfully", {
         role_id: role.id,

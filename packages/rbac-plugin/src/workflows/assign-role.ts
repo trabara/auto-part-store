@@ -7,28 +7,28 @@ import {
 import { AUTHZ_MODULE, AuthzModuleService } from "../modules/authz";
 
 type AssignRoleWorkflowInput = {
-  user_id: string;
-  role_id: string;
+  userId: string;
+  roleId: string;
 };
 
 const assignRoleStep = createStep(
   "assign-role-step",
-  async ({ role_id, user_id }: AssignRoleWorkflowInput, { container }) => {
+  async ({ roleId, userId }: AssignRoleWorkflowInput, { container }) => {
     const service = container.resolve<AuthzModuleService>(AUTHZ_MODULE);
 
-    await service.assignRbacUsers(role_id, { userIds: [user_id] });
+    await service.assignRbacUsers(roleId, { userIds: [userId] });
 
-    return new StepResponse();
+    return new StepResponse({ roleId });
   },
-  // async (compensation, { container }) => {
-  //   if (!compensation) return;
+  async (compensation, { container }) => {
+    if (!compensation) return;
 
-  //   const service = container.resolve<AuthzModuleService>(AUTHZ_MODULE);
+    const service = container.resolve<AuthzModuleService>(AUTHZ_MODULE);
 
-  //   await service.updateAuthzMembers(compensation.memberId, {
-  //     role_id: compensation.previousRoleId,
-  //   });
-  // },
+    await service.assignRbacUsers(compensation.roleId, {
+      userIds: [],
+    });
+  },
 );
 
 export const assignRoleWorkflow = createWorkflow(

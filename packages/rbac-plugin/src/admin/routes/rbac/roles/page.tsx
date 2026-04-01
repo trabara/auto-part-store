@@ -58,14 +58,14 @@ export default function RolesPage() {
             id: "general",
             label: "General",
             icon: <User />,
-            schema: CreateRoleSchema.omit({ policies: true }),
+            schema: CreateRoleSchema.omit({ permissions: true }),
           },
           {
             id: "permissions",
             label: "Permissions",
             header: false,
             icon: <User />,
-            schema: CreateRoleSchema.pick({ policies: true }),
+            schema: CreateRoleSchema.pick({ permissions: true }),
           },
         ],
       }}

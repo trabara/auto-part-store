@@ -2,7 +2,7 @@ import { z } from "@medusajs/framework/zod";
 import DataTable from "@repo/dashboard/components/data-table";
 import { sdk } from "@repo/dashboard/lib/sdk";
 import { PageQueryParams, PageResponse } from "@repo/dashboard/types/query";
-import { memo, useCallback } from "react";
+import { memo } from "react";
 import {
   CreatePolicyInput,
   PermissionSchema,

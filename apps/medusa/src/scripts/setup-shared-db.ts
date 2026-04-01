@@ -19,6 +19,7 @@ export default async function setupSharedDb({ container }: ExecArgs) {
   // Step 1: Create or update shared_user role
   const client = new Client({ connectionString: process.env.DATABASE_URL });
   await client.connect();
+  await client.query("BEGIN");
 
   try {
     const roleResult = await client.query(
@@ -40,21 +41,20 @@ export default async function setupSharedDb({ container }: ExecArgs) {
       logger.info("Updated shared_user password");
     }
   } finally {
-    await client.end();
+    await client.query("COMMIT");
   }
 
   // Step 2: GRANT ALL PRIVILEGES ON DATABASE (cannot run inside a transaction)
-  const client2 = new Client({ connectionString: process.env.DATABASE_URL });
-  await client2.connect();
   try {
-    await client2.query(
+    await client.query(
       `GRANT ALL PRIVILEGES ON DATABASE "${tenantName}" TO shared_user`,
     );
     logger.info(
       `Granted ALL PRIVILEGES on database "${tenantName}" to shared_user`,
     );
   } finally {
-    await client2.end();
+    await client.query("COMMIT");
+    await client.end();
   }
 
   logger.info("Shared DB setup complete");

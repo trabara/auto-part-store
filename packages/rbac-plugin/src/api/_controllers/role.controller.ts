@@ -42,17 +42,10 @@ export class RoleController extends BaseController {
         data: validated,
       });
 
-      const role = await service.createAuthzRoles({
-        name: validated.name,
-        description: validated.description,
-      });
+      const [role] = await service.createRoles([
+        validated,
+      ])
 
-      await service.createAuthzPolicies(
-        validated.policies.map((policy) => ({
-          permission_id: policy.permission_id,
-          role_id: role.id,
-        })),
-      );
 
       this.logger.info("Role created successfully", {
         role_id: role.id,

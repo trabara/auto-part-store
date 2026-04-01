@@ -15,8 +15,8 @@ const schema = RoleSchema.omit({
   created_at: true,
   updated_at: true,
   deleted_at: true,
-  policies: true,
 });
+
 type Schema = z.infer<typeof schema>;
 
 function RoleDataTable({
@@ -40,7 +40,7 @@ function RoleDataTable({
 
   return (
     <DataTable
-      name="Permissions"
+      id="Roles"
       schema={schema}
       queryFn={fetchRoles}
       onRowClick={(row) => onChange?.(row.id)}

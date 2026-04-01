@@ -50,8 +50,8 @@ export const CreatePolicySchema = z.object({
 export const CreateRoleSchema = z.object({
   name: z.string().min(3, "Name must be at least 3 characters"),
   description: z.string().optional(),
-  policies: z
-    .array(CreatePolicySchema)
+  permissions: z
+    .array(z.string())
     .min(1, "At least one policy is required"),
 });
 
@@ -74,7 +74,7 @@ export const CreatePermissionSchema = z.object({
 export const CreateCategorySchema = z.object({
   name: z.string().min(3, "Name must be at least 3 characters"),
   description: z.string().optional(),
-  perms: z
+  permissions: z
     .array(CreatePermissionSchema)
     .min(1, "At least one permission is required"),
 });
@@ -91,6 +91,10 @@ export const PermissionFiltersSchema = z.object({
   type: TypeEnum.optional(),
 });
 
+export const CategoryPermissionsSchema = CategorySchema.extend({
+  permissions: z.array(PermissionSchema),
+});
+
 export type Base = z.infer<typeof BaseSchema>;
 export type User = z.infer<typeof UserSchema>;
 export type Member = z.infer<typeof MemberSchema>;
@@ -105,3 +109,4 @@ export type CreatePolicyInput = z.infer<typeof CreatePolicySchema>;
 export type AssignUsersInput = z.infer<typeof AssignUsersSchema>;
 export type CreatePermissionInput = z.infer<typeof CreatePermissionSchema>;
 export type CreateCategoryInput = z.infer<typeof CreateCategorySchema>;
+export type CategoryPermissionsResult = z.infer<typeof CategoryPermissionsSchema>;

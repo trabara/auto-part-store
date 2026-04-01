@@ -1,15 +1,15 @@
 import { LoaderOptions } from "@medusajs/framework/types";
-import { createRbacCategoriesWorkflow } from "../../../workflows";
+import { createRbacPermissionsWorkflow } from "../../../workflows";
 
 export default async function createDefaultPolicies({
   container,
 }: LoaderOptions) {
-  createRbacCategoriesWorkflow(container).run({
+  createRbacPermissionsWorkflow(container).run({
     input: [
       {
         name: "Customers",
         description: "Manage customer information and profiles",
-        perms: [
+        permissions: [
           { kind: "read", target: "/admin/customers", type: "predefined" },
           { kind: "write", target: "/admin/customers", type: "predefined" },
           { kind: "delete", target: "/admin/customers", type: "predefined" },
@@ -21,7 +21,7 @@ export default async function createDefaultPolicies({
       {
         name: "Campaigns",
         description: "Manage marketing campaigns and promotions",
-        perms: [
+        permissions: [
           { kind: "read", target: "/admin/campaigns", type: "predefined" },
           { kind: "write", target: "/admin/campaigns", type: "predefined" },
           { kind: "delete", target: "/admin/campaigns", type: "predefined" },
@@ -31,7 +31,7 @@ export default async function createDefaultPolicies({
       {
         name: 'Gift Cards',
         description: "Manage gift cards and their usage",
-        perms: [
+        permissions: [
           { kind: "read", target: "/admin/gift-cards", type: "predefined" },
           { kind: "write", target: "/admin/gift-cards", type: "predefined" },
           { kind: "delete", target: "/admin/gift-cards", type: "predefined" },
@@ -40,7 +40,7 @@ export default async function createDefaultPolicies({
       {
         name: "Inventory",
         description: "Manage inventory levels and stock locations",
-        perms: [
+        permissions: [
           { kind: "read", target: "/admin/inventory-items", type: "predefined" },
           { kind: "write", target: "/admin/inventory-items", type: "predefined" },
           { kind: "delete", target: "/admin/inventory-items", type: "predefined" },
@@ -52,7 +52,7 @@ export default async function createDefaultPolicies({
       {
         name: "Promotions",
         description: "Manage discount codes and special offers",
-        perms: [
+        permissions: [
           { kind: "read", target: "/admin/promotions", type: "predefined" },
           { kind: "write", target: "/admin/promotions", type: "predefined" },
           { kind: "delete", target: "/admin/promotions", type: "predefined" },
@@ -61,7 +61,7 @@ export default async function createDefaultPolicies({
       {
         name: 'Price Lists',
         description: "Manage price lists and customer-specific pricing",
-        perms: [
+        permissions: [
           { kind: "read", target: "/admin/price-lists", type: "predefined" },
           { kind: "write", target: "/admin/price-lists", type: "predefined" },
           { kind: "delete", target: "/admin/price-lists", type: "predefined" },
@@ -70,7 +70,7 @@ export default async function createDefaultPolicies({
       {
         name: "Products",
         description: "Manage product listings and details",
-        perms: [
+        permissions: [
           { kind: "read", target: "/admin/products", type: "predefined" },
           { kind: "write", target: "/admin/products", type: "predefined" },
           { kind: "delete", target: "/admin/products", type: "predefined" },
@@ -95,7 +95,7 @@ export default async function createDefaultPolicies({
       {
         name: 'Users',
         description: "Manage user accounts and permissions",
-        perms: [
+        permissions: [
           { kind: "read", target: "/admin/rbac/v2/roles", type: "predefined" },
           { kind: "write", target: "/admin/rbac/v2/roles", type: "predefined" },
           { kind: "delete", target: "/admin/rbac/v2/roles", type: "predefined" },
@@ -119,7 +119,7 @@ export default async function createDefaultPolicies({
       {
         name: "Settings",
         description: "Manage store settings and configurations",
-        perms: [
+        permissions: [
           { kind: "read", target: "/admin/stores", type: "predefined" },
           { kind: "write", target: "/admin/stores", type: "predefined" },
           { kind: "delete", target: "/admin/stores", type: "predefined" },
@@ -146,7 +146,7 @@ export default async function createDefaultPolicies({
       {
         name: "Orders",
         description: "Manage customer orders and transactions",
-        perms: [
+        permissions: [
           { kind: "read", target: "/admin/orders", type: "predefined" },
           { kind: "write", target: "/admin/orders", type: "predefined" },
           { kind: "delete", target: "/admin/orders", type: "predefined" },

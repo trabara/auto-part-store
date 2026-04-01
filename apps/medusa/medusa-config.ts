@@ -139,4 +139,7 @@ export default defineConfig({
       },
     },
   ],
+  featureFlags: {
+    translation: true,
+  },
 });

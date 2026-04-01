@@ -10,125 +10,9 @@ import {
   EXCLUDED_ROUTES
 } from "../constant";
 import * as Models from "../models";
-import { AssignUsersInput, Category, CreateCategoryInput, CreatePermissionInput } from "../schema";
+import { AssignUsersInput, CategoryPermissionsResult, CreateCategoryInput, CreatePermissionInput, CreateRoleInput, Role } from "../schema";
 
 export default class AuthzModuleService extends MedusaService(Models) {
-  // __hooks = {
-  //   onApplicationStart: async () => {
-  //     this.onApplicationStart()
-  //   },
-  // }
-
-  // async onApplicationStart(): Promise<void> {
-  //   await this.syncRegisteredPolicies()
-  // }
-
-  @InjectManager()
-  async createPermissionCategory(
-    dto: CreateCategoryInput,
-    @MedusaContext()
-    sharedContext?: Context<EntityManager>,
-  ): Promise<Category> {
-
-    return await this.createPermissionCategory_(dto, sharedContext);
-  }
-
-  @InjectManager()
-  async createPermissionCategories(
-    dtos: CreateCategoryInput[],
-    @MedusaContext()
-    sharedContext?: Context<EntityManager>,
-  ): Promise<Category[]> {
-
-    const categories: Category[] = [];
-    for await (const dto of dtos) {
-      const category = await this.createPermissionCategory_(dto, sharedContext);
-      categories.push(category);
-    }
-    return categories;
-  }
-
-  @InjectManager()
-  async deletePermissionsByCategoryIds(
-    categoryIds: string[],
-    @MedusaContext()
-    sharedContext?: Context<EntityManager>,
-  ): Promise<void> {
-    for await (const categoryId of categoryIds) {
-      await this.deletePermissionsByCategoryId_(categoryId, sharedContext);
-    }
-  }
-
-  @InjectTransactionManager()
-  async createPermissionCategory_(
-    dto: CreateCategoryInput,
-    @MedusaContext()
-    sharedContext?: Context<EntityManager>,
-  ): Promise<Category> {
-
-    const category = await this.createAuthzCategories(
-      {
-        name: dto.name,
-        description: dto.description,
-      },
-      sharedContext,
-    );
-
-    const permsToCreate: CreatePermissionInput[] = dto.perms.map((p) => ({
-      kind: p.kind,
-      target: p.target,
-      type: p.type,
-      category_id: category.id,
-    }));
-
-    await this.createAuthzPermissions(permsToCreate, sharedContext);
-    return category;
-  }
-
-  @InjectTransactionManager()
-  async deletePermissionsByCategoryId_(
-    categoryId: string,
-    @MedusaContext()
-    sharedContext?: Context<EntityManager>,
-  ): Promise<void> {
-    const permissions = await this.listAuthzPermissions(
-      {
-        category_id: categoryId,
-      },
-      {},
-      sharedContext,
-    );
-
-    const permissionIds = permissions.map((p) => p.id);
-    if (permissionIds.length) {
-      await this.deleteAuthzPermissions(
-        {
-          id: permissionIds,
-        },
-        sharedContext,
-      );
-    }
-  }
-
-  // const categoryMap = new Map<string, string>();
-  // for (const cat of DEFAULT_CATEGORIES) {
-  //   const created = await this.createAuthzCategories(cat, sharedContext);
-  //   categoryMap.set(cat.name, created.id);
-  // }
-
-  // for (const p of PREDEFINED_PERMISSIONS) {
-  //   const categoryId = categoryMap.get(p.category) || null;
-  //   await this.createAuthzPermissions(
-  //     {
-  //       kind: p.kind as "read" | "write" | "delete",
-  //       target: p.target,
-  //       type: "predefined",
-  //       category_id: categoryId,
-  //     },
-  //     sharedContext,
-  //   );
-  // }
-
 
   public async userHasAccess(
     userId: string,
@@ -158,11 +42,135 @@ export default class AuthzModuleService extends MedusaService(Models) {
     const action = this.methodToAction(method);
     return role.policies.some(({ permission }) => {
       if (permission.type === "predefined") {
-        return permission.target === resource && permission.kind === action;
+        return resource.includes(permission.target) && permission.kind === action;
       }
       // for custom policies, we can have more complex logic, for now we just check if the target matches
-      return permission.target === resource;
+      return resource.includes(permission.target);
     });
+  }
+
+
+  @InjectManager()
+  async createPermissionCategory(
+    dto: CreateCategoryInput,
+    @MedusaContext()
+    sharedContext?: Context<EntityManager>,
+  ): Promise<CategoryPermissionsResult> {
+
+    return this.createPermissionCategory_(dto, sharedContext);
+  }
+
+  @InjectManager()
+  async createPermissionCategories(
+    dtos: CreateCategoryInput[],
+    @MedusaContext()
+    sharedContext?: Context<EntityManager>,
+  ): Promise<CategoryPermissionsResult[]> {
+
+    const categories: CategoryPermissionsResult[] = [];
+    for await (const dto of dtos) {
+      const categoryPermissions = await this.createPermissionCategory_(dto, sharedContext);
+      categories.push(categoryPermissions);
+    }
+    return categories;
+  }
+
+  @InjectManager()
+  async deletePermissionsByCategoryIds(
+    categoryIds: string[],
+    @MedusaContext()
+    sharedContext?: Context<EntityManager>,
+  ): Promise<void> {
+    for await (const categoryId of categoryIds) {
+      await this.deletePermissionsByCategoryId_(categoryId, sharedContext);
+    }
+  }
+
+  @InjectTransactionManager()
+  async createPermissionCategory_(
+    dto: CreateCategoryInput,
+    @MedusaContext()
+    sharedContext?: Context<EntityManager>,
+  ): Promise<CategoryPermissionsResult> {
+
+    const category = await this.createAuthzCategories(
+      {
+        name: dto.name,
+        description: dto.description,
+      },
+      sharedContext,
+    );
+
+    const permsToCreate: CreatePermissionInput[] = dto.permissions.map((p) => ({
+      kind: p.kind,
+      target: p.target,
+      type: p.type,
+      category_id: category.id,
+    }));
+
+    const createdPermissions = await this.createAuthzPermissions(permsToCreate, sharedContext);
+    return {
+      ...category,
+      permissions: createdPermissions,
+    };
+  }
+
+  @InjectTransactionManager()
+  async deletePermissionsByCategoryId_(
+    categoryId: string,
+    @MedusaContext()
+    sharedContext?: Context<EntityManager>,
+  ): Promise<void> {
+    const permissions = await this.listAuthzPermissions(
+      {
+        category_id: categoryId,
+      },
+      {},
+      sharedContext,
+    );
+
+    const permissionIds = permissions.map((p) => p.id);
+    if (permissionIds.length) {
+      await this.deleteAuthzPermissions(
+        {
+          id: permissionIds,
+        },
+        sharedContext,
+      );
+    }
+  }
+
+  @InjectManager()
+  async createRoles(inputs: CreateRoleInput[], @MedusaContext() sharedContext?: Context<EntityManager>): Promise<Role[]> {
+    const roles: Role[] = [];
+    for (const input of inputs) {
+      const role = await this.createRole_(input, sharedContext);
+      roles.push(role);
+    }
+    return roles;
+  }
+
+  @InjectTransactionManager()
+  async createRole_(input: CreateRoleInput, @MedusaContext() sharedContext?: Context<EntityManager>): Promise<Role> {
+
+    const role = await this.createAuthzRoles(
+      {
+        name: input.name,
+        description: input.description,
+      },
+      sharedContext,
+    );
+
+    await this.createAuthzPolicies(
+      input.permissions.map((permission_id) => ({
+        role_id: role.id,
+        permission_id,
+      })),
+      sharedContext,
+    );
+
+
+    return role;
   }
 
   @InjectManager()

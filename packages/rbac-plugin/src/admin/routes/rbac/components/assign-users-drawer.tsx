@@ -55,7 +55,7 @@ const fetchUsers = (signal: AbortSignal, params?: PageQueryParams) => {
 
 interface AssignUsersDrawerProps {
   roleId: string;
-  members: Member[];
+  members: { user_id: string }[];
 }
 
 

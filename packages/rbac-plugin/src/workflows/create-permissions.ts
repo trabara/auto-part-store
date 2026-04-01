@@ -7,8 +7,8 @@ import {
 import { AUTHZ_MODULE, AuthzModuleService, CreateCategoryInput } from "../modules/authz";
 
 
-const createRbacCategoriesStep = createStep(
-  "create-rbac-categories-step",
+const createRbacPermissionsStep = createStep(
+  "create-rbac-permissions-step",
   async (input: CreateCategoryInput[], { container }) => {
 
     const service = container.resolve<AuthzModuleService>(AUTHZ_MODULE);
@@ -27,12 +27,12 @@ const createRbacCategoriesStep = createStep(
   },
 );
 
-type CreateRbacCategoriesWorkflowInput = CreateCategoryInput[];
+type CreateRbacPermissionsWorkflowInput = CreateCategoryInput[];
 
-export const createRbacCategoriesWorkflow = createWorkflow(
-  "create-rbac-categories-workflow",
-  function (input: CreateRbacCategoriesWorkflowInput) {
-    const { categories } = createRbacCategoriesStep(input);
+export const createRbacPermissionsWorkflow = createWorkflow(
+  "create-rbac-permissions-workflow",
+  function (input: CreateRbacPermissionsWorkflowInput) {
+    const { categories } = createRbacPermissionsStep(input);
 
     return new WorkflowResponse({
       categories

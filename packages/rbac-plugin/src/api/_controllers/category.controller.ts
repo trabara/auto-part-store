@@ -8,6 +8,26 @@ export class CategoryController extends BaseController {
     super(req, res);
   }
 
+  async get(): Promise<void> {
+    await this.execute(async () => {
+      const query = this.req.scope.resolve(ContainerRegistrationKeys.QUERY);
+      const { id } = this.req.params;
+
+      const { data: [category] } = await query.graph({
+        entity: "authz_category",
+        filters: { id },
+        ...this.req.queryConfig,
+        ...this.req.filterableFields
+      });
+
+      if (!category) {
+        return this.notFound("Category not found");
+      }
+
+      this.success({ category }, 200);
+    });
+  }
+
   async list(): Promise<void> {
     await this.execute(async () => {
       const query = this.req.scope.resolve(ContainerRegistrationKeys.QUERY);
@@ -46,7 +66,7 @@ export class CategoryController extends BaseController {
         }
       ]);
 
-      this.success({ category });
+      this.success({ category }, 200);
     }, "Update category");
   }
 
@@ -57,7 +77,7 @@ export class CategoryController extends BaseController {
 
       await service.deleteAuthzCategories([id]);
 
-      this.success({}, 204);
+      this.success({ success: true }, 204);
     }, "Delete category");
   }
 }

@@ -13,6 +13,25 @@ export class PermissionController extends BaseController {
     super(req, res);
   }
 
+  async get(): Promise<void> {
+    await this.execute(async () => {
+      const query = this.req.scope.resolve(ContainerRegistrationKeys.QUERY);
+      const { id } = this.req.params;
+
+      const { data: [permission] } = await query.graph({
+        entity: "authz_permission",
+        filters: { id },
+        ...this.req.queryConfig,
+        ...this.req.filterableFields
+      });
+
+      if (!permission) {
+        return this.notFound("Permission not found");
+      }
+
+      this.success({ permission }, 200);
+    });
+  }
   async list(): Promise<void> {
     await this.execute(async () => {
       const query = this.req.scope.resolve(ContainerRegistrationKeys.QUERY);
@@ -59,7 +78,7 @@ export class PermissionController extends BaseController {
 
       await service.deleteAuthzPermissions([id]);
 
-      this.success({}, 204);
+      this.success({ success: true }, 204);
     });
   }
 }

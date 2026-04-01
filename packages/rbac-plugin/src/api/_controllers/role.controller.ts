@@ -13,6 +13,28 @@ export class RoleController extends BaseController {
     super(req, res);
   }
 
+  async get(): Promise<void> {
+    await this.execute(async () => {
+      const query = this.req.scope.resolve(ContainerRegistrationKeys.QUERY);
+      const { id } = this.req.params;
+
+      const { data: [role] } = await query.graph({
+        entity: "authz_role",
+        ...this.req.queryConfig,
+        ...this.req.filterableFields,
+        filters: { id },
+      });
+
+      if (!role) {
+        this.notFound("Role not found");
+        return;
+      }
+
+      this.success({ role });
+
+    }, "Role retrieved successfully");
+  }
+
   async list(): Promise<void> {
     await this.execute(async () => {
       const query = this.req.scope.resolve(ContainerRegistrationKeys.QUERY);
@@ -56,26 +78,6 @@ export class RoleController extends BaseController {
     }, "Role created successfully");
   }
 
-  async get(): Promise<void> {
-    await this.execute(async () => {
-      const query = this.req.scope.resolve(ContainerRegistrationKeys.QUERY);
-      const { id } = this.req.params;
-
-      const { data: roles } = await query.graph({
-        entity: "authz_role",
-        ...this.req.queryConfig,
-        filters: { id },
-      });
-
-      if (!roles.length) {
-        this.notFound("Role not found");
-        return;
-      }
-
-      this.success({ role: roles[0] });
-    }, "Role retrieved successfully");
-  }
-
   async update(): Promise<void> {
     await this.execute(async () => {
       const { id } = this.req.params;
@@ -105,7 +107,7 @@ export class RoleController extends BaseController {
       });
       await service.deleteAuthzRoles([id]);
 
-      this.success({});
+      this.success({ success: true }, 204);
     }, "Role deleted successfully");
   }
 
@@ -122,7 +124,7 @@ export class RoleController extends BaseController {
 
       await service.assignRbacUsers(id, validated);
 
-      this.success({}, 201);
+      this.success({ success: true }, 201);
     }, "Role assigned successfully");
   }
 }

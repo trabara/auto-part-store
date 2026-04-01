@@ -12,6 +12,7 @@ import {
   CreatePermissionSchema,
   CreateRoleSchema,
   UpdateCategorySchema,
+  UpdatePermissionSchema,
   UpdateRoleSchema,
 } from "../modules/authz/schema";
 
@@ -23,7 +24,23 @@ export const adminRolesMiddlewares: MiddlewareRoute[] = [
     matcher: "/admin/rbac/v2/roles/:id",
     method: "GET",
     middlewares: [
-
+    ],
+  },
+  {
+    matcher: "/admin/rbac/v2/roles",
+    method: "GET",
+    middlewares: [
+      validateAndTransformQuery(BaseFindParams, {
+        defaults: ["id", "name", "description", "is_default", "created_at"],
+        isList: true,
+      }),
+    ],
+  },
+  {
+    matcher: "/admin/rbac/v2/roles",
+    method: "POST",
+    middlewares: [
+      validateAndTransformBody(CreateRoleSchema),
     ],
   },
   {
@@ -47,26 +64,15 @@ export const adminRolesMiddlewares: MiddlewareRoute[] = [
       validateAndTransformBody(AssignUsersSchema),
     ],
   },
-  {
-    matcher: "/admin/rbac/v2/roles",
-    method: "GET",
-    middlewares: [
-      validateAndTransformQuery(BaseFindParams, {
-        defaults: ["id", "name", "description", "is_default", "created_at"],
-        isList: true,
-      }),
-    ],
-  },
-  {
-    matcher: "/admin/rbac/v2/roles",
-    method: "POST",
-    middlewares: [
-      validateAndTransformBody(CreateRoleSchema),
-    ],
-  },
 ];
 
 export const adminPermissionsMiddlewares: MiddlewareRoute[] = [
+  {
+    matcher: "/admin/rbac/v2/permissions/:id",
+    method: "GET",
+    middlewares: [
+    ],
+  },
   {
     matcher: "/admin/rbac/v2/permissions",
     method: "GET",
@@ -86,6 +92,13 @@ export const adminPermissionsMiddlewares: MiddlewareRoute[] = [
   },
   {
     matcher: "/admin/rbac/v2/permissions/:id",
+    method: "PATCH",
+    middlewares: [
+      validateAndTransformBody(UpdatePermissionSchema),
+    ],
+  },
+  {
+    matcher: "/admin/rbac/v2/permissions/:id",
     method: "DELETE",
     middlewares: [],
   },
@@ -93,6 +106,12 @@ export const adminPermissionsMiddlewares: MiddlewareRoute[] = [
 
 
 export const adminCategoriesMiddlewares: MiddlewareRoute[] = [
+  {
+    matcher: "/admin/rbac/v2/categories/:id",
+    method: "GET",
+    middlewares: [
+    ],
+  },
   {
     matcher: "/admin/rbac/v2/categories",
     method: "GET",

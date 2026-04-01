@@ -246,6 +246,7 @@ export default class AuthzModuleService extends MedusaService(Models) {
     const map: Record<string, string> = {
       GET: "read",
       POST: "write",
+      PATCH: "write",
       PUT: "write",
       DELETE: "delete",
     };

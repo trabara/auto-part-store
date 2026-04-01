@@ -2,6 +2,7 @@ import { defineRouteConfig } from "@medusajs/admin-sdk";
 import { z } from "@medusajs/framework/zod";
 import { User } from "@medusajs/icons";
 import { MedusaPage } from "@repo/dashboard/components/medusa-page";
+import { MedusaFieldOverrides } from "@repo/dashboard/types/config";
 import {
   CreateRoleSchema,
   RoleSchema,
@@ -9,10 +10,19 @@ import {
 } from "../../../../modules/authz/schema";
 import AssignUsersDrawer from "../components/assign-users-drawer";
 import PermissionDataTable from "../components/permission-data-table";
-import { COMMON_FIELDS } from "./constant";
 
 const RoleListSchema = RoleSchema.extend({ members: z.array(z.object({ user_id: z.string() })) });
 
+export const BASE_FIELDS: MedusaFieldOverrides<z.infer<typeof RoleListSchema>> = {
+  name: {
+    label: "Name",
+    description: "The name of the role",
+  },
+  description: {
+    label: "Description",
+    description: "A brief description of the role",
+  },
+};
 
 export default function RolesPage() {
   return (
@@ -23,11 +33,7 @@ export default function RolesPage() {
       description="Manage user roles and their permissions"
       schema={RoleListSchema}
       fields={{
-        ...COMMON_FIELDS,
-        is_default: {
-          ...COMMON_FIELDS.is_default,
-          cell: (info) => <span>{info.getValue() ? "Yes" : "No"}</span>,
-        },
+        ...BASE_FIELDS,
       }}
       rowActions={[
         {
@@ -41,7 +47,7 @@ export default function RolesPage() {
         id: "role",
         schema: CreateRoleSchema,
         fields: {
-          ...COMMON_FIELDS,
+          ...BASE_FIELDS,
           policies: {
             hideLabel: true,
             render: ({ onChange }) => (

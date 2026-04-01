@@ -10,7 +10,7 @@ import { Entity } from "./data";
 export interface BaseAction {
   id: string;
   label: string;
-  icon: React.ReactNode;
+  icon?: React.ReactNode;
   variant?: "danger" | "default";
 }
 
@@ -27,7 +27,7 @@ export interface RowAction<T> extends BaseAction {
 export interface StepConfig<S extends z.ZodTypeAny> {
   description?: string;
   header?: boolean;
-  icon: React.ReactNode;
+  icon?: React.ReactNode;
   id: string;
   label: string;
   schema: S;

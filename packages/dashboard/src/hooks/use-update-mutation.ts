@@ -15,13 +15,19 @@ export interface UpdateMutationConfig<TInput = any> {
     successMessage?: string;
     /** Error message to display */
     errorMessage?: string;
-    /** Update function that performs the actual update */
-    updateFn: (input: TInput) => Promise<any>;
     /** Additional mutation options */
     mutationOptions?: Omit<
         UseMutationOptions<any, any, TInput>,
         "mutationFn" | "onSuccess" | "onError"
     >;
+    /** Update function that performs the actual update */
+    updateFn: (input: TInput) => Promise<any>;
+    /** Callback function to be called on successful mutation */
+    onSuccess?: () => void;
+    /** Callback function to be called on mutation error */
+    onFailure?: (error: any) => void;
+
+
 }
 
 
@@ -48,8 +54,10 @@ export function useUpdateMutation({
     invalidateKeys,
     successMessage = "Item updated successfully",
     errorMessage = "Failed to update item",
-    updateFn,
     mutationOptions,
+    updateFn,
+    onSuccess,
+    onFailure,
 }: UpdateMutationConfig): UseUpdateMutationReturn {
     const queryClient = useQueryClient();
 
@@ -58,11 +66,14 @@ export function useUpdateMutation({
         onSuccess: () => {
             toast.success(successMessage);
             queryClient.invalidateQueries({ queryKey: invalidateKeys });
+            onSuccess?.();
+
         },
         onError: (error: any) => {
             toast.error(errorMessage, {
                 description: error.message || "An error occurred",
             });
+            onFailure?.(error);
         },
         ...mutationOptions,
     });

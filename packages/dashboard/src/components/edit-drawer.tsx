@@ -1,7 +1,10 @@
 import { EditConfig } from "@/types/config";
 import { z } from "@medusajs/framework/zod";
+import { PencilSquare } from "@medusajs/icons";
 import { Button, Drawer, Heading, Hint } from "@medusajs/ui";
 import { SnowForm } from "@snowpact/react-rhf-zod-form";
+import { forwardRef, memo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useUpdateMutation } from "../hooks/use-update-mutation";
 
 
@@ -10,32 +13,37 @@ interface EditDrawerProps<S extends z.AnyZodObject> extends EditConfig<z.infer<S
   defaultValues?: z.infer<S>;
   mutateFn: (id: string, data: z.infer<S>) => Promise<void>;
   onOpenChange?: (open: boolean) => void;
+  children?: React.ReactNode;
 }
 
-const EditDrawer = <S extends z.AnyZodObject>({
-  id,
-  open,
-  schema,
-  fields = {},
-  defaultValues,
-  mutateFn,
-  onOpenChange,
-}: EditDrawerProps<S>) => {
+const EditDrawer = forwardRef(<S extends z.AnyZodObject>(props: EditDrawerProps<S>, ref: React.Ref<HTMLButtonElement>) => {
+  const { id, open, schema, fields = {}, defaultValues, mutateFn } = props;
+  const { t } = useTranslation();
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
   const mutate = useUpdateMutation({
     invalidateKeys: [id],
     errorMessage: `Failed to update ${id}`,
     successMessage: `Successfully updated ${id}`,
-    updateFn: (data) => mutateFn(defaultValues?.id, data)
+    updateFn: (data) => mutateFn(defaultValues?.id, data),
+    onSuccess: () => {
+      setIsDrawerOpen(false);
+    }
   })
 
   const handleSubmit = async (values: z.infer<S>) => {
     await mutate.mutateAsync(values);
-    onOpenChange?.(false);
+    setIsDrawerOpen(false);
   }
 
   return (
-    <Drawer open={open} onOpenChange={onOpenChange}>
+    <Drawer open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
+      <Drawer.Trigger asChild ref={ref}>
+        <Button onClick={() => setIsDrawerOpen(true)} variant="transparent" size="small" className="w-full justify-start px-2 py-1.5 [&_svg]:text-ui-fg-subtle flex items-center gap-x-2">
+          <PencilSquare />
+          <span>{t('common.edit')}</span>
+        </Button>
+      </Drawer.Trigger>
       <Drawer.Content>
         <SnowForm
           defaultValues={defaultValues}
@@ -58,13 +66,16 @@ const EditDrawer = <S extends z.AnyZodObject>({
                 {fieldKeys.map((key) => renderField(key))}
               </Drawer.Body>
               <Drawer.Footer>
-                <Button
-                  variant="secondary"
-                  onClick={() => onOpenChange?.(false)}
-                  type="button"
-                >
-                  Cancel
-                </Button>
+                <Drawer.Close asChild>
+                  <Button
+                    variant="secondary"
+                    size="small"
+                    type="button"
+                    onClick={() => setIsDrawerOpen(false)}
+                  >
+                    Cancel
+                  </Button>
+                </Drawer.Close>
                 {renderSubmitButton({ children: <>Save <span className="capitalize">{id}</span></> })}
               </Drawer.Footer>
             </>
@@ -73,6 +84,6 @@ const EditDrawer = <S extends z.AnyZodObject>({
       </Drawer.Content>
     </Drawer>
   );
-};
+})
 
-export default EditDrawer;
+export default memo(EditDrawer);

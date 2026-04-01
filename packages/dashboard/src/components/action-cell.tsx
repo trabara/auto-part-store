@@ -1,7 +1,8 @@
 import { EllipsisHorizontal } from "@medusajs/icons";
-import { DropdownMenu, IconButton } from "@medusajs/ui";
+import { Button, DropdownMenu, IconButton } from "@medusajs/ui";
 import { CellContext } from '@tanstack/react-table';
 import { RowAction } from "../types/config";
+import React from "react";
 
 const ActionCell = ({ info, actions }: { info: CellContext<any, any>, actions: RowAction<any>[] }) => {
 
@@ -13,19 +14,27 @@ const ActionCell = ({ info, actions }: { info: CellContext<any, any>, actions: R
                 </IconButton>
             </DropdownMenu.Trigger>
             <DropdownMenu.Content>
-                {actions.map((action) => {
-                    if (action.render) {
-                        return action.render(info.row.original)
-                    }
+                {actions.map((action, index) => {
                     return (
-                        <DropdownMenu.Item
-                            key={action.id}
-                            className="[&_svg]:text-ui-fg-subtle flex items-center gap-x-2"
-                            onClick={() => action.onClick?.(info.row.original)}
-                        >
-                            {action.icon}
-                            <span>{action.label}</span>
-                        </DropdownMenu.Item>
+                        <React.Fragment key={action.id}>
+                            <DropdownMenu.Item
+                                className="[&_svg]:text-ui-fg-subtle flex items-center gap-x-2"
+                                asChild
+                            >
+                                {action.render ?
+                                    action.render(info.row.original)
+                                    :
+                                    (
+                                        <Button variant="transparent" size="small" className="w-full justify-start"
+                                            onClick={() => action.onClick?.(info.row.original)}
+                                        >
+                                            {action.icon}
+                                            <span>{action.label}</span>
+                                        </Button>
+                                    )}
+                            </DropdownMenu.Item>
+                            {index < actions.length - 1 && <DropdownMenu.Separator />}
+                        </React.Fragment>
                     )
                 })}
             </DropdownMenu.Content>

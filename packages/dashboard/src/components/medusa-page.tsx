@@ -5,6 +5,7 @@ import {
   Checkbox,
   Container,
   DatePicker,
+  Drawer,
   Hint,
   Input,
   Label,
@@ -46,8 +47,6 @@ export function MedusaPage<
 >({ id, path, schema, fields, create, edit, toolbarActions, rowActions, ...restProps }: MedusaPageProps<LS, CS, ES, T>) {
   const { t } = useTranslation();
   const [isCreateModalOpen, openCreateModal, closeCreateModal] = useToggleState()
-  const [isEditDrawerOpen, openEditDrawer, closeEditDrawer] = useToggleState()
-  const [selectedRow, setSelectedRow] = useState<T>()
 
   const queryFields = useMemo(() => zodQueryResolve(schema), [])
 
@@ -142,7 +141,6 @@ export function MedusaPage<
       },
       submitButton: ({ loading, disabled, children }) => (
         <Button
-          variant="secondary"
           size="small"
           type="submit"
           disabled={disabled || loading}
@@ -173,11 +171,13 @@ export function MedusaPage<
             {
               id: 'edit',
               label: t('common.edit'),
-              icon: <PencilSquare />,
-              onClick: (row) => {
-                setSelectedRow(row)
-                openEditDrawer()
-              }
+              render: (row) => <EditDrawer
+                id={id}
+                schema={edit.schema}
+                fields={edit.fields}
+                mutateFn={updateAction}
+                defaultValues={row}
+              />
             },
             {
               id: 'delete',
@@ -197,7 +197,7 @@ export function MedusaPage<
             icon: <Trash />,
             variant: "danger",
             label: t('common.delete'),
-            onClick: (table) => handleBulkDelete(table)
+            onClick: (table) => handleBulkDelete(table),
           },
           ...(toolbarActions || [])
         ]}
@@ -213,17 +213,6 @@ export function MedusaPage<
         open={isCreateModalOpen}
         onOpenChange={() => closeCreateModal()}
       />
-
-      <EditDrawer
-        id={id}
-        schema={edit.schema}
-        fields={edit.fields}
-        mutateFn={updateAction}
-        defaultValues={selectedRow}
-        open={isEditDrawerOpen}
-        onOpenChange={() => closeEditDrawer()}
-      />
-
     </Container>
   );
 }

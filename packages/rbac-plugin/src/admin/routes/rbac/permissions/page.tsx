@@ -68,6 +68,10 @@ export default function PermissionsPage() {
     />;
 }
 
+export const handle = {
+  breadcrumb: () => 'Permissions'
+};
+
 export const config = defineRouteConfig({
     label: "Permissions",
 });

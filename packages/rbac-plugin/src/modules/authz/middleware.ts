@@ -10,10 +10,7 @@ export const rbacMiddleware = (req: AuthenticatedMedusaRequest, res: MedusaRespo
 
     return authenticateMiddleware(req, res, async () => {
         const isAllowed = await rbaceService.userHasAccess(req.auth_context.actor_id, req.path, req.method);
-        console.log("User access check", {
-            userId: req.auth_context.actor_id,
-            isAllowed
-        });
+       
         if (!isAllowed) {
             return res.status(403).json({
                 error: "Forbidden",

@@ -36,6 +36,7 @@ export const PermissionSchema = BaseSchema.extend({
   kind: KindEnum,
   type: TypeEnum,
   target: z.string(),
+  category: CategorySchema.optional(),
 });
 
 export const PolicySchema = BaseSchema.extend({
@@ -65,9 +66,16 @@ export const AssignUsersSchema = z.object({
 });
 
 export const CreatePermissionSchema = z.object({
-  kind: KindEnum,
-  type: TypeEnum,
-  target: z.string(),
+  kind: KindEnum.default("read"),
+  type: TypeEnum.default("custom"),
+  target: z.string().nonempty("Target is required"),
+  category_id: z.string().optional(),
+});
+
+export const UpdatePermissionSchema = z.object({
+  kind: KindEnum.optional(),
+  type: TypeEnum.optional(),
+  target: z.string().optional(),
   category_id: z.string().optional(),
 });
 
@@ -77,6 +85,15 @@ export const CreateCategorySchema = z.object({
   permissions: z
     .array(CreatePermissionSchema)
     .min(1, "At least one permission is required"),
+});
+
+export const UpdateCategorySchema = z.object({
+  name: z.string().min(3, "Name must be at least 3 characters").optional(),
+  description: z.string().optional(),
+  permissions: z
+    .array(CreatePermissionSchema)
+    .min(1, "At least one permission is required")
+    .optional(),
 });
 
 export const CheckAccessSchema = z.object({

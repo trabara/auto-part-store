@@ -4,9 +4,8 @@ import { User } from "@medusajs/icons";
 import { MedusaPage } from "@repo/dashboard/components/medusa-page";
 import {
   CreateRoleSchema,
-  MemberSchema,
   RoleSchema,
-  UpdateRoleSchema,
+  UpdateRoleSchema
 } from "../../../../modules/authz/schema";
 import AssignUsersDrawer from "../components/assign-users-drawer";
 import PermissionDataTable from "../components/permission-data-table";

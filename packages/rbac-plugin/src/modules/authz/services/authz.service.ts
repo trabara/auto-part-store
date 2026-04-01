@@ -7,7 +7,7 @@ import {
   MedusaService,
 } from "@medusajs/framework/utils";
 import {
-  EXCLUDED_ROUTES
+  EXCLUDED_RESOURCES,
 } from "../constant";
 import * as Models from "../models";
 import { AssignUsersInput, CategoryPermissionsResult, CreateCategoryInput, CreatePermissionInput, CreateRoleInput, Role } from "../schema";
@@ -19,7 +19,7 @@ export default class AuthzModuleService extends MedusaService(Models) {
     resource: string,
     method: string,
   ): Promise<boolean> {
-    if (this.isExcludedRoute(resource)) {
+    if (this.isExcludedRoute(resource, method)) {
       return true;
     }
 
@@ -217,7 +217,10 @@ export default class AuthzModuleService extends MedusaService(Models) {
 
       if (member) {
         await this.updateAuthzMembers([
-          { ...member, role_id: roleId },
+          {
+            id: member.id,
+            role_id: roleId,
+          },
         ], sharedContext);
       } else {
         await this.createAuthzMembers([{
@@ -230,8 +233,13 @@ export default class AuthzModuleService extends MedusaService(Models) {
 
 
 
-  private isExcludedRoute(path: string): boolean {
-    return EXCLUDED_ROUTES.some((route) => path.startsWith(route));
+  private isExcludedRoute(path: string, method: string): boolean {
+    return EXCLUDED_RESOURCES.some((route) => {
+      if (route.kind !== this.methodToAction(method)) {
+        return false;
+      }
+      return path.includes(route.target);
+    });
   }
 
   private methodToAction(method: string): string {

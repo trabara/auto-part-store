@@ -125,9 +125,11 @@ export default function CreateModal<S extends z.AnyZodObject>({
 
             return <div className="flex flex-col h-full">
               <FocusModal.Header>
-                <Heading level="h1">Create <span className="capitalize">{id}</span></Heading>
+                <FocusModal.Title>
+                  <Heading level="h1">Create <span className="capitalize">{id}</span></Heading>
+                </FocusModal.Title>
               </FocusModal.Header>
-              <FocusModal.Body className="relative">
+              <FocusModal.Body className="relative max-w-lg mx-auto flex-1 py-16 px-4 space-y-6">
                 {fieldKeys.map((key) => renderField(key))}
               </FocusModal.Body>
               <FocusModal.Footer>
@@ -149,6 +151,6 @@ export default function CreateModal<S extends z.AnyZodObject>({
           }}
         </SnowForm>
       </FocusModal.Content>
-    </FocusModal>
+    </FocusModal >
   );
 }

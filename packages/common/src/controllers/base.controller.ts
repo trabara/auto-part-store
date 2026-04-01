@@ -90,4 +90,36 @@ export abstract class BaseController {
   protected notFound(message: string = "Resource not found"): void {
     this.res.status(404).json({ message });
   }
+
+  /**
+   * Send bad request response
+   * @param message 
+   */
+  protected badRequest(message: string = "Bad request"): void {
+    this.res.status(400).json({ message });
+  }
+
+  /**
+   * Send unauthorized response
+   * @param message 
+   */
+  protected unauthorized(message: string = "Unauthorized"): void {
+    this.res.status(401).json({ message });
+  }
+
+  /**
+   * Send forbidden response
+   * @param message 
+   */
+  protected forbidden(message: string = "Forbidden"): void {
+    this.res.status(403).json({ message });
+  }
+
+  /**
+   * Send internal server error response
+   * @param message 
+   */
+  protected internalServerError(message: string = "Internal server error"): void {
+    this.res.status(500).json({ message });
+  }
 }

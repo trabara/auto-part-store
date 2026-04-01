@@ -8,8 +8,10 @@ import { createFindParams } from "@medusajs/medusa/api/utils/validators";
 import { rbacMiddleware } from "../modules/authz";
 import {
   AssignUsersSchema,
+  CreateCategorySchema,
   CreatePermissionSchema,
   CreateRoleSchema,
+  UpdateCategorySchema,
   UpdateRoleSchema,
 } from "../modules/authz/schema";
 
@@ -85,18 +87,52 @@ export const adminPermissionsMiddlewares: MiddlewareRoute[] = [
   {
     matcher: "/admin/rbac/v2/permissions/:id",
     method: "DELETE",
-    middlewares: [rbacMiddleware],  
+    middlewares: [],
   },
 ];
 
+
+export const adminCategoriesMiddlewares: MiddlewareRoute[] = [
+  {
+    matcher: "/admin/rbac/v2/categories",
+    method: "GET",
+    middlewares: [
+      validateAndTransformQuery(BaseFindParams, {
+        defaults: ["id", "name", "description", "created_at"],
+        isList: true,
+      }),
+    ],
+  },
+  {
+    matcher: "/admin/rbac/v2/categories",
+    method: "POST",
+    middlewares: [
+      validateAndTransformBody(CreateCategorySchema),
+    ],
+  },
+  {
+    matcher: "/admin/rbac/v2/categories/:id",
+    method: "PATCH",
+    middlewares: [
+      validateAndTransformBody(UpdateCategorySchema),
+    ],
+  },
+  {
+    matcher: "/admin/rbac/v2/categories/:id",
+    method: "DELETE",
+    middlewares: [],
+  }
+]
+
 export default defineMiddlewares({
   routes: [
-    ...adminRolesMiddlewares,
-    ...adminPermissionsMiddlewares,
     {
-      matcher: "/admin/*",
+      matcher: "/admin*",
       method: ["GET", "POST", "PUT", "PATCH", "DELETE"],
       middlewares: [rbacMiddleware],
-    }
+    },
+    ...adminCategoriesMiddlewares,
+    ...adminRolesMiddlewares,
+    ...adminPermissionsMiddlewares,
   ],
 });

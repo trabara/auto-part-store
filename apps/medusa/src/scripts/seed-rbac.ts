@@ -68,6 +68,9 @@ export default async function seedRbac({ container }: ExecArgs) {
                         { kind: "read", target: "/admin/price-preferences", type: "predefined" },
                         { kind: "write", target: "/admin/price-preferences", type: "predefined" },
                         { kind: "delete", target: "/admin/price-preferences", type: "predefined" },
+                        { kind: 'read', target: "/admin/reservations", type: "predefined" },
+                        { kind: 'write', target: "/admin/reservations", type: "predefined" },
+                        { kind: 'delete', target: "/admin/reservations", type: "predefined" },
                     ]
                 },
                 {

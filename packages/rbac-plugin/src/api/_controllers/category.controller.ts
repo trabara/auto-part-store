@@ -1,8 +1,10 @@
+import { AuthenticatedMedusaRequest, MedusaResponse } from "@medusajs/framework/http";
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils";
 import { BaseController } from "@repo/common";
+import { AUTHZ_MODULE, AuthzModuleService, CreateCategorySchema, UpdateCategorySchema } from "../../modules/authz";
 
 export class CategoryController extends BaseController {
-  constructor(req, res) {
+  constructor(req: AuthenticatedMedusaRequest, res: MedusaResponse) {
     super(req, res);
   }
 
@@ -13,9 +15,49 @@ export class CategoryController extends BaseController {
       const { data, metadata } = await query.graph({
         entity: "authz_category",
         ...this.req.queryConfig,
+        ...this.req.filterableFields
       });
 
       this.success({ data, metadata });
     });
+  }
+
+  async create(): Promise<void> {
+    await this.execute(async () => {
+      const service = this.req.scope.resolve<AuthzModuleService>(AUTHZ_MODULE);
+      const validated = CreateCategorySchema.parse(this.req.validatedBody);
+
+      const category = await service.createPermissionCategory(validated);
+
+      this.created({ category });
+    }, "Create category");
+  }
+
+  async update(): Promise<void> {
+    await this.execute(async () => {
+      const service = this.req.scope.resolve<AuthzModuleService>(AUTHZ_MODULE);
+      const { id } = this.req.params;
+      const validated = UpdateCategorySchema.parse(this.req.validatedBody);
+
+      const category = await service.updateAuthzCategories([
+        {
+          id, name: validated.name,
+          description: validated.description
+        }
+      ]);
+
+      this.success({ category });
+    }, "Update category");
+  }
+
+  async delete(): Promise<void> {
+    await this.execute(async () => {
+      const service = this.req.scope.resolve<AuthzModuleService>(AUTHZ_MODULE);
+      const { id } = this.req.params;
+
+      await service.deleteAuthzCategories([id]);
+
+      this.success({}, 204);
+    }, "Delete category");
   }
 }

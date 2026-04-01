@@ -64,7 +64,6 @@ function AssignUsersDrawer({
   members
 }: AssignUsersDrawerProps) {
   const initialUserIds = members.map((m) => m.user_id);
-
   const userIdsRef = useAsRef(initialUserIds);
 
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);

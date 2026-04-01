@@ -47,7 +47,6 @@ export default async function seedRbac({ container }: ExecArgs) {
                         { kind: "read", target: "/admin/campaigns", type: "predefined" },
                         { kind: "write", target: "/admin/campaigns", type: "predefined" },
                         { kind: "delete", target: "/admin/campaigns", type: "predefined" },
-
                     ]
                 },
                 {

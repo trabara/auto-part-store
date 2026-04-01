@@ -71,7 +71,7 @@ export function createZodDataTableColumnDef<
                 columnHelper.display({
                     id: "actions",
                     cell: (info) => {
-                        return <ActionCell info={info} actions={actions} />
+                        return <ActionCell key={info.row.id} info={info} actions={actions} />
                     },
                 })
             );

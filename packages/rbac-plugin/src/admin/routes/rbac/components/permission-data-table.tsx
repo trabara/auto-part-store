@@ -61,7 +61,7 @@ function PermissionDataTable({
         },
       }}
       queryFn={fetchPermissions}
-      onRowSelectChange={(perms) => onChange?.(perms.map(p => ({ permission_id: p.id })))}
+      onRowSelectChange={(p) => onChange?.(p.map(p => ({ permission_id: p.id })))}
       {...props}
     />
   );

@@ -105,10 +105,12 @@ const DataTable = <
     rowsRef.current = [...rowsRef.current, ...rows];
   }, [rows]);
 
-  const rowSelection = table.getRowSelection();
+  const rowSelection = Object.keys(table.getRowSelection())
+    .map(id => rowsRef.current.find(r => r.id === id))
+    .filter(Boolean) as unknown as T[];
+
   useEffect(() => {
-    const selectedRows = Object.keys(rowSelection).map(id => rowsRef.current.find(r => r.id === id))
-    onRowSelectChange?.(selectedRows as unknown as T[]);
+    onRowSelectChange?.(rowSelection);
   }, [rowSelection, onRowSelectChange]);
 
 

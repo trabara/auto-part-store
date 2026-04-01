@@ -9,10 +9,10 @@ import {
   UpdateRoleSchema,
 } from "../../../../modules/authz/schema";
 import AssignUsersDrawer from "../components/assign-users-drawer";
-import PermDataTable from "../components/perm-data-table";
+import PermissionDataTable from "../components/permission-data-table";
 import { COMMON_FIELDS } from "./constant";
 
-const RoleListSchema = RoleSchema.extend({ members: z.array(MemberSchema) });
+const RoleListSchema = RoleSchema.extend({ members: z.array(z.object({ user_id: z.string() })) });
 
 
 export default function RolesPage() {
@@ -46,7 +46,7 @@ export default function RolesPage() {
           policies: {
             hideLabel: true,
             render: ({ onChange }) => (
-              <PermDataTable
+              <PermissionDataTable
                 className="absolute inset-0"
                 onChange={onChange}
               />

@@ -11,4 +11,3 @@ export * from "./controllers/base.controller";
 
 // Schemas
 export * from "./schemas/base";
-export * from "./schemas/media";

@@ -1,0 +1,18 @@
+{
+    "invoice": "فاتورة",
+    "billTo": "فاتورة إلى",
+    "description": "الوصف",
+    "unitPrice": "سعر الوحدة",
+    "total": "المجموع",
+    "subtotal": "المجموع الفرعي",
+    "discount": "الخصم",
+    "shipping": "الشحن",
+    "tax": "الضريبة",
+    "taxRate": "نسبة الضريبة (%)",
+    "grandTotal": "الإجمالي",
+    "notes": "ملاحظات",
+    "paymentTerms": "شروط الدفع",
+    "date": "التاريخ",
+    "due": "الموعد",
+    "quantity": "الكمية"
+}

@@ -6,17 +6,15 @@ import DataTable from "@repo/dashboard/components/data-table";
 import { sdk } from "@repo/dashboard/lib/sdk";
 import { PageQueryParams, PageResponse } from "@repo/dashboard/types/query";
 import { zodQueryResolve } from "@repo/dashboard/utils/zod";
+import { useAsRef } from '@repo/ui/hooks/use-as-ref';
 import { useMutation } from "@tanstack/react-query";
-import { memo, use, useRef, useState } from "react";
+import { memo, useState } from "react";
 import {
   AssignUsersInput,
-  MemberSchema,
   UserSchema
 } from "../../../../modules/authz/schema";
-import { } from '@repo/ui/hooks/use-as-ref';
-import { useAsRef } from "@repo/ui/hooks/use-as-ref";
+
 type User = z.infer<typeof UserSchema>;
-type Member = z.infer<typeof MemberSchema>;
 
 const assignUsersToRole = (roleId: string, input: AssignUsersInput) => {
   return sdk.client.fetch(`/admin/rbac/v2/roles/${roleId}/assign`, {

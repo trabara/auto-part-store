@@ -99,9 +99,8 @@ export const UpdateCategorySchema = z.object({
     .optional(),
 });
 
-export const CheckAccessSchema = z.object({
-  path: z.string(),
-  method: z.string(),
+export const CategoryPermissionsSchema = CategorySchema.extend({
+  permissions: z.array(PermissionSchema),
 });
 
 export const PermissionFiltersSchema = BaseFindParams.extend({
@@ -152,3 +151,4 @@ export type CreatePolicyInput = z.infer<typeof CreatePolicySchema>;
 export type AssignUsersInput = z.infer<typeof AssignUsersSchema>;
 export type CreatePermissionInput = z.infer<typeof CreatePermissionSchema>;
 export type CreateCategoryInput = z.infer<typeof CreateCategorySchema>;
+export type CategoryPermissionsResult = z.infer<typeof CategoryPermissionsSchema>;

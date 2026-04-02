@@ -17,7 +17,9 @@
     "@types/jest": "^29.5.13",
     "prettier": "^3.7.4",
     "rimraf": "^6.1.2",
+    "ts-jest": "^29.4.9",
     "ts-node": "^10.9.2",
+    "tsc-alias": "^1.8.16",
     "turbo": "^2.7.6",
     "typescript": "5.9.2",
     "yalc": "^1.0.0-pre.53"
@@ -28,7 +30,8 @@
   "packageManager": "yarn@4.12.0",
   "workspaces": [
     "apps/*",
-    "packages/*"
+    "packages/*",
+    "packages/modules/*"
   ],
   "resolutions": {
     "@medusajs/core-flows": "2.13.5",

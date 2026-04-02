@@ -1,20 +1,13 @@
-import {
-  AuthenticatedMedusaRequest,
-  MedusaResponse,
-} from "@medusajs/framework/http";
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils";
 import { BaseController } from "@repo/common";
 import { AUTHZ_MODULE, AuthzModuleService } from "../../modules/authz";
 import {
   CreatePermissionSchema,
-  PermissionFiltersSchema,
-  UpdatePermissionSchema,
+  UpdatePermissionSchema
 } from "../../modules/authz/schema";
 
 export class PermissionController extends BaseController {
-  constructor(req: AuthenticatedMedusaRequest, res: MedusaResponse) {
-    super(req, res);
-  }
+
 
   async get(): Promise<void> {
     await this.execute(async () => {

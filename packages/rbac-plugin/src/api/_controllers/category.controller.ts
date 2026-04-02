@@ -1,7 +1,3 @@
-import {
-  AuthenticatedMedusaRequest,
-  MedusaResponse,
-} from "@medusajs/framework/http";
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils";
 import { BaseController } from "@repo/common";
 import {
@@ -12,9 +8,6 @@ import {
 } from "../../modules/authz";
 
 export class CategoryController extends BaseController {
-  constructor(req: AuthenticatedMedusaRequest, res: MedusaResponse) {
-    super(req, res);
-  }
 
   async get(): Promise<void> {
     await this.execute(async () => {

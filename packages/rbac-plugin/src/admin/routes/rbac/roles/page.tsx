@@ -17,10 +17,12 @@ export const BASE_FIELDS: MedusaFieldOverrides<z.infer<typeof RoleListSchema>> =
   name: {
     label: "Name",
     description: "The name of the role",
+    isFiltrable: true,
   },
   description: {
     label: "Description",
     description: "A brief description of the role",
+    isFiltrable: true,
   },
 };
 

@@ -1,4 +1,7 @@
 import { z } from "@medusajs/framework/zod";
+import { createFindParams, createOperatorMap } from "@medusajs/medusa/api/utils/validators";
+
+export const BaseFindParams = createFindParams();
 
 export const BaseSchema = z.object({
   id: z.string(),
@@ -101,15 +104,38 @@ export const CheckAccessSchema = z.object({
   method: z.string(),
 });
 
-export const PermissionFiltersSchema = z.object({
-  id: z.string().optional(),
-  kind: KindEnum.optional(),
-  target: z.string().optional(),
-  type: TypeEnum.optional(),
+export const PermissionFiltersSchema = BaseFindParams.extend({
+  filters: z.object({
+    id: createOperatorMap(z.string()),
+    kind: createOperatorMap(KindEnum),
+    type: createOperatorMap(TypeEnum),
+    target: createOperatorMap(z.string()),
+  }).optional(),
 });
 
-export const CategoryPermissionsSchema = CategorySchema.extend({
-  permissions: z.array(PermissionSchema),
+export const RoleFiltersSchema = BaseFindParams.extend({
+  filters: z.object({
+    id: createOperatorMap(z.string()),
+    name: createOperatorMap(z.string()),
+    description: createOperatorMap(z.string()),
+  }).optional(),
+});
+
+export const CategoryFiltersSchema = BaseFindParams.extend({
+  filters: z.object({
+    id: createOperatorMap(z.string()),
+    name: createOperatorMap(z.string()),
+    description: createOperatorMap(z.string()),
+  }).optional(),
+});
+
+export const UserFiltersSchema = BaseFindParams.extend({
+  filters: z.object({
+    id: createOperatorMap(z.string()),
+    email: createOperatorMap(z.string()),
+    first_name: createOperatorMap(z.string()),
+    last_name: createOperatorMap(z.string()),
+  }).optional(),
 });
 
 export type Base = z.infer<typeof BaseSchema>;
@@ -126,4 +152,3 @@ export type CreatePolicyInput = z.infer<typeof CreatePolicySchema>;
 export type AssignUsersInput = z.infer<typeof AssignUsersSchema>;
 export type CreatePermissionInput = z.infer<typeof CreatePermissionSchema>;
 export type CreateCategoryInput = z.infer<typeof CreateCategorySchema>;
-export type CategoryPermissionsResult = z.infer<typeof CategoryPermissionsSchema>;

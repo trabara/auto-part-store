@@ -36,12 +36,11 @@ export class PermissionController extends BaseController {
   async list(): Promise<void> {
     await this.execute(async () => {
       const query = this.req.scope.resolve(ContainerRegistrationKeys.QUERY);
-      const validated = PermissionFiltersSchema.parse(this.req.query || {});
 
       const { data, metadata } = await query.graph({
         entity: "authz_permission",
-        filters: validated,
         ...this.req.queryConfig,
+        ...this.req.filterableFields,
       });
 
       this.success({ data, metadata }, 200);

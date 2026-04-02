@@ -17,7 +17,6 @@ export function zodQueryResolve(schema: z.ZodTypeAny, query: string = ""): strin
             if (info.baseType === 'object') {
                 return zodQueryResolve(info.unwrapped, query ? `${query}.${key}` : '+' + key);
             } else if (info.baseType === 'array') {
-                console.log('array field', key, info);
                 return zodQueryResolve(info.unwrapped._def.type, query ? `${query}.${key}` : '+' + key);
             }
             return query ? `${query}.${key}` : key;

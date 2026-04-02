@@ -1,7 +1,8 @@
 import { z } from "@medusajs/framework/zod";
 import {
   Button,
-  DataTableFilter,
+  clx,
+  createDataTableFilterHelper,
   DataTable as DataTableUI,
   Heading,
   Hint,
@@ -76,9 +77,9 @@ const DataTable = <
       rowActions
     ]);
 
-  const filters = useMemo((): DataTableFilter[] => {
-    return createZodDataTableFilterDef(schema, fields);
-  }, [schema, fields]);
+  const filters = useMemo(() =>
+    createZodDataTableFilterDef(schema, fields),
+    [schema, fields]);
 
   const [queryConfig] = usePageQuery({
     queryKey: id,
@@ -116,36 +117,24 @@ const DataTable = <
 
   return (
     <DataTableUI instance={table} className={className}>
-      <div className="flex flex-col divide-y">
-        <div className="flex items-center justify-between px-6 py-4">
-          <div className="flex-1">
-            {title && (
-              <Heading level="h1">
-                <span className="capitalize">{title}</span>
-              </Heading>
-            )}
-            {description && <Hint>{description}</Hint>}
-          </div>
+      <DataTableUI.Toolbar className="flex items-center justify-between px-6 py-4">
+        <div>
 
+          {title && (
+            <Heading level="h1">
+              <span className="capitalize">{title}</span>
+            </Heading>
+          )}
+          {description && <Hint>{description}</Hint>}
+        </div>
+        <div className="flex items-center gap-x-2">
           {onCreateClicked && (
             <Button variant="secondary" size="small" onClick={onCreateClicked}>
               {t("common.create")}
             </Button>
           )}
-
-          <div>
-          </div>
         </div>
-        <div className="bg-ui-bg-subtle flex w-full flex-nowrap items-center justify-between gap-2 overflow-x-auto border-t px-6 py-2">
-          {/* <DataTableUI.FilterMenu tooltip="Filter" /> */}
-          <div></div>
-          <div className="flex gap-x-2">
-            <DataTableUI.Search placeholder="Search..." />
-            <DataTableUI.SortingMenu tooltip="Sort" />
-          </div>
-
-        </div>
-      </div>
+      </DataTableUI.Toolbar>
 
       <DataTableUI.Table />
       <DataTableUI.Pagination />

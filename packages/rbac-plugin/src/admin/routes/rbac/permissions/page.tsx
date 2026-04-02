@@ -13,11 +13,18 @@ const BASE_FIELDS: MedusaFieldOverrides<z.infer<typeof PermissionSchema>> = {
     kind: {
         label: "Kind",
         description: "The type of permission, e.g. 'read' or 'write'",
+        isFiltrable: true,
     },
     type: {
         label: "Type",
         description: "Whether the permission is predefined or custom",
+        isFiltrable: true,
     },
+    category: {
+        label: "Category",
+        description: "The category this permission belongs to",
+        isFiltrable: true,
+    }
 };
 
 const CATEGORY_FIELDS: MedusaFieldOverrides<z.infer<typeof UpdatePermissionSchema>> = {
@@ -41,6 +48,7 @@ export default function PermissionsPage() {
                 label: "Category",
                 description: "The category this permission belongs to",
                 cell: (info) => <span>{info.getValue()?.name}</span>,
+                isFiltrable: true,
             }
         }}
         create={{

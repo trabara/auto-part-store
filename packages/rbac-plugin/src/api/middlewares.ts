@@ -8,16 +8,19 @@ import { createFindParams } from "@medusajs/medusa/api/utils/validators";
 import { rbacMiddleware } from "../modules/authz";
 import {
   AssignUsersSchema,
+  CategoryFiltersSchema,
   CreateCategorySchema,
   CreatePermissionSchema,
   CreateRoleSchema,
+  PermissionFiltersSchema,
+  RoleFiltersSchema,
   UpdateCategorySchema,
   UpdatePermissionSchema,
   UpdateRoleSchema,
 } from "../modules/authz/schema";
+import { z } from "@medusajs/framework/zod";
 
 
-const BaseFindParams = createFindParams();
 
 export const adminRolesMiddlewares: MiddlewareRoute[] = [
   {
@@ -30,7 +33,7 @@ export const adminRolesMiddlewares: MiddlewareRoute[] = [
     matcher: "/admin/rbac/v2/roles",
     method: "GET",
     middlewares: [
-      validateAndTransformQuery(BaseFindParams, {
+      validateAndTransformQuery(RoleFiltersSchema, {
         defaults: ["id", "name", "description", "is_default", "created_at"],
         isList: true,
       }),
@@ -77,7 +80,7 @@ export const adminPermissionsMiddlewares: MiddlewareRoute[] = [
     matcher: "/admin/rbac/v2/permissions",
     method: "GET",
     middlewares: [
-      validateAndTransformQuery(BaseFindParams, {
+      validateAndTransformQuery(PermissionFiltersSchema, {
         defaults: ["id", "kind", "target", "type", "created_at"],
         isList: true,
       }),
@@ -116,7 +119,7 @@ export const adminCategoriesMiddlewares: MiddlewareRoute[] = [
     matcher: "/admin/rbac/v2/categories",
     method: "GET",
     middlewares: [
-      validateAndTransformQuery(BaseFindParams, {
+      validateAndTransformQuery(CategoryFiltersSchema, {
         defaults: ["id", "name", "description", "created_at"],
         isList: true,
       }),

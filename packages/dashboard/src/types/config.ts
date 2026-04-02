@@ -7,6 +7,30 @@ import {
 import { CellContext, ColumnDefTemplate } from "@tanstack/react-table";
 import { Entity } from "./data";
 
+export interface CellOverride<
+  T = unknown,
+  TValue = unknown,
+> extends BaseFieldConfig {
+  cell?: ColumnDefTemplate<CellContext<T, TValue>>;
+}
+
+export type CellOverrides<T> = {
+  [K in keyof T]?: CellOverride<T, T[K]>;
+};
+
+export interface FilterFieldOverride<
+  T = unknown,
+  TValue = unknown,
+> extends BaseFieldConfig {
+  isFiltrable?: boolean;
+}
+
+export type FilterFieldOverrides<T> = {
+  [K in keyof T]?: FilterFieldOverride<T, T[K]>;
+}
+
+export type MedusaFieldOverrides<T extends {}> = FieldOverrides<T> | CellOverrides<T> | FilterFieldOverrides<T>;
+
 export interface BaseAction {
   id: string;
   label: string;
@@ -55,15 +79,3 @@ export interface CreateConfig<T extends {}> extends ActionConfig<T> {
 export interface EditConfig<T extends {}> extends ActionConfig<T> {
 };
 
-export interface CellOverride<
-  T = unknown,
-  TValue = unknown,
-> extends BaseFieldConfig {
-  cell?: ColumnDefTemplate<CellContext<T, TValue>>;
-}
-
-export type CellOverrides<T> = {
-  [K in keyof T]?: CellOverride<T, T[K]>;
-};
-
-export type MedusaFieldOverrides<T extends {}> = FieldOverrides<T> | CellOverrides<T>;

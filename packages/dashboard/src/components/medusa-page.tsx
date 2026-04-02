@@ -1,11 +1,10 @@
 import { z } from "@medusajs/framework/zod";
-import { PencilSquare, Trash } from "@medusajs/icons";
+import { Trash } from "@medusajs/icons";
 import {
   Button,
   Checkbox,
   Container,
   DatePicker,
-  Drawer,
   Hint,
   Input,
   Label,
@@ -14,8 +13,7 @@ import {
   UseDataTableReturn,
   useToggleState
 } from "@medusajs/ui";
-import { setupSnowForm } from "@snowpact/react-rhf-zod-form";
-import { useLayoutEffect, useMemo, useState } from "react";
+import { useLayoutEffect, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { useDeleteMutation } from "../hooks/use-delete-mutation";
 import { sdk } from "../lib/sdk";
@@ -26,7 +24,7 @@ import { zodQueryResolve } from "../utils/zod";
 import CreateModal from "./create-modal";
 import DataTable from "./data-table";
 import EditDrawer from "./edit-drawer";
-
+import { setupForm } from "@/registry";
 
 interface MedusaPageProps<
   LS extends z.AnyZodObject,
@@ -88,7 +86,7 @@ export function MedusaPage<
 
 
   useLayoutEffect(() => {
-    setupSnowForm({
+    setupForm({
       translate: (key) => t(key),
       components: {
         text: ({ componentProps, invalid, ...rest }) => <Input {...rest} type="text" aria-invalid={invalid} />,
@@ -97,17 +95,18 @@ export function MedusaPage<
           <Input {...rest} type="password" aria-invalid={invalid} />
         ),
         textarea: ({ componentProps, invalid, ...rest }) => <Textarea {...rest} aria-invalid={invalid} />,
-        checkbox: ({ componentProps, onChange, value, ...rest }) => (
-          <Checkbox {...rest} onCheckedChange={onChange} checked={value} />
+        checkbox: ({ componentProps, onChange, value, invalid, ...rest }) => (
+          <Checkbox {...rest} onCheckedChange={onChange} checked={value} aria-invalid={invalid} />
         ),
-        number: ({ componentProps, onChange, ...rest }) => (
+        number: ({ componentProps, onChange, invalid, ...rest }) => (
           <Input
             {...rest}
             type="number"
             onChange={(e) => onChange?.(Number(e.target.value))}
+            aria-invalid={invalid}
           />
         ),
-        date: ({ componentProps, ...rest }) => <DatePicker {...rest} />,
+        date: ({ componentProps, invalid, ...rest }) => <DatePicker {...rest} aria-invalid={invalid} />,
         select: ({
           componentProps,
           options,

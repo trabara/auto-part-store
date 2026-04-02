@@ -15,8 +15,6 @@ type ColumnDefConfig<S extends z.AnyZodObject, T extends Entity = Entity<z.infer
     actions?: RowAction<T>[]
 }
 
-
-
 export function createZodDataTableColumnDef<
     S extends z.AnyZodObject,
     T extends Entity = Entity<z.infer<S>>,

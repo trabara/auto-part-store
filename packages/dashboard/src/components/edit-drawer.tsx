@@ -2,10 +2,10 @@ import { EditConfig } from "@/types/config";
 import { z } from "@medusajs/framework/zod";
 import { PencilSquare } from "@medusajs/icons";
 import { Button, Drawer, Heading, Hint } from "@medusajs/ui";
-import { SnowForm } from "@snowpact/react-rhf-zod-form";
 import { forwardRef, memo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useUpdateMutation } from "../hooks/use-update-mutation";
+import { Form } from "./form";
 
 
 interface EditDrawerProps<S extends z.AnyZodObject> extends EditConfig<z.infer<S>> {
@@ -45,7 +45,7 @@ const EditDrawer = forwardRef(<S extends z.AnyZodObject>(props: EditDrawerProps<
         </Button>
       </Drawer.Trigger>
       <Drawer.Content>
-        <SnowForm
+        <Form
           defaultValues={defaultValues}
           schema={schema as any}
           overrides={fields}
@@ -80,7 +80,7 @@ const EditDrawer = forwardRef(<S extends z.AnyZodObject>(props: EditDrawerProps<
               </Drawer.Footer>
             </>
           }}
-        </SnowForm>
+        </Form>
       </Drawer.Content>
     </Drawer>
   );

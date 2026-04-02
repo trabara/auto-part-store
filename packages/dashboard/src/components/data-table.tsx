@@ -1,8 +1,6 @@
 import { z } from "@medusajs/framework/zod";
 import {
   Button,
-  clx,
-  createDataTableFilterHelper,
   DataTable as DataTableUI,
   Heading,
   Hint,

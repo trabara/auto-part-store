@@ -1,8 +1,8 @@
-import { AuthenticatedMedusaRequest, MedusaRequest, MedusaResponse } from "@medusajs/framework/http";
-import { ILogger } from "../interfaces/logger.interface";
+import { AuthenticatedMedusaRequest, MedusaResponse } from "@medusajs/framework/http";
 import { IErrorHandler } from "../interfaces/error-handler.interface";
-import { MedusaLoggerAdapter } from "../services/logger.service";
+import { ILogger } from "../interfaces/logger.interface";
 import { ApiErrorHandler } from "../services/error-handler.service";
+import { MedusaLoggerAdapter } from "../services/logger.service";
 
 /**
  * Base Controller

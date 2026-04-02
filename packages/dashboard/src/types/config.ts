@@ -1,11 +1,8 @@
 import { z } from "@medusajs/framework/zod";
 import { UseDataTableReturn } from "@medusajs/ui";
-import {
-  BaseFieldConfig,
-  FieldOverrides,
-} from "@snowpact/react-rhf-zod-form/src/types";
 import { CellContext, ColumnDefTemplate } from "@tanstack/react-table";
 import { Entity } from "./data";
+import { BaseFieldConfig, FieldOverrides } from "./form";
 
 export interface CellOverride<
   T = unknown,

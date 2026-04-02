@@ -1,10 +1,11 @@
 import { CreateConfig } from "@/types/config";
+import { getZodShape } from "@/utils/zod";
 import { z } from "@medusajs/framework/zod";
 import { Button, FocusModal, Heading, Hint, ProgressTabs } from "@medusajs/ui";
-import { getZodShape, SnowForm } from "@snowpact/react-rhf-zod-form";
 import React, { useMemo } from "react";
 import { useCreateMutation } from "../hooks/use-create-mutation";
 import { useWizardForm } from "../hooks/use-wizard-form";
+import { Form } from "./form";
 
 interface CreateModalProps<S extends z.AnyZodObject> extends CreateConfig<S> {
   open?: boolean;
@@ -52,7 +53,7 @@ export default function CreateModal<S extends z.AnyZodObject>({
   return (
     <FocusModal open={open} onOpenChange={onOpenChange}>
       <FocusModal.Content>
-        <SnowForm
+        <Form
           overrides={fields as any}
           schema={activeSchema}
           onSubmit={handleSubmit}
@@ -120,8 +121,8 @@ export default function CreateModal<S extends z.AnyZodObject>({
                 </ProgressTabs>
               );
             }
-
-            const fieldKeys = Object.keys(getZodShape(activeSchema)) as (keyof z.infer<S>)[];
+            const shape = getZodShape(activeSchema);
+            const fieldKeys = Object.keys(shape) as (keyof z.infer<S>)[];
 
             return <div className="flex flex-col h-full">
               <FocusModal.Header>
@@ -149,7 +150,7 @@ export default function CreateModal<S extends z.AnyZodObject>({
               </FocusModal.Footer>
             </div>
           }}
-        </SnowForm>
+        </Form>
       </FocusModal.Content>
     </FocusModal >
   );

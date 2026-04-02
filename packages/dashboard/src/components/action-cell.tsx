@@ -1,8 +1,8 @@
 import { EllipsisHorizontal } from "@medusajs/icons";
 import { Button, DropdownMenu, IconButton } from "@medusajs/ui";
 import { CellContext } from '@tanstack/react-table';
-import { RowAction } from "../types/config";
 import React from "react";
+import { RowAction } from "../types";
 
 const ActionCell = ({ info, actions }: { info: CellContext<any, any>, actions: RowAction<any>[] }) => {
 

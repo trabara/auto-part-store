@@ -1,11 +1,10 @@
-import { Entity } from "@/types/data";
 import { z } from "@medusajs/framework/zod";
 import { DataTableColumnDef } from '@medusajs/ui';
-import { getZodShape } from "@snowpact/react-rhf-zod-form";
-import { getZodFieldInfo } from "@snowpact/react-rhf-zod-form/src/utils";
 import { format } from 'date-fns';
 import { createSelectDataTableColumns } from "../helpers/create-select-columns";
+import { Entity } from "../types";
 import { CellOverride, MedusaFieldOverrides, RowAction } from "../types/config";
+import { getZodFieldInfo, getZodShape } from "../utils";
 import ActionCell from "./action-cell";
 
 

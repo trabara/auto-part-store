@@ -1,10 +1,10 @@
-import { CreateConfig } from "@/types/config";
-import { getZodShape } from "@/utils/zod";
 import { z } from "@medusajs/framework/zod";
 import { Button, FocusModal, Heading, Hint, ProgressTabs } from "@medusajs/ui";
 import React, { useMemo } from "react";
 import { useCreateMutation } from "../hooks/use-create-mutation";
 import { useWizardForm } from "../hooks/use-wizard-form";
+import { CreateConfig } from "../types";
+import { getZodShape } from "../utils";
 import { Form } from "./form";
 
 interface CreateModalProps<S extends z.AnyZodObject> extends CreateConfig<S> {

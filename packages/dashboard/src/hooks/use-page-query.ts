@@ -1,5 +1,3 @@
-import { Entity } from "../types/data";
-import { PageResponse, PageQueryParams, QueryFn, SelectFn } from "@/types/query";
 import { } from '@medusajs/framework/http';
 import {
   DataTableFilteringState,
@@ -10,6 +8,8 @@ import {
 import { useQuery, UseQueryOptions } from "@tanstack/react-query";
 import _ from "lodash";
 import { useMemo, useState } from "react";
+import { PageQueryParams, PageResponse, QueryFn, SelectFn } from "../types";
+import { Entity } from "../types/data";
 /**
  * Configuration for paginated queries
  */

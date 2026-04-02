@@ -1,9 +1,8 @@
-import { FilterFieldOverrides } from "@/types/config";
 import { z } from "@medusajs/framework/zod";
 import { createDataTableFilterHelper, DataTableFilter } from "@medusajs/ui";
-import { getZodShape } from "@snowpact/react-rhf-zod-form";
-import { getZodFieldInfo } from "@snowpact/react-rhf-zod-form/src/utils";
+import { FilterFieldOverrides } from "../types";
 import { Entity } from "../types/data";
+import { getZodFieldInfo, getZodShape } from "../utils";
 
 
 export default function createZodDataTableFilterDef<

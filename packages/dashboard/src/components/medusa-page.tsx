@@ -17,6 +17,7 @@ import { useLayoutEffect, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { useDeleteMutation } from "../hooks/use-delete-mutation";
 import { sdk } from "../lib/sdk";
+import { setupForm } from "../registry";
 import { CreateConfig, EditConfig, ListConfig } from "../types/config";
 import { Entity } from "../types/data";
 import { PageQueryParams, PageResponse } from "../types/query";
@@ -24,7 +25,6 @@ import { zodQueryResolve } from "../utils/zod";
 import CreateModal from "./create-modal";
 import DataTable from "./data-table";
 import EditDrawer from "./edit-drawer";
-import { setupForm } from "@/registry";
 
 interface MedusaPageProps<
   LS extends z.AnyZodObject,

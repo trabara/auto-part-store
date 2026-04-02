@@ -1,10 +1,10 @@
-import { EditConfig } from "@/types/config";
 import { z } from "@medusajs/framework/zod";
 import { PencilSquare } from "@medusajs/icons";
 import { Button, Drawer, Heading, Hint } from "@medusajs/ui";
 import { forwardRef, memo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useUpdateMutation } from "../hooks/use-update-mutation";
+import { EditConfig } from "../types";
 import { Form } from "./form";
 
 

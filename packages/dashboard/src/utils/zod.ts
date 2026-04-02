@@ -82,7 +82,7 @@ function isEmailString(schema: z.ZodString): boolean {
  * Extract the shape (fields) from a Zod schema
  * Supports schemas wrapped in ZodEffects (refine, superRefine, transform)
  */
-export function getZodShape(schema: z.ZodTypeAny): Record<string, z.ZodTypeAny> {
+export function getZodShape<S extends z.ZodTypeAny, T = z.infer<S>>(schema: S): Record<keyof T, z.ZodTypeAny> {
   try {
     // Unwrap ZodEffects (refine, superRefine, transform, etc.)
     let current: z.ZodTypeAny = schema;
@@ -93,7 +93,7 @@ export function getZodShape(schema: z.ZodTypeAny): Record<string, z.ZodTypeAny> 
     // Now we should have a ZodObject
     if (!(current instanceof z.ZodObject)) {
       console.error('[SnowForm] Schema must be a ZodObject (after unwrapping effects)');
-      return {};
+      return {} as Record<keyof T, z.ZodTypeAny>;
     }
 
     // Try shape() function first (for lazy schemas)
@@ -101,10 +101,10 @@ export function getZodShape(schema: z.ZodTypeAny): Record<string, z.ZodTypeAny> 
       return current._def.shape();
     }
     // Fallback to shape property
-    return current.shape ?? {};
+    return current.shape ?? {} as Record<keyof T, z.ZodTypeAny>;
   } catch (error) {
     console.error('[SnowForm] Error getting schema shape:', error);
-    return {};
+    return {} as Record<keyof T, z.ZodTypeAny>;
   }
 }
 
@@ -158,23 +158,23 @@ export function createZodResolver(schema: z.ZodTypeAny) {
 
 
 export function zodQueryResolve(schema: z.ZodTypeAny, query: string = ""): string {
-    if (!(schema instanceof z.ZodObject)) {
-        return query;
-    }
+  if (!(schema instanceof z.ZodObject)) {
+    return query;
+  }
 
-    const shape = getZodShape(schema);
+  const shape = getZodShape(schema);
 
-    return Object.keys(shape)
-        .map((key) => {
-            const field = shape[key]!;
+  return Object.keys(shape)
+    .map((key) => {
+      const field = shape[key]!;
 
-            const info = getZodFieldInfo(field);
-            if (info.baseType === 'object') {
-                return zodQueryResolve(info.unwrapped, query ? `${query}.${key}` : '+' + key);
-            } else if (info.baseType === 'array') {
-                return zodQueryResolve(info.unwrapped._def.type, query ? `${query}.${key}` : '+' + key);
-            }
-            return query ? `${query}.${key}` : key;
-        })
-        .join(",");
+      const info = getZodFieldInfo(field);
+      if (info.baseType === 'object') {
+        return zodQueryResolve(info.unwrapped, query ? `${query}.${key}` : '+' + key);
+      } else if (info.baseType === 'array') {
+        return zodQueryResolve(info.unwrapped._def.type, query ? `${query}.${key}` : '+' + key);
+      }
+      return query ? `${query}.${key}` : key;
+    })
+    .join(",");
 }

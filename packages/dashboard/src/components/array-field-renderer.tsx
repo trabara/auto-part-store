@@ -1,11 +1,10 @@
 import { useState } from 'react';
 
+import { getChipClass, getRegisteredComponent } from '../registry';
+import type { FieldConfig, SchemaFieldInfo } from '../types';
+import { resolveFieldType } from '../utils';
 import { FieldWrapper } from './field-wrapper';
 import { FormControl } from './form-provider';
-import { getRegisteredComponent } from './registry/componentRegistry';
-import { getChipClass } from './registry/stylesRegistry';
-import type { FieldConfig, SchemaFieldInfo } from './types';
-import { resolveFieldType } from './utils';
 
 interface ArrayFieldRendererProps {
   name: string;
@@ -82,7 +81,7 @@ export function ArrayFieldRenderer({
   if (!ElementComponent) {
     console.warn(
       `[Form] No component registered for array element type "${elementType}". ` +
-        `Register it via setupForm({ components: { ${elementType}: YourComponent } }).`
+      `Register it via setupForm({ components: { ${elementType}: YourComponent } }).`
     );
     return null;
   }

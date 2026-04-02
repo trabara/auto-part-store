@@ -1,5 +1,3 @@
-import { getFormItemClass, getFormUI } from '@/registry';
-import { cn } from '@/utils';
 import { createContext, useContext, type ReactNode } from 'react';
 import {
   Controller,
@@ -9,6 +7,8 @@ import {
   type FieldValues,
   type Path,
 } from 'react-hook-form';
+import { getFormItemClass, getFormUI } from '../registry';
+import { cn } from '../utils';
 
 
 // =============================================================================
@@ -34,7 +34,7 @@ const FormFieldContext = createContext<FormFieldContextValue | null>(null);
  * Provides field context (name) to child components
  * Uses name as id for accessibility (label htmlFor matches input id)
  */
-export function FormField<
+export function FormFieldProvider<
   TFieldValues extends FieldValues = FieldValues,
   TName extends Path<TFieldValues> = Path<TFieldValues>,
 >({

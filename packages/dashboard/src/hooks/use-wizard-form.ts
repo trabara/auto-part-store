@@ -1,8 +1,8 @@
 import { z } from "@medusajs/framework/zod";
-import { getZodShape } from "@snowpact/react-rhf-zod-form";
 import { useCallback, useMemo, useState } from "react";
 import { UseFormReturn } from "react-hook-form";
 import { StepConfig } from "../types/config";
+import { getZodShape } from "../utils";
 
 type UseWizardFormReturn<S extends z.AnyZodObject> = [
     {

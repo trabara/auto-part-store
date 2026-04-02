@@ -1,11 +1,11 @@
-import { executeOnErrorBehavior, getFormClass, getRegisteredSubmitButton, getT } from '@/registry';
-import { SchemaFieldInfo, ZodObjectOrEffects } from '@/types';
-import { applyEmptyValueOverrides, cn, createZodResolver, getZodFieldInfo, getZodShape, initializeDefaultValues, } from '@/utils';
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { useForm, type DefaultValues, type FieldErrors, type Path, type UseFormReturn } from 'react-hook-form';
 import type { z } from 'zod';
-import { FormHelpers, FormProps } from '../types';
-import { FormField, FormProvider } from './form-provider';
+import { executeOnErrorBehavior, getFormClass, getRegisteredSubmitButton, getT } from '../registry';
+import { FormHelpers, FormProps, SchemaFieldInfo, ZodObjectOrEffects } from '../types';
+import { applyEmptyValueOverrides, cn, createZodResolver, getZodFieldInfo, getZodShape, initializeDefaultValues, } from '../utils';
+import { FormField } from './form-field';
+import { FormFieldProvider, FormProvider } from './form-provider';
 
 
 // =============================================================================
@@ -215,7 +215,7 @@ export function Form<TSchema extends ZodObjectOrEffects, TResponse = unknown>({
         }
 
         return (
-          <FormField
+          <FormFieldProvider
             key={keyStr}
             name={keyStr as Path<FormValues>}
             control={form.control}

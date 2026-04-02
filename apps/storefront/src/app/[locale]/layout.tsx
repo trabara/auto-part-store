@@ -8,19 +8,19 @@ import { CategoryMenuSheet } from "@/modules/categories/components/category-menu
 import FitmentBadge from "@/modules/fitment/components/fitment-badge"
 import { SearchWithAutocomplete } from "@/modules/search/components/search-with-autocomplete"
 import { SimpleSearchWithForm } from "@/modules/search/components/simple-search-with-form"
-import { Button } from "@repo/ui/components/button"
+import { Button } from "@/components/ui/button"
 import {
   ButtonGroup,
   ButtonGroupSeparator,
-} from "@repo/ui/components/button-group"
+} from "@/components/ui/button-group"
 import {
   Sheet,
   SheetContent,
   SheetHeader,
   SheetTitle,
   SheetTrigger,
-} from "@repo/ui/components/sheet"
-import { cn } from "@repo/ui/lib/utils"
+} from "@/components/ui/sheet"
+import { cn } from "@/lib/utils"
 import { Car, CarFront, Menu, Search, User } from "lucide-react"
 import { hasLocale, NextIntlClientProvider } from "next-intl"
 import { getMessages, getTranslations } from "next-intl/server"

@@ -33,7 +33,8 @@
     "packages/*",
     "packages/config/*",
     "packages/plugins/*",
-    "packages/modules/*"
+    "packages/modules/*",
+    "packages/ui/*"
   ],
   "resolutions": {
     "@medusajs/core-flows": "2.13.5",

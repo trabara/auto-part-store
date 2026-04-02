@@ -1,6 +1,6 @@
 import { Select } from "@medusajs/ui";
-import { sdk } from "@repo/dashboard/lib/sdk";
-import { PageQueryParams, PageResponse } from "@repo/dashboard/types/query";
+import { sdk } from "@repo/admin/lib/sdk";
+import { PageQueryParams, PageResponse } from "@repo/admin/types/query";
 import { useQuery } from "@tanstack/react-query";
 import { Category } from "../../../../modules/authz/schema";
 

@@ -1,7 +1,7 @@
 "use client"
 
 import { Fitment } from "@/lib/types"
-import { cn } from "@repo/ui/lib/utils"
+import { cn } from "@/lib/utils"
 import { CarFront } from "lucide-react"
 import { useTranslations } from "next-intl"
 import AdvancedSearch from "./advanced-search"

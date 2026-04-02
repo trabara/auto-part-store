@@ -1,7 +1,7 @@
 import { z } from "@medusajs/framework/zod";
-import DataTable from "@repo/dashboard/components/data-table";
-import { sdk } from "@repo/dashboard/lib/sdk";
-import { PageResponse } from "@repo/dashboard/types/query";
+import DataTable from "@repo/admin/components/data-table";
+import { sdk } from "@repo/admin/lib/sdk";
+import { PageResponse } from "@repo/admin/types/query";
 import { memo } from "react";
 import { Policy, RoleSchema } from "../../../../modules/authz/schema";
 

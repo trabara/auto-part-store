@@ -1,6 +1,6 @@
 "use client"
 
-import { Input } from "@repo/ui/components/input"
+import { Input } from "@/components/ui/input"
 import { SearchIcon } from "lucide-react"
 import { useTranslations } from "next-intl"
 import { ComponentProps } from "react"

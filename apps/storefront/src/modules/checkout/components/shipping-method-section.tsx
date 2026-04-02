@@ -3,13 +3,13 @@
 import { useEffect, useState, useTransition } from "react"
 import { useCartStore } from "@/modules/cart/hooks/use-cart"
 import { listShippingOptions, selectShippingMethod } from "@/lib/data/checkout"
-import { Button } from "@repo/ui/components/button"
-import { RadioGroup, RadioGroupItem } from "@repo/ui/components/radio-group"
+import { Button } from "@/components/ui/button"
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { convertToLocale } from "@/lib/util/product"
 import { CheckCircle2, Loader2, Pencil, Truck } from "lucide-react"
 import { HttpTypes, StoreCart } from "@medusajs/types"
 import { useTranslations } from "next-intl"
-import { cn } from "@repo/ui/lib/utils"
+import { cn } from "@/lib/utils"
 
 type Props = {
   cart: StoreCart

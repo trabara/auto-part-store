@@ -6,7 +6,7 @@ import {
   BreadcrumbList,
   BreadcrumbPage,
   BreadcrumbSeparator,
-} from "@repo/ui/components/breadcrumb"
+} from "@/components/ui/breadcrumb"
 import { useTranslations } from "next-intl"
 import Link from "next/link"
 import React from "react"

@@ -1,8 +1,8 @@
 import { defineRouteConfig } from "@medusajs/admin-sdk";
 import { z } from "@medusajs/framework/zod";
 import { User } from "@medusajs/icons";
-import { MedusaPage } from "@repo/dashboard/components/medusa-page";
-import { MedusaFieldOverrides } from "@repo/dashboard/types/config";
+import { MedusaPage } from "@repo/admin/components/medusa-page";
+import { MedusaFieldOverrides } from "@repo/admin/types/config";
 import {
   CreateRoleSchema,
   RoleSchema,

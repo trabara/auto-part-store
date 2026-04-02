@@ -1,7 +1,7 @@
 'use client'
 
-import { Button, buttonVariants } from "@repo/ui/components/button"
-import { cn } from "@repo/ui/lib/utils"
+import { Button, buttonVariants } from "@/components/ui/button"
+import { cn } from "@/lib/utils"
 import { VariantProps } from "class-variance-authority"
 import { HeartIcon } from "lucide-react"
 import { useState } from "react"

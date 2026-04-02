@@ -5,7 +5,7 @@ import {
   SheetHeader,
   SheetTitle,
   SheetTrigger,
-} from "@repo/ui/components/sheet"
+} from "@/components/ui/sheet"
 import { getTranslations } from "next-intl/server"
 import { CategoryNavMenu } from "./category-nav-menu"
 

@@ -1,8 +1,8 @@
 "use client"
 
 import { useCartItemCount } from "@/modules/cart/hooks/use-cart"
-import { Badge } from "@repo/ui/components/badge"
-import { Button } from "@repo/ui/components/button"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import { ShoppingCart } from "lucide-react"
 import { ComponentProps } from "react"
 

@@ -1,8 +1,8 @@
 "use client"
 
-import { Badge } from "@repo/ui/components/badge"
-import { Button } from "@repo/ui/components/button"
-import { ButtonGroup } from "@repo/ui/components/button-group"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { ButtonGroup } from "@/components/ui/button-group"
 import { Grid, List, RefreshCcwIcon, Search, X } from "lucide-react"
 import {
   Empty,
@@ -11,7 +11,7 @@ import {
   EmptyHeader,
   EmptyMedia,
   EmptyTitle,
-} from "@repo/ui/components/empty"
+} from "@/components/ui/empty"
 import {
   Pagination,
   PaginationContent,
@@ -20,15 +20,15 @@ import {
   PaginationLink,
   PaginationNext,
   PaginationPrevious,
-} from "@repo/ui/components/pagination"
+} from "@/components/ui/pagination"
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@repo/ui/components/select"
-import { cn } from "@repo/ui/lib/utils"
+} from "@/components/ui/select"
+import { cn } from "@/lib/utils"
 import { HTMLAttributes } from "react"
 
 import { SORT_OPTIONS, SortOptions } from "@/lib/types"

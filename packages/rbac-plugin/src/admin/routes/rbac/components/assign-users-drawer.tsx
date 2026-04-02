@@ -2,11 +2,11 @@ import { AdminUserListResponse } from "@medusajs/framework/types";
 import { z } from "@medusajs/framework/zod";
 import { User } from "@medusajs/icons";
 import { Button, Drawer, Heading, Hint, toast, usePrompt } from "@medusajs/ui";
-import DataTable from "@repo/dashboard/components/data-table";
-import { sdk } from "@repo/dashboard/lib/sdk";
-import { PageQueryParams, PageResponse } from "@repo/dashboard/types/query";
-import { zodQueryResolve } from "@repo/dashboard/utils/zod";
-import { useAsRef } from '@repo/ui/hooks/use-as-ref';
+import DataTable from "@repo/admin/components/data-table";
+import { sdk } from "@repo/admin/lib/sdk";
+import { PageQueryParams, PageResponse } from "@repo/admin/types/query";
+import { zodQueryResolve } from "@repo/admin/utils/zod";
+import { useAsRef } from '@repo/hooks';
 import { useMutation } from "@tanstack/react-query";
 import { memo, useState } from "react";
 import {

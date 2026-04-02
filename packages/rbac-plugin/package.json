@@ -36,9 +36,9 @@
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
+    "@repo/admin": "workspace:*",
     "@repo/common": "workspace:*",
-    "@repo/dashboard": "workspace:*",
-    "@repo/ui": "workspace:*",
+    "@repo/hooks": "workspace:*",
     "date-fns": "^4.1.0",
     "lodash": "^4.17.23",
     "lucide-react": "^0.563.0",

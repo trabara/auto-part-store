@@ -1,8 +1,8 @@
 "use client"
 
 import { HttpTypes } from "@medusajs/types"
-import { Button } from "@repo/ui/components/button"
-import { cn } from "@repo/ui/lib/utils"
+import { Button } from "@/components/ui/button"
+import { cn } from "@/lib/utils"
 import { useState } from "react"
 
 type VariantSelectorProps = {

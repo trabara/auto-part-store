@@ -2,7 +2,7 @@
 
 import { StoreProductCategory } from "@/lib/data/categories"
 import { Link } from "@/i18n/navigation"
-import { SheetClose } from "@repo/ui/components/sheet"
+import { SheetClose } from "@/components/ui/sheet"
 import { ChevronRight } from "lucide-react"
 
 type CategoryNavMenuProps = {

@@ -4,15 +4,15 @@ import { Link } from "@/i18n/navigation"
 import { convertToLocale } from "@/lib/util/product"
 import { useCart } from "@/modules/cart/hooks/use-cart"
 import { EmptyShoppingCartIcon } from "@repo/icons"
-import { Button } from "@repo/ui/components/button"
+import { Button } from "@/components/ui/button"
 import {
   Empty,
   EmptyContent,
   EmptyHeader,
   EmptyMedia,
   EmptyTitle,
-} from "@repo/ui/components/empty"
-import { Sheet, SheetClose, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@repo/ui/components/sheet"
+} from "@/components/ui/empty"
+import { Sheet, SheetClose, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
 import { useTranslations } from "next-intl"
 import ShoppingCartButton from "./cart-button"
 import CartLineItem from "./cart-line-item"

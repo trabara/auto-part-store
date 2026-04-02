@@ -1,13 +1,13 @@
 "use client"
 
 import { searchProducts, SearchSuggestion } from "@/lib/data/products"
-import { Input } from "@repo/ui/components/input"
+import { Input } from "@/components/ui/input"
 import {
   Popover,
   PopoverAnchor,
   PopoverContent,
-} from "@repo/ui/components/popover"
-import { cn } from "@repo/ui/lib/utils"
+} from "@/components/ui/popover"
+import { cn } from "@/lib/utils"
 import { SearchIcon } from "lucide-react"
 import { useTranslations } from "next-intl"
 import Image from "next/image"

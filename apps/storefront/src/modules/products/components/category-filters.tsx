@@ -1,7 +1,7 @@
 "use client"
 
 import PriceSlider from "@/modules/products/components/price-slider"
-import { cn } from "@repo/ui/lib/utils"
+import { cn } from "@/lib/utils"
 
 import { useProductFilters } from "@/modules/products/hooks/use-product-filters"
 import {
@@ -9,9 +9,9 @@ import {
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from "@repo/ui/components/accordion"
-import { Checkbox } from "@repo/ui/components/checkbox"
-import { Label } from "@repo/ui/components/label"
+} from "@/components/ui/accordion"
+import { Checkbox } from "@/components/ui/checkbox"
+import { Label } from "@/components/ui/label"
 import { HTMLAttributes } from "react"
 import { useTranslations } from "next-intl"
 

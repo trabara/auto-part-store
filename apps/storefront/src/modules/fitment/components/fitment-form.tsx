@@ -1,14 +1,14 @@
 "use client"
 
-import { Field, FieldContent, FieldError } from "@repo/ui/components/field"
+import { Field, FieldContent, FieldError } from "@/components/ui/field"
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@repo/ui/components/select"
-import { cn } from "@repo/ui/lib/utils"
+} from "@/components/ui/select"
+import { cn } from "@/lib/utils"
 import { useTranslations } from "next-intl"
 import { Controller, UseFormReturn } from "react-hook-form"
 import { useFitment } from "../hooks/use-fitment"

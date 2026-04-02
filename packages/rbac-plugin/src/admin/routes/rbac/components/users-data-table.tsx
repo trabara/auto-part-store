@@ -1,11 +1,11 @@
 import { AdminUserListResponse } from "@medusajs/framework/types";
 import { z } from "@medusajs/framework/zod";
-import { sdk } from "@repo/dashboard/lib/sdk";
-import { PageQueryParams, PageResponse } from "@repo/dashboard/types/query";
-import { zodQueryResolve } from "@repo/dashboard/utils/zod";
+import { sdk } from "@repo/admin/lib/sdk";
+import { PageQueryParams, PageResponse } from "@repo/admin/types/query";
+import { zodQueryResolve } from "@repo/admin/utils/zod";
 import { memo } from "react";
 import { UserSchema } from "../../../../modules/authz/schema";
-import DataTable from "@repo/dashboard/components/data-table";
+import DataTable from "@repo/admin/components/data-table";
 
 type User = z.infer<typeof UserSchema>;
 

@@ -1,6 +1,6 @@
 "use client"
 
-import { cn } from "@repo/ui/lib/utils"
+import { cn } from "@/lib/utils"
 import {
   Carousel,
   CarouselContent,
@@ -8,7 +8,7 @@ import {
   CarouselNext,
   CarouselPrevious,
   type CarouselApi,
-} from "@repo/ui/components/carousel"
+} from "@/components/ui/carousel"
 import { HttpTypes } from "@medusajs/types"
 import Image from "next/image"
 import { Tag } from "lucide-react"

@@ -5,16 +5,16 @@ import { listProducts } from "@/lib/data/products"
 import ProductCategoryCard from "@/modules/categories/components/category-card"
 import { FitmentCTA } from "@/modules/fitment/components/fitment-cta"
 import { ProductGridItem } from "@/modules/products/components/product-item"
-import { Button } from "@repo/ui/components/button"
+import { Button } from "@/components/ui/button"
 import {
   Carousel,
   CarouselContent,
   CarouselItem,
   CarouselNext,
   CarouselPrevious,
-} from "@repo/ui/components/carousel"
-import { Marquee, MarqueeContent } from "@repo/ui/components/marquee"
-import { cn } from "@repo/ui/lib/utils"
+} from "@/components/ui/carousel"
+import { Marquee, MarqueeContent } from "@/components/ui/marquee"
+import { cn } from "@/lib/utils"
 import {
   ArrowRight,
   Headphones,

@@ -2,13 +2,13 @@
 
 import { type ProductFitment } from "@/lib/data/fitments"
 import { HttpTypes } from "@medusajs/types"
-import { Separator } from "@repo/ui/components/separator"
+import { Separator } from "@/components/ui/separator"
 import {
   Tabs,
   TabsContent,
   TabsList,
   TabsTrigger,
-} from "@repo/ui/components/tabs"
+} from "@/components/ui/tabs"
 import { useTranslations } from "next-intl"
 
 type ProductTabsProps = {

@@ -1,5 +1,6 @@
 import { defineWidgetConfig } from "@medusajs/admin-sdk"
-import { useAsRef } from "@repo/ui/hooks/use-as-ref"
+import { useAsRef } from "@repo/hooks"
+
 import { useLayoutEffect } from "react"
 
 const Login = () => {

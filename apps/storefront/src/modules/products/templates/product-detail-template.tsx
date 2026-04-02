@@ -9,7 +9,7 @@ import { ProductGridItem } from "@/modules/products/components/product-item"
 import { ProductTabs } from "@/modules/products/components/product-tabs"
 import { VariantSelector } from "@/modules/products/components/variant-selector"
 import { HttpTypes } from "@medusajs/types"
-import { Badge } from "@repo/ui/components/badge"
+import { Badge } from "@/components/ui/badge"
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -17,8 +17,8 @@ import {
   BreadcrumbList,
   BreadcrumbPage,
   BreadcrumbSeparator,
-} from "@repo/ui/components/breadcrumb"
-import { Separator } from "@repo/ui/components/separator"
+} from "@/components/ui/breadcrumb"
+import { Separator } from "@/components/ui/separator"
 import { ArrowRight, CheckCircle2, Tag, XCircle } from "lucide-react"
 import { useTranslations } from "next-intl"
 import React, { useState } from "react"

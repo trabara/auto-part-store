@@ -8,11 +8,11 @@ import {
   EmptyHeader,
   EmptyMedia,
   EmptyTitle,
-} from "@repo/ui/components/empty"
+} from "@/components/ui/empty"
 import { getTranslations } from "next-intl/server"
 import { SearchIcon } from "lucide-react"
 import Link from "next/link"
-import { Button } from "@repo/ui/components/button"
+import { Button } from "@/components/ui/button"
 
 export default async function SearchPage({
   searchParams,

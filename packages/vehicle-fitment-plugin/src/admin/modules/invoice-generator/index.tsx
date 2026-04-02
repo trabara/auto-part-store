@@ -11,7 +11,7 @@ import {
   Textarea,
   toast
 } from "@medusajs/ui";
-import { AvatarUpload } from "@repo/ui/components/avatar-upload";
+// import { AvatarUpload } from "@repo/ui/components/avatar-upload";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { vscodeDark } from "@uiw/codemirror-theme-vscode";
 import CodeMirror from "@uiw/react-codemirror";
@@ -188,7 +188,7 @@ export const InvoiceGenerator = () => {
                           {t("invoice.field.companyLogo")}
                         </Label>
                       </div>
-                      <AvatarUpload className="w-24" onValueChange={uploadLogo} value={field.value} />
+                      {/* <AvatarUpload className="w-24" onValueChange={uploadLogo} value={field.value} /> */}
                       {fieldState.error && (<Hint variant="error">{fieldState.error.message}</Hint>)}
                     </div>
                   );

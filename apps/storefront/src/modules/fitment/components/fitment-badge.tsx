@@ -1,6 +1,6 @@
 import { clearFitment, retreiveFitment } from "@/lib/data/fitments"
-import { Button } from "@repo/ui/components/button"
-import { cn } from "@repo/ui/lib/utils"
+import { Button } from "@/components/ui/button"
+import { cn } from "@/lib/utils"
 import { X } from "lucide-react"
 import { FitmentDialog } from "./fitment-dialog"
 

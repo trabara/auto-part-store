@@ -1,6 +1,6 @@
 "use client"
 
-import { Button } from "@repo/ui/components/button"
+import { Button } from "@/components/ui/button"
 import {
   Dialog,
   DialogContent,
@@ -9,7 +9,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@repo/ui/components/dialog"
+} from "@/components/ui/dialog"
 import { addFitment, clearFitment } from "@/lib/data/fitments"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useEffect, useState } from "react"

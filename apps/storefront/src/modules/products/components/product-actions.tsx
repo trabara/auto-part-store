@@ -1,8 +1,8 @@
 "use client"
 
-import { Badge } from "@repo/ui/components/badge"
-import { Button } from "@repo/ui/components/button"
-import { cn } from "@repo/ui/lib/utils"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { cn } from "@/lib/utils"
 import { getPricesForVariant } from "@/lib/util/product"
 import { useAddToCart } from "@/modules/cart/hooks/use-cart"
 import { HttpTypes } from "@medusajs/types"

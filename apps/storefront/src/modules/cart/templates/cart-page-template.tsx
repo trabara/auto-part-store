@@ -5,14 +5,14 @@ import { OrderSummary } from "@/modules/cart/components/order-summary"
 import { useCart, useCartStore } from "@/modules/cart/hooks/use-cart"
 import { StoreCart } from "@medusajs/types"
 import { EmptyShoppingCartIcon } from "@repo/icons"
-import { Button } from "@repo/ui/components/button"
+import { Button } from "@/components/ui/button"
 import {
   Empty,
   EmptyContent,
   EmptyHeader,
   EmptyMedia,
   EmptyTitle,
-} from "@repo/ui/components/empty"
+} from "@/components/ui/empty"
 import { ShoppingBag } from "lucide-react"
 import { useTranslations } from "next-intl"
 import { Link } from "@/i18n/navigation"

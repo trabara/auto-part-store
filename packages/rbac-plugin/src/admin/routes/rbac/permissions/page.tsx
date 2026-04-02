@@ -1,7 +1,7 @@
 import { defineRouteConfig } from "@medusajs/admin-sdk";
 import { z } from "@medusajs/framework/zod";
-import { MedusaPage } from "@repo/dashboard/components/medusa-page";
-import { MedusaFieldOverrides } from "@repo/dashboard/types/config";
+import { MedusaPage } from "@repo/admin/components/medusa-page";
+import { MedusaFieldOverrides } from "@repo/admin/types/config";
 import { CreatePermissionSchema, PermissionSchema, UpdatePermissionSchema } from "../../../../modules/authz/schema";
 import CategorySelect from "../components/category-select";
 

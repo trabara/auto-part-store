@@ -1,6 +1,6 @@
 "use client"
 
-import { Button } from "@repo/ui/components/button"
+import { Button } from "@/components/ui/button"
 import {
   Drawer,
   DrawerContent,
@@ -8,7 +8,7 @@ import {
   DrawerHeader,
   DrawerTitle,
   DrawerTrigger,
-} from "@repo/ui/components/drawer"
+} from "@/components/ui/drawer"
 import { Funnel } from "lucide-react"
 import CategoryFilters from "./category-filters"
 import { useTranslations } from "next-intl"

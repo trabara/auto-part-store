@@ -12,4 +12,3 @@ export type { AuthzModuleService };
 
 export * from "./middleware";
 export * from "./schema";
-

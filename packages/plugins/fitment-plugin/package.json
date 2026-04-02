@@ -1,5 +1,5 @@
 {
-  "name": "@repo/vehicle-fitment-plugin",
+  "name": "@repo/fitment-plugin",
   "version": "0.0.1",
   "description": "A starter for Medusa plugins.",
   "author": "Medusa (https://medusajs.com)",
@@ -24,7 +24,7 @@
   "keywords": [
     "medusa",
     "plugin",
-    "medusa-plugin-other",
+    "medusa-plugin-fitment",
     "medusa-plugin",
     "medusa-v2"
   ],

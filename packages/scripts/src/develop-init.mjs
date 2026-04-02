@@ -12,7 +12,7 @@
  *   3. Concurrently run plugin:dev (develop-watch.mjs, file watcher only)
  *
  * This eliminates the race condition where medusa:dev's Vite server would
- * try to resolve @repo/vehicle-fitment-plugin/admin before the admin
+ * try to resolve @repo/fitment-plugin/admin before the admin
  * extension output exists at .medusa/server/src/admin/index.mjs.
  */
 

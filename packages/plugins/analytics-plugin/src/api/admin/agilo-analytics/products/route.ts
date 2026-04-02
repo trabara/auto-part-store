@@ -29,8 +29,8 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
 
   const pluginConfig = config.plugins.find((p) =>
     typeof p === "string"
-      ? p === "@agilo/medusa-analytics-plugin"
-      : p.resolve === "@agilo/medusa-analytics-plugin",
+      ? p === "@repo/analytics-plugin"
+      : p.resolve === "@repo/analytics-plugin",
   );
 
   const threshold =

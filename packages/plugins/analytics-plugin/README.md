@@ -42,14 +42,14 @@ The Medusa Analytics Plugin is a lightweight analytics extension for the Medusa 
 
 1. **Install the plugin** in your Medusa project:
    ```bash
-   yarn add @agilo/medusa-analytics-plugin
+   yarn add @repo/analytics-plugin
    ```
 2. **Add the plugin** to your Medusa backend configuration. In `medusa-config.ts`, add the following to the `plugins` array:
 
    ```js
    plugins: [
      {
-       resolve: '@agilo/medusa-analytics-plugin',
+       resolve: '@repo/analytics-plugin',
        options: {},
      },
      // ...other plugins

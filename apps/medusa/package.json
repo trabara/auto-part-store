@@ -29,13 +29,13 @@
     "test:unit": "TEST_TYPE=unit NODE_OPTIONS=--experimental-vm-modules jest --silent --runInBand --forceExit"
   },
   "dependencies": {
-    "@agilo/medusa-analytics-plugin": "workspace:*",
     "@medusajs/admin-sdk": "2.13.5",
     "@medusajs/cli": "2.13.5",
     "@medusajs/framework": "2.13.5",
     "@medusajs/medusa": "2.13.5",
-    "@repo/rbac-plugin": "workspace:*",
-    "@repo/vehicle-fitment-plugin": "workspace:*"
+    "@repo/analytics-plugin": "workspace:*",
+    "@repo/fitment-plugin": "workspace:*",
+    "@repo/rbac-plugin": "workspace:*"
   },
   "devDependencies": {
     "@medusajs/test-utils": "2.13.5",

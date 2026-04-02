@@ -120,13 +120,13 @@ export default defineConfig({
   ],
   plugins: [
     {
-      resolve: "@agilo/medusa-analytics-plugin",
+      resolve: "@repo/analytics-plugin",
       options: {
         // Plugin-specific options can be added here
       },
     },
     {
-      resolve: "@repo/vehicle-fitment-plugin",
+      resolve: "@repo/fitment-plugin",
       options: {
         // Plugin-specific options can be added here
         logoUrl: "https://smap.tn/assets/blanc-CcIuouBN.png",

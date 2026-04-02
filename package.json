@@ -31,6 +31,8 @@
   "workspaces": [
     "apps/*",
     "packages/*",
+    "packages/config/*",
+    "packages/plugins/*",
     "packages/modules/*"
   ],
   "resolutions": {

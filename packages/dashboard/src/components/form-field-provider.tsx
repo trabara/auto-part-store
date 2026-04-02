@@ -1,12 +1,12 @@
 import { useCallback } from 'react';
 import type { ControllerRenderProps, FieldValues, Path } from 'react-hook-form';
 
+import { getRegisteredComponent, getT } from '../registry';
+import { FieldConfig, RegisteredComponentProps, SchemaFieldInfo } from '../types';
+import { resolveFieldType } from '../utils';
 import { ArrayFieldRenderer } from './array-field-renderer';
 import { FieldWrapper } from './field-wrapper';
 import { FormControl, useFormField } from './form-provider';
-import { getT, getRegisteredComponent } from '@/registry';
-import { SchemaFieldInfo, FieldConfig, RegisteredComponentProps } from '@/types';
-import { resolveFieldType } from '@/utils';
 
 // =============================================================================
 // FormField Component
@@ -108,7 +108,7 @@ export function FormField<
   if (!Component) {
     console.warn(
       `[Form] No component registered for type "${fieldType}". ` +
-        `Register it via setupForm({ components: { ${fieldType}: YourComponent } }).`
+      `Register it via setupForm({ components: { ${fieldType}: YourComponent } }).`
     );
     return null;
   }

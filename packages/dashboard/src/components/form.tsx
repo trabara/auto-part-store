@@ -4,7 +4,7 @@ import type { z } from 'zod';
 import { executeOnErrorBehavior, getFormClass, getRegisteredSubmitButton, getT } from '../registry';
 import { FormHelpers, FormProps, SchemaFieldInfo, ZodObjectOrEffects } from '../types';
 import { applyEmptyValueOverrides, cn, createZodResolver, getZodFieldInfo, getZodShape, initializeDefaultValues, } from '../utils';
-import { FormField } from './form-field';
+import { FormField } from './form-field-provider';
 import { FormFieldProvider, FormProvider } from './form-provider';
 
 

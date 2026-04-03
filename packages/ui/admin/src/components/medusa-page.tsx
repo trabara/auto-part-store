@@ -11,9 +11,10 @@ import {
   Select,
   Textarea,
   UseDataTableReturn,
-  useToggleState
+  useToggleState,
 } from "@medusajs/ui";
-import { useLayoutEffect, useMemo } from "react";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { useLayoutEffect, useMemo, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { useDeleteMutation } from "../hooks/use-delete-mutation";
 import { sdk } from "../lib/sdk";
@@ -30,23 +31,59 @@ interface MedusaPageProps<
   LS extends z.AnyZodObject,
   CS extends z.AnyZodObject,
   ES extends z.AnyZodObject,
-  T extends Entity<z.infer<LS>>
+  T extends Entity<z.infer<LS>>,
 > extends ListConfig<T> {
   path: string;
   create: CreateConfig<z.infer<CS>>;
   edit: EditConfig<z.infer<ES>>;
 }
 
+/**
+ * Wraps MedusaPageInner with its own QueryClientProvider so that
+ * @tanstack/react-query hooks (useQueryClient, useMutation, etc.) always
+ * have a client available — regardless of whether the Medusa admin shell's
+ * QueryClientProvider is in scope (which is not guaranteed for plugin routes
+ * served from a pre-built bundle).
+ */
 export function MedusaPage<
   LS extends z.AnyZodObject,
   CS extends z.AnyZodObject,
   ES extends z.AnyZodObject,
-  T extends Entity<z.infer<LS>>
->({ id, path, schema, fields, create, edit, toolbarActions, rowActions, ...restProps }: MedusaPageProps<LS, CS, ES, T>) {
-  const { t } = useTranslation();
-  const [isCreateModalOpen, openCreateModal, closeCreateModal] = useToggleState()
+  T extends Entity<z.infer<LS>>,
+>(props: MedusaPageProps<LS, CS, ES, T>) {
+  const queryClientRef = useRef<QueryClient | null>(null);
+  if (!queryClientRef.current) {
+    queryClientRef.current = new QueryClient();
+  }
 
-  const queryFields = useMemo(() => zodQueryResolve(schema), [])
+  return (
+    <QueryClientProvider client={queryClientRef.current}>
+      <MedusaPageInner {...props} />
+    </QueryClientProvider>
+  );
+}
+
+function MedusaPageInner<
+  LS extends z.AnyZodObject,
+  CS extends z.AnyZodObject,
+  ES extends z.AnyZodObject,
+  T extends Entity<z.infer<LS>>,
+>({
+  id,
+  path,
+  schema,
+  fields,
+  create,
+  edit,
+  toolbarActions,
+  rowActions,
+  ...restProps
+}: MedusaPageProps<LS, CS, ES, T>) {
+  const { t } = useTranslation();
+  const [isCreateModalOpen, openCreateModal, closeCreateModal] =
+    useToggleState();
+
+  const queryFields = useMemo(() => zodQueryResolve(schema), []);
 
   const listAction = (signal: AbortSignal, params?: PageQueryParams) =>
     sdk.client.fetch<PageResponse<T>>(path, {
@@ -56,24 +93,23 @@ export function MedusaPage<
         ...(params || {}),
         fields: queryFields,
       },
-    })
+    });
 
   const createAction = (data: z.infer<CS>): Promise<void> =>
-    sdk.client.fetch(path, { method: "POST", body: data })
+    sdk.client.fetch(path, { method: "POST", body: data });
 
   const updateAction = (id: string, data: z.infer<ES>): Promise<void> =>
-    sdk.client.fetch(`${path}/${id}`, { method: "PATCH", body: data })
+    sdk.client.fetch(`${path}/${id}`, { method: "PATCH", body: data });
 
   const deleteAction = (id: string) =>
-    sdk.client.fetch(`${path}/${id}`, { method: "DELETE" })
-
+    sdk.client.fetch(`${path}/${id}`, { method: "DELETE" });
 
   const deleteMutation = useDeleteMutation({
     invalidateKeys: [id],
-    errorMessage: 'Failed to delete item',
-    successMessage: 'Item deleted successfully',
+    errorMessage: "Failed to delete item",
+    successMessage: "Item deleted successfully",
     deleteFn: (id: string) => deleteAction(id),
-  })
+  });
 
   const handleBulkDelete = async (table: UseDataTableReturn<T>) => {
     const selectedRows = table
@@ -82,21 +118,31 @@ export function MedusaPage<
       .map((row) => row.original);
     const selectedIds = selectedRows.map((row) => row.id);
     await deleteMutation.mutateAsync(...selectedIds);
-  }
-
+  };
 
   useLayoutEffect(() => {
     setupForm({
       translate: (key) => t(key),
       components: {
-        text: ({ componentProps, invalid, ...rest }) => <Input {...rest} type="text" aria-invalid={invalid} />,
-        email: ({ componentProps, invalid, ...rest }) => <Input {...rest} type="email" aria-invalid={invalid} />,
+        text: ({ componentProps, invalid, ...rest }) => (
+          <Input {...rest} type="text" aria-invalid={invalid} />
+        ),
+        email: ({ componentProps, invalid, ...rest }) => (
+          <Input {...rest} type="email" aria-invalid={invalid} />
+        ),
         password: ({ componentProps, invalid, ...rest }) => (
           <Input {...rest} type="password" aria-invalid={invalid} />
         ),
-        textarea: ({ componentProps, invalid, ...rest }) => <Textarea {...rest} aria-invalid={invalid} />,
+        textarea: ({ componentProps, invalid, ...rest }) => (
+          <Textarea {...rest} aria-invalid={invalid} />
+        ),
         checkbox: ({ componentProps, onChange, value, invalid, ...rest }) => (
-          <Checkbox {...rest} onCheckedChange={onChange} checked={value} aria-invalid={invalid} />
+          <Checkbox
+            {...rest}
+            onCheckedChange={onChange}
+            checked={value}
+            aria-invalid={invalid}
+          />
         ),
         number: ({ componentProps, onChange, invalid, ...rest }) => (
           <Input
@@ -106,7 +152,9 @@ export function MedusaPage<
             aria-invalid={invalid}
           />
         ),
-        date: ({ componentProps, invalid, ...rest }) => <DatePicker {...rest} aria-invalid={invalid} />,
+        date: ({ componentProps, invalid, ...rest }) => (
+          <DatePicker {...rest} aria-invalid={invalid} />
+        ),
         select: ({
           componentProps,
           options,
@@ -131,7 +179,9 @@ export function MedusaPage<
       },
       formUI: {
         label: ({ children, ...rest }) => <Label {...rest}>{children}</Label>,
-        description: ({ children, ...rest }) => <Hint {...rest}>{children}</Hint>,
+        description: ({ children, ...rest }) => (
+          <Hint {...rest}>{children}</Hint>
+        ),
         errorMessage: ({ message, ...rest }) => (
           <Hint variant="error" {...rest}>
             {message}
@@ -154,8 +204,7 @@ export function MedusaPage<
         label: "text-xs font-medium capitalize", // Applied to labels
       },
     });
-  }, [])
-
+  }, []);
 
   return (
     <Container className="divide-y p-0">
@@ -165,40 +214,40 @@ export function MedusaPage<
         fields={fields}
         queryFn={listAction}
         onCreateClicked={() => openCreateModal()}
-        rowActions={
-          [
-            {
-              id: 'edit',
-              label: t('common.edit'),
-              render: (row) => <EditDrawer
+        rowActions={[
+          {
+            id: "edit",
+            label: t("common.edit"),
+            render: (row) => (
+              <EditDrawer
                 id={id}
                 schema={edit.schema}
                 fields={edit.fields}
                 mutateFn={updateAction}
                 defaultValues={row}
               />
-            },
-            {
-              id: 'delete',
-              label: t('common.delete'),
-              icon: <Trash />,
-              variant: "danger",
-              onClick: (row) => {
-                deleteMutation.mutateAsync(row.id)
-              }
-            },
-            ...(rowActions || [])
-          ]
-        }
-        toolbarActions={[
+            ),
+          },
           {
-            id: 'delete',
+            id: "delete",
+            label: t("common.delete"),
             icon: <Trash />,
             variant: "danger",
-            label: t('common.delete'),
+            onClick: (row) => {
+              deleteMutation.mutateAsync(row.id);
+            },
+          },
+          ...(rowActions || []),
+        ]}
+        toolbarActions={[
+          {
+            id: "delete",
+            icon: <Trash />,
+            variant: "danger",
+            label: t("common.delete"),
             onClick: (table) => handleBulkDelete(table),
           },
-          ...(toolbarActions || [])
+          ...(toolbarActions || []),
         ]}
         {...restProps}
       />

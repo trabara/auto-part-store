@@ -14,7 +14,12 @@
     "docker:logs": "docker compose -f docker/docker-compose.yml --env-file docker/.env logs -f"
   },
   "devDependencies": {
+    "@swc/core": "1.12.2",
     "@types/jest": "^29.5.13",
+    "@types/node": "^20.0.0",
+    "@types/react": "^18.3.2",
+    "@types/react-dom": "^18.2.25",
+    "chokidar": "^4.0.3",
     "prettier": "^3.7.4",
     "rimraf": "^6.1.2",
     "ts-jest": "^29.4.9",
@@ -22,6 +27,7 @@
     "tsc-alias": "^1.8.16",
     "turbo": "^2.7.6",
     "typescript": "5.9.2",
+    "vite": "^5.2.11",
     "yalc": "^1.0.0-pre.53"
   },
   "engines": {

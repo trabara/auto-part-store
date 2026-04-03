@@ -1,6 +1,6 @@
 {
   "extends": "@repo/tsconfig/admin.json",
   "include": [
-    ".",
+    "."
   ]
 }

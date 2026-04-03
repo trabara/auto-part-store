@@ -9926,6 +9926,7 @@ __metadata:
     "@radix-ui/react-popover": "npm:^1.1.14"
     "@radix-ui/react-slot": "npm:^1.2.3"
     "@repo/scripts": "workspace:*"
+    "@repo/tsconfig": "workspace:*"
     "@swc/core": "npm:1.12.2"
     "@swc/jest": "npm:^0.2.38"
     "@tanstack/react-query": "npm:5.64.2"
@@ -10012,6 +10013,7 @@ __metadata:
     "@repo/common": "workspace:*"
     "@repo/hooks": "workspace:*"
     "@repo/scripts": "workspace:*"
+    "@repo/tsconfig": "workspace:*"
     "@swc/core": "npm:1.12.2"
     "@types/node": "npm:^20.0.0"
     "@types/react": "npm:^18.3.2"
@@ -10039,19 +10041,6 @@ __metadata:
     "@medusajs/medusa": 2.13.5
     "@medusajs/test-utils": 2.13.5
     "@medusajs/ui": 4.0.25
-  languageName: unknown
-  linkType: soft
-
-"@repo/fitment@workspace:packages/modules/fitment":
-  version: 0.0.0-use.local
-  resolution: "@repo/fitment@workspace:packages/modules/fitment"
-  dependencies:
-    "@medusajs/framework": "npm:2.13.5"
-    "@medusajs/medusa": "npm:2.13.5"
-    "@medusajs/test-utils": "npm:2.13.5"
-    "@repo/tsconfig": "workspace:*"
-  peerDependencies:
-    "@medusajs/framework": 2.13.5
   languageName: unknown
   linkType: soft
 
@@ -10084,29 +10073,36 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@repo/invoice@workspace:packages/modules/invoice":
+"@repo/invoice-plugin@workspace:*, @repo/invoice-plugin@workspace:packages/plugins/invoice-plugin":
   version: 0.0.0-use.local
-  resolution: "@repo/invoice@workspace:packages/modules/invoice"
+  resolution: "@repo/invoice-plugin@workspace:packages/plugins/invoice-plugin"
   dependencies:
+    "@codemirror/lang-html": "npm:^6.4.11"
+    "@hookform/resolvers": "npm:^5.2.2"
+    "@medusajs/admin-bundler": "npm:2.13.5"
+    "@medusajs/admin-sdk": "npm:2.13.5"
+    "@medusajs/cli": "npm:2.13.5"
     "@medusajs/framework": "npm:2.13.5"
+    "@medusajs/icons": "npm:2.13.5"
     "@medusajs/medusa": "npm:2.13.5"
     "@medusajs/test-utils": "npm:2.13.5"
+    "@medusajs/ui": "npm:4.0.25"
+    "@repo/common": "workspace:*"
+    "@repo/hooks": "workspace:*"
+    "@repo/scripts": "workspace:*"
     "@repo/tsconfig": "workspace:*"
+    date-fns: "npm:^4.1.0"
+    lodash: "npm:^4.17.23"
+    lucide-react: "npm:^0.563.0"
+    react-hook-form: "npm:^7.71.1"
   peerDependencies:
+    "@medusajs/admin-sdk": 2.13.5
+    "@medusajs/cli": 2.13.5
     "@medusajs/framework": 2.13.5
-  languageName: unknown
-  linkType: soft
-
-"@repo/media@workspace:packages/modules/media":
-  version: 0.0.0-use.local
-  resolution: "@repo/media@workspace:packages/modules/media"
-  dependencies:
-    "@medusajs/framework": "npm:2.13.5"
-    "@medusajs/medusa": "npm:2.13.5"
-    "@medusajs/test-utils": "npm:2.13.5"
-    "@repo/tsconfig": "workspace:*"
-  peerDependencies:
-    "@medusajs/framework": 2.13.5
+    "@medusajs/icons": 2.13.5
+    "@medusajs/medusa": 2.13.5
+    "@medusajs/test-utils": 2.13.5
+    "@medusajs/ui": 4.0.25
   languageName: unknown
   linkType: soft
 
@@ -10156,19 +10152,6 @@ __metadata:
     "@medusajs/medusa": 2.13.5
     "@medusajs/test-utils": 2.13.5
     "@medusajs/ui": 4.0.25
-  languageName: unknown
-  linkType: soft
-
-"@repo/rbac@workspace:packages/modules/rbac":
-  version: 0.0.0-use.local
-  resolution: "@repo/rbac@workspace:packages/modules/rbac"
-  dependencies:
-    "@medusajs/framework": "npm:2.13.5"
-    "@medusajs/medusa": "npm:2.13.5"
-    "@medusajs/test-utils": "npm:2.13.5"
-    "@repo/tsconfig": "workspace:*"
-  peerDependencies:
-    "@medusajs/framework": 2.13.5
   languageName: unknown
   linkType: soft
 
@@ -18445,6 +18428,7 @@ __metadata:
     "@medusajs/test-utils": "npm:2.13.5"
     "@repo/analytics-plugin": "workspace:*"
     "@repo/fitment-plugin": "workspace:*"
+    "@repo/invoice-plugin": "workspace:*"
     "@repo/rbac-plugin": "workspace:*"
     "@swc/core": "npm:1.12.2"
     "@swc/jest": "npm:^0.2.36"
@@ -21576,7 +21560,12 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "smap-store@workspace:."
   dependencies:
+    "@swc/core": "npm:1.12.2"
     "@types/jest": "npm:^29.5.13"
+    "@types/node": "npm:^20.0.0"
+    "@types/react": "npm:^18.3.2"
+    "@types/react-dom": "npm:^18.2.25"
+    chokidar: "npm:^4.0.3"
     prettier: "npm:^3.7.4"
     rimraf: "npm:^6.1.2"
     ts-jest: "npm:^29.4.9"
@@ -21584,6 +21573,7 @@ __metadata:
     tsc-alias: "npm:^1.8.16"
     turbo: "npm:^2.7.6"
     typescript: "npm:5.9.2"
+    vite: "npm:^5.2.11"
     yalc: "npm:^1.0.0-pre.53"
   languageName: unknown
   linkType: soft

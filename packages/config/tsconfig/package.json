@@ -1,5 +1,6 @@
 {
   "name": "@repo/tsconfig",
+  "description": "TypeScript configuration for the monorepo",
   "version": "0.0.0",
   "private": true,
   "license": "MIT",

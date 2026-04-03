@@ -1,7 +1,7 @@
 {
-  "name": "@repo/fitment-plugin",
+  "name": "@repo/invoice-plugin",
   "version": "0.0.1",
-  "description": "A Medusa plugin for fitment",
+  "description": "A Medusa plugin to generate invoices for orders",
   "author": "Medusa (https://medusajs.com)",
   "license": "MIT",
   "files": [
@@ -24,7 +24,7 @@
   "keywords": [
     "medusa",
     "plugin",
-    "medusa-plugin-fitment",
+    "medusa-plugin-invoice",
     "medusa-plugin",
     "medusa-v2"
   ],
@@ -39,13 +39,9 @@
     "@hookform/resolvers": "^5.2.2",
     "@repo/common": "workspace:*",
     "@repo/hooks": "workspace:*",
-    "@uiw/codemirror-theme-vscode": "^4.25.8",
-    "@uiw/react-codemirror": "^4.25.8",
     "date-fns": "^4.1.0",
-    "handlebars": "^4.7.8",
     "lodash": "^4.17.23",
     "lucide-react": "^0.563.0",
-    "playwright": "^1.58.2",
     "react-hook-form": "^7.71.1"
   },
   "devDependencies": {
@@ -58,18 +54,7 @@
     "@medusajs/test-utils": "2.13.5",
     "@medusajs/ui": "4.0.25",
     "@repo/scripts": "workspace:*",
-    "@repo/tsconfig": "workspace:*",
-    "@swc/core": "1.12.2",
-    "@types/node": "^20.0.0",
-    "@types/react": "^18.3.2",
-    "@types/react-dom": "^18.2.25",
-    "chokidar": "^4.0.3",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "ts-node": "^10.9.2",
-    "typescript": "^5.6.2",
-    "vite": "^5.2.11",
-    "yalc": "^1.0.0-pre.53"
+    "@repo/tsconfig": "workspace:*"
   },
   "peerDependencies": {
     "@medusajs/admin-sdk": "2.13.5",

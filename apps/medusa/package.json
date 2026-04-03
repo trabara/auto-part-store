@@ -35,6 +35,7 @@
     "@medusajs/medusa": "2.13.5",
     "@repo/analytics-plugin": "workspace:*",
     "@repo/fitment-plugin": "workspace:*",
+    "@repo/invoice-plugin": "workspace:*",
     "@repo/rbac-plugin": "workspace:*"
   },
   "devDependencies": {

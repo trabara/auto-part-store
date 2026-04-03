@@ -133,9 +133,15 @@ export default defineConfig({
       },
     },
     {
+      resolve: "@repo/invoice-plugin",
+      options: {
+        // Plugin-specific options can be added here  
+      },
+    },
+    {
       resolve: "@repo/rbac-plugin",
       options: {
-        seed: true,
+        // Plugin-specific options can be added here
       },
     },
   ],

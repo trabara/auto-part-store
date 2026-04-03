@@ -11,6 +11,22 @@ loadEnv(process.env.NODE_ENV || "development", process.cwd());
 const tenant = process.env.TENANT_NAME || "default";
 
 export default defineConfig({
+  admin: {
+    // Force Vite to deduplicate context-sensitive packages so that plugin admin
+    // bundles share the same module instance as the dashboard, preventing
+    // "No QueryClient" / "not in Router context" errors caused by duplicate
+    // module registrations.
+    vite: (config) => ({
+      resolve: {
+        dedupe: [
+          "react",
+          "react-dom",
+          "react-router-dom",
+          "@tanstack/react-query",
+        ],
+      },
+    }),
+  },
   projectConfig: {
     databaseUrl: process.env.DATABASE_URL,
     redisUrl: process.env.REDIS_URL,
@@ -117,6 +133,18 @@ export default defineConfig({
     {
       resolve: "@medusajs/medusa/translation",
     },
+    {
+      resolve: "@repo/domain-modules/fitment",
+    },
+    {
+      resolve: "@repo/domain-modules/entity-media",
+    },
+    {
+      resolve: "@repo/domain-modules/authz",
+    },
+    {
+      resolve: "@repo/domain-modules/invoice-generator",
+    },
   ],
   plugins: [
     {
@@ -135,7 +163,7 @@ export default defineConfig({
     {
       resolve: "@repo/invoice-plugin",
       options: {
-        // Plugin-specific options can be added here  
+        // Plugin-specific options can be added here
       },
     },
     {

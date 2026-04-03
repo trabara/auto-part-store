@@ -1,0 +1,43 @@
+{
+  "name": "@trabara/common",
+  "version": "0.1.0",
+  "description": "Common utilities and types for Tabara packages",
+  "license": "MIT",
+  "main": "./dist/index.js",
+  "module": "./dist/esm/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/esm/index.js",
+      "require": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "publishConfig": {
+    "access": "restricted",
+    "registry": "https://npm.pkg.github.com",
+    "name": "@trabara/common"
+  },
+  "files": [
+    "dist",
+    "src"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json && tsc -p tsconfig.esm.json",
+    "lint": "eslint .",
+    "check-types": "tsc --noEmit"
+  },
+  "peerDependencies": {
+    "@medusajs/framework": ">=2.0.0",
+    "@medusajs/medusa": ">=2.0.0"
+  },
+  "devDependencies": {
+    "@medusajs/framework": "2.13.5",
+    "@medusajs/medusa": "2.13.5",
+    "@repo/eslint-config": "workspace:*",
+    "@repo/tsconfig": "workspace:*",
+    "@types/node": "^20.0.0",
+    "eslint": "^9.39.1",
+    "typescript": "^5.6.2"
+  }
+}

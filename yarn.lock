@@ -141,8 +141,8 @@ __metadata:
   linkType: hard
 
 "@aws-sdk/client-dynamodb@npm:^3.218.0":
-  version: 3.1023.0
-  resolution: "@aws-sdk/client-dynamodb@npm:3.1023.0"
+  version: 3.1024.0
+  resolution: "@aws-sdk/client-dynamodb@npm:3.1024.0"
   dependencies:
     "@aws-crypto/sha256-browser": "npm:5.2.0"
     "@aws-crypto/sha256-js": "npm:5.2.0"
@@ -186,13 +186,13 @@ __metadata:
     "@smithy/util-utf8": "npm:^4.2.2"
     "@smithy/util-waiter": "npm:^4.2.14"
     tslib: "npm:^2.6.2"
-  checksum: 10c0/44a893adf6abaa71b7c2cb2fdf8049850b55095822bbdc04bc4c60e0d431bd733fd1f44613c60f6f2694584210602b438406c0beee4b9f0421323f521ebc9f6c
+  checksum: 10c0/acc4528324229ef7eee9c1cd9c0b94a5ceb257d430258f62eb4e8912c14736e415060893931750b30768c3ec599165dc3995008534a61cfb9d353396b430b026
   languageName: node
   linkType: hard
 
 "@aws-sdk/client-s3@npm:^3.556.0":
-  version: 3.1023.0
-  resolution: "@aws-sdk/client-s3@npm:3.1023.0"
+  version: 3.1024.0
+  resolution: "@aws-sdk/client-s3@npm:3.1024.0"
   dependencies:
     "@aws-crypto/sha1-browser": "npm:5.2.0"
     "@aws-crypto/sha256-browser": "npm:5.2.0"
@@ -249,7 +249,7 @@ __metadata:
     "@smithy/util-utf8": "npm:^4.2.2"
     "@smithy/util-waiter": "npm:^4.2.14"
     tslib: "npm:^2.6.2"
-  checksum: 10c0/7962b39b91463b53c5915e43ad5f5bc273f14734ff552a1851a6f58013f40575145dc9df36ff2ad9da95ddc77f740771ff67dca8319cbf7b6809d17d68037e64
+  checksum: 10c0/4334ac1f1d09d0d4145569494d54da04d7a16014b77f52c8d635ca66c5a5996267a09f385978230080e6503b1b5fe59ba693802f4a08941d49263d9b621ada55
   languageName: node
   linkType: hard
 
@@ -443,8 +443,8 @@ __metadata:
   linkType: hard
 
 "@aws-sdk/lib-storage@npm:^3.556.0":
-  version: 3.1023.0
-  resolution: "@aws-sdk/lib-storage@npm:3.1023.0"
+  version: 3.1024.0
+  resolution: "@aws-sdk/lib-storage@npm:3.1024.0"
   dependencies:
     "@smithy/middleware-endpoint": "npm:^4.4.28"
     "@smithy/protocol-http": "npm:^5.3.12"
@@ -455,8 +455,8 @@ __metadata:
     stream-browserify: "npm:3.0.0"
     tslib: "npm:^2.6.2"
   peerDependencies:
-    "@aws-sdk/client-s3": ^3.1023.0
-  checksum: 10c0/25a31dcdafd3280a3a7083b7eb09e0e37cc03b636a91f686ab3b2dfee52f899607854ce966d08e0a59e4cce9b527907209c553ef03a11cede95d5c6e5501e337
+    "@aws-sdk/client-s3": ^3.1024.0
+  checksum: 10c0/f9e4dc49a7a4eef76e90a3e08c787883a49fad36f868e0b4f3f81381e593c51270886935f56866451d17080401ee4052bb8e912434822df33fc9502431d78f44
   languageName: node
   linkType: hard
 
@@ -679,8 +679,8 @@ __metadata:
   linkType: hard
 
 "@aws-sdk/s3-request-presigner@npm:^3.556.0":
-  version: 3.1023.0
-  resolution: "@aws-sdk/s3-request-presigner@npm:3.1023.0"
+  version: 3.1024.0
+  resolution: "@aws-sdk/s3-request-presigner@npm:3.1024.0"
   dependencies:
     "@aws-sdk/signature-v4-multi-region": "npm:^3.996.15"
     "@aws-sdk/types": "npm:^3.973.6"
@@ -690,7 +690,7 @@ __metadata:
     "@smithy/smithy-client": "npm:^4.12.8"
     "@smithy/types": "npm:^4.13.1"
     tslib: "npm:^2.6.2"
-  checksum: 10c0/c368d572db2c5f039ba9a9ed563c9111d845e0b5445ebd2ab9ebf334851905f228b11c830472392b2db33c2de71cb1eee2cad4c8accfd98f9e9a48ae9bb38010
+  checksum: 10c0/1a1ac2f9e015721ce7e6b7e06a077d9f045dfe6d46bb3da360ca5f6c7554c5148238d7b9030c6a40c826291bb2e043d34f060b669b9ae2192349227124fdf4a6
   languageName: node
   linkType: hard
 
@@ -10000,9 +10000,9 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@repo/analytics-plugin@workspace:*, @repo/analytics-plugin@workspace:packages/domain/analytics-plugin":
+"@repo/analytics-plugin@workspace:*, @repo/analytics-plugin@workspace:packages/domain/plugins/analytics-plugin":
   version: 0.0.0-use.local
-  resolution: "@repo/analytics-plugin@workspace:packages/domain/analytics-plugin"
+  resolution: "@repo/analytics-plugin@workspace:packages/domain/plugins/analytics-plugin"
   dependencies:
     "@medusajs/admin-sdk": "npm:2.13.5"
     "@medusajs/cli": "npm:2.13.5"
@@ -10018,7 +10018,6 @@ __metadata:
     "@repo/tsconfig": "workspace:*"
     "@swc/core": "npm:1.12.2"
     "@swc/jest": "npm:^0.2.38"
-    "@tanstack/react-query": "npm:5.64.2"
     "@types/jest": "npm:^29.5.13"
     "@types/jsonwebtoken": "npm:^9.0.10"
     "@types/luxon": "npm:^3.6.2"
@@ -10055,18 +10054,20 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@repo/common@workspace:packages/infra/common":
+"@repo/domain-modules@workspace:*, @repo/domain-modules@workspace:packages/domain/modules":
   version: 0.0.0-use.local
-  resolution: "@repo/common@workspace:packages/infra/common"
+  resolution: "@repo/domain-modules@workspace:packages/domain/modules"
   dependencies:
     "@medusajs/framework": "npm:2.13.5"
-    "@repo/eslint-config": "workspace:*"
+    "@repo/tsconfig": "workspace:*"
     "@trabara/core": "workspace:*"
-    "@types/node": "npm:^20.12.11"
-    eslint: "npm:^9.39.1"
+    "@types/node": "npm:^20.0.0"
+    axios: "npm:^1.9.0"
+    handlebars: "npm:^4.7.8"
+    playwright: "npm:^1.58.2"
     typescript: "npm:^5.6.2"
   peerDependencies:
-    "@medusajs/framework": ">=2.0.0"
+    "@medusajs/framework": ">=2.11.0 <3.0.0"
   languageName: unknown
   linkType: soft
 
@@ -10088,9 +10089,9 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@repo/fitment-plugin@workspace:*, @repo/fitment-plugin@workspace:packages/domain/fitment-plugin":
+"@repo/fitment-plugin@workspace:*, @repo/fitment-plugin@workspace:packages/domain/plugins/fitment-plugin":
   version: 0.0.0-use.local
-  resolution: "@repo/fitment-plugin@workspace:packages/domain/fitment-plugin"
+  resolution: "@repo/fitment-plugin@workspace:packages/domain/plugins/fitment-plugin"
   dependencies:
     "@codemirror/lang-html": "npm:^6.4.11"
     "@hookform/resolvers": "npm:^5.2.2"
@@ -10102,12 +10103,14 @@ __metadata:
     "@medusajs/medusa": "npm:2.13.5"
     "@medusajs/test-utils": "npm:2.13.5"
     "@medusajs/ui": "npm:4.0.25"
+    "@repo/domain-modules": "workspace:*"
     "@repo/eslint-config": "workspace:*"
     "@repo/hooks": "workspace:*"
     "@repo/scripts": "workspace:*"
     "@repo/tsconfig": "workspace:*"
     "@swc/core": "npm:1.12.2"
     "@swc/jest": "npm:^0.2.38"
+    "@trabara/common": "workspace:*"
     "@trabara/core": "workspace:*"
     "@types/jest": "npm:^29.5.13"
     "@types/node": "npm:^20.0.0"
@@ -10170,9 +10173,9 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@repo/invoice-plugin@workspace:*, @repo/invoice-plugin@workspace:packages/domain/invoice-plugin":
+"@repo/invoice-plugin@workspace:*, @repo/invoice-plugin@workspace:packages/domain/plugins/invoice-plugin":
   version: 0.0.0-use.local
-  resolution: "@repo/invoice-plugin@workspace:packages/domain/invoice-plugin"
+  resolution: "@repo/invoice-plugin@workspace:packages/domain/plugins/invoice-plugin"
   dependencies:
     "@codemirror/lang-html": "npm:^6.4.11"
     "@hookform/resolvers": "npm:^5.2.2"
@@ -10184,12 +10187,14 @@ __metadata:
     "@medusajs/medusa": "npm:2.13.5"
     "@medusajs/test-utils": "npm:2.13.5"
     "@medusajs/ui": "npm:4.0.25"
+    "@repo/domain-modules": "workspace:*"
     "@repo/eslint-config": "workspace:*"
     "@repo/hooks": "workspace:*"
     "@repo/scripts": "workspace:*"
     "@repo/tsconfig": "workspace:*"
     "@swc/core": "npm:1.12.2"
     "@swc/jest": "npm:^0.2.38"
+    "@trabara/common": "workspace:*"
     "@trabara/core": "workspace:*"
     "@types/jest": "npm:^29.5.13"
     "@types/node": "npm:^20.12.11"
@@ -10217,9 +10222,9 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@repo/rbac-plugin@workspace:*, @repo/rbac-plugin@workspace:packages/domain/rbac-plugin":
+"@repo/rbac-plugin@workspace:*, @repo/rbac-plugin@workspace:packages/domain/plugins/rbac-plugin":
   version: 0.0.0-use.local
-  resolution: "@repo/rbac-plugin@workspace:packages/domain/rbac-plugin"
+  resolution: "@repo/rbac-plugin@workspace:packages/domain/plugins/rbac-plugin"
   dependencies:
     "@hookform/resolvers": "npm:^5.2.2"
     "@medusajs/admin-bundler": "npm:2.13.5"
@@ -10231,12 +10236,14 @@ __metadata:
     "@medusajs/test-utils": "npm:2.13.5"
     "@medusajs/ui": "npm:4.0.25"
     "@repo/admin": "workspace:*"
+    "@repo/domain-modules": "workspace:*"
     "@repo/eslint-config": "workspace:*"
     "@repo/hooks": "workspace:*"
     "@repo/scripts": "workspace:*"
     "@repo/tsconfig": "workspace:*"
     "@swc/core": "npm:1.12.2"
     "@swc/jest": "npm:^0.2.38"
+    "@trabara/common": "workspace:*"
     "@trabara/core": "workspace:*"
     "@types/jest": "npm:^29.5.13"
     "@types/jsonwebtoken": "npm:^9.0.10"
@@ -11740,17 +11747,20 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@trabara/cache@workspace:packages/infra/cache":
+"@trabara/common@workspace:*, @trabara/common@workspace:packages/common":
   version: 0.0.0-use.local
-  resolution: "@trabara/cache@workspace:packages/infra/cache"
+  resolution: "@trabara/common@workspace:packages/common"
   dependencies:
+    "@medusajs/framework": "npm:2.13.5"
+    "@medusajs/medusa": "npm:2.13.5"
     "@repo/eslint-config": "workspace:*"
-    "@types/node": "npm:^20.12.11"
+    "@repo/tsconfig": "workspace:*"
+    "@types/node": "npm:^20.0.0"
     eslint: "npm:^9.39.1"
-    ioredis: "npm:^5.6.1"
     typescript: "npm:^5.6.2"
   peerDependencies:
-    ioredis: ">=5.0.0"
+    "@medusajs/framework": ">=2.0.0"
+    "@medusajs/medusa": ">=2.0.0"
   languageName: unknown
   linkType: soft
 
@@ -11768,20 +11778,6 @@ __metadata:
   peerDependencies:
     "@medusajs/framework": ">=2.0.0"
     "@medusajs/medusa": ">=2.0.0"
-  languageName: unknown
-  linkType: soft
-
-"@trabara/queue@workspace:packages/infra/queue":
-  version: 0.0.0-use.local
-  resolution: "@trabara/queue@workspace:packages/infra/queue"
-  dependencies:
-    "@repo/eslint-config": "workspace:*"
-    "@types/node": "npm:^20.12.11"
-    eslint: "npm:^9.39.1"
-    ioredis: "npm:^5.6.1"
-    typescript: "npm:^5.6.2"
-  peerDependencies:
-    ioredis: ">=5.0.0"
   languageName: unknown
   linkType: soft
 
@@ -13180,7 +13176,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"axios@npm:^1.12.0, axios@npm:^1.13.1":
+"axios@npm:^1.12.0, axios@npm:^1.13.1, axios@npm:^1.9.0":
   version: 1.14.0
   resolution: "axios@npm:1.14.0"
   dependencies:
@@ -16827,7 +16823,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ioredis@npm:^5.4.1, ioredis@npm:^5.6.1":
+"ioredis@npm:^5.4.1":
   version: 5.10.1
   resolution: "ioredis@npm:5.10.1"
   dependencies:

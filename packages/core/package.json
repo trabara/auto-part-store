@@ -27,20 +27,10 @@
       "require": "./dist/validations/index.js",
       "types": "./dist/validations/index.d.ts"
     },
-    "./contracts": {
-      "import": "./dist/esm/contracts/index.js",
-      "require": "./dist/contracts/index.js",
-      "types": "./dist/contracts/index.d.ts"
-    },
     "./interfaces": {
       "import": "./dist/esm/interfaces/index.js",
       "require": "./dist/interfaces/index.js",
       "types": "./dist/interfaces/index.d.ts"
-    },
-    "./infra": {
-      "import": "./dist/esm/infra/index.js",
-      "require": "./dist/infra/index.js",
-      "types": "./dist/infra/index.d.ts"
     }
   },
   "publishConfig": {

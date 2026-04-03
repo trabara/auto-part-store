@@ -44,8 +44,9 @@
   "workspaces": [
     "apps/*",
     "packages/core",
+    "packages/common",
     "packages/domain/*",
-    "packages/infra/*",
+    "packages/domain/plugins/*",
     "packages/ui/*",
     "packages/config/*",
     "packages/tooling/*"

@@ -1,13 +1,28 @@
 {
   "name": "@repo/common",
   "version": "0.1.0",
-  "main": "./src/index.ts",
+  "main": "./dist/index.js",
+  "module": "./dist/esm/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/esm/index.js",
+      "require": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "publishConfig": {
+    "access": "restricted",
+    "registry": "https://npm.pkg.github.com",
+    "name": "@trabara/common"
+  },
   "files": [
     "dist",
     "src"
   ],
   "scripts": {
-    "build": "tsc -p tsconfig.json",
+    "build": "tsc -p tsconfig.json && tsc -p tsconfig.esm.json",
+    "lint": "eslint .",
     "check-types": "tsc --noEmit"
   },
   "peerDependencies": {
@@ -15,7 +30,9 @@
   },
   "devDependencies": {
     "@medusajs/framework": "2.13.5",
-    "@types/node": "^20.0.0",
-    "typescript": "^5.0.0"
+    "@repo/eslint-config": "workspace:*",
+    "@types/node": "^20.12.11",
+    "eslint": "^9.39.1",
+    "typescript": "^5.6.2"
   }
 }

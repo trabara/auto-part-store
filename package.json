@@ -8,19 +8,26 @@
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "check-types": "turbo run check-types",
     "clean": "rimraf ./node_modules **/*/node_modules .turbo **/.turbo **/*/.medusa **/*/.next",
+    "changeset": "changeset",
+    "version-packages": "changeset version",
+    "release": "turbo run build --filter=./packages/* && changeset publish",
     "docker:build": "docker compose -f docker/docker-compose.yml build",
     "docker:up": "docker compose -f docker/docker-compose.yml --env-file docker/.env up -d",
     "docker:down": "docker compose -f docker/docker-compose.yml down",
     "docker:logs": "docker compose -f docker/docker-compose.yml --env-file docker/.env logs -f"
   },
   "devDependencies": {
+    "@changesets/cli": "^2.27.12",
     "@swc/core": "1.12.2",
     "@types/jest": "^29.5.13",
     "@types/node": "^20.0.0",
-    "@types/react": "^18.3.2",
-    "@types/react-dom": "^18.2.25",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
     "chokidar": "^4.0.3",
+    "eslint": "^9.39.1",
     "prettier": "^3.7.4",
+    "react-i18next": "^15.0.0",
+    "react-router-dom": "^6.30.3",
     "rimraf": "^6.1.2",
     "ts-jest": "^29.4.9",
     "ts-node": "^10.9.2",
@@ -50,5 +57,10 @@
     "@medusajs/workflows-sdk": "2.13.5",
     "@types/react": "^19",
     "@types/react-dom": "^19"
+  },
+  "overrides": {
+    "@opentelemetry/resources": "^2.0.0",
+    "@opentelemetry/sdk-trace-base": "^2.0.0",
+    "@opentelemetry/sdk-trace-node": "^2.0.0"
   }
 }

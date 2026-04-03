@@ -3,60 +3,45 @@
   "ui": "stream",
   "tasks": {
     "build": {
-      "dependsOn": [
-        "^build"
-      ],
-      "inputs": [
-        "$TURBO_DEFAULT$",
-        ".env*"
-      ],
-      "outputs": [
-        "build",
-        "dist",
-        ".medusa/server/**"
-      ]
+      "dependsOn": ["^build"],
+      "inputs": ["$TURBO_DEFAULT$", ".env*"],
+      "outputs": ["build", "dist", ".medusa/server/**"]
     },
     "lint": {
-      "dependsOn": [
-        "^lint"
-      ]
+      "dependsOn": []
     },
-    "check-types": {},
+    "check-types": {
+      "dependsOn": ["^build"]
+    },
     "format": {
-      "dependsOn": [
-        "^format"
-      ]
+      "dependsOn": ["^format"]
     },
     "start": {
-      "dependsOn": [
-        "^start"
-      ]
+      "dependsOn": ["^start"]
     },
     "dev": {
-      "dependsOn": [
-        "^build",
-        "^dev:init"
-      ],
+      "dependsOn": ["^build", "^dev:init"],
       "cache": false,
       "persistent": true
     },
     "dev:init": {
-      "outputs": [
-        ".medusa/server/**"
-      ],
+      "outputs": [".medusa/server/**"],
       "cache": false
     },
     "test": {
-      "dependsOn": [
-        "^build",
-        "^test:unit"
-      ],
+      "dependsOn": ["^build", "^test:unit"],
       "cache": false
     },
     "test:unit": {
-      "dependsOn": [
-        "build"
-      ],
+      "dependsOn": ["build"],
+      "cache": false
+    },
+    "test:integration:http": {
+      "dependsOn": ["^build"],
+      "cache": false
+    },
+    "test:integration:modules": {
+      "dependsOn": ["^build"],
       "cache": false
     },
     "medusa:init": {
@@ -73,7 +58,6 @@
     },
     "medusa:db:rollback": {
       "cache": false
-    },
-    "typecheck": {}
+    }
   }
 }

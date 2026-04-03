@@ -4,6 +4,11 @@
   "description": "A Medusa plugin for fitment",
   "author": "Medusa (https://medusajs.com)",
   "license": "MIT",
+  "publishConfig": {
+    "access": "restricted",
+    "registry": "https://npm.pkg.github.com",
+    "name": "@trabara/fitment-plugin"
+  },
   "files": [
     ".medusa/server"
   ],
@@ -32,7 +37,13 @@
     "build": "medusa plugin:build",
     "dev": "plugin-dev-watch . ../../apps/medusa",
     "dev:init": "plugin-dev-init .",
-    "prepublishOnly": "medusa plugin:build"
+    "prepublishOnly": "medusa plugin:build",
+    "lint": "eslint .",
+    "check-types": "tsc --noEmit",
+    "test": "TEST_TYPE=integration:http NODE_OPTIONS=--experimental-vm-modules jest --silent=false --forceExit",
+    "test:unit": "TEST_TYPE=unit NODE_OPTIONS=--experimental-vm-modules jest --silent=false --forceExit",
+    "test:integration:http": "TEST_TYPE=integration:http NODE_OPTIONS=--experimental-vm-modules jest --silent=false --runInBand --forceExit",
+    "test:integration:modules": "TEST_TYPE=integration:modules NODE_OPTIONS=--experimental-vm-modules jest --silent=false --runInBand --forceExit"
   },
   "dependencies": {
     "@codemirror/lang-html": "^6.4.11",
@@ -57,31 +68,34 @@
     "@medusajs/medusa": "2.13.5",
     "@medusajs/test-utils": "2.13.5",
     "@medusajs/ui": "4.0.25",
+    "@repo/eslint-config": "workspace:*",
     "@repo/scripts": "workspace:*",
     "@repo/tsconfig": "workspace:*",
     "@swc/core": "1.12.2",
+    "@swc/jest": "^0.2.38",
+    "@types/jest": "^29.5.13",
     "@types/node": "^20.0.0",
-    "@types/react": "^18.3.2",
-    "@types/react-dom": "^18.2.25",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
     "chokidar": "^4.0.3",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
+    "eslint": "^9.39.1",
+    "jest": "^29.7.0",
+    "pg-god": "^1.0.12",
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
     "ts-node": "^10.9.2",
     "typescript": "^5.6.2",
     "vite": "^5.2.11",
     "yalc": "^1.0.0-pre.53"
   },
   "peerDependencies": {
-    "@medusajs/admin-sdk": "2.13.5",
-    "@medusajs/cli": "2.13.5",
-    "@medusajs/framework": "2.13.5",
-    "@medusajs/icons": "2.13.5",
-    "@medusajs/medusa": "2.13.5",
-    "@medusajs/test-utils": "2.13.5",
-    "@medusajs/ui": "4.0.25"
+    "@medusajs/admin-sdk": ">=2.11.0 <3.0.0",
+    "@medusajs/framework": ">=2.11.0 <3.0.0",
+    "@medusajs/icons": ">=2.11.0 <3.0.0",
+    "@medusajs/medusa": ">=2.11.0 <3.0.0",
+    "@medusajs/ui": ">=4.0.0 <5.0.0"
   },
   "engines": {
     "node": ">=20"
-  },
-  "packageManager": "yarn@4.5.0"
+  }
 }

@@ -4,6 +4,11 @@
   "description": "A Medusa plugin to generate invoices for orders",
   "author": "Medusa (https://medusajs.com)",
   "license": "MIT",
+  "publishConfig": {
+    "access": "restricted",
+    "registry": "https://npm.pkg.github.com",
+    "name": "@trabara/invoice-plugin"
+  },
   "files": [
     ".medusa/server"
   ],
@@ -32,7 +37,13 @@
     "build": "medusa plugin:build",
     "dev": "plugin-dev-watch . ../../apps/medusa",
     "dev:init": "plugin-dev-init .",
-    "prepublishOnly": "medusa plugin:build"
+    "prepublishOnly": "medusa plugin:build",
+    "lint": "eslint .",
+    "check-types": "tsc --noEmit",
+    "test": "TEST_TYPE=integration:http NODE_OPTIONS=--experimental-vm-modules jest --silent=false --forceExit",
+    "test:unit": "TEST_TYPE=unit NODE_OPTIONS=--experimental-vm-modules jest --silent=false --forceExit",
+    "test:integration:http": "TEST_TYPE=integration:http NODE_OPTIONS=--experimental-vm-modules jest --silent=false --runInBand --forceExit",
+    "test:integration:modules": "TEST_TYPE=integration:modules NODE_OPTIONS=--experimental-vm-modules jest --silent=false --runInBand --forceExit"
   },
   "dependencies": {
     "@codemirror/lang-html": "^6.4.11",
@@ -53,20 +64,33 @@
     "@medusajs/medusa": "2.13.5",
     "@medusajs/test-utils": "2.13.5",
     "@medusajs/ui": "4.0.25",
+    "@repo/eslint-config": "workspace:*",
     "@repo/scripts": "workspace:*",
-    "@repo/tsconfig": "workspace:*"
+    "@repo/tsconfig": "workspace:*",
+    "@swc/core": "1.12.2",
+    "@swc/jest": "^0.2.38",
+    "@types/jest": "^29.5.13",
+    "@types/node": "^20.12.11",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9.39.1",
+    "jest": "^29.7.0",
+    "pg-god": "^1.0.12",
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.6.2"
   },
   "peerDependencies": {
-    "@medusajs/admin-sdk": "2.13.5",
-    "@medusajs/cli": "2.13.5",
-    "@medusajs/framework": "2.13.5",
-    "@medusajs/icons": "2.13.5",
-    "@medusajs/medusa": "2.13.5",
-    "@medusajs/test-utils": "2.13.5",
-    "@medusajs/ui": "4.0.25"
+    "@medusajs/admin-sdk": ">=2.11.0 <3.0.0",
+    "@medusajs/framework": ">=2.11.0 <3.0.0",
+    "@medusajs/icons": ">=2.11.0 <3.0.0",
+    "@medusajs/medusa": ">=2.11.0 <3.0.0",
+    "@medusajs/ui": ">=4.0.0 <5.0.0",
+    "react": "^19",
+    "react-dom": "^19"
   },
   "engines": {
     "node": ">=20"
-  },
-  "packageManager": "yarn@4.5.0"
+  }
 }

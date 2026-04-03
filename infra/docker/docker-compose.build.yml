@@ -1,0 +1,15 @@
+services:
+  medusa:
+    build:
+      context: ../..
+      dockerfile: ./apps/backend/Dockerfile
+      network: host
+      tags:
+        - latest
+
+  storefront:
+    build:
+      context: ../..
+      dockerfile: ./apps/storefront/Dockerfile
+      tags:
+        - latest

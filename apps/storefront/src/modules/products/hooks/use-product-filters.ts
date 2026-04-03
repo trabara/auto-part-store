@@ -3,7 +3,7 @@
 import { ProductOptionEntry } from "@/lib/util/product"
 import { buildProductListUrl } from "@/lib/util/product-url"
 import { SortOptions } from "@/lib/types"
-import { ProductOptionValueFilter } from "@/lib/data/products"
+import type { ProductOptionValueFilter } from "@trabara/core/dtos"
 import _ from "lodash"
 import { usePathname, useRouter } from "next/navigation"
 import { useCallback, useMemo, useRef } from "react"

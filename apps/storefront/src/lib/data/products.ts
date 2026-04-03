@@ -7,22 +7,11 @@ import { retreiveFitment } from "./fitments"
 import { getRegion } from "./regions"
 import { getLocaleHeader } from "./cookies"
 import { ClientHeaders } from "@medusajs/js-sdk"
-
-export type ProductOptionValueFilter = {
-  option_id: string
-  value: string
-}
-
-export type ProductPriceRange = {
-  min: number
-  max: number
-}
-
-export type ProductOptionMeta = {
-  title: string
-  option_id: string
-  values: string[]
-}
+import type {
+  ProductOptionValueFilter,
+  ProductPriceRange,
+  ProductOptionMeta,
+} from "@trabara/core/dtos"
 
 export type ProductListQueryParams = {
   q?: string
@@ -308,7 +297,6 @@ export async function searchProducts(
 }
 
 export const getProductTypes = async () => {
-  
   const headers = {
     ...(await getLocaleHeader()),
   } as ClientHeaders

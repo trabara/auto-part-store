@@ -7,11 +7,11 @@ import {
 } from "@/modules/products/components/product-list"
 import { ProductListProvider } from "@/modules/products/components/provider"
 import { SortOptions } from "@/lib/types"
-import {
+import type {
   ProductOptionMeta,
   ProductOptionValueFilter,
   ProductPriceRange,
-} from "@/lib/data/products"
+} from "@trabara/core/dtos"
 import { StoreProduct } from "@medusajs/types"
 import CategoryFilters from "../components/category-filters"
 

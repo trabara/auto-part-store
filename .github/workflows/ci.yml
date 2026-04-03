@@ -46,7 +46,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        service: [medusa, storefront]
+        include:
+          - service: backend
+            image: medusa
+          - service: storefront
+            image: storefront
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -64,7 +68,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ${{ vars.DOCKERHUB_USERNAME }}/${{ matrix.service }}
+          images: ${{ vars.DOCKERHUB_USERNAME }}/${{ matrix.image }}
           tags: |
             type=ref,event=branch
             type=ref,event=pr

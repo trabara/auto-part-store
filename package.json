@@ -11,10 +11,10 @@
     "changeset": "changeset",
     "version-packages": "changeset version",
     "release": "turbo run build --filter=./packages/* && changeset publish",
-    "docker:build": "docker compose -f docker/docker-compose.yml build",
-    "docker:up": "docker compose -f docker/docker-compose.yml --env-file docker/.env up -d",
-    "docker:down": "docker compose -f docker/docker-compose.yml down",
-    "docker:logs": "docker compose -f docker/docker-compose.yml --env-file docker/.env logs -f"
+    "docker:build": "docker compose -f infra/docker/docker-compose.yml build",
+    "docker:up": "docker compose -f infra/docker/docker-compose.yml --env-file infra/docker/.env up -d",
+    "docker:down": "docker compose -f infra/docker/docker-compose.yml down",
+    "docker:logs": "docker compose -f infra/docker/docker-compose.yml --env-file infra/docker/.env logs -f"
   },
   "devDependencies": {
     "@changesets/cli": "^2.27.12",
@@ -43,11 +43,12 @@
   "packageManager": "yarn@4.12.0",
   "workspaces": [
     "apps/*",
-    "packages/*",
+    "packages/core",
+    "packages/domain/*",
+    "packages/infra/*",
+    "packages/ui/*",
     "packages/config/*",
-    "packages/plugins/*",
-    "packages/modules/*",
-    "packages/ui/*"
+    "packages/tooling/*"
   ],
   "resolutions": {
     "@medusajs/core-flows": "2.13.5",

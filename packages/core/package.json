@@ -1,0 +1,73 @@
+{
+  "name": "@trabara/core",
+  "version": "0.1.0",
+  "description": "Shared domain contracts: types, DTOs (Zod schemas), and service interfaces",
+  "license": "MIT",
+  "main": "./dist/index.js",
+  "module": "./dist/esm/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/esm/index.js",
+      "require": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./schemas": {
+      "import": "./dist/esm/schemas/index.js",
+      "require": "./dist/schemas/index.js",
+      "types": "./dist/schemas/index.d.ts"
+    },
+    "./dtos": {
+      "import": "./dist/esm/dtos/index.js",
+      "require": "./dist/dtos/index.js",
+      "types": "./dist/dtos/index.d.ts"
+    },
+    "./validations": {
+      "import": "./dist/esm/validations/index.js",
+      "require": "./dist/validations/index.js",
+      "types": "./dist/validations/index.d.ts"
+    },
+    "./contracts": {
+      "import": "./dist/esm/contracts/index.js",
+      "require": "./dist/contracts/index.js",
+      "types": "./dist/contracts/index.d.ts"
+    },
+    "./interfaces": {
+      "import": "./dist/esm/interfaces/index.js",
+      "require": "./dist/interfaces/index.js",
+      "types": "./dist/interfaces/index.d.ts"
+    },
+    "./infra": {
+      "import": "./dist/esm/infra/index.js",
+      "require": "./dist/infra/index.js",
+      "types": "./dist/infra/index.d.ts"
+    }
+  },
+  "publishConfig": {
+    "access": "restricted",
+    "registry": "https://npm.pkg.github.com",
+    "name": "@trabara/core"
+  },
+  "files": [
+    "dist",
+    "src"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json && tsc -p tsconfig.esm.json",
+    "lint": "eslint .",
+    "check-types": "tsc --noEmit"
+  },
+  "peerDependencies": {
+    "@medusajs/framework": ">=2.0.0",
+    "@medusajs/medusa": ">=2.0.0"
+  },
+  "devDependencies": {
+    "@medusajs/framework": "2.13.5",
+    "@medusajs/medusa": "2.13.5",
+    "@repo/eslint-config": "workspace:*",
+    "@repo/tsconfig": "workspace:*",
+    "@types/node": "^20.0.0",
+    "eslint": "^9.39.1",
+    "typescript": "^5.6.2"
+  }
+}

@@ -1,5 +1,5 @@
 import { SortOptions } from "@/lib/types"
-import { ProductOptionValueFilter } from "@/lib/data/products"
+import type { ProductOptionValueFilter } from "@trabara/core/dtos"
 
 export type ProductListUrlParams = {
   sort?: SortOptions

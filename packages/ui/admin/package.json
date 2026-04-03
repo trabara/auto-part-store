@@ -16,7 +16,6 @@
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
-    "@repo/common": "workspace:*",
     "@repo/hooks": "workspace:*",
     "date-fns": "^4.1.0",
     "lodash": "^4.17.23",

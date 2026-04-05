@@ -8,20 +8,16 @@ import {
 } from "@trabara/core/validations";
 
 export class RoleController extends BaseController {
-  async get(): Promise<void> {
+  async getById(): Promise<void> {
     await this.execute(async () => {
       const service = this.req.scope.resolve<AuthzModuleService>(AUTHZ_MODULE);
       const { id } = this.req.params;
 
-      try {
-        const role = await service.retrieveAuthzRole(id, {
-          relations: ["policies", "policies.permission", "members"],
-        });
+      const role = await service.retrieveAuthzRole(id, {
+        relations: ["policies", "policies.permission", "members"],
+      });
 
-        this.success({ role });
-      } catch (e) {
-        this.notFound("Role not found");
-      }
+      this.success({ role });
     }, "Role retrieved successfully");
   }
 
@@ -80,7 +76,7 @@ export class RoleController extends BaseController {
         return;
       }
 
-      this.success({ role }, 201);
+      this.success({ role });
     }, "Role updated successfully");
   }
 
@@ -94,7 +90,7 @@ export class RoleController extends BaseController {
       });
       await service.deleteAuthzRoles([id]);
 
-      this.success({ success: true }, 204);
+      this.noContent();
     }, "Role deleted successfully");
   }
 

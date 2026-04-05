@@ -7,20 +7,16 @@ import {
 } from "@trabara/core/validations";
 
 export class CategoryController extends BaseController {
-  async get(): Promise<void> {
+  async getById(): Promise<void> {
     await this.execute(async () => {
       const service = this.req.scope.resolve<AuthzModuleService>(AUTHZ_MODULE);
       const { id } = this.req.params;
 
-      try {
-        const category = await service.retrieveAuthzCategory(id, {
-          relations: ["permissions"],
-        });
+      const category = await service.retrieveAuthzCategory(id, {
+        relations: ["permissions"],
+      });
 
-        this.success({ category }, 200);
-      } catch (e) {
-        this.notFound("Category not found");
-      }
+      this.success({ category });
     });
   }
 
@@ -65,7 +61,7 @@ export class CategoryController extends BaseController {
 
       const [category] = await service.updateAuthzCategories([updateData]);
 
-      this.success({ category }, 200);
+      this.success({ category });
     }, "Update category");
   }
 
@@ -76,7 +72,7 @@ export class CategoryController extends BaseController {
 
       await service.deleteAuthzCategories([id]);
 
-      this.success({ success: true }, 204);
+      this.noContent();
     }, "Delete category");
   }
 }

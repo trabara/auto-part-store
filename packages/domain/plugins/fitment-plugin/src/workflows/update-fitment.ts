@@ -15,5 +15,3 @@ export const updateFitmentWorkflow = createWorkflow(
     });
   },
 );
-
-export default updateFitmentWorkflow;

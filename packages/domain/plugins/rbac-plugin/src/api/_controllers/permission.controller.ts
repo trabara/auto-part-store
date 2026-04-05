@@ -7,20 +7,16 @@ import {
 } from "@trabara/core/validations";
 
 export class PermissionController extends BaseController {
-  async get(): Promise<void> {
+  async getById(): Promise<void> {
     await this.execute(async () => {
       const service = this.req.scope.resolve<AuthzModuleService>(AUTHZ_MODULE);
       const { id } = this.req.params;
 
-      try {
-        const permission = await service.retrieveAuthzPermission(id, {
-          relations: ["category"],
-        });
+      const permission = await service.retrieveAuthzPermission(id, {
+        relations: ["category"],
+      });
 
-        this.success({ permission }, 200);
-      } catch (e) {
-        this.notFound("Permission not found");
-      }
+      this.success({ permission });
     });
   }
 
@@ -34,7 +30,7 @@ export class PermissionController extends BaseController {
         ...this.req.filterableFields,
       });
 
-      this.success({ data, metadata }, 200);
+      this.success({ data, metadata });
     });
   }
 
@@ -59,7 +55,7 @@ export class PermissionController extends BaseController {
         { id, ...validated },
       ]);
 
-      this.success({ permission }, 200);
+      this.success({ permission });
     });
   }
 
@@ -70,7 +66,7 @@ export class PermissionController extends BaseController {
 
       await service.deleteAuthzPermissions([id]);
 
-      this.success({ success: true }, 204);
+      this.noContent();
     });
   }
 }

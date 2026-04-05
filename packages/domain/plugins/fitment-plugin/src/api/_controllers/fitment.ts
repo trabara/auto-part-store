@@ -1,23 +1,16 @@
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils";
-import { FITMENT_MODULE, FitmentModuleService } from "@repo/domain-modules/fitment";
+import {
+  FITMENT_MODULE,
+  FitmentModuleService,
+} from "@repo/domain-modules/fitment";
 import { BaseController } from "@trabara/common";
-import { CreateFitmentInput, UpdateFitmentInput } from "@trabara/core/dtos";
+import {
+  CreateFitmentInputSchema,
+  UpdateFitmentInputSchema,
+} from "@trabara/core/validations";
 import { deleteFitmentWorkflow } from "../../workflows";
 
-/**
- * Fitment Controller
- *
- * Handles all fitment-related HTTP requests.
- * Following SRP: Single responsibility is handling fitment HTTP requests.
- * Following DIP: Depends on abstraction (BaseController) not implementation.
- */
 export class FitmentController extends BaseController {
-
-
-  /**
-   * GET /admin/fitments
-   * List all fitments with pagination and filtering
-   */
   async list(): Promise<void> {
     await this.execute(async () => {
       const query = this.req.scope.resolve(ContainerRegistrationKeys.QUERY);
@@ -39,10 +32,6 @@ export class FitmentController extends BaseController {
     }, "Fitments list retrieved successfully");
   }
 
-  /**
-   * GET /admin/fitments/:id
-   * Get a single fitment by ID with all relations
-   */
   async getById(): Promise<void> {
     await this.execute(async () => {
       const { id } = this.req.params;
@@ -88,45 +77,32 @@ export class FitmentController extends BaseController {
     }, `Fitment retrieved: ${this.req.params.id}`);
   }
 
-  /**
-   * POST /admin/fitments
-   * Create a new fitment with nested entities (make, model, engine)
-   */
   async create(): Promise<void> {
     await this.execute(async () => {
-      const fitmentModuleService = this.req.scope.resolve<FitmentModuleService>(
-        FITMENT_MODULE,
-      );
-      const body = this.req.validatedBody as CreateFitmentInput;
+      const service =
+        this.req.scope.resolve<FitmentModuleService>(FITMENT_MODULE);
+      const validated = CreateFitmentInputSchema.parse(this.req.validatedBody);
 
-      this.logger.info("Creating new fitment", {
-        data: body,
-      });
+      this.logger.info("Creating new fitment", { data: validated });
 
-      const [fitment] = await fitmentModuleService.createFitments([body]);
+      const [fitment] = await service.createFitments([validated]);
 
       this.logger.info(`Fitment created successfully: ${fitment.id}`);
 
-      this.success({ fitment });
+      this.created({ fitment });
     }, "Fitment created successfully");
   }
 
-  /**
-   * PATCH /admin/fitments/:id
-   * Update an existing fitment
-   */
   async update(): Promise<void> {
     await this.execute(async () => {
-      const fitmentModuleService = this.req.scope.resolve<FitmentModuleService>(FITMENT_MODULE);
-      const body = this.req.validatedBody as UpdateFitmentInput;
+      const service =
+        this.req.scope.resolve<FitmentModuleService>(FITMENT_MODULE);
       const { id } = this.req.params;
+      const validated = UpdateFitmentInputSchema.parse(this.req.validatedBody);
 
-      this.logger.info("Updating fitment", {
-        id,
-        body,
-      });
+      this.logger.info("Updating fitment", { id, data: validated });
 
-      const [updated] = await fitmentModuleService.updateFitments([{ ...body, id }]);
+      const [updated] = await service.updateFitments([{ ...validated, id }]);
 
       this.logger.info(`Fitment updated successfully: ${updated.id}`);
 
@@ -134,29 +110,15 @@ export class FitmentController extends BaseController {
     }, "Fitment updated successfully");
   }
 
-  /**
-   * DELETE /admin/fitments/:id
-   * Delete a fitment by ID (including product links)
-   * Uses deleteFitmentWorkflow to ensure proper cleanup of product-fitment links
-   */
   async delete(): Promise<void> {
     await this.execute(async () => {
       const { id } = this.req.params;
 
       this.logger.info(`Deleting fitment with links via workflow: ${id}`);
 
-      // Execute the workflow that handles both link cleanup and fitment deletion
-      const { result } = await deleteFitmentWorkflow(this.req.scope).run({
-        input: { id },
-      });
+      await deleteFitmentWorkflow(this.req.scope).run({ input: { id } });
 
-      this.logger.info("Fitment and links deleted successfully via workflow");
-
-      this.success({
-        id: result.id,
-        object: "fitment",
-        deleted: result.deleted,
-      });
+      this.noContent();
     }, `Fitment deleted: ${this.req.params.id}`);
   }
 }

@@ -7,15 +7,7 @@ import {
 import { BaseController } from "@trabara/common";
 import FitmentProductLink from "../../links/fitment-product";
 
-/**
- * Product Controller
- *
- * Handles the linking/unlinking of products and fitments.
- * Following SRP: Single responsibility is managing product-fitment relationships.
- * Following DIP: Depends on abstraction (BaseController) not implementation.
- */
 export class ProductController extends BaseController {
-
   async list(): Promise<void> {
     await this.execute(async () => {
       const query = this.req.scope.resolve(ContainerRegistrationKeys.QUERY);
@@ -38,11 +30,6 @@ export class ProductController extends BaseController {
     }, "Products retrieved successfully");
   }
 
-  /**
-   * GET /store/products/search
-   * Lightweight autocomplete endpoint — returns id, title, handle, thumbnail
-   * for products whose title, description, tags, or variant SKUs match `q`.
-   */
   async search(): Promise<void> {
     await this.execute(async () => {
       const query = this.req.scope.resolve(ContainerRegistrationKeys.QUERY);
@@ -81,25 +68,19 @@ export class ProductController extends BaseController {
     }, "Product search autocomplete");
   }
 
-  /**
-   * GET /store/products/v2/related
-   * Returns products from the same category as the given product_id,
-   * excluding the source product itself.
-   */
   async related(): Promise<void> {
     await this.execute(async () => {
       const query = this.req.scope.resolve(ContainerRegistrationKeys.QUERY);
       const { product_id, currency_code, region_id, fitment_id } = this.req
         .filterableFields as {
-          product_id: string;
-          currency_code: string;
-          region_id: string;
-          fitment_id?: string;
-        };
+        product_id: string;
+        currency_code: string;
+        region_id: string;
+        fitment_id?: string;
+      };
 
       this.logger.info("Fetching related products", { product_id });
 
-      // Resolve the product's primary category
       const { data: products } = await query.graph({
         entity: "product",
         fields: ["id", "categories.id"],
@@ -126,10 +107,6 @@ export class ProductController extends BaseController {
     }, "Related products retrieved successfully");
   }
 
-  /**
-   * GET /admin/products/:id/fitments
-   * Get all fitments linked to a product
-   */
   async getFitmentsForProduct(): Promise<void> {
     await this.execute(async () => {
       const { id: productId } = this.req.params;
@@ -137,7 +114,6 @@ export class ProductController extends BaseController {
 
       this.logger.info(`Fetching fitments for product: ${productId}`);
 
-      // Query product with its linked fitments
       const { data: products } = await query.graph({
         entity: "product",
         fields: [
@@ -159,9 +135,7 @@ export class ProductController extends BaseController {
           "fitments.engine.size",
           "fitments.engine.tech",
         ],
-        filters: {
-          id: productId,
-        },
+        filters: { id: productId },
       });
 
       const fitments =
@@ -175,10 +149,6 @@ export class ProductController extends BaseController {
     }, `Fitments retrieved for product ${this.req.params.id}`);
   }
 
-  /**
-   * POST /admin/products/:id/fitments
-   * Link multiple fitments to a product
-   */
   async linkFitmentsToProduct(): Promise<void> {
     await this.execute(async () => {
       const { id: productId } = this.req.params;
@@ -192,7 +162,6 @@ export class ProductController extends BaseController {
 
       const link = this.req.scope.resolve(ContainerRegistrationKeys.LINK);
 
-      // Create links between product and fitments
       const linkPromises = fitment_ids.map((fitmentId) =>
         link.create({
           [Modules.PRODUCT]: {
@@ -218,10 +187,6 @@ export class ProductController extends BaseController {
     }, `Fitments linked to product ${this.req.params.id}`);
   }
 
-  /**
-   * DELETE /admin/products/:id/fitments/:fitmentId
-   * Unlink a specific fitment from a product
-   */
   async unlinkFitmentFromProduct(): Promise<void> {
     await this.execute(async () => {
       const { id: productId, fitmentId } = this.req.params;
@@ -232,7 +197,6 @@ export class ProductController extends BaseController {
 
       const link = this.req.scope.resolve(ContainerRegistrationKeys.LINK);
 
-      // Dismiss (remove) the link between product and fitment
       await link.dismiss({
         [Modules.PRODUCT]: {
           product_id: productId,
@@ -246,19 +210,10 @@ export class ProductController extends BaseController {
         `Successfully unlinked fitment ${fitmentId} from product ${productId}`,
       );
 
-      this.success({
-        message: "Fitment unlinked successfully",
-        product_id: productId,
-        fitment_id: fitmentId,
-        deleted: true,
-      });
+      this.noContent();
     }, `Fitment ${this.req.params.fitmentId} unlinked from product ${this.req.params.id}`);
   }
 
-  /**
-   * GET /admin/fitments/:id/products
-   * Get all products linked to a fitment
-   */
   async getProductsForFitment(): Promise<void> {
     await this.execute(async () => {
       const { id: fitmentId } = this.req.params;
@@ -269,9 +224,7 @@ export class ProductController extends BaseController {
       const { data } = await query.graph({
         entity: FitmentProductLink.entryPoint,
         fields: ["product.*", "product.variants.*"],
-        filters: {
-          fitment_id: fitmentId,
-        },
+        filters: { fitment_id: fitmentId },
       });
 
       const products = data.map((item) => item.product);
@@ -281,16 +234,12 @@ export class ProductController extends BaseController {
       );
 
       this.success({
-        products: products,
+        products,
         count: products.length,
       });
     }, `Products retrieved for fitment ${this.req.params.id}`);
   }
 
-  /**
-   * POST /admin/fitments/:id/products
-   * Link multiple products to a fitment
-   */
   async linkProductsToFitment(): Promise<void> {
     await this.execute(async () => {
       const { id: fitmentId } = this.req.params;
@@ -304,7 +253,6 @@ export class ProductController extends BaseController {
 
       const link = this.req.scope.resolve(ContainerRegistrationKeys.LINK);
 
-      // Create links between product and fitment
       const linkPromises = product_ids.map((productId) =>
         link.create({
           [Modules.PRODUCT]: {
@@ -330,10 +278,6 @@ export class ProductController extends BaseController {
     }, `Products linked to fitment ${this.req.params.id}`);
   }
 
-  /**
-   * DELETE /admin/fitments/:id/products/:productId
-   * Unlink a specific product from a fitment
-   */
   async unlinkProductFromFitment(): Promise<void> {
     await this.execute(async () => {
       const { id: fitmentId, productId } = this.req.params;
@@ -344,7 +288,6 @@ export class ProductController extends BaseController {
 
       const link = this.req.scope.resolve(ContainerRegistrationKeys.LINK);
 
-      // Dismiss (remove) the link between product and fitment
       await link.dismiss({
         [Modules.PRODUCT]: {
           product_id: productId,
@@ -358,12 +301,7 @@ export class ProductController extends BaseController {
         `Successfully unlinked product ${productId} from fitment ${fitmentId}`,
       );
 
-      this.success({
-        message: "Product unlinked successfully",
-        fitment_id: fitmentId,
-        product_id: productId,
-        deleted: true,
-      });
+      this.noContent();
     }, `Product ${this.req.params.productId} unlinked from fitment ${this.req.params.id}`);
   }
 }

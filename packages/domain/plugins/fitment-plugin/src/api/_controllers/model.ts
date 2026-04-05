@@ -1,20 +1,16 @@
-import { FITMENT_MODULE, FitmentModuleService } from "@repo/domain-modules/fitment";
-import { CreateModelInput, UpdateModelInput } from "@trabara/core/dtos";
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils";
+import {
+  FITMENT_MODULE,
+  FitmentModuleService,
+} from "@repo/domain-modules/fitment";
 import { BaseController } from "@trabara/common";
+import {
+  CreateModelInputSchema,
+  UpdateModelInputSchema,
+} from "@trabara/core/validations";
+import { z } from "@medusajs/framework/zod";
 
-/**
- * Model Controller
- *
- * Handles all model-related HTTP requests.
- * Following SRP: Single responsibility is handling model HTTP requests.
- * Following DIP: Depends on abstraction (BaseController) not implementation.
- */
 export class ModelController extends BaseController {
-  /**
-   * GET /admin/models
-   * List all models with pagination
-   */
   async list(): Promise<void> {
     await this.execute(async () => {
       const query = this.req.scope.resolve(ContainerRegistrationKeys.QUERY);
@@ -36,10 +32,6 @@ export class ModelController extends BaseController {
     }, "Models list retrieved successfully");
   }
 
-  /**
-   * GET /admin/models/:id
-   * Get a single model by ID with all relations
-   */
   async getById(): Promise<void> {
     await this.execute(async () => {
       const { id } = this.req.params;
@@ -67,7 +59,7 @@ export class ModelController extends BaseController {
       );
 
       if (!data || data.length === 0) {
-        return this.handleError(new Error("Model not found"));
+        throw new Error("Model not found");
       }
 
       this.logger.info(`Found model with ID: ${id}`);
@@ -76,21 +68,15 @@ export class ModelController extends BaseController {
     }, `Model ${this.req.params.id} retrieved successfully`);
   }
 
-  /**
-   * POST /admin/models
-   * Create a new model
-   */
   async create(): Promise<void> {
     await this.execute(async () => {
-      const fitmentModuleService = this.req.scope.resolve<FitmentModuleService>(FITMENT_MODULE);
+      const service =
+        this.req.scope.resolve<FitmentModuleService>(FITMENT_MODULE);
+      const validated = CreateModelInputSchema.parse(this.req.validatedBody);
 
-      this.logger.info("Creating new model", {
-        data: this.req.validatedBody,
-      });
+      this.logger.info("Creating new model", { data: validated });
 
-      const [model] = await fitmentModuleService.createFitmentModels(
-        [this.req.validatedBody],
-      );
+      const [model] = await service.createFitmentModels([validated]);
 
       this.logger.info(`Created model with ID: ${model.id}`);
 
@@ -98,24 +84,16 @@ export class ModelController extends BaseController {
     }, "Model created successfully");
   }
 
-  /**
-   * PATCH /admin/models/:id
-   * Update an existing model
-   */
   async update(): Promise<void> {
     await this.execute(async () => {
       const { id } = this.req.params;
-      const fitmentModuleService = this.req.scope.resolve<FitmentModuleService>(
-        FITMENT_MODULE,
-      );
+      const service =
+        this.req.scope.resolve<FitmentModuleService>(FITMENT_MODULE);
+      const validated = UpdateModelInputSchema.parse(this.req.validatedBody);
 
-      this.logger.info(`Updating model with ID: ${id}`, {
-        data: this.req.validatedBody,
-      });
+      this.logger.info(`Updating model with ID: ${id}`, { data: validated });
 
-      const [model] = await fitmentModuleService.updateFitmentModels([
-        { ...(this.req.validatedBody as UpdateModelInput), id },
-      ]);
+      const [model] = await service.updateFitmentModels([{ ...validated, id }]);
 
       this.logger.info(`Updated model with ID: ${id}`);
 
@@ -123,23 +101,17 @@ export class ModelController extends BaseController {
     }, `Model ${this.req.params.id} updated successfully`);
   }
 
-  /**
-   * PATCH /admin/models (batch update)
-   * Update multiple models at once
-   */
   async updateBatch(): Promise<void> {
     await this.execute(async () => {
-      const fitmentModuleService = this.req.scope.resolve<FitmentModuleService>(
-        FITMENT_MODULE,
-      );
-      const { models: modelUpdates } = this.req.validatedBody as {
-        models: UpdateModelInput[];
-      };
+      const service =
+        this.req.scope.resolve<FitmentModuleService>(FITMENT_MODULE);
+      const { models: modelUpdates } = z
+        .object({ models: z.array(UpdateModelInputSchema) })
+        .parse(this.req.validatedBody);
 
       this.logger.info(`Batch updating ${modelUpdates.length} models`);
 
-      const models =
-        await fitmentModuleService.updateFitmentModels(modelUpdates);
+      const models = await service.updateFitmentModels(modelUpdates);
 
       this.logger.info(`Batch updated ${models.length} models`);
 
@@ -147,28 +119,17 @@ export class ModelController extends BaseController {
     }, "Models batch updated successfully");
   }
 
-  /**
-   * DELETE /admin/models/:id
-   * Delete a model (with cascade)
-   */
   async delete(): Promise<void> {
     await this.execute(async () => {
       const { id } = this.req.params;
-      const fitmentModuleService = this.req.scope.resolve<FitmentModuleService>(
-        FITMENT_MODULE,
-      );
+      const service =
+        this.req.scope.resolve<FitmentModuleService>(FITMENT_MODULE);
 
       this.logger.info(`Deleting model with ID: ${id}`);
 
-      await fitmentModuleService.deleteFitmentModels([id]);
+      await service.deleteFitmentModels([id]);
 
-      this.logger.info(`Deleted model with ID: ${id}`);
-
-      this.success({
-        id,
-        object: "model",
-        deleted: true,
-      });
+      this.noContent();
     }, `Model ${this.req.params.id} deleted successfully`);
   }
 }

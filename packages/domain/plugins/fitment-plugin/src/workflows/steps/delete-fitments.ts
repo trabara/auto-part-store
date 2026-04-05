@@ -8,7 +8,7 @@ type DeleteFitmentsStepInput = {
   ids: string[];
 };
 export const deleteFitmentsStep = createStep(
-  "delete-fitments",
+  "delete-fitments-step",
   async ({ ids }: DeleteFitmentsStepInput, { container }) => {
     const fitmentModuleService =
       container.resolve<FitmentModuleService>(FITMENT_MODULE);

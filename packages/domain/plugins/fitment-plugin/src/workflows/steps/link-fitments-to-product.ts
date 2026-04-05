@@ -9,8 +9,8 @@ type LinkFitmentsToProductInput = {
 };
 
 export const linkFitmentsToProductStep = createStep(
-  "link-fitments-to-product",
-  async function (input: LinkFitmentsToProductInput, { container }) {
+  "link-fitments-to-product-step",
+  async (input: LinkFitmentsToProductInput, { container }) => {
     const link = container.resolve<Link>(ContainerRegistrationKeys.LINK);
     await Promise.all(
       input.fitment_ids.map((fitment_id) =>
@@ -29,7 +29,7 @@ export const linkFitmentsToProductStep = createStep(
       { product_id: input.product_id, fitment_ids: input.fitment_ids },
     );
   },
-  async function (input: LinkFitmentsToProductInput, { container }) {
+  async (input: LinkFitmentsToProductInput, { container }) => {
     if (!input) {
       return;
     }

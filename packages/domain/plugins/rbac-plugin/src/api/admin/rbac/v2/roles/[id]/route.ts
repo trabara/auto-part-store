@@ -3,7 +3,7 @@ import { RoleController } from "../../../../../_controllers";
 
 export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
   const controller = new RoleController(req, res);
-  await controller.get();
+  await controller.getById();
 };
 
 export const PATCH = async (req: MedusaRequest, res: MedusaResponse) => {

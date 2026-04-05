@@ -1,21 +1,16 @@
-import { FITMENT_MODULE } from "@repo/domain-modules/fitment";
-import { CreateEngineInput, UpdateEngineInput } from "@trabara/core/dtos";
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils";
+import {
+  FITMENT_MODULE,
+  FitmentModuleService,
+} from "@repo/domain-modules/fitment";
 import { BaseController } from "@trabara/common";
+import {
+  CreateEngineInputSchema,
+  UpdateEngineInputSchema,
+} from "@trabara/core/validations";
+import { z } from "@medusajs/framework/zod";
 
-/**
- * Engine Controller
- *
- * Handles all engine-related HTTP requests.
- * Following SRP: Single responsibility is handling engine HTTP requests.
- * Following DIP: Depends on abstraction (BaseController) not implementation.
- */
 export class EngineController extends BaseController {
-
-  /**
-   * GET /admin/engines
-   * List all engines with pagination
-   */
   async list(): Promise<void> {
     await this.execute(async () => {
       const query = this.req.scope.resolve(ContainerRegistrationKeys.QUERY);
@@ -37,10 +32,6 @@ export class EngineController extends BaseController {
     }, "Engines list retrieved successfully");
   }
 
-  /**
-   * GET /admin/engines/:id
-   * Get a single engine by ID with all relations
-   */
   async getById(): Promise<void> {
     await this.execute(async () => {
       const { id } = this.req.params;
@@ -69,7 +60,7 @@ export class EngineController extends BaseController {
       );
 
       if (!data || data.length === 0) {
-        return this.handleError(new Error("Engine not found"));
+        throw new Error("Engine not found");
       }
 
       this.logger.info(`Found engine with ID: ${id}`);
@@ -78,21 +69,15 @@ export class EngineController extends BaseController {
     }, `Engine ${this.req.params.id} retrieved successfully`);
   }
 
-  /**
-   * POST /admin/engines
-   * Create a new engine
-   */
   async create(): Promise<void> {
     await this.execute(async () => {
-      const fitmentModuleService = this.req.scope.resolve<any>(FITMENT_MODULE);
+      const service =
+        this.req.scope.resolve<FitmentModuleService>(FITMENT_MODULE);
+      const validated = CreateEngineInputSchema.parse(this.req.validatedBody);
 
-      this.logger.info("Creating new engine", {
-        data: this.req.validatedBody,
-      });
+      this.logger.info("Creating new engine", { data: validated });
 
-      const [engine] = await fitmentModuleService.createFitmentEngines([
-        this.req.validatedBody as CreateEngineInput,
-      ]);
+      const [engine] = await service.createFitmentEngines([validated]);
 
       this.logger.info(`Created engine with ID: ${engine.id}`);
 
@@ -100,23 +85,17 @@ export class EngineController extends BaseController {
     }, "Engine created successfully");
   }
 
-  /**
-   * PATCH /admin/engines/:id
-   * Update an existing engine
-   */
   async update(): Promise<void> {
     await this.execute(async () => {
       const { id } = this.req.params;
-      const fitmentModuleService = this.req.scope.resolve(
-        FITMENT_MODULE,
-      ) as any;
+      const service =
+        this.req.scope.resolve<FitmentModuleService>(FITMENT_MODULE);
+      const validated = UpdateEngineInputSchema.parse(this.req.validatedBody);
 
-      this.logger.info(`Updating engine with ID: ${id}`, {
-        data: this.req.validatedBody,
-      });
+      this.logger.info(`Updating engine with ID: ${id}`, { data: validated });
 
-      const [engine] = await fitmentModuleService.updateFitmentEngines([
-        { ...(this.req.validatedBody as UpdateEngineInput), id },
+      const [engine] = await service.updateFitmentEngines([
+        { ...validated, id },
       ]);
 
       this.logger.info(`Updated engine with ID: ${id}`);
@@ -125,23 +104,17 @@ export class EngineController extends BaseController {
     }, `Engine ${this.req.params.id} updated successfully`);
   }
 
-  /**
-   * PATCH /admin/engines (batch update)
-   * Update multiple engines at once
-   */
   async updateBatch(): Promise<void> {
     await this.execute(async () => {
-      const fitmentModuleService = this.req.scope.resolve(
-        FITMENT_MODULE,
-      ) as any;
-      const { engines: engineUpdates } = this.req.validatedBody as {
-        engines: UpdateEngineInput[];
-      };
+      const service =
+        this.req.scope.resolve<FitmentModuleService>(FITMENT_MODULE);
+      const { engines: engineUpdates } = z
+        .object({ engines: z.array(UpdateEngineInputSchema) })
+        .parse(this.req.validatedBody);
 
       this.logger.info(`Batch updating ${engineUpdates.length} engines`);
 
-      const engines =
-        await fitmentModuleService.updateFitmentEngines(engineUpdates);
+      const engines = await service.updateFitmentEngines(engineUpdates);
 
       this.logger.info(`Batch updated ${engines.length} engines`);
 
@@ -149,28 +122,17 @@ export class EngineController extends BaseController {
     }, "Engines batch updated successfully");
   }
 
-  /**
-   * DELETE /admin/engines/:id
-   * Delete an engine (with cascade)
-   */
   async delete(): Promise<void> {
     await this.execute(async () => {
       const { id } = this.req.params;
-      const fitmentModuleService = this.req.scope.resolve(
-        FITMENT_MODULE,
-      ) as any;
+      const service =
+        this.req.scope.resolve<FitmentModuleService>(FITMENT_MODULE);
 
       this.logger.info(`Deleting engine with ID: ${id}`);
 
-      await fitmentModuleService.deleteEngineWithCascade(id);
+      await (service as any).deleteEngineWithCascade(id);
 
-      this.logger.info(`Deleted engine with ID: ${id}`);
-
-      this.success({
-        id,
-        object: "engine",
-        deleted: true,
-      });
+      this.noContent();
     }, `Engine ${this.req.params.id} deleted successfully`);
   }
 }

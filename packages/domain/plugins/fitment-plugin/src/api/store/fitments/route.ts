@@ -1,7 +1,7 @@
-import { MedusaRequest, MedusaResponse } from "@medusajs/framework";
-import { FitmentController } from "../../_controllers/fitment";
+import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http";
+import { FitmentController } from "../../_controllers";
 
 export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
-    const controller = new FitmentController(req, res);
-    await controller.list();
-}
+  const controller = new FitmentController(req, res);
+  await controller.list();
+};

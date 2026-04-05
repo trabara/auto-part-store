@@ -15,27 +15,16 @@ type DismissFitmentLinksOutput = {
   }>;
 };
 
-/**
- * Workflow step to dismiss (remove) all product links for given fitments
- * This should be called BEFORE deleting fitments to prevent orphaned links
- */
 export const dismissFitmentLinksStep = createStep(
-  "dismiss-fitment-links",
-  async function (
-    input: DismissFitmentLinksInput,
-    { container },
-  ): Promise<
-    StepResponse<DismissFitmentLinksOutput, DismissFitmentLinksOutput>
-  > {
+  "dismiss-fitment-links-step",
+  async (input: DismissFitmentLinksInput, { container }) => {
     const query = container.resolve<Query>(ContainerRegistrationKeys.QUERY);
     const link = container.resolve<Link>(ContainerRegistrationKeys.LINK);
 
     const dismissedLinks: Array<{ product_id: string; fitment_id: string }> =
       [];
 
-    // For each fitment, query all linked products and dismiss the links
     for (const fitmentId of input.fitment_ids) {
-      // Query using the link entry point to find all products linked to this fitment
       const { data } = await query.graph({
         entity: FitmentProductLink.entryPoint,
         fields: ["product_id", "fitment_id"],
@@ -44,7 +33,6 @@ export const dismissFitmentLinksStep = createStep(
         },
       });
 
-      // Dismiss each link
       for (const linkData of data) {
         await link.dismiss({
           [Modules.PRODUCT]: {
@@ -67,8 +55,7 @@ export const dismissFitmentLinksStep = createStep(
       { dismissed_links: dismissedLinks },
     );
   },
-  // Compensation function: restore the links if the workflow fails
-  async function (output: DismissFitmentLinksOutput | undefined, { container }) {
+  async (output: DismissFitmentLinksOutput | undefined, { container }) => {
     if (
       !output ||
       !output.dismissed_links ||
@@ -79,7 +66,6 @@ export const dismissFitmentLinksStep = createStep(
 
     const link = container.resolve<Link>(ContainerRegistrationKeys.LINK);
 
-    // Restore all dismissed links
     await Promise.all(
       output.dismissed_links.map((linkData) =>
         link.create({

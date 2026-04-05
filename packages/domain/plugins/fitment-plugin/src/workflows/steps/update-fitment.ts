@@ -7,17 +7,12 @@ import { UpdateFitmentInput } from "@trabara/core/dtos";
 
 export const updateFitmentStep = createStep(
   "update-fitment-step",
-  async function (input: UpdateFitmentInput, { container }) {
-    const fitmentModuleService =
-      container.resolve<FitmentModuleService>(FITMENT_MODULE);
+  async (input: UpdateFitmentInput, { container }) => {
+    const service = container.resolve<FitmentModuleService>(FITMENT_MODULE);
 
-    // First, retrieve the original fitment data for compensation
-    const [originalFitment] = await fitmentModuleService.listFitments({
-      id: input.id,
-    });
+    const [originalFitment] = await service.listFitments({ id: input.id });
 
-    // Now update the fitment
-    const updatedFitment = await fitmentModuleService.updateFitment(input);
+    const updatedFitment = await service.updateFitment(input);
 
     return new StepResponse(updatedFitment, {
       id: input.id,
@@ -33,17 +28,13 @@ export const updateFitmentStep = createStep(
       },
     });
   },
-  async function (compensationData, { container }) {
-    if (!compensationData) {
-      return;
-    }
+  async (compensation, { container }) => {
+    if (!compensation) return;
 
-    // Rollback: restore the original fitment data
-    const fitmentModuleService =
-      container.resolve<FitmentModuleService>(FITMENT_MODULE);
-    await fitmentModuleService.updateFitment({
-      id: compensationData.id,
-      ...compensationData.originalData,
+    const service = container.resolve<FitmentModuleService>(FITMENT_MODULE);
+    await service.updateFitment({
+      id: compensation.id,
+      ...compensation.originalData,
     });
   },
 );

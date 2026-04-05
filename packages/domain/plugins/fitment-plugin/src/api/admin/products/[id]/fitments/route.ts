@@ -15,7 +15,7 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
  * Link multiple fitments to a product
  */
 export async function POST(
-  req: MedusaRequest<{ fitment_ids: string[] }>,
+  req: MedusaRequest,
   res: MedusaResponse,
 ) {
   const controller = new ProductController(req, res);

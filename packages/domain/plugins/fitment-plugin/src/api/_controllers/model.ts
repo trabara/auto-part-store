@@ -1,4 +1,4 @@
-import { FITMENT_MODULE } from "@repo/domain-modules/fitment";
+import { FITMENT_MODULE, FitmentModuleService } from "@repo/domain-modules/fitment";
 import { CreateModelInput, UpdateModelInput } from "@trabara/core/dtos";
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils";
 import { BaseController } from "@trabara/common";
@@ -82,14 +82,14 @@ export class ModelController extends BaseController {
    */
   async create(): Promise<void> {
     await this.execute(async () => {
-      const fitmentModuleService = this.req.scope.resolve<any>(FITMENT_MODULE);
+      const fitmentModuleService = this.req.scope.resolve<FitmentModuleService>(FITMENT_MODULE);
 
       this.logger.info("Creating new model", {
         data: this.req.validatedBody,
       });
 
-      const model = await fitmentModuleService.createFitmentModels(
-        this.req.validatedBody as CreateModelInput,
+      const [model] = await fitmentModuleService.createFitmentModels(
+        [this.req.validatedBody],
       );
 
       this.logger.info(`Created model with ID: ${model.id}`);
@@ -105,9 +105,9 @@ export class ModelController extends BaseController {
   async update(): Promise<void> {
     await this.execute(async () => {
       const { id } = this.req.params;
-      const fitmentModuleService = this.req.scope.resolve(
+      const fitmentModuleService = this.req.scope.resolve<FitmentModuleService>(
         FITMENT_MODULE,
-      ) as any;
+      );
 
       this.logger.info(`Updating model with ID: ${id}`, {
         data: this.req.validatedBody,
@@ -129,9 +129,9 @@ export class ModelController extends BaseController {
    */
   async updateBatch(): Promise<void> {
     await this.execute(async () => {
-      const fitmentModuleService = this.req.scope.resolve(
+      const fitmentModuleService = this.req.scope.resolve<FitmentModuleService>(
         FITMENT_MODULE,
-      ) as any;
+      );
       const { models: modelUpdates } = this.req.validatedBody as {
         models: UpdateModelInput[];
       };
@@ -154,13 +154,13 @@ export class ModelController extends BaseController {
   async delete(): Promise<void> {
     await this.execute(async () => {
       const { id } = this.req.params;
-      const fitmentModuleService = this.req.scope.resolve(
+      const fitmentModuleService = this.req.scope.resolve<FitmentModuleService>(
         FITMENT_MODULE,
-      ) as any;
+      );
 
       this.logger.info(`Deleting model with ID: ${id}`);
 
-      await fitmentModuleService.deleteModelWithCascade(id);
+      await fitmentModuleService.deleteFitmentModels([id]);
 
       this.logger.info(`Deleted model with ID: ${id}`);
 

@@ -1,5 +1,6 @@
 import { model } from "@medusajs/framework/utils"
 import { FitmentModel } from "./model"
+import { InferTypeOf } from "@medusajs/framework/types";
 
 export const FitmentMake = model.define("fitment_make", {
   id: model.id().primaryKey(),
@@ -14,3 +15,5 @@ export const FitmentMake = model.define("fitment_make", {
     unique: true,
   }
 ])
+
+export type FitmentMake = InferTypeOf<typeof FitmentMake>;

@@ -11,9 +11,6 @@ import { BaseController } from "@trabara/common";
  * Following DIP: Depends on abstraction (BaseController).
  */
 export class MakeController extends BaseController {
-  constructor(req, res) {
-    super(req, res);
-  }
 
   /**
    * GET /admin/makes

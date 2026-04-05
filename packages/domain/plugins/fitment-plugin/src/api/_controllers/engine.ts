@@ -11,9 +11,6 @@ import { BaseController } from "@trabara/common";
  * Following DIP: Depends on abstraction (BaseController) not implementation.
  */
 export class EngineController extends BaseController {
-  constructor(req, res) {
-    super(req, res);
-  }
 
   /**
    * GET /admin/engines

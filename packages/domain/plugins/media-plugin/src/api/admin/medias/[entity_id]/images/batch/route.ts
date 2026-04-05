@@ -1,8 +1,8 @@
-import { AuthenticatedMedusaRequest, MedusaResponse } from "@medusajs/framework/http";
+import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http";
 import { MediaController } from "../../../../../_controllers/media";
 
 export async function POST(
-    req: AuthenticatedMedusaRequest,
+    req: MedusaRequest,
     res: MedusaResponse
 ): Promise<void> {
     const controller = new MediaController(req, res);
@@ -10,7 +10,7 @@ export async function POST(
 }
 
 export async function DELETE(
-    req: AuthenticatedMedusaRequest,
+    req: MedusaRequest,
     res: MedusaResponse
 ): Promise<void> {
     const controller = new MediaController(req, res);

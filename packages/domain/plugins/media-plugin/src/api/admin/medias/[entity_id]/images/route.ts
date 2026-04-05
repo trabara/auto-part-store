@@ -1,4 +1,4 @@
-import { AuthenticatedMedusaRequest, MedusaResponse } from "@medusajs/framework/http";
+import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http";
 import { MediaController } from "../../../../_controllers/media";
 
 /**
@@ -6,7 +6,7 @@ import { MediaController } from "../../../../_controllers/media";
  * Create a batch of images for a specific media entity
  */
 export async function POST(
-    req: AuthenticatedMedusaRequest,
+    req: MedusaRequest,
     res: MedusaResponse
 ): Promise<void> {
     const controller = new MediaController(req, res);
@@ -19,7 +19,7 @@ export async function POST(
  * List all images for a specific media entity
  */
 export async function GET(
-    req: AuthenticatedMedusaRequest,
+    req: MedusaRequest,
     res: MedusaResponse
 ): Promise<void> {
     const controller = new MediaController(req, res);

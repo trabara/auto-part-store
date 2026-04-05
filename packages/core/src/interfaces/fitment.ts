@@ -1,10 +1,7 @@
-import type { Context } from "@medusajs/framework/types";
 import type { EntityManager } from "@medusajs/framework/mikro-orm/knex";
+import type { Context } from "@medusajs/framework/types";
 import type {
-  CreateEngineInput,
-  CreateFitmentInput,
-  CreateModelInput,
-  UpdateFitmentInput,
+  UpdateFitmentInput
 } from "../dtos/fitment";
 
 /**
@@ -45,64 +42,11 @@ export interface IFitmentCrudService {
 }
 
 /**
- * Interface for cascade delete operations on fitment entities
- *
- * Follows ISP: Clients only depend on cascade delete operations
- */
-export interface IFitmentCascadeService {
-  deleteMakeWithCascade(
-    id: string,
-    sharedContext?: Context<EntityManager>,
-  ): Promise<void>;
-
-  deleteModelWithCascade(
-    id: string,
-    sharedContext?: Context<EntityManager>,
-  ): Promise<void>;
-
-  deleteEngineWithCascade(
-    id: string,
-    sharedContext?: Context<EntityManager>,
-  ): Promise<void>;
-}
-
-/**
- * Interface for managing relationships between fitment entities
- * (Makes, Models, Engines)
- *
- * Follows ISP: Clients only depend on relationship operations
- */
-export interface IFitmentRelationshipService {
-  findOrCreateMake(
-    name: string,
-    sharedContext?: Context<EntityManager>,
-  ): Promise<any>;
-
-  findOrCreateModel(
-    name: string,
-    makeId: string,
-    sharedContext?: Context<EntityManager>,
-  ): Promise<any>;
-
-  findOrCreateEngine(
-    data: CreateEngineInput,
-    sharedContext?: Context<EntityManager>,
-  ): Promise<any>;
-
-  createModelFromInput(
-    dto: CreateModelInput | any,
-    sharedContext?: Context<EntityManager>,
-  ): Promise<any>;
-}
-
-/**
  * Full fitment module service interface combining CRUD, cascade, and relationship operations
  */
 export interface IFitmentModuleService
   extends
-    IFitmentCrudService,
-    IFitmentCascadeService,
-    IFitmentRelationshipService {
+  IFitmentCrudService {
   // Makes
   listFitmentMakes(
     filters?: Record<string, any>,
@@ -204,20 +148,4 @@ export interface IFitmentModuleService
     ids: string[],
     sharedContext?: Context<EntityManager>,
   ): Promise<void>;
-
-  // Complex operations
-  updateFullFitment(
-    data: UpdateFitmentInput,
-    sharedContext?: Context<EntityManager>,
-  ): Promise<any>;
-
-  createFullFitments(
-    dtos: any[],
-    sharedContext?: Context<EntityManager>,
-  ): Promise<any[]>;
-
-  createFullFitment(
-    dto: any,
-    sharedContext?: Context<EntityManager>,
-  ): Promise<any>;
 }

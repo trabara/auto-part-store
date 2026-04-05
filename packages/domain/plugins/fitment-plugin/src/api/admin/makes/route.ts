@@ -1,5 +1,4 @@
 import { MedusaRequest, MedusaResponse } from "@medusajs/framework";
-import { CreateMakeInput, UpdateMakeInput } from "@trabara/core/dtos";
 import { MakeController } from "../../_controllers/make";
 
 /**
@@ -16,7 +15,7 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
  * Create a new vehicle make
  */
 export const POST = async (
-  req: MedusaRequest<CreateMakeInput>,
+  req: MedusaRequest,
   res: MedusaResponse,
 ) => {
   const controller = new MakeController(req, res);
@@ -28,7 +27,7 @@ export const POST = async (
  * Update multiple makes
  */
 export const PATCH = async (
-  req: MedusaRequest<{ makes: UpdateMakeInput[] }>,
+  req: MedusaRequest,
   res: MedusaResponse,
 ) => {
   const controller = new MakeController(req, res);

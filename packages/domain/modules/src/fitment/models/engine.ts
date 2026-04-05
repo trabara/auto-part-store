@@ -1,6 +1,7 @@
 import { model } from "@medusajs/framework/utils";
 import { EngineTypeSchema, FuelTypeSchema } from "@trabara/core/schemas";
 import { Fitment } from "./fitment";
+import { InferTypeOf } from "@medusajs/framework/types";
 
 export const FitmentEngine = model
   .define("fitment_engine", {
@@ -20,3 +21,6 @@ export const FitmentEngine = model
       unique: true,
     },
   ]);
+
+
+export type FitmentEngine = InferTypeOf<typeof FitmentEngine>;

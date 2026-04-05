@@ -1,11 +1,11 @@
 import { ContainerRegistrationKeys, Modules } from "@medusajs/framework/utils";
-import { BaseController } from "@trabara/common";
-import FitmentProductLink from "../../links/fitment-product";
 import { FITMENT_MODULE } from "@repo/domain-modules/fitment";
 import {
   ProductListInput,
   ProductListService,
 } from "@repo/domain-modules/fitment/services/product-list.service";
+import { BaseController } from "@trabara/common";
+import FitmentProductLink from "../../links/fitment-product";
 
 /**
  * Product Controller
@@ -15,9 +15,6 @@ import {
  * Following DIP: Depends on abstraction (BaseController) not implementation.
  */
 export class ProductController extends BaseController {
-  constructor(req, res) {
-    super(req, res);
-  }
 
   async list(): Promise<void> {
     await this.execute(async () => {
@@ -94,11 +91,11 @@ export class ProductController extends BaseController {
       const query = this.req.scope.resolve(ContainerRegistrationKeys.QUERY);
       const { product_id, currency_code, region_id, fitment_id } = this.req
         .filterableFields as {
-        product_id: string;
-        currency_code: string;
-        region_id: string;
-        fitment_id?: string;
-      };
+          product_id: string;
+          currency_code: string;
+          region_id: string;
+          fitment_id?: string;
+        };
 
       this.logger.info("Fetching related products", { product_id });
 

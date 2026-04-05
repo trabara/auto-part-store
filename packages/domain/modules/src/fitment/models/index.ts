@@ -1,4 +1,4 @@
-export { FitmentMake } from "./make"
-export { FitmentModel } from "./model"
-export { FitmentEngine } from "./engine"
-export { Fitment } from "./fitment"
+export * from "./make"
+export * from "./model"
+export * from "./engine"
+export * from "./fitment"

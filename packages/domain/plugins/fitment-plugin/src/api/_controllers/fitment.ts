@@ -1,6 +1,6 @@
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils";
+import { FITMENT_MODULE, FitmentModuleService } from "@repo/domain-modules/fitment";
 import { BaseController } from "@trabara/common";
-import { FITMENT_MODULE } from "@repo/domain-modules/fitment";
 import { CreateFitmentInput, UpdateFitmentInput } from "@trabara/core/dtos";
 import { deleteFitmentWorkflow } from "../../workflows";
 
@@ -12,9 +12,7 @@ import { deleteFitmentWorkflow } from "../../workflows";
  * Following DIP: Depends on abstraction (BaseController) not implementation.
  */
 export class FitmentController extends BaseController {
-  constructor(req, res) {
-    super(req, res);
-  }
+
 
   /**
    * GET /admin/fitments
@@ -96,16 +94,16 @@ export class FitmentController extends BaseController {
    */
   async create(): Promise<void> {
     await this.execute(async () => {
-      const fitmentModuleService = this.req.scope.resolve(
+      const fitmentModuleService = this.req.scope.resolve<FitmentModuleService>(
         FITMENT_MODULE,
-      ) as any;
+      );
       const body = this.req.validatedBody as CreateFitmentInput;
 
       this.logger.info("Creating new fitment", {
         data: body,
       });
 
-      const fitment = await fitmentModuleService.createFitments(body);
+      const [fitment] = await fitmentModuleService.createFitments([body]);
 
       this.logger.info(`Fitment created successfully: ${fitment.id}`);
 
@@ -119,16 +117,16 @@ export class FitmentController extends BaseController {
    */
   async update(): Promise<void> {
     await this.execute(async () => {
-      const fitmentModuleService = this.req.scope.resolve<any>(FITMENT_MODULE);
+      const fitmentModuleService = this.req.scope.resolve<FitmentModuleService>(FITMENT_MODULE);
       const body = this.req.validatedBody as UpdateFitmentInput;
-      const { id } = this.req.params as Record<string, string | undefined>;
+      const { id } = this.req.params;
 
       this.logger.info("Updating fitment", {
         id,
         body,
       });
 
-      const updated = await fitmentModuleService.updateFitments(body);
+      const [updated] = await fitmentModuleService.updateFitments([{ ...body, id }]);
 
       this.logger.info(`Fitment updated successfully: ${updated.id}`);
 

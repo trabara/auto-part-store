@@ -1,5 +1,4 @@
 import { MedusaRequest, MedusaResponse } from "@medusajs/framework";
-import { UpdateMakeInput } from "@trabara/core/dtos";
 import { MakeController } from "../../../_controllers/make";
 
 /**
@@ -16,7 +15,7 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
  * Update a single make by ID
  */
 export async function PATCH(
-  req: MedusaRequest<UpdateMakeInput>,
+  req: MedusaRequest,
   res: MedusaResponse,
 ) {
   const controller = new MakeController(req, res);

@@ -1,12 +1,14 @@
 import { MedusaRequest, MedusaResponse } from "@medusajs/framework";
-import { CreateModelInput, UpdateModelInput } from "@trabara/core/dtos";
 import { ModelController } from "../../_controllers/model";
 
 /**
  * GET /admin/models
  * List all vehicle models
  */
-export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
+export const GET = async (
+  req: MedusaRequest,
+  res: MedusaResponse
+) => {
   const controller = new ModelController(req, res);
   await controller.list();
 };
@@ -16,7 +18,7 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
  * Create a new vehicle model
  */
 export const POST = async (
-  req: MedusaRequest<CreateModelInput>,
+  req: MedusaRequest,
   res: MedusaResponse,
 ) => {
   const controller = new ModelController(req, res);
@@ -28,7 +30,7 @@ export const POST = async (
  * Update multiple models
  */
 export const PATCH = async (
-  req: MedusaRequest<{ models: UpdateModelInput[] }>,
+  req: MedusaRequest,
   res: MedusaResponse,
 ) => {
   const controller = new ModelController(req, res);

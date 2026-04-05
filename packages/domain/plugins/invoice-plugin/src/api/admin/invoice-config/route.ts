@@ -1,4 +1,4 @@
-import { AuthenticatedMedusaRequest, MedusaResponse } from "@medusajs/framework/http";
+import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http";
 import { InvoiceController } from "../../_controllers/invoice";
 
 /**
@@ -6,7 +6,7 @@ import { InvoiceController } from "../../_controllers/invoice";
  * Get the invoice configuration
  */
 export async function GET(
-    req: AuthenticatedMedusaRequest,
+    req: MedusaRequest,
     res: MedusaResponse
 ) {
     const controller = new InvoiceController(req, res);
@@ -17,7 +17,7 @@ export async function GET(
  * POST /admin/invoice-config
  * Update the invoice configuration
  */
-export async function POST(req: AuthenticatedMedusaRequest, res: MedusaResponse) {
+export async function POST(req: MedusaRequest, res: MedusaResponse) {
     const controller = new InvoiceController(req, res);
     await controller.updateConfig();
 }

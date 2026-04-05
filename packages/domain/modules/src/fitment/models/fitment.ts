@@ -6,6 +6,7 @@ import {
 } from "@trabara/core/schemas";
 import { FitmentEngine } from "./engine";
 import { FitmentModel } from "./model";
+import { InferTypeOf } from "@medusajs/framework/types";
 
 export const Fitment = model
   .define("fitment", {
@@ -44,3 +45,5 @@ export const Fitment = model
       expression: "year_end IS NULL OR year_end >= year_start",
     },
   ]);
+
+export type Fitment = InferTypeOf<typeof Fitment>;

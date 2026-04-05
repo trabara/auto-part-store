@@ -9,6 +9,7 @@ import {
   CreateRoleSchema,
   RoleFiltersSchema,
   UpdateRoleSchema,
+  UpdateRolePoliciesSchema,
 } from "@trabara/core/validations";
 
 const authenticateMiddleware = authenticate(["*"], ["session"]);
@@ -20,7 +21,20 @@ export const adminRolesMiddlewares: MiddlewareRoute[] = [
     middlewares: [
       authenticateMiddleware,
       validateAndTransformQuery(RoleFiltersSchema, {
-        defaults: ["id", "name", "description", "is_default", "created_at"],
+        defaults: [
+          "id",
+          "name",
+          "description",
+          "is_default",
+          "created_at",
+          "members.user_id",
+          "policies.id",
+          "policies.permission_id",
+          "policies.permission.id",
+          "policies.permission.kind",
+          "policies.permission.target",
+          "policies.permission.type",
+        ],
         isList: true,
       }),
     ],
@@ -57,6 +71,14 @@ export const adminRolesMiddlewares: MiddlewareRoute[] = [
     middlewares: [
       authenticateMiddleware,
       validateAndTransformBody(AssignUsersSchema),
+    ],
+  },
+  {
+    matcher: "/admin/rbac/v2/roles/:id/policies",
+    method: "PATCH",
+    middlewares: [
+      authenticateMiddleware,
+      validateAndTransformBody(UpdateRolePoliciesSchema),
     ],
   },
 ];

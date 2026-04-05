@@ -59,7 +59,9 @@ export class CategoryController extends BaseController {
         updateData.description = validated.description;
       }
 
-      const [category] = await service.updateAuthzCategories([updateData]);
+      const [category] = await service.updateAuthzCategories([
+        updateData as any,
+      ]);
 
       this.success({ category });
     }, "Update category");

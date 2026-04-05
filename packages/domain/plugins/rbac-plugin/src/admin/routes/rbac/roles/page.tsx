@@ -1,16 +1,31 @@
 import { defineRouteConfig } from "@medusajs/admin-sdk";
 import { z } from "@medusajs/framework/zod";
-import { User } from "@medusajs/icons";
 import { MedusaPage } from "@repo/admin/components/medusa-page";
 import { MedusaFieldOverrides } from "@repo/admin/types/config";
-import { CreateRoleSchema, UpdateRoleSchema } from "@trabara/core/validations";
 import { RoleSchema } from "@trabara/core/schemas";
+import { CreateRoleSchema, UpdateRoleSchema } from "@trabara/core/validations";
+import { Lock, User } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import AssignUsersDrawer from "../components/assign-users-drawer";
+import EditRolePermissionsDrawer from "../components/edit-role-permissions-drawer";
 import PermissionDataTable from "../components/permission-data-table";
 
 const RoleListSchema = RoleSchema.extend({
   members: z.array(z.object({ user_id: z.string() })),
+  policies: z.array(
+    z.object({
+      id: z.string(),
+      permission_id: z.string().optional(),
+      permission: z
+        .object({
+          id: z.string(),
+          kind: z.string(),
+          target: z.string(),
+          type: z.string(),
+        })
+        .optional(),
+    }),
+  ),
 });
 
 export default function RolesPage() {
@@ -46,6 +61,17 @@ export default function RolesPage() {
           icon: <User />,
           render: (role) => (
             <AssignUsersDrawer roleId={role.id} members={role.members} />
+          ),
+        },
+        {
+          id: "edit-permissions",
+          label: t("role.action.editPermissions"),
+          icon: <Lock />,
+          render: (role) => (
+            <EditRolePermissionsDrawer
+              roleId={role.id}
+              policies={role.policies as any}
+            />
           ),
         },
       ]}

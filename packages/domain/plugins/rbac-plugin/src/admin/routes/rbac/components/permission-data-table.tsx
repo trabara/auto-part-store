@@ -2,7 +2,7 @@ import { z } from "@medusajs/framework/zod";
 import DataTable from "@repo/admin/components/data-table";
 import { sdk } from "@repo/admin/lib/sdk";
 import { PageQueryParams, PageResponse } from "@repo/admin/types/query";
-import { memo } from "react";
+import { memo, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { CreatePolicyInput, Policy } from "@trabara/core/dtos";
 import { PermissionSchema } from "@trabara/core/schemas";
@@ -40,6 +40,15 @@ function PermissionDataTable({
   ...props
 }: PermissionDataTableProps) {
   const { t } = useTranslation();
+
+  const selectedIds = useMemo(
+    () =>
+      defaultValues
+        ?.map((p) => p.permission?.id ?? (p as any).permission_id)
+        .filter(Boolean) as string[] | undefined,
+    [defaultValues],
+  );
+
   return (
     <DataTable
       id="perm"
@@ -62,6 +71,7 @@ function PermissionDataTable({
       onRowSelectChange={(p) =>
         onChange?.(p.map((p) => ({ permission_id: p.id })))
       }
+      selectedIds={selectedIds}
       {...props}
     />
   );

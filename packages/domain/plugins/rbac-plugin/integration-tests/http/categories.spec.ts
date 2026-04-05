@@ -115,31 +115,31 @@ medusaIntegrationTestRunner({
           });
         });
 
-        it("should return 400 when permissions array is empty", async () => {
-          await expect(
-            api.post(
-              "/admin/rbac/v2/categories",
-              {
-                name: "Empty Category",
-                permissions: [],
-              },
-              { headers },
-            ),
-          ).rejects.toMatchObject({
-            response: { status: 400 },
-          });
+        it("should create a category with empty permissions array and return 201", async () => {
+          const res = await api.post(
+            "/admin/rbac/v2/categories",
+            {
+              name: "Empty Category",
+              permissions: [],
+            },
+            { headers },
+          );
+
+          expect(res.status).toEqual(201);
+          expect(res.data.category).toHaveProperty("id");
+          expect(res.data.category.name).toEqual("Empty Category");
         });
 
-        it("should return 400 when permissions is missing", async () => {
-          await expect(
-            api.post(
-              "/admin/rbac/v2/categories",
-              { name: "No Permissions" },
-              { headers },
-            ),
-          ).rejects.toMatchObject({
-            response: { status: 400 },
-          });
+        it("should create a category without permissions field and return 201", async () => {
+          const res = await api.post(
+            "/admin/rbac/v2/categories",
+            { name: "No Permissions" },
+            { headers },
+          );
+
+          expect(res.status).toEqual(201);
+          expect(res.data.category).toHaveProperty("id");
+          expect(res.data.category.name).toEqual("No Permissions");
         });
 
         it("should return 400 for invalid permission kind inside category", async () => {

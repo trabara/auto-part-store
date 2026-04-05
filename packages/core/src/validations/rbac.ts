@@ -22,6 +22,10 @@ export const UpdateRoleSchema = z.object({
   description: z.string().optional(),
 });
 
+export const UpdateRolePoliciesSchema = z.object({
+  permissions: z.array(z.string()).min(0),
+});
+
 export const AssignUsersSchema = z.object({
   userIds: z.array(z.string()).default([]),
 });
@@ -43,18 +47,13 @@ export const UpdatePermissionSchema = z.object({
 export const CreateCategorySchema = z.object({
   name: z.string().min(3, "Name must be at least 3 characters"),
   description: z.string().optional(),
-  permissions: z
-    .array(CreatePermissionSchema)
-    .min(1, "At least one permission is required"),
+  permissions: z.array(CreatePermissionSchema).optional(),
 });
 
 export const UpdateCategorySchema = z.object({
   name: z.string().min(3, "Name must be at least 3 characters").optional(),
   description: z.string().optional(),
-  permissions: z
-    .array(CreatePermissionSchema)
-    .min(1, "At least one permission is required")
-    .optional(),
+  permissions: z.array(CreatePermissionSchema).optional(),
 });
 
 // ── Find param schemas ────────────────────────────────────────────────────────
@@ -99,6 +98,16 @@ export const UserFiltersSchema = BaseFindParams.extend({
       email: createOperatorMap(z.string()),
       first_name: createOperatorMap(z.string()),
       last_name: createOperatorMap(z.string()),
+    })
+    .optional(),
+});
+
+export const MemberFiltersSchema = BaseFindParams.extend({
+  filters: z
+    .object({
+      id: createOperatorMap(z.string()),
+      user_id: createOperatorMap(z.string()),
+      role_id: createOperatorMap(z.string()),
     })
     .optional(),
 });

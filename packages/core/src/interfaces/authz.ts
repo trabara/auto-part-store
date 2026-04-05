@@ -29,17 +29,17 @@ export interface IAuthzModuleService {
   ): Promise<any>;
 
   createAuthzRoles(
-    data: any | any[],
+    data: Record<string, any> | Record<string, any>[],
     sharedContext?: Context<EntityManager>,
   ): Promise<any>;
 
   updateAuthzRoles(
-    data: any[],
+    data: (Record<string, any> & { id: string })[],
     sharedContext?: Context<EntityManager>,
   ): Promise<any[]>;
 
   deleteAuthzRoles(
-    ids: any,
+    ids: string | string[] | { id: string | string[] },
     sharedContext?: Context<EntityManager>,
   ): Promise<void>;
 
@@ -57,17 +57,17 @@ export interface IAuthzModuleService {
   ): Promise<any>;
 
   createAuthzPermissions(
-    data: any[],
+    data: Record<string, any>[],
     sharedContext?: Context<EntityManager>,
   ): Promise<any[]>;
 
   updateAuthzPermissions(
-    data: any[],
+    data: (Record<string, any> & { id: string })[],
     sharedContext?: Context<EntityManager>,
   ): Promise<any[]>;
 
   deleteAuthzPermissions(
-    ids: any,
+    ids: string | string[] | { id: string | string[] },
     sharedContext?: Context<EntityManager>,
   ): Promise<void>;
 
@@ -79,12 +79,12 @@ export interface IAuthzModuleService {
   ): Promise<any[]>;
 
   createAuthzPolicies(
-    data: any[],
+    data: Record<string, any>[],
     sharedContext?: Context<EntityManager>,
   ): Promise<any[]>;
 
   deleteAuthzPolicies(
-    ids: any,
+    ids: string | string[] | { id: string | string[] },
     sharedContext?: Context<EntityManager>,
   ): Promise<void>;
 
@@ -96,17 +96,17 @@ export interface IAuthzModuleService {
   ): Promise<any[]>;
 
   createAuthzMembers(
-    data: any[],
+    data: Record<string, any>[],
     sharedContext?: Context<EntityManager>,
   ): Promise<any[]>;
 
   updateAuthzMembers(
-    data: any[],
+    data: (Record<string, any> & { id: string })[],
     sharedContext?: Context<EntityManager>,
   ): Promise<any[]>;
 
   deleteAuthzMembers(
-    ids: any,
+    ids: string | string[] | { id: string | string[] } | Record<string, any>,
     sharedContext?: Context<EntityManager>,
   ): Promise<void>;
 
@@ -124,17 +124,17 @@ export interface IAuthzModuleService {
   ): Promise<any>;
 
   createAuthzCategories(
-    data: any | any[],
+    data: Record<string, any> | Record<string, any>[],
     sharedContext?: Context<EntityManager>,
   ): Promise<any>;
 
   updateAuthzCategories(
-    data: any[],
+    data: (Record<string, any> & { id: string })[],
     sharedContext?: Context<EntityManager>,
   ): Promise<any[]>;
 
   deleteAuthzCategories(
-    ids: any,
+    ids: string | string[] | { id: string | string[] },
     sharedContext?: Context<EntityManager>,
   ): Promise<void>;
 
@@ -162,6 +162,12 @@ export interface IAuthzModuleService {
   assignRbacUsers(
     roleId: string,
     input: AssignUsersInput,
+    sharedContext?: Context<EntityManager>,
+  ): Promise<void>;
+
+  updateRolePolicies(
+    roleId: string,
+    permissionIds: string[],
     sharedContext?: Context<EntityManager>,
   ): Promise<void>;
 }

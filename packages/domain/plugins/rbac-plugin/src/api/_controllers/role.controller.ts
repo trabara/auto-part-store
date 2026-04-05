@@ -5,7 +5,9 @@ import {
   AssignUsersSchema,
   CreateRoleSchema,
   UpdateRoleSchema,
+  UpdateRolePoliciesSchema,
 } from "@trabara/core/validations";
+import { updateRolePoliciesWorkflow } from "../../workflows";
 
 export class RoleController extends BaseController {
   async getById(): Promise<void> {
@@ -109,5 +111,23 @@ export class RoleController extends BaseController {
 
       this.success({ success: true }, 201);
     }, "Role assigned successfully");
+  }
+
+  async updatePolicies(): Promise<void> {
+    await this.execute(async () => {
+      const { id } = this.req.params;
+      const validated = UpdateRolePoliciesSchema.parse(this.req.validatedBody);
+
+      this.logger.info(`Updating policies for role ${id}`, {
+        role_id: id,
+        permissions: validated.permissions.length,
+      });
+
+      await updateRolePoliciesWorkflow(this.req.scope).run({
+        input: { roleId: id, permissionIds: validated.permissions },
+      });
+
+      this.success({ success: true });
+    }, "Role policies updated successfully");
   }
 }

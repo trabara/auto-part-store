@@ -50,5 +50,5 @@ export type CreatePermissionInput = {
 export type CreateCategoryInput = {
   name: string;
   description?: string;
-  permissions: CreatePermissionInput[];
+  permissions?: CreatePermissionInput[];
 };

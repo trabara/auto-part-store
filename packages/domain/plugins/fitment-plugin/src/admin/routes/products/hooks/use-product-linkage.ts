@@ -1,13 +1,13 @@
 import { toast } from "@medusajs/ui";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useMemo } from "react";
-import { sdk } from "../../../../lib/sdk";
+import { sdk } from "../../../lib/sdk";
 import { AdminProductWithFitments } from "../types";
 
 /**
- * Configuration for product linking operations
+ * Configuration for product linkage operations
  */
-export interface ProductLinkingConfig {
+export interface ProductLinkageConfig {
   /** The ID of the fitment to link/unlink products */
   fitmentId: string;
   /** The list of selected products for linking/unlinking */
@@ -15,9 +15,9 @@ export interface ProductLinkingConfig {
 }
 
 /**
- * Return type from useProductLinking
+ * Return type from useProductLinkage
  */
-export interface UseProductLinkingReturn {
+export interface UseProductLinkageReturn {
   // Actions
   handleLinkProduct: (productId: string) => void;
   handleUnlinkProduct: (productId: string) => void;
@@ -46,9 +46,9 @@ export function getSelectedProducts<
 }
 
 /**
- * Reusable hook for product-fitment linking operations
+ * Reusable hook for product-fitment linkage operations
  *
- * Follows SRP: Handles ONLY product linking/unlinking logic
+ * Follows SRP: Handles ONLY product linkage/unlinkage logic
  * Follows OCP: Extensible via configuration
  * Follows DIP: Depends on abstractions (functions) not concretions
  *
@@ -63,7 +63,7 @@ export function getSelectedProducts<
  *   handleBulkUnlink,
  *   hasLinkedSelected,
  *   hasUnlinkedSelected
- * } = useProductLinking({
+ * } = useProductLinkage({
  *   fitmentId: "fit_123",
  *   linkFn: (ids) => sdk.client.fetch(`/admin/fitments/${fitmentId}/products`, {
  *     method: "POST",
@@ -88,10 +88,10 @@ const link = async (fitmentId: string, productIds: string[]) => {
   });
 }
 
-export function useProductLinking({
+export function useProductLinkage({
   fitmentId,
   selectedProducts
-}: ProductLinkingConfig): UseProductLinkingReturn {
+}: ProductLinkageConfig): UseProductLinkageReturn {
   const queryClient = useQueryClient();
 
   const invalidateKeys = () => ["fitments", "products"].forEach((key) => {

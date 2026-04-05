@@ -1,10 +1,11 @@
-import { PaginatedQueryParams } from "../../../hooks";
-import { sdk } from "../../../lib/sdk";
+
+import { sdk } from "@repo/admin/lib/sdk";
+import { PageQueryParams } from "@repo/admin/types/query";
 import { FitmentListResponse } from "./types";
 
 export function listFitments(
   signal: AbortSignal,
-  params?: PaginatedQueryParams,
+  params?: PageQueryParams,
 ): Promise<FitmentListResponse> {
   return sdk.client.fetch(`/admin/fitments`, {
     signal,

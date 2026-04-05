@@ -1,8 +1,9 @@
 import { Container, DataTable, Heading, useDataTable } from "@medusajs/ui";
+import { useDeleteMutation } from "@repo/admin/hooks/use-delete-mutation";
+import { usePageQuery } from "@repo/admin/hooks/use-page-query";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
-import { useDeleteMutation, usePaginatedQuery } from "../../../../hooks";
 import { deleteFitment, listFitments } from "../data";
 import { AdminFitmentWithProducts } from "../types";
 import { createFitmentColumns } from "./data-table-columns";
@@ -11,7 +12,7 @@ const FitmentDataTable = ({ productId }: { productId?: string }) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
 
-  const queryConfig = usePaginatedQuery({
+  const [queryConfig] = usePageQuery({
     queryKey: "fitments",
     selectFn: (data: any) => ({
       data: data?.data,
@@ -36,7 +37,7 @@ const FitmentDataTable = ({ productId }: { productId?: string }) => {
         onUnlink: () =>
           productId ? navigate(`/products/${productId}`) : undefined,
         onDelete: (fitment: AdminFitmentWithProducts) =>
-          deleteMutation.mutate(fitment.id),
+          deleteMutation.mutateAsync(fitment.id),
       }),
     [productId, navigate, deleteMutation, t],
   );
@@ -44,7 +45,7 @@ const FitmentDataTable = ({ productId }: { productId?: string }) => {
   const table = useDataTable({
     ...queryConfig,
     columns,
-    onRowClick: (_event, row) => navigate(`/fitments/${row.id}/products`),
+    onRowClick: (_, row) => navigate(`/fitments/${row.id}/products`),
   });
 
   return (

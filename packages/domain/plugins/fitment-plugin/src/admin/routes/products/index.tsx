@@ -1,53 +1,53 @@
 import { Container, DataTable, Heading, useDataTable } from "@medusajs/ui";
+import { usePageQuery } from "@repo/admin/hooks/use-page-query";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
-import { usePaginatedQuery } from "../../../hooks";
 import { createProductColumns } from "./components/columns";
 import { ProductLinkageBulkActionsToolbar } from "./components/data-table-bulk-actions";
 import filters from "./components/filters";
 import { listProductsWithFitments } from "./data";
-import { useProductLinking } from "./hooks/use-product-linking";
+import { useProductLinkage } from "./hooks/use-product-linkage";
 
-const ProductList = ({ fitmentId }: { fitmentId?: string }) => {
+type ProductListProps = {
+  fitmentId?: string;
+};
+const ProductList = ({ fitmentId }: ProductListProps) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
 
   // Use paginated query hook
-  const queryConfig = usePaginatedQuery({
+  const [queryConfig] = usePageQuery({
     queryKey: "products",
     queryFn: listProductsWithFitments,
-    selectFn: (data) => {
-      const products = data?.products?.map((product) => ({
-        ...product,
-        isLinked: product.fitments.some((fitment) => fitment.id === fitmentId),
-      }));
-      return { data: products, rowCount: data?.metadata.count };
-    },
+    selectFn: (data) => ({
+      data: data?.data,
+      rowCount: data?.metadata?.count ?? 0,
+    }),
   });
 
-  // Use product linking hook (only when fitmentId is provided)
-  const productLinking = useProductLinking({
+  // Use product linkage hook (only when fitmentId is provided)
+  const productLinkage = useProductLinkage({
     fitmentId: fitmentId || "",
     selectedProducts: [],
   });
 
   // Create table columns
-  const tableColumns = useMemo(
+  const columns = useMemo(
     () =>
       createProductColumns({
-        onLinkProduct: productLinking.handleLinkProduct,
-        onUnlinkProduct: productLinking.handleUnlinkProduct,
+        onLinkProduct: productLinkage.handleLinkProduct,
+        onUnlinkProduct: productLinkage.handleUnlinkProduct,
         t,
       }),
-    [productLinking, t],
+    [productLinkage, t],
   );
 
   const table = useDataTable({
     ...queryConfig,
-    columns: tableColumns,
+    columns,
     filters,
-    onRowClick: (_event, row) => navigate(`/products/${row.id}`),
+    onRowClick: (_, row) => navigate(`/products/${row.id}`),
   });
 
   return (

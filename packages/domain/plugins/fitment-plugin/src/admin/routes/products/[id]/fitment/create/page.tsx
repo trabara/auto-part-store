@@ -1,5 +1,5 @@
 import { defineRouteConfig } from "@medusajs/admin-sdk"
-import CreateFitmentModal from "../../../../../modules/fitment/fitment/components/create-modal"
+import CreateFitmentModal from "../../../../fitments/components/create-modal"
 
 const CreateFitmentPage = () => {
   return <CreateFitmentModal />

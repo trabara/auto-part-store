@@ -6,37 +6,37 @@ import {
   Heading,
   useDataTable,
 } from "@medusajs/ui";
+import { useDeleteMutation } from "@repo/admin/hooks/use-delete-mutation";
+import { usePageQuery } from "@repo/admin/hooks/use-page-query";
+import { PageQueryParams, PageResponse } from "@repo/admin/types/query";
 import { Fitment } from "@trabara/core/dtos";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useParams } from "react-router-dom";
-import { useDeleteMutation, usePaginatedQuery } from "../hooks";
 import { sdk } from "../lib/sdk";
-import { createFitmentColumns } from "../modules/fitment/fitment/components/data-table-columns";
+import { createFitmentColumns } from "../routes/fitments/components/data-table-columns";
 
-type ProductFitmentsResponse = {
-  fitments: Fitment[];
-  metadata: {
-    count: number;
-  };
-};
+const listProductFitments = (productId: string) => (signal: AbortSignal, params: PageQueryParams) =>
+  sdk.client.fetch<PageResponse<Fitment>>(`/admin/products/${productId}/fitments`, {
+    signal,
+    query: {
+      ...params,
+    },
+  });
+
 
 const ProductFitmentsWidget = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const params = useParams();
-  const productId = params.id;
+  const { id: productId } = useParams();
 
-  const queryConfig = usePaginatedQuery<ProductFitmentsResponse, Fitment>({
+  const [queryConfig] = usePageQuery<Fitment>({
     queryKey: "fitments",
-    queryFn: (queryParams) =>
-      sdk.client.fetch(`/admin/products/${productId}/fitments`, {
-        query: queryParams,
-      }),
     selectFn: (data) => ({
-      data: data?.fitments,
-      rowCount: data?.metadata?.count || 0,
+      data: data?.data,
+      rowCount: data?.metadata?.count ?? 0,
     }),
+    queryFn: listProductFitments(productId!),
   });
 
   // Mutation to unlink a fitment
@@ -50,10 +50,10 @@ const ProductFitmentsWidget = () => {
       }),
   });
 
-  const handleEdit = (fitment: Fitment) =>
-    navigate(`/fitments/${fitment.id}/edit`);
+  const handleEdit = (f: Fitment) =>
+    navigate(`/fitments/${f.id}/edit`);
 
-  const handleUnlink = (fitment: Fitment) => unlinkMutation.mutate(fitment.id);
+  const handleUnlink = (f: Fitment) => unlinkMutation.mutateAsync(f.id);
 
   const columns = useMemo(
     () =>

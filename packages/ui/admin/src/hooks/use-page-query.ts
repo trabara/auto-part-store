@@ -66,7 +66,7 @@ export type UsePageQueryReturn<T extends { id: string }> = [
  */
 export function usePageQuery<
   T extends { id: string },
-  R extends PageResponse<T>,
+  R extends PageResponse<T> = PageResponse<T>,
 >({
   queryKey,
   fields,

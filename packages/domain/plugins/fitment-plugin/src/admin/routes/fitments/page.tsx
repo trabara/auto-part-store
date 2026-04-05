@@ -1,7 +1,5 @@
 import { defineRouteConfig } from "@medusajs/admin-sdk";
 import { z } from "@medusajs/framework/zod";
-import { CarFront } from "lucide-react";
-import { useNavigate } from "react-router-dom";
 import { MedusaPage } from "@repo/admin/components/medusa-page";
 import { MedusaFieldOverrides } from "@repo/admin/types/config";
 import {
@@ -13,6 +11,7 @@ import {
   CreateFitmentInputSchema,
   UpdateFitmentInputSchema,
 } from "@trabara/core/validations";
+import { CarFront } from "lucide-react";
 import EngineSelect from "./components/engine-select";
 import ModelSelect from "./components/model-select";
 
@@ -144,8 +143,8 @@ const CREATE_FIELDS: MedusaFieldOverrides<
     description: "The engine configuration for this fitment",
     render: ({ value, onChange }) => (
       <EngineSelect
-        defaultValue={value as string}
-        onChange={onChange as (v: string) => void}
+        defaultValue={value}
+        onChange={onChange}
       />
     ),
   },
@@ -193,15 +192,15 @@ const EDIT_FIELDS: MedusaFieldOverrides<
     description: "The engine configuration for this fitment",
     render: ({ value, onChange }) => (
       <EngineSelect
-        defaultValue={value as string}
-        onChange={onChange as (v: string) => void}
+        defaultValue={value}
+        onChange={onChange}
       />
     ),
   },
 };
 
 export default function FitmentsPage() {
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
 
   return (
     <MedusaPage
@@ -211,7 +210,7 @@ export default function FitmentsPage() {
       description="Manage vehicle fitments"
       schema={FitmentListSchema}
       fields={LIST_FIELDS}
-      onRowClick={(row) => navigate(`/fitments/${row.id}/products`)}
+      // onRowClick={(row) => navigate(`/fitments/${row.id}/products`)}
       create={{
         id: "fitment",
         schema: CreateFitmentInputSchema,

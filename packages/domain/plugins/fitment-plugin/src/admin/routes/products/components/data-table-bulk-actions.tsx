@@ -1,9 +1,9 @@
 import { IconButton, Tooltip, type UseDataTableReturn } from "@medusajs/ui";
 import { Link, Unlink } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { DataTableBulkActionsToolbar } from "../../../../components/bulk-actions-toolbar";
-import { useProductLinking } from "../hooks/use-product-linking";
+import { useProductLinkage } from "../hooks/use-product-linkage";
 import { AdminProductWithFitments } from "../types";
+import { DataTableBulkActionsToolbar } from "@repo/admin/components/bulk-actions-toolbar";
 
 type FitmentBulkActionsToolbarProps = {
   table: UseDataTableReturn<AdminProductWithFitments>;
@@ -14,7 +14,7 @@ export function ProductLinkageBulkActionsToolbar({
   fitmentId,
 }: FitmentBulkActionsToolbarProps) {
   const { t } = useTranslation();
-  const productLinking = useProductLinking({
+  const productLinkage = useProductLinkage({
     fitmentId: fitmentId || "",
     selectedProducts: table
       .getRowModel()
@@ -29,7 +29,7 @@ export function ProductLinkageBulkActionsToolbar({
           className="rounded-none"
           size="large"
           variant="transparent"
-          onClick={productLinking.handleBulkLink}
+          onClick={productLinkage.handleBulkLink}
         >
           <Link />
         </IconButton>
@@ -40,7 +40,7 @@ export function ProductLinkageBulkActionsToolbar({
           className="rounded-none"
           size="large"
           variant="transparent"
-          onClick={productLinking.handleBulkUnlink}
+          onClick={productLinkage.handleBulkUnlink}
         >
           <Unlink />
         </IconButton>

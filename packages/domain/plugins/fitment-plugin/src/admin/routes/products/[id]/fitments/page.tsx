@@ -1,5 +1,5 @@
 import { useParams } from "react-router-dom";
-import FitmentList from "../../../../modules/fitment/fitment/components/data-table";
+import FitmentList from "../../../fitments/components/data-table";
 
 const ProductFitmentsPage = () => {
   const { id } = useParams();

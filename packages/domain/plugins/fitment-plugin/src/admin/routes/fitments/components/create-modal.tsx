@@ -8,15 +8,15 @@ import {
   Label,
   Select,
 } from "@medusajs/ui";
+import { useCreateMutation } from "@repo/admin/hooks/use-create-mutation";
+import { CreateFitmentInput } from "@trabara/core/dtos";
+import { CreateFitmentInputSchema } from "@trabara/core/validations";
 import { Controller, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
-import { CreateFitmentInput } from "@trabara/core/dtos";
-import { CreateFitmentInputSchema } from "@trabara/core/validations";
-import { useCreateMutation } from "../../../../hooks/use-create-mutation";
-import EngineSelect from "../../../../routes/fitments/components/engine-select";
-import ModelSelect from "../../../../routes/fitments/components/model-select";
 import { createFitment } from "../data";
+import EngineSelect from "./engine-select";
+import ModelSelect from "./model-select";
 
 const BODY_STYLE_OPTIONS = [
   { label: "Sedan", value: "SEDAN" },
@@ -65,7 +65,7 @@ const FitmentCreateModal = () => {
     invalidateKeys: ["fitments"],
     errorMessage: t("fitment.toast.createError"),
     successMessage: t("fitment.toast.created"),
-    createFn: createFitment as any,
+    createFn: createFitment,
   });
 
   const handleSubmit = form.handleSubmit((data: CreateFitmentInput) => {

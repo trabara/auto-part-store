@@ -3,6 +3,7 @@ import { sdk } from "@repo/admin/lib/sdk";
 import { PageQueryParams, PageResponse } from "@repo/admin/types/query";
 import { useQuery } from "@tanstack/react-query";
 import { Make } from "@trabara/core/dtos";
+import { useTranslation } from "react-i18next";
 
 const listMakes = (signal: AbortSignal, params?: PageQueryParams) => {
   return sdk.client
@@ -29,6 +30,7 @@ export default function MakeSelect({
   defaultValue?: string;
   onChange?: (value: string) => void;
 }) {
+  const { t } = useTranslation();
   const { data: makes } = useQuery({
     queryKey: ["makes"],
     queryFn: ({ signal }) =>
@@ -37,7 +39,7 @@ export default function MakeSelect({
   return (
     <Select value={defaultValue} onValueChange={onChange}>
       <Select.Trigger>
-        <Select.Value placeholder="Select a make" />
+        <Select.Value placeholder={t("make.field.make.placeholder")} />
       </Select.Trigger>
       <Select.Content>
         {makes?.map((make) => (

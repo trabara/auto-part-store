@@ -3,6 +3,7 @@ import { sdk } from "@repo/admin/lib/sdk";
 import { PageQueryParams, PageResponse } from "@repo/admin/types/query";
 import { useQuery } from "@tanstack/react-query";
 import { Engine } from "@trabara/core/dtos";
+import { useTranslation } from "react-i18next";
 
 const listEngines = (signal: AbortSignal, params?: PageQueryParams) => {
   return sdk.client
@@ -29,6 +30,7 @@ export default function EngineSelect({
   defaultValue?: string;
   onChange?: (value: string) => void;
 }) {
+  const { t } = useTranslation();
   const { data: engines } = useQuery({
     queryKey: ["engines"],
     queryFn: ({ signal }) => listEngines(signal, { limit: 100, offset: 0 }),
@@ -36,7 +38,7 @@ export default function EngineSelect({
   return (
     <Select value={defaultValue} onValueChange={onChange}>
       <Select.Trigger>
-        <Select.Value placeholder="Select an engine" />
+        <Select.Value placeholder={t("fitment.field.engine.placeholder")} />
       </Select.Trigger>
       <Select.Content>
         {engines?.map((engine) => (

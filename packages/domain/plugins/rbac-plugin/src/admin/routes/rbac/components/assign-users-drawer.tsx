@@ -9,6 +9,7 @@ import { zodQueryResolve } from "@repo/admin/utils/zod";
 import { useAsRef } from "@repo/hooks";
 import { useMutation } from "@tanstack/react-query";
 import { memo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { AssignUsersInput } from "@trabara/core/dtos";
 import { UserSchema } from "@trabara/core/schemas";
 
@@ -55,6 +56,7 @@ interface AssignUsersDrawerProps {
 }
 
 function AssignUsersDrawer({ roleId, members }: AssignUsersDrawerProps) {
+  const { t } = useTranslation();
   const initialUserIds = members.map((m) => m.user_id);
   const userIdsRef = useAsRef(initialUserIds);
 
@@ -65,20 +67,19 @@ function AssignUsersDrawer({ roleId, members }: AssignUsersDrawerProps) {
   const assignUsersMutation = useMutation({
     mutationFn: (input: AssignUsersInput) => assignUsersToRole(roleId, input),
     onSuccess: () => {
-      toast.success("Updated successfully");
+      toast.success(t("role.assignUsers.toast.success"));
     },
     onError: () => {
-      toast.error("Failed to update users");
+      toast.error(t("role.assignUsers.toast.error"));
     },
   });
 
   const handleSaveClick = async () => {
     const confirmed = await prompt({
-      title: `Confirm Updates`,
-      description:
-        "Are you sure you want to update the users assigned to this role?",
-      confirmText: "Yes, Update",
-      cancelText: "No, Cancel",
+      title: t("role.assignUsers.confirm.title"),
+      description: t("role.assignUsers.confirm.description"),
+      confirmText: t("role.assignUsers.confirm.yes"),
+      cancelText: t("role.assignUsers.confirm.no"),
       variant: "confirmation",
     });
     if (!confirmed) {
@@ -97,14 +98,14 @@ function AssignUsersDrawer({ roleId, members }: AssignUsersDrawerProps) {
           className="w-full justify-start [&_svg]:text-ui-fg-subtle flex items-center gap-x-2"
         >
           <User />
-          Assign Users
+          {t("role.action.assignUsers")}
         </Button>
       </Drawer.Trigger>
       <Drawer.Content>
         <Drawer.Header>
           <Drawer.Title>
-            <Heading level="h2">Assign Users</Heading>
-            <Hint>Select users to assign to the role</Hint>
+            <Heading level="h2">{t("role.assignUsers.title")}</Heading>
+            <Hint>{t("role.assignUsers.hint")}</Hint>
           </Drawer.Title>
         </Drawer.Header>
         <Drawer.Body className="!px-0 !py-0">
@@ -121,22 +122,24 @@ function AssignUsersDrawer({ roleId, members }: AssignUsersDrawerProps) {
                 hideLabel: true,
               },
               email: {
-                label: "Email",
+                label: t("user.field.email"),
               },
               first_name: {
-                label: "First Name",
+                label: t("user.field.firstName"),
               },
               last_name: {
-                label: "Last Name",
+                label: t("user.field.lastName"),
               },
             }}
           />
         </Drawer.Body>
         <Drawer.Footer>
           <Drawer.Close asChild>
-            <Button variant="secondary">Close</Button>
+            <Button variant="secondary">{t("role.assignUsers.close")}</Button>
           </Drawer.Close>
-          <Button onClick={handleSaveClick}>Save</Button>
+          <Button onClick={handleSaveClick}>
+            {t("role.assignUsers.save")}
+          </Button>
         </Drawer.Footer>
       </Drawer.Content>
     </Drawer>

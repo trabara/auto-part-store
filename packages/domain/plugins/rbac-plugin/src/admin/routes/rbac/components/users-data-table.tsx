@@ -4,6 +4,7 @@ import { sdk } from "@repo/admin/lib/sdk";
 import { PageQueryParams, PageResponse } from "@repo/admin/types/query";
 import { zodQueryResolve } from "@repo/admin/utils/zod";
 import { memo } from "react";
+import { useTranslation } from "react-i18next";
 import { UserSchema } from "@trabara/core/schemas";
 import DataTable from "@repo/admin/components/data-table";
 
@@ -38,6 +39,7 @@ const fetchUsers = (signal: AbortSignal, params?: PageQueryParams) => {
 };
 
 const UsersDataTable = (props: any) => {
+  const { t } = useTranslation();
   return (
     <DataTable
       name="users"
@@ -48,13 +50,13 @@ const UsersDataTable = (props: any) => {
           hideLabel: true,
         },
         email: {
-          label: "Email",
+          label: t("user.field.email"),
         },
         first_name: {
-          label: "First Name",
+          label: t("user.field.firstName"),
         },
         last_name: {
-          label: "Last Name",
+          label: t("user.field.lastName"),
         },
       }}
       {...props}

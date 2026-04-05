@@ -2,6 +2,7 @@ import { Select } from "@medusajs/ui";
 import { sdk } from "@repo/admin/lib/sdk";
 import { PageQueryParams, PageResponse } from "@repo/admin/types/query";
 import { useQuery } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import { Category } from "@trabara/core/dtos";
 
 const listCategories = (signal: AbortSignal, params?: PageQueryParams) => {
@@ -29,6 +30,7 @@ export default function CategorySelect({
   defaultValue?: string;
   onChange?: (value: string) => void;
 }) {
+  const { t } = useTranslation();
   const { data: categories } = useQuery({
     queryKey: ["categories"],
     queryFn: ({ signal }) =>
@@ -37,7 +39,9 @@ export default function CategorySelect({
   return (
     <Select value={defaultValue} onValueChange={onChange}>
       <Select.Trigger>
-        <Select.Value placeholder="Select a category" />
+        <Select.Value
+          placeholder={t("permission.field.category.placeholder")}
+        />
       </Select.Trigger>
       <Select.Content>
         {categories?.map((category) => (

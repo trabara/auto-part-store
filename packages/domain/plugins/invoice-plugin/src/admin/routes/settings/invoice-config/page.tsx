@@ -2,7 +2,7 @@ import { defineRouteConfig } from "@medusajs/admin-sdk";
 import { InvoiceGeneratorForm } from "./components/invoice-gen-form";
 
 const InvoiceConfigPage = () => {
-  return <InvoiceGeneratorForm />
+  return <InvoiceGeneratorForm />;
 };
 
 export const config = defineRouteConfig({

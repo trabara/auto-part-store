@@ -31,6 +31,11 @@
       "import": "./dist/esm/interfaces/index.js",
       "require": "./dist/interfaces/index.js",
       "types": "./dist/interfaces/index.d.ts"
+    },
+    "./i18n": {
+      "import": "./dist/esm/i18n/index.js",
+      "require": "./dist/i18n/index.js",
+      "types": "./dist/i18n/index.d.ts"
     }
   },
   "publishConfig": {

@@ -9,7 +9,8 @@ const ProductListPage = () => {
 };
 
 export const config = defineRouteConfig({
-  label: "Fitment Products",
+  label: "fitment.products.page.label",
+  translationNs: "translation",
 });
 
 export default ProductListPage;

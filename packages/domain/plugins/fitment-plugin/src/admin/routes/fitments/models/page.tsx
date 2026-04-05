@@ -8,52 +8,55 @@ import {
   CreateModelInputSchema,
   UpdateModelInputSchema,
 } from "@trabara/core/validations";
+import { useTranslation } from "react-i18next";
 import MakeSelect from "../components/make-select";
 
 type ModelRow = z.infer<typeof ModelSchema>;
 
-const LIST_FIELDS: MedusaFieldOverrides<ModelRow> = {
-  name: {
-    label: "Name",
-    description: "The name of the model",
-    isFiltrable: true,
-  },
-  make: {
-    label: "Make",
-    isFiltrable: false,
-    cell: (info) => {
-      const make = info.getValue() as ModelRow["make"];
-      return <Badge>{make?.name ?? "—"}</Badge>;
-    },
-  },
-};
-
-const MUTATION_FIELDS: MedusaFieldOverrides<
-  z.infer<typeof CreateModelInputSchema>
-> = {
-  name: {
-    label: "Name",
-    description: "The name of the model",
-  },
-  make_id: {
-    label: "Make",
-    description: "The make this model belongs to",
-    render: ({ value, onChange }) => (
-      <MakeSelect
-        defaultValue={value as string}
-        onChange={onChange as (v: string) => void}
-      />
-    ),
-  },
-};
-
 export default function ModelsPage() {
+  const { t } = useTranslation();
+
+  const LIST_FIELDS: MedusaFieldOverrides<ModelRow> = {
+    name: {
+      label: t("model.field.name"),
+      description: t("model.field.name.description"),
+      isFiltrable: true,
+    },
+    make: {
+      label: t("model.field.make"),
+      isFiltrable: false,
+      cell: (info) => {
+        const make = info.getValue() as ModelRow["make"];
+        return <Badge>{make?.name ?? "—"}</Badge>;
+      },
+    },
+  };
+
+  const MUTATION_FIELDS: MedusaFieldOverrides<
+    z.infer<typeof CreateModelInputSchema>
+  > = {
+    name: {
+      label: t("model.field.name"),
+      description: t("model.field.name.description"),
+    },
+    make_id: {
+      label: t("model.field.make"),
+      description: t("model.field.make.description"),
+      render: ({ value, onChange }) => (
+        <MakeSelect
+          defaultValue={value as string}
+          onChange={onChange as (v: string) => void}
+        />
+      ),
+    },
+  };
+
   return (
     <MedusaPage
       id="model"
       path="/admin/models"
-      title="Models"
-      description="Manage vehicle models"
+      title={t("model.page.title")}
+      description={t("model.page.subtitle")}
       schema={ModelSchema}
       fields={LIST_FIELDS}
       create={{

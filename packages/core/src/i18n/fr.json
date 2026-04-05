@@ -1,0 +1,16 @@
+{
+  "common.actions": "Actions",
+  "common.create": "Créer",
+  "common.cancel": "Annuler",
+  "common.save": "Enregistrer les modifications",
+  "common.delete": "Supprimer",
+  "common.edit": "Modifier",
+  "common.link": "Lier",
+  "common.unlink": "Délier",
+  "common.deleteAll": "Tout supprimer",
+  "common.continue": "Continuer",
+  "common.present": "Présent",
+  "common.selected": "{{count}} sélectionné(s)",
+  "common.createNew": "Créer une nouvelle option",
+  "common.selectExisting": "Sélectionner une option existante"
+}

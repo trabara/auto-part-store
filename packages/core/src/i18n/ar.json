@@ -1,0 +1,16 @@
+{
+  "common.actions": "الإجراءات",
+  "common.create": "إنشاء",
+  "common.cancel": "إلغاء",
+  "common.save": "حفظ التغييرات",
+  "common.delete": "حذف",
+  "common.edit": "تعديل",
+  "common.link": "ربط",
+  "common.unlink": "فك الربط",
+  "common.deleteAll": "حذف الكل",
+  "common.continue": "متابعة",
+  "common.present": "حاضر",
+  "common.selected": "{{count}} محدد",
+  "common.createNew": "إنشاء خيار جديد",
+  "common.selectExisting": "اختر خيارًا موجودًا"
+}

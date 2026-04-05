@@ -3,6 +3,7 @@ import { sdk } from "@repo/admin/lib/sdk";
 import { PageQueryParams, PageResponse } from "@repo/admin/types/query";
 import { useQuery } from "@tanstack/react-query";
 import { Model } from "@trabara/core/dtos";
+import { useTranslation } from "react-i18next";
 
 const listModels = (signal: AbortSignal, params?: PageQueryParams) => {
   return sdk.client
@@ -29,6 +30,7 @@ export default function ModelSelect({
   defaultValue?: string;
   onChange?: (value: string) => void;
 }) {
+  const { t } = useTranslation();
   const { data: models } = useQuery({
     queryKey: ["models"],
     queryFn: ({ signal }) =>
@@ -37,7 +39,7 @@ export default function ModelSelect({
   return (
     <Select value={defaultValue} onValueChange={onChange}>
       <Select.Trigger>
-        <Select.Value placeholder="Select a model" />
+        <Select.Value placeholder={t("fitment.field.model.placeholder")} />
       </Select.Trigger>
       <Select.Content>
         {models?.map((model) => (

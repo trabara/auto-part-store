@@ -7,5 +7,6 @@ export const handle = {
 };
 
 export const config = defineRouteConfig({
-  label: "RBAC",
+  label: "nav.rbac",
+  translationNs: "translation",
 });

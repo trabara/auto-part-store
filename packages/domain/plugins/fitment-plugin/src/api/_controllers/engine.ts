@@ -130,7 +130,9 @@ export class EngineController extends BaseController {
 
       this.logger.info(`Deleting engine with ID: ${id}`);
 
-      await (service as any).deleteEngineWithCascade(id);
+      await service.deleteFitmentEngines([id]);
+      
+      this.logger.info(`Deleted engine with ID: ${id}`);
 
       this.noContent();
     }, `Engine ${this.req.params.id} deleted successfully`);

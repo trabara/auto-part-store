@@ -7,6 +7,7 @@ import {
   CreateEngineInputSchema,
   UpdateEngineInputSchema,
 } from "@trabara/core/validations";
+import { useTranslation } from "react-i18next";
 
 const FUEL_OPTIONS = [
   { label: "Gasoline", value: "GASOLINE" },
@@ -43,38 +44,40 @@ const ENGINE_SIZE_OPTIONS = [
   { label: "Electric", value: "Electric" },
 ];
 
-const BASE_FIELDS: MedusaFieldOverrides<z.infer<typeof EngineSchema>> = {
-  fuel: {
-    label: "Fuel",
-    description: "Fuel type of the engine",
-    isFiltrable: true,
-    options: FUEL_OPTIONS,
-  },
-  type: {
-    label: "Type",
-    description: "Engine configuration type",
-    isFiltrable: true,
-    options: ENGINE_TYPE_OPTIONS,
-  },
-  size: {
-    label: "Size",
-    description: "Engine displacement (e.g. 2.0)",
-    isFiltrable: true,
-    options: ENGINE_SIZE_OPTIONS,
-  },
-  tech: {
-    label: "Tech",
-    description: "Technology descriptor (e.g. TFSI, TDI)",
-  },
-};
-
 export default function EnginesPage() {
+  const { t } = useTranslation();
+
+  const BASE_FIELDS: MedusaFieldOverrides<z.infer<typeof EngineSchema>> = {
+    fuel: {
+      label: t("engine.field.fuel.label"),
+      description: t("engine.field.fuel.description"),
+      isFiltrable: true,
+      options: FUEL_OPTIONS,
+    },
+    type: {
+      label: t("engine.field.type.label"),
+      description: t("engine.field.type.description"),
+      isFiltrable: true,
+      options: ENGINE_TYPE_OPTIONS,
+    },
+    size: {
+      label: t("engine.field.size"),
+      description: t("engine.field.size.description"),
+      isFiltrable: true,
+      options: ENGINE_SIZE_OPTIONS,
+    },
+    tech: {
+      label: t("engine.field.tech.label"),
+      description: t("engine.field.tech.description"),
+    },
+  };
+
   return (
     <MedusaPage
       id="engine"
       path="/admin/engines"
-      title="Engines"
-      description="Manage vehicle engines"
+      title={t("engine.page.title")}
+      description={t("engine.page.subtitle")}
       schema={EngineSchema}
       fields={BASE_FIELDS}
       create={{

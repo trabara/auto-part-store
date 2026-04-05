@@ -3,6 +3,7 @@ import DataTable from "@repo/admin/components/data-table";
 import { sdk } from "@repo/admin/lib/sdk";
 import { PageQueryParams, PageResponse } from "@repo/admin/types/query";
 import { memo } from "react";
+import { useTranslation } from "react-i18next";
 import { CreatePolicyInput, Policy } from "@trabara/core/dtos";
 import { PermissionSchema } from "@trabara/core/schemas";
 
@@ -38,6 +39,7 @@ function PermissionDataTable({
   onChange,
   ...props
 }: PermissionDataTableProps) {
+  const { t } = useTranslation();
   return (
     <DataTable
       id="perm"
@@ -47,13 +49,13 @@ function PermissionDataTable({
           hideLabel: true,
         },
         target: {
-          label: "Resource",
+          label: t("permission.table.target"),
         },
         type: {
-          label: "Action",
+          label: t("permission.table.type"),
         },
         kind: {
-          label: "Kind",
+          label: t("permission.table.kind"),
         },
       }}
       queryFn={fetchPermissions}

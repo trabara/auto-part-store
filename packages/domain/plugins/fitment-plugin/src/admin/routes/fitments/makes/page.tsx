@@ -7,22 +7,25 @@ import {
   CreateMakeInputSchema,
   UpdateMakeInputSchema,
 } from "@trabara/core/validations";
-
-const BASE_FIELDS: MedusaFieldOverrides<z.infer<typeof MakeSchema>> = {
-  name: {
-    label: "Name",
-    description: "The name of the make",
-    isFiltrable: true,
-  },
-};
+import { useTranslation } from "react-i18next";
 
 export default function MakesPage() {
+  const { t } = useTranslation();
+
+  const BASE_FIELDS: MedusaFieldOverrides<z.infer<typeof MakeSchema>> = {
+    name: {
+      label: t("make.field.name"),
+      description: t("make.field.name.description"),
+      isFiltrable: true,
+    },
+  };
+
   return (
     <MedusaPage
       id="make"
       path="/admin/makes"
-      title="Makes"
-      description="Manage vehicle makes"
+      title={t("make.page.title")}
+      description={t("make.page.subtitle")}
       schema={MakeSchema}
       fields={BASE_FIELDS}
       create={{

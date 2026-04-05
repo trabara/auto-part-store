@@ -15,6 +15,8 @@
   "invoice.widget.download": "تنزيل الفاتورة",
   "invoice.widget.toast.success": "تم إنشاء وتنزيل الفاتورة بنجاح",
   "invoice.widget.toast.error": "فشل في إنشاء الفاتورة",
+  "invoice.preview.title": "معاينة الفاتورة",
+  "invoice.preview.button": "معاينة",
   "invoice.template.invoice": "فاتورة",
   "invoice.template.billTo": "فاتورة إلى",
   "invoice.template.description": "الوصف",

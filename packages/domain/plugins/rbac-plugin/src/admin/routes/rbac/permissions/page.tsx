@@ -7,64 +7,66 @@ import {
   UpdatePermissionSchema,
 } from "@trabara/core/validations";
 import { PermissionSchema } from "@trabara/core/schemas";
+import { useTranslation } from "react-i18next";
 import CategorySelect from "../components/category-select";
 
-const BASE_FIELDS: MedusaFieldOverrides<z.infer<typeof PermissionSchema>> = {
-  target: {
-    label: "Target",
-    description:
-      "The resource this permission applies to, e.g. 'products' or 'orders'",
-  },
-  kind: {
-    label: "Kind",
-    description: "The type of permission, e.g. 'read' or 'write'",
-    isFiltrable: true,
-  },
-  type: {
-    label: "Type",
-    description: "Whether the permission is predefined or custom",
-    isFiltrable: true,
-  },
-  category: {
-    label: "Category",
-    description: "The category this permission belongs to",
-    isFiltrable: true,
-  },
-};
-
-const CATEGORY_FIELDS: MedusaFieldOverrides<
-  z.infer<typeof UpdatePermissionSchema>
-> = {
-  category_id: {
-    label: "Category",
-    description: "The category this permission belongs to",
-    render: ({ value, onChange }) => (
-      <CategorySelect defaultValue={value} onChange={(id) => onChange(id)} />
-    ),
-  },
-};
-
 export default function PermissionsPage() {
+  const { t } = useTranslation();
+
+  const BASE_FIELDS: MedusaFieldOverrides<z.infer<typeof PermissionSchema>> = {
+    target: {
+      label: t("permission.field.target.label"),
+      description: t("permission.field.target.description"),
+    },
+    kind: {
+      label: t("permission.field.kind.label"),
+      description: t("permission.field.kind.description"),
+      isFiltrable: true,
+    },
+    type: {
+      label: t("permission.field.type.label"),
+      description: t("permission.field.type.description"),
+      isFiltrable: true,
+    },
+    category: {
+      label: t("permission.field.category.label"),
+      description: t("permission.field.category.description"),
+      isFiltrable: true,
+    },
+  };
+
+  const CATEGORY_FIELDS: MedusaFieldOverrides<
+    z.infer<typeof UpdatePermissionSchema>
+  > = {
+    category_id: {
+      label: t("permission.field.category_id.label"),
+      description: t("permission.field.category_id.description"),
+      render: ({ value, onChange }) => (
+        <CategorySelect defaultValue={value} onChange={(id) => onChange(id)} />
+      ),
+    },
+  };
+
   return (
     <MedusaPage
       id="permission"
       path="/admin/rbac/v2/permissions"
-      title="Permissions"
-      description="Manage permissions for user roles"
+      title={t("permission.page.title")}
+      description={t("permission.page.subtitle")}
       schema={PermissionSchema}
       fields={{
         ...BASE_FIELDS,
         category: {
-          label: "Category",
-          description: "The category this permission belongs to",
+          label: t("permission.field.category.label"),
+          description: t("permission.field.category.description"),
           cell: (info) => <span>{info.getValue()?.name}</span>,
           isFiltrable: true,
         },
       }}
       create={{
         id: "permission",
-        title: "Create Permission",
-        description: "Create a new permission",
+        title: t("permission.create.title"),
+        description: t("permission.create.subtitle"),
         schema: CreatePermissionSchema,
         fields: {
           ...BASE_FIELDS,
@@ -74,8 +76,8 @@ export default function PermissionsPage() {
       edit={{
         id: "permission",
         schema: UpdatePermissionSchema,
-        title: "Edit Permission",
-        description: "Edit the permission",
+        title: t("permission.edit.title"),
+        description: t("permission.edit.subtitle"),
         fields: {
           ...BASE_FIELDS,
           ...CATEGORY_FIELDS,
@@ -90,5 +92,6 @@ export const handle = {
 };
 
 export const config = defineRouteConfig({
-  label: "Permissions",
+  label: "nav.permissions",
+  translationNs: "translation",
 });

@@ -1,0 +1,16 @@
+{
+  "common.actions": "Actions",
+  "common.create": "Create",
+  "common.cancel": "Cancel",
+  "common.save": "Save Changes",
+  "common.delete": "Delete",
+  "common.edit": "Edit",
+  "common.link": "Link",
+  "common.unlink": "Unlink",
+  "common.deleteAll": "Delete All",
+  "common.continue": "Continue",
+  "common.present": "Present",
+  "common.selected": "{{count}} selected",
+  "common.createNew": "Creating a new option",
+  "common.selectExisting": "Select an existing option"
+}

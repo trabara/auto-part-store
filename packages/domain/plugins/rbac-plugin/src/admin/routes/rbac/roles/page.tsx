@@ -5,6 +5,7 @@ import { MedusaPage } from "@repo/admin/components/medusa-page";
 import { MedusaFieldOverrides } from "@repo/admin/types/config";
 import { CreateRoleSchema, UpdateRoleSchema } from "@trabara/core/validations";
 import { RoleSchema } from "@trabara/core/schemas";
+import { useTranslation } from "react-i18next";
 import AssignUsersDrawer from "../components/assign-users-drawer";
 import PermissionDataTable from "../components/permission-data-table";
 
@@ -12,27 +13,28 @@ const RoleListSchema = RoleSchema.extend({
   members: z.array(z.object({ user_id: z.string() })),
 });
 
-export const BASE_FIELDS: MedusaFieldOverrides<z.infer<typeof RoleListSchema>> =
-  {
+export default function RolesPage() {
+  const { t } = useTranslation();
+
+  const BASE_FIELDS: MedusaFieldOverrides<z.infer<typeof RoleListSchema>> = {
     name: {
-      label: "Name",
-      description: "The name of the role",
+      label: t("role.field.name.label"),
+      description: t("role.field.name.description"),
       isFiltrable: true,
     },
     description: {
-      label: "Description",
-      description: "A brief description of the role",
+      label: t("role.field.description.label"),
+      description: t("role.field.description.description"),
       isFiltrable: true,
     },
   };
 
-export default function RolesPage() {
   return (
     <MedusaPage
       id="role"
       path="/admin/rbac/v2/roles"
-      title="Roles"
-      description="Manage user roles and their permissions"
+      title={t("role.page.title")}
+      description={t("role.page.subtitle")}
       schema={RoleListSchema}
       fields={{
         ...BASE_FIELDS,
@@ -40,7 +42,7 @@ export default function RolesPage() {
       rowActions={[
         {
           id: "assign-user",
-          label: "Assign Users",
+          label: t("role.action.assignUsers"),
           icon: <User />,
           render: (role) => (
             <AssignUsersDrawer roleId={role.id} members={role.members} />
@@ -65,13 +67,13 @@ export default function RolesPage() {
         steps: [
           {
             id: "general",
-            label: "General",
+            label: t("role.step.general"),
             icon: <User />,
             schema: CreateRoleSchema.omit({ permissions: true }),
           },
           {
             id: "permissions",
-            label: "Permissions",
+            label: t("role.step.permissions"),
             header: false,
             icon: <User />,
             schema: CreateRoleSchema.pick({ permissions: true }),
@@ -91,5 +93,6 @@ export const handle = {
 };
 
 export const config = defineRouteConfig({
-  label: "Roles",
+  label: "nav.roles",
+  translationNs: "translation",
 });

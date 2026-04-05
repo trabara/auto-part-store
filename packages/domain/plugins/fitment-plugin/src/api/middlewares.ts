@@ -3,7 +3,6 @@ import { defineMiddlewares } from "@medusajs/framework";
 import { adminEnginesMiddlewares } from "./admin/engines/middlewares";
 import { adminFitmentProductMiddlewares } from "./admin/fitments/middlewares";
 import { adminMakesMiddlewares } from "./admin/makes/middlewares";
-import { adminEntityMediaMiddlewares } from "./admin/medias/middlewares";
 import { adminModelsMiddlewares } from "./admin/models/middlewares";
 import { adminProductFitmentMiddlewares } from "./admin/products/middlewares";
 import { storeEngineMiddlewares } from "./store/engines/middlewares";
@@ -15,7 +14,6 @@ import { storeProductMiddlewares } from "./store/products/v2/middlewares";
 
 export default defineMiddlewares({
   routes: [
-    ...adminEntityMediaMiddlewares,
     ...adminEnginesMiddlewares,
     ...adminFitmentProductMiddlewares,
     ...adminMakesMiddlewares,

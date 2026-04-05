@@ -8,10 +8,9 @@ Turborepo monorepo. **Package manager:** Yarn 4 Berry (node-modules linker). **N
 apps/backend/          — Medusa v2 backend (workspace name: medusa)
 apps/storefront/       — Next.js 16 storefront (React 19, Tailwind v4, next-intl)
 packages/core/         — @trabara/core: schemas, dtos, validations, contracts, interfaces
-packages/domain/       — @repo/{fitment,rbac,invoice,analytics}-plugin (Medusa plugins)
-packages/infra/common/ — @repo/common: BaseController, error handler, logger
-packages/infra/cache/  — @trabara/cache
-packages/infra/queue/  — @trabara/queue
+packages/common/       — @trabara/common: BaseController, error handler, logger
+packages/domain/plugins/  — @repo/{fitment,rbac,invoice,media,analytics}-plugin (Medusa plugins)
+packages/domain/modules/  — @repo/domain-modules: shared models used across plugins
 packages/ui/admin/     — @repo/admin (source-linked, no build)
 packages/ui/hooks/     — @repo/hooks (source-linked, no build)
 packages/ui/icons/     — @repo/icons (source-linked, no build)
@@ -54,7 +53,7 @@ yarn workspace @repo/fitment-plugin dev
 
 ## Testing
 
-Tests live in **`apps/backend`** and **`packages/domain/*`**. No storefront tests.
+Tests live in **`apps/backend`** and **`packages/domain/plugins/*`**. No storefront tests.
 
 ```bash
 # Backend — run from repo root
@@ -64,18 +63,28 @@ yarn workspace medusa test:integration:modules
 
 # Single test file — run from apps/backend/
 TEST_TYPE=unit NODE_OPTIONS=--experimental-vm-modules npx jest \
-  --testPathPattern="path/to/my.unit.spec.ts" --runInBand --forceExit
+  --testPathPattern="path/to/my.unit.spec.ts" --runInBand --forceExit --passWithNoTests
 
 TEST_TYPE=integration:http NODE_OPTIONS=--experimental-vm-modules npx jest \
   --testPathPattern="path/to/my.spec.ts" --runInBand --forceExit
 
-# Plugin tests (each plugin has its own jest.config.js)
-yarn workspace @repo/rbac-plugin test:unit
+# Plugin tests (fitment/invoice/media have all three; rbac/analytics only have test:unit)
+yarn workspace @repo/fitment-plugin test:unit
 yarn workspace @repo/fitment-plugin test:integration:http
+yarn workspace @repo/fitment-plugin test:integration:modules
+yarn workspace @repo/rbac-plugin test:unit
 ```
 
-- **Test runner:** Jest 29 + `@swc/jest`. Environment: `node`.
-- `TEST_TYPE` controls which glob jest uses: `unit` → `src/**/__tests__/**/*.unit.spec.[jt]s`, `integration:http` → `integration-tests/http/*.spec.[jt]s`
+**Test runner:** Jest 29 + `@swc/jest`. Environment: `node`.
+
+`TEST_TYPE` controls which glob jest uses:
+
+| `TEST_TYPE`           | Glob                                       |
+| --------------------- | ------------------------------------------ |
+| `unit`                | `**/src/**/__tests__/**/*.unit.spec.[jt]s` |
+| `integration:http`    | `**/integration-tests/http/*.spec.[jt]s`   |
+| `integration:modules` | `**/src/modules/*/__tests__/**/*.[jt]s`    |
+
 - Integration tests use `medusaIntegrationTestRunner` from `@medusajs/test-utils`. The `afterAll` in `integration-tests/setup.js` drops the temp DB via `pg-god`.
 - Required env vars for tests come from `.env.test` (backend) or `integration-tests/setup-env.js` (plugins).
 
@@ -85,13 +94,13 @@ yarn workspace @repo/fitment-plugin test:integration:http
 
 **Prettier** (`.prettierrc`): `semi: false`, `singleQuote: false`, `tabWidth: 2`, `trailingComma: "es5"`, `arrowParens: "always"`.
 
-**ESLint v9 flat config** (`.mjs` files):
+**ESLint v9 flat config** (`eslint.config.mjs` in each workspace):
 
-- Backend/plugins extend `@repo/eslint-config` (`@typescript-eslint/recommended` + `turbo` plugin)
-- Storefront uses `eslint-config-next`
+- Backend/plugins extend `@repo/eslint-config/base` (`@typescript-eslint/recommended` + `turbo` plugin + `eslint-config-prettier`)
+- Storefront extends `@repo/eslint-config/next-js` (wraps `@next/eslint-plugin-next`)
 - All violations are **warnings** via `eslint-plugin-only-warn` — zero errors policy
-- `@typescript-eslint/no-explicit-any` is **off** — `any` is allowed
-- Unused vars/args prefixed with `_` are ignored
+- Each workspace's `eslint.config.mjs` adds: `@typescript-eslint/no-explicit-any: "off"` — `any` is allowed everywhere
+- Unused vars rule: `@typescript-eslint/no-unused-vars: ["warn", { argsIgnorePattern: "^_", varsIgnorePattern: "^_" }]`
 
 ---
 
@@ -136,7 +145,7 @@ yarn workspace @repo/fitment-plugin test:integration:http
   } from "@medusajs/medusa/api/utils/validators";
   ```
 - `@trabara/core` sub-paths: `@trabara/core/schemas`, `/dtos`, `/validations`, `/contracts`, `/interfaces`, `/infra`
-- `@repo/common` for `BaseController`, `ILogger`, `IErrorHandler`
+- `@trabara/common` for `BaseController`, `ILogger`, `IErrorHandler`
 
 ---
 
@@ -164,7 +173,7 @@ yarn workspace @repo/fitment-plugin test:integration:http
 ### Backend / Plugin structure
 
 ```
-src/
+packages/domain/plugins/<name>/src/
   modules/<name>/
     index.ts          ← exports module definition, service, MODULE_KEY
     constant.ts       ← UPPER_SNAKE_CASE module key
@@ -177,13 +186,14 @@ src/
   api/<scope>/<resource>/
     route.ts          ← thin: new FooController(req, res).method()
     middlewares.ts    ← validateAndTransformBody/Query + Zod schema
-  _controllers/
-    foo.controller.ts ← extends BaseController from @repo/common
+  api/_controllers/
+    foo.controller.ts ← extends BaseController from @trabara/common
 ```
 
 - Route files are always thin — only instantiate the controller and delegate
 - Services: public methods use `@InjectManager`, private implementations use `@InjectTransactionManager`
 - Workflow steps always include a compensation function as the third argument to `createStep`
+- Shared models reused across plugins live in `packages/domain/modules/` (`@repo/domain-modules`)
 
 ### Error handling (backend)
 

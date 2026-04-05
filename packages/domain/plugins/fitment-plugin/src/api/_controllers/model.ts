@@ -11,10 +11,6 @@ import { BaseController } from "@trabara/common";
  * Following DIP: Depends on abstraction (BaseController) not implementation.
  */
 export class ModelController extends BaseController {
-  constructor(req, res) {
-    super(req, res);
-  }
-
   /**
    * GET /admin/models
    * List all models with pagination

@@ -197,6 +197,18 @@ export default async function seedRbac({ container }: ExecArgs) {
                         { kind: "read", target: '/admin/locales', type: "predefined" },
                         { kind: "write", target: '/admin/locales', type: "predefined" },
                         { kind: "delete", target: '/admin/locales', type: "predefined" },
+                        { kind: "read", target: '/admin/makes', type: "predefined" },
+                        { kind: "write", target: '/admin/makes', type: "predefined" },
+                        { kind: "delete", target: '/admin/makes', type: "predefined" },
+                        { kind: "read", target: '/admin/models', type: "predefined" },
+                        { kind: "write", target: '/admin/models', type: "predefined" },
+                        { kind: "delete", target: '/admin/models', type: "predefined" },
+                        { kind: "read", target: '/admin/engines', type: "predefined" },
+                        { kind: "write", target: '/admin/engines', type: "predefined" },
+                        { kind: "delete", target: '/admin/engines', type: "predefined" },
+                        { kind: "read", target: '/admin/fitments', type: "predefined" },
+                        { kind: "write", target: '/admin/fitments', type: "predefined" },
+                        { kind: "delete", target: '/admin/fitments', type: "predefined" },
                     ]
                 },
                 {

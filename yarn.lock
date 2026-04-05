@@ -10222,6 +10222,60 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@repo/media-plugin@workspace:*, @repo/media-plugin@workspace:packages/domain/plugins/media-plugin":
+  version: 0.0.0-use.local
+  resolution: "@repo/media-plugin@workspace:packages/domain/plugins/media-plugin"
+  dependencies:
+    "@codemirror/lang-html": "npm:^6.4.11"
+    "@hookform/resolvers": "npm:^5.2.2"
+    "@medusajs/admin-bundler": "npm:2.13.5"
+    "@medusajs/admin-sdk": "npm:2.13.5"
+    "@medusajs/cli": "npm:2.13.5"
+    "@medusajs/framework": "npm:2.13.5"
+    "@medusajs/icons": "npm:2.13.5"
+    "@medusajs/medusa": "npm:2.13.5"
+    "@medusajs/test-utils": "npm:2.13.5"
+    "@medusajs/ui": "npm:4.0.25"
+    "@repo/domain-modules": "workspace:*"
+    "@repo/eslint-config": "workspace:*"
+    "@repo/hooks": "workspace:*"
+    "@repo/scripts": "workspace:*"
+    "@repo/tsconfig": "workspace:*"
+    "@swc/core": "npm:1.12.2"
+    "@swc/jest": "npm:^0.2.38"
+    "@trabara/common": "workspace:*"
+    "@trabara/core": "workspace:*"
+    "@types/jest": "npm:^29.5.13"
+    "@types/node": "npm:^20.0.0"
+    "@types/react": "npm:^19"
+    "@types/react-dom": "npm:^19"
+    "@uiw/codemirror-theme-vscode": "npm:^4.25.8"
+    "@uiw/react-codemirror": "npm:^4.25.8"
+    chokidar: "npm:^4.0.3"
+    date-fns: "npm:^4.1.0"
+    eslint: "npm:^9.39.1"
+    handlebars: "npm:^4.7.8"
+    jest: "npm:^29.7.0"
+    lodash: "npm:^4.17.23"
+    lucide-react: "npm:^0.563.0"
+    pg-god: "npm:^1.0.12"
+    playwright: "npm:^1.58.2"
+    react: "npm:19.2.3"
+    react-dom: "npm:19.2.3"
+    react-hook-form: "npm:^7.71.1"
+    ts-node: "npm:^10.9.2"
+    typescript: "npm:^5.6.2"
+    vite: "npm:^5.2.11"
+    yalc: "npm:^1.0.0-pre.53"
+  peerDependencies:
+    "@medusajs/admin-sdk": ">=2.11.0 <3.0.0"
+    "@medusajs/framework": ">=2.11.0 <3.0.0"
+    "@medusajs/icons": ">=2.11.0 <3.0.0"
+    "@medusajs/medusa": ">=2.11.0 <3.0.0"
+    "@medusajs/ui": ">=4.0.0 <5.0.0"
+  languageName: unknown
+  linkType: soft
+
 "@repo/rbac-plugin@workspace:*, @repo/rbac-plugin@workspace:packages/domain/plugins/rbac-plugin":
   version: 0.0.0-use.local
   resolution: "@repo/rbac-plugin@workspace:packages/domain/plugins/rbac-plugin"
@@ -18652,9 +18706,11 @@ __metadata:
     "@medusajs/medusa": "npm:2.13.5"
     "@medusajs/test-utils": "npm:2.13.5"
     "@repo/analytics-plugin": "workspace:*"
+    "@repo/domain-modules": "workspace:*"
     "@repo/eslint-config": "workspace:*"
     "@repo/fitment-plugin": "workspace:*"
     "@repo/invoice-plugin": "workspace:*"
+    "@repo/media-plugin": "workspace:*"
     "@repo/rbac-plugin": "workspace:*"
     "@swc/core": "npm:1.12.2"
     "@swc/jest": "npm:^0.2.38"

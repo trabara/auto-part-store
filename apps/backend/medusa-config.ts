@@ -138,7 +138,7 @@ export default defineConfig({
       resolve: "@repo/domain-modules/fitment",
     },
     {
-      resolve: "@repo/domain-modules/entity-media",
+      resolve: "@repo/domain-modules/media",
     },
     {
       resolve: "@repo/domain-modules/authz",

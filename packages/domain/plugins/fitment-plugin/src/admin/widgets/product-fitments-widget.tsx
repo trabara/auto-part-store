@@ -6,10 +6,10 @@ import {
   Heading,
   useDataTable,
 } from "@medusajs/ui";
+import { Fitment } from "@trabara/core/dtos";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useParams } from "react-router-dom";
-import { Fitment } from "@trabara/core/dtos";
 import { useDeleteMutation, usePaginatedQuery } from "../hooks";
 import { sdk } from "../lib/sdk";
 import { createFitmentColumns } from "../modules/fitment/fitment/components/data-table-columns";

@@ -35,8 +35,10 @@
     "@medusajs/framework": "2.13.5",
     "@medusajs/medusa": "2.13.5",
     "@repo/analytics-plugin": "workspace:*",
+    "@repo/domain-modules": "workspace:*",
     "@repo/fitment-plugin": "workspace:*",
     "@repo/invoice-plugin": "workspace:*",
+    "@repo/media-plugin": "workspace:*",
     "@repo/rbac-plugin": "workspace:*",
     "react-i18next": "^15.0.0"
   },

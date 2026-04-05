@@ -28,7 +28,7 @@ export class ModelController extends BaseController {
 
       this.logger.info(`Found ${models.length} models`);
 
-      this.success({ models, metadata });
+      this.success({ data: models, metadata });
     }, "Models list retrieved successfully");
   }
 

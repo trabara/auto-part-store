@@ -1,22 +1,49 @@
 import { defineRouteConfig } from "@medusajs/admin-sdk";
-import { EntityCrudProvider } from "../../../components/crud-provider";
-import MakeCreateModal from "../../../modules/fitment/make/components/create-modal";
-import MakeDataTable from "../../../modules/fitment/make/components/data-table";
-import MakeEditDrawer from "../../../modules/fitment/make/components/edit-drawer";
+import { z } from "@medusajs/framework/zod";
+import { MedusaPage } from "@repo/admin/components/medusa-page";
+import { MedusaFieldOverrides } from "@repo/admin/types/config";
+import { MakeSchema } from "@trabara/core/schemas";
+import {
+  CreateMakeInputSchema,
+  UpdateMakeInputSchema,
+} from "@trabara/core/validations";
 
-const MakesPage = () => {
+const BASE_FIELDS: MedusaFieldOverrides<z.infer<typeof MakeSchema>> = {
+  name: {
+    label: "Name",
+    description: "The name of the make",
+    isFiltrable: true,
+  },
+};
+
+export default function MakesPage() {
   return (
-    <EntityCrudProvider entityName="make">
-      <MakeDataTable />
-      <MakeEditDrawer />
-      <MakeCreateModal />
-    </EntityCrudProvider>
+    <MedusaPage
+      id="make"
+      path="/admin/makes"
+      title="Makes"
+      description="Manage vehicle makes"
+      schema={MakeSchema}
+      fields={BASE_FIELDS}
+      create={{
+        id: "make",
+        schema: CreateMakeInputSchema,
+        fields: BASE_FIELDS,
+      }}
+      edit={{
+        id: "make",
+        schema: UpdateMakeInputSchema,
+        fields: BASE_FIELDS,
+      }}
+    />
   );
+}
+
+export const handle = {
+  breadcrumb: () => "Makes",
 };
 
 export const config = defineRouteConfig({
   label: "nav.makes",
   translationNs: "translation",
 });
-
-export default MakesPage;

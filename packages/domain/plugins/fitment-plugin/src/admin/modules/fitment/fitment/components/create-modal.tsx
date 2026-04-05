@@ -1,55 +1,85 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Button, FocusModal, Heading, Hint, Input, Label } from "@medusajs/ui";
+import {
+  Button,
+  FocusModal,
+  Heading,
+  Hint,
+  Input,
+  Label,
+  Select,
+} from "@medusajs/ui";
 import { Controller, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
-import {
-  BODY_STYLE_OPTIONS,
-  DOORS_OPTIONS,
-  DRIVE_OPTIONS,
-  TRANSMISSION_OPTIONS,
-} from "@repo/domain-modules/fitment/constant";
+import { useNavigate } from "react-router-dom";
 import { CreateFitmentInput } from "@trabara/core/dtos";
 import { CreateFitmentInputSchema } from "@trabara/core/validations";
-import OptionSelect from "../../../../components/option-select";
-import { useCrudContext } from "../../../../context/crud-context";
 import { useCreateMutation } from "../../../../hooks/use-create-mutation";
-import { EngineSelectInput } from "../../engine/components/engine-select";
-import { ModelSelectInput } from "../../model/components/model-select-input";
+import EngineSelect from "../../../../routes/fitments/components/engine-select";
+import ModelSelect from "../../../../routes/fitments/components/model-select";
 import { createFitment } from "../data";
 
+const BODY_STYLE_OPTIONS = [
+  { label: "Sedan", value: "SEDAN" },
+  { label: "SUV", value: "SUV" },
+  { label: "Hatchback", value: "HATCHBACK" },
+  { label: "Coupe", value: "COUPE" },
+  { label: "Convertible", value: "CONVERTIBLE" },
+  { label: "Wagon", value: "WAGON" },
+  { label: "Van", value: "VAN" },
+  { label: "Pickup", value: "PICKUP" },
+];
+
+const DRIVE_OPTIONS = [
+  { label: "FWD", value: "FWD" },
+  { label: "RWD", value: "RWD" },
+  { label: "AWD", value: "AWD" },
+  { label: "4WD", value: "FOUR_WD" },
+];
+
+const TRANSMISSION_OPTIONS = [
+  { label: "Manual", value: "MANUAL" },
+  { label: "Automatic", value: "AUTOMATIC" },
+  { label: "CVT", value: "CVT" },
+];
+
+const DOORS_OPTIONS = ["2", "3", "4", "5"];
+
 const FitmentCreateModal = () => {
-  const { isCreate, setIsCreate } = useCrudContext();
   const { t } = useTranslation();
+  const navigate = useNavigate();
 
   const form = useForm({
     resolver: zodResolver(CreateFitmentInputSchema),
     defaultValues: {
       year_start: 2000,
-      body_style: "SEDAN",
-      drive: "FWD",
-      transmission: "MANUAL",
+      body_style: "SEDAN" as const,
+      drive: "FWD" as const,
+      transmission: "MANUAL" as const,
       doors: 4,
     },
   });
 
-  const handleClose = () => {
-    setIsCreate(false);
-  };
+  const handleClose = () => navigate(-1);
 
   const createMutation = useCreateMutation({
     invalidateKeys: ["fitments"],
     errorMessage: t("fitment.toast.createError"),
     successMessage: t("fitment.toast.created"),
-    createFn: createFitment,
+    createFn: createFitment as any,
   });
 
   const handleSubmit = form.handleSubmit((data: CreateFitmentInput) => {
-    createMutation.mutate(data);
+    createMutation.mutate(data as any);
     handleClose();
   });
 
   return (
-    <FocusModal open={isCreate} onOpenChange={handleClose}>
+    <FocusModal
+      open
+      onOpenChange={(open) => {
+        if (!open) handleClose();
+      }}
+    >
       <FocusModal.Content asChild>
         <form onSubmit={handleSubmit}>
           <FocusModal.Header />
@@ -90,7 +120,11 @@ const FitmentCreateModal = () => {
                       id="year_end"
                       type="number"
                       {...field}
-                      onChange={(e) => field.onChange(Number(e.target.value))}
+                      onChange={(e) =>
+                        field.onChange(
+                          e.target.value ? Number(e.target.value) : undefined,
+                        )
+                      }
                     />
                     {error && <Hint variant="error">{error.message}</Hint>}
                   </div>
@@ -101,10 +135,19 @@ const FitmentCreateModal = () => {
                 control={form.control}
                 render={({ field, fieldState: { error } }) => (
                   <div className="flex flex-col space-y-2">
-                    <Label htmlFor="body_style">
-                      {t("fitment.field.bodyStyle")}
-                    </Label>
-                    <OptionSelect options={BODY_STYLE_OPTIONS} {...field} />
+                    <Label>{t("fitment.field.bodyStyle")}</Label>
+                    <Select value={field.value} onValueChange={field.onChange}>
+                      <Select.Trigger>
+                        <Select.Value />
+                      </Select.Trigger>
+                      <Select.Content>
+                        {BODY_STYLE_OPTIONS.map((o) => (
+                          <Select.Item key={o.value} value={o.value}>
+                            {o.label}
+                          </Select.Item>
+                        ))}
+                      </Select.Content>
+                    </Select>
                     {error && <Hint variant="error">{error.message}</Hint>}
                   </div>
                 )}
@@ -114,8 +157,19 @@ const FitmentCreateModal = () => {
                 control={form.control}
                 render={({ field, fieldState: { error } }) => (
                   <div className="flex flex-col space-y-2">
-                    <Label htmlFor="drive">{t("fitment.field.drive")}</Label>
-                    <OptionSelect options={DRIVE_OPTIONS} {...field} />
+                    <Label>{t("fitment.field.drive")}</Label>
+                    <Select value={field.value} onValueChange={field.onChange}>
+                      <Select.Trigger>
+                        <Select.Value />
+                      </Select.Trigger>
+                      <Select.Content>
+                        {DRIVE_OPTIONS.map((o) => (
+                          <Select.Item key={o.value} value={o.value}>
+                            {o.label}
+                          </Select.Item>
+                        ))}
+                      </Select.Content>
+                    </Select>
                     {error && <Hint variant="error">{error.message}</Hint>}
                   </div>
                 )}
@@ -125,10 +179,19 @@ const FitmentCreateModal = () => {
                 control={form.control}
                 render={({ field, fieldState: { error } }) => (
                   <div className="flex flex-col space-y-2">
-                    <Label htmlFor="transmission">
-                      {t("fitment.field.transmission")}
-                    </Label>
-                    <OptionSelect options={TRANSMISSION_OPTIONS} {...field} />
+                    <Label>{t("fitment.field.transmission")}</Label>
+                    <Select value={field.value} onValueChange={field.onChange}>
+                      <Select.Trigger>
+                        <Select.Value />
+                      </Select.Trigger>
+                      <Select.Content>
+                        {TRANSMISSION_OPTIONS.map((o) => (
+                          <Select.Item key={o.value} value={o.value}>
+                            {o.label}
+                          </Select.Item>
+                        ))}
+                      </Select.Content>
+                    </Select>
                     {error && <Hint variant="error">{error.message}</Hint>}
                   </div>
                 )}
@@ -138,8 +201,22 @@ const FitmentCreateModal = () => {
                 control={form.control}
                 render={({ field, fieldState: { error } }) => (
                   <div className="flex flex-col space-y-2">
-                    <Label htmlFor="doors">{t("fitment.field.doors")}</Label>
-                    <OptionSelect options={DOORS_OPTIONS} {...field} />
+                    <Label>{t("fitment.field.doors")}</Label>
+                    <Select
+                      value={String(field.value)}
+                      onValueChange={(v) => field.onChange(Number(v))}
+                    >
+                      <Select.Trigger>
+                        <Select.Value />
+                      </Select.Trigger>
+                      <Select.Content>
+                        {DOORS_OPTIONS.map((o) => (
+                          <Select.Item key={o} value={o}>
+                            {o}
+                          </Select.Item>
+                        ))}
+                      </Select.Content>
+                    </Select>
                     {error && <Hint variant="error">{error.message}</Hint>}
                   </div>
                 )}
@@ -149,8 +226,11 @@ const FitmentCreateModal = () => {
                 control={form.control}
                 render={({ field, fieldState: { error } }) => (
                   <div className="flex flex-col space-y-2">
-                    <Label htmlFor="model_id">{t("fitment.field.model")}</Label>
-                    <ModelSelectInput {...field} />
+                    <Label>{t("fitment.field.model")}</Label>
+                    <ModelSelect
+                      defaultValue={field.value}
+                      onChange={field.onChange}
+                    />
                     {error && <Hint variant="error">{error.message}</Hint>}
                   </div>
                 )}
@@ -160,10 +240,11 @@ const FitmentCreateModal = () => {
                 control={form.control}
                 render={({ field, fieldState: { error } }) => (
                   <div className="flex flex-col space-y-2">
-                    <Label htmlFor="engine_id">
-                      {t("fitment.field.engine")}
-                    </Label>
-                    <EngineSelectInput {...field} />
+                    <Label>{t("fitment.field.engine")}</Label>
+                    <EngineSelect
+                      defaultValue={field.value}
+                      onChange={field.onChange}
+                    />
                     {error && <Hint variant="error">{error.message}</Hint>}
                   </div>
                 )}

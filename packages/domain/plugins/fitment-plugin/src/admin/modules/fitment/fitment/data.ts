@@ -1,38 +1,26 @@
 import { PaginatedQueryParams } from "../../../hooks";
 import { sdk } from "../../../lib/sdk";
-import { CreateFitmentInput } from "@trabara/core/dtos";
-import { AdminFitmentResponse, AdminFitmentWithProducts } from "./types";
+import { FitmentListResponse } from "./types";
 
 export function listFitments(
   signal: AbortSignal,
   params?: PaginatedQueryParams,
-): Promise<AdminFitmentResponse<AdminFitmentWithProducts>> {
-  return sdk.client.fetch("/admin/fitments", {
+): Promise<FitmentListResponse> {
+  return sdk.client.fetch(`/admin/fitments`, {
     signal,
     query: {
       ...(params || {}),
-      fields: "*engine,*model,*model.make,*products.*",
+      fields:
+        "id,body_style,drive,transmission,doors,year_start,year_end,model.id,model.name,model.make.id,model.make.name,engine.id,engine.fuel,engine.type,engine.size,engine.tech,products.id",
     },
   });
 }
 
-export function createFitment(input: CreateFitmentInput): Promise<void> {
-  return sdk.client.fetch("/admin/fitments", {
+export function createFitment(input: Record<string, unknown>): Promise<void> {
+  return sdk.client.fetch(`/admin/fitments`, {
     method: "POST",
     body: input,
   });
-}
-
-export function updateFitment(id?: string) {
-  return (input: CreateFitmentInput): Promise<void> => {
-    if (!id) {
-      return Promise.reject(new Error("Fitment ID is required for update"));
-    }
-    return sdk.client.fetch(`/admin/fitments/${id}`, {
-      method: "PATCH",
-      body: input,
-    });
-  };
 }
 
 export function deleteFitment(id: string): Promise<void> {

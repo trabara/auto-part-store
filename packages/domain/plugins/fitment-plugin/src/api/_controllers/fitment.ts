@@ -28,7 +28,7 @@ export class FitmentController extends BaseController {
 
       this.logger.info(`Found ${data.length} fitments`);
 
-      this.success({ fitments: data, metadata });
+      this.success({ data, metadata });
     }, "Fitments list retrieved successfully");
   }
 

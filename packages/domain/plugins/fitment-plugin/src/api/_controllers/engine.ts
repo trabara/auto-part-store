@@ -28,7 +28,7 @@ export class EngineController extends BaseController {
 
       this.logger.info(`Found ${engines.length} engines`);
 
-      this.success({ engines, metadata });
+      this.success({ data: engines, metadata });
     }, "Engines list retrieved successfully");
   }
 

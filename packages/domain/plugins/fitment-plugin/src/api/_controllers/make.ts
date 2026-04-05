@@ -25,7 +25,7 @@ export class MakeController extends BaseController {
 
       this.logger.info(`Found ${makes.length} makes`);
 
-      this.success({ makes, metadata });
+      this.success({ data: makes, metadata });
     }, "Makes list retrieved successfully");
   }
 

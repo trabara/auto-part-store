@@ -109,7 +109,9 @@ export class EngineController extends BaseController {
       const service =
         this.req.scope.resolve<FitmentModuleService>(FITMENT_MODULE);
       const { engines: engineUpdates } = z
-        .object({ engines: z.array(UpdateEngineInputSchema) })
+        .object({
+          engines: z.array(UpdateEngineInputSchema.extend({ id: z.string() })),
+        })
         .parse(this.req.validatedBody);
 
       this.logger.info(`Batch updating ${engineUpdates.length} engines`);
@@ -131,7 +133,7 @@ export class EngineController extends BaseController {
       this.logger.info(`Deleting engine with ID: ${id}`);
 
       await service.deleteFitmentEngines([id]);
-      
+
       this.logger.info(`Deleted engine with ID: ${id}`);
 
       this.noContent();

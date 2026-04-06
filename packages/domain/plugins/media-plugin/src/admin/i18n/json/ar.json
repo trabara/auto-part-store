@@ -1,0 +1,48 @@
+{
+  "nav.media": "الوسائط",
+
+  "media.page.title": "الوسائط",
+  "media.page.subtitle": "إدارة ملفات الوسائط الخاصة بكياناتك",
+
+  "media.gallery.heading": "الصور",
+  "media.gallery.loading": "جارٍ تحميل الصور...",
+  "media.gallery.no_images": "لا توجد صور بعد. ارفع صوراً للبدء.",
+
+  "media.modal.title": "تعديل وسائط {{entityName}}",
+
+  "media.command.selected": "محدد",
+  "media.command.setThumbnail": "تعيين كصورة مصغرة",
+
+  "media.upload.label": "الصور",
+  "media.upload.optional": "(اختياري)",
+  "media.upload.description": "ارفع صور المنتج. الصيغ المدعومة: JPEG، PNG، GIF، WebP، HEIC، SVG.",
+  "media.upload.uploading": "جارٍ الرفع...",
+  "media.upload.button": "رفع صور",
+  "media.upload.dragAndDrop": "اسحب وأفلت أو انقر للرفع",
+
+  "media.field.url.label": "الرابط",
+  "media.field.url.description": "رابط ملف الوسائط",
+  "media.field.type.label": "النوع",
+  "media.field.type.description": "ما إذا كان الملف صورة مصغرة أو صورة عادية",
+  "media.field.entity_id.label": "الكيان",
+  "media.field.entity_id.description": "الكيان الذي ينتمي إليه هذا الوسيط",
+
+  "media.table.url": "الرابط",
+  "media.table.type": "النوع",
+
+  "media.action.upload": "رفع",
+  "media.action.delete": "حذف",
+
+  "media.create.toast.success": "تم رفع الوسائط بنجاح",
+  "media.create.toast.error": "فشل في رفع الوسائط",
+
+  "media.update.toast.success": "تم تحديث الوسائط بنجاح",
+  "media.update.toast.error": "فشل في تحديث الوسائط",
+
+  "media.delete.confirm.title": "حذف الوسائط",
+  "media.delete.confirm.description": "هل أنت متأكد أنك تريد حذف ملف الوسائط هذا؟ لا يمكن التراجع عن هذا الإجراء.",
+  "media.delete.confirm.yes": "نعم، احذف",
+  "media.delete.confirm.no": "لا، إلغاء",
+  "media.delete.toast.success": "تم حذف الوسائط بنجاح",
+  "media.delete.toast.error": "فشل في حذف الوسائط"
+}

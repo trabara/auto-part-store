@@ -11,7 +11,7 @@ import {
   UpdateModelInputSchema,
 } from "@trabara/core/validations";
 
-const authenticateMiddleware = authenticate(["*"], ["session"]);
+const authenticateMiddleware = authenticate(["*"], ["bearer", "session"]);
 
 export const adminModelsMiddlewares: MiddlewareRoute[] = [
   {
@@ -40,7 +40,7 @@ export const adminModelsMiddlewares: MiddlewareRoute[] = [
       authenticateMiddleware,
       validateAndTransformBody(
         z.object({
-          models: z.array(UpdateModelInputSchema),
+          models: z.array(UpdateModelInputSchema.extend({ id: z.string() })),
         }),
       ),
     ],

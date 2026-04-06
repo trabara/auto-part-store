@@ -60,6 +60,12 @@ export const LinkProductsInputSchema = z.object({
     .min(1, "At least one product ID is required"),
 });
 
+export const LinkFitmentsInputSchema = z.object({
+  fitment_ids: z
+    .array(z.string())
+    .min(1, "At least one fitment ID is required"),
+});
+
 // ── Find param schemas ────────────────────────────────────────────────────────
 
 const BaseFindParams = createFindParams();

@@ -11,7 +11,7 @@ import {
   UpdateMakeInputSchema,
 } from "@trabara/core/validations";
 
-const authenticateMiddleware = authenticate(["*"], ["session"]);
+const authenticateMiddleware = authenticate(["*"], ["bearer", "session"]);
 
 export const adminMakesMiddlewares: MiddlewareRoute[] = [
   {
@@ -40,7 +40,7 @@ export const adminMakesMiddlewares: MiddlewareRoute[] = [
       authenticateMiddleware,
       validateAndTransformBody(
         z.object({
-          makes: z.array(UpdateMakeInputSchema),
+          makes: z.array(UpdateMakeInputSchema.extend({ id: z.string() })),
         }),
       ),
     ],

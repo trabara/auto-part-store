@@ -2,7 +2,7 @@ import { z } from "@medusajs/framework/zod";
 import { UploadedFileSchema } from "../schemas/media";
 
 export const CreateMediasSchema = z.object({
-  images: z.array(UploadedFileSchema).min(1, "At least one image is required"),
+  files: z.array(UploadedFileSchema).min(1, "At least one file is required"),
 });
 
 export const UpdateMediasSchema = z.object({

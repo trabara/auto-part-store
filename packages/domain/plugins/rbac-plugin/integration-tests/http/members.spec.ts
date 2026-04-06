@@ -90,7 +90,7 @@ medusaIntegrationTestRunner({
           });
 
           const res = await api.get(
-            `/admin/rbac/v2/members?role_id=${existingMember.role_id}`,
+            `/admin/rbac/v2/members?filters.role_id=${existingMember.role_id}`,
             { headers },
           );
 

@@ -9,7 +9,7 @@ import {
   UpdateFitmentInputSchema,
 } from "@trabara/core/validations";
 
-const authenticateMiddleware = authenticate(["*"], ["session"]);
+const authenticateMiddleware = authenticate(["*"], ["bearer", "session"]);
 
 export const adminFitmentProductMiddlewares: MiddlewareRoute[] = [
   {

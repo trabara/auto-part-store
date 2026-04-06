@@ -35,45 +35,21 @@ export class FitmentController extends BaseController {
   async getById(): Promise<void> {
     await this.execute(async () => {
       const { id } = this.req.params;
-      const query = this.req.scope.resolve(ContainerRegistrationKeys.QUERY);
+      const service =
+        this.req.scope.resolve<FitmentModuleService>(FITMENT_MODULE);
 
       this.logger.info(`Fetching fitment by ID: ${id}`);
 
-      const { data } = await query.graph(
-        {
-          entity: "fitment",
-          fields: [
-            "id",
-            "body_style",
-            "drive",
-            "transmission",
-            "doors",
-            "year_start",
-            "year_end",
-            "model.id",
-            "model.name",
-            "model.make.id",
-            "model.make.name",
-            "engine.id",
-            "engine.fuel",
-            "engine.type",
-            "engine.size",
-            "engine.tech",
-          ],
-          filters: { id },
-        },
-        {
-          throwIfKeyNotFound: true,
-        },
-      );
+      const fitments = await service.listFitmentsWithRelations({ id });
 
-      if (!data || data.length === 0) {
-        throw new Error("Fitment not found");
+      if (!fitments || fitments.length === 0) {
+        this.notFound(`Fitment with id ${id} not found`);
+        return;
       }
 
       this.logger.info("Fitment found successfully");
 
-      this.success({ fitment: data[0] });
+      this.success({ fitment: fitments[0] });
     }, `Fitment retrieved: ${this.req.params.id}`);
   }
 

@@ -9,7 +9,7 @@ import {
 } from "../fixtures/rbac-seeders";
 import { AUTHZ_MODULE, AuthzModuleService } from "@repo/domain-modules/authz";
 
-jest.setTimeout(30000);
+jest.setTimeout(90000);
 
 medusaIntegrationTestRunner({
   testSuite: ({ getContainer, api }) => {

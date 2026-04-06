@@ -8,7 +8,6 @@ import {
 import type { IMediaModuleService } from "@trabara/core/interfaces";
 import type { Media } from "./models/media";
 
-
 type InjectedDependencies = {
   entityMediaRepository: DAL.RepositoryService<Media>;
   baseRepository: DAL.RepositoryService<any>;
@@ -112,9 +111,19 @@ class MediaModuleService implements IMediaModuleService {
   @InjectTransactionManager()
   private async updateMedias_(
     data: any[],
+    _config?: Record<string, any>,
     @MedusaContext() ctx?: Context<EntityManager>,
   ): Promise<Media[]> {
-    return this.entityMediaRepository_.update(data, ctx);
+    const ids = data.map((d) => d.id);
+    const entities = await this.entityMediaRepository_.find(
+      { where: { id: { $in: ids } } },
+      ctx,
+    );
+    const entityMap = new Map(entities.map((e) => [e.id, e]));
+    const pairs = data
+      .filter((d) => entityMap.has(d.id))
+      .map((d) => ({ entity: entityMap.get(d.id)!, update: d }));
+    return this.entityMediaRepository_.update(pairs, ctx);
   }
 
   @InjectManager()

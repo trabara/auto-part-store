@@ -1,5 +1,6 @@
 import { ContainerRegistrationKeys, Modules } from "@medusajs/framework/utils";
 import { FITMENT_MODULE } from "@repo/domain-modules/fitment";
+import type { FitmentModuleService } from "@repo/domain-modules/fitment";
 import {
   ProductListInput,
   ProductListService,
@@ -111,35 +112,31 @@ export class ProductController extends BaseController {
     await this.execute(async () => {
       const { id: productId } = this.req.params;
       const query = this.req.scope.resolve(ContainerRegistrationKeys.QUERY);
+      const service =
+        this.req.scope.resolve<FitmentModuleService>(FITMENT_MODULE);
 
       this.logger.info(`Fetching fitments for product: ${productId}`);
 
-      const { data: products } = await query.graph({
-        entity: "product",
-        fields: [
-          "id",
-          "fitments.id",
-          "fitments.body_style",
-          "fitments.doors",
-          "fitments.drive",
-          "fitments.transmission",
-          "fitments.year_start",
-          "fitments.year_end",
-          "fitments.model.id",
-          "fitments.model.name",
-          "fitments.model.make.id",
-          "fitments.model.make.name",
-          "fitments.engine.id",
-          "fitments.engine.fuel",
-          "fitments.engine.type",
-          "fitments.engine.size",
-          "fitments.engine.tech",
-        ],
-        filters: { id: productId },
+      // Use the link entry point to get the fitment IDs linked to this product
+      const { data: linkRows } = await query.graph({
+        entity: FitmentProductLink.entryPoint,
+        fields: ["fitment_id"],
+        filters: { product_id: productId },
       });
 
-      const fitments =
-        products && products[0] ? products[0].fitments || [] : [];
+      const fitmentIds = linkRows
+        .map((row: any) => row.fitment_id)
+        .filter(Boolean);
+
+      if (!fitmentIds.length) {
+        this.success({ fitments: [] });
+        return;
+      }
+
+      // Hydrate fitments with model + make + engine via the service
+      const fitments = await service.listFitmentsWithRelations({
+        id: { $in: fitmentIds },
+      });
 
       this.logger.info(
         `Found ${fitments.length} fitments for product ${productId}`,

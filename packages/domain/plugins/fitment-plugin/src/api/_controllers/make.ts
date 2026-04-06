@@ -78,7 +78,9 @@ export class MakeController extends BaseController {
       const service =
         this.req.scope.resolve<FitmentModuleService>(FITMENT_MODULE);
       const { makes: makeUpdates } = z
-        .object({ makes: z.array(UpdateMakeInputSchema) })
+        .object({
+          makes: z.array(UpdateMakeInputSchema.extend({ id: z.string() })),
+        })
         .parse(this.req.validatedBody);
 
       this.logger.info(`Updating ${makeUpdates.length} makes`);
@@ -114,9 +116,9 @@ export class MakeController extends BaseController {
       const service =
         this.req.scope.resolve<FitmentModuleService>(FITMENT_MODULE);
 
-      this.logger.info(`Deleting make with cascade: ${id}`);
+      this.logger.info(`Deleting make: ${id}`);
 
-      await (service as any).deleteMakeWithCascade(id);
+      await service.deleteFitmentMakes([id]);
 
       this.noContent();
     }, `Make deleted: ${this.req.params.id}`);

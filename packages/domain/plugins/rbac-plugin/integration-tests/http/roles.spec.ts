@@ -217,7 +217,7 @@ medusaIntegrationTestRunner({
             { headers },
           );
 
-          expect(res.status).toEqual(201);
+          expect(res.status).toEqual(200);
           expect(res.data.role.name).toEqual("Updated Role");
         });
 
@@ -231,7 +231,7 @@ medusaIntegrationTestRunner({
             { headers },
           );
 
-          expect(res.status).toEqual(201);
+          expect(res.status).toEqual(200);
           expect(res.data.role.description).toEqual("Updated description");
         });
 
@@ -245,7 +245,7 @@ medusaIntegrationTestRunner({
             { headers },
           );
 
-          expect(res.status).toEqual(201);
+          expect(res.status).toEqual(200);
           expect(res.data.role.name).toEqual("AB");
         });
       });

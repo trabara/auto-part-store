@@ -150,7 +150,16 @@ export default class AuthzModuleService implements IAuthzModuleService {
     data: (Partial<AuthzRole> & { id: string })[],
     @MedusaContext() ctx?: Context<EntityManager>,
   ): Promise<AuthzRole[]> {
-    return this.authzRoleRepository_.update(data as any, ctx);
+    const ids = data.map((d) => d.id);
+    const entities = await this.authzRoleRepository_.find(
+      { where: { id: { $in: ids } } },
+      ctx,
+    );
+    const entityMap = new Map(entities.map((e) => [e.id, e]));
+    const pairs = data
+      .filter((d) => entityMap.has(d.id))
+      .map(({ id, ...update }) => ({ entity: entityMap.get(id)!, update }));
+    return this.authzRoleRepository_.update(pairs as any, ctx);
   }
 
   @InjectManager()
@@ -267,7 +276,16 @@ export default class AuthzModuleService implements IAuthzModuleService {
     data: (Partial<AuthzPermission> & { id: string })[],
     @MedusaContext() ctx?: Context<EntityManager>,
   ): Promise<AuthzPermission[]> {
-    return this.authzPermissionRepository_.update(data as any, ctx);
+    const ids = data.map((d) => d.id);
+    const entities = await this.authzPermissionRepository_.find(
+      { where: { id: { $in: ids } } },
+      ctx,
+    );
+    const entityMap = new Map(entities.map((e) => [e.id, e]));
+    const pairs = data
+      .filter((d) => entityMap.has(d.id))
+      .map(({ id, ...update }) => ({ entity: entityMap.get(id)!, update }));
+    return this.authzPermissionRepository_.update(pairs as any, ctx);
   }
 
   @InjectManager()
@@ -433,7 +451,16 @@ export default class AuthzModuleService implements IAuthzModuleService {
     data: (Partial<AuthzMember> & { id: string })[],
     @MedusaContext() ctx?: Context<EntityManager>,
   ): Promise<AuthzMember[]> {
-    return this.authzMemberRepository_.update(data as any, ctx);
+    const ids = data.map((d) => d.id);
+    const entities = await this.authzMemberRepository_.find(
+      { where: { id: { $in: ids } } },
+      ctx,
+    );
+    const entityMap = new Map(entities.map((e) => [e.id, e]));
+    const pairs = data
+      .filter((d) => entityMap.has(d.id))
+      .map(({ id, ...update }) => ({ entity: entityMap.get(id)!, update }));
+    return this.authzMemberRepository_.update(pairs as any, ctx);
   }
 
   @InjectManager()
@@ -553,7 +580,16 @@ export default class AuthzModuleService implements IAuthzModuleService {
     data: (Partial<AuthzCategory> & { id: string })[],
     @MedusaContext() ctx?: Context<EntityManager>,
   ): Promise<AuthzCategory[]> {
-    return this.authzCategoryRepository_.update(data as any, ctx);
+    const ids = data.map((d) => d.id);
+    const entities = await this.authzCategoryRepository_.find(
+      { where: { id: { $in: ids } } },
+      ctx,
+    );
+    const entityMap = new Map(entities.map((e) => [e.id, e]));
+    const pairs = data
+      .filter((d) => entityMap.has(d.id))
+      .map(({ id, ...update }) => ({ entity: entityMap.get(id)!, update }));
+    return this.authzCategoryRepository_.update(pairs as any, ctx);
   }
 
   @InjectManager()

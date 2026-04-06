@@ -7,11 +7,11 @@ import {
 import {
   CreateFitmentInputSchema,
   FitmentFindParamsSchema,
-  LinkProductsInputSchema,
+  LinkFitmentsInputSchema,
   UpdateFitmentInputSchema,
 } from "@trabara/core/validations";
 
-const authenticateMiddleware = authenticate(["*"], ["session"]);
+const authenticateMiddleware = authenticate(["*"], ["bearer", "session"]);
 
 export const adminProductFitmentMiddlewares: MiddlewareRoute[] = [
   {
@@ -71,7 +71,7 @@ export const adminProductFitmentMiddlewares: MiddlewareRoute[] = [
     method: "POST",
     middlewares: [
       authenticateMiddleware,
-      validateAndTransformBody(LinkProductsInputSchema),
+      validateAndTransformBody(LinkFitmentsInputSchema),
     ],
   },
   {

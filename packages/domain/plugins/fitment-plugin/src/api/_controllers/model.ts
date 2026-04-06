@@ -106,7 +106,9 @@ export class ModelController extends BaseController {
       const service =
         this.req.scope.resolve<FitmentModuleService>(FITMENT_MODULE);
       const { models: modelUpdates } = z
-        .object({ models: z.array(UpdateModelInputSchema) })
+        .object({
+          models: z.array(UpdateModelInputSchema.extend({ id: z.string() })),
+        })
         .parse(this.req.validatedBody);
 
       this.logger.info(`Batch updating ${modelUpdates.length} models`);

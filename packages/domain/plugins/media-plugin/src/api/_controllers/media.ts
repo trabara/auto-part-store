@@ -1,13 +1,13 @@
 import { BaseController } from "@trabara/common";
-import {
-  CreateMediasInput,
-  UpdateMediasInput,
-} from "@trabara/core/dtos";
+import { UpdateMediasInput } from "@trabara/core/dtos";
 import {
   createMediasWorkflow,
   deleteMediasWorkflow,
   updateMediasWorkflow,
 } from "../../workflows";
+import { CreateMediasSchema } from "@trabara/core/validations";
+import { ENTITY_MEDIA_MODULE } from "@repo/domain-modules/media";
+import type { MediaModuleService } from "@repo/domain-modules/media";
 
 /**
  * Media Controller
@@ -17,28 +17,22 @@ import {
  * Following DIP: Depends on abstraction (BaseController) not implementation.
  */
 export class MediaController extends BaseController {
-
   public async list(): Promise<void> {
     await this.execute(async () => {
       const { entity_id } = this.req.params;
-      const query = this.req.scope.resolve("query");
+      const mediaService =
+        this.req.scope.resolve<MediaModuleService>(ENTITY_MEDIA_MODULE);
 
-      const { data: medias } = await query.graph({
-        entity: "entity_media",
-        fields: ["*"],
-        filters: {
-          entity_id: entity_id,
-        },
-      });
+      const medias = await mediaService.listMedias({ entity_id });
 
-      this.success({ medias: medias });
+      this.success({ medias });
     }, "Media list retrieved successfully");
   }
 
   public async createBatch(): Promise<void> {
     await this.execute(async () => {
       const { entity_id } = this.req.params;
-      const { files } = this.req.validatedBody as CreateMediasInput;
+      const { files } = CreateMediasSchema.parse(this.req.validatedBody);
 
       // Add entity_id to each file
       const entity_files = files.map((file) => ({

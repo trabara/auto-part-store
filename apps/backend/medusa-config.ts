@@ -173,6 +173,12 @@ export default defineConfig({
         // Plugin-specific options can be added here
       },
     },
+    {
+      resolve: "@repo/media-plugin",
+      options: {
+        // Plugin-specific options can be added here
+      },
+    }
   ],
   featureFlags: {
     translation: true,

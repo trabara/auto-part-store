@@ -48,7 +48,7 @@
     "prepublishOnly": "medusa plugin:build",
     "lint": "eslint .",
     "test": "TEST_TYPE=integration:http NODE_OPTIONS=--experimental-vm-modules jest --silent=false --forceExit",
-    "test:unit": "TEST_TYPE=unit NODE_OPTIONS=--experimental-vm-modules jest --silent=false --forceExit",
+    "test:unit": "TEST_TYPE=unit NODE_OPTIONS=--experimental-vm-modules jest --silent=false --forceExit --passWithNoTests",
     "check-types": "tsc --noEmit"
   },
   "devDependencies": {

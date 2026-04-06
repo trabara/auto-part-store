@@ -1,0 +1,48 @@
+{
+  "nav.media": "Media",
+
+  "media.page.title": "Media",
+  "media.page.subtitle": "Manage media files for your entities",
+
+  "media.gallery.heading": "Images",
+  "media.gallery.loading": "Loading images...",
+  "media.gallery.no_images": "No images yet. Upload images to get started.",
+
+  "media.modal.title": "Edit media for {{entityName}}",
+
+  "media.command.selected": "selected",
+  "media.command.setThumbnail": "Set as thumbnail",
+
+  "media.upload.label": "Images",
+  "media.upload.optional": "(optional)",
+  "media.upload.description": "Upload product images. Supported formats: JPEG, PNG, GIF, WebP, HEIC, SVG.",
+  "media.upload.uploading": "Uploading...",
+  "media.upload.button": "Upload images",
+  "media.upload.dragAndDrop": "Drag and drop or click to upload",
+
+  "media.field.url.label": "URL",
+  "media.field.url.description": "The URL of the media file",
+  "media.field.type.label": "Type",
+  "media.field.type.description": "Whether the file is a thumbnail or a regular image",
+  "media.field.entity_id.label": "Entity",
+  "media.field.entity_id.description": "The entity this media belongs to",
+
+  "media.table.url": "URL",
+  "media.table.type": "Type",
+
+  "media.action.upload": "Upload",
+  "media.action.delete": "Delete",
+
+  "media.create.toast.success": "Media uploaded successfully",
+  "media.create.toast.error": "Failed to upload media",
+
+  "media.update.toast.success": "Media updated successfully",
+  "media.update.toast.error": "Failed to update media",
+
+  "media.delete.confirm.title": "Delete Media",
+  "media.delete.confirm.description": "Are you sure you want to delete this media file? This action cannot be undone.",
+  "media.delete.confirm.yes": "Yes, Delete",
+  "media.delete.confirm.no": "No, Cancel",
+  "media.delete.toast.success": "Media deleted successfully",
+  "media.delete.toast.error": "Failed to delete media"
+}

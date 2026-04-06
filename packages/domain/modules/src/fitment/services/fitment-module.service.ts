@@ -5,12 +5,9 @@ import {
   InjectTransactionManager,
   MedusaContext,
 } from "@medusajs/framework/utils";
-import {
-  UpdateFitmentInput
-} from "@trabara/core/dtos";
+import { UpdateFitmentInput } from "@trabara/core/dtos";
 import type { IFitmentModuleService } from "@trabara/core/interfaces";
 import * as Models from "../models";
-
 
 type InjectedDependencies = {
   fitmentMakeRepository: DAL.RepositoryService<Models.FitmentMake>;
@@ -132,7 +129,17 @@ class FitmentModuleService implements IFitmentModuleService {
     data: any[],
     @MedusaContext() ctx?: Context<EntityManager>,
   ): Promise<Models.FitmentMake[]> {
-    return this.fitmentMakeRepository_.update(data, ctx);
+    const ids = data.map((d) => d.id);
+    const entities = await this.fitmentMakeRepository_.find(
+      { where: { id: { $in: ids } } },
+      ctx,
+    );
+    const updateMap = new Map(data.map((d) => [d.id, d]));
+    const pairs = entities.map((entity) => ({
+      entity,
+      update: updateMap.get(entity.id),
+    }));
+    return this.fitmentMakeRepository_.update(pairs, ctx);
   }
 
   @InjectManager()
@@ -246,7 +253,17 @@ class FitmentModuleService implements IFitmentModuleService {
     data: any[],
     @MedusaContext() ctx?: Context<EntityManager>,
   ): Promise<Models.FitmentModel[]> {
-    return this.fitmentModelRepository_.update(data, ctx);
+    const ids = data.map((d) => d.id);
+    const entities = await this.fitmentModelRepository_.find(
+      { where: { id: { $in: ids } } },
+      ctx,
+    );
+    const updateMap = new Map(data.map((d) => [d.id, d]));
+    const pairs = entities.map((entity) => ({
+      entity,
+      update: updateMap.get(entity.id),
+    }));
+    return this.fitmentModelRepository_.update(pairs, ctx);
   }
 
   @InjectManager()
@@ -360,7 +377,17 @@ class FitmentModuleService implements IFitmentModuleService {
     data: any[],
     @MedusaContext() ctx?: Context<EntityManager>,
   ): Promise<Models.FitmentEngine[]> {
-    return this.fitmentEngineRepository_.update(data, ctx);
+    const ids = data.map((d) => d.id);
+    const entities = await this.fitmentEngineRepository_.find(
+      { where: { id: { $in: ids } } },
+      ctx,
+    );
+    const updateMap = new Map(data.map((d) => [d.id, d]));
+    const pairs = entities.map((entity) => ({
+      entity,
+      update: updateMap.get(entity.id),
+    }));
+    return this.fitmentEngineRepository_.update(pairs, ctx);
   }
 
   @InjectManager()
@@ -382,6 +409,76 @@ class FitmentModuleService implements IFitmentModuleService {
   // ============================================================================
   // Fitment CRUD
   // ============================================================================
+
+  @InjectManager()
+  async listFitmentsWithRelations(
+    filters?: Record<string, any>,
+    @MedusaContext() ctx?: Context<EntityManager>,
+  ): Promise<any[]> {
+    return this.listFitmentsWithRelations_(filters, ctx);
+  }
+
+  @InjectTransactionManager()
+  private async listFitmentsWithRelations_(
+    filters?: Record<string, any>,
+    @MedusaContext() ctx?: Context<EntityManager>,
+  ): Promise<any[]> {
+    const fitments = await this.fitmentRepository_.find(
+      { where: filters ?? {} },
+      ctx,
+    );
+    if (!fitments.length) return [];
+
+    // Load models and engines
+    const modelIds = [
+      ...new Set(fitments.map((f: any) => f.model_id).filter(Boolean)),
+    ];
+    const engineIds = [
+      ...new Set(fitments.map((f: any) => f.engine_id).filter(Boolean)),
+    ];
+
+    const [models, engines] = await Promise.all([
+      modelIds.length
+        ? this.fitmentModelRepository_.find(
+            { where: { id: { $in: modelIds } } },
+            ctx,
+          )
+        : [],
+      engineIds.length
+        ? this.fitmentEngineRepository_.find(
+            { where: { id: { $in: engineIds } } },
+            ctx,
+          )
+        : [],
+    ]);
+
+    // Load makes for models
+    const makeIds = [
+      ...new Set((models as any[]).map((m: any) => m.make_id).filter(Boolean)),
+    ];
+    const makes = makeIds.length
+      ? await this.fitmentMakeRepository_.find(
+          { where: { id: { $in: makeIds } } },
+          ctx,
+        )
+      : [];
+
+    const modelMap = new Map((models as any[]).map((m: any) => [m.id, m]));
+    const engineMap = new Map((engines as any[]).map((e: any) => [e.id, e]));
+    const makeMap = new Map((makes as any[]).map((mk: any) => [mk.id, mk]));
+
+    return fitments.map((f: any) => {
+      const model = modelMap.get(f.model_id);
+      const engine = engineMap.get(f.engine_id);
+      return {
+        ...f,
+        model: model
+          ? { ...model, make: makeMap.get(model.make_id) ?? null }
+          : null,
+        engine: engine ?? null,
+      };
+    });
+  }
 
   @InjectManager()
   async listFitments(
@@ -490,7 +587,17 @@ class FitmentModuleService implements IFitmentModuleService {
     data: any[],
     @MedusaContext() ctx?: Context<EntityManager>,
   ): Promise<Models.Fitment[]> {
-    return this.fitmentRepository_.update(data, ctx);
+    const ids = data.map((d) => d.id);
+    const entities = await this.fitmentRepository_.find(
+      { where: { id: { $in: ids } } },
+      ctx,
+    );
+    const updateMap = new Map(data.map((d) => [d.id, d]));
+    const pairs = entities.map((entity) => ({
+      entity,
+      update: updateMap.get(entity.id),
+    }));
+    return this.fitmentRepository_.update(pairs, ctx);
   }
 
   @InjectManager()

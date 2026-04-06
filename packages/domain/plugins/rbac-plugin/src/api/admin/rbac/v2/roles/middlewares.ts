@@ -12,7 +12,7 @@ import {
   UpdateRolePoliciesSchema,
 } from "@trabara/core/validations";
 
-const authenticateMiddleware = authenticate(["*"], ["session"]);
+const authenticateMiddleware = authenticate(["*"], ["bearer", "session"]);
 
 export const adminRolesMiddlewares: MiddlewareRoute[] = [
   {

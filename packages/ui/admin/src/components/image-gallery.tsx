@@ -1,4 +1,5 @@
 import { Text } from "@medusajs/ui";
+import { useTranslation } from "react-i18next";
 import { UploadedFile, Media } from "@trabara/core/dtos";
 import { ImageItem } from "./image-item";
 
@@ -19,6 +20,8 @@ export const ImageGallery = ({
   imagesToDelete,
   onToggleSelect,
 }: ImageGalleryProps) => {
+  const { t } = useTranslation();
+
   const visibleExistingImages = existingImages.filter(
     (image) => image.id && !imagesToDelete.has(image.id),
   );
@@ -73,7 +76,7 @@ export const ImageGallery = ({
         {hasNoImages && (
           <div className="col-span-4 flex items-center justify-center p-8">
             <Text className="text-ui-fg-subtle text-center">
-              No images yet. Upload images to get started.
+              {t("media.gallery.no_images")}
             </Text>
           </div>
         )}

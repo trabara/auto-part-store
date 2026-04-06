@@ -1,0 +1,48 @@
+{
+  "nav.media": "Médias",
+
+  "media.page.title": "Médias",
+  "media.page.subtitle": "Gérer les fichiers médias de vos entités",
+
+  "media.gallery.heading": "Images",
+  "media.gallery.loading": "Chargement des images...",
+  "media.gallery.no_images": "Aucune image pour l'instant. Téléversez des images pour commencer.",
+
+  "media.modal.title": "Modifier les médias de {{entityName}}",
+
+  "media.command.selected": "sélectionné(s)",
+  "media.command.setThumbnail": "Définir comme miniature",
+
+  "media.upload.label": "Images",
+  "media.upload.optional": "(facultatif)",
+  "media.upload.description": "Téléversez des images de produit. Formats acceptés : JPEG, PNG, GIF, WebP, HEIC, SVG.",
+  "media.upload.uploading": "Téléversement en cours...",
+  "media.upload.button": "Téléverser des images",
+  "media.upload.dragAndDrop": "Glisser-déposer ou cliquer pour téléverser",
+
+  "media.field.url.label": "URL",
+  "media.field.url.description": "L'URL du fichier média",
+  "media.field.type.label": "Type",
+  "media.field.type.description": "Si le fichier est une miniature ou une image ordinaire",
+  "media.field.entity_id.label": "Entité",
+  "media.field.entity_id.description": "L'entité à laquelle appartient ce média",
+
+  "media.table.url": "URL",
+  "media.table.type": "Type",
+
+  "media.action.upload": "Téléverser",
+  "media.action.delete": "Supprimer",
+
+  "media.create.toast.success": "Média téléversé avec succès",
+  "media.create.toast.error": "Échec du téléversement du média",
+
+  "media.update.toast.success": "Média mis à jour avec succès",
+  "media.update.toast.error": "Échec de la mise à jour du média",
+
+  "media.delete.confirm.title": "Supprimer le média",
+  "media.delete.confirm.description": "Êtes-vous sûr de vouloir supprimer ce fichier média ? Cette action est irréversible.",
+  "media.delete.confirm.yes": "Oui, supprimer",
+  "media.delete.confirm.no": "Non, annuler",
+  "media.delete.toast.success": "Média supprimé avec succès",
+  "media.delete.toast.error": "Échec de la suppression du média"
+}

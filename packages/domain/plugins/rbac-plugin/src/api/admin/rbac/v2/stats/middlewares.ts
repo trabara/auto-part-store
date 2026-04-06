@@ -4,6 +4,6 @@ export const adminStatsMiddlewares: MiddlewareRoute[] = [
   {
     matcher: "/admin/rbac/v2/stats",
     methods: ["GET"],
-    middlewares: [authenticate(["*"], ["session"])],
+    middlewares: [authenticate(["*"], ["bearer", "session"])],
   },
 ];

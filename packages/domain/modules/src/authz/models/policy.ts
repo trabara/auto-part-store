@@ -1,4 +1,4 @@
-import { Infer } from "@medusajs/framework/types";
+import { InferTypeOf } from "@medusajs/framework/types";
 import { model } from "@medusajs/framework/utils";
 import { AuthzPermission } from "./permission";
 import { AuthzRole } from "./role";
@@ -23,4 +23,4 @@ export const AuthzPolicy = model.define("authz_policy", {
   }
 ]);
 
-export type AuthzPolicy = Infer<typeof AuthzPolicy>;
+export type AuthzPolicy = InferTypeOf<typeof AuthzPolicy>;

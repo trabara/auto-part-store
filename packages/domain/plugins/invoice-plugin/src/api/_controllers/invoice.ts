@@ -1,5 +1,5 @@
 import { BaseController } from "@trabara/common";
-import { PostInvoiceConfig } from "@trabara/core/dtos";
+import { CreateInvoiceConfig } from "@trabara/core/dtos";
 import { updateInvoiceConfigWorkflow } from "../../workflows/invoice-generator";
 
 /**
@@ -35,7 +35,7 @@ export class InvoiceController extends BaseController {
       const { result: invoice_config } = await updateInvoiceConfigWorkflow(
         this.req.scope,
       ).run({
-        input: this.req.validatedBody as PostInvoiceConfig,
+        input: this.req.validatedBody as CreateInvoiceConfig,
       });
 
       this.success({ invoice_config });

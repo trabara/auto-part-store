@@ -76,7 +76,7 @@ export class ModelController extends BaseController {
 
       this.logger.info("Creating new model", { data: validated });
 
-      const [model] = await service.createFitmentModels([validated]);
+      const [model] = await service.createModels([validated]);
 
       this.logger.info(`Created model with ID: ${model.id}`);
 
@@ -93,7 +93,7 @@ export class ModelController extends BaseController {
 
       this.logger.info(`Updating model with ID: ${id}`, { data: validated });
 
-      const [model] = await service.updateFitmentModels([{ ...validated, id }]);
+      const [model] = await service.updateModels([{ ...validated, id }]);
 
       this.logger.info(`Updated model with ID: ${id}`);
 
@@ -113,7 +113,7 @@ export class ModelController extends BaseController {
 
       this.logger.info(`Batch updating ${modelUpdates.length} models`);
 
-      const models = await service.updateFitmentModels(modelUpdates);
+      const models = await service.updateModels(modelUpdates);
 
       this.logger.info(`Batch updated ${models.length} models`);
 
@@ -129,7 +129,7 @@ export class ModelController extends BaseController {
 
       this.logger.info(`Deleting model with ID: ${id}`);
 
-      await service.deleteFitmentModels([id]);
+      await service.deleteModels([id]);
 
       this.noContent();
     }, `Model ${this.req.params.id} deleted successfully`);

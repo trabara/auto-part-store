@@ -53,6 +53,7 @@ export const EngineSchema = BaseSchema.extend({
     .regex(/^\d+(\.\d+)?$/)
     .default("1.0"),
   tech: z.string().optional(),
+  // fitments: z.array(z.lazy(() => FitmentSchema)).optional(),
 });
 
 export const FitmentSchema = BaseSchema.extend({

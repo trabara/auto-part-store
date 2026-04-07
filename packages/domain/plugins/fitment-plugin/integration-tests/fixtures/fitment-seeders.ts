@@ -25,7 +25,7 @@ export async function createTestModel(
   overrides?: { name?: string },
 ) {
   const service = container.resolve<FitmentModuleService>(FITMENT_MODULE);
-  const [model] = (await service.createFitmentModels([
+  const [model] = (await service.createModels([
     {
       name: overrides?.name ?? `Model-${Date.now()}`,
       make_id: makeId,

@@ -5,6 +5,7 @@ import {
   MedusaContext,
 } from "@medusajs/framework/utils";
 import { EntityManager } from "@medusajs/framework/mikro-orm/knex";
+import type { CreateMediaInput, UpdateMediaInput } from "@trabara/core/dtos";
 import type { IMediaModuleService } from "@trabara/core/interfaces";
 import { BaseModuleService } from "../shared";
 import type { Media } from "./models/media";
@@ -88,7 +89,7 @@ class MediaModuleService
 
   @InjectManager()
   override async create(
-    data: any[],
+    data: CreateMediaInput[],
     @MedusaContext() ctx?: Context<EntityManager>,
   ): Promise<Media[]> {
     return this.create_(data, ctx);
@@ -96,7 +97,7 @@ class MediaModuleService
 
   @InjectTransactionManager()
   private async create_(
-    data: any[],
+    data: CreateMediaInput[],
     @MedusaContext() ctx?: Context<EntityManager>,
   ): Promise<Media[]> {
     return super.create(data, ctx);
@@ -104,7 +105,7 @@ class MediaModuleService
 
   @InjectManager()
   override async update(
-    data: (Record<string, any> & { id: string })[],
+    data: UpdateMediaInput[],
     @MedusaContext() ctx?: Context<EntityManager>,
   ): Promise<Media[]> {
     return this.update_(data, ctx);
@@ -112,7 +113,7 @@ class MediaModuleService
 
   @InjectTransactionManager()
   private async update_(
-    data: (Record<string, any> & { id: string })[],
+    data: UpdateMediaInput[],
     @MedusaContext() ctx?: Context<EntityManager>,
   ): Promise<Media[]> {
     return super.update(data, ctx);

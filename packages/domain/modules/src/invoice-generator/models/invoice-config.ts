@@ -1,3 +1,4 @@
+import { InferTypeOf } from "@medusajs/framework/types"
 import { model } from "@medusajs/framework/utils"
 
 export const InvoiceConfig = model.define("invoice_config", {
@@ -10,3 +11,5 @@ export const InvoiceConfig = model.define("invoice_config", {
     notes: model.text().nullable(),
     template: model.text()
 })
+
+export type InvoiceConfig = InferTypeOf<typeof InvoiceConfig>

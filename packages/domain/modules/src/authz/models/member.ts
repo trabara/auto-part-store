@@ -1,4 +1,4 @@
-import { Infer } from "@medusajs/framework/types";
+import { InferTypeOf } from "@medusajs/framework/types";
 import { model } from "@medusajs/framework/utils";
 import { AuthzRole } from "./role";
 
@@ -18,4 +18,4 @@ export const AuthzMember = model
     },
   ]);
 
-export type AuthzMember = Infer<typeof AuthzMember>;
+export type AuthzMember = InferTypeOf<typeof AuthzMember>;

@@ -1,4 +1,4 @@
-import { Infer } from "@medusajs/framework/types";
+import { InferTypeOf } from "@medusajs/framework/types";
 import { model } from "@medusajs/framework/utils";
 import { AuthzPermission } from "./permission";
 
@@ -31,4 +31,4 @@ export const AuthzCategory = model
     },
   ]);
 
-export type AuthzCategory = Infer<typeof AuthzCategory>;
+export type AuthzCategory = InferTypeOf<typeof AuthzCategory>;

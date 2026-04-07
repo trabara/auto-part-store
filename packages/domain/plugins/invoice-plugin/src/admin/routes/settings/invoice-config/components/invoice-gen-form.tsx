@@ -19,7 +19,7 @@ import Handlebars from "handlebars";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Controller, FormProvider, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
-import { InvoiceConfig, PostInvoiceConfig } from "@trabara/core/dtos";
+import { InvoiceConfig, CreateInvoiceConfig } from "@trabara/core/dtos";
 import { PostInvoiceConfigSchema } from "@trabara/core/validations";
 import { SAMPLE_DATA } from "../constant";
 import { sdk } from "../../../../lib/sdk";
@@ -36,7 +36,7 @@ export const InvoiceGeneratorForm = () => {
     queryKey: ["invoice-config"],
   });
   const { mutateAsync, isPending } = useMutation({
-    mutationFn: (payload: PostInvoiceConfig) =>
+    mutationFn: (payload: CreateInvoiceConfig) =>
       sdk.client.fetch("/admin/invoice-config", {
         method: "POST",
         body: payload,
@@ -62,7 +62,7 @@ export const InvoiceGeneratorForm = () => {
     };
   }, [data]);
 
-  const form = useForm<PostInvoiceConfig>({
+  const form = useForm<CreateInvoiceConfig>({
     resolver: zodResolver(PostInvoiceConfigSchema),
     defaultValues: getFormDefaultValues(),
   });

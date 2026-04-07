@@ -4,7 +4,7 @@ import {
   MedusaNextFunction,
   MedusaResponse,
 } from "@medusajs/framework";
-import AuthzModuleService from "./services/authz.service";
+import AuthzModuleService from "./services/authz-module.service";
 import { AUTHZ_MODULE } from "./constant";
 
 const authenticateMiddleware = authenticate(["*"], ["session", "bearer"]);

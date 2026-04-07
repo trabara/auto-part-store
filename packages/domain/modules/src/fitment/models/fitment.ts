@@ -4,8 +4,8 @@ import {
   DriveTypeSchema,
   TransmissionTypeSchema,
 } from "@trabara/core/schemas";
-import { FitmentEngine } from "./engine";
-import { FitmentModel } from "./model";
+import { Engine } from "./engine";
+import { Model } from "./model";
 import { InferTypeOf } from "@medusajs/framework/types";
 
 export const Fitment = model
@@ -17,10 +17,10 @@ export const Fitment = model
     transmission: model.enum(TransmissionTypeSchema.Values).default("MANUAL"),
     year_start: model.number(),
     year_end: model.number().nullable(),
-    model: model.belongsTo(() => FitmentModel, {
+    model: model.belongsTo(() => Model, {
       mappedBy: "fitments",
     }),
-    engine: model.belongsTo(() => FitmentEngine, {
+    engine: model.belongsTo(() => Engine, {
       mappedBy: "fitments",
     }),
   })

@@ -1,5 +1,5 @@
 import { Module } from "@medusajs/framework/utils";
-import AuthzModuleService from "./services/authz.service";
+import AuthzModuleService from "./services/authz-module.service";
 import { AUTHZ_MODULE } from "./constant";
 import * as Models from "./models";
 

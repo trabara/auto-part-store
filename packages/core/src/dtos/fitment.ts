@@ -81,3 +81,18 @@ export type UpdateFitmentInput = {
   year_start?: number;
   year_end?: number;
 };
+
+// ── Relation-enriched read type ───────────────────────────────────────────────
+
+/** Fitment with model (+ make) and engine relations resolved */
+export type ModelWithMake = Omit<Model, "make"> & {
+  make_id: string;
+  make: Make | null;
+};
+
+export type FitmentWithRelations = Fitment & {
+  model_id: string;
+  engine_id: string;
+  model: ModelWithMake | null;
+  engine: Engine | null;
+};

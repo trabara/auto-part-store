@@ -1,21 +1,18 @@
-import { Context, DAL, InferTypeOf } from "@medusajs/framework/types";
+import { EntityManager } from "@medusajs/framework/mikro-orm/knex";
+import { Context, DAL } from "@medusajs/framework/types";
 import {
   InjectManager,
   InjectTransactionManager,
   MedusaContext,
 } from "@medusajs/framework/utils";
-import { EntityManager } from "@medusajs/framework/mikro-orm/knex";
+import { BaseModuleService } from "@repo/domain-modules/shared";
+import { Invoice, InvoiceConfig } from "@trabara/core";
+import type { IInvoiceGeneratorModuleService } from "@trabara/core/interfaces";
 import axios from "axios";
 import Handlebars from "handlebars";
 import { Browser, chromium } from "playwright";
 import { getTranslations } from "./i18n";
-import { Invoice } from "./models/invoice";
-import { InvoiceConfig } from "./models/invoice-config";
-import type { IInvoiceGeneratorModuleService } from "@trabara/core/interfaces";
-import { BaseModuleService } from "@repo/domain-modules/shared";
-
-type InvoiceType = InferTypeOf<typeof Invoice>;
-type InvoiceConfigType = InferTypeOf<typeof InvoiceConfig>;
+import * as Models from "./models";
 
 type GeneratePdfParams = {
   order: any;
@@ -25,16 +22,15 @@ type GeneratePdfParams = {
 };
 
 type InjectedDependencies = {
-  invoiceRepository: DAL.RepositoryService<InvoiceType>;
-  invoiceConfigRepository: DAL.RepositoryService<InvoiceConfigType>;
+  invoiceRepository: DAL.RepositoryService<Models.Invoice>;
+  invoiceConfigRepository: DAL.RepositoryService<Models.InvoiceConfig>;
   baseRepository: DAL.RepositoryService<any>;
 };
 
 class InvoiceGeneratorService
-  extends BaseModuleService<InvoiceType>
-  implements IInvoiceGeneratorModuleService
-{
-  protected invoiceConfigRepository_: DAL.RepositoryService<InvoiceConfigType>;
+  extends BaseModuleService<Invoice>
+  implements IInvoiceGeneratorModuleService {
+  protected invoiceConfigRepository_: DAL.RepositoryService<InvoiceConfig>;
   private browser: Browser | null = null;
 
   constructor(dependencies: InjectedDependencies) {
@@ -61,7 +57,7 @@ class InvoiceGeneratorService
     filters?: Record<string, any>,
     config?: Record<string, any>,
     @MedusaContext() ctx?: Context<EntityManager>,
-  ): Promise<InvoiceType[]> {
+  ): Promise<Invoice[]> {
     return this.list_(filters, config, ctx);
   }
 
@@ -70,7 +66,7 @@ class InvoiceGeneratorService
     filters?: Record<string, any>,
     config?: Record<string, any>,
     @MedusaContext() ctx?: Context<EntityManager>,
-  ): Promise<InvoiceType[]> {
+  ): Promise<Invoice[]> {
     return super.list(filters, config, ctx);
   }
 
@@ -79,7 +75,7 @@ class InvoiceGeneratorService
     filters?: Record<string, any>,
     config?: Record<string, any>,
     @MedusaContext() ctx?: Context<EntityManager>,
-  ): Promise<[InvoiceType[], number]> {
+  ): Promise<[Invoice[], number]> {
     return this.listAndCount_(filters, config, ctx);
   }
 
@@ -88,7 +84,7 @@ class InvoiceGeneratorService
     filters?: Record<string, any>,
     config?: Record<string, any>,
     @MedusaContext() ctx?: Context<EntityManager>,
-  ): Promise<[InvoiceType[], number]> {
+  ): Promise<[Invoice[], number]> {
     return super.listAndCount(filters, config, ctx);
   }
 
@@ -97,7 +93,7 @@ class InvoiceGeneratorService
     id: string,
     config?: Record<string, any>,
     @MedusaContext() ctx?: Context<EntityManager>,
-  ): Promise<InvoiceType> {
+  ): Promise<Invoice> {
     return this.retrieve_(id, config, ctx);
   }
 
@@ -106,7 +102,7 @@ class InvoiceGeneratorService
     id: string,
     config?: Record<string, any>,
     @MedusaContext() ctx?: Context<EntityManager>,
-  ): Promise<InvoiceType> {
+  ): Promise<Invoice> {
     return super.retrieve(id, config, ctx);
   }
 
@@ -114,7 +110,7 @@ class InvoiceGeneratorService
   override async create(
     data: any[],
     @MedusaContext() ctx?: Context<EntityManager>,
-  ): Promise<InvoiceType[]> {
+  ): Promise<Invoice[]> {
     return this.create_(data, ctx);
   }
 
@@ -122,7 +118,7 @@ class InvoiceGeneratorService
   private async create_(
     data: any[],
     @MedusaContext() ctx?: Context<EntityManager>,
-  ): Promise<InvoiceType[]> {
+  ): Promise<Invoice[]> {
     return super.create(data, ctx);
   }
 
@@ -148,7 +144,7 @@ class InvoiceGeneratorService
     filters?: Record<string, any>,
     config?: Record<string, any>,
     @MedusaContext() ctx?: Context<EntityManager>,
-  ): Promise<InvoiceType[]> {
+  ): Promise<Invoice[]> {
     return this.list_(filters, config, ctx);
   }
 
@@ -157,7 +153,7 @@ class InvoiceGeneratorService
     filters?: Record<string, any>,
     config?: Record<string, any>,
     @MedusaContext() ctx?: Context<EntityManager>,
-  ): Promise<[InvoiceType[], number]> {
+  ): Promise<[Invoice[], number]> {
     return this.listAndCount_(filters, config, ctx);
   }
 
@@ -200,7 +196,7 @@ class InvoiceGeneratorService
     filters?: Record<string, any>,
     config?: Record<string, any>,
     @MedusaContext() ctx?: Context<EntityManager>,
-  ): Promise<InvoiceConfigType[]> {
+  ): Promise<InvoiceConfig[]> {
     return this.listInvoiceConfigs_(filters, config, ctx);
   }
 
@@ -209,7 +205,7 @@ class InvoiceGeneratorService
     filters?: Record<string, any>,
     _config?: Record<string, any>,
     @MedusaContext() ctx?: Context<EntityManager>,
-  ): Promise<InvoiceConfigType[]> {
+  ): Promise<InvoiceConfig[]> {
     return this.invoiceConfigRepository_.find({ where: filters ?? {} }, ctx);
   }
 
@@ -218,7 +214,7 @@ class InvoiceGeneratorService
     filters?: Record<string, any>,
     config?: Record<string, any>,
     @MedusaContext() ctx?: Context<EntityManager>,
-  ): Promise<[InvoiceConfigType[], number]> {
+  ): Promise<[InvoiceConfig[], number]> {
     return this.listAndCountInvoiceConfigs_(filters, config, ctx);
   }
 
@@ -227,7 +223,7 @@ class InvoiceGeneratorService
     filters?: Record<string, any>,
     _config?: Record<string, any>,
     @MedusaContext() ctx?: Context<EntityManager>,
-  ): Promise<[InvoiceConfigType[], number]> {
+  ): Promise<[InvoiceConfig[], number]> {
     const results = await this.invoiceConfigRepository_.find(
       { where: filters ?? {} },
       ctx,
@@ -240,7 +236,7 @@ class InvoiceGeneratorService
     id: string,
     config?: Record<string, any>,
     @MedusaContext() ctx?: Context<EntityManager>,
-  ): Promise<InvoiceConfigType> {
+  ): Promise<InvoiceConfig> {
     return this.retrieveInvoiceConfig_(id, config, ctx);
   }
 
@@ -249,7 +245,7 @@ class InvoiceGeneratorService
     id: string,
     _config?: Record<string, any>,
     @MedusaContext() ctx?: Context<EntityManager>,
-  ): Promise<InvoiceConfigType> {
+  ): Promise<InvoiceConfig> {
     const [config_] = await this.invoiceConfigRepository_.find(
       { where: { id } },
       ctx,
@@ -262,7 +258,7 @@ class InvoiceGeneratorService
   async createInvoiceConfigs(
     data: any[],
     @MedusaContext() ctx?: Context<EntityManager>,
-  ): Promise<InvoiceConfigType[]> {
+  ): Promise<InvoiceConfig[]> {
     return this.createInvoiceConfigs_(data, ctx);
   }
 
@@ -270,7 +266,7 @@ class InvoiceGeneratorService
   private async createInvoiceConfigs_(
     data: any[],
     @MedusaContext() ctx?: Context<EntityManager>,
-  ): Promise<InvoiceConfigType[]> {
+  ): Promise<InvoiceConfig[]> {
     return this.invoiceConfigRepository_.create(data, ctx);
   }
 
@@ -278,7 +274,7 @@ class InvoiceGeneratorService
   async updateInvoiceConfigs(
     data: any[],
     @MedusaContext() ctx?: Context<EntityManager>,
-  ): Promise<InvoiceConfigType[]> {
+  ): Promise<InvoiceConfig[]> {
     return this.updateInvoiceConfigs_(data, ctx);
   }
 
@@ -286,7 +282,7 @@ class InvoiceGeneratorService
   private async updateInvoiceConfigs_(
     data: any[],
     @MedusaContext() ctx?: Context<EntityManager>,
-  ): Promise<InvoiceConfigType[]> {
+  ): Promise<InvoiceConfig[]> {
     return this.invoiceConfigRepository_.update(data, ctx);
   }
 
@@ -313,7 +309,7 @@ class InvoiceGeneratorService
 
   async createPdfContent(
     params: GeneratePdfParams,
-    invoice: InvoiceType,
+    invoice: Invoice,
   ): Promise<Buffer> {
     const invoiceConfigs = await this.listInvoiceConfigs();
     const invoiceConfig = (invoiceConfigs[0] ?? {}) as any;
@@ -353,8 +349,8 @@ class InvoiceGeneratorService
       firstName && lastName ? `${firstName} ${lastName}` : "Customer";
     const compamyLogo = invoiceConfig?.company_logo
       ? await this.imageUrlToBase64(invoiceConfig.company_logo).catch(
-          () => undefined,
-        )
+        () => undefined,
+      )
       : invoiceConfig?.company_name;
 
     const templateData = {

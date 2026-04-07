@@ -1,103 +1,69 @@
 import { EntityManager } from "@medusajs/framework/mikro-orm/knex";
-import { Context, DAL, InferTypeOf } from "@medusajs/framework/types";
+import { Context, DAL } from "@medusajs/framework/types";
 import {
   InjectManager,
   InjectTransactionManager,
   MedusaContext,
 } from "@medusajs/framework/utils";
-import type { IFitmentModuleService } from "@trabara/core/interfaces";
 import {
-  BaseModuleService,
-  RestorableModuleService,
+  RestorableModuleService
 } from "@repo/domain-modules/shared";
+import type {
+  CreateEngineInput,
+  CreateFitmentInput,
+  CreateMakeInput,
+  CreateModelInput,
+  Make,
+  Model,
+  UpdateEngineInput,
+  UpdateFitmentInput,
+  UpdateMakeInput,
+  UpdateModelInput
+} from "@trabara/core/dtos";
 import * as Models from "../models";
+import { EngineService } from "./engine.service";
+import { MakeService } from "./make.service";
+import { ModelService } from "./model.service";
 
 type InjectedDependencies = {
-  fitmentMakeRepository: DAL.RepositoryService<Models.FitmentMake>;
-  fitmentModelRepository: DAL.RepositoryService<Models.FitmentModel>;
-  fitmentEngineRepository: DAL.RepositoryService<Models.FitmentEngine>;
+  makeRepository: DAL.RepositoryService<Models.Make>;
+  modelRepository: DAL.RepositoryService<Models.Model>;
+  engineRepository: DAL.RepositoryService<Models.Engine>;
   fitmentRepository: DAL.RepositoryService<Models.Fitment>;
   baseRepository: DAL.RepositoryService<any>;
 };
 
-// ============================================================================
-// Sub-service classes — one per entity group
-// ============================================================================
+class FitmentModuleService extends RestorableModuleService<Models.Fitment> {
+  readonly makes: MakeService;
+  readonly models: ModelService;
+  readonly engines: EngineService;
 
-class FitmentMakeCrudService extends BaseModuleService<Models.FitmentMake> {
-  constructor(
-    repo: DAL.RepositoryService<Models.FitmentMake>,
-    baseRepo: DAL.RepositoryService<any>,
-  ) {
-    super(repo, baseRepo, "FitmentMake");
-  }
-}
-
-class FitmentModelCrudService extends BaseModuleService<Models.FitmentModel> {
-  constructor(
-    repo: DAL.RepositoryService<Models.FitmentModel>,
-    baseRepo: DAL.RepositoryService<any>,
-  ) {
-    super(repo, baseRepo, "FitmentModel");
-  }
-}
-
-class FitmentEngineCrudService extends BaseModuleService<Models.FitmentEngine> {
-  constructor(
-    repo: DAL.RepositoryService<Models.FitmentEngine>,
-    baseRepo: DAL.RepositoryService<any>,
-  ) {
-    super(repo, baseRepo, "FitmentEngine");
-  }
-}
-
-class FitmentCrudService extends RestorableModuleService<Models.Fitment> {
-  constructor(
-    repo: DAL.RepositoryService<Models.Fitment>,
-    baseRepo: DAL.RepositoryService<any>,
-  ) {
-    super(repo, baseRepo, "Fitment");
-  }
-}
-
-// ============================================================================
-// Main service — namespace accessor pattern
-// ============================================================================
-
-class FitmentModuleService implements IFitmentModuleService {
-  readonly makes: FitmentMakeCrudService;
-  readonly models: FitmentModelCrudService;
-  readonly engines: FitmentEngineCrudService;
-  readonly fitments: FitmentCrudService;
-
-  protected fitmentMakeRepository_: DAL.RepositoryService<Models.FitmentMake>;
-  protected fitmentModelRepository_: DAL.RepositoryService<Models.FitmentModel>;
-  protected fitmentEngineRepository_: DAL.RepositoryService<Models.FitmentEngine>;
+  protected fitmentMakeRepository_: DAL.RepositoryService<Models.Make>;
+  protected modelRepository_: DAL.RepositoryService<Models.Model>;
+  protected engineRepository_: DAL.RepositoryService<Models.Engine>;
   protected fitmentRepository_: DAL.RepositoryService<Models.Fitment>;
   protected baseRepository_: DAL.RepositoryService<any>;
 
-  constructor(dependencies: InjectedDependencies) {
-    this.fitmentMakeRepository_ = dependencies.fitmentMakeRepository;
-    this.fitmentModelRepository_ = dependencies.fitmentModelRepository;
-    this.fitmentEngineRepository_ = dependencies.fitmentEngineRepository;
-    this.fitmentRepository_ = dependencies.fitmentRepository;
-    this.baseRepository_ = dependencies.baseRepository;
+  constructor(deps: InjectedDependencies) {
+    console.log("Initializing FitmentModuleService with dependencies:", deps);
+    super(deps.fitmentRepository, deps.baseRepository, "Fitment");
+    this.fitmentMakeRepository_ = deps.makeRepository;
+    this.modelRepository_ = deps.modelRepository;
+    this.engineRepository_ = deps.engineRepository;
+    this.fitmentRepository_ = deps.fitmentRepository;
+    this.baseRepository_ = deps.baseRepository;
 
-    this.makes = new FitmentMakeCrudService(
-      dependencies.fitmentMakeRepository,
-      dependencies.baseRepository,
+    this.makes = new MakeService(
+      deps.makeRepository,
+      deps.baseRepository,
     );
-    this.models = new FitmentModelCrudService(
-      dependencies.fitmentModelRepository,
-      dependencies.baseRepository,
+    this.models = new ModelService(
+      deps.modelRepository,
+      deps.baseRepository,
     );
-    this.engines = new FitmentEngineCrudService(
-      dependencies.fitmentEngineRepository,
-      dependencies.baseRepository,
-    );
-    this.fitments = new FitmentCrudService(
-      dependencies.fitmentRepository,
-      dependencies.baseRepository,
+    this.engines = new EngineService(
+      deps.engineRepository,
+      deps.baseRepository,
     );
   }
 
@@ -115,7 +81,7 @@ class FitmentModuleService implements IFitmentModuleService {
     filters?: Record<string, any>,
     config?: Record<string, any>,
     @MedusaContext() ctx?: Context<EntityManager>,
-  ): Promise<Models.FitmentMake[]> {
+  ): Promise<Make[]> {
     return this.makes.list(filters, config, ctx);
   }
 
@@ -124,43 +90,43 @@ class FitmentModuleService implements IFitmentModuleService {
     filters?: Record<string, any>,
     config?: Record<string, any>,
     @MedusaContext() ctx?: Context<EntityManager>,
-  ): Promise<[Models.FitmentMake[], number]> {
+  ): Promise<[Make[], number]> {
     return this.makes.listAndCount(filters, config, ctx);
   }
 
   @InjectManager()
-  async listFitmentModels(
+  async listModels(
     filters?: Record<string, any>,
     config?: Record<string, any>,
     @MedusaContext() ctx?: Context<EntityManager>,
-  ): Promise<Models.FitmentModel[]> {
+  ): Promise<Model[]> {
     return this.models.list(filters, config, ctx);
   }
 
   @InjectManager()
-  async listAndCountFitmentModels(
+  async listAndCountModels(
     filters?: Record<string, any>,
     config?: Record<string, any>,
     @MedusaContext() ctx?: Context<EntityManager>,
-  ): Promise<[Models.FitmentModel[], number]> {
+  ): Promise<[Model[], number]> {
     return this.models.listAndCount(filters, config, ctx);
   }
 
   @InjectManager()
-  async listFitmentEngines(
+  async listEngines(
     filters?: Record<string, any>,
     config?: Record<string, any>,
     @MedusaContext() ctx?: Context<EntityManager>,
-  ): Promise<Models.FitmentEngine[]> {
+  ): Promise<Models.Engine[]> {
     return this.engines.list(filters, config, ctx);
   }
 
   @InjectManager()
-  async listAndCountFitmentEngines(
+  async listAndCountEngines(
     filters?: Record<string, any>,
     config?: Record<string, any>,
     @MedusaContext() ctx?: Context<EntityManager>,
-  ): Promise<[Models.FitmentEngine[], number]> {
+  ): Promise<[Models.Engine[], number]> {
     return this.engines.listAndCount(filters, config, ctx);
   }
 
@@ -170,7 +136,7 @@ class FitmentModuleService implements IFitmentModuleService {
     config?: Record<string, any>,
     @MedusaContext() ctx?: Context<EntityManager>,
   ): Promise<Models.Fitment[]> {
-    return this.fitments.list(filters, config, ctx);
+    return this.list(filters, config, ctx);
   }
 
   @InjectManager()
@@ -179,7 +145,7 @@ class FitmentModuleService implements IFitmentModuleService {
     config?: Record<string, any>,
     @MedusaContext() ctx?: Context<EntityManager>,
   ): Promise<[Models.Fitment[], number]> {
-    return this.fitments.listAndCount(filters, config, ctx);
+    return this.listAndCount(filters, config, ctx);
   }
 
   // ============================================================================
@@ -193,33 +159,33 @@ class FitmentModuleService implements IFitmentModuleService {
 
   @InjectManager()
   async createMakes(
-    data: any[],
+    data: CreateMakeInput[],
     @MedusaContext() ctx?: Context<EntityManager>,
-  ): Promise<Models.FitmentMake[]> {
+  ): Promise<Models.Make[]> {
     return this.createMakes_(data, ctx);
   }
 
   @InjectTransactionManager()
   private async createMakes_(
-    data: any[],
+    data: CreateMakeInput[],
     @MedusaContext() ctx?: Context<EntityManager>,
-  ): Promise<Models.FitmentMake[]> {
+  ): Promise<Models.Make[]> {
     return this.fitmentMakeRepository_.create(data, ctx);
   }
 
   @InjectManager()
   async updateMakes(
-    data: (Record<string, any> & { id: string })[],
+    data: (UpdateMakeInput & { id: string })[],
     @MedusaContext() ctx?: Context<EntityManager>,
-  ): Promise<Models.FitmentMake[]> {
+  ): Promise<Models.Make[]> {
     return this.updateMakes_(data, ctx);
   }
 
   @InjectTransactionManager()
   private async updateMakes_(
-    data: (Record<string, any> & { id: string })[],
+    data: (UpdateMakeInput & { id: string })[],
     @MedusaContext() ctx?: Context<EntityManager>,
-  ): Promise<Models.FitmentMake[]> {
+  ): Promise<Models.Make[]> {
     const ids = data.map((d) => d.id);
     const entities = await this.fitmentMakeRepository_.find(
       { where: { id: { $in: ids } } } as any,
@@ -254,7 +220,7 @@ class FitmentModuleService implements IFitmentModuleService {
     id: string,
     _config?: Record<string, any>,
     @MedusaContext() ctx?: Context<EntityManager>,
-  ): Promise<Models.FitmentMake> {
+  ): Promise<Models.Make> {
     return this.retrieveMake_(id, ctx);
   }
 
@@ -262,48 +228,48 @@ class FitmentModuleService implements IFitmentModuleService {
   private async retrieveMake_(
     id: string,
     @MedusaContext() ctx?: Context<EntityManager>,
-  ): Promise<Models.FitmentMake> {
+  ): Promise<Models.Make> {
     const [entity] = await this.fitmentMakeRepository_.find(
       { where: { id } } as any,
       ctx,
     );
-    if (!entity) throw new Error(`FitmentMake with id ${id} not found`);
+    if (!entity) throw new Error(`Make with id ${id} not found`);
     return entity;
   }
 
-  // ── FitmentModels ──────────────────────────────────────────────────────────
+  // ── Models ──────────────────────────────────────────────────────────
 
   @InjectManager()
-  async createFitmentModels(
-    data: any[],
+  async createModels(
+    data: CreateModelInput[],
     @MedusaContext() ctx?: Context<EntityManager>,
-  ): Promise<Models.FitmentModel[]> {
-    return this.createFitmentModels_(data, ctx);
+  ): Promise<Models.Model[]> {
+    return this.createModels_(data, ctx);
   }
 
   @InjectTransactionManager()
-  private async createFitmentModels_(
-    data: any[],
+  private async createModels_(
+    data: CreateModelInput[],
     @MedusaContext() ctx?: Context<EntityManager>,
-  ): Promise<Models.FitmentModel[]> {
-    return this.fitmentModelRepository_.create(data, ctx);
+  ): Promise<Models.Model[]> {
+    return this.createModels_(data, ctx);
   }
 
   @InjectManager()
-  async updateFitmentModels(
-    data: (Record<string, any> & { id: string })[],
+  async updateModels(
+    data: (UpdateModelInput & { id: string })[],
     @MedusaContext() ctx?: Context<EntityManager>,
-  ): Promise<Models.FitmentModel[]> {
-    return this.updateFitmentModels_(data, ctx);
+  ): Promise<Models.Model[]> {
+    return this.updateModels_(data, ctx);
   }
 
   @InjectTransactionManager()
-  private async updateFitmentModels_(
-    data: (Record<string, any> & { id: string })[],
+  private async updateModels_(
+    data: (UpdateModelInput & { id: string })[],
     @MedusaContext() ctx?: Context<EntityManager>,
-  ): Promise<Models.FitmentModel[]> {
+  ): Promise<Models.Model[]> {
     const ids = data.map((d) => d.id);
-    const entities = await this.fitmentModelRepository_.find(
+    const entities = await this.modelRepository_.find(
       { where: { id: { $in: ids } } } as any,
       ctx,
     );
@@ -311,59 +277,59 @@ class FitmentModuleService implements IFitmentModuleService {
     const pairs = data
       .filter((d) => entityMap.has(d.id))
       .map(({ id, ...update }) => ({ entity: entityMap.get(id)!, update }));
-    return this.fitmentModelRepository_.update(pairs as any, ctx);
+    return this.modelRepository_.update(pairs as any, ctx);
   }
 
   @InjectManager()
-  async deleteFitmentModels(
+  async deleteModels(
     ids: string | string[],
     @MedusaContext() ctx?: Context<EntityManager>,
   ): Promise<void> {
-    return this.deleteFitmentModels_(ids, ctx);
+    return this.deleteModels_(ids, ctx);
   }
 
   @InjectTransactionManager()
-  private async deleteFitmentModels_(
+  private async deleteModels_(
     ids: string | string[],
     @MedusaContext() ctx?: Context<EntityManager>,
   ): Promise<void> {
     const arr = Array.isArray(ids) ? ids : [ids];
-    await this.fitmentModelRepository_.delete({ id: { $in: arr } } as any, ctx);
+    await this.modelRepository_.delete({ id: { $in: arr } } as any, ctx);
   }
 
   // ── Engines ────────────────────────────────────────────────────────────────
 
   @InjectManager()
   async createEngines(
-    data: any[],
+    data: CreateEngineInput[],
     @MedusaContext() ctx?: Context<EntityManager>,
-  ): Promise<Models.FitmentEngine[]> {
+  ): Promise<Models.Engine[]> {
     return this.createEngines_(data, ctx);
   }
 
   @InjectTransactionManager()
   private async createEngines_(
-    data: any[],
+    data: CreateEngineInput[],
     @MedusaContext() ctx?: Context<EntityManager>,
-  ): Promise<Models.FitmentEngine[]> {
-    return this.fitmentEngineRepository_.create(data, ctx);
+  ): Promise<Models.Engine[]> {
+    return this.engines.create(data, ctx);
   }
 
   @InjectManager()
   async updateEngines(
-    data: (Record<string, any> & { id: string })[],
+    data: (UpdateEngineInput & { id: string })[],
     @MedusaContext() ctx?: Context<EntityManager>,
-  ): Promise<Models.FitmentEngine[]> {
+  ): Promise<Models.Engine[]> {
     return this.updateEngines_(data, ctx);
   }
 
   @InjectTransactionManager()
   private async updateEngines_(
-    data: (Record<string, any> & { id: string })[],
+    data: (UpdateEngineInput & { id: string })[],
     @MedusaContext() ctx?: Context<EntityManager>,
-  ): Promise<Models.FitmentEngine[]> {
+  ): Promise<Models.Engine[]> {
     const ids = data.map((d) => d.id);
-    const entities = await this.fitmentEngineRepository_.find(
+    const entities = await this.engineRepository_.find(
       { where: { id: { $in: ids } } } as any,
       ctx,
     );
@@ -371,7 +337,7 @@ class FitmentModuleService implements IFitmentModuleService {
     const pairs = data
       .filter((d) => entityMap.has(d.id))
       .map(({ id, ...update }) => ({ entity: entityMap.get(id)!, update }));
-    return this.fitmentEngineRepository_.update(pairs as any, ctx);
+    return this.engineRepository_.update(pairs as any, ctx);
   }
 
   @InjectManager()
@@ -388,7 +354,7 @@ class FitmentModuleService implements IFitmentModuleService {
     @MedusaContext() ctx?: Context<EntityManager>,
   ): Promise<void> {
     const arr = Array.isArray(ids) ? ids : [ids];
-    await this.fitmentEngineRepository_.delete(
+    await this.engineRepository_.delete(
       { id: { $in: arr } } as any,
       ctx,
     );
@@ -398,7 +364,7 @@ class FitmentModuleService implements IFitmentModuleService {
 
   @InjectManager()
   async createFitments(
-    data: any[],
+    data: CreateFitmentInput[],
     @MedusaContext() ctx?: Context<EntityManager>,
   ): Promise<Models.Fitment[]> {
     return this.createFitments_(data, ctx);
@@ -406,7 +372,7 @@ class FitmentModuleService implements IFitmentModuleService {
 
   @InjectTransactionManager()
   private async createFitments_(
-    data: any[],
+    data: CreateFitmentInput[],
     @MedusaContext() ctx?: Context<EntityManager>,
   ): Promise<Models.Fitment[]> {
     return this.fitmentRepository_.create(data, ctx);
@@ -414,7 +380,7 @@ class FitmentModuleService implements IFitmentModuleService {
 
   @InjectManager()
   async updateFitmentsData(
-    data: (Record<string, any> & { id: string })[],
+    data: UpdateFitmentInput[],
     @MedusaContext() ctx?: Context<EntityManager>,
   ): Promise<Models.Fitment[]> {
     return this.updateFitmentsData_(data, ctx);
@@ -422,7 +388,7 @@ class FitmentModuleService implements IFitmentModuleService {
 
   @InjectTransactionManager()
   private async updateFitmentsData_(
-    data: (Record<string, any> & { id: string })[],
+    data: UpdateFitmentInput[],
     @MedusaContext() ctx?: Context<EntityManager>,
   ): Promise<Models.Fitment[]> {
     const ids = data.map((d) => d.id);
@@ -500,7 +466,7 @@ class FitmentModuleService implements IFitmentModuleService {
   async listFitmentsWithRelations(
     filters?: Record<string, any>,
     @MedusaContext() ctx?: Context<EntityManager>,
-  ): Promise<any[]> {
+  ): Promise<Models.Fitment[]> {
     return this.listFitmentsWithRelations_(filters, ctx);
   }
 
@@ -508,7 +474,7 @@ class FitmentModuleService implements IFitmentModuleService {
   private async listFitmentsWithRelations_(
     filters?: Record<string, any>,
     @MedusaContext() ctx?: Context<EntityManager>,
-  ): Promise<any[]> {
+  ): Promise<Models.Fitment[]> {
     const fitments = await this.fitmentRepository_.find(
       { where: filters ?? {} },
       ctx,
@@ -525,16 +491,16 @@ class FitmentModuleService implements IFitmentModuleService {
 
     const [models, engines] = await Promise.all([
       modelIds.length
-        ? this.fitmentModelRepository_.find(
-            { where: { id: { $in: modelIds } } },
-            ctx,
-          )
+        ? this.modelRepository_.find(
+          { where: { id: { $in: modelIds } } },
+          ctx,
+        )
         : [],
       engineIds.length
-        ? this.fitmentEngineRepository_.find(
-            { where: { id: { $in: engineIds } } },
-            ctx,
-          )
+        ? this.engineRepository_.find(
+          { where: { id: { $in: engineIds } } },
+          ctx,
+        )
         : [],
     ]);
 
@@ -544,9 +510,9 @@ class FitmentModuleService implements IFitmentModuleService {
     ];
     const makes = makeIds.length
       ? await this.fitmentMakeRepository_.find(
-          { where: { id: { $in: makeIds } } },
-          ctx,
-        )
+        { where: { id: { $in: makeIds } } },
+        ctx,
+      )
       : [];
 
     const modelMap = new Map((models as any[]).map((m: any) => [m.id, m]));

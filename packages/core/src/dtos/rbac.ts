@@ -52,3 +52,30 @@ export type CreateCategoryInput = {
   description?: string;
   permissions?: CreatePermissionInput[];
 };
+
+// ── AuthzMemberDto — matches the actual DML entity shape ─────────────────────
+// The MemberSchema (used for API responses) embeds a `user` object, but the
+// DML entity stores `user_id` and `role_id` as FK columns.  This DTO is used
+// for the service interface so that the implementation satisfies the type.
+
+export type AuthzMemberDto = {
+  id: string;
+  user_id: string;
+  role_id: string;
+  created_at: Date;
+  updated_at: Date;
+  deleted_at: Date | null;
+};
+
+// ── Member mutation input types ───────────────────────────────────────────────
+
+export type CreateMemberInput = {
+  user_id: string;
+  role_id: string;
+};
+
+export type UpdateMemberInput = {
+  id: string;
+  role_id?: string;
+  user_id?: string;
+};

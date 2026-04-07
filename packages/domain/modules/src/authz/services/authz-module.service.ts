@@ -1,114 +1,37 @@
-import { Context, DAL, InferTypeOf } from "@medusajs/framework/types";
+import { EntityManager } from "@medusajs/framework/mikro-orm/knex";
+import { Context, DAL } from "@medusajs/framework/types";
 import {
   InjectManager,
   InjectTransactionManager,
   MedusaContext,
 } from "@medusajs/framework/utils";
-import { EntityManager } from "@medusajs/framework/mikro-orm/knex";
-import { EXCLUDED_RESOURCES } from "../constant";
-import * as Models from "../models";
 import {
   AssignUsersInput,
   CategoryPermissionsResult,
   CreateCategoryInput,
+  CreateMemberInput,
   CreatePermissionInput,
   CreateRoleInput,
   Role,
+  UpdateMemberInput
 } from "@trabara/core/dtos";
 import type { IAuthzModuleService } from "@trabara/core/interfaces";
-import { BaseModuleService } from "../../shared/base-module.service";
-
-type AuthzRole = InferTypeOf<typeof Models.AuthzRole>;
-type AuthzPermission = InferTypeOf<typeof Models.AuthzPermission>;
-type AuthzPolicy = InferTypeOf<typeof Models.AuthzPolicy>;
-type AuthzMember = InferTypeOf<typeof Models.AuthzMember>;
-type AuthzCategory = InferTypeOf<typeof Models.AuthzCategory>;
+import { EXCLUDED_RESOURCES } from "../constant";
+import * as Models from "../models";
+import { AuthzCategoryCrudService } from "./category.service";
+import { AuthzMemberCrudService } from "./member.service";
+import { AuthzPermissionCrudService } from "./permission.service";
+import { AuthzPolicyCrudService } from "./policy.service";
+import { AuthzRoleCrudService } from "./role.service";
 
 type InjectedDependencies = {
-  authzRoleRepository: DAL.RepositoryService<AuthzRole>;
-  authzPermissionRepository: DAL.RepositoryService<AuthzPermission>;
-  authzPolicyRepository: DAL.RepositoryService<AuthzPolicy>;
-  authzMemberRepository: DAL.RepositoryService<AuthzMember>;
-  authzCategoryRepository: DAL.RepositoryService<AuthzCategory>;
+  authzRoleRepository: DAL.RepositoryService<Models.AuthzRole>;
+  authzPermissionRepository: DAL.RepositoryService<Models.AuthzPermission>;
+  authzPolicyRepository: DAL.RepositoryService<Models.AuthzPolicy>;
+  authzMemberRepository: DAL.RepositoryService<Models.AuthzMember>;
+  authzCategoryRepository: DAL.RepositoryService<Models.AuthzCategory>;
   baseRepository: DAL.RepositoryService<any>;
 };
-
-// ============================================================================
-// Sub-service: AuthzRole
-// ============================================================================
-
-class AuthzRoleCrudService extends BaseModuleService<AuthzRole> {
-  constructor(
-    repo: DAL.RepositoryService<AuthzRole>,
-    baseRepo: DAL.RepositoryService<any>,
-  ) {
-    super(repo, baseRepo, "AuthzRole");
-  }
-}
-
-// ============================================================================
-// Sub-service: AuthzPermission
-// ============================================================================
-
-class AuthzPermissionCrudService extends BaseModuleService<AuthzPermission> {
-  constructor(
-    repo: DAL.RepositoryService<AuthzPermission>,
-    baseRepo: DAL.RepositoryService<any>,
-  ) {
-    super(repo, baseRepo, "AuthzPermission");
-  }
-}
-
-// ============================================================================
-// Sub-service: AuthzPolicy  (no update / retrieve — list, create, delete only)
-// ============================================================================
-
-class AuthzPolicyCrudService extends BaseModuleService<AuthzPolicy> {
-  constructor(
-    repo: DAL.RepositoryService<AuthzPolicy>,
-    baseRepo: DAL.RepositoryService<any>,
-  ) {
-    super(repo, baseRepo, "AuthzPolicy");
-  }
-}
-
-// ============================================================================
-// Sub-service: AuthzMember  (custom delete that accepts Record<string, any>)
-// ============================================================================
-
-class AuthzMemberCrudService extends BaseModuleService<AuthzMember> {
-  constructor(
-    repo: DAL.RepositoryService<AuthzMember>,
-    baseRepo: DAL.RepositoryService<any>,
-  ) {
-    super(repo, baseRepo, "AuthzMember");
-  }
-
-  // Override delete to accept flexible filter objects (e.g. { role_id: ... })
-  override async delete(
-    ids: string | string[] | Record<string, any>,
-    ctx?: Context<EntityManager>,
-  ): Promise<void> {
-    await (this.repository_ as any).delete(ids as any, ctx);
-  }
-}
-
-// ============================================================================
-// Sub-service: AuthzCategory
-// ============================================================================
-
-class AuthzCategoryCrudService extends BaseModuleService<AuthzCategory> {
-  constructor(
-    repo: DAL.RepositoryService<AuthzCategory>,
-    baseRepo: DAL.RepositoryService<any>,
-  ) {
-    super(repo, baseRepo, "AuthzCategory");
-  }
-}
-
-// ============================================================================
-// Main service
-// ============================================================================
 
 export default class AuthzModuleService implements IAuthzModuleService {
   readonly roles: AuthzRoleCrudService;
@@ -119,11 +42,11 @@ export default class AuthzModuleService implements IAuthzModuleService {
 
   // Required by @InjectManager() — must be named baseRepository_
   protected baseRepository_: DAL.RepositoryService<any>;
-  protected authzRoleRepository_: DAL.RepositoryService<AuthzRole>;
-  protected authzPermissionRepository_: DAL.RepositoryService<AuthzPermission>;
-  protected authzPolicyRepository_: DAL.RepositoryService<AuthzPolicy>;
-  protected authzMemberRepository_: DAL.RepositoryService<AuthzMember>;
-  protected authzCategoryRepository_: DAL.RepositoryService<AuthzCategory>;
+  protected authzRoleRepository_: DAL.RepositoryService<Models.AuthzRole>;
+  protected authzPermissionRepository_: DAL.RepositoryService<Models.AuthzPermission>;
+  protected authzPolicyRepository_: DAL.RepositoryService<Models.AuthzPolicy>;
+  protected authzMemberRepository_: DAL.RepositoryService<Models.AuthzMember>;
+  protected authzCategoryRepository_: DAL.RepositoryService<Models.AuthzCategory>;
 
   constructor(dependencies: InjectedDependencies) {
     this.baseRepository_ = dependencies.baseRepository;
@@ -169,7 +92,7 @@ export default class AuthzModuleService implements IAuthzModuleService {
     filters?: Record<string, any>,
     config?: Record<string, any>,
     @MedusaContext() ctx?: Context<EntityManager>,
-  ): Promise<AuthzRole[]> {
+  ): Promise<Models.AuthzRole[]> {
     return this.roles.list(filters, config, ctx);
   }
 
@@ -178,7 +101,7 @@ export default class AuthzModuleService implements IAuthzModuleService {
     filters?: Record<string, any>,
     config?: Record<string, any>,
     @MedusaContext() ctx?: Context<EntityManager>,
-  ): Promise<[AuthzRole[], number]> {
+  ): Promise<[Models.AuthzRole[], number]> {
     return this.roles.listAndCount(filters, config, ctx);
   }
 
@@ -187,7 +110,7 @@ export default class AuthzModuleService implements IAuthzModuleService {
     filters?: Record<string, any>,
     config?: Record<string, any>,
     @MedusaContext() ctx?: Context<EntityManager>,
-  ): Promise<AuthzPermission[]> {
+  ): Promise<Models.AuthzPermission[]> {
     return this.permissions.list(filters, config, ctx);
   }
 
@@ -196,7 +119,7 @@ export default class AuthzModuleService implements IAuthzModuleService {
     filters?: Record<string, any>,
     config?: Record<string, any>,
     @MedusaContext() ctx?: Context<EntityManager>,
-  ): Promise<[AuthzPermission[], number]> {
+  ): Promise<[Models.AuthzPermission[], number]> {
     return this.permissions.listAndCount(filters, config, ctx);
   }
 
@@ -205,7 +128,7 @@ export default class AuthzModuleService implements IAuthzModuleService {
     filters?: Record<string, any>,
     config?: Record<string, any>,
     @MedusaContext() ctx?: Context<EntityManager>,
-  ): Promise<AuthzPolicy[]> {
+  ): Promise<Models.AuthzPolicy[]> {
     return this.policies.list(filters, config, ctx);
   }
 
@@ -214,7 +137,7 @@ export default class AuthzModuleService implements IAuthzModuleService {
     filters?: Record<string, any>,
     config?: Record<string, any>,
     @MedusaContext() ctx?: Context<EntityManager>,
-  ): Promise<[AuthzPolicy[], number]> {
+  ): Promise<[Models.AuthzPolicy[], number]> {
     return this.policies.listAndCount(filters, config, ctx);
   }
 
@@ -223,7 +146,7 @@ export default class AuthzModuleService implements IAuthzModuleService {
     filters?: Record<string, any>,
     config?: Record<string, any>,
     @MedusaContext() ctx?: Context<EntityManager>,
-  ): Promise<AuthzMember[]> {
+  ): Promise<Models.AuthzMember[]> {
     return this.members.list(filters, config, ctx);
   }
 
@@ -232,7 +155,7 @@ export default class AuthzModuleService implements IAuthzModuleService {
     filters?: Record<string, any>,
     config?: Record<string, any>,
     @MedusaContext() ctx?: Context<EntityManager>,
-  ): Promise<[AuthzMember[], number]> {
+  ): Promise<[Models.AuthzMember[], number]> {
     return this.members.listAndCount(filters, config, ctx);
   }
 
@@ -241,7 +164,7 @@ export default class AuthzModuleService implements IAuthzModuleService {
     filters?: Record<string, any>,
     config?: Record<string, any>,
     @MedusaContext() ctx?: Context<EntityManager>,
-  ): Promise<AuthzCategory[]> {
+  ): Promise<Models.AuthzCategory[]> {
     return this.categories.list(filters, config, ctx);
   }
 
@@ -250,7 +173,7 @@ export default class AuthzModuleService implements IAuthzModuleService {
     filters?: Record<string, any>,
     config?: Record<string, any>,
     @MedusaContext() ctx?: Context<EntityManager>,
-  ): Promise<[AuthzCategory[], number]> {
+  ): Promise<[Models.AuthzCategory[], number]> {
     return this.categories.listAndCount(filters, config, ctx);
   }
 
@@ -261,49 +184,49 @@ export default class AuthzModuleService implements IAuthzModuleService {
 
   @InjectManager()
   async createPermissions(
-    data: any[],
+    data: CreatePermissionInput[],
     @MedusaContext() sharedContext?: Context<EntityManager>,
-  ): Promise<AuthzPermission[]> {
+  ): Promise<Models.AuthzPermission[]> {
     return this.createPermissions_(data, sharedContext);
   }
 
   @InjectTransactionManager()
   private async createPermissions_(
-    data: any[],
+    data: CreatePermissionInput[],
     @MedusaContext() sharedContext?: Context<EntityManager>,
-  ): Promise<AuthzPermission[]> {
+  ): Promise<Models.AuthzPermission[]> {
     return this.authzPermissionRepository_.create(data, sharedContext);
   }
 
   @InjectManager()
   async createMembers(
-    data: any[],
+    data: CreateMemberInput[],
     @MedusaContext() sharedContext?: Context<EntityManager>,
-  ): Promise<AuthzMember[]> {
+  ): Promise<Models.AuthzMember[]> {
     return this.createMembers_(data, sharedContext);
   }
 
   @InjectTransactionManager()
   private async createMembers_(
-    data: any[],
+    data: CreateMemberInput[],
     @MedusaContext() sharedContext?: Context<EntityManager>,
-  ): Promise<AuthzMember[]> {
+  ): Promise<Models.AuthzMember[]> {
     return this.authzMemberRepository_.create(data, sharedContext);
   }
 
   @InjectManager()
   async updateMembers(
-    data: (Record<string, any> & { id: string })[],
+    data: UpdateMemberInput[],
     @MedusaContext() sharedContext?: Context<EntityManager>,
-  ): Promise<AuthzMember[]> {
+  ): Promise<Models.AuthzMember[]> {
     return this.updateMembers_(data, sharedContext);
   }
 
   @InjectTransactionManager()
   private async updateMembers_(
-    data: (Record<string, any> & { id: string })[],
+    data: UpdateMemberInput[],
     @MedusaContext() sharedContext?: Context<EntityManager>,
-  ): Promise<AuthzMember[]> {
+  ): Promise<Models.AuthzMember[]> {
     const ids = data.map((d) => d.id);
     const entities = await this.authzMemberRepository_.find(
       { where: { id: { $in: ids } } } as any,

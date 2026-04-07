@@ -1,3 +1,4 @@
+import { InferTypeOf } from "@medusajs/framework/types"
 import { model } from "@medusajs/framework/utils"
 
 export enum InvoiceStatus {
@@ -12,3 +13,5 @@ export const Invoice = model.define("invoice", {
     status: model.enum(InvoiceStatus).default(InvoiceStatus.LATEST),
     content: model.json(),
 })
+
+export type Invoice = InferTypeOf<typeof Invoice>

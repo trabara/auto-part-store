@@ -1,31 +1,8 @@
-import type { Context } from "@medusajs/framework/types";
-import type { EntityManager } from "@medusajs/framework/mikro-orm/knex";
+import type { IBaseModuleService } from "./base-module-service";
 
-export interface IMediaModuleService {
-  listMedias(
-    filters?: Record<string, any>,
-    config?: Record<string, any>,
-    sharedContext?: Context<EntityManager>,
-  ): Promise<any[]>;
-
-  retrieveMedia(
-    id: string,
-    config?: Record<string, any>,
-    sharedContext?: Context<EntityManager>,
-  ): Promise<any>;
-
-  createMedias(
-    data: any[],
-    sharedContext?: Context<EntityManager>,
-  ): Promise<any[]>;
-
-  updateMedias(
-    data: any[],
-    sharedContext?: Context<EntityManager>,
-  ): Promise<any[]>;
-
-  deleteMedias(
-    ids: string | string[],
-    sharedContext?: Context<EntityManager>,
-  ): Promise<void>;
-}
+/**
+ * Media module service interface.
+ * Inherits standard CRUD from IBaseModuleService (list, listAndCount, retrieve,
+ * create, update, delete).
+ */
+export interface IMediaModuleService extends IBaseModuleService<any> {}

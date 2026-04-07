@@ -12,7 +12,7 @@ export const getOrderInvoiceStep = createStep(
   "get-order-invoice",
   async ({ order_id }: StepInput, { container }) => {
     const invoiceGeneratorService = container.resolve<any>(INVOICE_MODULE);
-    let [invoice] = await invoiceGeneratorService.listInvoices({
+    let [invoice] = await invoiceGeneratorService.list({
       order_id,
       status: InvoiceStatus.LATEST,
     });
@@ -20,11 +20,14 @@ export const getOrderInvoiceStep = createStep(
 
     if (!invoice) {
       // Store new invoice in database
-      invoice = await invoiceGeneratorService.createInvoices({
-        order_id,
-        status: InvoiceStatus.LATEST,
-        content: {},
-      });
+      const [created] = await invoiceGeneratorService.create([
+        {
+          order_id,
+          status: InvoiceStatus.LATEST,
+          content: {},
+        },
+      ]);
+      invoice = created;
       createdInvoice = true;
     }
 
@@ -40,6 +43,6 @@ export const getOrderInvoiceStep = createStep(
     }
     const invoiceGeneratorService = container.resolve<any>(INVOICE_MODULE);
 
-    invoiceGeneratorService.deleteInvoices(invoice_id);
+    invoiceGeneratorService.delete(invoice_id);
   },
 );

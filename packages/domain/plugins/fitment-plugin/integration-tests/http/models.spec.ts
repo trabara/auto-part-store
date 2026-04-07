@@ -255,7 +255,7 @@ medusaIntegrationTestRunner({
 
           const service =
             container.resolve<FitmentModuleService>(FITMENT_MODULE);
-          const remaining = await service.listFitmentModels({ id: model.id });
+          const remaining = await service.models.list({ id: model.id });
           expect(remaining).toHaveLength(0);
         });
 

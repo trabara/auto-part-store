@@ -17,8 +17,8 @@ import { ENTITY_MEDIA_MODULE } from "@repo/domain-modules/media";
 
 function makeService() {
   return {
-    listMedias: jest.fn(),
-    updateMedias: jest.fn(),
+    list: jest.fn(),
+    update: jest.fn(),
   };
 }
 
@@ -44,19 +44,19 @@ describe("invokeConvertEntityThumbnails", () => {
       { id: "media_1", entity_id: "prod_1", type: "thumbnail" as const },
       { id: "media_2", entity_id: "prod_2", type: "thumbnail" as const },
     ];
-    service.listMedias.mockResolvedValue(existingThumbnails);
-    service.updateMedias.mockResolvedValue([]);
+    service.list.mockResolvedValue(existingThumbnails);
+    service.update.mockResolvedValue([]);
 
     const result = await invokeConvertEntityThumbnails(
       { entity_ids: ["prod_1", "prod_2"] },
       buildContainer(service),
     );
 
-    expect(service.listMedias).toHaveBeenCalledWith({
+    expect(service.list).toHaveBeenCalledWith({
       type: "thumbnail",
       entity_id: ["prod_1", "prod_2"],
     });
-    expect(service.updateMedias).toHaveBeenCalledWith([
+    expect(service.update).toHaveBeenCalledWith([
       { id: "media_1", type: "image" },
       { id: "media_2", type: "image" },
     ]);
@@ -66,14 +66,14 @@ describe("invokeConvertEntityThumbnails", () => {
 
   it("returns empty arrays and skips update when no thumbnails exist", async () => {
     const service = makeService();
-    service.listMedias.mockResolvedValue([]);
+    service.list.mockResolvedValue([]);
 
     const result = await invokeConvertEntityThumbnails(
       { entity_ids: ["prod_1"] },
       buildContainer(service),
     );
 
-    expect(service.updateMedias).not.toHaveBeenCalled();
+    expect(service.update).not.toHaveBeenCalled();
     expect(result.output).toEqual([]);
     expect(result.compensation).toEqual([]);
   });
@@ -84,14 +84,14 @@ describe("compensateConvertEntityThumbnails", () => {
 
   it("reverts all converted media IDs back to 'thumbnail'", async () => {
     const service = makeService();
-    service.updateMedias.mockResolvedValue([]);
+    service.update.mockResolvedValue([]);
 
     await compensateConvertEntityThumbnails(
       ["media_1", "media_2"],
       buildContainer(service),
     );
 
-    expect(service.updateMedias).toHaveBeenCalledWith([
+    expect(service.update).toHaveBeenCalledWith([
       { id: "media_1", type: "thumbnail" },
       { id: "media_2", type: "thumbnail" },
     ]);
@@ -102,7 +102,7 @@ describe("compensateConvertEntityThumbnails", () => {
 
     await compensateConvertEntityThumbnails(undefined, buildContainer(service));
 
-    expect(service.updateMedias).not.toHaveBeenCalled();
+    expect(service.update).not.toHaveBeenCalled();
   });
 
   it("is a no-op when compensation data is an empty array", async () => {
@@ -110,6 +110,6 @@ describe("compensateConvertEntityThumbnails", () => {
 
     await compensateConvertEntityThumbnails([], buildContainer(service));
 
-    expect(service.updateMedias).not.toHaveBeenCalled();
+    expect(service.update).not.toHaveBeenCalled();
   });
 });

@@ -74,7 +74,7 @@ medusaIntegrationTestRunner({
 
         it("should include the seeded admin member in the list", async () => {
           const service = container.resolve<AuthzModuleService>(AUTHZ_MODULE);
-          const [member] = await service.listAuthzMembers({ user_id: userId });
+          const [member] = await service.members.list({ user_id: userId });
 
           expect(member).toBeDefined();
 
@@ -85,7 +85,7 @@ medusaIntegrationTestRunner({
 
         it("should filter members by role_id", async () => {
           const service = container.resolve<AuthzModuleService>(AUTHZ_MODULE);
-          const [existingMember] = await service.listAuthzMembers({
+          const [existingMember] = await service.members.list({
             user_id: userId,
           });
 
@@ -106,7 +106,7 @@ medusaIntegrationTestRunner({
       describe("GET /admin/rbac/v2/members/:id", () => {
         it("should return a member by id", async () => {
           const service = container.resolve<AuthzModuleService>(AUTHZ_MODULE);
-          const [member] = await service.listAuthzMembers({ user_id: userId });
+          const [member] = await service.members.list({ user_id: userId });
 
           const res = await api.get(`/admin/rbac/v2/members/${member.id}`, {
             headers,
@@ -132,7 +132,7 @@ medusaIntegrationTestRunner({
           const role = await createTestRole(container, [perm.id]);
 
           const service = container.resolve<AuthzModuleService>(AUTHZ_MODULE);
-          const [newMember] = await service.createAuthzMembers([
+          const [newMember] = await service.members.create([
             { user_id: "extra_user_id", role_id: role.id },
           ]);
 
@@ -143,7 +143,7 @@ medusaIntegrationTestRunner({
 
           expect(res.status).toEqual(204);
 
-          const remaining = await service.listAuthzMembers({
+          const remaining = await service.members.list({
             id: newMember.id,
           });
           expect(remaining).toHaveLength(0);

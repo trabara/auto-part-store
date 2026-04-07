@@ -1,151 +1,113 @@
 import type { EntityManager } from "@medusajs/framework/mikro-orm/knex";
 import type { Context } from "@medusajs/framework/types";
 import type {
-  UpdateFitmentInput
-} from "../dtos/fitment";
+  IBaseModuleService,
+  IRestorableModuleService,
+} from "./base-module-service";
 
 /**
- * Interface for basic CRUD operations on fitment entities
+ * Full fitment module service interface using namespace accessor pattern.
  *
- * Follows ISP: Clients only depend on CRUD operations
+ * Namespace accessors (sub-services) are kept for in-DI-context callers and
+ * testing. For controllers / workflow steps (no ctx of their own), use the
+ * @InjectManager()-decorated delegate methods below.
  */
-export interface IFitmentCrudService {
-  createFitment(
-    data: any,
-    sharedContext?: Context<EntityManager>,
-  ): Promise<any>;
+export interface IFitmentModuleService {
+  readonly makes: IBaseModuleService<any>;
+  readonly models: IBaseModuleService<any>;
+  readonly engines: IBaseModuleService<any>;
+  readonly fitments: IRestorableModuleService<any>;
 
-  createFitments(
-    data: any[],
-    sharedContext?: Context<EntityManager>,
-  ): Promise<any[]>;
-
-  updateFitment(
-    data: UpdateFitmentInput,
-    sharedContext?: Context<EntityManager>,
-  ): Promise<any>;
-
-  updateFitments(
-    data: UpdateFitmentInput[],
-    sharedContext?: Context<EntityManager>,
-  ): Promise<any[]>;
-
-  deleteFitment(
-    id: string,
-    sharedContext?: Context<EntityManager>,
-  ): Promise<void>;
-
-  deleteFitments(
-    ids: string | string[],
-    sharedContext?: Context<EntityManager>,
-  ): Promise<void>;
-}
-
-/**
- * Full fitment module service interface combining CRUD, cascade, and relationship operations
- */
-export interface IFitmentModuleService
-  extends
-  IFitmentCrudService {
-  // Makes
+  // Remote Query joiner delegates
   listFitmentMakes(
     filters?: Record<string, any>,
     config?: Record<string, any>,
-    sharedContext?: Context<EntityManager>,
+    ctx?: Context<EntityManager>,
   ): Promise<any[]>;
-
-  retrieveFitmentMake(
-    id: string,
+  listAndCountFitmentMakes(
+    filters?: Record<string, any>,
     config?: Record<string, any>,
-    sharedContext?: Context<EntityManager>,
-  ): Promise<any>;
-
-  createFitmentMakes(
-    data: any | any[],
-    sharedContext?: Context<EntityManager>,
-  ): Promise<any>;
-
-  updateFitmentMakes(
-    data: any[],
-    sharedContext?: Context<EntityManager>,
-  ): Promise<any[]>;
-
-  deleteFitmentMakes(
-    ids: string[],
-    sharedContext?: Context<EntityManager>,
-  ): Promise<void>;
-
-  // Models
+    ctx?: Context<EntityManager>,
+  ): Promise<[any[], number]>;
   listFitmentModels(
     filters?: Record<string, any>,
     config?: Record<string, any>,
-    sharedContext?: Context<EntityManager>,
+    ctx?: Context<EntityManager>,
   ): Promise<any[]>;
+  listAndCountFitmentModels(
+    filters?: Record<string, any>,
+    config?: Record<string, any>,
+    ctx?: Context<EntityManager>,
+  ): Promise<[any[], number]>;
+  listFitmentEngines(
+    filters?: Record<string, any>,
+    config?: Record<string, any>,
+    ctx?: Context<EntityManager>,
+  ): Promise<any[]>;
+  listAndCountFitmentEngines(
+    filters?: Record<string, any>,
+    config?: Record<string, any>,
+    ctx?: Context<EntityManager>,
+  ): Promise<[any[], number]>;
+  listFitments(
+    filters?: Record<string, any>,
+    config?: Record<string, any>,
+    ctx?: Context<EntityManager>,
+  ): Promise<any[]>;
+  listAndCountFitments(
+    filters?: Record<string, any>,
+    config?: Record<string, any>,
+    ctx?: Context<EntityManager>,
+  ): Promise<[any[], number]>;
 
-  retrieveFitmentModel(
+  // @InjectManager()-decorated CRUD delegates for controllers/workflows
+  createMakes(data: any[], ctx?: Context<EntityManager>): Promise<any[]>;
+  updateMakes(data: any[], ctx?: Context<EntityManager>): Promise<any[]>;
+  deleteMakes(
+    ids: string | string[],
+    ctx?: Context<EntityManager>,
+  ): Promise<void>;
+  retrieveMake(
     id: string,
     config?: Record<string, any>,
-    sharedContext?: Context<EntityManager>,
+    ctx?: Context<EntityManager>,
   ): Promise<any>;
 
   createFitmentModels(
     data: any[],
-    sharedContext?: Context<EntityManager>,
+    ctx?: Context<EntityManager>,
   ): Promise<any[]>;
-
   updateFitmentModels(
     data: any[],
-    sharedContext?: Context<EntityManager>,
+    ctx?: Context<EntityManager>,
   ): Promise<any[]>;
-
   deleteFitmentModels(
-    ids: string[],
-    sharedContext?: Context<EntityManager>,
+    ids: string | string[],
+    ctx?: Context<EntityManager>,
   ): Promise<void>;
 
-  // Engines
-  listFitmentEngines(
-    filters?: Record<string, any>,
-    config?: Record<string, any>,
-    sharedContext?: Context<EntityManager>,
-  ): Promise<any[]>;
+  createEngines(data: any[], ctx?: Context<EntityManager>): Promise<any[]>;
+  updateEngines(data: any[], ctx?: Context<EntityManager>): Promise<any[]>;
+  deleteEngines(
+    ids: string | string[],
+    ctx?: Context<EntityManager>,
+  ): Promise<void>;
 
-  retrieveFitmentEngine(
+  createFitments(data: any[], ctx?: Context<EntityManager>): Promise<any[]>;
+  updateFitmentsData(data: any[], ctx?: Context<EntityManager>): Promise<any[]>;
+  deleteFitmentsData(
+    ids: string | string[],
+    ctx?: Context<EntityManager>,
+  ): Promise<void>;
+  retrieveFitmentById(
     id: string,
     config?: Record<string, any>,
-    sharedContext?: Context<EntityManager>,
+    ctx?: Context<EntityManager>,
   ): Promise<any>;
+  restoreFitments(ids: string[], ctx?: Context<EntityManager>): Promise<void>;
 
-  createFitmentEngines(
-    data: any[],
-    sharedContext?: Context<EntityManager>,
-  ): Promise<any[]>;
-
-  updateFitmentEngines(
-    data: any[],
-    sharedContext?: Context<EntityManager>,
-  ): Promise<any[]>;
-
-  deleteFitmentEngines(
-    ids: string[],
-    sharedContext?: Context<EntityManager>,
-  ): Promise<void>;
-
-  // Fitments
-  listFitments(
+  listFitmentsWithRelations(
     filters?: Record<string, any>,
-    config?: Record<string, any>,
     sharedContext?: Context<EntityManager>,
   ): Promise<any[]>;
-
-  retrieveFitment(
-    id: string,
-    config?: Record<string, any>,
-    sharedContext?: Context<EntityManager>,
-  ): Promise<any>;
-
-  restoreFitments(
-    ids: string[],
-    sharedContext?: Context<EntityManager>,
-  ): Promise<void>;
 }

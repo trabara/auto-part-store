@@ -78,7 +78,9 @@ export class FitmentController extends BaseController {
 
       this.logger.info("Updating fitment", { id, data: validated });
 
-      const [updated] = await service.updateFitments([{ ...validated, id }]);
+      const [updated] = await service.updateFitmentsData([
+        { ...validated, id },
+      ]);
 
       this.logger.info(`Fitment updated successfully: ${updated.id}`);
 

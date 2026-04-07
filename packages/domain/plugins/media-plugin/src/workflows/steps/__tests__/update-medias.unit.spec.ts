@@ -14,8 +14,8 @@ import { ENTITY_MEDIA_MODULE } from "@repo/domain-modules/media";
 
 function makeService() {
   return {
-    listMedias: jest.fn(),
-    updateMedias: jest.fn(),
+    list: jest.fn(),
+    update: jest.fn(),
   };
 }
 
@@ -39,16 +39,16 @@ describe("invokeUpdateMedias", () => {
     const service = makeService();
     const prevData = [{ id: "media_1", type: "image" as const }];
     const updated = [{ id: "media_1", type: "thumbnail" as const }];
-    service.listMedias.mockResolvedValue(prevData);
-    service.updateMedias.mockResolvedValue(updated);
+    service.list.mockResolvedValue(prevData);
+    service.update.mockResolvedValue(updated);
 
     const result = await invokeUpdateMedias(
       { updates: [{ id: "media_1", type: "thumbnail" }] },
       buildContainer(service),
     );
 
-    expect(service.listMedias).toHaveBeenCalledWith({ id: ["media_1"] });
-    expect(service.updateMedias).toHaveBeenCalledWith([
+    expect(service.list).toHaveBeenCalledWith({ id: ["media_1"] });
+    expect(service.update).toHaveBeenCalledWith([
       { id: "media_1", type: "thumbnail" },
     ]);
     expect(result.output).toEqual(updated);
@@ -61,8 +61,8 @@ describe("invokeUpdateMedias", () => {
       { id: "media_1", type: "image" as const },
       { id: "media_2", type: "thumbnail" as const },
     ];
-    service.listMedias.mockResolvedValue(prevData);
-    service.updateMedias.mockResolvedValue([]);
+    service.list.mockResolvedValue(prevData);
+    service.update.mockResolvedValue([]);
 
     await invokeUpdateMedias(
       {
@@ -74,10 +74,10 @@ describe("invokeUpdateMedias", () => {
       buildContainer(service),
     );
 
-    expect(service.listMedias).toHaveBeenCalledWith({
+    expect(service.list).toHaveBeenCalledWith({
       id: ["media_1", "media_2"],
     });
-    expect(service.updateMedias).toHaveBeenCalledWith([
+    expect(service.update).toHaveBeenCalledWith([
       { id: "media_1", type: "thumbnail" },
       { id: "media_2", type: "image" },
     ]);
@@ -85,8 +85,8 @@ describe("invokeUpdateMedias", () => {
 
   it("works with an empty updates array", async () => {
     const service = makeService();
-    service.listMedias.mockResolvedValue([]);
-    service.updateMedias.mockResolvedValue([]);
+    service.list.mockResolvedValue([]);
+    service.update.mockResolvedValue([]);
 
     const result = await invokeUpdateMedias(
       { updates: [] },
@@ -102,7 +102,7 @@ describe("compensateUpdateMedias", () => {
 
   it("reverts all updated records to their previous types", async () => {
     const service = makeService();
-    service.updateMedias.mockResolvedValue([]);
+    service.update.mockResolvedValue([]);
 
     await compensateUpdateMedias(
       [
@@ -112,7 +112,7 @@ describe("compensateUpdateMedias", () => {
       buildContainer(service),
     );
 
-    expect(service.updateMedias).toHaveBeenCalledWith([
+    expect(service.update).toHaveBeenCalledWith([
       { id: "media_1", type: "image" },
       { id: "media_2", type: "thumbnail" },
     ]);
@@ -123,7 +123,7 @@ describe("compensateUpdateMedias", () => {
 
     await compensateUpdateMedias(undefined, buildContainer(service));
 
-    expect(service.updateMedias).not.toHaveBeenCalled();
+    expect(service.update).not.toHaveBeenCalled();
   });
 
   it("is a no-op when compensation data is an empty array", async () => {
@@ -131,6 +131,6 @@ describe("compensateUpdateMedias", () => {
 
     await compensateUpdateMedias([], buildContainer(service));
 
-    expect(service.updateMedias).not.toHaveBeenCalled();
+    expect(service.update).not.toHaveBeenCalled();
   });
 });

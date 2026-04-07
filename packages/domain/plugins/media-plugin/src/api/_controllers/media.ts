@@ -23,7 +23,7 @@ export class MediaController extends BaseController {
       const mediaService =
         this.req.scope.resolve<MediaModuleService>(ENTITY_MEDIA_MODULE);
 
-      const medias = await mediaService.listMedias({ entity_id });
+      const medias = await mediaService.list({ entity_id });
 
       this.success({ medias });
     }, "Media list retrieved successfully");

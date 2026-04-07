@@ -50,7 +50,7 @@ export async function invokeCreateMedias(
   }
 
   // Create all entity medias
-  const createdMedias = await mediaService.createMedias(
+  const createdMedias = await mediaService.create(
     Object.values(mediasByEntity).flat(),
   );
 
@@ -70,7 +70,7 @@ export async function compensateCreateMedias(
 
   const mediaService: MediaModuleService =
     container.resolve(ENTITY_MEDIA_MODULE);
-  await mediaService.deleteMedias(compensationData);
+  await mediaService.delete(compensationData);
 }
 
 // ---------------------------------------------------------------------------

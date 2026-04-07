@@ -20,6 +20,6 @@ export const createFitmentsStep = createStep(
     if (!compensation) return;
 
     const service = container.resolve<FitmentModuleService>(FITMENT_MODULE);
-    await service.deleteFitments(compensation.fitmentIds);
+    await service.deleteFitmentsData(compensation.fitmentIds);
   },
 );

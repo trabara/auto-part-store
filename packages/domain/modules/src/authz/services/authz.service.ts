@@ -16,6 +16,7 @@ import {
   Role,
 } from "@trabara/core/dtos";
 import type { IAuthzModuleService } from "@trabara/core/interfaces";
+import { BaseModuleService } from "../../shared/base-module.service";
 
 type AuthzRole = InferTypeOf<typeof Models.AuthzRole>;
 type AuthzPermission = InferTypeOf<typeof Models.AuthzPermission>;
@@ -32,25 +33,135 @@ type InjectedDependencies = {
   baseRepository: DAL.RepositoryService<any>;
 };
 
+// ============================================================================
+// Sub-service: AuthzRole
+// ============================================================================
+
+class AuthzRoleCrudService extends BaseModuleService<AuthzRole> {
+  constructor(
+    repo: DAL.RepositoryService<AuthzRole>,
+    baseRepo: DAL.RepositoryService<any>,
+  ) {
+    super(repo, baseRepo, "AuthzRole");
+  }
+}
+
+// ============================================================================
+// Sub-service: AuthzPermission
+// ============================================================================
+
+class AuthzPermissionCrudService extends BaseModuleService<AuthzPermission> {
+  constructor(
+    repo: DAL.RepositoryService<AuthzPermission>,
+    baseRepo: DAL.RepositoryService<any>,
+  ) {
+    super(repo, baseRepo, "AuthzPermission");
+  }
+}
+
+// ============================================================================
+// Sub-service: AuthzPolicy  (no update / retrieve — list, create, delete only)
+// ============================================================================
+
+class AuthzPolicyCrudService extends BaseModuleService<AuthzPolicy> {
+  constructor(
+    repo: DAL.RepositoryService<AuthzPolicy>,
+    baseRepo: DAL.RepositoryService<any>,
+  ) {
+    super(repo, baseRepo, "AuthzPolicy");
+  }
+}
+
+// ============================================================================
+// Sub-service: AuthzMember  (custom delete that accepts Record<string, any>)
+// ============================================================================
+
+class AuthzMemberCrudService extends BaseModuleService<AuthzMember> {
+  constructor(
+    repo: DAL.RepositoryService<AuthzMember>,
+    baseRepo: DAL.RepositoryService<any>,
+  ) {
+    super(repo, baseRepo, "AuthzMember");
+  }
+
+  // Override delete to accept flexible filter objects (e.g. { role_id: ... })
+  override async delete(
+    ids: string | string[] | Record<string, any>,
+    ctx?: Context<EntityManager>,
+  ): Promise<void> {
+    await (this.repository_ as any).delete(ids as any, ctx);
+  }
+}
+
+// ============================================================================
+// Sub-service: AuthzCategory
+// ============================================================================
+
+class AuthzCategoryCrudService extends BaseModuleService<AuthzCategory> {
+  constructor(
+    repo: DAL.RepositoryService<AuthzCategory>,
+    baseRepo: DAL.RepositoryService<any>,
+  ) {
+    super(repo, baseRepo, "AuthzCategory");
+  }
+}
+
+// ============================================================================
+// Main service
+// ============================================================================
+
 export default class AuthzModuleService implements IAuthzModuleService {
+  readonly roles: AuthzRoleCrudService;
+  readonly permissions: AuthzPermissionCrudService;
+  readonly policies: AuthzPolicyCrudService;
+  readonly members: AuthzMemberCrudService;
+  readonly categories: AuthzCategoryCrudService;
+
+  // Required by @InjectManager() — must be named baseRepository_
+  protected baseRepository_: DAL.RepositoryService<any>;
   protected authzRoleRepository_: DAL.RepositoryService<AuthzRole>;
   protected authzPermissionRepository_: DAL.RepositoryService<AuthzPermission>;
   protected authzPolicyRepository_: DAL.RepositoryService<AuthzPolicy>;
   protected authzMemberRepository_: DAL.RepositoryService<AuthzMember>;
   protected authzCategoryRepository_: DAL.RepositoryService<AuthzCategory>;
-  protected baseRepository_: DAL.RepositoryService<any>;
 
   constructor(dependencies: InjectedDependencies) {
+    this.baseRepository_ = dependencies.baseRepository;
     this.authzRoleRepository_ = dependencies.authzRoleRepository;
     this.authzPermissionRepository_ = dependencies.authzPermissionRepository;
     this.authzPolicyRepository_ = dependencies.authzPolicyRepository;
     this.authzMemberRepository_ = dependencies.authzMemberRepository;
     this.authzCategoryRepository_ = dependencies.authzCategoryRepository;
-    this.baseRepository_ = dependencies.baseRepository;
+
+    this.roles = new AuthzRoleCrudService(
+      dependencies.authzRoleRepository,
+      dependencies.baseRepository,
+    );
+    this.permissions = new AuthzPermissionCrudService(
+      dependencies.authzPermissionRepository,
+      dependencies.baseRepository,
+    );
+    this.policies = new AuthzPolicyCrudService(
+      dependencies.authzPolicyRepository,
+      dependencies.baseRepository,
+    );
+    this.members = new AuthzMemberCrudService(
+      dependencies.authzMemberRepository,
+      dependencies.baseRepository,
+    );
+    this.categories = new AuthzCategoryCrudService(
+      dependencies.authzCategoryRepository,
+      dependencies.baseRepository,
+    );
   }
 
   // ============================================================================
-  // AuthzRole CRUD
+  // Remote Query joiner delegate methods
+  //
+  // Medusa's joiner config derives method names from entity names via the
+  // convention: `list<PluralEntityName>` / `listAndCount<PluralEntityName>`.
+  // These thin wrappers forward to the namespace accessor sub-services so
+  // that `query.graph({ entity: "authz_role" })` continues to work.
   // ============================================================================
 
   @InjectManager()
@@ -59,16 +170,7 @@ export default class AuthzModuleService implements IAuthzModuleService {
     config?: Record<string, any>,
     @MedusaContext() ctx?: Context<EntityManager>,
   ): Promise<AuthzRole[]> {
-    return this.listAuthzRoles_(filters, config, ctx);
-  }
-
-  @InjectTransactionManager()
-  private async listAuthzRoles_(
-    filters?: Record<string, any>,
-    _config?: Record<string, any>,
-    @MedusaContext() ctx?: Context<EntityManager>,
-  ): Promise<AuthzRole[]> {
-    return this.authzRoleRepository_.find({ where: filters ?? {} }, ctx);
+    return this.roles.list(filters, config, ctx);
   }
 
   @InjectManager()
@@ -77,110 +179,8 @@ export default class AuthzModuleService implements IAuthzModuleService {
     config?: Record<string, any>,
     @MedusaContext() ctx?: Context<EntityManager>,
   ): Promise<[AuthzRole[], number]> {
-    return this.listAndCountAuthzRoles_(filters, config, ctx);
+    return this.roles.listAndCount(filters, config, ctx);
   }
-
-  @InjectTransactionManager()
-  private async listAndCountAuthzRoles_(
-    filters?: Record<string, any>,
-    _config?: Record<string, any>,
-    @MedusaContext() ctx?: Context<EntityManager>,
-  ): Promise<[AuthzRole[], number]> {
-    return this.authzRoleRepository_.findAndCount(
-      { where: filters ?? {} },
-      ctx,
-    );
-  }
-
-  @InjectManager()
-  async retrieveAuthzRole(
-    id: string,
-    config?: Record<string, any>,
-    @MedusaContext() ctx?: Context<EntityManager>,
-  ): Promise<AuthzRole> {
-    return this.retrieveAuthzRole_(id, config, ctx);
-  }
-
-  @InjectTransactionManager()
-  private async retrieveAuthzRole_(
-    id: string,
-    config?: Record<string, any>,
-    @MedusaContext() ctx?: Context<EntityManager>,
-  ): Promise<AuthzRole> {
-    const options: any = { where: { id } };
-    if (config?.relations) {
-      options.options = { populate: config.relations };
-    }
-    const [role] = await this.authzRoleRepository_.find(options, ctx);
-    if (!role) throw new Error(`AuthzRole with id ${id} not found`);
-    return role;
-  }
-
-  @InjectManager()
-  async createAuthzRoles(
-    data: Partial<AuthzRole> | Partial<AuthzRole>[],
-    @MedusaContext() ctx?: Context<EntityManager>,
-  ): Promise<AuthzRole | AuthzRole[]> {
-    return this.createAuthzRoles_(data, ctx);
-  }
-
-  @InjectTransactionManager()
-  private async createAuthzRoles_(
-    data: Partial<AuthzRole> | Partial<AuthzRole>[],
-    @MedusaContext() ctx?: Context<EntityManager>,
-  ): Promise<AuthzRole | AuthzRole[]> {
-    const arr = Array.isArray(data) ? data : [data];
-    const result = await this.authzRoleRepository_.create(
-      arr as AuthzRole[],
-      ctx,
-    );
-    return Array.isArray(data) ? result : result[0]!;
-  }
-
-  @InjectManager()
-  async updateAuthzRoles(
-    data: (Partial<AuthzRole> & { id: string })[],
-    @MedusaContext() ctx?: Context<EntityManager>,
-  ): Promise<AuthzRole[]> {
-    return this.updateAuthzRoles_(data, ctx);
-  }
-
-  @InjectTransactionManager()
-  private async updateAuthzRoles_(
-    data: (Partial<AuthzRole> & { id: string })[],
-    @MedusaContext() ctx?: Context<EntityManager>,
-  ): Promise<AuthzRole[]> {
-    const ids = data.map((d) => d.id);
-    const entities = await this.authzRoleRepository_.find(
-      { where: { id: { $in: ids } } },
-      ctx,
-    );
-    const entityMap = new Map(entities.map((e) => [e.id, e]));
-    const pairs = data
-      .filter((d) => entityMap.has(d.id))
-      .map(({ id, ...update }) => ({ entity: entityMap.get(id)!, update }));
-    return this.authzRoleRepository_.update(pairs as any, ctx);
-  }
-
-  @InjectManager()
-  async deleteAuthzRoles(
-    ids: string | string[] | { id: string | string[] },
-    @MedusaContext() ctx?: Context<EntityManager>,
-  ): Promise<void> {
-    return this.deleteAuthzRoles_(ids, ctx);
-  }
-
-  @InjectTransactionManager()
-  private async deleteAuthzRoles_(
-    ids: string | string[] | { id: string | string[] },
-    @MedusaContext() ctx?: Context<EntityManager>,
-  ): Promise<void> {
-    await this.authzRoleRepository_.delete(ids as any, ctx);
-  }
-
-  // ============================================================================
-  // AuthzPermission CRUD
-  // ============================================================================
 
   @InjectManager()
   async listAuthzPermissions(
@@ -188,16 +188,7 @@ export default class AuthzModuleService implements IAuthzModuleService {
     config?: Record<string, any>,
     @MedusaContext() ctx?: Context<EntityManager>,
   ): Promise<AuthzPermission[]> {
-    return this.listAuthzPermissions_(filters, config, ctx);
-  }
-
-  @InjectTransactionManager()
-  private async listAuthzPermissions_(
-    filters?: Record<string, any>,
-    _config?: Record<string, any>,
-    @MedusaContext() ctx?: Context<EntityManager>,
-  ): Promise<AuthzPermission[]> {
-    return this.authzPermissionRepository_.find({ where: filters ?? {} }, ctx);
+    return this.permissions.list(filters, config, ctx);
   }
 
   @InjectManager()
@@ -206,107 +197,8 @@ export default class AuthzModuleService implements IAuthzModuleService {
     config?: Record<string, any>,
     @MedusaContext() ctx?: Context<EntityManager>,
   ): Promise<[AuthzPermission[], number]> {
-    return this.listAndCountAuthzPermissions_(filters, config, ctx);
+    return this.permissions.listAndCount(filters, config, ctx);
   }
-
-  @InjectTransactionManager()
-  private async listAndCountAuthzPermissions_(
-    filters?: Record<string, any>,
-    _config?: Record<string, any>,
-    @MedusaContext() ctx?: Context<EntityManager>,
-  ): Promise<[AuthzPermission[], number]> {
-    return this.authzPermissionRepository_.findAndCount(
-      { where: filters ?? {} },
-      ctx,
-    );
-  }
-
-  @InjectManager()
-  async retrieveAuthzPermission(
-    id: string,
-    config?: Record<string, any>,
-    @MedusaContext() ctx?: Context<EntityManager>,
-  ): Promise<AuthzPermission> {
-    return this.retrieveAuthzPermission_(id, config, ctx);
-  }
-
-  @InjectTransactionManager()
-  private async retrieveAuthzPermission_(
-    id: string,
-    _config?: Record<string, any>,
-    @MedusaContext() ctx?: Context<EntityManager>,
-  ): Promise<AuthzPermission> {
-    const [perm] = await this.authzPermissionRepository_.find(
-      { where: { id } },
-      ctx,
-    );
-    if (!perm) throw new Error(`AuthzPermission with id ${id} not found`);
-    return perm;
-  }
-
-  @InjectManager()
-  async createAuthzPermissions(
-    data: Partial<AuthzPermission>[],
-    @MedusaContext() ctx?: Context<EntityManager>,
-  ): Promise<AuthzPermission[]> {
-    return this.createAuthzPermissions_(data, ctx);
-  }
-
-  @InjectTransactionManager()
-  private async createAuthzPermissions_(
-    data: Partial<AuthzPermission>[],
-    @MedusaContext() ctx?: Context<EntityManager>,
-  ): Promise<AuthzPermission[]> {
-    return this.authzPermissionRepository_.create(
-      data as AuthzPermission[],
-      ctx,
-    );
-  }
-
-  @InjectManager()
-  async updateAuthzPermissions(
-    data: (Partial<AuthzPermission> & { id: string })[],
-    @MedusaContext() ctx?: Context<EntityManager>,
-  ): Promise<AuthzPermission[]> {
-    return this.updateAuthzPermissions_(data, ctx);
-  }
-
-  @InjectTransactionManager()
-  private async updateAuthzPermissions_(
-    data: (Partial<AuthzPermission> & { id: string })[],
-    @MedusaContext() ctx?: Context<EntityManager>,
-  ): Promise<AuthzPermission[]> {
-    const ids = data.map((d) => d.id);
-    const entities = await this.authzPermissionRepository_.find(
-      { where: { id: { $in: ids } } },
-      ctx,
-    );
-    const entityMap = new Map(entities.map((e) => [e.id, e]));
-    const pairs = data
-      .filter((d) => entityMap.has(d.id))
-      .map(({ id, ...update }) => ({ entity: entityMap.get(id)!, update }));
-    return this.authzPermissionRepository_.update(pairs as any, ctx);
-  }
-
-  @InjectManager()
-  async deleteAuthzPermissions(
-    ids: string | string[] | { id: string | string[] },
-    @MedusaContext() ctx?: Context<EntityManager>,
-  ): Promise<void> {
-    return this.deleteAuthzPermissions_(ids, ctx);
-  }
-
-  @InjectTransactionManager()
-  private async deleteAuthzPermissions_(
-    ids: string | string[] | { id: string | string[] },
-    @MedusaContext() ctx?: Context<EntityManager>,
-  ): Promise<void> {
-    await this.authzPermissionRepository_.delete(ids as any, ctx);
-  }
-
-  // ============================================================================
-  // AuthzPolicy CRUD
-  // ============================================================================
 
   @InjectManager()
   async listAuthzPolicies(
@@ -314,16 +206,7 @@ export default class AuthzModuleService implements IAuthzModuleService {
     config?: Record<string, any>,
     @MedusaContext() ctx?: Context<EntityManager>,
   ): Promise<AuthzPolicy[]> {
-    return this.listAuthzPolicies_(filters, config, ctx);
-  }
-
-  @InjectTransactionManager()
-  private async listAuthzPolicies_(
-    filters?: Record<string, any>,
-    _config?: Record<string, any>,
-    @MedusaContext() ctx?: Context<EntityManager>,
-  ): Promise<AuthzPolicy[]> {
-    return this.authzPolicyRepository_.find({ where: filters ?? {} }, ctx);
+    return this.policies.list(filters, config, ctx);
   }
 
   @InjectManager()
@@ -332,56 +215,8 @@ export default class AuthzModuleService implements IAuthzModuleService {
     config?: Record<string, any>,
     @MedusaContext() ctx?: Context<EntityManager>,
   ): Promise<[AuthzPolicy[], number]> {
-    return this.listAndCountAuthzPolicies_(filters, config, ctx);
+    return this.policies.listAndCount(filters, config, ctx);
   }
-
-  @InjectTransactionManager()
-  private async listAndCountAuthzPolicies_(
-    filters?: Record<string, any>,
-    _config?: Record<string, any>,
-    @MedusaContext() ctx?: Context<EntityManager>,
-  ): Promise<[AuthzPolicy[], number]> {
-    return this.authzPolicyRepository_.findAndCount(
-      { where: filters ?? {} },
-      ctx,
-    );
-  }
-
-  @InjectManager()
-  async createAuthzPolicies(
-    data: Partial<AuthzPolicy>[],
-    @MedusaContext() ctx?: Context<EntityManager>,
-  ): Promise<AuthzPolicy[]> {
-    return this.createAuthzPolicies_(data, ctx);
-  }
-
-  @InjectTransactionManager()
-  private async createAuthzPolicies_(
-    data: Partial<AuthzPolicy>[],
-    @MedusaContext() ctx?: Context<EntityManager>,
-  ): Promise<AuthzPolicy[]> {
-    return this.authzPolicyRepository_.create(data as AuthzPolicy[], ctx);
-  }
-
-  @InjectManager()
-  async deleteAuthzPolicies(
-    ids: string | string[] | { id: string | string[] },
-    @MedusaContext() ctx?: Context<EntityManager>,
-  ): Promise<void> {
-    return this.deleteAuthzPolicies_(ids, ctx);
-  }
-
-  @InjectTransactionManager()
-  private async deleteAuthzPolicies_(
-    ids: string | string[] | { id: string | string[] },
-    @MedusaContext() ctx?: Context<EntityManager>,
-  ): Promise<void> {
-    await this.authzPolicyRepository_.delete(ids as any, ctx);
-  }
-
-  // ============================================================================
-  // AuthzMember CRUD
-  // ============================================================================
 
   @InjectManager()
   async listAuthzMembers(
@@ -389,16 +224,7 @@ export default class AuthzModuleService implements IAuthzModuleService {
     config?: Record<string, any>,
     @MedusaContext() ctx?: Context<EntityManager>,
   ): Promise<AuthzMember[]> {
-    return this.listAuthzMembers_(filters, config, ctx);
-  }
-
-  @InjectTransactionManager()
-  private async listAuthzMembers_(
-    filters?: Record<string, any>,
-    _config?: Record<string, any>,
-    @MedusaContext() ctx?: Context<EntityManager>,
-  ): Promise<AuthzMember[]> {
-    return this.authzMemberRepository_.find({ where: filters ?? {} }, ctx);
+    return this.members.list(filters, config, ctx);
   }
 
   @InjectManager()
@@ -407,81 +233,8 @@ export default class AuthzModuleService implements IAuthzModuleService {
     config?: Record<string, any>,
     @MedusaContext() ctx?: Context<EntityManager>,
   ): Promise<[AuthzMember[], number]> {
-    return this.listAndCountAuthzMembers_(filters, config, ctx);
+    return this.members.listAndCount(filters, config, ctx);
   }
-
-  @InjectTransactionManager()
-  private async listAndCountAuthzMembers_(
-    filters?: Record<string, any>,
-    _config?: Record<string, any>,
-    @MedusaContext() ctx?: Context<EntityManager>,
-  ): Promise<[AuthzMember[], number]> {
-    return this.authzMemberRepository_.findAndCount(
-      { where: filters ?? {} },
-      ctx,
-    );
-  }
-
-  @InjectManager()
-  async createAuthzMembers(
-    data: Partial<AuthzMember>[],
-    @MedusaContext() ctx?: Context<EntityManager>,
-  ): Promise<AuthzMember[]> {
-    return this.createAuthzMembers_(data, ctx);
-  }
-
-  @InjectTransactionManager()
-  private async createAuthzMembers_(
-    data: Partial<AuthzMember>[],
-    @MedusaContext() ctx?: Context<EntityManager>,
-  ): Promise<AuthzMember[]> {
-    return this.authzMemberRepository_.create(data as AuthzMember[], ctx);
-  }
-
-  @InjectManager()
-  async updateAuthzMembers(
-    data: (Partial<AuthzMember> & { id: string })[],
-    @MedusaContext() ctx?: Context<EntityManager>,
-  ): Promise<AuthzMember[]> {
-    return this.updateAuthzMembers_(data, ctx);
-  }
-
-  @InjectTransactionManager()
-  private async updateAuthzMembers_(
-    data: (Partial<AuthzMember> & { id: string })[],
-    @MedusaContext() ctx?: Context<EntityManager>,
-  ): Promise<AuthzMember[]> {
-    const ids = data.map((d) => d.id);
-    const entities = await this.authzMemberRepository_.find(
-      { where: { id: { $in: ids } } },
-      ctx,
-    );
-    const entityMap = new Map(entities.map((e) => [e.id, e]));
-    const pairs = data
-      .filter((d) => entityMap.has(d.id))
-      .map(({ id, ...update }) => ({ entity: entityMap.get(id)!, update }));
-    return this.authzMemberRepository_.update(pairs as any, ctx);
-  }
-
-  @InjectManager()
-  async deleteAuthzMembers(
-    ids: string | string[] | { id: string | string[] } | Record<string, any>,
-    @MedusaContext() ctx?: Context<EntityManager>,
-  ): Promise<void> {
-    return this.deleteAuthzMembers_(ids, ctx);
-  }
-
-  @InjectTransactionManager()
-  private async deleteAuthzMembers_(
-    ids: string | string[] | { id: string | string[] } | Record<string, any>,
-    @MedusaContext() ctx?: Context<EntityManager>,
-  ): Promise<void> {
-    await this.authzMemberRepository_.delete(ids as any, ctx);
-  }
-
-  // ============================================================================
-  // AuthzCategory CRUD
-  // ============================================================================
 
   @InjectManager()
   async listAuthzCategories(
@@ -489,16 +242,7 @@ export default class AuthzModuleService implements IAuthzModuleService {
     config?: Record<string, any>,
     @MedusaContext() ctx?: Context<EntityManager>,
   ): Promise<AuthzCategory[]> {
-    return this.listAuthzCategories_(filters, config, ctx);
-  }
-
-  @InjectTransactionManager()
-  private async listAuthzCategories_(
-    filters?: Record<string, any>,
-    _config?: Record<string, any>,
-    @MedusaContext() ctx?: Context<EntityManager>,
-  ): Promise<AuthzCategory[]> {
-    return this.authzCategoryRepository_.find({ where: filters ?? {} }, ctx);
+    return this.categories.list(filters, config, ctx);
   }
 
   @InjectManager()
@@ -507,105 +251,69 @@ export default class AuthzModuleService implements IAuthzModuleService {
     config?: Record<string, any>,
     @MedusaContext() ctx?: Context<EntityManager>,
   ): Promise<[AuthzCategory[], number]> {
-    return this.listAndCountAuthzCategories_(filters, config, ctx);
+    return this.categories.listAndCount(filters, config, ctx);
+  }
+
+  // ============================================================================
+  // Write delegates for permissions and members
+  // (needed for seeders and external callers that have no ctx)
+  // ============================================================================
+
+  @InjectManager()
+  async createPermissions(
+    data: any[],
+    @MedusaContext() sharedContext?: Context<EntityManager>,
+  ): Promise<AuthzPermission[]> {
+    return this.createPermissions_(data, sharedContext);
   }
 
   @InjectTransactionManager()
-  private async listAndCountAuthzCategories_(
-    filters?: Record<string, any>,
-    _config?: Record<string, any>,
-    @MedusaContext() ctx?: Context<EntityManager>,
-  ): Promise<[AuthzCategory[], number]> {
-    return this.authzCategoryRepository_.findAndCount(
-      { where: filters ?? {} },
-      ctx,
-    );
+  private async createPermissions_(
+    data: any[],
+    @MedusaContext() sharedContext?: Context<EntityManager>,
+  ): Promise<AuthzPermission[]> {
+    return this.authzPermissionRepository_.create(data, sharedContext);
   }
 
   @InjectManager()
-  async createAuthzCategories(
-    data: Partial<AuthzCategory> | Partial<AuthzCategory>[],
-    @MedusaContext() ctx?: Context<EntityManager>,
-  ): Promise<AuthzCategory | AuthzCategory[]> {
-    return this.createAuthzCategories_(data, ctx);
+  async createMembers(
+    data: any[],
+    @MedusaContext() sharedContext?: Context<EntityManager>,
+  ): Promise<AuthzMember[]> {
+    return this.createMembers_(data, sharedContext);
   }
 
   @InjectTransactionManager()
-  private async createAuthzCategories_(
-    data: Partial<AuthzCategory> | Partial<AuthzCategory>[],
-    @MedusaContext() ctx?: Context<EntityManager>,
-  ): Promise<AuthzCategory | AuthzCategory[]> {
-    const arr = Array.isArray(data) ? data : [data];
-    const result = await this.authzCategoryRepository_.create(
-      arr as AuthzCategory[],
-      ctx,
-    );
-    return Array.isArray(data) ? result : result[0]!;
+  private async createMembers_(
+    data: any[],
+    @MedusaContext() sharedContext?: Context<EntityManager>,
+  ): Promise<AuthzMember[]> {
+    return this.authzMemberRepository_.create(data, sharedContext);
   }
 
   @InjectManager()
-  async retrieveAuthzCategory(
-    id: string,
-    config?: Record<string, any>,
-    @MedusaContext() ctx?: Context<EntityManager>,
-  ): Promise<AuthzCategory> {
-    return this.retrieveAuthzCategory_(id, config, ctx);
+  async updateMembers(
+    data: (Record<string, any> & { id: string })[],
+    @MedusaContext() sharedContext?: Context<EntityManager>,
+  ): Promise<AuthzMember[]> {
+    return this.updateMembers_(data, sharedContext);
   }
 
   @InjectTransactionManager()
-  private async retrieveAuthzCategory_(
-    id: string,
-    config?: Record<string, any>,
-    @MedusaContext() ctx?: Context<EntityManager>,
-  ): Promise<AuthzCategory> {
-    const options: any = { where: { id } };
-    if (config?.relations) {
-      options.options = { populate: config.relations };
-    }
-    const [category] = await this.authzCategoryRepository_.find(options, ctx);
-    if (!category) throw new Error(`AuthzCategory with id ${id} not found`);
-    return category;
-  }
-
-  @InjectManager()
-  async updateAuthzCategories(
-    data: (Partial<AuthzCategory> & { id: string })[],
-    @MedusaContext() ctx?: Context<EntityManager>,
-  ): Promise<AuthzCategory[]> {
-    return this.updateAuthzCategories_(data, ctx);
-  }
-
-  @InjectTransactionManager()
-  private async updateAuthzCategories_(
-    data: (Partial<AuthzCategory> & { id: string })[],
-    @MedusaContext() ctx?: Context<EntityManager>,
-  ): Promise<AuthzCategory[]> {
+  private async updateMembers_(
+    data: (Record<string, any> & { id: string })[],
+    @MedusaContext() sharedContext?: Context<EntityManager>,
+  ): Promise<AuthzMember[]> {
     const ids = data.map((d) => d.id);
-    const entities = await this.authzCategoryRepository_.find(
-      { where: { id: { $in: ids } } },
-      ctx,
+    const entities = await this.authzMemberRepository_.find(
+      { where: { id: { $in: ids } } } as any,
+      sharedContext,
     );
     const entityMap = new Map(entities.map((e) => [e.id, e]));
     const pairs = data
       .filter((d) => entityMap.has(d.id))
       .map(({ id, ...update }) => ({ entity: entityMap.get(id)!, update }));
-    return this.authzCategoryRepository_.update(pairs as any, ctx);
-  }
-
-  @InjectManager()
-  async deleteAuthzCategories(
-    ids: string | string[] | { id: string | string[] },
-    @MedusaContext() ctx?: Context<EntityManager>,
-  ): Promise<void> {
-    return this.deleteAuthzCategories_(ids, ctx);
-  }
-
-  @InjectTransactionManager()
-  private async deleteAuthzCategories_(
-    ids: string | string[] | { id: string | string[] },
-    @MedusaContext() ctx?: Context<EntityManager>,
-  ): Promise<void> {
-    await this.authzCategoryRepository_.delete(ids as any, ctx);
+    return this.authzMemberRepository_.update(pairs as any, sharedContext);
   }
 
   // ============================================================================
@@ -621,13 +329,13 @@ export default class AuthzModuleService implements IAuthzModuleService {
       return true;
     }
 
-    const [member] = await this.listAuthzMembers({ user_id: userId });
+    const [member] = await this.members.list({ user_id: userId });
 
     if (!member || !member.role_id) {
       return false;
     }
 
-    const role = await this.retrieveAuthzRole(member.role_id, {
+    const role = await this.roles.retrieve(member.role_id, {
       relations: ["policies", "policies.permission"],
     });
 
@@ -688,13 +396,10 @@ export default class AuthzModuleService implements IAuthzModuleService {
     dto: CreateCategoryInput,
     @MedusaContext() sharedContext?: Context<EntityManager>,
   ): Promise<CategoryPermissionsResult> {
-    const category = (await this.createAuthzCategories(
-      {
-        name: dto.name,
-        description: dto.description,
-      },
+    const [category] = await this.categories.create(
+      [{ name: dto.name, description: dto.description }],
       sharedContext,
-    )) as AuthzCategory;
+    );
 
     const permsToCreate: CreatePermissionInput[] = (dto.permissions ?? []).map(
       (p) => ({
@@ -705,7 +410,7 @@ export default class AuthzModuleService implements IAuthzModuleService {
       }),
     );
 
-    const createdPermissions = await this.createAuthzPermissions(
+    const createdPermissions = await this.permissions.create(
       permsToCreate,
       sharedContext,
     );
@@ -720,15 +425,15 @@ export default class AuthzModuleService implements IAuthzModuleService {
     categoryId: string,
     @MedusaContext() sharedContext?: Context<EntityManager>,
   ): Promise<void> {
-    const permissions = await this.listAuthzPermissions(
+    const perms = await this.permissions.list(
       { category_id: categoryId },
       {},
       sharedContext,
     );
 
-    const permissionIds = permissions.map((p) => p.id);
+    const permissionIds = perms.map((p) => p.id);
     if (permissionIds.length) {
-      await this.deleteAuthzPermissions({ id: permissionIds }, sharedContext);
+      await this.permissions.delete(permissionIds, sharedContext);
     }
   }
 
@@ -737,12 +442,12 @@ export default class AuthzModuleService implements IAuthzModuleService {
     inputs: CreateRoleInput[],
     @MedusaContext() sharedContext?: Context<EntityManager>,
   ): Promise<Role[]> {
-    const roles: Role[] = [];
+    const rolesList: Role[] = [];
     for (const input of inputs) {
       const role = await this.createRole_(input, sharedContext);
-      roles.push(role);
+      rolesList.push(role);
     }
-    return roles;
+    return rolesList;
   }
 
   @InjectTransactionManager()
@@ -750,15 +455,12 @@ export default class AuthzModuleService implements IAuthzModuleService {
     input: CreateRoleInput,
     @MedusaContext() sharedContext?: Context<EntityManager>,
   ): Promise<Role> {
-    const role = (await this.createAuthzRoles(
-      {
-        name: input.name,
-        description: input.description,
-      },
+    const [role] = await this.roles.create(
+      [{ name: input.name, description: input.description }],
       sharedContext,
-    )) as AuthzRole;
+    );
 
-    await this.createAuthzPolicies(
+    await this.policies.create(
       input.permissions.map((permission_id) => ({
         role_id: role.id,
         permission_id,
@@ -793,22 +495,21 @@ export default class AuthzModuleService implements IAuthzModuleService {
     permissionIds: string[],
     @MedusaContext() sharedContext?: Context<EntityManager>,
   ): Promise<void> {
-    // Remove all existing policies for this role, then create the new set.
-    const existingPolicies = await this.listAuthzPolicies(
+    const existingPolicies = await this.policies.list(
       { role_id: roleId },
       {},
       sharedContext,
     );
 
     if (existingPolicies.length > 0) {
-      await this.deleteAuthzPolicies(
-        { id: existingPolicies.map((p) => p.id) },
+      await this.policies.delete(
+        existingPolicies.map((p) => p.id),
         sharedContext,
       );
     }
 
     if (permissionIds.length > 0) {
-      await this.createAuthzPolicies(
+      await this.policies.create(
         permissionIds.map((permission_id) => ({
           role_id: roleId,
           permission_id,
@@ -825,11 +526,11 @@ export default class AuthzModuleService implements IAuthzModuleService {
     @MedusaContext() sharedContext?: Context<EntityManager>,
   ): Promise<void> {
     if (userIds.length === 0) {
-      await this.deleteAuthzMembers({ role_id: roleId }, sharedContext);
+      await this.members.delete({ role_id: roleId }, sharedContext);
       return;
     }
 
-    const membersResult = await this.listAuthzMembers(
+    const membersResult = await this.members.list(
       { user_id: userIds },
       {},
       sharedContext,
@@ -840,12 +541,12 @@ export default class AuthzModuleService implements IAuthzModuleService {
       member = membersResult.find((m) => m.user_id === userId);
 
       if (member) {
-        await this.updateAuthzMembers(
+        await this.members.update(
           [{ id: member.id, role_id: roleId }],
           sharedContext,
         );
       } else {
-        await this.createAuthzMembers(
+        await this.members.create(
           [{ user_id: userId, role_id: roleId }],
           sharedContext,
         );

@@ -23,12 +23,12 @@ export async function invokeUpdateMedias(
     container.resolve(ENTITY_MEDIA_MODULE);
 
   // Get previous data for the medias being updated
-  const prevData = await mediaService.listMedias({
+  const prevData = await mediaService.list({
     id: input.updates.map((u) => u.id),
   });
 
   // Apply the requested updates
-  const updatedData = await mediaService.updateMedias(input.updates);
+  const updatedData = await mediaService.update(input.updates);
 
   return { output: updatedData, compensation: prevData as PrevMedia[] };
 }
@@ -45,7 +45,7 @@ export async function compensateUpdateMedias(
     container.resolve(ENTITY_MEDIA_MODULE);
 
   // Revert all updates
-  await mediaService.updateMedias(
+  await mediaService.update(
     compensationData.map((img) => ({
       id: img.id,
       type: img.type,

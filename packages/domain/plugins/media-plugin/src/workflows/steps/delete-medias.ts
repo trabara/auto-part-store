@@ -29,10 +29,10 @@ export async function invokeDeleteMedias(
     container.resolve(ENTITY_MEDIA_MODULE);
 
   // Retrieve the full entity medias data before deleting
-  const medias = await mediaService.listMedias({ id: input.ids });
+  const medias = await mediaService.list({ id: input.ids });
 
   // Delete the entity medias
-  await mediaService.deleteMedias(input.ids);
+  await mediaService.delete(input.ids);
 
   return {
     output: { success: true, deleted: input.ids },
@@ -52,7 +52,7 @@ export async function compensateDeleteMedias(
     container.resolve(ENTITY_MEDIA_MODULE);
 
   // Recreate all entity medias with their original data
-  await mediaService.createMedias(
+  await mediaService.create(
     compensationData.map((media) => ({
       id: media.id,
       entity_id: media.entity_id,

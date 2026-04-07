@@ -17,12 +17,11 @@ export const updateInvoicesStep = createStep(
   async ({ selector, data }: StepInput, { container }) => {
     const invoiceGeneratorService = container.resolve<any>(INVOICE_MODULE);
 
-    const prevData = await invoiceGeneratorService.listInvoices(selector);
+    const prevData = await invoiceGeneratorService.list(selector);
 
-    const updatedInvoices = await invoiceGeneratorService.updateInvoices({
-      selector,
-      data,
-    });
+    const updatedInvoices = await invoiceGeneratorService.update(
+      prevData.map((i: any) => ({ id: i.id, ...data })),
+    );
 
     return new StepResponse(updatedInvoices, prevData);
   },
@@ -33,7 +32,7 @@ export const updateInvoicesStep = createStep(
 
     const invoiceGeneratorService = container.resolve<any>(INVOICE_MODULE);
 
-    await invoiceGeneratorService.updateInvoices(
+    await invoiceGeneratorService.update(
       prevData.map((i) => ({
         id: i.id,
         status: i.status,

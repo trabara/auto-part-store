@@ -14,8 +14,8 @@ import { ENTITY_MEDIA_MODULE } from "@repo/domain-modules/media";
 
 function makeService() {
   return {
-    createMedias: jest.fn(),
-    deleteMedias: jest.fn(),
+    create: jest.fn(),
+    delete: jest.fn(),
   };
 }
 
@@ -44,14 +44,14 @@ describe("invokeCreateMedias", () => {
   it("creates medias and returns them with compensation IDs", async () => {
     const service = makeService();
     const created = [{ id: "media_1", ...baseMedia, type: "image" as const }];
-    service.createMedias.mockResolvedValue(created);
+    service.create.mockResolvedValue(created);
 
     const result = await invokeCreateMedias(
       { medias: [{ ...baseMedia, type: "image" }] },
       buildContainer(service),
     );
 
-    expect(service.createMedias).toHaveBeenCalledWith([
+    expect(service.create).toHaveBeenCalledWith([
       { ...baseMedia, type: "image" },
     ]);
     expect(result.output).toEqual(created);
@@ -63,7 +63,7 @@ describe("invokeCreateMedias", () => {
     const created = [
       { id: "media_2", ...baseMedia, type: "thumbnail" as const },
     ];
-    service.createMedias.mockResolvedValue(created);
+    service.create.mockResolvedValue(created);
 
     const result = await invokeCreateMedias(
       { medias: [{ ...baseMedia, type: "thumbnail" }] },
@@ -88,7 +88,7 @@ describe("invokeCreateMedias", () => {
       ),
     ).rejects.toThrow("Only one thumbnail is allowed per entity");
 
-    expect(service.createMedias).not.toHaveBeenCalled();
+    expect(service.create).not.toHaveBeenCalled();
   });
 
   it("allows multiple thumbnails as long as they belong to different entities", async () => {
@@ -109,7 +109,7 @@ describe("invokeCreateMedias", () => {
         file_id: "f2",
       },
     ];
-    service.createMedias.mockResolvedValue(created);
+    service.create.mockResolvedValue(created);
 
     const result = await invokeCreateMedias(
       {
@@ -131,14 +131,14 @@ describe("compensateCreateMedias", () => {
 
   it("deletes all created media IDs", async () => {
     const service = makeService();
-    service.deleteMedias.mockResolvedValue(undefined);
+    service.delete.mockResolvedValue(undefined);
 
     await compensateCreateMedias(
       ["media_1", "media_2"],
       buildContainer(service),
     );
 
-    expect(service.deleteMedias).toHaveBeenCalledWith(["media_1", "media_2"]);
+    expect(service.delete).toHaveBeenCalledWith(["media_1", "media_2"]);
   });
 
   it("is a no-op when compensation data is undefined", async () => {
@@ -146,7 +146,7 @@ describe("compensateCreateMedias", () => {
 
     await compensateCreateMedias(undefined, buildContainer(service));
 
-    expect(service.deleteMedias).not.toHaveBeenCalled();
+    expect(service.delete).not.toHaveBeenCalled();
   });
 
   it("is a no-op when compensation data is an empty array", async () => {
@@ -154,6 +154,6 @@ describe("compensateCreateMedias", () => {
 
     await compensateCreateMedias([], buildContainer(service));
 
-    expect(service.deleteMedias).not.toHaveBeenCalled();
+    expect(service.delete).not.toHaveBeenCalled();
   });
 });

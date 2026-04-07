@@ -77,7 +77,7 @@ export class EngineController extends BaseController {
 
       this.logger.info("Creating new engine", { data: validated });
 
-      const [engine] = await service.createFitmentEngines([validated]);
+      const [engine] = await service.createEngines([validated]);
 
       this.logger.info(`Created engine with ID: ${engine.id}`);
 
@@ -94,9 +94,7 @@ export class EngineController extends BaseController {
 
       this.logger.info(`Updating engine with ID: ${id}`, { data: validated });
 
-      const [engine] = await service.updateFitmentEngines([
-        { ...validated, id },
-      ]);
+      const [engine] = await service.updateEngines([{ ...validated, id }]);
 
       this.logger.info(`Updated engine with ID: ${id}`);
 
@@ -116,7 +114,7 @@ export class EngineController extends BaseController {
 
       this.logger.info(`Batch updating ${engineUpdates.length} engines`);
 
-      const engines = await service.updateFitmentEngines(engineUpdates);
+      const engines = await service.updateEngines(engineUpdates);
 
       this.logger.info(`Batch updated ${engines.length} engines`);
 
@@ -132,7 +130,7 @@ export class EngineController extends BaseController {
 
       this.logger.info(`Deleting engine with ID: ${id}`);
 
-      await service.deleteFitmentEngines([id]);
+      await service.deleteEngines([id]);
 
       this.logger.info(`Deleted engine with ID: ${id}`);
 

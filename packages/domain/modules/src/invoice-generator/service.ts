@@ -12,6 +12,7 @@ import { getTranslations } from "./i18n";
 import { Invoice } from "./models/invoice";
 import { InvoiceConfig } from "./models/invoice-config";
 import type { IInvoiceGeneratorModuleService } from "@trabara/core/interfaces";
+import { BaseModuleService } from "@repo/domain-modules/shared";
 
 type InvoiceType = InferTypeOf<typeof Invoice>;
 type InvoiceConfigType = InferTypeOf<typeof InvoiceConfig>;
@@ -29,38 +30,126 @@ type InjectedDependencies = {
   baseRepository: DAL.RepositoryService<any>;
 };
 
-class InvoiceGeneratorService implements IInvoiceGeneratorModuleService {
-  protected invoiceRepository_: DAL.RepositoryService<InvoiceType>;
+class InvoiceGeneratorService
+  extends BaseModuleService<InvoiceType>
+  implements IInvoiceGeneratorModuleService
+{
   protected invoiceConfigRepository_: DAL.RepositoryService<InvoiceConfigType>;
-  protected baseRepository_: DAL.RepositoryService<any>;
   private browser: Browser | null = null;
 
   constructor(dependencies: InjectedDependencies) {
-    this.invoiceRepository_ = dependencies.invoiceRepository;
+    super(
+      dependencies.invoiceRepository,
+      dependencies.baseRepository,
+      "Invoice",
+    );
     this.invoiceConfigRepository_ = dependencies.invoiceConfigRepository;
-    this.baseRepository_ = dependencies.baseRepository;
   }
 
   // ============================================================================
-  // Invoice CRUD
+  // Invoice CRUD — inherited from BaseModuleService, wrapped with
+  // @InjectManager() so that calls from workflow steps (no ctx) work correctly.
+  //
+  // Remote Query joiner delegate methods — Medusa derives method names from
+  // entity names: entity "invoice" → "listInvoices". listInvoices /
+  // listAndCountInvoices also serve as the @InjectManager()-decorated entry
+  // points forwarded from the list / listAndCount overrides below.
   // ============================================================================
 
+  @InjectManager()
+  override async list(
+    filters?: Record<string, any>,
+    config?: Record<string, any>,
+    @MedusaContext() ctx?: Context<EntityManager>,
+  ): Promise<InvoiceType[]> {
+    return this.list_(filters, config, ctx);
+  }
+
+  @InjectTransactionManager()
+  private async list_(
+    filters?: Record<string, any>,
+    config?: Record<string, any>,
+    @MedusaContext() ctx?: Context<EntityManager>,
+  ): Promise<InvoiceType[]> {
+    return super.list(filters, config, ctx);
+  }
+
+  @InjectManager()
+  override async listAndCount(
+    filters?: Record<string, any>,
+    config?: Record<string, any>,
+    @MedusaContext() ctx?: Context<EntityManager>,
+  ): Promise<[InvoiceType[], number]> {
+    return this.listAndCount_(filters, config, ctx);
+  }
+
+  @InjectTransactionManager()
+  private async listAndCount_(
+    filters?: Record<string, any>,
+    config?: Record<string, any>,
+    @MedusaContext() ctx?: Context<EntityManager>,
+  ): Promise<[InvoiceType[], number]> {
+    return super.listAndCount(filters, config, ctx);
+  }
+
+  @InjectManager()
+  override async retrieve(
+    id: string,
+    config?: Record<string, any>,
+    @MedusaContext() ctx?: Context<EntityManager>,
+  ): Promise<InvoiceType> {
+    return this.retrieve_(id, config, ctx);
+  }
+
+  @InjectTransactionManager()
+  private async retrieve_(
+    id: string,
+    config?: Record<string, any>,
+    @MedusaContext() ctx?: Context<EntityManager>,
+  ): Promise<InvoiceType> {
+    return super.retrieve(id, config, ctx);
+  }
+
+  @InjectManager()
+  override async create(
+    data: any[],
+    @MedusaContext() ctx?: Context<EntityManager>,
+  ): Promise<InvoiceType[]> {
+    return this.create_(data, ctx);
+  }
+
+  @InjectTransactionManager()
+  private async create_(
+    data: any[],
+    @MedusaContext() ctx?: Context<EntityManager>,
+  ): Promise<InvoiceType[]> {
+    return super.create(data, ctx);
+  }
+
+  @InjectManager()
+  override async delete(
+    ids: string | string[],
+    @MedusaContext() ctx?: Context<EntityManager>,
+  ): Promise<void> {
+    return this.delete_(ids, ctx);
+  }
+
+  @InjectTransactionManager()
+  private async delete_(
+    ids: string | string[],
+    @MedusaContext() ctx?: Context<EntityManager>,
+  ): Promise<void> {
+    return super.delete(ids, ctx);
+  }
+
+  // listInvoices / listAndCountInvoices — Remote Query joiner delegates
   @InjectManager()
   async listInvoices(
     filters?: Record<string, any>,
     config?: Record<string, any>,
     @MedusaContext() ctx?: Context<EntityManager>,
   ): Promise<InvoiceType[]> {
-    return this.listInvoices_(filters, config, ctx);
-  }
-
-  @InjectTransactionManager()
-  private async listInvoices_(
-    filters?: Record<string, any>,
-    _config?: Record<string, any>,
-    @MedusaContext() ctx?: Context<EntityManager>,
-  ): Promise<InvoiceType[]> {
-    return this.invoiceRepository_.find({ where: filters ?? {} }, ctx);
+    return this.list_(filters, config, ctx);
   }
 
   @InjectManager()
@@ -69,94 +158,37 @@ class InvoiceGeneratorService implements IInvoiceGeneratorModuleService {
     config?: Record<string, any>,
     @MedusaContext() ctx?: Context<EntityManager>,
   ): Promise<[InvoiceType[], number]> {
-    return this.listAndCountInvoices_(filters, config, ctx);
-  }
-
-  @InjectTransactionManager()
-  private async listAndCountInvoices_(
-    filters?: Record<string, any>,
-    _config?: Record<string, any>,
-    @MedusaContext() ctx?: Context<EntityManager>,
-  ): Promise<[InvoiceType[], number]> {
-    const results = await this.invoiceRepository_.find(
-      { where: filters ?? {} },
-      ctx,
-    );
-    return [results, results.length];
+    return this.listAndCount_(filters, config, ctx);
   }
 
   @InjectManager()
-  async retrieveInvoice(
-    id: string,
-    config?: Record<string, any>,
-    @MedusaContext() ctx?: Context<EntityManager>,
-  ): Promise<InvoiceType> {
-    return this.retrieveInvoice_(id, config, ctx);
-  }
-
-  @InjectTransactionManager()
-  private async retrieveInvoice_(
-    id: string,
-    _config?: Record<string, any>,
-    @MedusaContext() ctx?: Context<EntityManager>,
-  ): Promise<InvoiceType> {
-    const [invoice] = await this.invoiceRepository_.find(
-      { where: { id } },
-      ctx,
-    );
-    if (!invoice) throw new Error(`Invoice with id ${id} not found`);
-    return invoice;
-  }
-
-  @InjectManager()
-  async createInvoices(
-    data: any[],
-    @MedusaContext() ctx?: Context<EntityManager>,
-  ): Promise<InvoiceType[]> {
-    return this.createInvoices_(data, ctx);
-  }
-
-  @InjectTransactionManager()
-  private async createInvoices_(
-    data: any[],
-    @MedusaContext() ctx?: Context<EntityManager>,
-  ): Promise<InvoiceType[]> {
-    return this.invoiceRepository_.create(data, ctx);
-  }
-
-  @InjectManager()
-  async updateInvoices(
+  override async update(
     data: any | any[],
     @MedusaContext() ctx?: Context<EntityManager>,
   ): Promise<any> {
-    return this.updateInvoices_(data, ctx);
+    return this.updateInvoice_(data, ctx);
   }
 
   @InjectTransactionManager()
-  private async updateInvoices_(
+  private async updateInvoice_(
     data: any | any[],
     @MedusaContext() ctx?: Context<EntityManager>,
   ): Promise<any> {
     const arr = Array.isArray(data) ? data : [data];
-    const result = await this.invoiceRepository_.update(arr, ctx);
+    const ids = arr.map((d: any) => d.id);
+    const entities = await this.repository_.find(
+      { where: { id: { $in: ids } } } as any,
+      ctx,
+    );
+    const entityMap = new Map(entities.map((e) => [e.id, e]));
+    const pairs = arr
+      .filter((d: any) => entityMap.has(d.id))
+      .map(({ id, ...update }: any) => ({
+        entity: entityMap.get(id)!,
+        update,
+      }));
+    const result = await this.repository_.update(pairs as any, ctx);
     return Array.isArray(data) ? result : result[0];
-  }
-
-  @InjectManager()
-  async deleteInvoices(
-    ids: string | string[],
-    @MedusaContext() ctx?: Context<EntityManager>,
-  ): Promise<void> {
-    return this.deleteInvoices_(ids, ctx);
-  }
-
-  @InjectTransactionManager()
-  private async deleteInvoices_(
-    ids: string | string[],
-    @MedusaContext() ctx?: Context<EntityManager>,
-  ): Promise<void> {
-    const arr = Array.isArray(ids) ? ids : [ids];
-    await this.invoiceRepository_.delete({ id: { $in: arr } }, ctx);
   }
 
   // ============================================================================
@@ -379,7 +411,7 @@ class InvoiceGeneratorService implements IInvoiceGeneratorModuleService {
   }
 
   async generatePdf(params: GeneratePdfParams): Promise<Buffer> {
-    const invoices = await this.listInvoices({
+    const invoices = await this.list({
       order_id: params.order.id,
       status: "latest",
     });
@@ -395,7 +427,7 @@ class InvoiceGeneratorService implements IInvoiceGeneratorModuleService {
         content.toString("base64"),
       ));
 
-    await this.updateInvoices(invoice);
+    await this.update(invoice);
 
     return Buffer.from(String(invoice.content[locale]), "base64");
   }

@@ -13,7 +13,7 @@ export const deleteFitmentsStep = createStep(
     const fitmentModuleService =
       container.resolve<FitmentModuleService>(FITMENT_MODULE);
 
-    await fitmentModuleService.deleteFitments(ids);
+    await fitmentModuleService.deleteFitmentsData(ids);
   },
   async ({ ids }: DeleteFitmentsStepInput, { container }) => {
     const fitmentModuleService =

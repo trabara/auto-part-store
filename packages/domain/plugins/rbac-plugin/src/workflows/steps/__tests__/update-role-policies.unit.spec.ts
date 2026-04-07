@@ -17,7 +17,9 @@ import { AUTHZ_MODULE } from "@repo/domain-modules/authz";
 
 function makeService() {
   return {
-    listAuthzPolicies: jest.fn(),
+    policies: {
+      list: jest.fn(),
+    },
     updateRolePolicies: jest.fn(),
   };
 }
@@ -40,7 +42,7 @@ describe("invokeUpdateRolePolicies", () => {
 
   it("snapshots existing policies and replaces them with the new set", async () => {
     const service = makeService();
-    service.listAuthzPolicies.mockResolvedValue([
+    service.policies.list.mockResolvedValue([
       { id: "pol_1", permission_id: "perm_old_1" },
       { id: "pol_2", permission_id: "perm_old_2" },
     ]);
@@ -51,9 +53,7 @@ describe("invokeUpdateRolePolicies", () => {
       buildContainer(service),
     );
 
-    expect(service.listAuthzPolicies).toHaveBeenCalledWith({
-      role_id: "role_1",
-    });
+    expect(service.policies.list).toHaveBeenCalledWith({ role_id: "role_1" });
     expect(service.updateRolePolicies).toHaveBeenCalledWith("role_1", [
       "perm_new_1",
       "perm_new_2",
@@ -68,7 +68,7 @@ describe("invokeUpdateRolePolicies", () => {
 
   it("works correctly when the role has no existing policies", async () => {
     const service = makeService();
-    service.listAuthzPolicies.mockResolvedValue([]);
+    service.policies.list.mockResolvedValue([]);
     service.updateRolePolicies.mockResolvedValue(undefined);
 
     const result = await invokeUpdateRolePolicies(
@@ -84,7 +84,7 @@ describe("invokeUpdateRolePolicies", () => {
 
   it("passes an empty permissionIds array when clearing all policies", async () => {
     const service = makeService();
-    service.listAuthzPolicies.mockResolvedValue([
+    service.policies.list.mockResolvedValue([
       { id: "pol_1", permission_id: "perm_1" },
     ]);
     service.updateRolePolicies.mockResolvedValue(undefined);

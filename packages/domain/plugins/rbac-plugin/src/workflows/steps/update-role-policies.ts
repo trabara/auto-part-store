@@ -25,7 +25,7 @@ export async function invokeUpdateRolePolicies(
   const service = container.resolve(AUTHZ_MODULE) as AuthzModuleService;
 
   // Snapshot the current policies so compensation can restore them.
-  const existingPolicies = await service.listAuthzPolicies({ role_id: roleId });
+  const existingPolicies = await service.policies.list({ role_id: roleId });
   const previousPermissionIds = existingPolicies.map(
     (p: any) => p.permission_id,
   );

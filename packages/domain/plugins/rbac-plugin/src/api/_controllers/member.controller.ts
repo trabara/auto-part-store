@@ -22,7 +22,7 @@ export class MemberController extends BaseController {
       const service = this.req.scope.resolve<AuthzModuleService>(AUTHZ_MODULE);
       const { id } = this.req.params;
 
-      const [member] = await service.listAuthzMembers({ id });
+      const [member] = await service.members.list({ id });
 
       if (!member) {
         this.notFound("Member not found");
@@ -38,7 +38,7 @@ export class MemberController extends BaseController {
       const service = this.req.scope.resolve<AuthzModuleService>(AUTHZ_MODULE);
       const { id } = this.req.params;
 
-      await service.deleteAuthzMembers({ id });
+      await service.members.delete({ id });
 
       this.noContent();
     }, "Member deleted successfully");

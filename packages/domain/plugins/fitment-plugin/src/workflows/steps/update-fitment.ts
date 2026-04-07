@@ -12,7 +12,7 @@ export const updateFitmentStep = createStep(
 
     const [originalFitment] = await service.listFitments({ id: input.id });
 
-    const updatedFitment = await service.updateFitment(input);
+    const [updatedFitment] = await service.updateFitmentsData([input]);
 
     return new StepResponse(updatedFitment, {
       id: input.id,
@@ -32,9 +32,11 @@ export const updateFitmentStep = createStep(
     if (!compensation) return;
 
     const service = container.resolve<FitmentModuleService>(FITMENT_MODULE);
-    await service.updateFitment({
-      id: compensation.id,
-      ...compensation.originalData,
-    });
+    await service.updateFitmentsData([
+      {
+        id: compensation.id,
+        ...compensation.originalData,
+      },
+    ]);
   },
 );

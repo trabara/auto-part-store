@@ -16,7 +16,7 @@ export const createRbacRolesStep = createStep(
     const service = container.resolve<AuthzModuleService>(AUTHZ_MODULE);
 
     if (compensation.roleIds) {
-      await service.deleteAuthzRoles(compensation.roleIds);
+      await service.roles.delete(compensation.roleIds);
     }
   },
 );

@@ -15,11 +15,11 @@ export class StatsController extends BaseController {
         [, members],
         [, policies],
       ] = await Promise.all([
-        service.listAndCountAuthzRoles({}, {}),
-        service.listAndCountAuthzPermissions({}, {}),
-        service.listAndCountAuthzCategories({}, {}),
-        service.listAndCountAuthzMembers({}, {}),
-        service.listAndCountAuthzPolicies({}, {}),
+        service.roles.listAndCount({}, {}),
+        service.permissions.listAndCount({}, {}),
+        service.categories.listAndCount({}, {}),
+        service.members.listAndCount({}, {}),
+        service.policies.listAndCount({}, {}),
       ]);
 
       this.success({

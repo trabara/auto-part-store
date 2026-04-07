@@ -165,7 +165,7 @@ medusaIntegrationTestRunner({
           });
 
           const service = container.resolve<AuthzModuleService>(AUTHZ_MODULE);
-          const writePerms = await service.listAuthzPermissions({
+          const writePerms = await service.permissions.list({
             kind: "write",
           });
 
@@ -253,7 +253,7 @@ medusaIntegrationTestRunner({
           expect(res.status).toEqual(204);
 
           const service = container.resolve<AuthzModuleService>(AUTHZ_MODULE);
-          const [deleted] = await service.listAuthzPermissions({
+          const [deleted] = await service.permissions.list({
             id: permission.id,
           });
           expect(deleted).toBeUndefined();

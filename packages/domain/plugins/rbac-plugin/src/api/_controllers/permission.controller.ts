@@ -12,7 +12,7 @@ export class PermissionController extends BaseController {
       const service = this.req.scope.resolve<AuthzModuleService>(AUTHZ_MODULE);
       const { id } = this.req.params;
 
-      const permission = await service.retrieveAuthzPermission(id, {
+      const permission = await service.permissions.retrieve(id, {
         relations: ["category"],
       });
 
@@ -39,7 +39,7 @@ export class PermissionController extends BaseController {
       const service = this.req.scope.resolve<AuthzModuleService>(AUTHZ_MODULE);
       const validated = CreatePermissionSchema.parse(this.req.validatedBody);
 
-      const [permission] = await service.createAuthzPermissions([validated]);
+      const [permission] = await service.permissions.create([validated]);
 
       this.created({ permission });
     });
@@ -51,7 +51,7 @@ export class PermissionController extends BaseController {
       const { id } = this.req.params;
       const validated = UpdatePermissionSchema.parse(this.req.validatedBody);
 
-      const [permission] = await service.updateAuthzPermissions([
+      const [permission] = await service.permissions.update([
         { id, ...validated },
       ]);
 
@@ -64,7 +64,7 @@ export class PermissionController extends BaseController {
       const service = this.req.scope.resolve<AuthzModuleService>(AUTHZ_MODULE);
       const { id } = this.req.params;
 
-      await service.deleteAuthzPermissions([id]);
+      await service.permissions.delete([id]);
 
       this.noContent();
     });

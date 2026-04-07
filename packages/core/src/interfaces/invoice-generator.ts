@@ -1,36 +1,9 @@
 import type { Context } from "@medusajs/framework/types";
 import type { EntityManager } from "@medusajs/framework/mikro-orm/knex";
+import type { IBaseModuleService } from "./base-module-service";
 
-export interface IInvoiceGeneratorModuleService {
-  // Invoice CRUD
-  listInvoices(
-    filters?: Record<string, any>,
-    config?: Record<string, any>,
-    sharedContext?: Context<EntityManager>,
-  ): Promise<any[]>;
-
-  retrieveInvoice(
-    id: string,
-    config?: Record<string, any>,
-    sharedContext?: Context<EntityManager>,
-  ): Promise<any>;
-
-  createInvoices(
-    data: any[],
-    sharedContext?: Context<EntityManager>,
-  ): Promise<any[]>;
-
-  updateInvoices(
-    data: any | any[],
-    sharedContext?: Context<EntityManager>,
-  ): Promise<any>;
-
-  deleteInvoices(
-    ids: string | string[],
-    sharedContext?: Context<EntityManager>,
-  ): Promise<void>;
-
-  // InvoiceConfig CRUD
+export interface IInvoiceGeneratorModuleService extends IBaseModuleService<any> {
+  // InvoiceConfig CRUD (stays manual — separate repo)
   listInvoiceConfigs(
     filters?: Record<string, any>,
     config?: Record<string, any>,

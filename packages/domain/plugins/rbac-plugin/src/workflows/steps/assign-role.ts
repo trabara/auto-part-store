@@ -30,7 +30,7 @@ export async function invokeAssignRole(
   // Capture the user's current membership before making any change so we
   // can restore it precisely during compensation instead of wiping the
   // entire role's member list.
-  const [existingMember] = await service.listAuthzMembers({ user_id: userId });
+  const [existingMember] = await service.members.list({ user_id: userId });
 
   const compensation: AssignRoleStepCompensation = {
     userId,
@@ -54,14 +54,14 @@ export async function compensateAssignRole(
 
   if (previousMemberId && previousRoleId) {
     // User had a role before — restore the original assignment.
-    await service.updateAuthzMembers([
+    await service.members.update([
       { id: previousMemberId, role_id: previousRoleId },
     ]);
   } else {
     // User had no role before — delete the member record that was just created.
-    const [createdMember] = await service.listAuthzMembers({ user_id: userId });
+    const [createdMember] = await service.members.list({ user_id: userId });
     if (createdMember) {
-      await service.deleteAuthzMembers({ id: createdMember.id });
+      await service.members.delete({ id: createdMember.id });
     }
   }
 }

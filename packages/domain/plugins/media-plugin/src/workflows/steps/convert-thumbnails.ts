@@ -20,7 +20,7 @@ export async function invokeConvertEntityThumbnails(
     container.resolve(ENTITY_MEDIA_MODULE);
 
   // Find existing thumbnails in the specified entities
-  const existingThumbnails = await mediaService.listMedias({
+  const existingThumbnails = await mediaService.list({
     type: "thumbnail",
     entity_id: input.entity_ids,
   });
@@ -33,7 +33,7 @@ export async function invokeConvertEntityThumbnails(
   const compensationData: string[] = existingThumbnails.map((t) => t.id);
 
   // Convert existing thumbnails to "image" type
-  await mediaService.updateMedias(
+  await mediaService.update(
     existingThumbnails.map((t) => ({
       id: t.id,
       type: "image" as const,
@@ -58,7 +58,7 @@ export async function compensateConvertEntityThumbnails(
     container.resolve(ENTITY_MEDIA_MODULE);
 
   // Revert thumbnails back to "thumbnail" type
-  await mediaService.updateMedias(
+  await mediaService.update(
     compensationData.map((id) => ({
       id,
       type: "thumbnail" as const,

@@ -65,7 +65,7 @@ export class MakeController extends BaseController {
 
       this.logger.info(`Creating new make: ${validated.name}`);
 
-      const [make] = (await service.createFitmentMakes([validated])) as any[];
+      const [make] = (await service.createMakes([validated])) as any[];
 
       this.logger.info(`Make created successfully: ${make.id}`);
 
@@ -85,7 +85,7 @@ export class MakeController extends BaseController {
 
       this.logger.info(`Updating ${makeUpdates.length} makes`);
 
-      const makes = await service.updateFitmentMakes(makeUpdates);
+      const makes = await service.updateMakes(makeUpdates);
 
       this.logger.info("Makes updated successfully");
 
@@ -102,7 +102,7 @@ export class MakeController extends BaseController {
 
       this.logger.info(`Updating make: ${id}`);
 
-      const [make] = await service.updateFitmentMakes([{ ...validated, id }]);
+      const [make] = await service.updateMakes([{ ...validated, id }]);
 
       this.logger.info("Make updated successfully");
 
@@ -118,7 +118,7 @@ export class MakeController extends BaseController {
 
       this.logger.info(`Deleting make: ${id}`);
 
-      await service.deleteFitmentMakes([id]);
+      await service.deleteMakes([id]);
 
       this.noContent();
     }, `Make deleted: ${this.req.params.id}`);

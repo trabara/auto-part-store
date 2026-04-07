@@ -5,8 +5,11 @@ import {
   InjectTransactionManager,
   MedusaContext,
 } from "@medusajs/framework/utils";
-import { UpdateFitmentInput } from "@trabara/core/dtos";
 import type { IFitmentModuleService } from "@trabara/core/interfaces";
+import {
+  BaseModuleService,
+  RestorableModuleService,
+} from "@repo/domain-modules/shared";
 import * as Models from "../models";
 
 type InjectedDependencies = {
@@ -17,7 +20,56 @@ type InjectedDependencies = {
   baseRepository: DAL.RepositoryService<any>;
 };
 
+// ============================================================================
+// Sub-service classes — one per entity group
+// ============================================================================
+
+class FitmentMakeCrudService extends BaseModuleService<Models.FitmentMake> {
+  constructor(
+    repo: DAL.RepositoryService<Models.FitmentMake>,
+    baseRepo: DAL.RepositoryService<any>,
+  ) {
+    super(repo, baseRepo, "FitmentMake");
+  }
+}
+
+class FitmentModelCrudService extends BaseModuleService<Models.FitmentModel> {
+  constructor(
+    repo: DAL.RepositoryService<Models.FitmentModel>,
+    baseRepo: DAL.RepositoryService<any>,
+  ) {
+    super(repo, baseRepo, "FitmentModel");
+  }
+}
+
+class FitmentEngineCrudService extends BaseModuleService<Models.FitmentEngine> {
+  constructor(
+    repo: DAL.RepositoryService<Models.FitmentEngine>,
+    baseRepo: DAL.RepositoryService<any>,
+  ) {
+    super(repo, baseRepo, "FitmentEngine");
+  }
+}
+
+class FitmentCrudService extends RestorableModuleService<Models.Fitment> {
+  constructor(
+    repo: DAL.RepositoryService<Models.Fitment>,
+    baseRepo: DAL.RepositoryService<any>,
+  ) {
+    super(repo, baseRepo, "Fitment");
+  }
+}
+
+// ============================================================================
+// Main service — namespace accessor pattern
+// ============================================================================
+
 class FitmentModuleService implements IFitmentModuleService {
+  readonly makes: FitmentMakeCrudService;
+  readonly models: FitmentModelCrudService;
+  readonly engines: FitmentEngineCrudService;
+  readonly fitments: FitmentCrudService;
+
   protected fitmentMakeRepository_: DAL.RepositoryService<Models.FitmentMake>;
   protected fitmentModelRepository_: DAL.RepositoryService<Models.FitmentModel>;
   protected fitmentEngineRepository_: DAL.RepositoryService<Models.FitmentEngine>;
@@ -30,10 +82,32 @@ class FitmentModuleService implements IFitmentModuleService {
     this.fitmentEngineRepository_ = dependencies.fitmentEngineRepository;
     this.fitmentRepository_ = dependencies.fitmentRepository;
     this.baseRepository_ = dependencies.baseRepository;
+
+    this.makes = new FitmentMakeCrudService(
+      dependencies.fitmentMakeRepository,
+      dependencies.baseRepository,
+    );
+    this.models = new FitmentModelCrudService(
+      dependencies.fitmentModelRepository,
+      dependencies.baseRepository,
+    );
+    this.engines = new FitmentEngineCrudService(
+      dependencies.fitmentEngineRepository,
+      dependencies.baseRepository,
+    );
+    this.fitments = new FitmentCrudService(
+      dependencies.fitmentRepository,
+      dependencies.baseRepository,
+    );
   }
 
   // ============================================================================
-  // FitmentMake CRUD
+  // Remote Query joiner delegate methods
+  //
+  // Medusa's joiner config derives method names from entity names via the
+  // convention: `list<PluralEntityName>` / `listAndCount<PluralEntityName>`.
+  // These thin wrappers forward to the namespace accessor sub-services so
+  // that `query.graph({ entity: "fitment_make" })` continues to work.
   // ============================================================================
 
   @InjectManager()
@@ -42,16 +116,7 @@ class FitmentModuleService implements IFitmentModuleService {
     config?: Record<string, any>,
     @MedusaContext() ctx?: Context<EntityManager>,
   ): Promise<Models.FitmentMake[]> {
-    return this.listFitmentMakes_(filters, config, ctx);
-  }
-
-  @InjectTransactionManager()
-  private async listFitmentMakes_(
-    filters?: Record<string, any>,
-    _config?: Record<string, any>,
-    @MedusaContext() ctx?: Context<EntityManager>,
-  ): Promise<Models.FitmentMake[]> {
-    return this.fitmentMakeRepository_.find({ where: filters ?? {} }, ctx);
+    return this.makes.list(filters, config, ctx);
   }
 
   @InjectManager()
@@ -60,107 +125,8 @@ class FitmentModuleService implements IFitmentModuleService {
     config?: Record<string, any>,
     @MedusaContext() ctx?: Context<EntityManager>,
   ): Promise<[Models.FitmentMake[], number]> {
-    return this.listAndCountFitmentMakes_(filters, config, ctx);
+    return this.makes.listAndCount(filters, config, ctx);
   }
-
-  @InjectTransactionManager()
-  private async listAndCountFitmentMakes_(
-    filters?: Record<string, any>,
-    _config?: Record<string, any>,
-    @MedusaContext() ctx?: Context<EntityManager>,
-  ): Promise<[Models.FitmentMake[], number]> {
-    return this.fitmentMakeRepository_.findAndCount(
-      { where: filters ?? {} },
-      ctx,
-    );
-  }
-
-  @InjectManager()
-  async retrieveFitmentMake(
-    id: string,
-    config?: Record<string, any>,
-    @MedusaContext() ctx?: Context<EntityManager>,
-  ): Promise<Models.FitmentMake> {
-    return this.retrieveFitmentMake_(id, config, ctx);
-  }
-
-  @InjectTransactionManager()
-  private async retrieveFitmentMake_(
-    id: string,
-    _config?: Record<string, any>,
-    @MedusaContext() ctx?: Context<EntityManager>,
-  ): Promise<Models.FitmentMake> {
-    const [make] = await this.fitmentMakeRepository_.find(
-      { where: { id } },
-      ctx,
-    );
-    if (!make) throw new Error(`FitmentMake with id ${id} not found`);
-    return make;
-  }
-
-  @InjectManager()
-  async createFitmentMakes(
-    data: any | any[],
-    @MedusaContext() ctx?: Context<EntityManager>,
-  ): Promise<Models.FitmentMake | Models.FitmentMake[]> {
-    return this.createFitmentMakes_(data, ctx);
-  }
-
-  @InjectTransactionManager()
-  private async createFitmentMakes_(
-    data: any | any[],
-    @MedusaContext() ctx?: Context<EntityManager>,
-  ): Promise<Models.FitmentMake | Models.FitmentMake[]> {
-    const arr = Array.isArray(data) ? data : [data];
-    const result = await this.fitmentMakeRepository_.create(arr, ctx);
-    return Array.isArray(data) ? result : result[0];
-  }
-
-  @InjectManager()
-  async updateFitmentMakes(
-    data: any[],
-    @MedusaContext() ctx?: Context<EntityManager>,
-  ): Promise<Models.FitmentMake[]> {
-    return this.updateFitmentMakes_(data, ctx);
-  }
-
-  @InjectTransactionManager()
-  private async updateFitmentMakes_(
-    data: any[],
-    @MedusaContext() ctx?: Context<EntityManager>,
-  ): Promise<Models.FitmentMake[]> {
-    const ids = data.map((d) => d.id);
-    const entities = await this.fitmentMakeRepository_.find(
-      { where: { id: { $in: ids } } },
-      ctx,
-    );
-    const updateMap = new Map(data.map((d) => [d.id, d]));
-    const pairs = entities.map((entity) => ({
-      entity,
-      update: updateMap.get(entity.id),
-    }));
-    return this.fitmentMakeRepository_.update(pairs, ctx);
-  }
-
-  @InjectManager()
-  async deleteFitmentMakes(
-    ids: string[],
-    @MedusaContext() ctx?: Context<EntityManager>,
-  ): Promise<void> {
-    return this.deleteFitmentMakes_(ids, ctx);
-  }
-
-  @InjectTransactionManager()
-  private async deleteFitmentMakes_(
-    ids: string[],
-    @MedusaContext() ctx?: Context<EntityManager>,
-  ): Promise<void> {
-    await this.fitmentMakeRepository_.delete({ id: { $in: ids } }, ctx);
-  }
-
-  // ============================================================================
-  // FitmentModel CRUD
-  // ============================================================================
 
   @InjectManager()
   async listFitmentModels(
@@ -168,16 +134,7 @@ class FitmentModuleService implements IFitmentModuleService {
     config?: Record<string, any>,
     @MedusaContext() ctx?: Context<EntityManager>,
   ): Promise<Models.FitmentModel[]> {
-    return this.listFitmentModels_(filters, config, ctx);
-  }
-
-  @InjectTransactionManager()
-  private async listFitmentModels_(
-    filters?: Record<string, any>,
-    _config?: Record<string, any>,
-    @MedusaContext() ctx?: Context<EntityManager>,
-  ): Promise<Models.FitmentModel[]> {
-    return this.fitmentModelRepository_.find({ where: filters ?? {} }, ctx);
+    return this.models.list(filters, config, ctx);
   }
 
   @InjectManager()
@@ -186,43 +143,135 @@ class FitmentModuleService implements IFitmentModuleService {
     config?: Record<string, any>,
     @MedusaContext() ctx?: Context<EntityManager>,
   ): Promise<[Models.FitmentModel[], number]> {
-    return this.listAndCountFitmentModels_(filters, config, ctx);
-  }
-
-  @InjectTransactionManager()
-  private async listAndCountFitmentModels_(
-    filters?: Record<string, any>,
-    _config?: Record<string, any>,
-    @MedusaContext() ctx?: Context<EntityManager>,
-  ): Promise<[Models.FitmentModel[], number]> {
-    return this.fitmentModelRepository_.findAndCount(
-      { where: filters ?? {} },
-      ctx,
-    );
+    return this.models.listAndCount(filters, config, ctx);
   }
 
   @InjectManager()
-  async retrieveFitmentModel(
-    id: string,
+  async listFitmentEngines(
+    filters?: Record<string, any>,
     config?: Record<string, any>,
     @MedusaContext() ctx?: Context<EntityManager>,
-  ): Promise<Models.FitmentModel> {
-    return this.retrieveFitmentModel_(id, config, ctx);
+  ): Promise<Models.FitmentEngine[]> {
+    return this.engines.list(filters, config, ctx);
+  }
+
+  @InjectManager()
+  async listAndCountFitmentEngines(
+    filters?: Record<string, any>,
+    config?: Record<string, any>,
+    @MedusaContext() ctx?: Context<EntityManager>,
+  ): Promise<[Models.FitmentEngine[], number]> {
+    return this.engines.listAndCount(filters, config, ctx);
+  }
+
+  @InjectManager()
+  async listFitments(
+    filters?: Record<string, any>,
+    config?: Record<string, any>,
+    @MedusaContext() ctx?: Context<EntityManager>,
+  ): Promise<Models.Fitment[]> {
+    return this.fitments.list(filters, config, ctx);
+  }
+
+  @InjectManager()
+  async listAndCountFitments(
+    filters?: Record<string, any>,
+    config?: Record<string, any>,
+    @MedusaContext() ctx?: Context<EntityManager>,
+  ): Promise<[Models.Fitment[], number]> {
+    return this.fitments.listAndCount(filters, config, ctx);
+  }
+
+  // ============================================================================
+  // @InjectManager()-decorated CRUD delegates — one set per entity group.
+  //
+  // Each public delegate uses the classic @InjectManager → @InjectTransactionManager
+  // pattern so that write operations are properly committed.
+  // ============================================================================
+
+  // ── Makes ──────────────────────────────────────────────────────────────────
+
+  @InjectManager()
+  async createMakes(
+    data: any[],
+    @MedusaContext() ctx?: Context<EntityManager>,
+  ): Promise<Models.FitmentMake[]> {
+    return this.createMakes_(data, ctx);
   }
 
   @InjectTransactionManager()
-  private async retrieveFitmentModel_(
+  private async createMakes_(
+    data: any[],
+    @MedusaContext() ctx?: Context<EntityManager>,
+  ): Promise<Models.FitmentMake[]> {
+    return this.fitmentMakeRepository_.create(data, ctx);
+  }
+
+  @InjectManager()
+  async updateMakes(
+    data: (Record<string, any> & { id: string })[],
+    @MedusaContext() ctx?: Context<EntityManager>,
+  ): Promise<Models.FitmentMake[]> {
+    return this.updateMakes_(data, ctx);
+  }
+
+  @InjectTransactionManager()
+  private async updateMakes_(
+    data: (Record<string, any> & { id: string })[],
+    @MedusaContext() ctx?: Context<EntityManager>,
+  ): Promise<Models.FitmentMake[]> {
+    const ids = data.map((d) => d.id);
+    const entities = await this.fitmentMakeRepository_.find(
+      { where: { id: { $in: ids } } } as any,
+      ctx,
+    );
+    const entityMap = new Map(entities.map((e) => [e.id, e]));
+    const pairs = data
+      .filter((d) => entityMap.has(d.id))
+      .map(({ id, ...update }) => ({ entity: entityMap.get(id)!, update }));
+    return this.fitmentMakeRepository_.update(pairs as any, ctx);
+  }
+
+  @InjectManager()
+  async deleteMakes(
+    ids: string | string[],
+    @MedusaContext() ctx?: Context<EntityManager>,
+  ): Promise<void> {
+    return this.deleteMakes_(ids, ctx);
+  }
+
+  @InjectTransactionManager()
+  private async deleteMakes_(
+    ids: string | string[],
+    @MedusaContext() ctx?: Context<EntityManager>,
+  ): Promise<void> {
+    const arr = Array.isArray(ids) ? ids : [ids];
+    await this.fitmentMakeRepository_.delete({ id: { $in: arr } } as any, ctx);
+  }
+
+  @InjectManager()
+  async retrieveMake(
     id: string,
     _config?: Record<string, any>,
     @MedusaContext() ctx?: Context<EntityManager>,
-  ): Promise<Models.FitmentModel> {
-    const [model] = await this.fitmentModelRepository_.find(
-      { where: { id } },
+  ): Promise<Models.FitmentMake> {
+    return this.retrieveMake_(id, ctx);
+  }
+
+  @InjectTransactionManager()
+  private async retrieveMake_(
+    id: string,
+    @MedusaContext() ctx?: Context<EntityManager>,
+  ): Promise<Models.FitmentMake> {
+    const [entity] = await this.fitmentMakeRepository_.find(
+      { where: { id } } as any,
       ctx,
     );
-    if (!model) throw new Error(`FitmentModel with id ${id} not found`);
-    return model;
+    if (!entity) throw new Error(`FitmentMake with id ${id} not found`);
+    return entity;
   }
+
+  // ── FitmentModels ──────────────────────────────────────────────────────────
 
   @InjectManager()
   async createFitmentModels(
@@ -242,7 +291,7 @@ class FitmentModuleService implements IFitmentModuleService {
 
   @InjectManager()
   async updateFitmentModels(
-    data: any[],
+    data: (Record<string, any> & { id: string })[],
     @MedusaContext() ctx?: Context<EntityManager>,
   ): Promise<Models.FitmentModel[]> {
     return this.updateFitmentModels_(data, ctx);
@@ -250,25 +299,24 @@ class FitmentModuleService implements IFitmentModuleService {
 
   @InjectTransactionManager()
   private async updateFitmentModels_(
-    data: any[],
+    data: (Record<string, any> & { id: string })[],
     @MedusaContext() ctx?: Context<EntityManager>,
   ): Promise<Models.FitmentModel[]> {
     const ids = data.map((d) => d.id);
     const entities = await this.fitmentModelRepository_.find(
-      { where: { id: { $in: ids } } },
+      { where: { id: { $in: ids } } } as any,
       ctx,
     );
-    const updateMap = new Map(data.map((d) => [d.id, d]));
-    const pairs = entities.map((entity) => ({
-      entity,
-      update: updateMap.get(entity.id),
-    }));
-    return this.fitmentModelRepository_.update(pairs, ctx);
+    const entityMap = new Map(entities.map((e) => [e.id, e]));
+    const pairs = data
+      .filter((d) => entityMap.has(d.id))
+      .map(({ id, ...update }) => ({ entity: entityMap.get(id)!, update }));
+    return this.fitmentModelRepository_.update(pairs as any, ctx);
   }
 
   @InjectManager()
   async deleteFitmentModels(
-    ids: string[],
+    ids: string | string[],
     @MedusaContext() ctx?: Context<EntityManager>,
   ): Promise<void> {
     return this.deleteFitmentModels_(ids, ctx);
@@ -276,88 +324,25 @@ class FitmentModuleService implements IFitmentModuleService {
 
   @InjectTransactionManager()
   private async deleteFitmentModels_(
-    ids: string[],
+    ids: string | string[],
     @MedusaContext() ctx?: Context<EntityManager>,
   ): Promise<void> {
-    await this.fitmentModelRepository_.delete({ id: { $in: ids } }, ctx);
+    const arr = Array.isArray(ids) ? ids : [ids];
+    await this.fitmentModelRepository_.delete({ id: { $in: arr } } as any, ctx);
   }
 
-  // ============================================================================
-  // FitmentEngine CRUD
-  // ============================================================================
+  // ── Engines ────────────────────────────────────────────────────────────────
 
   @InjectManager()
-  async listFitmentEngines(
-    filters?: Record<string, any>,
-    config?: Record<string, any>,
-    @MedusaContext() ctx?: Context<EntityManager>,
-  ): Promise<Models.FitmentEngine[]> {
-    return this.listFitmentEngines_(filters, config, ctx);
-  }
-
-  @InjectTransactionManager()
-  private async listFitmentEngines_(
-    filters?: Record<string, any>,
-    _config?: Record<string, any>,
-    @MedusaContext() ctx?: Context<EntityManager>,
-  ): Promise<Models.FitmentEngine[]> {
-    return this.fitmentEngineRepository_.find({ where: filters ?? {} }, ctx);
-  }
-
-  @InjectManager()
-  async listAndCountFitmentEngines(
-    filters?: Record<string, any>,
-    config?: Record<string, any>,
-    @MedusaContext() ctx?: Context<EntityManager>,
-  ): Promise<[Models.FitmentEngine[], number]> {
-    return this.listAndCountFitmentEngines_(filters, config, ctx);
-  }
-
-  @InjectTransactionManager()
-  private async listAndCountFitmentEngines_(
-    filters?: Record<string, any>,
-    _config?: Record<string, any>,
-    @MedusaContext() ctx?: Context<EntityManager>,
-  ): Promise<[Models.FitmentEngine[], number]> {
-    return this.fitmentEngineRepository_.findAndCount(
-      { where: filters ?? {} },
-      ctx,
-    );
-  }
-
-  @InjectManager()
-  async retrieveFitmentEngine(
-    id: string,
-    config?: Record<string, any>,
-    @MedusaContext() ctx?: Context<EntityManager>,
-  ): Promise<Models.FitmentEngine> {
-    return this.retrieveFitmentEngine_(id, config, ctx);
-  }
-
-  @InjectTransactionManager()
-  private async retrieveFitmentEngine_(
-    id: string,
-    _config?: Record<string, any>,
-    @MedusaContext() ctx?: Context<EntityManager>,
-  ): Promise<Models.FitmentEngine> {
-    const [engine] = await this.fitmentEngineRepository_.find(
-      { where: { id } },
-      ctx,
-    );
-    if (!engine) throw new Error(`FitmentEngine with id ${id} not found`);
-    return engine;
-  }
-
-  @InjectManager()
-  async createFitmentEngines(
+  async createEngines(
     data: any[],
     @MedusaContext() ctx?: Context<EntityManager>,
   ): Promise<Models.FitmentEngine[]> {
-    return this.createFitmentEngines_(data, ctx);
+    return this.createEngines_(data, ctx);
   }
 
   @InjectTransactionManager()
-  private async createFitmentEngines_(
+  private async createEngines_(
     data: any[],
     @MedusaContext() ctx?: Context<EntityManager>,
   ): Promise<Models.FitmentEngine[]> {
@@ -365,49 +350,150 @@ class FitmentModuleService implements IFitmentModuleService {
   }
 
   @InjectManager()
-  async updateFitmentEngines(
-    data: any[],
+  async updateEngines(
+    data: (Record<string, any> & { id: string })[],
     @MedusaContext() ctx?: Context<EntityManager>,
   ): Promise<Models.FitmentEngine[]> {
-    return this.updateFitmentEngines_(data, ctx);
+    return this.updateEngines_(data, ctx);
   }
 
   @InjectTransactionManager()
-  private async updateFitmentEngines_(
-    data: any[],
+  private async updateEngines_(
+    data: (Record<string, any> & { id: string })[],
     @MedusaContext() ctx?: Context<EntityManager>,
   ): Promise<Models.FitmentEngine[]> {
     const ids = data.map((d) => d.id);
     const entities = await this.fitmentEngineRepository_.find(
-      { where: { id: { $in: ids } } },
+      { where: { id: { $in: ids } } } as any,
       ctx,
     );
-    const updateMap = new Map(data.map((d) => [d.id, d]));
-    const pairs = entities.map((entity) => ({
-      entity,
-      update: updateMap.get(entity.id),
-    }));
-    return this.fitmentEngineRepository_.update(pairs, ctx);
+    const entityMap = new Map(entities.map((e) => [e.id, e]));
+    const pairs = data
+      .filter((d) => entityMap.has(d.id))
+      .map(({ id, ...update }) => ({ entity: entityMap.get(id)!, update }));
+    return this.fitmentEngineRepository_.update(pairs as any, ctx);
   }
 
   @InjectManager()
-  async deleteFitmentEngines(
-    ids: string[],
+  async deleteEngines(
+    ids: string | string[],
     @MedusaContext() ctx?: Context<EntityManager>,
   ): Promise<void> {
-    return this.deleteFitmentEngines_(ids, ctx);
+    return this.deleteEngines_(ids, ctx);
   }
 
   @InjectTransactionManager()
-  private async deleteFitmentEngines_(
+  private async deleteEngines_(
+    ids: string | string[],
+    @MedusaContext() ctx?: Context<EntityManager>,
+  ): Promise<void> {
+    const arr = Array.isArray(ids) ? ids : [ids];
+    await this.fitmentEngineRepository_.delete(
+      { id: { $in: arr } } as any,
+      ctx,
+    );
+  }
+
+  // ── Fitments ───────────────────────────────────────────────────────────────
+
+  @InjectManager()
+  async createFitments(
+    data: any[],
+    @MedusaContext() ctx?: Context<EntityManager>,
+  ): Promise<Models.Fitment[]> {
+    return this.createFitments_(data, ctx);
+  }
+
+  @InjectTransactionManager()
+  private async createFitments_(
+    data: any[],
+    @MedusaContext() ctx?: Context<EntityManager>,
+  ): Promise<Models.Fitment[]> {
+    return this.fitmentRepository_.create(data, ctx);
+  }
+
+  @InjectManager()
+  async updateFitmentsData(
+    data: (Record<string, any> & { id: string })[],
+    @MedusaContext() ctx?: Context<EntityManager>,
+  ): Promise<Models.Fitment[]> {
+    return this.updateFitmentsData_(data, ctx);
+  }
+
+  @InjectTransactionManager()
+  private async updateFitmentsData_(
+    data: (Record<string, any> & { id: string })[],
+    @MedusaContext() ctx?: Context<EntityManager>,
+  ): Promise<Models.Fitment[]> {
+    const ids = data.map((d) => d.id);
+    const entities = await this.fitmentRepository_.find(
+      { where: { id: { $in: ids } } } as any,
+      ctx,
+    );
+    const entityMap = new Map(entities.map((e) => [e.id, e]));
+    const pairs = data
+      .filter((d) => entityMap.has(d.id))
+      .map(({ id, ...update }) => ({ entity: entityMap.get(id)!, update }));
+    return this.fitmentRepository_.update(pairs as any, ctx);
+  }
+
+  @InjectManager()
+  async deleteFitmentsData(
+    ids: string | string[],
+    @MedusaContext() ctx?: Context<EntityManager>,
+  ): Promise<void> {
+    return this.deleteFitmentsData_(ids, ctx);
+  }
+
+  @InjectTransactionManager()
+  private async deleteFitmentsData_(
+    ids: string | string[],
+    @MedusaContext() ctx?: Context<EntityManager>,
+  ): Promise<void> {
+    const arr = Array.isArray(ids) ? ids : [ids];
+    await this.fitmentRepository_.delete({ id: { $in: arr } } as any, ctx);
+  }
+
+  @InjectManager()
+  async retrieveFitmentById(
+    id: string,
+    _config?: Record<string, any>,
+    @MedusaContext() ctx?: Context<EntityManager>,
+  ): Promise<Models.Fitment> {
+    return this.retrieveFitmentById_(id, ctx);
+  }
+
+  @InjectTransactionManager()
+  private async retrieveFitmentById_(
+    id: string,
+    @MedusaContext() ctx?: Context<EntityManager>,
+  ): Promise<Models.Fitment> {
+    const [entity] = await this.fitmentRepository_.find(
+      { where: { id } } as any,
+      ctx,
+    );
+    if (!entity) throw new Error(`Fitment with id ${id} not found`);
+    return entity;
+  }
+
+  @InjectManager()
+  async restoreFitments(
     ids: string[],
     @MedusaContext() ctx?: Context<EntityManager>,
   ): Promise<void> {
-    await this.fitmentEngineRepository_.delete({ id: { $in: ids } }, ctx);
+    return this.restoreFitments_(ids, ctx);
+  }
+
+  @InjectTransactionManager()
+  private async restoreFitments_(
+    ids: string[],
+    @MedusaContext() ctx?: Context<EntityManager>,
+  ): Promise<void> {
+    await this.fitmentRepository_.restore({ id: { $in: ids } } as any, ctx);
   }
 
   // ============================================================================
-  // Fitment CRUD
+  // listFitmentsWithRelations — cross-repo join, stays as a direct method
   // ============================================================================
 
   @InjectManager()
@@ -478,167 +564,6 @@ class FitmentModuleService implements IFitmentModuleService {
         engine: engine ?? null,
       };
     });
-  }
-
-  @InjectManager()
-  async listFitments(
-    filters?: Record<string, any>,
-    config?: Record<string, any>,
-    @MedusaContext() ctx?: Context<EntityManager>,
-  ): Promise<Models.Fitment[]> {
-    return this.listFitments_(filters, config, ctx);
-  }
-
-  @InjectTransactionManager()
-  private async listFitments_(
-    filters?: Record<string, any>,
-    _config?: Record<string, any>,
-    @MedusaContext() ctx?: Context<EntityManager>,
-  ): Promise<Models.Fitment[]> {
-    return this.fitmentRepository_.find({ where: filters ?? {} }, ctx);
-  }
-
-  @InjectManager()
-  async listAndCountFitments(
-    filters?: Record<string, any>,
-    config?: Record<string, any>,
-    @MedusaContext() ctx?: Context<EntityManager>,
-  ): Promise<[Models.Fitment[], number]> {
-    return this.listAndCountFitments_(filters, config, ctx);
-  }
-
-  @InjectTransactionManager()
-  private async listAndCountFitments_(
-    filters?: Record<string, any>,
-    _config?: Record<string, any>,
-    @MedusaContext() ctx?: Context<EntityManager>,
-  ): Promise<[Models.Fitment[], number]> {
-    return this.fitmentRepository_.findAndCount({ where: filters ?? {} }, ctx);
-  }
-
-  @InjectManager()
-  async retrieveFitment(
-    id: string,
-    config?: Record<string, any>,
-    @MedusaContext() ctx?: Context<EntityManager>,
-  ): Promise<Models.Fitment> {
-    return this.retrieveFitment_(id, config, ctx);
-  }
-
-  @InjectTransactionManager()
-  private async retrieveFitment_(
-    id: string,
-    _config?: Record<string, any>,
-    @MedusaContext() ctx?: Context<EntityManager>,
-  ): Promise<Models.Fitment> {
-    const [fitment] = await this.fitmentRepository_.find(
-      { where: { id } },
-      ctx,
-    );
-    if (!fitment) throw new Error(`Fitment with id ${id} not found`);
-    return fitment;
-  }
-
-  // IFitmentCrudService compat aliases
-  @InjectManager()
-  async createFitment(
-    data: any,
-    @MedusaContext() ctx?: Context<EntityManager>,
-  ): Promise<Models.Fitment> {
-    const [result] = await this.createFitments_([data], ctx);
-    return result;
-  }
-
-  @InjectManager()
-  async createFitments(
-    data: any[],
-    @MedusaContext() ctx?: Context<EntityManager>,
-  ): Promise<Models.Fitment[]> {
-    return this.createFitments_(data, ctx);
-  }
-
-  @InjectTransactionManager()
-  private async createFitments_(
-    data: any[],
-    @MedusaContext() ctx?: Context<EntityManager>,
-  ): Promise<Models.Fitment[]> {
-    return this.fitmentRepository_.create(data, ctx);
-  }
-
-  @InjectManager()
-  async updateFitment(
-    data: UpdateFitmentInput,
-    @MedusaContext() ctx?: Context<EntityManager>,
-  ): Promise<Models.Fitment> {
-    const [result] = await this.updateFitments_([data], ctx);
-    return result;
-  }
-
-  @InjectManager()
-  async updateFitments(
-    data: UpdateFitmentInput[],
-    @MedusaContext() ctx?: Context<EntityManager>,
-  ): Promise<Models.Fitment[]> {
-    return this.updateFitments_(data, ctx);
-  }
-
-  @InjectTransactionManager()
-  private async updateFitments_(
-    data: any[],
-    @MedusaContext() ctx?: Context<EntityManager>,
-  ): Promise<Models.Fitment[]> {
-    const ids = data.map((d) => d.id);
-    const entities = await this.fitmentRepository_.find(
-      { where: { id: { $in: ids } } },
-      ctx,
-    );
-    const updateMap = new Map(data.map((d) => [d.id, d]));
-    const pairs = entities.map((entity) => ({
-      entity,
-      update: updateMap.get(entity.id),
-    }));
-    return this.fitmentRepository_.update(pairs, ctx);
-  }
-
-  @InjectManager()
-  async deleteFitment(
-    id: string,
-    @MedusaContext() ctx?: Context<EntityManager>,
-  ): Promise<void> {
-    return this.deleteFitments_([id], ctx);
-  }
-
-  @InjectManager()
-  async deleteFitments(
-    ids: string | string[],
-    @MedusaContext() ctx?: Context<EntityManager>,
-  ): Promise<void> {
-    const arr = Array.isArray(ids) ? ids : [ids];
-    return this.deleteFitments_(arr, ctx);
-  }
-
-  @InjectTransactionManager()
-  private async deleteFitments_(
-    ids: string[],
-    @MedusaContext() ctx?: Context<EntityManager>,
-  ): Promise<void> {
-    await this.fitmentRepository_.delete({ id: { $in: ids } }, ctx);
-  }
-
-  @InjectManager()
-  async restoreFitments(
-    ids: string[],
-    @MedusaContext() ctx?: Context<EntityManager>,
-  ): Promise<void> {
-    return this.restoreFitments_(ids, ctx);
-  }
-
-  @InjectTransactionManager()
-  private async restoreFitments_(
-    ids: string[],
-    @MedusaContext() ctx?: Context<EntityManager>,
-  ): Promise<void> {
-    await this.fitmentRepository_.restore({ id: { $in: ids } }, ctx);
   }
 }
 

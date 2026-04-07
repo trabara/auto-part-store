@@ -7,138 +7,44 @@ import type {
   CreateRoleInput,
   Role,
 } from "../dtos";
+import type { IBaseModuleService } from "./base-module-service";
+
+// Sub-service interfaces for the namespace accessor pattern
+
+export interface IAuthzRoleSubService extends IBaseModuleService<any> {}
+
+export interface IAuthzPermissionSubService extends IBaseModuleService<any> {}
+
+export interface IAuthzPolicySubService extends Pick<
+  IBaseModuleService<any>,
+  "list" | "listAndCount" | "create" | "delete"
+> {}
+
+export interface IAuthzMemberSubService extends Omit<
+  IBaseModuleService<any>,
+  "delete"
+> {
+  delete(
+    ids: string | string[] | Record<string, any>,
+    sharedContext?: Context<EntityManager>,
+  ): Promise<void>;
+}
+
+export interface IAuthzCategorySubService extends IBaseModuleService<any> {}
 
 export interface IAuthzModuleService {
+  readonly roles: IAuthzRoleSubService;
+  readonly permissions: IAuthzPermissionSubService;
+  readonly policies: IAuthzPolicySubService;
+  readonly members: IAuthzMemberSubService;
+  readonly categories: IAuthzCategorySubService;
+
   userHasAccess(
     userId: string,
     resource: string,
     method: string,
   ): Promise<boolean>;
 
-  // AuthzRole CRUD
-  listAuthzRoles(
-    filters?: Record<string, any>,
-    config?: Record<string, any>,
-    sharedContext?: Context<EntityManager>,
-  ): Promise<any[]>;
-
-  retrieveAuthzRole(
-    id: string,
-    config?: Record<string, any>,
-    sharedContext?: Context<EntityManager>,
-  ): Promise<any>;
-
-  createAuthzRoles(
-    data: Record<string, any> | Record<string, any>[],
-    sharedContext?: Context<EntityManager>,
-  ): Promise<any>;
-
-  updateAuthzRoles(
-    data: (Record<string, any> & { id: string })[],
-    sharedContext?: Context<EntityManager>,
-  ): Promise<any[]>;
-
-  deleteAuthzRoles(
-    ids: string | string[] | { id: string | string[] },
-    sharedContext?: Context<EntityManager>,
-  ): Promise<void>;
-
-  // AuthzPermission CRUD
-  listAuthzPermissions(
-    filters?: Record<string, any>,
-    config?: Record<string, any>,
-    sharedContext?: Context<EntityManager>,
-  ): Promise<any[]>;
-
-  retrieveAuthzPermission(
-    id: string,
-    config?: Record<string, any>,
-    sharedContext?: Context<EntityManager>,
-  ): Promise<any>;
-
-  createAuthzPermissions(
-    data: Record<string, any>[],
-    sharedContext?: Context<EntityManager>,
-  ): Promise<any[]>;
-
-  updateAuthzPermissions(
-    data: (Record<string, any> & { id: string })[],
-    sharedContext?: Context<EntityManager>,
-  ): Promise<any[]>;
-
-  deleteAuthzPermissions(
-    ids: string | string[] | { id: string | string[] },
-    sharedContext?: Context<EntityManager>,
-  ): Promise<void>;
-
-  // AuthzPolicy CRUD
-  listAuthzPolicies(
-    filters?: Record<string, any>,
-    config?: Record<string, any>,
-    sharedContext?: Context<EntityManager>,
-  ): Promise<any[]>;
-
-  createAuthzPolicies(
-    data: Record<string, any>[],
-    sharedContext?: Context<EntityManager>,
-  ): Promise<any[]>;
-
-  deleteAuthzPolicies(
-    ids: string | string[] | { id: string | string[] },
-    sharedContext?: Context<EntityManager>,
-  ): Promise<void>;
-
-  // AuthzMember CRUD
-  listAuthzMembers(
-    filters?: Record<string, any>,
-    config?: Record<string, any>,
-    sharedContext?: Context<EntityManager>,
-  ): Promise<any[]>;
-
-  createAuthzMembers(
-    data: Record<string, any>[],
-    sharedContext?: Context<EntityManager>,
-  ): Promise<any[]>;
-
-  updateAuthzMembers(
-    data: (Record<string, any> & { id: string })[],
-    sharedContext?: Context<EntityManager>,
-  ): Promise<any[]>;
-
-  deleteAuthzMembers(
-    ids: string | string[] | { id: string | string[] } | Record<string, any>,
-    sharedContext?: Context<EntityManager>,
-  ): Promise<void>;
-
-  // AuthzCategory CRUD
-  listAuthzCategories(
-    filters?: Record<string, any>,
-    config?: Record<string, any>,
-    sharedContext?: Context<EntityManager>,
-  ): Promise<any[]>;
-
-  retrieveAuthzCategory(
-    id: string,
-    config?: Record<string, any>,
-    sharedContext?: Context<EntityManager>,
-  ): Promise<any>;
-
-  createAuthzCategories(
-    data: Record<string, any> | Record<string, any>[],
-    sharedContext?: Context<EntityManager>,
-  ): Promise<any>;
-
-  updateAuthzCategories(
-    data: (Record<string, any> & { id: string })[],
-    sharedContext?: Context<EntityManager>,
-  ): Promise<any[]>;
-
-  deleteAuthzCategories(
-    ids: string | string[] | { id: string | string[] },
-    sharedContext?: Context<EntityManager>,
-  ): Promise<void>;
-
-  // Custom methods
   createPermissionCategory(
     dto: CreateCategoryInput,
     sharedContext?: Context<EntityManager>,

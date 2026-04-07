@@ -12,7 +12,7 @@ export class CategoryController extends BaseController {
       const service = this.req.scope.resolve<AuthzModuleService>(AUTHZ_MODULE);
       const { id } = this.req.params;
 
-      const category = await service.retrieveAuthzCategory(id, {
+      const category = await service.categories.retrieve(id, {
         relations: ["permissions"],
       });
 
@@ -59,9 +59,7 @@ export class CategoryController extends BaseController {
         updateData.description = validated.description;
       }
 
-      const [category] = await service.updateAuthzCategories([
-        updateData as any,
-      ]);
+      const [category] = await service.categories.update([updateData as any]);
 
       this.success({ category });
     }, "Update category");
@@ -72,7 +70,7 @@ export class CategoryController extends BaseController {
       const service = this.req.scope.resolve<AuthzModuleService>(AUTHZ_MODULE);
       const { id } = this.req.params;
 
-      await service.deleteAuthzCategories([id]);
+      await service.categories.delete([id]);
 
       this.noContent();
     }, "Delete category");

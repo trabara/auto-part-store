@@ -23,7 +23,7 @@ export async function createTestMedia(
     ENTITY_MEDIA_MODULE,
   ) as MediaModuleService;
 
-  const [created] = await mediaService.createMedias([
+  const [created] = await mediaService.create([
     {
       entity_id: entityId,
       type: overrides?.type ?? "image",
@@ -44,7 +44,7 @@ export async function createTestMediaBatch(
     ENTITY_MEDIA_MODULE,
   ) as MediaModuleService;
 
-  const created = await mediaService.createMedias(
+  const created = await mediaService.create(
     Array.from({ length: count }, (_, i) => ({
       entity_id: entityId,
       type: "image" as const,

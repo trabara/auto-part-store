@@ -3,6 +3,7 @@
   "version": "0.0.1",
   "private": true,
   "exports": {
+    "./shared": "./src/shared/index.ts",
     "./fitment": "./src/fitment/index.ts",
     "./fitment/constant": "./src/fitment/constant.ts",
     "./fitment/services": "./src/fitment/services/index.ts",

@@ -13,9 +13,7 @@ export const createFitmentsStep = createStep(
   "create-fitments-step",
   async function (input: CreateFitmentStepInput, { container }) {
     const fitmentModuleService = container.resolve(FITMENT_MODULE) as any;
-    const fitments = await fitmentModuleService.createFullFitments(
-      input.fitments,
-    );
+    const fitments = await fitmentModuleService.createFitments(input.fitments);
 
     if (input.product_id) {
       const link = await container.resolve<Link>(
@@ -40,6 +38,6 @@ export const createFitmentsStep = createStep(
       return;
     }
     const fitmentModuleService = container.resolve(FITMENT_MODULE) as any;
-    return fitmentModuleService.deleteFitments(input.fitment_ids);
+    return fitmentModuleService.deleteFitmentsData(input.fitment_ids);
   },
 );

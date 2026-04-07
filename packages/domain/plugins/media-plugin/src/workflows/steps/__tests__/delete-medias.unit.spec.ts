@@ -14,9 +14,9 @@ import { ENTITY_MEDIA_MODULE } from "@repo/domain-modules/media";
 
 function makeService() {
   return {
-    listMedias: jest.fn(),
-    deleteMedias: jest.fn(),
-    createMedias: jest.fn(),
+    list: jest.fn(),
+    delete: jest.fn(),
+    create: jest.fn(),
   };
 }
 
@@ -46,16 +46,16 @@ describe("invokeDeleteMedias", () => {
 
   it("fetches records, deletes them, and returns success with deleted IDs", async () => {
     const service = makeService();
-    service.listMedias.mockResolvedValue([savedMedia]);
-    service.deleteMedias.mockResolvedValue(undefined);
+    service.list.mockResolvedValue([savedMedia]);
+    service.delete.mockResolvedValue(undefined);
 
     const result = await invokeDeleteMedias(
       { ids: ["media_1"] },
       buildContainer(service),
     );
 
-    expect(service.listMedias).toHaveBeenCalledWith({ id: ["media_1"] });
-    expect(service.deleteMedias).toHaveBeenCalledWith(["media_1"]);
+    expect(service.list).toHaveBeenCalledWith({ id: ["media_1"] });
+    expect(service.delete).toHaveBeenCalledWith(["media_1"]);
     expect(result.output).toEqual({ success: true, deleted: ["media_1"] });
     expect(result.compensation).toEqual([savedMedia]);
   });
@@ -66,8 +66,8 @@ describe("invokeDeleteMedias", () => {
       savedMedia,
       { ...savedMedia, id: "media_2", file_id: "file_2" },
     ];
-    service.listMedias.mockResolvedValue(medias);
-    service.deleteMedias.mockResolvedValue(undefined);
+    service.list.mockResolvedValue(medias);
+    service.delete.mockResolvedValue(undefined);
 
     const result = await invokeDeleteMedias(
       { ids: ["media_1", "media_2"] },
@@ -87,11 +87,11 @@ describe("compensateDeleteMedias", () => {
 
   it("re-creates all deleted records with their original data", async () => {
     const service = makeService();
-    service.createMedias.mockResolvedValue([savedMedia]);
+    service.create.mockResolvedValue([savedMedia]);
 
     await compensateDeleteMedias([savedMedia], buildContainer(service));
 
-    expect(service.createMedias).toHaveBeenCalledWith([
+    expect(service.create).toHaveBeenCalledWith([
       {
         id: savedMedia.id,
         entity_id: savedMedia.entity_id,
@@ -107,7 +107,7 @@ describe("compensateDeleteMedias", () => {
 
     await compensateDeleteMedias(undefined, buildContainer(service));
 
-    expect(service.createMedias).not.toHaveBeenCalled();
+    expect(service.create).not.toHaveBeenCalled();
   });
 
   it("is a no-op when compensation data is an empty array", async () => {
@@ -115,6 +115,6 @@ describe("compensateDeleteMedias", () => {
 
     await compensateDeleteMedias([], buildContainer(service));
 
-    expect(service.createMedias).not.toHaveBeenCalled();
+    expect(service.create).not.toHaveBeenCalled();
   });
 });

@@ -14,10 +14,12 @@ import { AUTHZ_MODULE } from "@repo/domain-modules/authz";
 
 function makeService() {
   return {
-    listAuthzMembers: jest.fn(),
+    members: {
+      list: jest.fn(),
+      update: jest.fn(),
+      delete: jest.fn(),
+    },
     assignRbacUsers: jest.fn(),
-    updateAuthzMembers: jest.fn(),
-    deleteAuthzMembers: jest.fn(),
   };
 }
 
@@ -39,7 +41,7 @@ describe("invokeAssignRole", () => {
 
   it("snapshots null previousMember when user has no existing membership", async () => {
     const service = makeService();
-    service.listAuthzMembers.mockResolvedValue([]);
+    service.members.list.mockResolvedValue([]);
     service.assignRbacUsers.mockResolvedValue(undefined);
 
     const result = await invokeAssignRole(
@@ -47,9 +49,7 @@ describe("invokeAssignRole", () => {
       buildContainer(service),
     );
 
-    expect(service.listAuthzMembers).toHaveBeenCalledWith({
-      user_id: "user_1",
-    });
+    expect(service.members.list).toHaveBeenCalledWith({ user_id: "user_1" });
     expect(service.assignRbacUsers).toHaveBeenCalledWith("role_1", {
       userIds: ["user_1"],
     });
@@ -64,7 +64,7 @@ describe("invokeAssignRole", () => {
 
   it("snapshots the existing membership when the user already has a role", async () => {
     const service = makeService();
-    service.listAuthzMembers.mockResolvedValue([
+    service.members.list.mockResolvedValue([
       { id: "mem_1", role_id: "role_old" },
     ]);
     service.assignRbacUsers.mockResolvedValue(undefined);
@@ -87,7 +87,7 @@ describe("compensateAssignRole", () => {
 
   it("restores the original role when the user had a previous assignment", async () => {
     const service = makeService();
-    service.updateAuthzMembers.mockResolvedValue([]);
+    service.members.update.mockResolvedValue([]);
 
     await compensateAssignRole(
       {
@@ -98,42 +98,40 @@ describe("compensateAssignRole", () => {
       buildContainer(service),
     );
 
-    expect(service.updateAuthzMembers).toHaveBeenCalledWith([
+    expect(service.members.update).toHaveBeenCalledWith([
       { id: "mem_1", role_id: "role_old" },
     ]);
-    expect(service.deleteAuthzMembers).not.toHaveBeenCalled();
+    expect(service.members.delete).not.toHaveBeenCalled();
   });
 
   it("deletes the created member when the user had no prior role", async () => {
     const service = makeService();
-    service.listAuthzMembers.mockResolvedValue([{ id: "mem_created" }]);
-    service.deleteAuthzMembers.mockResolvedValue(undefined);
+    service.members.list.mockResolvedValue([{ id: "mem_created" }]);
+    service.members.delete.mockResolvedValue(undefined);
 
     await compensateAssignRole(
       { userId: "user_1", previousMemberId: null, previousRoleId: null },
       buildContainer(service),
     );
 
-    expect(service.listAuthzMembers).toHaveBeenCalledWith({
-      user_id: "user_1",
-    });
-    expect(service.deleteAuthzMembers).toHaveBeenCalledWith({
+    expect(service.members.list).toHaveBeenCalledWith({ user_id: "user_1" });
+    expect(service.members.delete).toHaveBeenCalledWith({
       id: "mem_created",
     });
-    expect(service.updateAuthzMembers).not.toHaveBeenCalled();
+    expect(service.members.update).not.toHaveBeenCalled();
   });
 
   it("does nothing when the created member is already gone", async () => {
     const service = makeService();
-    service.listAuthzMembers.mockResolvedValue([]);
+    service.members.list.mockResolvedValue([]);
 
     await compensateAssignRole(
       { userId: "user_1", previousMemberId: null, previousRoleId: null },
       buildContainer(service),
     );
 
-    expect(service.deleteAuthzMembers).not.toHaveBeenCalled();
-    expect(service.updateAuthzMembers).not.toHaveBeenCalled();
+    expect(service.members.delete).not.toHaveBeenCalled();
+    expect(service.members.update).not.toHaveBeenCalled();
   });
 
   it("is a no-op when compensation data is undefined", async () => {
@@ -141,8 +139,8 @@ describe("compensateAssignRole", () => {
 
     await compensateAssignRole(undefined, buildContainer(service));
 
-    expect(service.updateAuthzMembers).not.toHaveBeenCalled();
-    expect(service.deleteAuthzMembers).not.toHaveBeenCalled();
-    expect(service.listAuthzMembers).not.toHaveBeenCalled();
+    expect(service.members.update).not.toHaveBeenCalled();
+    expect(service.members.delete).not.toHaveBeenCalled();
+    expect(service.members.list).not.toHaveBeenCalled();
   });
 });

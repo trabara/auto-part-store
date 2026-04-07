@@ -8,7 +8,7 @@ export async function ensureAdminAccess(
   const service = container.resolve<AuthzModuleService>(AUTHZ_MODULE);
 
   // Reuse existing permissions if they exist
-  const existingPerms = await service.listAuthzPermissions({
+  const existingPerms = await service.permissions.list({
     target: "/admin/rbac",
   });
 
@@ -16,7 +16,7 @@ export async function ensureAdminAccess(
   if (existingPerms.length >= 3) {
     permissions = existingPerms;
   } else {
-    permissions = await service.createAuthzPermissions([
+    permissions = await service.createPermissions([
       { kind: "read", target: "/admin/rbac", type: "predefined" },
       { kind: "write", target: "/admin/rbac", type: "predefined" },
       { kind: "delete", target: "/admin/rbac", type: "predefined" },
@@ -32,16 +32,14 @@ export async function ensureAdminAccess(
   ]);
 
   // Update or create member
-  const [existingMember] = await service.listAuthzMembers({
+  const [existingMember] = await service.members.list({
     user_id: userId,
   });
 
   if (existingMember) {
-    await service.updateAuthzMembers([
-      { id: existingMember.id, role_id: role.id },
-    ]);
+    await service.updateMembers([{ id: existingMember.id, role_id: role.id }]);
   } else {
-    await service.createAuthzMembers([{ user_id: userId, role_id: role.id }]);
+    await service.createMembers([{ user_id: userId, role_id: role.id }]);
   }
 
   return { role, permissions };
@@ -53,7 +51,7 @@ export async function createTestPermission(
 ) {
   const service = container.resolve<AuthzModuleService>(AUTHZ_MODULE);
 
-  const [permission] = await service.createAuthzPermissions([
+  const [permission] = await service.createPermissions([
     {
       kind: (overrides?.kind as "read" | "write" | "delete") ?? "read",
       target: overrides?.target ?? "/admin/test-resource",

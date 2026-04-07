@@ -17,7 +17,7 @@ export async function invokeListMedias(
 ): Promise<any[]> {
   const mediaService: MediaModuleService =
     container.resolve(ENTITY_MEDIA_MODULE);
-  return mediaService.listMedias(input.filters);
+  return mediaService.list(input.filters);
 }
 
 // ---------------------------------------------------------------------------

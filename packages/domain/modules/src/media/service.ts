@@ -1,11 +1,12 @@
-import { EntityManager } from "@medusajs/framework/mikro-orm/knex";
 import { Context, DAL } from "@medusajs/framework/types";
 import {
   InjectManager,
   InjectTransactionManager,
   MedusaContext,
 } from "@medusajs/framework/utils";
+import { EntityManager } from "@medusajs/framework/mikro-orm/knex";
 import type { IMediaModuleService } from "@trabara/core/interfaces";
+import { BaseModuleService } from "../shared";
 import type { Media } from "./models/media";
 
 type InjectedDependencies = {
@@ -13,134 +14,147 @@ type InjectedDependencies = {
   baseRepository: DAL.RepositoryService<any>;
 };
 
-class MediaModuleService implements IMediaModuleService {
-  protected entityMediaRepository_: DAL.RepositoryService<Media>;
-  protected baseRepository_: DAL.RepositoryService<any>;
-
+class MediaModuleService
+  extends BaseModuleService<Media>
+  implements IMediaModuleService
+{
   constructor(dependencies: InjectedDependencies) {
-    this.entityMediaRepository_ = dependencies.entityMediaRepository;
-    this.baseRepository_ = dependencies.baseRepository;
+    super(
+      dependencies.entityMediaRepository,
+      dependencies.baseRepository,
+      "Media",
+    );
   }
 
+  // ============================================================================
+  // CRUD overrides with @InjectManager() so callers without a ctx work.
+  // The base class methods have no decorators — this service IS the top-level
+  // registered Medusa service, so it must own the manager injection.
+  // ============================================================================
+
   @InjectManager()
-  async listMedias(
+  override async list(
     filters?: Record<string, any>,
     config?: Record<string, any>,
     @MedusaContext() ctx?: Context<EntityManager>,
   ): Promise<Media[]> {
-    return this.listMedias_(filters, config, ctx);
+    return this.list_(filters, config, ctx);
   }
 
   @InjectTransactionManager()
-  private async listMedias_(
+  private async list_(
     filters?: Record<string, any>,
-    _config?: Record<string, any>,
+    config?: Record<string, any>,
     @MedusaContext() ctx?: Context<EntityManager>,
   ): Promise<Media[]> {
-    return this.entityMediaRepository_.find({ where: filters ?? {} }, ctx);
+    return super.list(filters, config, ctx);
   }
 
   @InjectManager()
-  async listAndCountMedias(
+  override async listAndCount(
     filters?: Record<string, any>,
     config?: Record<string, any>,
     @MedusaContext() ctx?: Context<EntityManager>,
   ): Promise<[Media[], number]> {
-    return this.listAndCountMedias_(filters, config, ctx);
+    return this.listAndCount_(filters, config, ctx);
   }
 
   @InjectTransactionManager()
-  private async listAndCountMedias_(
+  private async listAndCount_(
     filters?: Record<string, any>,
-    _config?: Record<string, any>,
+    config?: Record<string, any>,
     @MedusaContext() ctx?: Context<EntityManager>,
   ): Promise<[Media[], number]> {
-    return this.entityMediaRepository_.findAndCount(
-      { where: filters ?? {} },
-      ctx,
-    );
+    return super.listAndCount(filters, config, ctx);
   }
 
   @InjectManager()
-  async retrieveMedia(
+  override async retrieve(
     id: string,
     config?: Record<string, any>,
     @MedusaContext() ctx?: Context<EntityManager>,
   ): Promise<Media> {
-    return this.retrieveMedia_(id, config, ctx);
+    return this.retrieve_(id, config, ctx);
   }
 
   @InjectTransactionManager()
-  private async retrieveMedia_(
+  private async retrieve_(
     id: string,
-    _config?: Record<string, any>,
+    config?: Record<string, any>,
     @MedusaContext() ctx?: Context<EntityManager>,
   ): Promise<Media> {
-    const [media] = await this.entityMediaRepository_.find(
-      { where: { id } },
-      ctx,
-    );
-    if (!media) throw new Error(`Media with id ${id} not found`);
-    return media;
+    return super.retrieve(id, config, ctx);
   }
 
   @InjectManager()
-  async createMedias(
+  override async create(
     data: any[],
     @MedusaContext() ctx?: Context<EntityManager>,
   ): Promise<Media[]> {
-    return this.createMedias_(data, ctx);
+    return this.create_(data, ctx);
   }
 
   @InjectTransactionManager()
-  private async createMedias_(
+  private async create_(
     data: any[],
     @MedusaContext() ctx?: Context<EntityManager>,
   ): Promise<Media[]> {
-    return this.entityMediaRepository_.create(data, ctx);
+    return super.create(data, ctx);
   }
 
   @InjectManager()
-  async updateMedias(
-    data: any[],
+  override async update(
+    data: (Record<string, any> & { id: string })[],
     @MedusaContext() ctx?: Context<EntityManager>,
   ): Promise<Media[]> {
-    return this.updateMedias_(data, ctx);
+    return this.update_(data, ctx);
   }
 
   @InjectTransactionManager()
-  private async updateMedias_(
-    data: any[],
-    _config?: Record<string, any>,
+  private async update_(
+    data: (Record<string, any> & { id: string })[],
     @MedusaContext() ctx?: Context<EntityManager>,
   ): Promise<Media[]> {
-    const ids = data.map((d) => d.id);
-    const entities = await this.entityMediaRepository_.find(
-      { where: { id: { $in: ids } } },
-      ctx,
-    );
-    const entityMap = new Map(entities.map((e) => [e.id, e]));
-    const pairs = data
-      .filter((d) => entityMap.has(d.id))
-      .map((d) => ({ entity: entityMap.get(d.id)!, update: d }));
-    return this.entityMediaRepository_.update(pairs, ctx);
+    return super.update(data, ctx);
   }
 
   @InjectManager()
-  async deleteMedias(
+  override async delete(
     ids: string | string[],
     @MedusaContext() ctx?: Context<EntityManager>,
   ): Promise<void> {
-    return this.deleteMedias_(ids, ctx);
+    return this.delete_(ids, ctx);
   }
 
   @InjectTransactionManager()
-  private async deleteMedias_(
+  private async delete_(
     ids: string | string[],
     @MedusaContext() ctx?: Context<EntityManager>,
   ): Promise<void> {
-    const arr = Array.isArray(ids) ? ids : [ids];
-    await this.entityMediaRepository_.delete({ id: { $in: arr } }, ctx);
+    return super.delete(ids, ctx);
+  }
+
+  // ============================================================================
+  // Remote Query joiner delegate methods
+  // entity "entity_media" → listEntityMedias / listAndCountEntityMedias
+  // ============================================================================
+
+  @InjectManager()
+  async listEntityMedias(
+    filters?: Record<string, any>,
+    config?: Record<string, any>,
+    @MedusaContext() ctx?: Context<EntityManager>,
+  ): Promise<Media[]> {
+    return this.list_(filters, config, ctx);
+  }
+
+  @InjectManager()
+  async listAndCountEntityMedias(
+    filters?: Record<string, any>,
+    config?: Record<string, any>,
+    @MedusaContext() ctx?: Context<EntityManager>,
+  ): Promise<[Media[], number]> {
+    return this.listAndCount_(filters, config, ctx);
   }
 }
 

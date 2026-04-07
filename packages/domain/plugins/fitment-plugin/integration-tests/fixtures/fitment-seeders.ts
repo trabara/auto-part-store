@@ -11,7 +11,7 @@ export async function createTestMake(
   overrides?: { name?: string },
 ) {
   const service = container.resolve<FitmentModuleService>(FITMENT_MODULE);
-  const [make] = (await service.createFitmentMakes([
+  const [make] = (await service.createMakes([
     { name: overrides?.name ?? `Make-${Date.now()}` },
   ])) as any[];
   return make;
@@ -25,12 +25,12 @@ export async function createTestModel(
   overrides?: { name?: string },
 ) {
   const service = container.resolve<FitmentModuleService>(FITMENT_MODULE);
-  const [model] = await service.createFitmentModels([
+  const [model] = (await service.createFitmentModels([
     {
       name: overrides?.name ?? `Model-${Date.now()}`,
       make_id: makeId,
     },
-  ]);
+  ])) as any[];
   return model;
 }
 
@@ -46,14 +46,14 @@ export async function createTestEngine(
   },
 ) {
   const service = container.resolve<FitmentModuleService>(FITMENT_MODULE);
-  const [engine] = await service.createFitmentEngines([
+  const [engine] = (await service.createEngines([
     {
       fuel: overrides?.fuel ?? "GASOLINE",
       type: overrides?.type ?? "I4",
       size: overrides?.size ?? String(Math.floor(Math.random() * 90 + 10) / 10),
       tech: overrides?.tech,
     },
-  ]);
+  ])) as any[];
   return engine;
 }
 
@@ -81,7 +81,7 @@ export async function createTestFitment(
   },
 ) {
   const service = container.resolve<FitmentModuleService>(FITMENT_MODULE);
-  const [fitment] = await service.createFitments([
+  const [fitment] = (await service.createFitments([
     {
       model_id: modelId,
       engine_id: engineId,
@@ -92,7 +92,7 @@ export async function createTestFitment(
       year_start: overrides?.year_start ?? 2020,
       year_end: overrides?.year_end,
     },
-  ]);
+  ])) as any[];
   return fitment;
 }
 

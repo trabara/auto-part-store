@@ -14,7 +14,7 @@ export const generateInvoicePdfStep = createStep(
   async (input: GenerateInvoicePdfStepInput, { container }) => {
     const invoiceGeneratorService = container.resolve<any>(INVOICE_MODULE);
 
-    const previousInv = await invoiceGeneratorService.retrieveInvoice(
+    const previousInv = await invoiceGeneratorService.retrieve(
       input.invoice_id,
     );
 
@@ -39,7 +39,7 @@ export const generateInvoicePdfStep = createStep(
 
     const invoiceGeneratorService = container.resolve<any>(INVOICE_MODULE);
 
-    await invoiceGeneratorService.updateInvoices({
+    await invoiceGeneratorService.update({
       id: previousInv.id,
       pdfContent: previousInv.pdfContent,
     });

@@ -15,7 +15,7 @@ export class RoleController extends BaseController {
       const service = this.req.scope.resolve<AuthzModuleService>(AUTHZ_MODULE);
       const { id } = this.req.params;
 
-      const role = await service.retrieveAuthzRole(id, {
+      const role = await service.roles.retrieve(id, {
         relations: ["policies", "policies.permission", "members"],
       });
 
@@ -71,7 +71,7 @@ export class RoleController extends BaseController {
 
       const service = this.req.scope.resolve<AuthzModuleService>(AUTHZ_MODULE);
 
-      const [role] = await service.updateAuthzRoles([{ id, ...validated }]);
+      const [role] = await service.roles.update([{ id, ...validated }]);
 
       if (!role) {
         this.notFound("Role not found");
@@ -90,7 +90,7 @@ export class RoleController extends BaseController {
       this.logger.info(`Deleting role ${id}`, {
         role_id: id,
       });
-      await service.deleteAuthzRoles([id]);
+      await service.roles.delete([id]);
 
       this.noContent();
     }, "Role deleted successfully");

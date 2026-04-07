@@ -1,14 +1,8 @@
 import { z } from "@medusajs/framework/zod";
+import { BaseSchema } from "./base";
 
 export const KindEnum = z.enum(["read", "write", "delete"]);
 export const TypeEnum = z.enum(["predefined", "custom"]);
-
-const BaseSchema = z.object({
-  id: z.string(),
-  created_at: z.date(),
-  updated_at: z.date(),
-  deleted_at: z.date().nullable(),
-});
 
 export const UserSchema = z.object({
   id: z.string(),
@@ -20,27 +14,27 @@ export const UserSchema = z.object({
 export const MemberSchema = BaseSchema.extend({ user: UserSchema });
 
 export const CategorySchema = BaseSchema.extend({
-  name: z.string(),
-  description: z.string().nullable(),
+  name: z.string().describe("The name of the category"),
+  description: z.string().nullable().describe("The description of the category"),
 });
 
 export const RoleSchema = BaseSchema.extend({
-  name: z.string(),
-  description: z.string().nullable(),
+  name: z.string().describe("The name of the role"),
+  description: z.string().nullable().describe("The description of the role"),
 });
 
 export const PermissionSchema = BaseSchema.extend({
-  kind: KindEnum,
-  type: TypeEnum,
-  target: z.string(),
-  category: CategorySchema.optional(),
+  kind: KindEnum.describe("The kind of permission"),
+  type: TypeEnum.describe("The type of permission"),
+  target: z.string().describe("The target of the permission"),
+  category: CategorySchema.optional().describe("The category of the permission"),
 });
 
 export const PolicySchema = BaseSchema.extend({
-  role: RoleSchema,
-  permission: PermissionSchema,
+  role: RoleSchema.describe("The role associated with the policy"),
+  permission: PermissionSchema.describe("The permission associated with the policy"),
 });
 
 export const CategoryPermissionsSchema = CategorySchema.extend({
-  permissions: z.array(PermissionSchema),
+  permissions: z.array(PermissionSchema).describe("The permissions associated with the category"),
 });

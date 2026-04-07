@@ -13,16 +13,16 @@ import {
 } from "@medusajs/ui";
 // import { AvatarUpload } from "@repo/ui/components/avatar-upload";
 import { useMutation, useQuery } from "@tanstack/react-query";
+import { CreateInvoiceConfig, InvoiceConfig } from "@trabara/core/dtos";
+import { CreateInvoiceConfigSchema } from '@trabara/core/validations';
 import { vscodeDark } from "@uiw/codemirror-theme-vscode";
 import CodeMirror from "@uiw/react-codemirror";
 import Handlebars from "handlebars";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Controller, FormProvider, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
-import { InvoiceConfig, CreateInvoiceConfig } from "@trabara/core/dtos";
-import { PostInvoiceConfigSchema } from "@trabara/core/validations";
-import { SAMPLE_DATA } from "../constant";
 import { sdk } from "../../../../lib/sdk";
+import { SAMPLE_DATA } from "../constant";
 
 export const InvoiceGeneratorForm = () => {
   const { t } = useTranslation();
@@ -63,7 +63,7 @@ export const InvoiceGeneratorForm = () => {
   }, [data]);
 
   const form = useForm<CreateInvoiceConfig>({
-    resolver: zodResolver(PostInvoiceConfigSchema),
+    resolver: zodResolver(CreateInvoiceConfigSchema),
     defaultValues: getFormDefaultValues(),
   });
 

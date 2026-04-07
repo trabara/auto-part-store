@@ -44,22 +44,22 @@ export interface IFitmentModuleService {
     config?: Record<string, any>,
     ctx?: Context<EntityManager>,
   ): Promise<[Make[], number]>;
-  listModels(
+  listFitmentModels(
     filters?: Record<string, any>,
     config?: Record<string, any>,
     ctx?: Context<EntityManager>,
   ): Promise<Model[]>;
-  listAndCountModels(
+  listAndCountFitmentModels(
     filters?: Record<string, any>,
     config?: Record<string, any>,
     ctx?: Context<EntityManager>,
   ): Promise<[Model[], number]>;
-  listEngines(
+  listFitmentEngines(
     filters?: Record<string, any>,
     config?: Record<string, any>,
     ctx?: Context<EntityManager>,
   ): Promise<Engine[]>;
-  listAndCountEngines(
+  listAndCountFitmentEngines(
     filters?: Record<string, any>,
     config?: Record<string, any>,
     ctx?: Context<EntityManager>,

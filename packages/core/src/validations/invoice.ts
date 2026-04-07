@@ -1,3 +1,4 @@
+import { BASE_MASK } from "../schemas";
 import { InvoiceConfigSchema } from "../schemas/invoice";
 
-export const PostInvoiceConfigSchema = InvoiceConfigSchema.omit({ id: true });
+export const CreateInvoiceConfigSchema = InvoiceConfigSchema.omit(BASE_MASK);

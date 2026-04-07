@@ -5,20 +5,16 @@ import {
   InjectTransactionManager,
   MedusaContext,
 } from "@medusajs/framework/utils";
-import {
-  RestorableModuleService
-} from "@repo/domain-modules/shared";
+import { RestorableModuleService } from "@repo/domain-modules/shared";
 import type {
   CreateEngineInput,
   CreateFitmentInput,
   CreateMakeInput,
   CreateModelInput,
-  Make,
-  Model,
   UpdateEngineInput,
   UpdateFitmentInput,
   UpdateMakeInput,
-  UpdateModelInput
+  UpdateModelInput,
 } from "@trabara/core/dtos";
 import * as Models from "../models";
 import { EngineService } from "./engine.service";
@@ -26,9 +22,9 @@ import { MakeService } from "./make.service";
 import { ModelService } from "./model.service";
 
 type InjectedDependencies = {
-  makeRepository: DAL.RepositoryService<Models.Make>;
-  modelRepository: DAL.RepositoryService<Models.Model>;
-  engineRepository: DAL.RepositoryService<Models.Engine>;
+  fitmentMakeRepository: DAL.RepositoryService<Models.Make>;
+  fitmentModelRepository: DAL.RepositoryService<Models.Model>;
+  fitmentEngineRepository: DAL.RepositoryService<Models.Engine>;
   fitmentRepository: DAL.RepositoryService<Models.Fitment>;
   baseRepository: DAL.RepositoryService<any>;
 };
@@ -38,31 +34,30 @@ class FitmentModuleService extends RestorableModuleService<Models.Fitment> {
   readonly models: ModelService;
   readonly engines: EngineService;
 
-  protected fitmentMakeRepository_: DAL.RepositoryService<Models.Make>;
+  protected makeRepository_: DAL.RepositoryService<Models.Make>;
   protected modelRepository_: DAL.RepositoryService<Models.Model>;
   protected engineRepository_: DAL.RepositoryService<Models.Engine>;
   protected fitmentRepository_: DAL.RepositoryService<Models.Fitment>;
   protected baseRepository_: DAL.RepositoryService<any>;
 
   constructor(deps: InjectedDependencies) {
-    console.log("Initializing FitmentModuleService with dependencies:", deps);
     super(deps.fitmentRepository, deps.baseRepository, "Fitment");
-    this.fitmentMakeRepository_ = deps.makeRepository;
-    this.modelRepository_ = deps.modelRepository;
-    this.engineRepository_ = deps.engineRepository;
+    this.makeRepository_ = deps.fitmentMakeRepository;
+    this.modelRepository_ = deps.fitmentModelRepository;
+    this.engineRepository_ = deps.fitmentEngineRepository;
     this.fitmentRepository_ = deps.fitmentRepository;
     this.baseRepository_ = deps.baseRepository;
 
     this.makes = new MakeService(
-      deps.makeRepository,
+      deps.fitmentMakeRepository,
       deps.baseRepository,
     );
     this.models = new ModelService(
-      deps.modelRepository,
+      deps.fitmentModelRepository,
       deps.baseRepository,
     );
     this.engines = new EngineService(
-      deps.engineRepository,
+      deps.fitmentEngineRepository,
       deps.baseRepository,
     );
   }
@@ -81,7 +76,7 @@ class FitmentModuleService extends RestorableModuleService<Models.Fitment> {
     filters?: Record<string, any>,
     config?: Record<string, any>,
     @MedusaContext() ctx?: Context<EntityManager>,
-  ): Promise<Make[]> {
+  ): Promise<Models.Make[]> {
     return this.makes.list(filters, config, ctx);
   }
 
@@ -90,30 +85,30 @@ class FitmentModuleService extends RestorableModuleService<Models.Fitment> {
     filters?: Record<string, any>,
     config?: Record<string, any>,
     @MedusaContext() ctx?: Context<EntityManager>,
-  ): Promise<[Make[], number]> {
+  ): Promise<[Models.Make[], number]> {
     return this.makes.listAndCount(filters, config, ctx);
   }
 
   @InjectManager()
-  async listModels(
+  async listFitmentModels(
     filters?: Record<string, any>,
     config?: Record<string, any>,
     @MedusaContext() ctx?: Context<EntityManager>,
-  ): Promise<Model[]> {
+  ): Promise<Models.Model[]> {
     return this.models.list(filters, config, ctx);
   }
 
   @InjectManager()
-  async listAndCountModels(
+  async listAndCountFitmentModels(
     filters?: Record<string, any>,
     config?: Record<string, any>,
     @MedusaContext() ctx?: Context<EntityManager>,
-  ): Promise<[Model[], number]> {
+  ): Promise<[Models.Model[], number]> {
     return this.models.listAndCount(filters, config, ctx);
   }
 
   @InjectManager()
-  async listEngines(
+  async listFitmentEngines(
     filters?: Record<string, any>,
     config?: Record<string, any>,
     @MedusaContext() ctx?: Context<EntityManager>,
@@ -122,7 +117,7 @@ class FitmentModuleService extends RestorableModuleService<Models.Fitment> {
   }
 
   @InjectManager()
-  async listAndCountEngines(
+  async listAndCountFitmentEngines(
     filters?: Record<string, any>,
     config?: Record<string, any>,
     @MedusaContext() ctx?: Context<EntityManager>,
@@ -170,7 +165,7 @@ class FitmentModuleService extends RestorableModuleService<Models.Fitment> {
     data: CreateMakeInput[],
     @MedusaContext() ctx?: Context<EntityManager>,
   ): Promise<Models.Make[]> {
-    return this.fitmentMakeRepository_.create(data, ctx);
+    return this.makeRepository_.create(data, ctx);
   }
 
   @InjectManager()
@@ -187,7 +182,7 @@ class FitmentModuleService extends RestorableModuleService<Models.Fitment> {
     @MedusaContext() ctx?: Context<EntityManager>,
   ): Promise<Models.Make[]> {
     const ids = data.map((d) => d.id);
-    const entities = await this.fitmentMakeRepository_.find(
+    const entities = await this.makeRepository_.find(
       { where: { id: { $in: ids } } } as any,
       ctx,
     );
@@ -195,7 +190,7 @@ class FitmentModuleService extends RestorableModuleService<Models.Fitment> {
     const pairs = data
       .filter((d) => entityMap.has(d.id))
       .map(({ id, ...update }) => ({ entity: entityMap.get(id)!, update }));
-    return this.fitmentMakeRepository_.update(pairs as any, ctx);
+    return this.makeRepository_.update(pairs as any, ctx);
   }
 
   @InjectManager()
@@ -212,7 +207,7 @@ class FitmentModuleService extends RestorableModuleService<Models.Fitment> {
     @MedusaContext() ctx?: Context<EntityManager>,
   ): Promise<void> {
     const arr = Array.isArray(ids) ? ids : [ids];
-    await this.fitmentMakeRepository_.delete({ id: { $in: arr } } as any, ctx);
+    await this.makeRepository_.delete({ id: { $in: arr } } as any, ctx);
   }
 
   @InjectManager()
@@ -229,7 +224,7 @@ class FitmentModuleService extends RestorableModuleService<Models.Fitment> {
     id: string,
     @MedusaContext() ctx?: Context<EntityManager>,
   ): Promise<Models.Make> {
-    const [entity] = await this.fitmentMakeRepository_.find(
+    const [entity] = await this.makeRepository_.find(
       { where: { id } } as any,
       ctx,
     );
@@ -252,7 +247,7 @@ class FitmentModuleService extends RestorableModuleService<Models.Fitment> {
     data: CreateModelInput[],
     @MedusaContext() ctx?: Context<EntityManager>,
   ): Promise<Models.Model[]> {
-    return this.createModels_(data, ctx);
+    return this.modelRepository_.create(data, ctx);
   }
 
   @InjectManager()
@@ -354,10 +349,7 @@ class FitmentModuleService extends RestorableModuleService<Models.Fitment> {
     @MedusaContext() ctx?: Context<EntityManager>,
   ): Promise<void> {
     const arr = Array.isArray(ids) ? ids : [ids];
-    await this.engineRepository_.delete(
-      { id: { $in: arr } } as any,
-      ctx,
-    );
+    await this.engineRepository_.delete({ id: { $in: arr } } as any, ctx);
   }
 
   // ── Fitments ───────────────────────────────────────────────────────────────
@@ -491,16 +483,13 @@ class FitmentModuleService extends RestorableModuleService<Models.Fitment> {
 
     const [models, engines] = await Promise.all([
       modelIds.length
-        ? this.modelRepository_.find(
-          { where: { id: { $in: modelIds } } },
-          ctx,
-        )
+        ? this.modelRepository_.find({ where: { id: { $in: modelIds } } }, ctx)
         : [],
       engineIds.length
         ? this.engineRepository_.find(
-          { where: { id: { $in: engineIds } } },
-          ctx,
-        )
+            { where: { id: { $in: engineIds } } },
+            ctx,
+          )
         : [],
     ]);
 
@@ -509,10 +498,10 @@ class FitmentModuleService extends RestorableModuleService<Models.Fitment> {
       ...new Set((models as any[]).map((m: any) => m.make_id).filter(Boolean)),
     ];
     const makes = makeIds.length
-      ? await this.fitmentMakeRepository_.find(
-        { where: { id: { $in: makeIds } } },
-        ctx,
-      )
+      ? await this.makeRepository_.find(
+          { where: { id: { $in: makeIds } } },
+          ctx,
+        )
       : [];
 
     const modelMap = new Map((models as any[]).map((m: any) => [m.id, m]));

@@ -22,13 +22,10 @@ export default function MediaWidget({
   const { t } = useTranslation();
 
   const { data: response, isLoading } = useQuery({
-    queryKey: [`medias-images`, entityId],
-    queryFn: async () => {
-      const result = await sdk.client.fetch<MediasResponse>(
-        `/admin/medias/${entityId}/images`,
-      );
-      return result;
-    },
+    queryKey: ['medias', entityId],
+    queryFn: () => sdk.client.fetch<MediasResponse>(
+      `/admin/medias/${entityId}/images`,
+    )
   });
 
   const medias = response?.medias || [];

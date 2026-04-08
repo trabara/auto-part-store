@@ -8,7 +8,7 @@ import { EntityManager } from "@medusajs/framework/mikro-orm/knex";
 import type { CreateMediaInput, UpdateMediaInput } from "@trabara/core/dtos";
 import type { IMediaModuleService } from "@trabara/core/interfaces";
 import { BaseModuleService } from "../shared";
-import type { Media } from "./models/media";
+import { Media } from "./models/media";
 
 type InjectedDependencies = {
   entityMediaRepository: DAL.RepositoryService<Media>;
@@ -17,12 +17,11 @@ type InjectedDependencies = {
 
 class MediaModuleService
   extends BaseModuleService<Media>
-  implements IMediaModuleService
-{
-  constructor(dependencies: InjectedDependencies) {
+  implements IMediaModuleService {
+  constructor(deps: InjectedDependencies) {
     super(
-      dependencies.entityMediaRepository,
-      dependencies.baseRepository,
+      deps.entityMediaRepository,
+      deps.baseRepository,
       "Media",
     );
   }

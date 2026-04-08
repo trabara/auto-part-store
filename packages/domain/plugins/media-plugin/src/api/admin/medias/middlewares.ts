@@ -13,6 +13,11 @@ const authenticateMiddleware = authenticate(["*"], ["bearer", "session"]);
 export const adminMediaMiddlewares: MiddlewareRoute[] = [
   {
     matcher: "/admin/medias/:entity_id/images",
+    method: ["GET"],
+    middlewares: [authenticateMiddleware],
+  },
+  {
+    matcher: "/admin/medias/:entity_id/images",
     method: ["POST"],
     middlewares: [
       authenticateMiddleware,

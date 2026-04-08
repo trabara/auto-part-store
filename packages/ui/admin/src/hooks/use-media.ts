@@ -32,16 +32,13 @@ export const useMediaMutations = ({
     mutationFn: (images: Omit<Media, "id">[]) => {
       return sdk.client.fetch(`/admin/medias/${id}/images`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
         body: {
-          images,
+          files: images,
         },
       });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [`medias-images`, id] });
+      queryClient.invalidateQueries({ queryKey: ['medias', id] });
       onCreateSuccess?.();
     },
   });
@@ -59,7 +56,7 @@ export const useMediaMutations = ({
       });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [`medias-images`, id] });
+      queryClient.invalidateQueries({ queryKey: ['medias', id] });
       // toast.success(t("gallery.file.update.success"))
       onUpdateSuccess?.();
     },
@@ -78,7 +75,7 @@ export const useMediaMutations = ({
       });
     },
     onSuccess: (_data, deletedIds) => {
-      queryClient.invalidateQueries({ queryKey: [`medias-images`, id] });
+      queryClient.invalidateQueries({ queryKey: ['medias', id] });
       // toast.success(t("gallery.file.delete.success"))
       onDeleteSuccess?.(deletedIds);
     },

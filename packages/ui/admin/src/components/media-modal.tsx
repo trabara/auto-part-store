@@ -194,7 +194,7 @@ export const MediaModal = ({
 
       await Promise.all(operations);
 
-      queryClient.invalidateQueries({ queryKey: [`medias-images`, id] });
+      queryClient.invalidateQueries({ queryKey: ['medias', id] });
       setOpen(false);
       resetModalState();
       toast.success("Category media saved successfully");

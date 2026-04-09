@@ -136,6 +136,8 @@ export function getZodFieldInfo(field: z.ZodTypeAny): SchemaFieldInfo {
     baseType = 'array';
     // Extract element type info recursively
     arrayElementInfo = getZodFieldInfo(unwrapped._def.type);
+  }else if (unwrapped instanceof z.ZodObject) {
+    baseType = 'object';
   }
 
   return {

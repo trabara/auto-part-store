@@ -1,11 +1,11 @@
-import { Context, DAL } from "@medusajs/framework/types";
-import { BaseModuleService } from "../../shared";
-import * as Models from "../models";
 import { EntityManager } from "@medusajs/framework/mikro-orm/knex";
+import { Context, DAL } from "@medusajs/framework/types";
+import { Member } from "@trabara/core";
+import { BaseModuleService } from "@trabara/common";
 
-export class AuthzMemberCrudService extends BaseModuleService<Models.AuthzMember> {
+export class AuthzMemberCrudService extends BaseModuleService<Member> {
   constructor(
-    repo: DAL.RepositoryService<Models.AuthzMember>,
+    repo: DAL.RepositoryService<Member>,
     baseRepo: DAL.RepositoryService<any>,
   ) {
     super(repo, baseRepo, "AuthzMember");

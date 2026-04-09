@@ -14,7 +14,7 @@ import { CreateFitmentInputSchema } from "@trabara/core/validations";
 import { Controller, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
-import { createFitment } from "../data";
+import { createFitment } from "../routes/fitments/data";
 import EngineSelect from "./engine-select";
 import ModelSelect from "./model-select";
 

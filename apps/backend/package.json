@@ -30,10 +30,10 @@
     "test:unit": "TEST_TYPE=unit NODE_OPTIONS=--experimental-vm-modules jest --silent --runInBand --forceExit --passWithNoTests"
   },
   "dependencies": {
-    "@medusajs/admin-sdk": "2.13.5",
-    "@medusajs/cli": "2.13.5",
-    "@medusajs/framework": "2.13.5",
-    "@medusajs/medusa": "2.13.5",
+    "@medusajs/admin-sdk": "2.13.6",
+    "@medusajs/cli": "2.13.6",
+    "@medusajs/framework": "2.13.6",
+    "@medusajs/medusa": "2.13.6",
     "@repo/analytics-plugin": "workspace:*",
     "@repo/domain-modules": "workspace:*",
     "@repo/fitment-plugin": "workspace:*",
@@ -43,7 +43,7 @@
     "react-i18next": "^15.0.0"
   },
   "devDependencies": {
-    "@medusajs/test-utils": "2.13.5",
+    "@medusajs/test-utils": "2.13.6",
     "@repo/eslint-config": "workspace:*",
     "@swc/core": "1.12.2",
     "@swc/jest": "^0.2.38",

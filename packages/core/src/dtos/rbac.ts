@@ -6,7 +6,6 @@ import type {
   PermissionSchema,
   CategorySchema,
   PolicySchema,
-  CategoryPermissionsSchema,
 } from "../schemas/rbac";
 
 export type User = z.infer<typeof UserSchema>;
@@ -15,9 +14,6 @@ export type Role = z.infer<typeof RoleSchema>;
 export type Permission = z.infer<typeof PermissionSchema>;
 export type Category = z.infer<typeof CategorySchema>;
 export type Policy = z.infer<typeof PolicySchema>;
-export type CategoryPermissionsResult = z.infer<
-  typeof CategoryPermissionsSchema
->;
 
 // ── Mutation input types ──────────────────────────────────────────────────────
 

@@ -1,5 +1,5 @@
 import { DAL } from "@medusajs/framework/types";
-import { BaseModuleService } from "../../shared";
+import { BaseModuleService } from "@trabara/common";
 import * as Models from "../models";
 
 export class MakeService extends BaseModuleService<Models.Make> {

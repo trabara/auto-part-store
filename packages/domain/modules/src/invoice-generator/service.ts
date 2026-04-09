@@ -5,7 +5,7 @@ import {
   InjectTransactionManager,
   MedusaContext,
 } from "@medusajs/framework/utils";
-import { BaseModuleService } from "@repo/domain-modules/shared";
+import { BaseModuleService } from "@trabara/common";
 import { Invoice, InvoiceConfig } from "@trabara/core";
 import type { IInvoiceGeneratorModuleService } from "@trabara/core/interfaces";
 import axios from "axios";

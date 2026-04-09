@@ -1,34 +1,33 @@
-import type { Context } from "@medusajs/framework/types";
 import type { EntityManager } from "@medusajs/framework/mikro-orm/knex";
+import type { Context } from "@medusajs/framework/types";
 import type {
   AssignUsersInput,
-  AuthzMemberDto,
   Category,
-  CategoryPermissionsResult,
   CreateCategoryInput,
   CreateMemberInput,
   CreatePermissionInput,
   CreateRoleInput,
+  Member,
   Permission,
   Policy,
   Role,
-  UpdateMemberInput,
+  UpdateMemberInput
 } from "../dtos";
 import type { IBaseModuleService } from "./base-module-service";
 
 // Sub-service interfaces for the namespace accessor pattern
 
-export interface IAuthzRoleSubService extends IBaseModuleService<Role> {}
+export interface IAuthzRoleSubService extends IBaseModuleService<Role> { }
 
-export interface IAuthzPermissionSubService extends IBaseModuleService<Permission> {}
+export interface IAuthzPermissionSubService extends IBaseModuleService<Permission> { }
 
 export interface IAuthzPolicySubService extends Pick<
   IBaseModuleService<Policy>,
   "list" | "listAndCount" | "create" | "delete"
-> {}
+> { }
 
 export interface IAuthzMemberSubService extends Omit<
-  IBaseModuleService<AuthzMemberDto>,
+  IBaseModuleService<Member>,
   "delete"
 > {
   delete(
@@ -37,7 +36,7 @@ export interface IAuthzMemberSubService extends Omit<
   ): Promise<void>;
 }
 
-export interface IAuthzCategorySubService extends IBaseModuleService<Category> {}
+export interface IAuthzCategorySubService extends IBaseModuleService<Category> { }
 
 export interface IAuthzModuleService {
   readonly roles: IAuthzRoleSubService;
@@ -87,13 +86,13 @@ export interface IAuthzModuleService {
     filters?: Record<string, any>,
     config?: Record<string, any>,
     sharedContext?: Context<EntityManager>,
-  ): Promise<AuthzMemberDto[]>;
+  ): Promise<Member[]>;
 
   listAndCountAuthzMembers(
     filters?: Record<string, any>,
     config?: Record<string, any>,
     sharedContext?: Context<EntityManager>,
-  ): Promise<[AuthzMemberDto[], number]>;
+  ): Promise<[Member[], number]>;
 
   listAuthzCategories(
     filters?: Record<string, any>,
@@ -116,12 +115,12 @@ export interface IAuthzModuleService {
   createMembers(
     data: CreateMemberInput[],
     sharedContext?: Context<EntityManager>,
-  ): Promise<AuthzMemberDto[]>;
+  ): Promise<Member[]>;
 
   updateMembers(
     data: UpdateMemberInput[],
     sharedContext?: Context<EntityManager>,
-  ): Promise<AuthzMemberDto[]>;
+  ): Promise<Member[]>;
 
   // High-level methods
   userHasAccess(
@@ -133,12 +132,12 @@ export interface IAuthzModuleService {
   createPermissionCategory(
     dto: CreateCategoryInput,
     sharedContext?: Context<EntityManager>,
-  ): Promise<CategoryPermissionsResult>;
+  ): Promise<Category>;
 
   createPermissionCategories(
     dtos: CreateCategoryInput[],
     sharedContext?: Context<EntityManager>,
-  ): Promise<CategoryPermissionsResult[]>;
+  ): Promise<Category[]>;
 
   deletePermissionsByCategoryIds(
     categoryIds: string[],

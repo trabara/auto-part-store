@@ -5,7 +5,7 @@ import {
   InjectTransactionManager,
   MedusaContext,
 } from "@medusajs/framework/utils";
-import { RestorableModuleService } from "@repo/domain-modules/shared";
+import { RestorableModuleService } from "@trabara/common";
 import type {
   CreateEngineInput,
   CreateFitmentInput,

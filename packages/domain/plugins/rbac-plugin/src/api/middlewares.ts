@@ -5,6 +5,7 @@ import { adminMembersMiddlewares } from "./admin/rbac/v2/members/middlewares";
 import { adminPermissionsMiddlewares } from "./admin/rbac/v2/permissions/middlewares";
 import { adminRolesMiddlewares } from "./admin/rbac/v2/roles/middlewares";
 import { adminStatsMiddlewares } from "./admin/rbac/v2/stats/middlewares";
+import { rbacMiddleware } from "@repo/domain-modules/authz";
 
 export default defineMiddlewares({
   routes: [
@@ -13,5 +14,12 @@ export default defineMiddlewares({
     ...adminRolesMiddlewares,
     ...adminPermissionsMiddlewares,
     ...adminStatsMiddlewares,
+    {
+      matcher: '/admin/*',
+      methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
+      middlewares: [
+        rbacMiddleware
+      ]
+    }
   ],
 });

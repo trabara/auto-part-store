@@ -1,8 +1,7 @@
 import {
-  authenticate,
   MiddlewareRoute,
   validateAndTransformBody,
-  validateAndTransformQuery,
+  validateAndTransformQuery
 } from "@medusajs/framework";
 import {
   CategoryFiltersSchema,
@@ -10,14 +9,11 @@ import {
   UpdateCategorySchema,
 } from "@trabara/core/validations";
 
-const authenticateMiddleware = authenticate(["*"], ["bearer", "session"]);
-
 export const adminCategoriesMiddlewares: MiddlewareRoute[] = [
   {
     matcher: "/admin/rbac/v2/categories",
     methods: ["GET"],
     middlewares: [
-      authenticateMiddleware,
       validateAndTransformQuery(CategoryFiltersSchema, {
         defaults: ["id", "name", "description", "created_at"],
         isList: true,
@@ -28,26 +24,24 @@ export const adminCategoriesMiddlewares: MiddlewareRoute[] = [
     matcher: "/admin/rbac/v2/categories",
     method: "POST",
     middlewares: [
-      authenticateMiddleware,
       validateAndTransformBody(CreateCategorySchema),
     ],
   },
   {
     matcher: "/admin/rbac/v2/categories/:id",
     method: "GET",
-    middlewares: [authenticateMiddleware],
+    middlewares: [],
   },
   {
     matcher: "/admin/rbac/v2/categories/:id",
     method: "PATCH",
     middlewares: [
-      authenticateMiddleware,
       validateAndTransformBody(UpdateCategorySchema),
     ],
   },
   {
     matcher: "/admin/rbac/v2/categories/:id",
     method: "DELETE",
-    middlewares: [authenticateMiddleware],
+    middlewares: [],
   },
 ];

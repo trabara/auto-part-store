@@ -8,8 +8,8 @@ import {
   AssignUsersSchema,
   CreateRoleSchema,
   RoleFiltersSchema,
-  UpdateRoleSchema,
   UpdateRolePoliciesSchema,
+  UpdateRoleSchema,
 } from "@trabara/core/validations";
 
 const authenticateMiddleware = authenticate(["*"], ["bearer", "session"]);
@@ -19,7 +19,6 @@ export const adminRolesMiddlewares: MiddlewareRoute[] = [
     matcher: "/admin/rbac/v2/roles",
     methods: ["GET"],
     middlewares: [
-      authenticateMiddleware,
       validateAndTransformQuery(RoleFiltersSchema, {
         defaults: [
           "id",
@@ -27,13 +26,7 @@ export const adminRolesMiddlewares: MiddlewareRoute[] = [
           "description",
           "is_default",
           "created_at",
-          "members.user_id",
-          "policies.id",
-          "policies.permission_id",
-          "policies.permission.id",
-          "policies.permission.kind",
-          "policies.permission.target",
-          "policies.permission.type",
+          "updated_at",
         ],
         isList: true,
       }),
@@ -43,33 +36,30 @@ export const adminRolesMiddlewares: MiddlewareRoute[] = [
     matcher: "/admin/rbac/v2/roles",
     method: "POST",
     middlewares: [
-      authenticateMiddleware,
       validateAndTransformBody(CreateRoleSchema),
     ],
   },
   {
     matcher: "/admin/rbac/v2/roles/:id",
     method: "GET",
-    middlewares: [authenticateMiddleware],
+    middlewares: [],
   },
   {
     matcher: "/admin/rbac/v2/roles/:id",
     method: "PATCH",
     middlewares: [
-      authenticateMiddleware,
       validateAndTransformBody(UpdateRoleSchema),
     ],
   },
   {
     matcher: "/admin/rbac/v2/roles/:id",
     method: "DELETE",
-    middlewares: [authenticateMiddleware],
+    middlewares: [],
   },
   {
     matcher: "/admin/rbac/v2/roles/:id/assign",
     method: "POST",
     middlewares: [
-      authenticateMiddleware,
       validateAndTransformBody(AssignUsersSchema),
     ],
   },
@@ -77,7 +67,6 @@ export const adminRolesMiddlewares: MiddlewareRoute[] = [
     matcher: "/admin/rbac/v2/roles/:id/policies",
     method: "PATCH",
     middlewares: [
-      authenticateMiddleware,
       validateAndTransformBody(UpdateRolePoliciesSchema),
     ],
   },

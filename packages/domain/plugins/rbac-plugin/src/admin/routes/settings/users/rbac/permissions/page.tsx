@@ -2,13 +2,13 @@ import { defineRouteConfig } from "@medusajs/admin-sdk";
 import { z } from "@medusajs/framework/zod";
 import { MedusaPage } from "@repo/admin/components/medusa-page";
 import { MedusaFieldOverrides } from "@repo/admin/types/config";
+import { PermissionSchema } from "@trabara/core/schemas";
 import {
   CreatePermissionSchema,
   UpdatePermissionSchema,
 } from "@trabara/core/validations";
-import { PermissionSchema } from "@trabara/core/schemas";
 import { useTranslation } from "react-i18next";
-import CategorySelect from "../components/category-select";
+import CategorySelect from "../../../../../components/category-select";
 
 export default function PermissionsPage() {
   const { t } = useTranslation();

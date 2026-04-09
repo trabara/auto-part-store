@@ -10,7 +10,7 @@ import { useAsRef } from "@repo/hooks";
 import { useMutation } from "@tanstack/react-query";
 import { memo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { AssignUsersInput } from "@trabara/core/dtos";
+import { AssignUsersInput, Role } from "@trabara/core/dtos";
 import { UserSchema } from "@trabara/core/schemas";
 
 type User = z.infer<typeof UserSchema>;
@@ -51,13 +51,12 @@ const fetchUsers = (signal: AbortSignal, params?: PageQueryParams) => {
 };
 
 interface AssignUsersDrawerProps {
-  roleId: string;
-  members: { user_id: string }[];
+  role: Role;
 }
 
-function AssignUsersDrawer({ roleId, members }: AssignUsersDrawerProps) {
+function AssignUsersDrawer({ role }: AssignUsersDrawerProps) {
   const { t } = useTranslation();
-  const initialUserIds = members.map((m) => m.user_id);
+  const initialUserIds = role.members.map((m: any) => m.user_id);
   const userIdsRef = useAsRef(initialUserIds);
 
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
@@ -65,7 +64,7 @@ function AssignUsersDrawer({ roleId, members }: AssignUsersDrawerProps) {
   const prompt = usePrompt();
 
   const assignUsersMutation = useMutation({
-    mutationFn: (input: AssignUsersInput) => assignUsersToRole(roleId, input),
+    mutationFn: (input: AssignUsersInput) => assignUsersToRole(role.id, input),
     onSuccess: () => {
       toast.success(t("role.assignUsers.toast.success"));
     },

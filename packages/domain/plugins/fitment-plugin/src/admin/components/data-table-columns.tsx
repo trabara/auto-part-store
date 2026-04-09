@@ -13,8 +13,8 @@ import { CellContext } from "@tanstack/react-table";
 import { TFunction } from "i18next";
 import { Link, Unlink } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { sdk } from "../../../lib/sdk";
-import { AdminFitmentWithProducts } from "../types";
+import { sdk } from "../lib/sdk";
+import { AdminFitmentWithProducts } from "../routes/fitments/types";
 
 const columnHelper = createDataTableColumnHelper<AdminFitmentWithProducts>();
 

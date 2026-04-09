@@ -1,38 +1,19 @@
 import { toast } from "@medusajs/ui";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useMemo } from "react";
-import { sdk } from "../../../lib/sdk";
-import { AdminProductWithFitments } from "../types";
+import { sdk } from "../lib/sdk";
+import { AdminProductWithFitments } from "../routes/products/types";
 
-/**
- * Configuration for product linkage operations
- */
-export interface ProductLinkageConfig {
-  /** The ID of the fitment to link/unlink products */
-  fitmentId: string;
-  /** The list of selected products for linking/unlinking */
-  selectedProducts: AdminProductWithFitments[];
-}
 
 /**
  * Return type from useProductLinkage
  */
 export interface UseProductLinkageReturn {
   // Actions
-  handleLinkProduct: (productId: string) => void;
-  handleUnlinkProduct: (productId: string) => void;
-  handleBulkLink: () => void;
-  handleBulkUnlink: () => void;
-
-  // Status flags for bulk operations
-  hasLinkedSelected: boolean;
-  hasUnlinkedSelected: boolean;
-  selectedProductsCount: number;
-
+  handleLinkProduct: (fitmentId: string, productId: string) => void;
+  handleUnlinkProduct: (fitmentId: string, productId: string) => void;
   // Mutation states
   isLinking: boolean;
   isUnlinking: boolean;
-  isBulkUnlinking: boolean;
 }
 
 /**
@@ -88,10 +69,7 @@ const link = async (fitmentId: string, productIds: string[]) => {
   });
 }
 
-export function useProductLinkage({
-  fitmentId,
-  selectedProducts
-}: ProductLinkageConfig): UseProductLinkageReturn {
+export function useProductLinkage(): UseProductLinkageReturn {
   const queryClient = useQueryClient();
 
   const invalidateKeys = () => ["fitments", "products"].forEach((key) => {
@@ -100,7 +78,7 @@ export function useProductLinkage({
 
   // Link products mutation
   const linkMutation = useMutation({
-    mutationFn: (productIds: string[]) => link(fitmentId, productIds),
+    mutationFn: ({ fitmentId, productIds }: { fitmentId: string, productIds: string[] }) => link(fitmentId, productIds),
     onSuccess: () => {
       toast.success("Products linked successfully");
       invalidateKeys();
@@ -114,7 +92,7 @@ export function useProductLinkage({
 
   // Unlink single product mutation
   const unlinkMutation = useMutation({
-    mutationFn: (productId: string) => unlink(fitmentId, productId),
+    mutationFn: ({ fitmentId, productId }: { fitmentId: string, productId: string }) => unlink(fitmentId, productId),
     onSuccess: () => {
       toast.success("Product unlinked successfully");
       invalidateKeys();
@@ -126,57 +104,19 @@ export function useProductLinkage({
     },
   });
 
-  // Bulk unlink mutation
-  const bulkUnlinkMutation = useMutation({
-    mutationFn: async (productIds: string[]) => {
-      return Promise.all(productIds.map((id) => unlink(fitmentId, id)));
-    },
-    onSuccess: () => {
-      toast.success("Products unlinked successfully");
-      invalidateKeys();
-    },
-    onError: (error: any) => {
-      toast.error("Failed to unlink products", {
-        description: error.message || "An error occurred",
-      });
-    },
-  });
-
   // Action handlers
-  const handleLinkProduct = (productId: string) => {
-    linkMutation.mutate([productId]);
+  const handleLinkProduct = (fitmentId: string, productId: string) => {
+    linkMutation.mutate({ fitmentId, productIds: [productId] });
   };
 
-  const handleUnlinkProduct = (productId: string) => {
-    unlinkMutation.mutate(productId);
+  const handleUnlinkProduct = (fitmentId: string, productId: string) => {
+    unlinkMutation.mutate({ fitmentId, productId });
   };
-
-  const handleBulkLink = () => {
-    const selectedIds = selectedProducts.map((product) => product.id);
-    linkMutation.mutate(selectedIds);
-  };
-
-  const handleBulkUnlink = () => {
-    const selectedIds = selectedProducts.map((product) => product.id);
-    bulkUnlinkMutation.mutate(selectedIds);
-  };
-
-  // Compute selected products count
-  const selectedProductsCount = useMemo(() => {
-    return selectedProducts.length;
-  }, [selectedProducts]);
 
   return {
     handleLinkProduct,
     handleUnlinkProduct,
-    handleBulkLink,
-    handleBulkUnlink,
-    // Status flags computed externally by caller using getSelectedProducts helper
-    hasLinkedSelected: false,
-    hasUnlinkedSelected: false,
-    selectedProductsCount,
     isLinking: linkMutation.isPending,
     isUnlinking: unlinkMutation.isPending,
-    isBulkUnlinking: bulkUnlinkMutation.isPending,
   };
 }

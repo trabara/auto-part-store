@@ -2,6 +2,7 @@ import { defineRouteConfig } from "@medusajs/admin-sdk";
 import { z } from "@medusajs/framework/zod";
 import { MedusaPage } from "@repo/admin/components/medusa-page";
 import { MedusaFieldOverrides } from "@repo/admin/types/config";
+import { CreateFitmentInput, UpdateFitmentInput } from "@trabara/core/dtos";
 import {
   EngineSchema,
   FitmentSchema,
@@ -13,8 +14,9 @@ import {
 } from "@trabara/core/validations";
 import { CarFront } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import EngineSelect from "./components/engine-select";
-import ModelSelect from "./components/model-select";
+import EngineSelect from "../../components/engine-select";
+import ModelSelect from "../../components/model-select";
+import ProductDataTable from "../../components/product-data-table";
 
 // Extended list schema with related entities
 const FitmentListSchema = FitmentSchema.extend({
@@ -22,7 +24,7 @@ const FitmentListSchema = FitmentSchema.extend({
   engine: EngineSchema,
 });
 
-type FitmentRow = z.infer<typeof FitmentListSchema>;
+type Fitment = z.infer<typeof FitmentListSchema>;
 
 // Static select options (values are technical codes — not translated)
 const BODY_STYLE_OPTIONS = [
@@ -59,7 +61,7 @@ const DOORS_OPTIONS = [
 export default function FitmentsPage() {
   const { t } = useTranslation();
 
-  const LIST_FIELDS: MedusaFieldOverrides<FitmentRow> = {
+  const LIST_FIELDS: MedusaFieldOverrides<Fitment> = {
     body_style: {
       label: t("fitment.field.bodyStyle.label"),
       isFiltrable: true,
@@ -77,6 +79,8 @@ export default function FitmentsPage() {
     },
     doors: {
       label: t("fitment.field.doors.label"),
+      isFiltrable: true,
+      options: DOORS_OPTIONS,
     },
     year_start: {
       label: t("fitment.field.yearStart.label"),
@@ -87,14 +91,14 @@ export default function FitmentsPage() {
     model: {
       label: t("fitment.field.model"),
       cell: (info) => {
-        const model = info.getValue() as FitmentRow["model"];
+        const model = info.row.original.model
         return <span>{model?.name ?? "—"}</span>;
       },
     },
     engine: {
       label: t("fitment.field.engine"),
       cell: (info) => {
-        const engine = info.getValue() as FitmentRow["engine"];
+        const engine = info.row.original.engine;
         if (!engine) return <span>—</span>;
         return (
           <span>
@@ -105,9 +109,7 @@ export default function FitmentsPage() {
     },
   };
 
-  const CREATE_FIELDS: MedusaFieldOverrides<
-    z.infer<typeof CreateFitmentInputSchema>
-  > = {
+  const CREATE_FIELDS: MedusaFieldOverrides<CreateFitmentInput> = {
     body_style: {
       label: t("fitment.field.bodyStyle.label"),
       options: BODY_STYLE_OPTIONS,
@@ -151,9 +153,7 @@ export default function FitmentsPage() {
     },
   };
 
-  const EDIT_FIELDS: MedusaFieldOverrides<
-    z.infer<typeof UpdateFitmentInputSchema>
-  > = {
+  const EDIT_FIELDS: MedusaFieldOverrides<UpdateFitmentInput> = {
     body_style: {
       label: t("fitment.field.bodyStyle.label"),
       options: BODY_STYLE_OPTIONS,
@@ -184,7 +184,7 @@ export default function FitmentsPage() {
       render: ({ value, onChange }) => (
         <ModelSelect
           defaultValue={value as string}
-          onChange={onChange as (v: string) => void}
+          onChange={onChange}
         />
       ),
     },
@@ -205,6 +205,11 @@ export default function FitmentsPage() {
       description={t("fitment.page.subtitle")}
       schema={FitmentListSchema}
       fields={LIST_FIELDS}
+      rowActions={[{
+        id: 'link',
+        label: t("product.link"),
+        render: (fitment) => <ProductDataTable fitment={fitment} />
+      }]}
       create={{
         id: "fitment",
         schema: CreateFitmentInputSchema,

@@ -14,7 +14,7 @@ import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useParams } from "react-router-dom";
 import { sdk } from "../lib/sdk";
-import { createFitmentColumns } from "../routes/fitments/components/data-table-columns";
+import { createFitmentColumns } from "../components/data-table-columns";
 
 const listProductFitments = (productId: string) => (signal: AbortSignal, params: PageQueryParams) =>
   sdk.client.fetch<PageResponse<Fitment>>(`/admin/products/${productId}/fitments`, {

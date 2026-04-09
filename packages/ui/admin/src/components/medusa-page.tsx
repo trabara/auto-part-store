@@ -34,6 +34,7 @@ interface MedusaPageProps<
   T extends Entity<z.infer<LS>>,
 > extends ListConfig<T> {
   path: string;
+  onRowClick?: (row: T) => void;
   create: CreateConfig<z.infer<CS>>;
   edit: EditConfig<z.infer<ES>>;
 }
@@ -76,6 +77,7 @@ function MedusaPageInner<
   create,
   edit,
   toolbarActions,
+  onRowClick,
   rowActions,
   ...restProps
 }: MedusaPageProps<LS, CS, ES, T>) {
@@ -84,7 +86,6 @@ function MedusaPageInner<
     useToggleState();
 
   const queryFields = useMemo(() => zodQueryResolve(schema), []);
-
   const listAction = (signal: AbortSignal, params?: PageQueryParams) =>
     sdk.client.fetch<PageResponse<T>>(path, {
       method: "GET",
@@ -213,6 +214,7 @@ function MedusaPageInner<
         schema={schema}
         fields={fields}
         queryFn={listAction}
+        onRowClick={onRowClick}
         onCreateClicked={() => openCreateModal()}
         rowActions={[
           {

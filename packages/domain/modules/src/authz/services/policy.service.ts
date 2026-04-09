@@ -1,10 +1,10 @@
 import { DAL } from "@medusajs/framework/types";
-import { AuthzPolicy } from "../models";
-import { BaseModuleService } from "../../shared";
+import { Policy } from "@trabara/core";
+import { BaseModuleService } from "@trabara/common";
 
-export class AuthzPolicyCrudService extends BaseModuleService<AuthzPolicy> {
+export class AuthzPolicyCrudService extends BaseModuleService<Policy> {
     constructor(
-        repo: DAL.RepositoryService<AuthzPolicy>,
+        repo: DAL.RepositoryService<Policy>,
         baseRepo: DAL.RepositoryService<any>,
     ) {
         super(repo, baseRepo, "AuthzPolicy");

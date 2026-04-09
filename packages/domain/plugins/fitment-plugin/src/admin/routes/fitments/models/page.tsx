@@ -9,7 +9,7 @@ import {
   UpdateModelInputSchema,
 } from "@trabara/core/validations";
 import { useTranslation } from "react-i18next";
-import MakeSelect from "../components/make-select";
+import MakeSelect from "../../../components/make-select";
 
 type ModelRow = z.infer<typeof ModelSchema>;
 

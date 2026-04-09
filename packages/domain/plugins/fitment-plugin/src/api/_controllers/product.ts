@@ -1,6 +1,7 @@
+import { MedusaRequest, MedusaResponse } from "@medusajs/framework";
 import { ContainerRegistrationKeys, Modules } from "@medusajs/framework/utils";
-import { FITMENT_MODULE } from "@repo/domain-modules/fitment";
 import type { FitmentModuleService } from "@repo/domain-modules/fitment";
+import { FITMENT_MODULE } from "@repo/domain-modules/fitment";
 import {
   ProductListInput,
   ProductListService,
@@ -9,6 +10,17 @@ import { BaseController } from "@trabara/common";
 import FitmentProductLink from "../../links/fitment-product";
 
 export class ProductController extends BaseController {
+  readonly productService: ProductListService;
+
+  constructor(req: MedusaRequest, res: MedusaResponse) {
+    super(req, res);
+
+    this.productService = new ProductListService(
+      this.req.scope.resolve(ContainerRegistrationKeys.QUERY),
+      FitmentProductLink.entryPoint,
+    );
+  }
+
   async list(): Promise<void> {
     await this.execute(async () => {
       const query = this.req.scope.resolve(ContainerRegistrationKeys.QUERY);
@@ -18,11 +30,8 @@ export class ProductController extends BaseController {
         queryConfig: this.req.queryConfig,
       });
 
-      const service = new ProductListService(
-        query,
-        FitmentProductLink.entryPoint,
-      );
-      const result = await service.list({
+
+      const result = await this.productService.list({
         ...(this.req.filterableFields as ProductListInput),
         queryConfig: this.req.queryConfig,
       });
@@ -33,7 +42,6 @@ export class ProductController extends BaseController {
 
   async search(): Promise<void> {
     await this.execute(async () => {
-      const query = this.req.scope.resolve(ContainerRegistrationKeys.QUERY);
       const {
         q,
         currency_code,
@@ -50,11 +58,8 @@ export class ProductController extends BaseController {
 
       this.logger.info("Autocomplete search", { q });
 
-      const service = new ProductListService(
-        query,
-        FitmentProductLink.entryPoint,
-      );
-      const result = await service.list({
+
+      const result = await this.productService.list({
         q,
         fitment_id,
         region_id,
@@ -74,11 +79,11 @@ export class ProductController extends BaseController {
       const query = this.req.scope.resolve(ContainerRegistrationKeys.QUERY);
       const { product_id, currency_code, region_id, fitment_id } = this.req
         .filterableFields as {
-        product_id: string;
-        currency_code: string;
-        region_id: string;
-        fitment_id?: string;
-      };
+          product_id: string;
+          currency_code: string;
+          region_id: string;
+          fitment_id?: string;
+        };
 
       this.logger.info("Fetching related products", { product_id });
 
@@ -91,11 +96,7 @@ export class ProductController extends BaseController {
       const category_id: string | undefined =
         products?.[0]?.categories?.[0]?.id;
 
-      const service = new ProductListService(
-        query,
-        FitmentProductLink.entryPoint,
-      );
-      const result = await service.list({
+      const result = await this.productService.list({
         region_id,
         currency_code,
         fitment_id,
@@ -118,7 +119,7 @@ export class ProductController extends BaseController {
       this.logger.info(`Fetching fitments for product: ${productId}`);
 
       // Use the link entry point to get the fitment IDs linked to this product
-      const { data: linkRows } = await query.graph({
+      const { data: linkRows, metadata } = await query.graph({
         entity: FitmentProductLink.entryPoint,
         fields: ["fitment_id"],
         filters: { product_id: productId },
@@ -129,7 +130,7 @@ export class ProductController extends BaseController {
         .filter(Boolean);
 
       if (!fitmentIds.length) {
-        this.success({ fitments: [] });
+        this.success({ data: [], metadata });
         return;
       }
 
@@ -142,7 +143,7 @@ export class ProductController extends BaseController {
         `Found ${fitments.length} fitments for product ${productId}`,
       );
 
-      this.success({ fitments });
+      this.success({ data: fitments, metadata });
     }, `Fitments retrieved for product ${this.req.params.id}`);
   }
 
@@ -218,7 +219,7 @@ export class ProductController extends BaseController {
 
       this.logger.info(`Fetching products for fitment: ${fitmentId}`);
 
-      const { data } = await query.graph({
+      const { data, metadata } = await query.graph({
         entity: FitmentProductLink.entryPoint,
         fields: ["product.*", "product.variants.*"],
         filters: { fitment_id: fitmentId },
@@ -231,8 +232,8 @@ export class ProductController extends BaseController {
       );
 
       this.success({
-        products,
-        count: products.length,
+        data: products,
+        metadata,
       });
     }, `Products retrieved for fitment ${this.req.params.id}`);
   }

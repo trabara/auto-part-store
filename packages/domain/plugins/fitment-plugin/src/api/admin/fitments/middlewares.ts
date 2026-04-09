@@ -2,9 +2,11 @@ import {
   authenticate,
   MiddlewareRoute,
   validateAndTransformBody,
+  validateAndTransformQuery,
 } from "@medusajs/framework";
 import {
   CreateFitmentInputSchema,
+  FitmentFindParamsSchema,
   LinkProductsInputSchema,
   UpdateFitmentInputSchema,
 } from "@trabara/core/validations";
@@ -15,7 +17,13 @@ export const adminFitmentProductMiddlewares: MiddlewareRoute[] = [
   {
     matcher: "/admin/fitments",
     method: "GET",
-    middlewares: [authenticateMiddleware],
+    middlewares: [
+      authenticateMiddleware,
+      validateAndTransformQuery(FitmentFindParamsSchema, {
+        defaults: ['id', "body_style", 'doors', "drive", "transmission", "year_start", "year_end"], 
+        isList: true
+      }),
+    ],
   },
   {
     matcher: "/admin/fitments",

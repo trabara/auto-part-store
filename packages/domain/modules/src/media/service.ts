@@ -7,7 +7,7 @@ import {
 import { EntityManager } from "@medusajs/framework/mikro-orm/knex";
 import type { CreateMediaInput, UpdateMediaInput } from "@trabara/core/dtos";
 import type { IMediaModuleService } from "@trabara/core/interfaces";
-import { BaseModuleService } from "../shared";
+import { BaseModuleService } from "@trabara/common";
 import { Media } from "./models/media";
 
 type InjectedDependencies = {

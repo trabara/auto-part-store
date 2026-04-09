@@ -1,10 +1,10 @@
 import { DAL } from "@medusajs/framework/types";
-import { BaseModuleService } from "../../shared";
-import * as Models from "../models";
+import { Category } from "@trabara/core";
+import { BaseModuleService } from "@trabara/common";
 
-export class AuthzCategoryCrudService extends BaseModuleService<Models.AuthzCategory> {
+export class AuthzCategoryCrudService extends BaseModuleService<Category> {
     constructor(
-        repo: DAL.RepositoryService<Models.AuthzCategory>,
+        repo: DAL.RepositoryService<Category>,
         baseRepo: DAL.RepositoryService<any>,
     ) {
         super(repo, baseRepo, "AuthzCategory");

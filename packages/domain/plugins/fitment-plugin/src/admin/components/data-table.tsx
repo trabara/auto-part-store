@@ -4,8 +4,8 @@ import { usePageQuery } from "@repo/admin/hooks/use-page-query";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
-import { deleteFitment, listFitments } from "../data";
-import { AdminFitmentWithProducts } from "../types";
+import { deleteFitment, listFitments } from "../routes/fitments/data";
+import { AdminFitmentWithProducts } from "../routes/fitments/types";
 import { createFitmentColumns } from "./data-table-columns";
 
 const FitmentDataTable = ({ productId }: { productId?: string }) => {

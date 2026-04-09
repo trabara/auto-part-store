@@ -131,6 +131,7 @@ export default async function seedRbac({ container }: ExecArgs) {
                         { kind: "read", target: "/admin/rbac/v2/members", type: "predefined" },
                         { kind: "write", target: "/admin/rbac/v2/members", type: "predefined" },
                         { kind: "delete", target: "/admin/rbac/v2/members", type: "predefined" },
+                        { kind: "read", target: "/admin/rbac/v2/stats", type: "predefined" },
                         { kind: "read", target: "/admin/users", type: "predefined" },
                         { kind: "write", target: "/admin/users", type: "predefined" },
                         { kind: "delete", target: "/admin/users", type: "predefined" },

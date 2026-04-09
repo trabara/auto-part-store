@@ -2,7 +2,7 @@ import { Button, Drawer, Heading, Hint, toast, usePrompt } from "@medusajs/ui";
 import { sdk } from "@repo/admin/lib/sdk";
 import { useAsRef } from "@repo/hooks";
 import { useMutation } from "@tanstack/react-query";
-import { CreatePolicyInput, Policy } from "@trabara/core/dtos";
+import { CreatePolicyInput, Policy, Role } from "@trabara/core/dtos";
 import { Lock } from "lucide-react";
 import { memo, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -20,17 +20,15 @@ const updateRolePolicies = (roleId: string, input: UpdateRolePoliciesInput) => {
 };
 
 interface EditRolePermissionsDrawerProps {
-  roleId: string;
-  policies: Policy[];
+  role: Role
 }
 
 function EditRolePermissionsDrawer({
-  roleId,
-  policies,
+  role
 }: EditRolePermissionsDrawerProps) {
   const { t } = useTranslation();
-  const initialPermissionIds = policies
-    .map((p) => p.permission?.id ?? (p as any).permission_id)
+  const initialPermissionIds = role.policies
+    .map((p: Policy) => p.permission?.id)
     .filter(Boolean);
   const permissionIdsRef = useAsRef<string[]>(initialPermissionIds);
 
@@ -40,7 +38,7 @@ function EditRolePermissionsDrawer({
 
   const updatePoliciesMutation = useMutation({
     mutationFn: (input: UpdateRolePoliciesInput) =>
-      updateRolePolicies(roleId, input),
+      updateRolePolicies(role.id, input),
     onSuccess: () => {
       toast.success(t("role.editPermissions.toast.success"));
     },
@@ -87,7 +85,7 @@ function EditRolePermissionsDrawer({
         <Drawer.Body className="!px-0 !py-0">
           <PermissionDataTable
             className="absolute inset-0"
-            defaultValues={policies}
+            defaultValues={role.policies}
             onChange={(policies: CreatePolicyInput[]) => {
               permissionIdsRef.current = policies.map((p) => p.permission_id);
             }}

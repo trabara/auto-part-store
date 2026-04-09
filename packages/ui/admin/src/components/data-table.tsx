@@ -139,19 +139,26 @@ const DataTable = <
 
       {toolbarActions.length > 0 && (
         <DataTableBulkActionsToolbar table={table} entityName={id}>
-          {toolbarActions?.map((action) => (
-            <IconButton
-              key={action.id}
-              size="large"
-              className={clx("rounded-none", {
-                "text-ui-fg-error hover:bg-ui-error/10 data-[state=active]:bg-ui-error/20": action.variant === "danger",
-              })}
-              variant="transparent"
-              onClick={() => action.onClick(table)}
-            >
-              {action.icon}
-            </IconButton>
-          ))}
+          {toolbarActions?.map((action) => {
+            return (
+              <Button
+                key={action.id}
+                size="large"
+                className={clx("rounded-none text-xs", {
+                  "text-ui-fg-error hover:bg-ui-error/10 data-[state=active]:bg-ui-error/20": action.variant === "danger",
+                  "text-ui-fg-default hover:bg-ui-default/10 data-[state=active]:bg-ui-default/20": !action.variant,
+                })}
+                variant="transparent"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  action.onClick(table);
+                }}
+              >
+                {action.icon}
+                {action.label}
+              </Button>
+            )
+          })}
         </DataTableBulkActionsToolbar>
       )}
     </DataTableUI >

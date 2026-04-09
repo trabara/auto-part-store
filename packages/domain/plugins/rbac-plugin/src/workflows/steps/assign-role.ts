@@ -35,7 +35,7 @@ export async function invokeAssignRole(
   const compensation: AssignRoleStepCompensation = {
     userId,
     previousMemberId: existingMember?.id ?? null,
-    previousRoleId: existingMember?.role_id ?? null,
+    previousRoleId: existingMember?.role?.id ?? null,
   };
 
   await service.assignRbacUsers(roleId, { userIds: [userId] });

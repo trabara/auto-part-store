@@ -6,9 +6,9 @@ import { RoleSchema } from "@trabara/core/schemas";
 import { CreateRoleSchema, UpdateRoleSchema } from "@trabara/core/validations";
 import { Lock, User } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import AssignUsersDrawer from "../components/assign-users-drawer";
-import EditRolePermissionsDrawer from "../components/edit-role-permissions-drawer";
-import PermissionDataTable from "../components/permission-data-table";
+import AssignUsersDrawer from "../../../../../components/assign-users-drawer";
+import EditRolePermissionsDrawer from "../../../../../components/edit-role-permissions-drawer";
+import PermissionDataTable from "../../../../../components/permission-data-table";
 
 const RoleListSchema = RoleSchema.extend({
   members: z.array(z.object({ user_id: z.string() })),
@@ -60,7 +60,7 @@ export default function RolesPage() {
           label: t("role.action.assignUsers"),
           icon: <User />,
           render: (role) => (
-            <AssignUsersDrawer roleId={role.id} members={role.members} />
+            <AssignUsersDrawer role={role} />
           ),
         },
         {

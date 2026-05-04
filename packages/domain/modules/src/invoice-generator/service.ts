@@ -4,6 +4,7 @@ import {
   InjectManager,
   InjectTransactionManager,
   MedusaContext,
+  MedusaServiceModelObjectsSymbol,
 } from "@medusajs/framework/utils";
 import { BaseModuleService } from "@trabara/common";
 import { Invoice, InvoiceConfig } from "@trabara/core";
@@ -30,6 +31,8 @@ type InjectedDependencies = {
 class InvoiceGeneratorService
   extends BaseModuleService<Invoice>
   implements IInvoiceGeneratorModuleService {
+  static [MedusaServiceModelObjectsSymbol] = { InvoiceConfig: Models.InvoiceConfig, Invoice: Models.Invoice };
+  
   protected invoiceConfigRepository_: DAL.RepositoryService<InvoiceConfig>;
   private browser: Browser | null = null;
 

@@ -86,6 +86,7 @@ function MedusaPageInner<
     useToggleState();
 
   const queryFields = useMemo(() => zodQueryResolve(schema), []);
+  
   const listAction = (signal: AbortSignal, params?: PageQueryParams) =>
     sdk.client.fetch<PageResponse<T>>(path, {
       method: "GET",

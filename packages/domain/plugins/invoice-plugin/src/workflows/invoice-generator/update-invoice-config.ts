@@ -1,19 +1,14 @@
 import { createWorkflow, WorkflowResponse } from "@medusajs/framework/workflows-sdk"
+import { CreateInvoiceConfig } from "@trabara/core"
 import { updateInvoiceConfigStep } from "./steps/update-invoice-config"
 
-type WorkflowInput = {
-    id?: string
-    company_name?: string
-    company_address?: string
-    company_phone?: string
-    company_email?: string
-    company_logo?: string
-    notes?: string
+type UpdateInvoiceConfigWorkflowInput = CreateInvoiceConfig & {
+    id: string
 }
 
 export const updateInvoiceConfigWorkflow = createWorkflow(
     "update-invoice-config",
-    (input: WorkflowInput) => {
+    (input: UpdateInvoiceConfigWorkflowInput) => {
         const invoiceConfig = updateInvoiceConfigStep(input)
 
         return new WorkflowResponse({

@@ -1,6 +1,7 @@
 import { BaseController } from "@trabara/common";
-import { CreateInvoiceConfig } from "@trabara/core/dtos";
+import { CreateInvoiceConfigSchema } from "@trabara/core";
 import { updateInvoiceConfigWorkflow } from "../../workflows/invoice-generator";
+import { createInvoiceConfigWorkflow } from "../../workflows/invoice-generator/create-invoice-config";
 
 /**
  * Invoice Controller
@@ -10,35 +11,44 @@ import { updateInvoiceConfigWorkflow } from "../../workflows/invoice-generator";
  * Following DIP: Depends on abstraction (BaseController) not implementation.
  */
 export class InvoiceController extends BaseController {
-  constructor(req, res) {
-    super(req, res);
-  }
-
   public async getConfig(): Promise<void> {
     await this.execute(async () => {
       const query = this.req.scope.resolve("query");
 
       const {
-        data: [invoiceConfig],
+        data: [invoice_config],
       } = await query.graph({
         entity: "invoice_config",
         fields: ["*"],
       });
 
-      this.success({ invoice_config: invoiceConfig });
+      this.success({ invoice_config });
     }, "Invoice configuration retrieved successfully");
   }
 
-  public async updateConfig(): Promise<void> {
+  public async upsertConfig(): Promise<void> {
     await this.execute(async () => {
       const { id } = this.req.params;
-      const { result: invoice_config } = await updateInvoiceConfigWorkflow(
+      const input = CreateInvoiceConfigSchema.parse(this.req.validatedBody);
+
+      if (id) {
+        const { result: invoice_config } = await updateInvoiceConfigWorkflow(
+          this.req.scope,
+        ).run({
+          input: { id, ...input },
+        });
+
+        this.success({ invoice_config });
+        return;
+      }
+
+      const { result: invoice_config } = await createInvoiceConfigWorkflow(
         this.req.scope,
       ).run({
-        input: this.req.validatedBody as CreateInvoiceConfig,
+        input,
       });
-
       this.success({ invoice_config });
+
     }, "Invoice configuration updated successfully");
   }
 }

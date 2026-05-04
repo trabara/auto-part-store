@@ -202,14 +202,16 @@ export default function FitmentsPage() {
       id="fitment"
       path="/admin/fitments"
       title={t("fitment.page.title")}
+      fields={LIST_FIELDS}
       description={t("fitment.page.subtitle")}
       schema={FitmentListSchema}
-      fields={LIST_FIELDS}
-      rowActions={[{
-        id: 'link',
-        label: t("product.link"),
-        render: (fitment) => <ProductDataTable fitment={fitment} />
-      }]}
+      rowActions={[
+        {
+          id: 'link',
+          label: t("product.link"),
+          render: (fitment) => <ProductDataTable fitment={fitment} />
+        }
+      ]}
       create={{
         id: "fitment",
         schema: CreateFitmentInputSchema,

@@ -19,5 +19,5 @@ export async function GET(
  */
 export async function POST(req: MedusaRequest, res: MedusaResponse) {
     const controller = new InvoiceController(req, res);
-    await controller.updateConfig();
+    await controller.upsertConfig();
 }

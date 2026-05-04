@@ -1,4 +1,5 @@
 import { Context, DAL } from "@medusajs/framework/types";
+import { MedusaServiceModelObjectsSymbol, MedusaServiceSymbol } from "@medusajs/framework/utils";
 
 /**
  * Plain CRUD helper class for a single-entity repository.
@@ -18,6 +19,10 @@ import { Context, DAL } from "@medusajs/framework/types";
  * ```
  */
 export abstract class BaseModuleService<T extends { id: string }> {
+
+  static [MedusaServiceSymbol] = true
+  static [MedusaServiceModelObjectsSymbol]: Record<string, any>;
+
   protected repository_: DAL.RepositoryService<T>;
   protected baseRepository_: DAL.RepositoryService<any>;
   protected entityName_: string;
@@ -34,26 +39,43 @@ export abstract class BaseModuleService<T extends { id: string }> {
 
   async list(
     filters?: Record<string, any>,
-    _config?: Record<string, any>,
+    config?: Record<string, any>,
     ctx?: Context,
   ): Promise<T[]> {
-    return this.repository_.find({ where: filters ?? {} } as any, ctx);
+    return this.repository_.find({
+      where: filters ?? {},
+      options: {
+        ...config,
+        limit: config?.pagination?.take,
+        offset: config?.pagination?.skip,
+      }
+    } as any, ctx);
   }
 
   async listAndCount(
     filters?: Record<string, any>,
-    _config?: Record<string, any>,
+    config?: Record<string, any>,
     ctx?: Context,
   ): Promise<[T[], number]> {
-    return this.repository_.findAndCount({ where: filters ?? {} } as any, ctx);
+    return this.repository_.findAndCount({
+      where: filters ?? {},
+      options: {
+        ...config,
+        limit: config?.pagination?.take,
+        offset: config?.pagination?.skip,
+      }
+    } as any, ctx);
   }
 
   async retrieve(
     id: string,
-    _config?: Record<string, any>,
+    config: Record<string, any> = {},
     ctx?: Context,
   ): Promise<T> {
-    const [entity] = await this.repository_.find({ where: { id } } as any, ctx);
+    const [entity] = await this.repository_.find({
+      where: { id } as any,
+      options: config,
+    }, ctx);
     if (!entity) throw new Error(`${this.entityName_} with id ${id} not found`);
     return entity;
   }

@@ -29,8 +29,8 @@ export const InvoiceGeneratorForm = () => {
   const logoFileRef = useRef<AdminFile | null>(null);
   const [previewHtml, setPreviewHtml] = useState("");
 
-  const { data, isLoading, refetch } = useQuery<{
-    invoice_config: InvoiceConfig;
+  const { data: { invoice_config } = {}, isLoading, refetch } = useQuery<{
+    invoice_config?: InvoiceConfig;
   }>({
     queryFn: () => sdk.client.fetch("/admin/invoice-config"),
     queryKey: ["invoice-config"],
@@ -50,17 +50,15 @@ export const InvoiceGeneratorForm = () => {
     },
   });
 
-  const getFormDefaultValues = useCallback(() => {
-    return {
-      company_name: data?.invoice_config.company_name || "",
-      company_address: data?.invoice_config.company_address || "",
-      company_phone: data?.invoice_config.company_phone || "",
-      company_email: data?.invoice_config.company_email || "",
-      company_logo: data?.invoice_config.company_logo || "",
-      notes: data?.invoice_config.notes || "",
-      template: data?.invoice_config.template || "",
-    };
-  }, [data]);
+  const getFormDefaultValues = useCallback(() => ({
+    company_name: invoice_config?.company_name || "",
+    company_address: invoice_config?.company_address || "",
+    company_phone: invoice_config?.company_phone || "",
+    company_email: invoice_config?.company_email || "",
+    company_logo: invoice_config?.company_logo || "",
+    notes: invoice_config?.notes || "",
+    template: invoice_config?.template || "",
+  }), [invoice_config]);
 
   const form = useForm<CreateInvoiceConfig>({
     resolver: zodResolver(CreateInvoiceConfigSchema),
@@ -69,23 +67,23 @@ export const InvoiceGeneratorForm = () => {
 
   const handleSubmit = form.handleSubmit((formData) => mutateAsync(formData));
 
-  const uploadLogo = useCallback(
-    async (files: File[]) => {
-      // If there's already an uploaded logo file that hasn't been saved, delete it before uploading a new one
-      if (!logoFileRef.current) {
-        const { files: uploadedFiles } = await sdk.admin.upload.create({
-          files: [files[0]],
-        });
-        logoFileRef.current = uploadedFiles[0];
-        form.setValue("company_logo", uploadedFiles[0].url);
-      }
-    },
-    [form],
-  );
+  // const uploadLogo = useCallback(
+  //   async (files: File[]) => {
+  //     // If there's already an uploaded logo file that hasn't been saved, delete it before uploading a new one
+  //     if (!logoFileRef.current) {
+  //       const { files: uploadedFiles } = await sdk.admin.upload.create({
+  //         files: [files[0]],
+  //       });
+  //       logoFileRef.current = uploadedFiles[0];
+  //       form.setValue("company_logo", uploadedFiles[0].url);
+  //     }
+  //   },
+  //   [form],
+  // );
 
   const generatePreview = useCallback(() => {
-    const template = form.getValues("template");
-    if (!template) {
+    const invoiceConfig = form.getValues();
+    if (!invoiceConfig.template) {
       setPreviewHtml("<p>No template defined</p>");
       return;
     }
@@ -97,15 +95,15 @@ export const InvoiceGeneratorForm = () => {
         ...SAMPLE_DATA,
         dir: locale === "ar" ? "rtl" : "ltr",
         isRtl: locale === "ar",
-        companyName: form.getValues("company_name") || SAMPLE_DATA.companyName,
+        companyName: invoiceConfig.company_name || SAMPLE_DATA.companyName,
         companyAddress:
-          form.getValues("company_address") || SAMPLE_DATA.companyAddress,
+          invoiceConfig.company_address || SAMPLE_DATA.companyAddress,
         companyPhone:
-          form.getValues("company_phone") || SAMPLE_DATA.companyPhone,
+          invoiceConfig.company_phone || SAMPLE_DATA.companyPhone,
         companyEmail:
-          form.getValues("company_email") || SAMPLE_DATA.companyEmail,
-        companyLogo: form.getValues("company_logo") || SAMPLE_DATA.companyLogo,
-        notes: form.getValues("notes") || SAMPLE_DATA.notes,
+          invoiceConfig.company_email || SAMPLE_DATA.companyEmail,
+        companyLogo: invoiceConfig.company_logo || SAMPLE_DATA.companyLogo,
+        notes: invoiceConfig.notes || SAMPLE_DATA.notes,
         t: {
           invoice: t("invoice.template.invoice"),
           date: t("invoice.template.date"),
@@ -125,7 +123,7 @@ export const InvoiceGeneratorForm = () => {
         },
       };
 
-      const compiled = Handlebars.compile(template);
+      const compiled = Handlebars.compile(invoiceConfig.template);
       const html_ = compiled(sampleData);
       setPreviewHtml(html_);
     } catch (error) {
@@ -136,12 +134,12 @@ export const InvoiceGeneratorForm = () => {
     }
   }, [form]);
 
-  const formValues = form.watch();
 
   useEffect(() => {
     form.reset(getFormDefaultValues());
   }, [getFormDefaultValues]);
 
+  const formValues = form.watch();
   useEffect(() => {
     if (formValues.template) {
       generatePreview();
@@ -171,7 +169,7 @@ export const InvoiceGeneratorForm = () => {
       <Container className="divide-y p-0">
         <form onSubmit={handleSubmit} className="divide-y p-0">
           <div className="flex items-center justify-between px-6 py-4">
-            <Heading level="h1"> {t("invoice.page.title")} </Heading>
+            <Heading level="h1"> {t("invoice.page.title")}</Heading>
             <Button type="submit" disabled={isLoading || isPending}>
               {t("common.save")}
             </Button>
@@ -182,7 +180,7 @@ export const InvoiceGeneratorForm = () => {
               <Controller
                 control={form.control}
                 name="company_logo"
-                render={({ fieldState }) => {
+                render={({ fieldState: { error } }) => {
                   return (
                     <div className="flex flex-col space-y-2">
                       <div className="flex items-center gap-x-1">
@@ -191,8 +189,8 @@ export const InvoiceGeneratorForm = () => {
                         </Label>
                       </div>
                       {/* <AvatarUpload className="w-24" onValueChange={uploadLogo} value={field.value} /> */}
-                      {fieldState.error && (
-                        <Hint variant="error">{fieldState.error.message}</Hint>
+                      {error && (
+                        <Hint variant="error">{error.message}</Hint>
                       )}
                     </div>
                   );
@@ -201,7 +199,7 @@ export const InvoiceGeneratorForm = () => {
               <Controller
                 control={form.control}
                 name="company_name"
-                render={({ field, fieldState }) => {
+                render={({ field, fieldState: { error } }) => {
                   return (
                     <div className="flex flex-col space-y-2">
                       <div className="flex items-center gap-x-1">
@@ -214,8 +212,8 @@ export const InvoiceGeneratorForm = () => {
                         onChange={field.onChange}
                         value={field.value}
                       />
-                      {fieldState.error && (
-                        <Hint variant="error">{fieldState.error.message}</Hint>
+                      {error && (
+                        <Hint variant="error">{error.message}</Hint>
                       )}
                     </div>
                   );
@@ -224,7 +222,7 @@ export const InvoiceGeneratorForm = () => {
               <Controller
                 control={form.control}
                 name="company_address"
-                render={({ field, fieldState }) => {
+                render={({ field, fieldState: { error } }) => {
                   return (
                     <div className="flex flex-col space-y-2">
                       <div className="flex items-center gap-x-1">
@@ -233,8 +231,8 @@ export const InvoiceGeneratorForm = () => {
                         </Label>
                       </div>
                       <Textarea {...field} />
-                      {fieldState.error && (
-                        <Hint variant="error">{fieldState.error.message}</Hint>
+                      {error && (
+                        <Hint variant="error">{error.message}</Hint>
                       )}
                     </div>
                   );
@@ -243,7 +241,7 @@ export const InvoiceGeneratorForm = () => {
               <Controller
                 control={form.control}
                 name="company_phone"
-                render={({ field, fieldState }) => {
+                render={({ field, fieldState: { error } }) => {
                   return (
                     <div className="flex flex-col space-y-2">
                       <div className="flex items-center gap-x-1">
@@ -252,8 +250,8 @@ export const InvoiceGeneratorForm = () => {
                         </Label>
                       </div>
                       <Input {...field} />
-                      {fieldState.error && (
-                        <Hint variant="error">{fieldState.error.message}</Hint>
+                      {error && (
+                        <Hint variant="error">{error.message}</Hint>
                       )}
                     </div>
                   );
@@ -262,7 +260,7 @@ export const InvoiceGeneratorForm = () => {
               <Controller
                 control={form.control}
                 name="company_email"
-                render={({ field, fieldState }) => {
+                render={({ field, fieldState: { error } }) => {
                   return (
                     <div className="flex flex-col space-y-2">
                       <div className="flex items-center gap-x-1">
@@ -271,8 +269,8 @@ export const InvoiceGeneratorForm = () => {
                         </Label>
                       </div>
                       <Input {...field} />
-                      {fieldState.error && (
-                        <Hint variant="error">{fieldState.error.message}</Hint>
+                      {error && (
+                        <Hint variant="error">{error.message}</Hint>
                       )}
                     </div>
                   );
@@ -281,7 +279,7 @@ export const InvoiceGeneratorForm = () => {
               <Controller
                 control={form.control}
                 name="notes"
-                render={({ field, fieldState }) => {
+                render={({ field, fieldState: { error } }) => {
                   return (
                     <div className="flex flex-col space-y-2">
                       <div className="flex items-center gap-x-1">
@@ -290,8 +288,8 @@ export const InvoiceGeneratorForm = () => {
                         </Label>
                       </div>
                       <Textarea {...field} />
-                      {fieldState.error && (
-                        <Hint variant="error">{fieldState.error.message}</Hint>
+                      {error && (
+                        <Hint variant="error">{error.message}</Hint>
                       )}
                     </div>
                   );
@@ -301,7 +299,7 @@ export const InvoiceGeneratorForm = () => {
               <Controller
                 control={form.control}
                 name="template"
-                render={({ field, fieldState }) => {
+                render={({ field, fieldState: { error } }) => {
                   return (
                     <div className="flex flex-col space-y-2">
                       <div className="flex items-center gap-x-1">
@@ -309,15 +307,15 @@ export const InvoiceGeneratorForm = () => {
                           {t("invoice.field.template")}
                         </Label>
                       </div>
-                      <CodeMirror
+                      {/* <CodeMirror
                         {...field}
-                        theme={vscodeDark}
-                        extensions={[html()]}
                         height="400px"
+                        theme={vscodeDark}
                         style={{ fontSize: 12 }}
-                      />
-                      {fieldState.error && (
-                        <Hint variant="error">{fieldState.error.message}</Hint>
+                        extensions={[html()]}
+                      /> */}
+                      {error && (
+                        <Hint variant="error">{error.message}</Hint>
                       )}
                     </div>
                   );

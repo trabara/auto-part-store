@@ -8,10 +8,11 @@ export default getRequestConfig(async ({ requestLocale }) => {
     ? requested
     : routing.defaultLocale
 
-  const localeJson = locale.split("-")[0]
+  // const localeJson = locale.split("-")[0]
+  console.log("--------->", locale)
 
   return {
     locale,
-    messages: (await import(`../../messages/${localeJson}.json`)).default,
+    messages: (await import(`../../messages/${locale}.json`)).default,
   }
 })

@@ -4,6 +4,7 @@ import {
   InjectManager,
   InjectTransactionManager,
   MedusaContext,
+  MedusaServiceModelObjectsSymbol,
 } from "@medusajs/framework/utils";
 import {
   AssignUsersInput,
@@ -20,6 +21,7 @@ import {
 } from "@trabara/core/dtos";
 import type { IAuthzModuleService } from "@trabara/core/interfaces";
 import { EXCLUDED_RESOURCES } from "../constant";
+import * as Models from "../models";
 import { AuthzCategoryCrudService } from "./category.service";
 import { AuthzMemberCrudService } from "./member.service";
 import { AuthzPermissionCrudService } from "./permission.service";
@@ -36,6 +38,14 @@ type InjectedDependencies = {
 };
 
 export default class AuthzModuleService implements IAuthzModuleService {
+  static [MedusaServiceModelObjectsSymbol] = {
+    AuthzRole: Models.AuthzRole,
+    AuthzPermission: Models.AuthzPermission,
+    AuthzPolicy: Models.AuthzPolicy,
+    AuthzMember: Models.AuthzMember,
+    AuthzCategory: Models.AuthzCategory,
+  };
+
   readonly roles: AuthzRoleCrudService;
   readonly permissions: AuthzPermissionCrudService;
   readonly policies: AuthzPolicyCrudService;

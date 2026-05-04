@@ -4,6 +4,7 @@ import {
   InjectManager,
   InjectTransactionManager,
   MedusaContext,
+  MedusaServiceModelObjectsSymbol,
 } from "@medusajs/framework/utils";
 import { RestorableModuleService } from "@trabara/common";
 import type {
@@ -30,6 +31,13 @@ type InjectedDependencies = {
 };
 
 class FitmentModuleService extends RestorableModuleService<Models.Fitment> {
+  static [MedusaServiceModelObjectsSymbol] = {
+    Make: Models.Make,
+    Model: Models.Model,
+    Engine: Models.Engine,
+    Fitment: Models.Fitment,
+  }
+
   readonly makes: MakeService;
   readonly models: ModelService;
   readonly engines: EngineService;
@@ -487,9 +495,9 @@ class FitmentModuleService extends RestorableModuleService<Models.Fitment> {
         : [],
       engineIds.length
         ? this.engineRepository_.find(
-            { where: { id: { $in: engineIds } } },
-            ctx,
-          )
+          { where: { id: { $in: engineIds } } },
+          ctx,
+        )
         : [],
     ]);
 
@@ -499,9 +507,9 @@ class FitmentModuleService extends RestorableModuleService<Models.Fitment> {
     ];
     const makes = makeIds.length
       ? await this.makeRepository_.find(
-          { where: { id: { $in: makeIds } } },
-          ctx,
-        )
+        { where: { id: { $in: makeIds } } },
+        ctx,
+      )
       : [];
 
     const modelMap = new Map((models as any[]).map((m: any) => [m.id, m]));

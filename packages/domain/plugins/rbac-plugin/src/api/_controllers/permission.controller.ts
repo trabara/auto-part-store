@@ -1,6 +1,5 @@
-import { ContainerRegistrationKeys } from "@medusajs/framework/utils";
-import { BaseController } from "@trabara/common";
 import { AUTHZ_MODULE, AuthzModuleService } from "@repo/domain-modules/authz";
+import { BaseController } from "@trabara/common";
 import {
   CreatePermissionSchema,
   UpdatePermissionSchema,
@@ -22,15 +21,15 @@ export class PermissionController extends BaseController {
 
   async list(): Promise<void> {
     await this.execute(async () => {
-      const query = this.req.scope.resolve(ContainerRegistrationKeys.QUERY);
+      const service = this.req.scope.resolve<AuthzModuleService>(AUTHZ_MODULE);
 
-      const { data, metadata } = await query.graph({
-        entity: "authz_permission",
+      const [permissions, count] = await service.permissions.listAndCount({}, {
         ...this.req.queryConfig,
         ...this.req.filterableFields,
       });
 
-      this.success({ data, metadata });
+
+      this.success({ data: permissions, metadata: { count } });
     });
   }
 

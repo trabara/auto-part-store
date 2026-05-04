@@ -14,7 +14,7 @@ export type StoreProductCategory = Omit<
   HttpTypes.StoreProductCategory,
   "parent_category"
 > & {
-  product_category_image: ProductCategoryImage[]
+  entity_media: ProductCategoryImage[]
   parent_category?: StoreProductCategory
   category_children?: StoreProductCategory[]
 }
@@ -38,7 +38,7 @@ export const listCategories = async (query?: { limit?: number }) => {
       headers,
       query: {
         fields:
-          "*category_children, *category_children.product_category_image, *parent_category, *parent_category.parent_category, *product_category_image",
+          "*category_children, *category_children.entity_media, *parent_category, *parent_category.parent_category, *entity_media",
         limit,
         ...query,
       },
@@ -68,7 +68,7 @@ export const getCategoryByHandle = async (categoryHandle: string[]) => {
         headers,
         query: {
           fields:
-            "*category_children, *category_children.product_category_image, *parent_category, *parent_category.parent_category, *product_category_image",
+            "*category_children, *category_children.entity_media, *parent_category, *parent_category.parent_category, *entity_media",
           handle,
         }
       }

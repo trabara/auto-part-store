@@ -1,19 +1,19 @@
-import { Module } from "@medusajs/framework/utils";
-import InvoiceGeneratorService from "./service";
+import { MedusaServiceModelObjectsSymbol, Module } from "@medusajs/framework/utils";
+import createDefaultConfigLoader from "./loaders/create-default-config";
 import { Invoice } from "./models/invoice";
 import { InvoiceConfig } from "./models/invoice-config";
+import InvoiceGeneratorService from "./service";
 
 export const INVOICE_MODULE = "invoiceGenerator";
 
 export { InvoiceStatus } from "./models/invoice";
 
-// Register DML models on the service so Module() can build linkable keys
-const _modelObjectsSymbol = Symbol.for("MedusaServiceModelObjectsSymbol");
-(InvoiceGeneratorService as any)[_modelObjectsSymbol] = {
+InvoiceGeneratorService[MedusaServiceModelObjectsSymbol] = {
   Invoice,
   InvoiceConfig,
 };
 
 export default Module(INVOICE_MODULE, {
   service: InvoiceGeneratorService,
+  // loaders: [createDefaultConfigLoader]
 });

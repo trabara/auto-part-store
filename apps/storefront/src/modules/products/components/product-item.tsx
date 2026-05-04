@@ -12,7 +12,7 @@ import { useTranslations } from "next-intl"
 import Image from "next/image"
 import { createElement, HTMLAttributes } from "react"
 import { Display } from "../types"
-import { WishlistButton } from "./whishlist-button"
+import { WishlistButton } from "./wishlist-button"
 
 type ProductItemProps = HTMLAttributes<HTMLDivElement> & {
   product: StoreProduct

@@ -3,6 +3,7 @@ import {
   InjectManager,
   InjectTransactionManager,
   MedusaContext,
+  MedusaServiceModelObjectsSymbol,
 } from "@medusajs/framework/utils";
 import { EntityManager } from "@medusajs/framework/mikro-orm/knex";
 import type { CreateMediaInput, UpdateMediaInput } from "@trabara/core/dtos";
@@ -18,6 +19,11 @@ type InjectedDependencies = {
 class MediaModuleService
   extends BaseModuleService<Media>
   implements IMediaModuleService {
+
+  static [MedusaServiceModelObjectsSymbol] = {
+    Media,
+  }
+  
   constructor(deps: InjectedDependencies) {
     super(
       deps.entityMediaRepository,

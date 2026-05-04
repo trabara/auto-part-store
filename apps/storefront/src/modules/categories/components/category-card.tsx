@@ -8,7 +8,7 @@ export default function ProductCategoryCard({
 }: {
     category: StoreProductCategory
 }) {
-    const imageUrl = category.product_category_image?.[0]?.url || null
+    const imageUrl = category.entity_media?.[0]?.url || null
 
 
     return (

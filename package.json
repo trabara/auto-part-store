@@ -52,11 +52,11 @@
     "packages/tooling/*"
   ],
   "resolutions": {
-    "@medusajs/core-flows": "2.13.6",
-    "@medusajs/framework": "2.13.6",
-    "@medusajs/medusa": "2.13.6",
-    "@medusajs/orchestration": "2.13.6",
-    "@medusajs/workflows-sdk": "2.13.6",
+    "@medusajs/core-flows": "2.14.2",
+    "@medusajs/framework": "2.14.2",
+    "@medusajs/medusa": "2.14.2",
+    "@medusajs/orchestration": "2.14.2",
+    "@medusajs/workflows-sdk": "2.14.2",
     "@types/react": "^19",
     "@types/react-dom": "^19"
   },

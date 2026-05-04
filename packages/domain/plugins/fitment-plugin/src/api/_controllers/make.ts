@@ -1,4 +1,5 @@
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils";
+import { z } from "@medusajs/framework/zod";
 import {
   FITMENT_MODULE,
   FitmentModuleService,
@@ -8,7 +9,6 @@ import {
   CreateMakeInputSchema,
   UpdateMakeInputSchema,
 } from "@trabara/core/validations";
-import { z } from "@medusajs/framework/zod";
 
 export class MakeController extends BaseController {
   async list(): Promise<void> {
@@ -17,15 +17,15 @@ export class MakeController extends BaseController {
 
       this.logger.info("Fetching makes list");
 
-      const { data: makes, metadata } = await query.graph({
+      const { data, metadata } = await query.graph({
         entity: "fitment_make",
         ...this.req.queryConfig,
         ...this.req.filterableFields,
       });
 
-      this.logger.info(`Found ${makes.length} makes`);
+      this.logger.info(`Found ${data.length} makes`);
 
-      this.success({ data: makes, metadata });
+      this.success({ data, metadata });
     }, "Makes list retrieved successfully");
   }
 
@@ -39,7 +39,13 @@ export class MakeController extends BaseController {
       const { data } = await query.graph(
         {
           entity: "fitment_make",
-          fields: ["id", "name", "created_at", "updated_at", "models.*"],
+          fields: [
+            "id",
+            "name",
+            "created_at",
+            "updated_at",
+            "models.*"
+          ],
           filters: { id },
         },
         {
@@ -65,7 +71,7 @@ export class MakeController extends BaseController {
 
       this.logger.info(`Creating new make: ${validated.name}`);
 
-      const [make] = (await service.createMakes([validated])) as any[];
+      const [make] = await service.createFitmentMakes([validated]);
 
       this.logger.info(`Make created successfully: ${make.id}`);
 
@@ -77,6 +83,7 @@ export class MakeController extends BaseController {
     await this.execute(async () => {
       const service =
         this.req.scope.resolve<FitmentModuleService>(FITMENT_MODULE);
+
       const { makes: makeUpdates } = z
         .object({
           makes: z.array(UpdateMakeInputSchema.extend({ id: z.string() })),
@@ -85,7 +92,7 @@ export class MakeController extends BaseController {
 
       this.logger.info(`Updating ${makeUpdates.length} makes`);
 
-      const makes = await service.updateMakes(makeUpdates);
+      const makes = await service.updateFitmentMakes(makeUpdates);
 
       this.logger.info("Makes updated successfully");
 
@@ -102,7 +109,7 @@ export class MakeController extends BaseController {
 
       this.logger.info(`Updating make: ${id}`);
 
-      const [make] = await service.updateMakes([{ ...validated, id }]);
+      const [make] = await service.updateFitmentMakes([{ ...validated, id }]);
 
       this.logger.info("Make updated successfully");
 
@@ -118,7 +125,7 @@ export class MakeController extends BaseController {
 
       this.logger.info(`Deleting make: ${id}`);
 
-      await service.deleteMakes([id]);
+      await service.deleteFitmentMakes([id]);
 
       this.noContent();
     }, `Make deleted: ${this.req.params.id}`);

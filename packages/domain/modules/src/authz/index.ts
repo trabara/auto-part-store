@@ -10,5 +10,5 @@ export default Module(AUTHZ_MODULE, {
 
 export type { AuthzModuleService };
 
-  export * from "./middleware";
+export * from "./middleware";
 

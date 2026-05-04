@@ -1,4 +1,4 @@
-import { createStep } from "@medusajs/framework/workflows-sdk";
+import { createStep, StepResponse } from "@medusajs/framework/workflows-sdk";
 import {
   FITMENT_MODULE,
   FitmentModuleService,
@@ -13,12 +13,16 @@ export const deleteFitmentsStep = createStep(
     const fitmentModuleService =
       container.resolve<FitmentModuleService>(FITMENT_MODULE);
 
-    await fitmentModuleService.deleteFitmentsData(ids);
+    await fitmentModuleService.deleteFitments(ids);
+    return new StepResponse({}, { ids });
   },
-  async ({ ids }: DeleteFitmentsStepInput, { container }) => {
+  async (compensation, { container }) => {
+    if (!compensation) return;
+
     const fitmentModuleService =
       container.resolve<FitmentModuleService>(FITMENT_MODULE);
 
-    await fitmentModuleService.restoreFitments(ids);
+    await fitmentModuleService.restoreFitments(compensation.ids);
+
   },
 );

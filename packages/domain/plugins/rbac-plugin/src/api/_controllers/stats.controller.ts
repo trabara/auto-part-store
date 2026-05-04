@@ -1,5 +1,5 @@
-import { BaseController } from "@trabara/common";
 import { AUTHZ_MODULE, AuthzModuleService } from "@repo/domain-modules/authz";
+import { BaseController } from "@trabara/common";
 
 export class StatsController extends BaseController {
   async get(): Promise<void> {
@@ -7,23 +7,10 @@ export class StatsController extends BaseController {
       const service = this.req.scope.resolve(
         AUTHZ_MODULE,
       ) as AuthzModuleService;
-
-      const [
-        [, roles],
-        [, permissions],
-        [, categories],
-        [, members],
-        [, policies],
-      ] = await Promise.all([
-        service.roles.listAndCount({}, {}),
-        service.permissions.listAndCount({}, {}),
-        service.categories.listAndCount({}, {}),
-        service.members.listAndCount({}, {}),
-        service.policies.listAndCount({}, {}),
-      ]);
-
+      const stats = await service.getStats();
+      
       this.success({
-        stats: { roles, permissions, categories, members, policies },
+        stats,
       });
     }, "Stats retrieved successfully");
   }

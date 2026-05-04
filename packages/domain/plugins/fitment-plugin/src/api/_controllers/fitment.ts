@@ -40,16 +40,16 @@ export class FitmentController extends BaseController {
 
       this.logger.info(`Fetching fitment by ID: ${id}`);
 
-      const fitments = await service.listFitmentsWithRelations({ id });
+      const fitment = await service.retrieveFitment(id, { relations: ["model", "model.make", "engine"] });
 
-      if (!fitments || fitments.length === 0) {
+      if (!fitment) {
         this.notFound(`Fitment with id ${id} not found`);
         return;
       }
 
       this.logger.info("Fitment found successfully");
 
-      this.success({ fitment: fitments[0] });
+      this.success({ fitment });
     }, `Fitment retrieved: ${this.req.params.id}`);
   }
 
@@ -78,7 +78,7 @@ export class FitmentController extends BaseController {
 
       this.logger.info("Updating fitment", { id, data: validated });
 
-      const [updated] = await service.updateFitmentsData([
+      const [updated] = await service.updateFitments([
         { ...validated, id },
       ]);
 

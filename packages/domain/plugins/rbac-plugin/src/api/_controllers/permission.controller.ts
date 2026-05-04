@@ -8,64 +8,63 @@ import {
 export class PermissionController extends BaseController {
   async getById(): Promise<void> {
     await this.execute(async () => {
-      const service = this.req.scope.resolve<AuthzModuleService>(AUTHZ_MODULE);
       const { id } = this.req.params;
 
-      const permission = await service.permissions.retrieve(id, {
+      const service = this.req.scope.resolve<AuthzModuleService>(AUTHZ_MODULE);
+      const permission = await service.retrieveAuthzPermission(id, {
         relations: ["category"],
       });
 
       this.success({ permission });
-    });
+    }, "Permission retrieved successfully");
   }
 
   async list(): Promise<void> {
     await this.execute(async () => {
-      const service = this.req.scope.resolve<AuthzModuleService>(AUTHZ_MODULE);
+      const query = this.req.scope.resolve("query");
 
-      const [permissions, count] = await service.permissions.listAndCount({}, {
+      const { data, metadata } = await query.graph({
+        entity: 'authz_permission',
         ...this.req.queryConfig,
         ...this.req.filterableFields,
       });
 
 
-      this.success({ data: permissions, metadata: { count } });
-    });
+      this.success({ data, metadata });
+    }, "Permissions retrieved successfully");
   }
 
   async create(): Promise<void> {
     await this.execute(async () => {
-      const service = this.req.scope.resolve<AuthzModuleService>(AUTHZ_MODULE);
       const validated = CreatePermissionSchema.parse(this.req.validatedBody);
 
-      const [permission] = await service.permissions.create([validated]);
+      const service = this.req.scope.resolve<AuthzModuleService>(AUTHZ_MODULE);
+      const [permission] = await service.createAuthzPermissions([validated]);
 
       this.created({ permission });
-    });
+    }, "Permission created successfully");
   }
 
   async update(): Promise<void> {
     await this.execute(async () => {
-      const service = this.req.scope.resolve<AuthzModuleService>(AUTHZ_MODULE);
       const { id } = this.req.params;
       const validated = UpdatePermissionSchema.parse(this.req.validatedBody);
 
-      const [permission] = await service.permissions.update([
-        { id, ...validated },
-      ]);
+      const service = this.req.scope.resolve<AuthzModuleService>(AUTHZ_MODULE);
+      const [permission] = await service.updateAuthzPermissions([{ id, ...validated }]);
 
       this.success({ permission });
-    });
+    }, "Permission updated successfully");
   }
 
   async delete(): Promise<void> {
     await this.execute(async () => {
-      const service = this.req.scope.resolve<AuthzModuleService>(AUTHZ_MODULE);
       const { id } = this.req.params;
 
-      await service.permissions.delete([id]);
+      const service = this.req.scope.resolve<AuthzModuleService>(AUTHZ_MODULE);
+      await service.deleteAuthzPermissions([id]);
 
       this.noContent();
-    });
+    }, "Permission deleted successfully");
   }
 }

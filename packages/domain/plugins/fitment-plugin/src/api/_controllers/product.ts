@@ -135,8 +135,10 @@ export class ProductController extends BaseController {
       }
 
       // Hydrate fitments with model + make + engine via the service
-      const fitments = await service.listFitmentsWithRelations({
+      const fitments = await service.listFitments({
         id: { $in: fitmentIds },
+      }, {
+        relations: ["model", "model.make", "engine"],
       });
 
       this.logger.info(

@@ -1,12 +1,12 @@
-import { model } from "@medusajs/framework/utils"
-import { Make } from "./make"
-import { Fitment } from "./fitment"
 import { InferTypeOf } from "@medusajs/framework/types";
+import { model } from "@medusajs/framework/utils";
+import { Fitment } from "./fitment";
+import { FitmentMake } from "./make";
 
-export const Model = model.define("fitment_model", {
+export const FitmentModel = model.define("fitment_model", {
   id: model.id().primaryKey(),
   name: model.text(),
-  make: model.belongsTo(() => Make, {
+  make: model.belongsTo(() => FitmentMake, {
     mappedBy: "models",
   }),
   fitments: model.hasMany(() => Fitment, {
@@ -20,4 +20,4 @@ export const Model = model.define("fitment_model", {
   }
 ])
 
-export type Model = InferTypeOf<typeof Model>;
+export type Model = InferTypeOf<typeof FitmentModel>;

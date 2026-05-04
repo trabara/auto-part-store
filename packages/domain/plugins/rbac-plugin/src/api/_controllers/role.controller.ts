@@ -1,11 +1,11 @@
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils";
-import { BaseController } from "@trabara/common";
 import { AUTHZ_MODULE, AuthzModuleService } from "@repo/domain-modules/authz";
+import { BaseController } from "@trabara/common";
 import {
   AssignUsersSchema,
   CreateRoleSchema,
-  UpdateRoleSchema,
   UpdateRolePoliciesSchema,
+  UpdateRoleSchema,
 } from "@trabara/core/validations";
 import { updateRolePoliciesWorkflow } from "../../workflows";
 
@@ -15,7 +15,7 @@ export class RoleController extends BaseController {
       const service = this.req.scope.resolve<AuthzModuleService>(AUTHZ_MODULE);
       const { id } = this.req.params;
 
-      const role = await service.roles.retrieve(id, {
+      const role = await service.retrieveAuthzRole(id, {
         relations: ["policies", "policies.permission", "members"],
       });
 
@@ -53,7 +53,7 @@ export class RoleController extends BaseController {
         data: validated,
       });
 
-      const [role] = await service.createRoles([validated]);
+      const [role] = await service.createAuthzRoles([validated]);
 
       this.logger.info("Role created successfully", {
         role_id: role.id,
@@ -71,7 +71,7 @@ export class RoleController extends BaseController {
 
       const service = this.req.scope.resolve<AuthzModuleService>(AUTHZ_MODULE);
 
-      const [role] = await service.roles.update([{ id, ...validated }]);
+      const [role] = await service.updateAuthzRoles([{ id, ...validated }]);
 
       if (!role) {
         this.notFound("Role not found");
@@ -90,7 +90,7 @@ export class RoleController extends BaseController {
       this.logger.info(`Deleting role ${id}`, {
         role_id: id,
       });
-      await service.roles.delete([id]);
+      await service.deleteAuthzRoles([id]);
 
       this.noContent();
     }, "Role deleted successfully");
@@ -124,7 +124,10 @@ export class RoleController extends BaseController {
       });
 
       await updateRolePoliciesWorkflow(this.req.scope).run({
-        input: { roleId: id, permissionIds: validated.permissions },
+        input: {
+          roleId: id,
+          permissionIds: validated.permissions
+        },
       });
 
       this.success({ success: true });

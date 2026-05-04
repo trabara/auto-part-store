@@ -1,24 +1,13 @@
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils";
-import { BaseController } from "@trabara/common";
 import { AUTHZ_MODULE, AuthzModuleService } from "@repo/domain-modules/authz";
+import { BaseController } from "@trabara/common";
 import {
   CreateCategorySchema,
   UpdateCategorySchema,
 } from "@trabara/core/validations";
 
 export class CategoryController extends BaseController {
-  async getById(): Promise<void> {
-    await this.execute(async () => {
-      const service = this.req.scope.resolve<AuthzModuleService>(AUTHZ_MODULE);
-      const { id } = this.req.params;
 
-      const category = await service.categories.retrieve(id, {
-        relations: ["permissions"],
-      });
-
-      this.success({ category });
-    });
-  }
 
   async list(): Promise<void> {
     await this.execute(async () => {
@@ -31,7 +20,20 @@ export class CategoryController extends BaseController {
       });
 
       this.success({ data, metadata });
-    });
+    }, "Categories retrieved successfully");
+  }
+
+  async getById(): Promise<void> {
+    await this.execute(async () => {
+      const service = this.req.scope.resolve<AuthzModuleService>(AUTHZ_MODULE);
+      const { id } = this.req.params;
+
+      const category = await service.retrieveAuthzCategory(id, {
+        relations: ["permissions"],
+      });
+
+      this.success({ category });
+    }, "Category retrieved successfully");
   }
 
   async create(): Promise<void> {
@@ -39,30 +41,23 @@ export class CategoryController extends BaseController {
       const service = this.req.scope.resolve<AuthzModuleService>(AUTHZ_MODULE);
       const validated = CreateCategorySchema.parse(this.req.validatedBody);
 
-      const category = await service.createPermissionCategory(validated);
+      const [category] = await service.createPermissionCategories([validated]);
 
       this.created({ category });
-    }, "Create category");
+    }, "Category created successfully");
   }
 
   async update(): Promise<void> {
     await this.execute(async () => {
-      const service = this.req.scope.resolve<AuthzModuleService>(AUTHZ_MODULE);
       const { id } = this.req.params;
-      const validated = UpdateCategorySchema.parse(this.req.validatedBody);
 
-      const updateData: Record<string, any> = { id };
-      if (validated.name !== undefined) {
-        updateData.name = validated.name;
-      }
-      if (validated.description !== undefined) {
-        updateData.description = validated.description;
-      }
+      const validated = UpdateCategorySchema.omit({ permissions: true }).parse(this.req.validatedBody);
+      const service = this.req.scope.resolve<AuthzModuleService>(AUTHZ_MODULE);
 
-      const [category] = await service.categories.update([updateData as any]);
+      const [category] = await service.updateAuthzCategories([{ id, ...validated }]);
 
       this.success({ category });
-    }, "Update category");
+    }, "Category updated successfully");
   }
 
   async delete(): Promise<void> {
@@ -70,9 +65,9 @@ export class CategoryController extends BaseController {
       const service = this.req.scope.resolve<AuthzModuleService>(AUTHZ_MODULE);
       const { id } = this.req.params;
 
-      await service.categories.delete([id]);
+      await service.deleteAuthzCategories([id]);
 
       this.noContent();
-    }, "Delete category");
+    }, "Category deleted successfully");
   }
 }

@@ -6,7 +6,7 @@ export const createRbacRolesStep = createStep(
   "create-rbac-roles-step",
   async (input: CreateRoleInput[], { container }) => {
     const service = container.resolve<AuthzModuleService>(AUTHZ_MODULE);
-    const roles = await service.createRoles(input);
+    const roles = await service.createRolesWithPermissions(input);
 
     return new StepResponse({ roles }, { roleIds: roles.map((r) => r.id) });
   },
@@ -16,7 +16,7 @@ export const createRbacRolesStep = createStep(
     const service = container.resolve<AuthzModuleService>(AUTHZ_MODULE);
 
     if (compensation.roleIds) {
-      await service.roles.delete(compensation.roleIds);
+      await service.deleteAuthzRoles(compensation.roleIds);
     }
   },
 );

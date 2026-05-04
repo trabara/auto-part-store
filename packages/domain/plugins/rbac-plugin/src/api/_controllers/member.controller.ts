@@ -1,6 +1,6 @@
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils";
-import { BaseController } from "@trabara/common";
 import { AUTHZ_MODULE, AuthzModuleService } from "@repo/domain-modules/authz";
+import { BaseController } from "@trabara/common";
 
 export class MemberController extends BaseController {
   async list(): Promise<void> {
@@ -22,7 +22,7 @@ export class MemberController extends BaseController {
       const service = this.req.scope.resolve<AuthzModuleService>(AUTHZ_MODULE);
       const { id } = this.req.params;
 
-      const [member] = await service.members.list({ id });
+      const [member] = await service.listAuthzMembers({ id });
 
       if (!member) {
         this.notFound("Member not found");
@@ -38,7 +38,7 @@ export class MemberController extends BaseController {
       const service = this.req.scope.resolve<AuthzModuleService>(AUTHZ_MODULE);
       const { id } = this.req.params;
 
-      await service.members.delete({ id });
+      await service.deleteAuthzMembers([id]);
 
       this.noContent();
     }, "Member deleted successfully");

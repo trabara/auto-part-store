@@ -1,4 +1,5 @@
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils";
+import { z } from "@medusajs/framework/zod";
 import {
   FITMENT_MODULE,
   FitmentModuleService,
@@ -8,7 +9,6 @@ import {
   CreateModelInputSchema,
   UpdateModelInputSchema,
 } from "@trabara/core/validations";
-import { z } from "@medusajs/framework/zod";
 
 export class ModelController extends BaseController {
   async list(): Promise<void> {
@@ -20,15 +20,15 @@ export class ModelController extends BaseController {
         config: this.req.queryConfig,
       });
 
-      const { data: models, metadata } = await query.graph({
+      const { data, metadata } = await query.graph({
         entity: "fitment_model",
         ...this.req.queryConfig,
         ...this.req.filterableFields,
       });
 
-      this.logger.info(`Found ${models.length} models`);
+      this.logger.info(`Found ${data.length} models`);
 
-      this.success({ data: models, metadata });
+      this.success({ data, metadata });
     }, "Models list retrieved successfully");
   }
 
@@ -76,7 +76,7 @@ export class ModelController extends BaseController {
 
       this.logger.info("Creating new model", { data: validated });
 
-      const [model] = await service.createModels([validated]);
+      const [model] = await service.createFitmentModels([validated]);
 
       this.logger.info(`Created model with ID: ${model.id}`);
 
@@ -93,7 +93,7 @@ export class ModelController extends BaseController {
 
       this.logger.info(`Updating model with ID: ${id}`, { data: validated });
 
-      const [model] = await service.updateModels([{ ...validated, id }]);
+      const [model] = await service.updateFitmentModels([{ ...validated, id }]);
 
       this.logger.info(`Updated model with ID: ${id}`);
 
@@ -113,7 +113,7 @@ export class ModelController extends BaseController {
 
       this.logger.info(`Batch updating ${modelUpdates.length} models`);
 
-      const models = await service.updateModels(modelUpdates);
+      const models = await service.updateFitmentModels(modelUpdates);
 
       this.logger.info(`Batch updated ${models.length} models`);
 
@@ -129,7 +129,7 @@ export class ModelController extends BaseController {
 
       this.logger.info(`Deleting model with ID: ${id}`);
 
-      await service.deleteModels([id]);
+      await service.deleteFitmentModels([id]);
 
       this.noContent();
     }, `Model ${this.req.params.id} deleted successfully`);

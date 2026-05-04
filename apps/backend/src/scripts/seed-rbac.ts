@@ -1,5 +1,5 @@
 import { ExecArgs } from "@medusajs/framework/types";
-import { createRbacPermissionsWorkflow, createRbacRolesWorkflow, assignRoleWorkflow } from "@repo/rbac-plugin/workflows";
+import { assignRoleWorkflow, createRbacPermissionsWorkflow, createRbacRolesWorkflow } from "@repo/rbac-plugin/workflows";
 
 export default async function seedRbac({ container }: ExecArgs) {
 
@@ -17,7 +17,6 @@ export default async function seedRbac({ container }: ExecArgs) {
                         { kind: "write", target: "/admin/workflows-executions", type: "predefined" },
                         { kind: "delete", target: "/admin/workflows-executions", type: "predefined" },
                     ]
-
                 },
                 {
                     name: "Analytics",
@@ -234,42 +233,42 @@ export default async function seedRbac({ container }: ExecArgs) {
                 {
                     name: "Customer Support",
                     description: "Role for customer support representatives with permissions to manage customers and orders.",
-                    permissions: categories
-                        .filter((c) => ["Customers", "Orders"].includes(c.name))
-                        .flatMap((c) => c.permissions.map((p) => p.id)),
+                    policies: categories
+                        .filter((c: any) => ["Customers", "Orders"].includes(c.name))
+                        .flatMap((c: any) => c.permissions.map((p: any) => p.id)),
                 },
                 {
                     name: "Developer",
                     description: "Role for developers with permissions to manage API keys and workflows executions.",
                     permissions: categories
-                        .filter((c) => ["Development"].includes(c.name))
-                        .flatMap((c) => c.permissions.map((p) => p.id)),
+                        .filter((c: any) => ["Development"].includes(c.name))
+                        .flatMap((c: any) => c.permissions.map((p: any) => p.id)),
                 },
                 {
                     name: "Marketing Manager",
                     description: "Role for marketing managers with permissions to manage campaigns, promotions, gift cards, and analytics.",
                     permissions: categories
-                        .filter((c) => ["Campaigns", "Promotions", "Gift Cards", "Analytics"].includes(c.name))
-                        .flatMap((c) => c.permissions.map((p) => p.id)),
+                        .filter((c: any) => ["Campaigns", "Promotions", "Gift Cards", "Analytics"].includes(c.name))
+                        .flatMap((c: any) => c.permissions.map((p: any) => p.id)),
                 },
                 {
                     name: "Inventory Manager",
                     description: "Role for inventory managers with permissions to manage inventory items and stock locations.",
                     permissions: categories
-                        .filter((c) => ["Inventory"].includes(c.name))
-                        .flatMap((c) => c.permissions.map((p) => p.id)),
+                        .filter((c: any) => ["Inventory"].includes(c.name))
+                        .flatMap((c: any) => c.permissions.map((p: any) => p.id)),
                 },
                 {
                     name: "Product Manager",
                     description: "Role for product managers with permissions to manage products, categories, and collections.",
                     permissions: categories
-                        .filter((c) => ["Products"].includes(c.name))
-                        .flatMap((c) => c.permissions.map((p) => p.id)),
+                        .filter((c: any) => ["Products"].includes(c.name))
+                        .flatMap((c: any) => c.permissions.map((p: any) => p.id)),
                 },
                 {
                     name: "Admin",
                     description: "Role for administrators with permissions to manage all aspects of the store.",
-                    permissions: categories.flatMap((c) => c.permissions.map((p) => p.id)),
+                    permissions: categories.flatMap((c: any) => c.permissions.map((p: any) => p.id)),
                 },
             ]
         });
@@ -281,7 +280,7 @@ export default async function seedRbac({ container }: ExecArgs) {
         fields: ["id"]
     })
 
-    const adminRole = roles.find((r) => r.name === "Admin")
+    const adminRole = roles.find((r: any) => ["Admin"].includes(r.name))
     if (!adminRole) {
         throw new Error("Admin role not found")
     }

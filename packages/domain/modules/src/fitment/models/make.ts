@@ -1,11 +1,11 @@
-import { model } from "@medusajs/framework/utils"
-import { Model } from "./model"
 import { InferTypeOf } from "@medusajs/framework/types";
+import { model } from "@medusajs/framework/utils";
+import { FitmentModel } from "./model";
 
-export const Make = model.define("fitment_make", {
+export const FitmentMake = model.define("fitment_make", {
   id: model.id().primaryKey(),
   name: model.text(),
-  models: model.hasMany(() => Model, {
+  models: model.hasMany(() => FitmentModel, {
     mappedBy: "make",
   }),
 }).indexes([
@@ -16,4 +16,4 @@ export const Make = model.define("fitment_make", {
   }
 ])
 
-export type Make = InferTypeOf<typeof Make>;
+export type Make = InferTypeOf<typeof FitmentMake>;

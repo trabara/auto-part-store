@@ -1,4 +1,5 @@
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils";
+import { z } from "@medusajs/framework/zod";
 import {
   FITMENT_MODULE,
   FitmentModuleService,
@@ -8,7 +9,6 @@ import {
   CreateEngineInputSchema,
   UpdateEngineInputSchema,
 } from "@trabara/core/validations";
-import { z } from "@medusajs/framework/zod";
 
 export class EngineController extends BaseController {
   async list(): Promise<void> {
@@ -77,7 +77,7 @@ export class EngineController extends BaseController {
 
       this.logger.info("Creating new engine", { data: validated });
 
-      const [engine] = await service.createEngines([validated]);
+      const [engine] = await service.createFitmentEngines([validated]);
 
       this.logger.info(`Created engine with ID: ${engine.id}`);
 
@@ -94,7 +94,7 @@ export class EngineController extends BaseController {
 
       this.logger.info(`Updating engine with ID: ${id}`, { data: validated });
 
-      const [engine] = await service.updateEngines([{ ...validated, id }]);
+      const [engine] = await service.updateFitmentEngines([{ ...validated, id }]);
 
       this.logger.info(`Updated engine with ID: ${id}`);
 
@@ -114,7 +114,7 @@ export class EngineController extends BaseController {
 
       this.logger.info(`Batch updating ${engineUpdates.length} engines`);
 
-      const engines = await service.updateEngines(engineUpdates);
+      const engines = await service.updateFitmentEngines(engineUpdates);
 
       this.logger.info(`Batch updated ${engines.length} engines`);
 
@@ -130,7 +130,7 @@ export class EngineController extends BaseController {
 
       this.logger.info(`Deleting engine with ID: ${id}`);
 
-      await service.deleteEngines([id]);
+      await service.deleteFitmentEngines([id]);
 
       this.logger.info(`Deleted engine with ID: ${id}`);
 

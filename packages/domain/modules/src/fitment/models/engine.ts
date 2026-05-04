@@ -3,7 +3,7 @@ import { EngineTypeSchema, FuelTypeSchema } from "@trabara/core/schemas";
 import { Fitment } from "./fitment";
 import { InferTypeOf } from "@medusajs/framework/types";
 
-export const Engine = model
+export const FitmentEngine = model
   .define("fitment_engine", {
     id: model.id().primaryKey(),
     fuel: model.enum(FuelTypeSchema.Values).default("GASOLINE"),
@@ -23,4 +23,4 @@ export const Engine = model
   ]);
 
 
-export type Engine = InferTypeOf<typeof Engine>;
+export type Engine = InferTypeOf<typeof FitmentEngine>;

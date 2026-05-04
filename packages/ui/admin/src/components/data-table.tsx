@@ -20,7 +20,7 @@ import { createZodDataTableColumnDef } from "./data-table-columns";
 import createZodDataTableFilterDef from "./data-table-filters";
 
 interface DataTableListProps<
-  S extends z.AnyZodObject,
+  S extends z.ZodObject,
   T extends Entity<z.infer<S>>,
 > extends ListConfig<T> {
   className?: string;
@@ -32,7 +32,7 @@ interface DataTableListProps<
 }
 
 const DataTable = <
-  S extends z.AnyZodObject,
+  S extends z.ZodObject,
   T extends Entity<z.infer<S>>,
 >(props: DataTableListProps<S, T>) => {
   const {

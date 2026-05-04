@@ -12,7 +12,11 @@ export const FuelTypeSchema = z.enum([
 
 export const DriveTypeSchema = z.enum(["FWD", "RWD", "AWD", "FOUR_WD"])
 
-export const TransmissionTypeSchema = z.enum(["MANUAL", "AUTOMATIC", "CVT"])
+export const TransmissionTypeSchema = z.enum([
+  "MANUAL",
+  "AUTOMATIC",
+  "CVT"
+])
 
 export const BodyStyleTypeSchema = z.enum([
   "SEDAN",

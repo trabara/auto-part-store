@@ -8,19 +8,17 @@ import { PageQueryParams, PageResponse } from "@repo/admin/types/query";
 import { zodQueryResolve } from "@repo/admin/utils/zod";
 import { useAsRef } from "@repo/hooks";
 import { useMutation } from "@tanstack/react-query";
-import { memo, useState } from "react";
-import { useTranslation } from "react-i18next";
 import { AssignUsersInput, Role } from "@trabara/core/dtos";
 import { UserSchema } from "@trabara/core/schemas";
+import { memo, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 type User = z.infer<typeof UserSchema>;
 
-const assignUsersToRole = (roleId: string, input: AssignUsersInput) => {
-  return sdk.client.fetch(`/admin/rbac/v2/roles/${roleId}/assign`, {
-    method: "POST",
-    body: input,
-  });
-};
+const assignUsersToRole = (roleId: string, input: AssignUsersInput) => sdk.client.fetch(`/admin/rbac/v2/roles/${roleId}/assign`, {
+  method: "POST",
+  body: input,
+});
 
 const fetchUsers = (signal: AbortSignal, params?: PageQueryParams) => {
   return sdk.client

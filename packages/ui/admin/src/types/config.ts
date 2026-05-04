@@ -39,17 +39,16 @@ export interface ToolbarAction<T> extends BaseAction {
   onClick: (table: UseDataTableReturn<T>) => void;
 }
 
-
 export interface RowAction<T> extends BaseAction {
   onClick?: (row: T) => void;
   render?: (row: T) => React.ReactNode;
 }
 
-export interface StepConfig<S extends z.ZodTypeAny> {
+export interface StepConfig<S extends z.ZodObject> {
+  id: string;
   description?: string;
   header?: boolean;
   icon?: React.ReactNode;
-  id: string;
   label: string;
   schema: S;
 };
@@ -59,7 +58,7 @@ export interface ActionConfig<T extends {}> {
   title?: string;
   description?: string;
   fields?: MedusaFieldOverrides<T>;
-  schema: z.AnyZodObject;
+  schema: z.ZodObject;
 };
 
 export interface ListConfig<

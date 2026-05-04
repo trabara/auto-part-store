@@ -7,8 +7,9 @@ import { useUpdateMutation } from "../hooks/use-update-mutation";
 import { EditConfig } from "../types";
 import { Form } from "./form";
 
-
-interface EditDrawerProps<S extends z.AnyZodObject> extends EditConfig<z.infer<S>> {
+interface EditDrawerProps<S extends z.ZodObject> extends EditConfig<
+  z.infer<S>
+> {
   open?: boolean;
   defaultValues?: z.infer<S>;
   mutateFn: (id: string, data: z.infer<S>) => Promise<void>;
@@ -16,74 +17,90 @@ interface EditDrawerProps<S extends z.AnyZodObject> extends EditConfig<z.infer<S
   children?: React.ReactNode;
 }
 
-const EditDrawer = forwardRef(<S extends z.AnyZodObject>(props: EditDrawerProps<S>, ref: React.Ref<HTMLButtonElement>) => {
-  const { id, open, schema, fields = {}, defaultValues, mutateFn } = props;
-  const { t } = useTranslation();
-  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+const EditDrawer = forwardRef(
+  <S extends z.ZodObject>(
+    props: EditDrawerProps<S>,
+    ref: React.Ref<HTMLButtonElement>,
+  ) => {
+    const { id, open, schema, fields = {}, defaultValues, mutateFn } = props;
+    const { t } = useTranslation();
+    const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
-  const mutate = useUpdateMutation({
-    invalidateKeys: [id],
-    errorMessage: `Failed to update ${id}`,
-    successMessage: `Successfully updated ${id}`,
-    updateFn: (data) => mutateFn(defaultValues?.id, data),
-    onSuccess: () => {
+    const mutate = useUpdateMutation({
+      invalidateKeys: [id],
+      errorMessage: `Failed to update ${id}`,
+      successMessage: `Successfully updated ${id}`,
+      updateFn: (data) => mutateFn(defaultValues?.id as string, data),
+      onSuccess: () => {
+        setIsDrawerOpen(false);
+      },
+    });
+
+    const handleSubmit = async (values: z.infer<S>) => {
+      await mutate.mutateAsync(values);
       setIsDrawerOpen(false);
-    }
-  })
+    };
 
-  const handleSubmit = async (values: z.infer<S>) => {
-    await mutate.mutateAsync(values);
-    setIsDrawerOpen(false);
-  }
-
-  return (
-    <Drawer open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
-      <Drawer.Trigger asChild ref={ref}>
-        <Button onClick={() => setIsDrawerOpen(true)} variant="transparent" size="small" className="w-full justify-start px-2 py-1.5 [&_svg]:text-ui-fg-subtle flex items-center gap-x-2">
-          <PencilSquare />
-          <span>{t('common.edit')}</span>
-        </Button>
-      </Drawer.Trigger>
-      <Drawer.Content>
-        <Form
-          defaultValues={defaultValues}
-          schema={schema as any}
-          overrides={fields}
-          onSubmit={handleSubmit}
-          className="flex flex-col h-full"
-        >
-          {({ renderField, renderSubmitButton }, fieldKeys) => {
-            return <>
-              <Drawer.Header>
-                <Heading level="h2">
-                  Edit <span className="capitalize">{id}</span>
-                </Heading>
-                <Hint className="text-ui-fg-subtle text-sm mt-1">
-
-                </Hint>
-              </Drawer.Header>
-              <Drawer.Body className="flex flex-col gap-y-4">
-                {fieldKeys.map((key) => renderField(key))}
-              </Drawer.Body>
-              <Drawer.Footer>
-                <Drawer.Close asChild>
-                  <Button
-                    variant="secondary"
-                    size="small"
-                    type="button"
-                    onClick={() => setIsDrawerOpen(false)}
-                  >
-                    Cancel
-                  </Button>
-                </Drawer.Close>
-                {renderSubmitButton({ children: <>Save <span className="capitalize">{id}</span></> })}
-              </Drawer.Footer>
-            </>
-          }}
-        </Form>
-      </Drawer.Content>
-    </Drawer>
-  );
-})
+    return (
+      <Drawer open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
+        <Drawer.Trigger asChild ref={ref}>
+          <Button
+            onClick={() => setIsDrawerOpen(true)}
+            variant="transparent"
+            size="small"
+            className="w-full justify-start px-2 py-1.5 [&_svg]:text-ui-fg-subtle flex items-center gap-x-2"
+          >
+            <PencilSquare />
+            <span>{t("common.edit")}</span>
+          </Button>
+        </Drawer.Trigger>
+        <Drawer.Content>
+          <Form
+            defaultValues={defaultValues}
+            schema={schema as any}
+            overrides={fields}
+            onSubmit={handleSubmit}
+            className="flex flex-col h-full"
+          >
+            {({ renderField, renderSubmitButton }, fieldKeys) => {
+              return (
+                <>
+                  <Drawer.Header>
+                    <Heading level="h2">
+                      Edit <span className="capitalize">{id}</span>
+                    </Heading>
+                    <Hint className="text-ui-fg-subtle text-sm mt-1"></Hint>
+                  </Drawer.Header>
+                  <Drawer.Body className="flex flex-col gap-y-4">
+                    {fieldKeys.map((key) => renderField(key))}
+                  </Drawer.Body>
+                  <Drawer.Footer>
+                    <Drawer.Close asChild>
+                      <Button
+                        variant="secondary"
+                        size="small"
+                        type="button"
+                        onClick={() => setIsDrawerOpen(false)}
+                      >
+                        Cancel
+                      </Button>
+                    </Drawer.Close>
+                    {renderSubmitButton({
+                      children: (
+                        <>
+                          Save <span className="capitalize">{id}</span>
+                        </>
+                      ),
+                    })}
+                  </Drawer.Footer>
+                </>
+              );
+            }}
+          </Form>
+        </Drawer.Content>
+      </Drawer>
+    );
+  },
+);
 
 export default memo(EditDrawer);

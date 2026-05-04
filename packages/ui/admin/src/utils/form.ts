@@ -1,8 +1,8 @@
-import type { DefaultValues, FieldValues } from 'react-hook-form';
-import type { z } from 'zod';
+import type { DefaultValues, FieldValues } from "react-hook-form";
+import type { z } from "@medusajs/framework/zod";
 
-import type { FieldConfig, FieldType, SchemaFieldInfo } from '../types';
-import { getZodFieldInfo } from './zod';
+import type { FieldConfig, FieldType, SchemaFieldInfo } from "../types";
+import { getZodFieldInfo } from "./zod";
 
 /**
  * Initialize default values based on schema types and overrides
@@ -15,7 +15,7 @@ import { getZodFieldInfo } from './zod';
 export function initializeDefaultValues<T extends FieldValues>(
   schemaShape: Record<string, z.ZodTypeAny>,
   providedValues: Partial<T> = {},
-  overrides: Partial<Record<string, FieldConfig>> = {}
+  overrides: Partial<Record<string, FieldConfig>> = {},
 ): DefaultValues<T> {
   try {
     const defaultValues = Object.entries(schemaShape).reduce(
@@ -31,27 +31,27 @@ export function initializeDefaultValues<T extends FieldValues>(
 
         // Initialize based on field type
         switch (fieldInfo.baseType) {
-          case 'string':
+          case "string":
             if (override?.emptyAsNull) acc[key] = null;
             else if (override?.emptyAsUndefined) acc[key] = undefined;
-            else acc[key] = '';
+            else acc[key] = "";
             break;
-          case 'number':
+          case "number":
             if (override?.emptyAsZero) acc[key] = 0;
             else if (override?.emptyAsNull) acc[key] = null;
             else if (override?.emptyAsUndefined) acc[key] = undefined;
             else acc[key] = null;
             break;
-          case 'boolean':
+          case "boolean":
             acc[key] = false;
             break;
-          case 'date':
+          case "date":
             acc[key] = null;
             break;
-          case 'enum':
+          case "enum":
             acc[key] = undefined;
             break;
-          case 'array':
+          case "array":
             acc[key] = [];
             break;
           default:
@@ -60,12 +60,12 @@ export function initializeDefaultValues<T extends FieldValues>(
 
         return acc;
       },
-      {} as Record<string, unknown>
+      {} as Record<string, unknown>,
     );
 
     return { ...defaultValues, ...providedValues } as DefaultValues<T>;
   } catch (error) {
-    console.error('[SnowForm] Error initializing default values:', error);
+    console.error("[SnowForm] Error initializing default values:", error);
     return {} as DefaultValues<T>;
   }
 }
@@ -80,7 +80,7 @@ export function initializeDefaultValues<T extends FieldValues>(
  */
 export function applyEmptyValueOverrides<T extends FieldValues>(
   values: T,
-  overrides: Partial<Record<string, FieldConfig>>
+  overrides: Partial<Record<string, FieldConfig>>,
 ): T {
   const transformed = { ...values };
 
@@ -89,13 +89,17 @@ export function applyEmptyValueOverrides<T extends FieldValues>(
     if (!override) continue;
 
     const value = transformed[key];
-    const isEmptyString = value === '' || (typeof value === 'string' && value.trim() === '');
+    const isEmptyString =
+      value === "" || (typeof value === "string" && value.trim() === "");
 
     if (override.emptyAsNull && isEmptyString) {
       transformed[key as keyof T] = null as T[keyof T];
     } else if (override.emptyAsUndefined && isEmptyString) {
       transformed[key as keyof T] = undefined as T[keyof T];
-    } else if (override.emptyAsZero && (value === null || value === undefined || isEmptyString)) {
+    } else if (
+      override.emptyAsZero &&
+      (value === null || value === undefined || isEmptyString)
+    ) {
       transformed[key as keyof T] = 0 as T[keyof T];
     }
   }
@@ -107,23 +111,26 @@ export function applyEmptyValueOverrides<T extends FieldValues>(
  * Determine the field type based on schema info and override.
  * Override type takes priority, otherwise auto-detect from schema.
  */
-export function resolveFieldType(fieldInfo: SchemaFieldInfo, override?: FieldConfig): FieldType {
+export function resolveFieldType(
+  fieldInfo: SchemaFieldInfo,
+  override?: FieldConfig,
+): FieldType {
   if (override?.type) {
     return override.type;
   }
 
   switch (fieldInfo.baseType) {
-    case 'string':
-      return fieldInfo.isEmail ? 'email' : 'text';
-    case 'number':
-      return 'number';
-    case 'boolean':
-      return 'checkbox';
-    case 'date':
-      return 'date';
-    case 'enum':
-      return 'select';
+    case "string":
+      return fieldInfo.isEmail ? "email" : "text";
+    case "number":
+      return "number";
+    case "boolean":
+      return "checkbox";
+    case "date":
+      return "date";
+    case "enum":
+      return "select";
     default:
-      return 'text';
+      return "text";
   }
 }

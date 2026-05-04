@@ -7,13 +7,13 @@ import { CreateConfig } from "../types";
 import { getZodShape } from "../utils";
 import { Form } from "./form";
 
-interface CreateModalProps<S extends z.AnyZodObject> extends CreateConfig<S> {
+interface CreateModalProps<S extends z.ZodObject> extends CreateConfig<S> {
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
   mutateFn: (data: z.infer<S>) => Promise<void>;
 }
 
-export default function CreateModal<S extends z.AnyZodObject>({
+export default function CreateModal<S extends z.ZodObject>({
   id,
   steps = [],
   fields = {},

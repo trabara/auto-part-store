@@ -1,20 +1,24 @@
 import { InferTypeOf } from "@medusajs/framework/types";
 import { model } from "@medusajs/framework/utils";
-import {
-  BodyStyleTypeSchema,
-  DriveTypeSchema,
-  TransmissionTypeSchema,
-} from "@trabara/core/schemas";
 import { FitmentEngine } from "./engine";
 import { FitmentModel } from "./model";
 
 export const Fitment = model
   .define("fitment", {
     id: model.id().primaryKey(),
-    body_style: model.enum(BodyStyleTypeSchema.Values).default("SEDAN"),
+    body_style: model.enum([
+      "SEDAN",
+      "SUV",
+      "HATCHBACK",
+      "COUPE",
+      "CONVERTIBLE",
+      "WAGON",
+      "VAN",
+      "PICKUP",
+    ]).default("SEDAN"),
     doors: model.number().default(4),
-    drive: model.enum(DriveTypeSchema.Values).default("FWD"),
-    transmission: model.enum(TransmissionTypeSchema.Values).default("MANUAL"),
+    drive: model.enum(["FWD", "RWD", "AWD", "FOUR_WD"]).default("FWD"),
+    transmission: model.enum(["MANUAL", "AUTOMATIC", "CVT", "DUAL_CLUTCH"]).default("MANUAL"),
     year_start: model.number(),
     year_end: model.number().nullable(),
     model: model.belongsTo(() => FitmentModel, {

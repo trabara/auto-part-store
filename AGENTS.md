@@ -5,7 +5,7 @@
 Turborepo monorepo. **Package manager:** Yarn 4 Berry (node-modules linker). **Node >= 20.**
 
 ```
-apps/backend/          — Medusa v2 backend (workspace name: medusa)
+apps/backend/          — Medusa v2 backend (workspace name: **backend**, NOT medusa)
 apps/storefront/       — Next.js 16 storefront (React 19, Tailwind v4, next-intl)
 packages/core/         — @trabara/core: schemas, dtos, validations, contracts, interfaces
 packages/common/       — @trabara/common: BaseController, error handler, logger
@@ -32,13 +32,13 @@ yarn format                           # prettier --write **/*.{ts,tsx,md}
 yarn dev                              # dev (backend + storefront hot reload)
 yarn clean                            # remove node_modules, .turbo, .next, .medusa
 
-# Backend (workspace name is "medusa")
-yarn workspace medusa dev
-yarn workspace medusa build
-yarn workspace medusa medusa:db:migrate
-yarn workspace medusa medusa:db:generate
-yarn workspace medusa seed
-yarn workspace medusa medusa:user:create   # creates admin@example.com / supersecret
+# Backend (workspace name is "backend")
+yarn workspace backend dev
+yarn workspace backend build
+yarn workspace backend medusa:db:migrate
+yarn workspace backend medusa:db:generate
+yarn workspace backend seed
+yarn workspace backend medusa:user:create  # creates admin@example.com / supersecret
 
 # Storefront
 yarn workspace storefront dev
@@ -57,9 +57,9 @@ Tests live in **`apps/backend`** and **`packages/domain/plugins/*`**. No storefr
 
 ```bash
 # Backend — run from repo root
-yarn workspace medusa test:unit
-yarn workspace medusa test:integration:http
-yarn workspace medusa test:integration:modules
+yarn workspace backend test:unit
+yarn workspace backend test:integration:http
+yarn workspace backend test:integration:modules
 
 # Single test file — run from apps/backend/
 TEST_TYPE=unit NODE_OPTIONS=--experimental-vm-modules npx jest \
@@ -87,6 +87,10 @@ yarn workspace @repo/rbac-plugin test:unit
 
 - Integration tests use `medusaIntegrationTestRunner` from `@medusajs/test-utils`. The `afterAll` in `integration-tests/setup.js` drops the temp DB via `pg-god`.
 - Required env vars for tests come from `.env.test` (backend) or `integration-tests/setup-env.js` (plugins).
+- **Plugins have two `.env.test` files**: root-level (`DB_HOST`, `DB_USERNAME`, `DB_PASSWORD`, `JWT_SECRET`, `COOKIE_SECRET`) and `integration-tests/.env.test` (loaded by `setup-env.js` — adds `LOG_LEVEL=error`). Both must exist.
+- `DB_TEMP_NAME` is NOT in any `.env.test` — auto-generated as `medusa-integration-{workerId}-{chunk}`. If a test run is killed, stale DBs matching this pattern may be left on Postgres.
+- Backend `.env.test` uses explicit `DB_PORT=5432`; plugin `.env.test` files do not set `DB_PORT`.
+- `rbac` and `analytics` plugins only have `test:unit` — no integration test scripts.
 
 ---
 
@@ -194,6 +198,9 @@ packages/domain/plugins/<name>/src/
 - Services: public methods use `@InjectManager`, private implementations use `@InjectTransactionManager`
 - Workflow steps always include a compensation function as the third argument to `createStep`
 - Shared models reused across plugins live in `packages/domain/modules/` (`@repo/domain-modules`)
+- Plugins build to `.medusa/server/` (not `dist/`). Build command: `medusa plugin:build`.
+- **Turbo `dev` depends on `^dev:init`** — plugins must complete `dev:init` (outputs `.medusa/server/**`) before running `dev`. Run `yarn workspace @repo/<name>-plugin dev:init` first if the output directory is missing.
+- **Vite deduplication**: `medusa-config.ts` force-dedupes `react`, `react-dom`, `react-router-dom`, `@tanstack/react-query`, `react-i18next`. Any new plugin contributing admin UI must not bundle its own copy of these — omit them from its bundle or the admin will crash with "No QueryClient / not in Router context".
 
 ### Error handling (backend)
 
@@ -240,6 +247,7 @@ Key backend vars: `DATABASE_URL`, `REDIS_URL`, `JWT_SECRET`, `COOKIE_SECRET`, `S
 
 ## CI / CD
 
-- **CI** (`.github/workflows/ci.yml`): `yarn lint` + `yarn check-types` on PRs; Docker build+push to `obha507/{medusa,storefront}` on merge
-- **Deploy** (`.github/workflows/deploy.yml`): Railway via Terraform
+- **CI** (`.github/workflows/ci.yml`): triggers on PRs to `main`/`develop` only. Runs `yarn lint` + `yarn check-types`; Docker build+push to `obha507/{medusa,storefront}` only on non-PR events (i.e., merge).
+- **Deploy** (`.github/workflows/deploy.yml`): manual `workflow_dispatch` only. Uses Terraform at `iac/railway/`. Generates secrets at deploy time via `openssl rand`.
+- **Release** (`.github/workflows/release.yml`): triggers on push to `main`. Uses changesets; publishes packages to GitHub Packages (`https://npm.pkg.github.com`) under `@trabara` scope. Requires `NODE_AUTH_TOKEN=${{ secrets.GITHUB_TOKEN }}`.
 - Turbo remote cache: `TURBO_TEAM` + `TURBO_TOKEN` build args

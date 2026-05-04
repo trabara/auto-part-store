@@ -1,12 +1,41 @@
-import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
-import { useForm, type DefaultValues, type FieldErrors, type Path, type UseFormReturn } from 'react-hook-form';
-import type { z } from 'zod';
-import { executeOnErrorBehavior, getFormClass, getRegisteredSubmitButton, getT } from '../registry';
-import { FormHelpers, FormProps, SchemaFieldInfo, ZodObjectOrEffects } from '../types';
-import { applyEmptyValueOverrides, cn, createZodResolver, getZodFieldInfo, getZodShape, initializeDefaultValues, } from '../utils';
-import { FormField } from './form-field-provider';
-import { FormFieldProvider, FormProvider } from './form-provider';
-
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
+import {
+  useForm,
+  type DefaultValues,
+  type FieldErrors,
+  type Path,
+  type UseFormReturn,
+} from "react-hook-form";
+import type { z } from "@medusajs/framework/zod";
+import {
+  executeOnErrorBehavior,
+  getFormClass,
+  getRegisteredSubmitButton,
+  getT,
+} from "../registry";
+import {
+  FormHelpers,
+  FormProps,
+  SchemaFieldInfo,
+  ZodObjectOrEffects,
+} from "../types";
+import {
+  applyEmptyValueOverrides,
+  cn,
+  createZodResolver,
+  getZodFieldInfo,
+  getZodShape,
+  initializeDefaultValues,
+} from "../utils";
+import { FormField } from "./form-field-provider";
+import { FormFieldProvider, FormProvider } from "./form-provider";
 
 // =============================================================================
 // Form Component
@@ -82,13 +111,17 @@ export function Form<TSchema extends ZodObjectOrEffects, TResponse = unknown>({
     return map;
   }, [schemaShape]);
 
-  const fieldKeys = useMemo(() => Object.keys(schemaShape) as Array<keyof FormValues>, [schemaShape]);
+  const fieldKeys = useMemo(
+    () => Object.keys(schemaShape) as Array<keyof FormValues>,
+    [schemaShape],
+  );
 
   // ==========================================================================
   // State Management
   // ==========================================================================
 
-  const [isFetchingDefaults, setIsFetchingDefaults] = useState(!!fetchDefaultValues);
+  const [isFetchingDefaults, setIsFetchingDefaults] =
+    useState(!!fetchDefaultValues);
   const [hasFetchError, setHasFetchError] = useState(false);
 
   // ==========================================================================
@@ -96,8 +129,13 @@ export function Form<TSchema extends ZodObjectOrEffects, TResponse = unknown>({
   // ==========================================================================
 
   const computedDefaultValues = useMemo(
-    () => initializeDefaultValues<FormValues>(schemaShape, providedDefaultValues, overrides ?? {}),
-    [schemaShape, providedDefaultValues, overrides]
+    () =>
+      initializeDefaultValues<FormValues>(
+        schemaShape,
+        providedDefaultValues,
+        overrides ?? {},
+      ),
+    [schemaShape, providedDefaultValues, overrides],
   );
 
   const form = useForm<FormValues>({
@@ -127,7 +165,7 @@ export function Form<TSchema extends ZodObjectOrEffects, TResponse = unknown>({
           } as DefaultValues<FormValues>);
         }
       } catch (error) {
-        console.error('[Form] Error fetching default values:', error);
+        console.error("[Form] Error fetching default values:", error);
         if (isMounted) {
           setHasFetchError(true);
         }
@@ -159,12 +197,12 @@ export function Form<TSchema extends ZodObjectOrEffects, TResponse = unknown>({
 
       for (const [key, message] of Object.entries(errors)) {
         form.setError(key as Path<FormValues>, {
-          type: 'manual',
+          type: "manual",
           message,
         });
       }
     },
-    [form]
+    [form],
   );
 
   // ==========================================================================
@@ -176,20 +214,23 @@ export function Form<TSchema extends ZodObjectOrEffects, TResponse = unknown>({
 
     try {
       // Apply empty value transformations
-      const transformedValues = applyEmptyValueOverrides(values, overrides ?? {});
+      const transformedValues = applyEmptyValueOverrides(
+        values,
+        overrides ?? {},
+      );
       if (debug) {
-        console.log('[Form] Submitting:', transformedValues);
+        console.log("[Form] Submitting:", transformedValues);
       }
 
       const response = await onSubmit(transformedValues);
       if (debug) {
-        console.log('[Form] Submit success:', response);
+        console.log("[Form] Submit success:", response);
       }
 
       onSuccess?.(response);
     } catch (error) {
       if (debug) {
-        console.error('[Form] Submit error:', error);
+        console.error("[Form] Submit error:", error);
       }
 
       if (onSubmitError) {
@@ -204,7 +245,7 @@ export function Form<TSchema extends ZodObjectOrEffects, TResponse = unknown>({
 
   const renderField = useCallback(
     (...keys: Array<keyof FormValues>): ReactNode => {
-      return keys.map(key => {
+      return keys.map((key) => {
         const keyStr = key as string;
         const fieldInfo = fieldInfoMap[keyStr];
         const override = overrides?.[keyStr];
@@ -232,7 +273,7 @@ export function Form<TSchema extends ZodObjectOrEffects, TResponse = unknown>({
         );
       });
     },
-    [fieldInfoMap, overrides, form.control, isFetchingDefaults]
+    [fieldInfoMap, overrides, form.control, isFetchingDefaults],
   );
 
   // ==========================================================================
@@ -240,17 +281,31 @@ export function Form<TSchema extends ZodObjectOrEffects, TResponse = unknown>({
   // ==========================================================================
 
   const renderSubmitButton = useCallback(
-    (options?: { disabled?: boolean; className?: string; children?: ReactNode }): ReactNode => {
+    (options?: {
+      disabled?: boolean;
+      className?: string;
+      children?: ReactNode;
+    }): ReactNode => {
       const SubmitButton = getRegisteredSubmitButton();
       const isSubmitting = form.formState.isSubmitting;
-      const isDisabled = options?.disabled || isFetchingDefaults || hasFetchError || isSubmitting;
+      const isDisabled =
+        options?.disabled ||
+        isFetchingDefaults ||
+        hasFetchError ||
+        isSubmitting;
 
       if (!SubmitButton) {
-        console.warn('[Form] No submit button registered. Use setupForm({ submitButton: ... })');
+        console.warn(
+          "[Form] No submit button registered. Use setupForm({ submitButton: ... })",
+        );
         // Minimal fallback
         return (
-          <button type="submit" disabled={isDisabled} className={cn('snow-form-submit-btn', options?.className)}>
-            {isSubmitting ? 'Loading...' : (options?.children ?? t('submit'))}
+          <button
+            type="submit"
+            disabled={isDisabled}
+            className={cn("snow-form-submit-btn", options?.className)}
+          >
+            {isSubmitting ? "Loading..." : (options?.children ?? t("submit"))}
           </button>
         );
       }
@@ -259,13 +314,13 @@ export function Form<TSchema extends ZodObjectOrEffects, TResponse = unknown>({
         <SubmitButton
           loading={isSubmitting}
           disabled={isDisabled}
-          className={cn('snow-form-submit-btn', options?.className)}
+          className={cn("snow-form-submit-btn", options?.className)}
         >
-          {options?.children ?? t('submit')}
+          {options?.children ?? t("submit")}
         </SubmitButton>
       );
     },
-    [form.formState.isSubmitting, isFetchingDefaults, hasFetchError, t]
+    [form.formState.isSubmitting, isFetchingDefaults, hasFetchError, t],
   );
 
   // ==========================================================================
@@ -278,7 +333,7 @@ export function Form<TSchema extends ZodObjectOrEffects, TResponse = unknown>({
       renderSubmitButton,
       form: form as UseFormReturn<FormValues>,
     }),
-    [renderField, renderSubmitButton, form]
+    [renderField, renderSubmitButton, form],
   );
 
   // ==========================================================================
@@ -300,7 +355,7 @@ export function Form<TSchema extends ZodObjectOrEffects, TResponse = unknown>({
         ref={formRef}
         id={id}
         onSubmit={form.handleSubmit(handleSubmit, handleInvalid)}
-        className={cn('snow-form', getFormClass(), className)}
+        className={cn("snow-form", getFormClass(), className)}
       >
         {children ? (
           // Children pattern: user controls layout
@@ -308,7 +363,7 @@ export function Form<TSchema extends ZodObjectOrEffects, TResponse = unknown>({
         ) : (
           // Auto-generated layout: all fields + submit button
           <>
-            {fieldKeys.map(key => renderField(key))}
+            {fieldKeys.map((key) => renderField(key))}
             {renderSubmitButton()}
           </>
         )}

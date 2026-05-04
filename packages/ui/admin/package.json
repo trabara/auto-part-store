@@ -12,7 +12,8 @@
   },
   "scripts": {
     "lint": "eslint .",
-    "check-types": "tsc --noEmit"
+    "check-types": "tsc --noEmit",
+    "test": "NODE_OPTIONS=--experimental-vm-modules jest --runInBand --forceExit --passWithNoTests"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
@@ -32,11 +33,14 @@
     "@medusajs/test-utils": "2.14.2",
     "@medusajs/ui": "4.0.25",
     "@swc/core": "1.12.2",
+    "@swc/jest": "*",
+    "@types/jest": "*",
     "@types/node": "^20.0.0",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "chokidar": "^4.0.3",
     "eslint": "^9.39.1",
+    "jest": "*",
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "react-i18next": "^15.0.0",

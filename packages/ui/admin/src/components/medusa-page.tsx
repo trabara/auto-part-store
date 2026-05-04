@@ -28,9 +28,9 @@ import DataTable from "./data-table";
 import EditDrawer from "./edit-drawer";
 
 interface MedusaPageProps<
-  LS extends z.AnyZodObject,
-  CS extends z.AnyZodObject,
-  ES extends z.AnyZodObject,
+  LS extends z.ZodObject,
+  CS extends z.ZodObject,
+  ES extends z.ZodObject,
   T extends Entity<z.infer<LS>>,
 > extends ListConfig<T> {
   path: string;
@@ -47,9 +47,9 @@ interface MedusaPageProps<
  * served from a pre-built bundle).
  */
 export function MedusaPage<
-  LS extends z.AnyZodObject,
-  CS extends z.AnyZodObject,
-  ES extends z.AnyZodObject,
+  LS extends z.ZodObject,
+  CS extends z.ZodObject,
+  ES extends z.ZodObject,
   T extends Entity<z.infer<LS>>,
 >(props: MedusaPageProps<LS, CS, ES, T>) {
   const queryClientRef = useRef<QueryClient | null>(null);
@@ -65,9 +65,9 @@ export function MedusaPage<
 }
 
 function MedusaPageInner<
-  LS extends z.AnyZodObject,
-  CS extends z.AnyZodObject,
-  ES extends z.AnyZodObject,
+  LS extends z.ZodObject,
+  CS extends z.ZodObject,
+  ES extends z.ZodObject,
   T extends Entity<z.infer<LS>>,
 >({
   id,
@@ -77,8 +77,8 @@ function MedusaPageInner<
   create,
   edit,
   toolbarActions,
-  onRowClick,
   rowActions,
+  onRowClick,
   ...restProps
 }: MedusaPageProps<LS, CS, ES, T>) {
   const { t } = useTranslation();
@@ -86,7 +86,7 @@ function MedusaPageInner<
     useToggleState();
 
   const queryFields = useMemo(() => zodQueryResolve(schema), []);
-  
+
   const listAction = (signal: AbortSignal, params?: PageQueryParams) =>
     sdk.client.fetch<PageResponse<T>>(path, {
       method: "GET",
@@ -108,8 +108,8 @@ function MedusaPageInner<
 
   const deleteMutation = useDeleteMutation({
     invalidateKeys: [id],
-    errorMessage: "Failed to delete item",
-    successMessage: "Item deleted successfully",
+    errorMessage: t("common.error_delete_item"),
+    successMessage: t("common.success_delete_item"),
     deleteFn: (id: string) => deleteAction(id),
   });
 
@@ -226,7 +226,7 @@ function MedusaPageInner<
                 id={id}
                 schema={edit.schema}
                 fields={edit.fields}
-                mutateFn={updateAction}
+                mutateFn={updateAction as any}
                 defaultValues={row}
               />
             ),
@@ -259,7 +259,7 @@ function MedusaPageInner<
         id={id}
         schema={create.schema}
         steps={create.steps}
-        fields={create.fields}
+        fields={create.fields as any}
         mutateFn={createAction}
         open={isCreateModalOpen}
         onOpenChange={() => closeCreateModal()}

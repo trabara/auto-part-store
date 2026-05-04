@@ -1,7 +1,7 @@
 import { z } from "@medusajs/framework/zod";
-import { zodResolver } from '@hookform/resolvers/zod';
+import { zodResolver } from "@hookform/resolvers/zod";
 
-import type { SchemaFieldInfo } from '../types';
+import type { SchemaFieldInfo } from "../types";
 
 // =============================================================================
 // Zod Schema Analysis
@@ -39,12 +39,13 @@ function unwrapSchema(schema: z.ZodTypeAny): z.ZodTypeAny {
     current instanceof z.ZodOptional ||
     current instanceof z.ZodNullable ||
     current instanceof z.ZodDefault ||
-    current instanceof z.ZodEffects
+    current instanceof z.ZodPipe
   ) {
-    if ('innerType' in current._def) {
-      current = current._def.innerType;
-    } else if ('schema' in current._def) {
-      current = current._def.schema;
+    if ("innerType" in current._def) {
+      current = (current._def as any).innerType;
+    } else if ("in" in current._def) {
+      // ZodPipe replaces ZodEffects in v4 — unwrap to the input (source) schema
+      current = (current._def as any).in;
     } else {
       break;
     }
@@ -70,8 +71,9 @@ function unwrapSchema(schema: z.ZodTypeAny): z.ZodTypeAny {
  * Check if a ZodString has email validation
  */
 function isEmailString(schema: z.ZodString): boolean {
-  // Check the checks array for email validation
-  return schema._def.checks?.some((check: { kind: string }) => check.kind === 'email') ?? false;
+  // In Zod v4, z.string().email() adds a check entry with format === 'email' in _def.checks
+  const checks = (schema._def as any).checks as Array<any> | undefined;
+  return checks?.some((c) => c.format === "email") ?? false;
 }
 
 // =============================================================================
@@ -80,31 +82,38 @@ function isEmailString(schema: z.ZodString): boolean {
 
 /**
  * Extract the shape (fields) from a Zod schema
- * Supports schemas wrapped in ZodEffects (refine, superRefine, transform)
+ * Supports schemas wrapped in ZodPipe (transform) — in v4 refinements live inside schemas
  */
-export function getZodShape<S extends z.ZodTypeAny, T = z.infer<S>>(schema: S): Record<keyof T, z.ZodTypeAny> {
+export function getZodShape<S extends z.ZodTypeAny, T = z.infer<S>>(
+  schema: S,
+): Record<string, z.ZodTypeAny> {
   try {
-    // Unwrap ZodEffects (refine, superRefine, transform, etc.)
+    // Unwrap ZodPipe (transforms) — in v4 refinements no longer wrap in a separate class
     let current: z.ZodTypeAny = schema;
-    while (current instanceof z.ZodEffects) {
-      current = current._def.schema;
+    while (current instanceof z.ZodPipe) {
+      current = (current._def as any).in;
     }
 
     // Now we should have a ZodObject
     if (!(current instanceof z.ZodObject)) {
-      console.error('[SnowForm] Schema must be a ZodObject (after unwrapping effects)');
-      return {} as Record<keyof T, z.ZodTypeAny>;
+      console.error(
+        "[SnowForm] Schema must be a ZodObject (after unwrapping effects)",
+      );
+      return {} as Record<string, z.ZodTypeAny>;
     }
 
     // Try shape() function first (for lazy schemas)
-    if (typeof current._def.shape === 'function') {
-      return current._def.shape();
+    if (typeof (current._def as any).shape === "function") {
+      return (current._def as any).shape();
     }
     // Fallback to shape property
-    return current.shape ?? {} as Record<keyof T, z.ZodTypeAny>;
+    return (
+      (current.shape as Record<string, z.ZodTypeAny>) ??
+      ({} as Record<string, z.ZodTypeAny>)
+    );
   } catch (error) {
-    console.error('[SnowForm] Error getting schema shape:', error);
-    return {} as Record<keyof T, z.ZodTypeAny>;
+    console.error("[SnowForm] Error getting schema shape:", error);
+    return {} as Record<string, z.ZodTypeAny>;
   }
 }
 
@@ -115,29 +124,30 @@ export function getZodFieldInfo(field: z.ZodTypeAny): SchemaFieldInfo {
   const unwrapped = unwrapSchema(field);
 
   // Detect base type
-  let baseType: SchemaFieldInfo['baseType'] = 'unknown';
+  let baseType: SchemaFieldInfo["baseType"] = "unknown";
   let enumValues: string[] | undefined;
   let isEmail = false;
   let arrayElementInfo: SchemaFieldInfo | undefined;
 
   if (unwrapped instanceof z.ZodString) {
-    baseType = 'string';
+    baseType = "string";
     isEmail = isEmailString(unwrapped);
   } else if (unwrapped instanceof z.ZodNumber) {
-    baseType = 'number';
+    baseType = "number";
   } else if (unwrapped instanceof z.ZodBoolean) {
-    baseType = 'boolean';
+    baseType = "boolean";
   } else if (unwrapped instanceof z.ZodEnum) {
-    baseType = 'enum';
-    enumValues = unwrapped._def.values as string[];
+    baseType = "enum";
+    // In Zod v4, enum values are stored as _def.entries (EnumLike object), not _def.values (array)
+    enumValues = Object.values((unwrapped._def as any).entries) as string[];
   } else if (unwrapped instanceof z.ZodDate) {
-    baseType = 'date';
+    baseType = "date";
   } else if (unwrapped instanceof z.ZodArray) {
-    baseType = 'array';
-    // Extract element type info recursively
-    arrayElementInfo = getZodFieldInfo(unwrapped._def.type);
-  }else if (unwrapped instanceof z.ZodObject) {
-    baseType = 'object';
+    baseType = "array";
+    // In Zod v4, array element type is _def.element (was _def.type in v3)
+    arrayElementInfo = getZodFieldInfo((unwrapped._def as any).element);
+  } else if (unwrapped instanceof z.ZodObject) {
+    baseType = "object";
   }
 
   return {
@@ -152,14 +162,17 @@ export function getZodFieldInfo(field: z.ZodTypeAny): SchemaFieldInfo {
 
 /**
  * Create a resolver for react-hook-form from a Zod schema
- * Supports schemas with refine/superRefine (ZodEffects)
+ * Supports schemas with refine/superRefine (ZodPipe in v4)
  */
 export function createZodResolver(schema: z.ZodTypeAny) {
-  return zodResolver(schema);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return zodResolver(schema as any);
 }
 
-
-export function zodQueryResolve(schema: z.ZodTypeAny, query: string = ""): string {
+export function zodQueryResolve(
+  schema: z.ZodTypeAny,
+  query: string = "",
+): string {
   if (!(schema instanceof z.ZodObject)) {
     return query;
   }
@@ -171,10 +184,17 @@ export function zodQueryResolve(schema: z.ZodTypeAny, query: string = ""): strin
       const field = shape[key]!;
 
       const info = getZodFieldInfo(field);
-      if (info.baseType === 'object') {
-        return zodQueryResolve(info.unwrapped, query ? `${query}.${key}` : '+' + key);
-      } else if (info.baseType === 'array') {
-        return zodQueryResolve(info.unwrapped._def.type, query ? `${query}.${key}` : '+' + key);
+      if (info.baseType === "object") {
+        return zodQueryResolve(
+          info.unwrapped,
+          query ? `${query}.${key}` : "+" + key,
+        );
+      } else if (info.baseType === "array") {
+        return zodQueryResolve(
+          // In Zod v4, array element type is _def.element (was _def.type in v3)
+          (info.unwrapped._def as any).element,
+          query ? `${query}.${key}` : "+" + key,
+        );
       }
       return query ? `${query}.${key}` : key;
     })

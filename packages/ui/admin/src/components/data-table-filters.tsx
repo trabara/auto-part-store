@@ -6,7 +6,7 @@ import { getZodFieldInfo, getZodShape } from "../utils";
 
 
 export default function createZodDataTableFilterDef<
-    S extends z.AnyZodObject,
+    S extends z.ZodObject,
     T extends Entity<z.infer<S>>,
 >(schema: S, fields: FilterFieldOverrides<T>): DataTableFilter[] {
     const filterHelper = createDataTableFilterHelper<T>();

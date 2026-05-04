@@ -5,7 +5,7 @@
     "rootDir": "./src",
     "module": "ESNext",
     "moduleResolution": "Bundler",
-    "types": ["vite/client"]
+    "types": ["vite/client", "jest"]
   },
   "include": ["src"],
   "exclude": ["node_modules", "dist"]

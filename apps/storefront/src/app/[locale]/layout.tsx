@@ -1,9 +1,6 @@
 import { LocaleSwitcher } from "@/components/locale-switcher"
 import { Button } from "@/components/ui/button"
-import {
-  ButtonGroup,
-  ButtonGroupSeparator,
-} from "@/components/ui/button-group"
+import { ButtonGroup, ButtonGroupSeparator } from "@/components/ui/button-group"
 import {
   Sheet,
   SheetContent,
@@ -30,8 +27,8 @@ import Link from "next/link"
 import { notFound } from "next/navigation"
 
 import { ModeToggle } from "@/components/mode-toogle"
+import { ThemeProvider } from "@/components/theme-provider"
 // import { retrieveStoreDetails } from "@/lib/data/store"
-import Image from "next/image"
 
 const akshar = Akshar({
   subsets: ["latin"],
@@ -67,20 +64,20 @@ export default async function LocaleLayout({ children, params }: Props) {
   const isRtl = locale.startsWith("ar")
   const dir = isRtl ? "rtl" : "ltr"
 
-  const [messages, t, categories, initialCart] =
-    await Promise.all([
-      await getMessages(),
-      await getTranslations({ locale, namespace: "layout" }),
-      await listCategories().catch(() => []),
-      await retrieveCart().catch(() => null),
-      // await retrieveStoreDetails().catch(() => null),
-    ])
+  const [messages, t, categories, initialCart] = await Promise.all([
+    await getMessages(),
+    await getTranslations({ locale, namespace: "layout" }),
+    await listCategories().catch(() => []),
+    await retrieveCart().catch(() => null),
+    // await retrieveStoreDetails().catch(() => null),
+  ])
 
   return (
     <html
       lang={locale}
       dir={dir}
       data-mode="light"
+      suppressHydrationWarning
       className={cn(akshar.variable, notoSansArabic.variable)}
     >
       <body
@@ -89,54 +86,60 @@ export default async function LocaleLayout({ children, params }: Props) {
           [akshar.className]: !isRtl,
         })}
       >
-        <NextIntlClientProvider messages={messages}>
-          <CartProvider initialCart={initialCart}>
-            {/** Header **/}
-            <header className="relative h-22 xl:h-42.5">
-              <div className="fixed inset-0 z-50 w-full h-fit">
-                <div className="bg-zinc-100 dark:bg-zinc-950">
-                  <div className="snap-container">
-                    <div className="hidden xl:block border-b border-b-accent/20 py-2">
-                      <div className="space-x-2 flex justify-between items-center">
-                        <div className="text-primary">
-                          <Link href="/about-us">
-                            <Button variant="link" size="sm">
-                              {t("aboutUs")}
-                            </Button>
-                          </Link>
-                          <Link href="/faq">
-                            <Button variant="link" size="sm">
-                              {t("faq")}
-                            </Button>
-                          </Link>
-                          <Link href="/order-tracking">
-                            <Button variant="link" size="sm">
-                              {t("orderTracking")}
-                            </Button>
-                          </Link>
-                        </div>
-                        <div className="flex items-center gap-3">
-                          <span>🇹🇳</span>
-                          <LocaleSwitcher />
-                          <ModeToggle />
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <NextIntlClientProvider messages={messages}>
+            <CartProvider initialCart={initialCart}>
+              {/** Header **/}
+              <header className="relative h-22 xl:h-42.5">
+                <div className="fixed inset-0 z-50 w-full h-fit">
+                  <div className="bg-zinc-100 dark:bg-zinc-950">
+                    <div className="snap-container">
+                      <div className="hidden xl:block border-b border-b-accent/20 py-2">
+                        <div className="space-x-2 flex justify-between items-center">
+                          <div className="text-primary">
+                            <Link href="/about-us">
+                              <Button variant="link" size="sm">
+                                {t("aboutUs")}
+                              </Button>
+                            </Link>
+                            <Link href="/faq">
+                              <Button variant="link" size="sm">
+                                {t("faq")}
+                              </Button>
+                            </Link>
+                            <Link href="/order-tracking">
+                              <Button variant="link" size="sm">
+                                {t("orderTracking")}
+                              </Button>
+                            </Link>
+                          </div>
+                          <div className="flex items-center gap-3">
+                            <span>🇹🇳</span>
+                            <LocaleSwitcher />
+                            <ModeToggle />
+                          </div>
                         </div>
                       </div>
-                    </div>
 
-                    <div className="xl:mt-4 flex justify-between space-x-4 py-2 xl:py-4">
-                      <CategoryMenuSheet categories={categories}>
-                        <Button
-                          variant="ghost"
-                          className="inline-flex items-center xl:hidden hover:bg-accent-foreground/10 text-accent"
-                        >
-                          <Menu />
-                          <span className="hidden xl:block ml-2">
-                            {t("allCategories")}
-                          </span>
-                        </Button>
-                      </CategoryMenuSheet>
+                      <div className="xl:mt-4 flex justify-between space-x-4 py-2 xl:py-4">
+                        <CategoryMenuSheet categories={categories}>
+                          <Button
+                            variant="ghost"
+                            className="inline-flex items-center xl:hidden hover:bg-accent-foreground/10 text-accent"
+                          >
+                            <Menu />
+                            <span className="hidden xl:block ml-2">
+                              {t("allCategories")}
+                            </span>
+                          </Button>
+                        </CategoryMenuSheet>
 
-                      {/* <Link href="/">
+                        {/* <Link href="/">
                         <Image
                           width={128}
                           height={32}
@@ -145,97 +148,97 @@ export default async function LocaleLayout({ children, params }: Props) {
                         />
                       </Link> */}
 
-                      <FitmentBadge className="hidden xl:inline-flex">
-                        <Button
-                          variant="ghost"
-                          className="hidden xl:inline-flex hover:bg-accent/50 cursor-pointer "
-                        >
-                          <CarFront />
-                          {t("myGarage")}
-                        </Button>
-                      </FitmentBadge>
+                        <FitmentBadge className="hidden xl:inline-flex">
+                          <Button
+                            variant="ghost"
+                            className="hidden xl:inline-flex hover:bg-accent/50 cursor-pointer "
+                          >
+                            <CarFront />
+                            {t("myGarage")}
+                          </Button>
+                        </FitmentBadge>
 
-                      {/** Search Input */}
-                      <SearchWithAutocomplete className="hidden xl:block flex-1" />
+                        {/** Search Input */}
+                        <SearchWithAutocomplete className="hidden xl:block flex-1" />
 
-                      {/** User Actions */}
-                      <div className="flex space-x-2">
-                        <Button
-                          variant="ghost"
-                          className="hidden xl:flex hover:bg-accent/50 cursor-pointer"
-                        >
-                          <User />
-                          <div className="flex-col  ml-2 hidden xl:flex">
-                            <div className="">{t("account")}</div>
-                            <div className="text-xs">
-                              {t("loginRegister")}
+                        {/** User Actions */}
+                        <div className="flex space-x-2">
+                          <Button
+                            variant="ghost"
+                            className="hidden xl:flex hover:bg-accent/50 cursor-pointer"
+                          >
+                            <User />
+                            <div className="flex-col  ml-2 hidden xl:flex">
+                              <div className="">{t("account")}</div>
+                              <div className="text-xs">
+                                {t("loginRegister")}
+                              </div>
                             </div>
-                          </div>
-                        </Button>
+                          </Button>
 
-                        <CartSheet
-                          className="flex-1 overflow-hidden"
-                          direction={isRtl ? "left" : "right"}
-                        />
+                          <CartSheet
+                            className="flex-1 overflow-hidden"
+                            direction={isRtl ? "left" : "right"}
+                          />
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
 
-                <div className="bg-zinc-100 dark:bg-zinc-950 border-y border-b-accent">
-                  <div className="snap-container py-1">
-                    <CategoryMenuSheet
-                      categories={categories}
-                      direction={isRtl ? "right" : "left"}
-                    >
-                      <Button
-                        variant="ghost"
-                        className="hidden xl:inline-flex hover:bg-accent-foreground/10"
+                  <div className="bg-zinc-100 dark:bg-zinc-950 border-y border-b-accent">
+                    <div className="snap-container py-1">
+                      <CategoryMenuSheet
+                        categories={categories}
+                        direction={isRtl ? "right" : "left"}
                       >
-                        <Menu />
-                        <span className="hidden xl:block ml-2">
-                          {t("allCategories")}
-                        </span>
-                      </Button>
-                    </CategoryMenuSheet>
-                    <ButtonGroup className="flex xl:hidden w-full">
-                      <FitmentBadge className="flex-1">
-                        <Button variant="ghost" className="flex-1">
-                          <Car />
-                          {t("myGarage")}
+                        <Button
+                          variant="ghost"
+                          className="hidden xl:inline-flex hover:bg-accent-foreground/10"
+                        >
+                          <Menu />
+                          <span className="hidden xl:block ml-2">
+                            {t("allCategories")}
+                          </span>
                         </Button>
-                      </FitmentBadge>
-
-                      <ButtonGroupSeparator orientation="vertical" />
-
-                      <Sheet>
-                        <SheetTrigger asChild>
+                      </CategoryMenuSheet>
+                      <ButtonGroup className="flex xl:hidden w-full">
+                        <FitmentBadge className="flex-1">
                           <Button variant="ghost" className="flex-1">
-                            <Search />
-                            {t("searchProduct")}
+                            <Car />
+                            {t("myGarage")}
                           </Button>
-                        </SheetTrigger>
-                        <SheetContent side="top" className="pt-10">
-                          <SheetHeader className="sr-only">
-                            <SheetTitle>{t("searchProduct")}</SheetTitle>
-                          </SheetHeader>
-                          <div className="snap-container pb-4">
-                            <SimpleSearchWithForm />
-                          </div>
-                        </SheetContent>
-                      </Sheet>
-                    </ButtonGroup>
+                        </FitmentBadge>
+
+                        <ButtonGroupSeparator orientation="vertical" />
+
+                        <Sheet>
+                          <SheetTrigger asChild>
+                            <Button variant="ghost" className="flex-1">
+                              <Search />
+                              {t("searchProduct")}
+                            </Button>
+                          </SheetTrigger>
+                          <SheetContent side="top" className="pt-10">
+                            <SheetHeader className="sr-only">
+                              <SheetTitle>{t("searchProduct")}</SheetTitle>
+                            </SheetHeader>
+                            <div className="snap-container pb-4">
+                              <SimpleSearchWithForm />
+                            </div>
+                          </SheetContent>
+                        </Sheet>
+                      </ButtonGroup>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </header>
-            {/** Main Content */}
-            <main>{children}</main>
-            {/** Footer */}
-            <footer className="border-t border-t-accent-foreground/10 bg-zinc-100 dark:bg-zinc-950">
-              <div className="snap-container py-6 text-primary">
-                <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 lg:gap-8">
-                  {/* {storeDetails?.logo_url && (
+              </header>
+              {/** Main Content */}
+              <main>{children}</main>
+              {/** Footer */}
+              <footer className="border-t border-t-accent-foreground/10 bg-zinc-100 dark:bg-zinc-950">
+                <div className="snap-container py-6 text-primary">
+                  <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 lg:gap-8">
+                    {/* {storeDetails?.logo_url && (
                     <Link href="/">
                       <Image
                         width={128}
@@ -246,42 +249,41 @@ export default async function LocaleLayout({ children, params }: Props) {
                     </Link>
                   )} */}
 
-
-                  <div>
-                    <h3 className="font-semibold mb-2">
-                      {t("customerService")}
-                    </h3>
-                    <ul className="space-y-1 text-sm">
-                      <li>
-                        <Link href="/help">{t("helpContact")}</Link>
-                      </li>
-                      <li>
-                        <Link href="/returns">{t("returnsRefunds")}</Link>
-                      </li>
-                      <li>
-                        <Link href="/shipping">{t("shippingInfo")}</Link>
-                      </li>
-                    </ul>
-                  </div>
-                  <div>
-                    <h3 className="font-semibold mb-2">
-                      {t("aboutUsFooter")}
-                    </h3>
-                    <ul className="space-y-1 text-sm">
-                      <li>
-                        <Link href="/about">{t("ourStory")}</Link>
-                      </li>
-                      <li>
-                        <Link href="/careers">{t("careers")}</Link>
-                      </li>
-                      <li>
-                        <Link href="/press">{t("press")}</Link>
-                      </li>
-                    </ul>
-                  </div>
-                  <div>
-                    <h3 className="font-semibold mb-2">{t("followUs")}</h3>
-                    {/* <ul className="space-y-1 text-sm">
+                    <div>
+                      <h3 className="font-semibold mb-2">
+                        {t("customerService")}
+                      </h3>
+                      <ul className="space-y-1 text-sm">
+                        <li>
+                          <Link href="/help">{t("helpContact")}</Link>
+                        </li>
+                        <li>
+                          <Link href="/returns">{t("returnsRefunds")}</Link>
+                        </li>
+                        <li>
+                          <Link href="/shipping">{t("shippingInfo")}</Link>
+                        </li>
+                      </ul>
+                    </div>
+                    <div>
+                      <h3 className="font-semibold mb-2">
+                        {t("aboutUsFooter")}
+                      </h3>
+                      <ul className="space-y-1 text-sm">
+                        <li>
+                          <Link href="/about">{t("ourStory")}</Link>
+                        </li>
+                        <li>
+                          <Link href="/careers">{t("careers")}</Link>
+                        </li>
+                        <li>
+                          <Link href="/press">{t("press")}</Link>
+                        </li>
+                      </ul>
+                    </div>
+                    <div>
+                      <h3 className="font-semibold mb-2">{t("followUs")}</h3>
+                      {/* <ul className="space-y-1 text-sm">
                       {Object.keys(storeDetails?.social_links ?? {}).map((key) => {
                         return <li key={key}>
                           <Link href={storeDetails?.social_links?.[key] || "#"}>
@@ -291,7 +293,7 @@ export default async function LocaleLayout({ children, params }: Props) {
                       })}
                     </ul> */}
 
-                    {/* {storeDetails?.contact_emails?.length ? (
+                      {/* {storeDetails?.contact_emails?.length ? (
                       <div className="mt-3 text-sm">
                         {storeDetails.contact_emails.map((email) => (
                           <div key={email}>
@@ -301,7 +303,7 @@ export default async function LocaleLayout({ children, params }: Props) {
                       </div>
                     ) : null} */}
 
-                    {/* {storeDetails?.contact_phone_numbers?.length ? (
+                      {/* {storeDetails?.contact_phone_numbers?.length ? (
                       <div className="mt-1 text-sm">
                         {storeDetails.contact_phone_numbers.map((phone) => (
                           <div key={phone}>{phone}</div>
@@ -313,10 +315,9 @@ export default async function LocaleLayout({ children, params }: Props) {
                         {storeDetails.address}
                       </div>
                     ) : null} */}
+                    </div>
 
-                  </div>
-
-                  {/* {storeDetails?.map_url && (
+                    {/* {storeDetails?.map_url && (
                     <div>
                       <h3 className="font-semibold mb-2">{t("ourLocation")}</h3>
 
@@ -334,17 +335,18 @@ export default async function LocaleLayout({ children, params }: Props) {
 
                     </div>
                   )} */}
-                </div>
-                {/* <div className="text-center text-xs mt-4">
+                  </div>
+                  {/* <div className="text-center text-xs mt-4">
                   {t("copyright", {
                     year: new Date().getFullYear(),
                     // name: storeDetails?.name ?? "Store",
                   })}
                 </div> */}
-              </div>
-            </footer>
-          </CartProvider>
-        </NextIntlClientProvider>
+                </div>
+              </footer>
+            </CartProvider>
+          </NextIntlClientProvider>
+        </ThemeProvider>
       </body>
     </html>
   )

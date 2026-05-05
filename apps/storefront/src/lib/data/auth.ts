@@ -1,9 +1,13 @@
 "use server"
 
 import { sdk } from "@/lib/config"
-import { getAuthHeaders, setAuthToken, removeAuthToken } from "@/lib/data/cookies"
+import {
+  getAuthHeaders,
+  setAuthToken,
+  removeAuthToken,
+} from "@/lib/data/cookies"
 import { medusaError } from "@/lib/util/error"
-import { StoreAuthCustomer, StoreCustomer } from "@medusajs/types"
+import { StoreCustomer } from "@medusajs/types"
 
 export const login = async ({
   email,
@@ -11,18 +15,22 @@ export const login = async ({
 }: {
   email: string
   password: string
-}): Promise<StoreAuthCustomer> => {
+}): Promise<StoreCustomer> => {
   const headers = await getAuthHeaders()
 
-  const { customer } = await sdk.store.auth
-    .login({ email, password }, {}, headers)
+  const result = await sdk.auth
+    .login("customer", "emailpass", { email, password })
     .catch(medusaError)
 
-  if (customer?.access_token) {
-    await setAuthToken(customer.access_token)
+  if (typeof result === "string") {
+    await setAuthToken(result)
   }
 
-  return customer as StoreAuthCustomer
+  const { customer } = await sdk.store.customer
+    .retrieve({}, headers)
+    .catch(medusaError)
+
+  return customer as StoreCustomer
 }
 
 export const register = async ({
@@ -40,11 +48,18 @@ export const register = async ({
 }): Promise<StoreCustomer> => {
   const headers = await getAuthHeaders()
 
-  const { customer } = await sdk.store.auth
-    .register(
+  const result = await sdk.auth
+    .register("customer", "emailpass", { email, password })
+    .catch(medusaError)
+
+  if (typeof result === "string") {
+    await setAuthToken(result as string)
+  }
+
+  const { customer } = await sdk.store.customer
+    .create(
       {
         email,
-        password,
         first_name: firstName,
         last_name: lastName,
         phone,
@@ -54,30 +69,24 @@ export const register = async ({
     )
     .catch(medusaError)
 
-  if (customer?.access_token) {
-    await setAuthToken(customer.access_token)
-  }
-
   return customer as StoreCustomer
 }
 
 export const logout = async (): Promise<void> => {
-  const headers = await getAuthHeaders()
-
-  await sdk.store.auth.delete({}, headers).catch(medusaError)
-
+  await sdk.auth.logout().catch(medusaError)
   await removeAuthToken()
 }
 
 export const getSession = async (): Promise<StoreCustomer | null> => {
   const headers = await getAuthHeaders()
 
-  if (!headers.authorization) {
+  const authHeaders = headers as Record<string, string>
+  if (!authHeaders.authorization) {
     return null
   }
 
-  const { customer } = await sdk.store.auth
-    .getSession({}, headers)
+  const { customer } = await sdk.store.customer
+    .retrieve({}, headers)
     .catch(() => ({ customer: null }))
 
   return customer as StoreCustomer | null

@@ -1,4 +1,3 @@
-
 type OAuthProvider = {
   id: string;
   provider: string;

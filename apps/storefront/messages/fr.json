@@ -305,7 +305,9 @@
       "failed": "E-mail ou mot de passe incorrect.",
       "noAccount": "Pas encore de compte ?",
       "createAccount": "Créer un compte",
-      "accountExists": "Un compte avec cette adresse e-mail existe déjà. Veuillez vous connecter."
+      "accountExists": "Un compte avec cette adresse e-mail existe déjà. Veuillez vous connecter.",
+      "orContinueWith": "Ou continuer avec",
+      "signInWithGoogle": "Se connecter avec Google"
     },
     "register": {
       "title": "Créer un compte",

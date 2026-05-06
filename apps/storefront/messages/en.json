@@ -305,7 +305,9 @@
       "failed": "Invalid email or password.",
       "noAccount": "Don't have an account?",
       "createAccount": "Create one",
-      "accountExists": "An account with this email already exists. Please sign in."
+      "accountExists": "An account with this email already exists. Please sign in.",
+      "orContinueWith": "Or continue with",
+      "signInWithGoogle": "Sign in with Google"
     },
     "register": {
       "title": "Create Account",

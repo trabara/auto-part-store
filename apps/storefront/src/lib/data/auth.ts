@@ -117,3 +117,18 @@ export const getSession = async (): Promise<StoreCustomer | null> => {
 
   return customer
 }
+
+export const initiateGoogleAuth = async (
+  returnTo?: string
+): Promise<string> => {
+  const params = new URLSearchParams()
+  if (returnTo) params.set("return_to", returnTo)
+
+  const { location } = await sdk.client
+    .fetch<{
+      location: string
+    }>(`/store/auth/google${params.toString() ? `?${params.toString()}` : ""}`, { method: "GET" })
+    .catch(medusaError)
+
+  return location
+}

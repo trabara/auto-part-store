@@ -147,6 +147,9 @@ export default defineConfig({
       resolve: "@repo/domain-modules/invoice-generator",
     },
     {
+      resolve: "@repo/domain-modules/oauth",
+    },
+    {
       resolve: "./src/modules/store-details",
     },
   ],
@@ -181,6 +184,10 @@ export default defineConfig({
       options: {
         // Plugin-specific options can be added here
       },
+    },
+    {
+      resolve: "@repo/oauth-plugin",
+      options: {},
     },
     {
       resolve: "@rsc-labs/medusa-wishlist",

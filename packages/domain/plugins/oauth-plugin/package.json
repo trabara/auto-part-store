@@ -1,0 +1,75 @@
+{
+  "name": "@repo/oauth-plugin",
+  "version": "0.0.1",
+  "description": "OAuth social login plugin for Medusa (Google, Facebook, …)",
+  "license": "MIT",
+  "files": [
+    ".medusa/server"
+  ],
+  "exports": {
+    "./package.json": "./package.json",
+    "./workflows": "./.medusa/server/src/workflows/index.js",
+    "./modules/*": "./.medusa/server/src/modules/*/index.js",
+    "./providers/*": "./.medusa/server/src/providers/*/index.js",
+    "./links/*": "./.medusa/server/src/links/*.js",
+    "./*": "./.medusa/server/src/*.js",
+    "./admin": {
+      "import": "./.medusa/server/src/admin/index.mjs",
+      "require": "./.medusa/server/src/admin/index.js",
+      "default": "./.medusa/server/src/admin/index.js"
+    }
+  },
+  "keywords": [
+    "medusa",
+    "plugin",
+    "oauth",
+    "google",
+    "medusa-plugin"
+  ],
+  "scripts": {
+    "build": "medusa plugin:build",
+    "dev": "plugin-dev-watch . ../../../../apps/backend",
+    "dev:init": "plugin-dev-init .",
+    "prepublishOnly": "medusa plugin:build",
+    "lint": "eslint .",
+    "check-types": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@hookform/resolvers": "^3.9.1",
+    "@trabara/common": "workspace:*",
+    "react-hook-form": "^7.54.2",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "@medusajs/admin-bundler": "2.14.2",
+    "@medusajs/admin-sdk": "2.14.2",
+    "@medusajs/cli": "2.14.2",
+    "@medusajs/framework": "2.14.2",
+    "@medusajs/icons": "2.14.2",
+    "@medusajs/medusa": "2.14.2",
+    "@medusajs/ui": "4.0.25",
+    "@repo/eslint-config": "workspace:*",
+    "@repo/scripts": "workspace:*",
+    "@repo/tsconfig": "workspace:*",
+    "@swc/core": "1.12.2",
+    "@swc/jest": "^0.2.38",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/node": "^20.0.0",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9.39.1",
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
+    "typescript": "^5.6.2"
+  },
+  "peerDependencies": {
+    "@medusajs/admin-sdk": ">=2.11.0 <3.0.0",
+    "@medusajs/framework": ">=2.11.0 <3.0.0",
+    "@medusajs/icons": ">=2.11.0 <3.0.0",
+    "@medusajs/medusa": ">=2.11.0 <3.0.0",
+    "@medusajs/ui": ">=4.0.0 <5.0.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

@@ -1,5 +1,9 @@
 import { ExecArgs } from "@medusajs/framework/types";
-import { assignRoleWorkflow, createRbacPermissionsWorkflow, createRbacRolesWorkflow } from "@repo/rbac-plugin/workflows";
+import {
+    assignRoleWorkflow,
+    createRbacPermissionsWorkflow,
+    createRbacRolesWorkflow
+} from "@repo/rbac-plugin/workflows";
 
 export default async function seedRbac({ container }: ExecArgs) {
 
@@ -215,6 +219,9 @@ export default async function seedRbac({ container }: ExecArgs) {
                         { kind: "read", target: '/admin/fitments', type: "predefined" },
                         { kind: "write", target: '/admin/fitments', type: "predefined" },
                         { kind: "delete", target: '/admin/fitments', type: "predefined" },
+                        { kind: "read", target: "/admin/oauth-providers", type: "predefined" },
+                        { kind: "write", target: "/admin/oauth-providers", type: "predefined" },
+                        { kind: "delete", target: "/admin/oauth-providers", type: "predefined" },
                     ]
                 },
                 {

@@ -16,7 +16,6 @@ export const login = async ({
   email: string
   password: string
 }): Promise<StoreCustomer> => {
-  const headers = await getAuthHeaders()
 
   const result = await sdk.auth
     .login("customer", "emailpass", { email, password })
@@ -113,12 +112,13 @@ export const getSession = async (): Promise<StoreCustomer | null> => {
 
   const { customer } = await sdk.store.customer
     .retrieve({}, headers)
-    .catch(() => ({ customer: null }))
+    .catch(medusaError)
 
   return customer
 }
 
-export const initiateGoogleAuth = async (
+export const initiateProviderAuth = async (
+  provider: 'google' | 'facebook' | 'apple',
   returnTo?: string
 ): Promise<string> => {
   const params = new URLSearchParams()
@@ -127,8 +127,16 @@ export const initiateGoogleAuth = async (
   const { location } = await sdk.client
     .fetch<{
       location: string
-    }>(`/store/auth/google${params.toString() ? `?${params.toString()}` : ""}`, { method: "GET" })
+    }>(`/store/oauth/${provider}${params.toString() ? `?${params.toString()}` : ""}`, { method: "GET" })
     .catch(medusaError)
 
   return location
+}
+
+export const getEnabledOAuthProviders = async (): Promise<('google' | 'facebook' | 'apple')[]> => {
+  const { enabled_providers } = await sdk.client
+    .fetch<{ enabled_providers: string[] }>(`/store/oauth`, { method: "GET" })
+    .catch(medusaError)
+
+  return enabled_providers as ('google' | 'facebook' | 'apple')[]
 }

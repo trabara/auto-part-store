@@ -11,6 +11,7 @@
     "./media": "./src/media/index.ts",
     "./media/service": "./src/media/service.ts",
     "./authz": "./src/authz/index.ts",
+    "./analytics": "./src/analytics/index.ts",
     "./oauth": "./src/oauth/index.ts",
     "./invoice-generator": "./src/invoice-generator/index.ts",
     "./invoice-generator/constants": "./src/invoice-generator/contants.ts",

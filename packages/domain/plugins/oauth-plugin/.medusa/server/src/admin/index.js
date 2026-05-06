@@ -1,12 +1,26 @@
 "use strict";
 const jsxRuntime = require("react/jsx-runtime");
 const adminSdk = require("@medusajs/admin-sdk");
-const icons = require("@medusajs/icons");
 const ui = require("@medusajs/ui");
-const zod$1 = require("@hookform/resolvers/zod");
+const Medusa = require("@medusajs/js-sdk");
 const react = require("react");
+const icons = require("@medusajs/icons");
+const zod$1 = require("@hookform/resolvers/zod");
 const reactHookForm = require("react-hook-form");
 const zod = require("zod");
+const _interopDefault = (e) => e && e.__esModule ? e : { default: e };
+const Medusa__default = /* @__PURE__ */ _interopDefault(Medusa);
+const sdk = new Medusa__default.default({
+  baseUrl: "/",
+  debug: false,
+  auth: {
+    type: "session"
+  }
+});
+const SUPPORTED_PROVIDERS = [
+  { key: "google", label: "Google", icon: icons.Google },
+  { key: "apple", label: "Apple", icon: icons.Apple }
+];
 const ProviderFormSchema = zod.z.object({
   client_id: zod.z.string().min(1, "Client ID is required"),
   client_secret: zod.z.string().min(1, "Client Secret is required"),
@@ -83,7 +97,7 @@ function ProviderDrawer({
           ui.Input,
           {
             id: "client_id",
-            placeholder: "Google client ID",
+            placeholder: `${provider} client ID`,
             ...register("client_id")
           }
         ),
@@ -96,7 +110,7 @@ function ProviderDrawer({
           {
             id: "client_secret",
             type: "password",
-            placeholder: "Google client secret",
+            placeholder: `${provider} client secret`,
             ...register("client_secret")
           }
         ),
@@ -108,7 +122,7 @@ function ProviderDrawer({
           ui.Input,
           {
             id: "callback_url",
-            placeholder: "https://api.example.com/store/auth/google/callback",
+            placeholder: `https://api.example.com/store/auth/${provider}/callback`,
             ...register("callback_url")
           }
         ),
@@ -120,7 +134,7 @@ function ProviderDrawer({
           ui.Input,
           {
             id: "success_redirect_url",
-            placeholder: "https://store.example.com",
+            placeholder: `https://store.example.com`,
             ...register("success_redirect_url")
           }
         ),
@@ -152,7 +166,6 @@ function ProviderDrawer({
     ] })
   ] }) });
 }
-const SUPPORTED_PROVIDERS = [{ key: "google", label: "Google", icon: icons.Google }];
 function OAuthProvidersPage() {
   const [providers, setProviders] = react.useState([]);
   const [loading, setLoading] = react.useState(true);
@@ -161,13 +174,8 @@ function OAuthProvidersPage() {
   const fetchProviders = async () => {
     setLoading(true);
     try {
-      const res = await fetch("/admin/oauth-providers", {
-        credentials: "include"
-      });
-      if (res.ok) {
-        const data = await res.json();
-        setProviders(data.oauth_providers ?? []);
-      }
+      const { oauth_providers } = await sdk.client.fetch("/admin/oauth-providers");
+      setProviders(oauth_providers ?? []);
     } finally {
       setLoading(false);
     }
@@ -177,14 +185,11 @@ function OAuthProvidersPage() {
   }, []);
   const handleDelete = async (id) => {
     try {
-      const res = await fetch(`/admin/oauth-providers/${id}`, {
-        method: "DELETE",
-        credentials: "include"
+      await sdk.client.fetch(`/admin/oauth-providers/${id}`, {
+        method: "DELETE"
       });
-      if (res.ok) {
-        ui.toast.success("Provider removed");
-        fetchProviders();
-      }
+      ui.toast.success("Provider removed");
+      fetchProviders();
     } catch {
       ui.toast.error("Failed to remove provider");
     }

@@ -216,7 +216,7 @@ medusaIntegrationTestRunner({
 
           const service =
             container.resolve<FitmentModuleService>(FITMENT_MODULE);
-          const remaining = await service.makes.list({ id: make.id });
+          const remaining = await service.listFitmentMakes({ id: make.id });
           expect(remaining).toHaveLength(0);
         });
 

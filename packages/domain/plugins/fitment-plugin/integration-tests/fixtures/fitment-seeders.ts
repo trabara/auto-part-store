@@ -1,8 +1,8 @@
+import { MedusaContainer } from "@medusajs/framework/types";
 import {
   FITMENT_MODULE,
   FitmentModuleService,
 } from "@repo/domain-modules/fitment";
-import { MedusaContainer } from "@medusajs/framework/types";
 
 // ── Makes ─────────────────────────────────────────────────────────────────────
 
@@ -11,9 +11,9 @@ export async function createTestMake(
   overrides?: { name?: string },
 ) {
   const service = container.resolve<FitmentModuleService>(FITMENT_MODULE);
-  const [make] = (await service.createMakes([
+  const [make] = await service.createFitmentMakes([
     { name: overrides?.name ?? `Make-${Date.now()}` },
-  ])) as any[];
+  ])
   return make;
 }
 
@@ -25,12 +25,13 @@ export async function createTestModel(
   overrides?: { name?: string },
 ) {
   const service = container.resolve<FitmentModuleService>(FITMENT_MODULE);
-  const [model] = (await service.createModels([
+  const [model] = await service.createFitmentModels([
     {
       name: overrides?.name ?? `Model-${Date.now()}`,
       make_id: makeId,
     },
-  ])) as any[];
+  ])
+
   return model;
 }
 
@@ -46,14 +47,14 @@ export async function createTestEngine(
   },
 ) {
   const service = container.resolve<FitmentModuleService>(FITMENT_MODULE);
-  const [engine] = (await service.createEngines([
+  const [engine] = await service.createFitmentEngines([
     {
       fuel: overrides?.fuel ?? "GASOLINE",
       type: overrides?.type ?? "I4",
       size: overrides?.size ?? String(Math.floor(Math.random() * 90 + 10) / 10),
       tech: overrides?.tech,
     },
-  ])) as any[];
+  ])
   return engine;
 }
 
@@ -65,14 +66,14 @@ export async function createTestFitment(
   engineId: string,
   overrides?: {
     body_style?:
-      | "SEDAN"
-      | "SUV"
-      | "HATCHBACK"
-      | "COUPE"
-      | "CONVERTIBLE"
-      | "WAGON"
-      | "VAN"
-      | "PICKUP";
+    | "SEDAN"
+    | "SUV"
+    | "HATCHBACK"
+    | "COUPE"
+    | "CONVERTIBLE"
+    | "WAGON"
+    | "VAN"
+    | "PICKUP";
     doors?: number;
     drive?: "FWD" | "RWD" | "AWD" | "FOUR_WD";
     transmission?: "MANUAL" | "AUTOMATIC" | "CVT";

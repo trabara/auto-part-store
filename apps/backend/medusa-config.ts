@@ -150,6 +150,9 @@ export default defineConfig({
       resolve: "@repo/domain-modules/oauth",
     },
     {
+      resolve: "@repo/domain-modules/analytics",
+    },
+    {
       resolve: "./src/modules/store-details",
     },
   ],

@@ -8,16 +8,21 @@ import { generateJwtToken } from "@medusajs/utils";
 import { OAUTH_MODULE, type OAuthProviderService } from "@repo/domain-modules/oauth";
 import jwt from "jsonwebtoken";
 
+const PROVIDER_EXCHANGE_URLS: Record<string, string> = {
+  google: "https://oauth2.googleapis.com/token",
+};
+
 /**
- * GET /store/auth/google/callback?code=...&state=...
+ * GET /store/auth/:provider/callback?code=...&state=...
  *
- * Exchanges the Google authorization code for an access token, finds or
+ * Exchanges the OAuth provider authorization code for an access token, finds or
  * creates a customer + auth identity, generates a Medusa JWT, and then
  * redirects the browser back to the storefront.
  */
-export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
-  const { code, state } = req.query as { code?: string; state?: string };
-
+export const GET = async (req: MedusaRequest<{ provider: string }, { code?: string, state?: string }>, res: MedusaResponse) => {
+  const { provider } = req.params
+  const { code, state } = req.query
+  console.log("OAuth callback received", { provider, code, state })
   if (!code || !state) {
     res.status(400).json({ message: "Missing code or state parameter" });
     return;
@@ -30,15 +35,15 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
     Modules.CUSTOMER,
   );
 
-  const [provider] = await oauthService.listOAuthProviderConfigs({
-    provider: "google",
+  const [providerConfig] = await oauthService.listOAuthProviderConfigs({
+    provider,
     enabled: true,
   });
 
-  if (!provider) {
+  if (!providerConfig) {
     res
       .status(404)
-      .json({ message: "Google OAuth provider not configured or disabled" });
+      .json({ message: `${provider} OAuth provider not configured or disabled` });
     return;
   }
 
@@ -46,7 +51,7 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
   const { http } = config.projectConfig;
   let statePayload: { return_to: string; nonce: string };
   try {
-    statePayload = jwt.verify(state, http.jwtSecret as string) as any;
+    statePayload = jwt.verify(state.toString(), http.jwtSecret as string) as any;
   } catch {
     res.status(400).json({ message: "Invalid or expired state parameter" });
     return;
@@ -56,15 +61,21 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
     ? statePayload.return_to
     : "/account";
 
+  const exchangeUrl = PROVIDER_EXCHANGE_URLS[provider]
+  if (!exchangeUrl) {
+    res.status(400).json({ message: "Unsupported provider" });
+    return;
+  }
+
   // Exchange authorization code for tokens.
-  const tokenResponse = await fetch("https://oauth2.googleapis.com/token", {
+  const tokenResponse = await fetch(exchangeUrl, {
     method: "POST",
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
     body: new URLSearchParams({
-      code,
-      client_id: provider.client_id,
-      client_secret: provider.client_secret,
-      redirect_uri: provider.callback_url,
+      code: code.toString(),
+      client_id: providerConfig.client_id,
+      client_secret: providerConfig.client_secret,
+      redirect_uri: providerConfig.callback_url,
       grant_type: "authorization_code",
     }),
   });
@@ -76,11 +87,11 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
 
   const tokenData = (await tokenResponse.json()) as { id_token?: string };
   if (!tokenData.id_token) {
-    res.status(502).json({ message: "No id_token in Google response" });
+    res.status(502).json({ message: `No id_token in ${provider} response` });
     return;
   }
 
-  // Decode id_token (no verification needed — already validated by Google).
+  // Decode id_token (no verification needed — already validated by the provider).
   const idPayload = jwt.decode(tokenData.id_token) as {
     sub: string;
     email: string;
@@ -95,9 +106,9 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
 
   const { sub, email, given_name, family_name } = idPayload;
 
-  // Find or create the auth identity for this Google account.
+  // Find or create the auth identity for this OAuth provider account.
   const [existingIdentity] = await authModule.listAuthIdentities(
-    { provider_identities: { entity_id: sub, provider: "google" } },
+    { provider_identities: { entity_id: sub, provider } },
     { relations: ["provider_identities"] },
   );
 
@@ -134,7 +145,7 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
       provider_identities: [
         {
           entity_id: sub,
-          provider: "google",
+          provider,
           provider_metadata: { email, given_name, family_name },
         },
       ],
@@ -160,8 +171,8 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
 
   // Redirect back to the storefront callback page.
   const redirectUrl = new URL(
-    `/auth/google/callback`,
-    provider.success_redirect_url,
+    `/auth/${provider}/callback`,
+    providerConfig.success_redirect_url,
   );
   redirectUrl.searchParams.set("token", token);
   redirectUrl.searchParams.set("return_to", returnTo);

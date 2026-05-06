@@ -1,13 +1,12 @@
 import { MedusaContainer } from "@medusajs/framework/types";
 import { medusaIntegrationTestRunner } from "@medusajs/test-utils";
-import jwt from "jsonwebtoken";
 import {
   FITMENT_MODULE,
   FitmentModuleService,
 } from "@repo/domain-modules/fitment";
+import jwt from "jsonwebtoken";
 import {
-  createTestFitment,
-  createTestFitmentHierarchy,
+  createTestFitmentHierarchy
 } from "../fixtures/fitment-seeders";
 
 jest.setTimeout(30000);
@@ -333,7 +332,7 @@ medusaIntegrationTestRunner({
 
           const service =
             container.resolve<FitmentModuleService>(FITMENT_MODULE);
-          const remaining = await service.list({ id: fitment.id });
+          const remaining = await service.listFitmentEngines({ id: fitment.id });
           expect(remaining).toHaveLength(0);
         });
 

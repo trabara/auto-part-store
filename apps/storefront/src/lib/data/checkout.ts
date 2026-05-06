@@ -29,7 +29,7 @@ export const updateCartContact = async (email: string): Promise<StoreCart> => {
     .update(cartId, { email }, { fields: CART_FIELDS }, headers)
     .catch(medusaError)
 
-  return cart as StoreCart
+  return cart
 }
 
 export const updateCartAddress = async (
@@ -55,7 +55,7 @@ export const updateCartAddress = async (
     )
     .catch(medusaError)
 
-  return cart as StoreCart
+  return cart
 }
 
 export const listShippingOptions = async (): Promise<
@@ -91,7 +91,7 @@ export const selectShippingMethod = async (
     .addShippingMethod(cartId, { option_id: optionId }, { fields: CART_FIELDS }, headers)
     .catch(medusaError)
 
-  return cart as StoreCart
+  return cart
 }
 
 export const initiatePayment = async (
@@ -118,7 +118,7 @@ export const initiatePayment = async (
     .retrieve(cartId, { fields: CART_FIELDS }, headers)
     .catch(medusaError)
 
-  return updatedCart as StoreCart
+  return updatedCart
 }
 
 export type PlaceOrderResult =
@@ -141,7 +141,7 @@ export const placeOrder = async (): Promise<PlaceOrderResult> => {
 
   return {
     type: "error",
-    message: (result as any).error ?? "Failed to place order",
+    message: result.error.message ?? "Failed to place order",
   }
 }
 

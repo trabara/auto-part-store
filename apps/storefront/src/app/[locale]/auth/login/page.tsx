@@ -3,37 +3,36 @@
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
 import { login } from "@/lib/data/auth"
-import { redirect } from "@/i18n/navigation"
-import { routing } from "@/i18n/routing"
-import { getTranslations } from "next-intl/server"
 import { useState } from "react"
 import { useTranslations } from "next-intl"
+import { useRouter } from "next/navigation"
 import Link from "next/link"
 
-export default function LoginPage({
-  params,
-}: {
-  params: Promise<{ locale: string }>
-}) {
+export default function LoginPage() {
   const t = useTranslations("auth")
+  const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   async function onSubmit(formData: FormData) {
     setIsLoading(true)
     setError(null)
-
     try {
       const email = formData.get("email") as string
       const password = formData.get("password") as string
-
       await login({ email, password })
-
-      redirect({ href: "/account", locale: routing.defaultLocale })
+      router.push("/account")
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Login failed")
+      setError(err instanceof Error ? err.message : t("login.failed"))
     } finally {
       setIsLoading(false)
     }
@@ -51,7 +50,13 @@ export default function LoginPage({
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={(e) => { e.preventDefault(); onSubmit(new FormData(e.currentTarget)) }} className="space-y-4">
+          <form
+            onSubmit={(e) => {
+              e.preventDefault()
+              onSubmit(new FormData(e.currentTarget))
+            }}
+            className="space-y-4"
+          >
             <div className="space-y-2">
               <Label htmlFor="email">{t("login.email")}</Label>
               <Input
@@ -79,11 +84,7 @@ export default function LoginPage({
                 {error}
               </div>
             )}
-            <Button
-              type="submit"
-              className="w-full"
-              disabled={isLoading}
-            >
+            <Button type="submit" className="w-full" disabled={isLoading}>
               {isLoading ? t("login.signingIn") : t("login.signIn")}
             </Button>
           </form>
@@ -91,7 +92,10 @@ export default function LoginPage({
         <CardFooter className="flex flex-col space-y-2">
           <div className="text-sm text-center text-muted-foreground">
             {t("login.noAccount")}{" "}
-            <Link href="/auth/register" className="text-primary hover:underline font-medium">
+            <Link
+              href="/auth/register"
+              className="text-primary hover:underline font-medium"
+            >
               {t("login.createAccount")}
             </Link>
           </div>

@@ -3,8 +3,8 @@
 import { sdk } from "@/lib/config"
 import {
   getAuthHeaders,
-  setAuthToken,
   removeAuthToken,
+  setAuthToken,
 } from "@/lib/data/cookies"
 import { medusaError } from "@/lib/util/error"
 import { StoreCustomer } from "@medusajs/types"
@@ -26,11 +26,13 @@ export const login = async ({
     await setAuthToken(result)
   }
 
+  const authHeaders = await getAuthHeaders()
+
   const { customer } = await sdk.store.customer
-    .retrieve({}, headers)
+    .retrieve({}, authHeaders)
     .catch(medusaError)
 
-  return customer as StoreCustomer
+  return customer
 }
 
 export const register = async ({
@@ -69,12 +71,24 @@ export const register = async ({
     )
     .catch(medusaError)
 
-  return customer as StoreCustomer
+  return customer
 }
 
 export const logout = async (): Promise<void> => {
   await sdk.auth.logout().catch(medusaError)
   await removeAuthToken()
+}
+
+export const updateCustomer = async (data: {
+  first_name?: string
+  last_name?: string
+  phone?: string
+}): Promise<StoreCustomer> => {
+  const headers = await getAuthHeaders()
+  const { customer } = await sdk.store.customer
+    .update(data, {}, headers)
+    .catch(medusaError)
+  return customer
 }
 
 export const getSession = async (): Promise<StoreCustomer | null> => {
@@ -89,5 +103,5 @@ export const getSession = async (): Promise<StoreCustomer | null> => {
     .retrieve({}, headers)
     .catch(() => ({ customer: null }))
 
-  return customer as StoreCustomer | null
+  return customer
 }

@@ -292,7 +292,69 @@
     "viewAllResults": "View all results for \"{q}\"",
     "searching": "Searching..."
   },
+  "auth": {
+    "login": {
+      "title": "Sign In",
+      "description": "Enter your email and password to access your account.",
+      "email": "Email",
+      "emailPlaceholder": "you@example.com",
+      "password": "Password",
+      "passwordPlaceholder": "••••••••",
+      "signIn": "Sign In",
+      "signingIn": "Signing In…",
+      "failed": "Invalid email or password.",
+      "noAccount": "Don't have an account?",
+      "createAccount": "Create one"
+    },
+    "register": {
+      "title": "Create Account",
+      "description": "Fill in the details below to create your account.",
+      "firstName": "First Name",
+      "firstNamePlaceholder": "John",
+      "lastName": "Last Name",
+      "lastNamePlaceholder": "Doe",
+      "email": "Email",
+      "emailPlaceholder": "you@example.com",
+      "password": "Password",
+      "passwordPlaceholder": "••••••••",
+      "phone": "Phone",
+      "phonePlaceholder": "+216 XX XXX XXX",
+      "optional": "optional",
+      "createAccount": "Create Account",
+      "creating": "Creating…",
+      "failed": "Registration failed. Please try again.",
+      "haveAccount": "Already have an account?",
+      "signIn": "Sign In"
+    }
+  },
   "sectionHeading": {
     "viewAll": "View All"
+  },
+  "account": {
+    "firstName": "First Name",
+    "lastName": "Last Name",
+    "email": "Email",
+    "phone": "Phone",
+    "saveChanges": "Save Changes",
+    "profileSaved": "Profile updated successfully.",
+    "profileSaveError": "Failed to update profile.",
+    "profileInfo": "Profile Information",
+    "orderHistory": "Order History",
+    "noOrders": "You have no orders yet.",
+    "itemsCount": "items",
+    "myWishlist": "My Wishlist",
+    "myOrders": "My Orders",
+    "logout": "Log out",
+    "tabs": {
+      "profile": "Profile",
+      "orders": "My Orders",
+      "wishlist": "My Wishlist"
+    }
+  },
+  "wishlist": {
+    "title": "My Wishlist",
+    "items": "items",
+    "empty": "Your wishlist is empty.",
+    "continueShopping": "Continue Shopping"
   }
 }

@@ -146,6 +146,9 @@ export default defineConfig({
     {
       resolve: "@repo/domain-modules/invoice-generator",
     },
+    {
+      resolve: "./src/modules/store-details",
+    },
   ],
   plugins: [
     {
@@ -178,7 +181,13 @@ export default defineConfig({
       options: {
         // Plugin-specific options can be added here
       },
-    }
+    },
+    {
+      resolve: "@rsc-labs/medusa-wishlist",
+      options: {
+        jwtSecret: process.env.JWT_SECRET || "supersecret",
+      },
+    },
   ],
   featureFlags: {
     translation: true,

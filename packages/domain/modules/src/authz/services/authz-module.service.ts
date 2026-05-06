@@ -114,16 +114,9 @@ export default class AuthzModuleService extends MedusaService(Models) {
 
     const action = this.methodToAction(method);
 
-    const policies = await this.listAuthzPolicies({ role_id: role.id }, {}, ctx);
+    const policies = await this.listAuthzPolicies({ role_id: role.id }, { relations: ['permission'] }, ctx);
 
-    const policiesWithPermissions = await Promise.all(
-      policies.map(async (p) => {
-        p.permission = await this.retrieveAuthzPermission(p.permission.id, {}, ctx);
-        return p;
-      })
-    );
-
-    return policiesWithPermissions.some(({ permission }) => {
+    return policies.some(({ permission }) => {
       if (permission.type === "predefined") {
         return (
           resource.includes(permission.target) && permission.kind === action
@@ -301,7 +294,7 @@ export default class AuthzModuleService extends MedusaService(Models) {
       if (route.kind !== this.methodToAction(method)) {
         return false;
       }
-      return path.includes(route.target);
+      return path.startsWith(route.target);
     });
   }
 

@@ -40,6 +40,7 @@
     "@repo/invoice-plugin": "workspace:*",
     "@repo/media-plugin": "workspace:*",
     "@repo/rbac-plugin": "workspace:*",
+    "@rsc-labs/medusa-wishlist": "^0.0.6",
     "react-i18next": "^15.0.0"
   },
   "devDependencies": {

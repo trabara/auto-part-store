@@ -292,7 +292,69 @@
     "viewAllResults": "Voir tous les résultats pour \"{q}\"",
     "searching": "Recherche en cours..."
   },
+  "auth": {
+    "login": {
+      "title": "Se connecter",
+      "description": "Entrez votre e-mail et mot de passe pour accéder à votre compte.",
+      "email": "E-mail",
+      "emailPlaceholder": "vous@exemple.com",
+      "password": "Mot de passe",
+      "passwordPlaceholder": "••••••••",
+      "signIn": "Se connecter",
+      "signingIn": "Connexion en cours…",
+      "failed": "E-mail ou mot de passe incorrect.",
+      "noAccount": "Pas encore de compte ?",
+      "createAccount": "Créer un compte"
+    },
+    "register": {
+      "title": "Créer un compte",
+      "description": "Remplissez les informations ci-dessous pour créer votre compte.",
+      "firstName": "Prénom",
+      "firstNamePlaceholder": "Jean",
+      "lastName": "Nom de famille",
+      "lastNamePlaceholder": "Dupont",
+      "email": "E-mail",
+      "emailPlaceholder": "vous@exemple.com",
+      "password": "Mot de passe",
+      "passwordPlaceholder": "••••••••",
+      "phone": "Téléphone",
+      "phonePlaceholder": "+216 XX XXX XXX",
+      "optional": "facultatif",
+      "createAccount": "Créer un compte",
+      "creating": "Création en cours…",
+      "failed": "Échec de l'inscription. Veuillez réessayer.",
+      "haveAccount": "Déjà un compte ?",
+      "signIn": "Se connecter"
+    }
+  },
   "sectionHeading": {
     "viewAll": "Voir tout"
+  },
+  "account": {
+    "firstName": "Prénom",
+    "lastName": "Nom de famille",
+    "email": "E-mail",
+    "phone": "Téléphone",
+    "saveChanges": "Enregistrer les modifications",
+    "profileSaved": "Profil mis à jour avec succès.",
+    "profileSaveError": "Échec de la mise à jour du profil.",
+    "profileInfo": "Informations du profil",
+    "orderHistory": "Historique des commandes",
+    "noOrders": "Vous n'avez pas encore de commandes.",
+    "itemsCount": "articles",
+    "myWishlist": "Ma liste de souhaits",
+    "myOrders": "Mes commandes",
+    "logout": "Se déconnecter",
+    "tabs": {
+      "profile": "Profil",
+      "orders": "Mes commandes",
+      "wishlist": "Ma liste de souhaits"
+    }
+  },
+  "wishlist": {
+    "title": "Ma liste de souhaits",
+    "items": "articles",
+    "empty": "Votre liste de souhaits est vide.",
+    "continueShopping": "Continuer les achats"
   }
 }

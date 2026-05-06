@@ -67,7 +67,7 @@ export default async function seedStoreData({ container }: ExecArgs) {
   const salesChannelModuleService = container.resolve(Modules.SALES_CHANNEL);
   const storeModuleService = container.resolve(Modules.STORE);
 
-  const countries = ["gb", "de", "dk", "se", "fr", "es", "it"];
+  const countries = ['tn'];
 
   logger.info("Seeding store data...");
   const [store] = await storeModuleService.listStores();
@@ -96,11 +96,8 @@ export default async function seedStoreData({ container }: ExecArgs) {
       store_id: store.id,
       supported_currencies: [
         {
-          currency_code: "eur",
+          currency_code: "tnd",
           is_default: true,
-        },
-        {
-          currency_code: "usd",
         },
       ],
     },
@@ -123,8 +120,8 @@ export default async function seedStoreData({ container }: ExecArgs) {
     input: {
       regions: [
         {
-          name: "Europe",
-          currency_code: "eur",
+          name: "Tunisia",
+          currency_code: "tnd",
           countries,
           payment_providers: ["pp_system_default"],
         },
@@ -150,10 +147,10 @@ export default async function seedStoreData({ container }: ExecArgs) {
     input: {
       locations: [
         {
-          name: "European Warehouse",
+          name: "Tunisian Warehouse",
           address: {
-            city: "Copenhagen",
-            country_code: "DK",
+            city: "Tunis",
+            country_code: "TN",
             address_1: "",
           },
         },
@@ -202,38 +199,14 @@ export default async function seedStoreData({ container }: ExecArgs) {
   }
 
   const fulfillmentSet = await fulfillmentModuleService.createFulfillmentSets({
-    name: "European Warehouse delivery",
+    name: "Tunisian Warehouse delivery",
     type: "shipping",
     service_zones: [
       {
-        name: "Europe",
+        name: "Tunisia Zone",
         geo_zones: [
           {
-            country_code: "gb",
-            type: "country",
-          },
-          {
-            country_code: "de",
-            type: "country",
-          },
-          {
-            country_code: "dk",
-            type: "country",
-          },
-          {
-            country_code: "se",
-            type: "country",
-          },
-          {
-            country_code: "fr",
-            type: "country",
-          },
-          {
-            country_code: "es",
-            type: "country",
-          },
-          {
-            country_code: "it",
+            country_code: "tn",
             type: "country",
           },
         ],
@@ -265,11 +238,7 @@ export default async function seedStoreData({ container }: ExecArgs) {
         },
         prices: [
           {
-            currency_code: "usd",
-            amount: 10,
-          },
-          {
-            currency_code: "eur",
+            currency_code: "tnd",
             amount: 10,
           },
           {
@@ -303,11 +272,7 @@ export default async function seedStoreData({ container }: ExecArgs) {
         },
         prices: [
           {
-            currency_code: "usd",
-            amount: 10,
-          },
-          {
-            currency_code: "eur",
+            currency_code: "tnd",
             amount: 10,
           },
           {
@@ -454,11 +419,7 @@ export default async function seedStoreData({ container }: ExecArgs) {
               prices: [
                 {
                   amount: 10,
-                  currency_code: "eur",
-                },
-                {
-                  amount: 15,
-                  currency_code: "usd",
+                  currency_code: "tnd",
                 },
               ],
             },
@@ -472,11 +433,7 @@ export default async function seedStoreData({ container }: ExecArgs) {
               prices: [
                 {
                   amount: 10,
-                  currency_code: "eur",
-                },
-                {
-                  amount: 15,
-                  currency_code: "usd",
+                  currency_code: "tnd",
                 },
               ],
             },
@@ -490,11 +447,7 @@ export default async function seedStoreData({ container }: ExecArgs) {
               prices: [
                 {
                   amount: 10,
-                  currency_code: "eur",
-                },
-                {
-                  amount: 15,
-                  currency_code: "usd",
+                  currency_code: "tnd",
                 },
               ],
             },
@@ -508,11 +461,7 @@ export default async function seedStoreData({ container }: ExecArgs) {
               prices: [
                 {
                   amount: 10,
-                  currency_code: "eur",
-                },
-                {
-                  amount: 15,
-                  currency_code: "usd",
+                  currency_code: "tnd",
                 },
               ],
             },
@@ -526,11 +475,7 @@ export default async function seedStoreData({ container }: ExecArgs) {
               prices: [
                 {
                   amount: 10,
-                  currency_code: "eur",
-                },
-                {
-                  amount: 15,
-                  currency_code: "usd",
+                  currency_code: "tnd",
                 },
               ],
             },
@@ -544,11 +489,7 @@ export default async function seedStoreData({ container }: ExecArgs) {
               prices: [
                 {
                   amount: 10,
-                  currency_code: "eur",
-                },
-                {
-                  amount: 15,
-                  currency_code: "usd",
+                  currency_code: "tnd",
                 },
               ],
             },
@@ -562,12 +503,8 @@ export default async function seedStoreData({ container }: ExecArgs) {
               prices: [
                 {
                   amount: 10,
-                  currency_code: "eur",
-                },
-                {
-                  amount: 15,
-                  currency_code: "usd",
-                },
+                  currency_code: "tnd",
+                }
               ],
             },
             {
@@ -580,12 +517,8 @@ export default async function seedStoreData({ container }: ExecArgs) {
               prices: [
                 {
                   amount: 10,
-                  currency_code: "eur",
-                },
-                {
-                  amount: 15,
-                  currency_code: "usd",
-                },
+                  currency_code: "tnd",
+                }
               ],
             },
           ],
@@ -630,12 +563,8 @@ export default async function seedStoreData({ container }: ExecArgs) {
               prices: [
                 {
                   amount: 10,
-                  currency_code: "eur",
-                },
-                {
-                  amount: 15,
-                  currency_code: "usd",
-                },
+                  currency_code: "tnd",
+                }
               ],
             },
             {
@@ -647,11 +576,7 @@ export default async function seedStoreData({ container }: ExecArgs) {
               prices: [
                 {
                   amount: 10,
-                  currency_code: "eur",
-                },
-                {
-                  amount: 15,
-                  currency_code: "usd",
+                  currency_code: "tnd",
                 },
               ],
             },
@@ -664,11 +589,7 @@ export default async function seedStoreData({ container }: ExecArgs) {
               prices: [
                 {
                   amount: 10,
-                  currency_code: "eur",
-                },
-                {
-                  amount: 15,
-                  currency_code: "usd",
+                  currency_code: "tnd",
                 },
               ],
             },
@@ -681,11 +602,7 @@ export default async function seedStoreData({ container }: ExecArgs) {
               prices: [
                 {
                   amount: 10,
-                  currency_code: "eur",
-                },
-                {
-                  amount: 15,
-                  currency_code: "usd",
+                  currency_code: "tnd",
                 },
               ],
             },
@@ -731,11 +648,7 @@ export default async function seedStoreData({ container }: ExecArgs) {
               prices: [
                 {
                   amount: 10,
-                  currency_code: "eur",
-                },
-                {
-                  amount: 15,
-                  currency_code: "usd",
+                  currency_code: "tnd",
                 },
               ],
             },
@@ -748,11 +661,7 @@ export default async function seedStoreData({ container }: ExecArgs) {
               prices: [
                 {
                   amount: 10,
-                  currency_code: "eur",
-                },
-                {
-                  amount: 15,
-                  currency_code: "usd",
+                  currency_code: "tnd",
                 },
               ],
             },
@@ -765,11 +674,7 @@ export default async function seedStoreData({ container }: ExecArgs) {
               prices: [
                 {
                   amount: 10,
-                  currency_code: "eur",
-                },
-                {
-                  amount: 15,
-                  currency_code: "usd",
+                  currency_code: "tnd",
                 },
               ],
             },
@@ -782,11 +687,7 @@ export default async function seedStoreData({ container }: ExecArgs) {
               prices: [
                 {
                   amount: 10,
-                  currency_code: "eur",
-                },
-                {
-                  amount: 15,
-                  currency_code: "usd",
+                  currency_code: "tnd",
                 },
               ],
             },
@@ -832,11 +733,7 @@ export default async function seedStoreData({ container }: ExecArgs) {
               prices: [
                 {
                   amount: 10,
-                  currency_code: "eur",
-                },
-                {
-                  amount: 15,
-                  currency_code: "usd",
+                  currency_code: "tnd",
                 },
               ],
             },
@@ -849,11 +746,7 @@ export default async function seedStoreData({ container }: ExecArgs) {
               prices: [
                 {
                   amount: 10,
-                  currency_code: "eur",
-                },
-                {
-                  amount: 15,
-                  currency_code: "usd",
+                  currency_code: "tnd",
                 },
               ],
             },
@@ -866,11 +759,7 @@ export default async function seedStoreData({ container }: ExecArgs) {
               prices: [
                 {
                   amount: 10,
-                  currency_code: "eur",
-                },
-                {
-                  amount: 15,
-                  currency_code: "usd",
+                  currency_code: "tnd",
                 },
               ],
             },
@@ -883,11 +772,7 @@ export default async function seedStoreData({ container }: ExecArgs) {
               prices: [
                 {
                   amount: 10,
-                  currency_code: "eur",
-                },
-                {
-                  amount: 15,
-                  currency_code: "usd",
+                  currency_code: "tnd",
                 },
               ],
             },

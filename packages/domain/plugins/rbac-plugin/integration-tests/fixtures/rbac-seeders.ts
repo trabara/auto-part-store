@@ -1,5 +1,5 @@
-import { AuthzModuleService, AUTHZ_MODULE } from "@repo/domain-modules/authz";
 import { MedusaContainer } from "@medusajs/framework/types";
+import { AUTHZ_MODULE, AuthzModuleService } from "@repo/domain-modules/authz";
 
 export async function ensureAdminAccess(
   container: MedusaContainer,
@@ -8,7 +8,7 @@ export async function ensureAdminAccess(
   const service = container.resolve<AuthzModuleService>(AUTHZ_MODULE);
 
   // Reuse existing permissions if they exist
-  const existingPerms = await service.permissions.list({
+  const existingPerms = await service.listAuthzPermissions({
     target: "/admin/rbac",
   });
 
@@ -16,30 +16,30 @@ export async function ensureAdminAccess(
   if (existingPerms.length >= 3) {
     permissions = existingPerms;
   } else {
-    permissions = await service.createPermissions([
+    permissions = await service.createAuthzPermissions([
       { kind: "read", target: "/admin/rbac", type: "predefined" },
       { kind: "write", target: "/admin/rbac", type: "predefined" },
       { kind: "delete", target: "/admin/rbac", type: "predefined" },
     ]);
   }
 
-  const [role] = await service.createRoles([
+  const [role] = await service.createRolesWithPermissions([
     {
       name: "Super Admin " + Date.now(),
       description: "Full RBAC access",
-      permissions: permissions.map((p) => p.id),
+      permissions: permissions.map((perm) => perm.id),
     },
   ]);
 
   // Update or create member
-  const [existingMember] = await service.members.list({
+  const [existingMember] = await service.listAuthzMembers({
     user_id: userId,
   });
 
   if (existingMember) {
-    await service.updateMembers([{ id: existingMember.id, role_id: role.id }]);
+    await service.updateAuthzMembers([{ id: existingMember.id, role_id: role.id }]);
   } else {
-    await service.createMembers([{ user_id: userId, role_id: role.id }]);
+    await service.createAuthzMembers([{ user_id: userId, role_id: role.id }]);
   }
 
   return { role, permissions };
@@ -51,7 +51,7 @@ export async function createTestPermission(
 ) {
   const service = container.resolve<AuthzModuleService>(AUTHZ_MODULE);
 
-  const [permission] = await service.createPermissions([
+  const [permission] = await service.createAuthzPermissions([
     {
       kind: (overrides?.kind as "read" | "write" | "delete") ?? "read",
       target: overrides?.target ?? "/admin/test-resource",
@@ -94,7 +94,7 @@ export async function createTestRole(
 ) {
   const service = container.resolve<AuthzModuleService>(AUTHZ_MODULE);
 
-  const [role] = await service.createRoles([
+  const [role] = await service.createRolesWithPermissions([
     {
       name: overrides?.name ?? "Test Role",
       description: overrides?.description ?? "A test role",

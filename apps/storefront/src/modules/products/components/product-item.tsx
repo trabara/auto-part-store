@@ -68,7 +68,13 @@ export function ProductGridItem({
         )}
 
         <div className="absolute top-3 right-3 z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-          <WishlistButton className="size-8 bg-background/90 backdrop-blur-sm shadow-sm border border-border/50 hover:bg-background" />
+          {product.id && variantId && (
+            <WishlistButton
+              productId={product.id}
+              variantId={variantId}
+              className="size-8 bg-background/90 backdrop-blur-sm shadow-sm border border-border/50 hover:bg-background"
+            />
+          )}
         </div>
 
         {product.thumbnail ? (
@@ -229,10 +235,16 @@ export function ProductListItem({
           </div>
 
           <div className="flex flex-col items-end gap-2 w-full">
-            <WishlistButton className="size-8" />
+            {variantId && product.id && (
+              <WishlistButton
+                productId={product.id}
+                variantId={variantId}
+                className="size-8"
+              />
+            )}
             <Button
               size="sm"
-              className="w-full gap-1.5 text-xs font-semibold tracking-widest uppercase" 
+              className="w-full gap-1.5 text-xs font-semibold tracking-widest uppercase"
               onClick={() => variantId && add(variantId, 1)}
               disabled={isPending || !variantId}
             >

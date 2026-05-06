@@ -12,7 +12,14 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "@/components/ui/empty"
-import { Sheet, SheetClose, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
+import {
+  Sheet,
+  SheetClose,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet"
 import { useTranslations } from "next-intl"
 import ShoppingCartButton from "./cart-button"
 import CartLineItem from "./cart-line-item"
@@ -35,11 +42,9 @@ export default function CartSheet({ className, direction }: CartSheetProps) {
     currency_code: currencyCode,
   })
 
-
-
   return (
     <Sheet>
-      <SheetTrigger asChild>
+      <SheetTrigger asChild data-testid="cart-trigger">
         <ShoppingCartButton variant="ghost" />
       </SheetTrigger>
       <SheetContent
@@ -88,7 +93,9 @@ export default function CartSheet({ className, direction }: CartSheetProps) {
             <div className="shrink-0 space-y-3 bg-background border-t border-border">
               <div className="pt-4 px-4 flex justify-between items-center text-sm font-medium">
                 <span>{t("subtotal")}</span>
-                <span className="text-base font-bold tabular-nums">{subtotal}</span>
+                <span className="text-base font-bold tabular-nums">
+                  {subtotal}
+                </span>
               </div>
               <SheetClose asChild>
                 <Button

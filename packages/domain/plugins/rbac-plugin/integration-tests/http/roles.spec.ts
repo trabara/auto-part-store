@@ -262,7 +262,7 @@ medusaIntegrationTestRunner({
           expect(res.status).toEqual(204);
 
           const service = container.resolve<AuthzModuleService>(AUTHZ_MODULE);
-          const [deleted] = await service.roles.list({
+          const [deleted] = await service.listAuthzRoles({
             id: role.id,
           });
           expect(deleted).toBeUndefined();
@@ -277,7 +277,7 @@ medusaIntegrationTestRunner({
           });
 
           const service = container.resolve<AuthzModuleService>(AUTHZ_MODULE);
-          const policies = await service.policies.list({
+          const policies = await service.listAuthzPolicies({
             role_id: role.id,
           });
           expect(policies).toHaveLength(0);
@@ -288,13 +288,13 @@ medusaIntegrationTestRunner({
           const role = await createTestRole(container, [perm.id]);
 
           const service = container.resolve<AuthzModuleService>(AUTHZ_MODULE);
-          await service.members.create([{ user_id: userId, role_id: role.id }]);
+          await service.createAuthzMembers([{ user_id: userId, role_id: role.id }]);
 
           await api.delete(`/admin/rbac/v2/roles/${role.id}`, {
             headers,
           });
 
-          const members = await service.members.list({
+          const members = await service.listAuthzMembers({
             role_id: role.id,
           });
           expect(members).toHaveLength(0);
@@ -318,7 +318,7 @@ medusaIntegrationTestRunner({
           expect(res.data.success).toEqual(true);
 
           const service = container.resolve<AuthzModuleService>(AUTHZ_MODULE);
-          const members = await service.members.list({
+          const members = await service.listAuthzMembers({
             role_id: role.id,
           });
           expect(members).toHaveLength(1);
@@ -351,7 +351,7 @@ medusaIntegrationTestRunner({
             { headers },
           );
 
-          const members2 = await service.members.list({
+          const members2 = await service.listAuthzMembers({
             role_id: role2.id,
           });
           expect(members2).toHaveLength(1);
@@ -381,7 +381,7 @@ medusaIntegrationTestRunner({
 
           expect(res.status).toEqual(201);
 
-          const members = await service.members.list({
+          const members = await service.listAuthzMembers({
             role_id: role.id,
           });
           expect(members).toHaveLength(0);

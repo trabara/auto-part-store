@@ -304,7 +304,8 @@
       "signingIn": "Signing In…",
       "failed": "Invalid email or password.",
       "noAccount": "Don't have an account?",
-      "createAccount": "Create one"
+      "createAccount": "Create one",
+      "accountExists": "An account with this email already exists. Please sign in."
     },
     "register": {
       "title": "Create Account",
@@ -324,7 +325,13 @@
       "creating": "Creating…",
       "failed": "Registration failed. Please try again.",
       "haveAccount": "Already have an account?",
-      "signIn": "Sign In"
+      "signIn": "Sign In",
+      "continueButton": "Continue",
+      "checkingEmail": "Checking…",
+      "welcomeBack": "Welcome back, {name}!",
+      "setPassword": "Set Password",
+      "setPasswordDescription": "You already have an order with us. Set a password to complete your account.",
+      "back": "← Use a different email"
     }
   },
   "sectionHeading": {

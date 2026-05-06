@@ -87,7 +87,7 @@ medusaIntegrationTestRunner({
         expect(res.status).toEqual(200);
 
         const service = container.resolve<AuthzModuleService>(AUTHZ_MODULE);
-        const policies = await service.policies.list({ role_id: role.id });
+        const policies = await service.listAuthzPolicies({ role_id: role.id });
 
         expect(policies).toHaveLength(1);
         expect(policies[0].permission_id).toEqual(perm2.id);
@@ -114,7 +114,7 @@ medusaIntegrationTestRunner({
         expect(res.status).toEqual(200);
 
         const service = container.resolve<AuthzModuleService>(AUTHZ_MODULE);
-        const policies = await service.policies.list({ role_id: role.id });
+        const policies = await service.listAuthzPolicies({ role_id: role.id });
         const permissionIds = policies.map((p: any) => p.permission_id).sort();
 
         expect(policies).toHaveLength(2);
@@ -136,7 +136,7 @@ medusaIntegrationTestRunner({
         expect(res.status).toEqual(200);
 
         const service = container.resolve<AuthzModuleService>(AUTHZ_MODULE);
-        const policies = await service.policies.list({ role_id: role.id });
+        const policies = await service.listAuthzPolicies({ role_id: role.id });
         expect(policies).toHaveLength(0);
       });
 

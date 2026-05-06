@@ -117,7 +117,7 @@ medusaIntegrationTestRunner({
         const extraUser = await userModuleService.createUsers({
           email: "stats-member@test.com",
         });
-        await service.createMembers([
+        await service.createAuthzMembers([
           { user_id: extraUser.id, role_id: role.id },
         ]);
 

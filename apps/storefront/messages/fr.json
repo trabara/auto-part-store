@@ -304,7 +304,8 @@
       "signingIn": "Connexion en cours…",
       "failed": "E-mail ou mot de passe incorrect.",
       "noAccount": "Pas encore de compte ?",
-      "createAccount": "Créer un compte"
+      "createAccount": "Créer un compte",
+      "accountExists": "Un compte avec cette adresse e-mail existe déjà. Veuillez vous connecter."
     },
     "register": {
       "title": "Créer un compte",
@@ -324,7 +325,13 @@
       "creating": "Création en cours…",
       "failed": "Échec de l'inscription. Veuillez réessayer.",
       "haveAccount": "Déjà un compte ?",
-      "signIn": "Se connecter"
+      "signIn": "Se connecter",
+      "continueButton": "Continuer",
+      "checkingEmail": "Vérification…",
+      "welcomeBack": "Bon retour, {name} !",
+      "setPassword": "Définir un mot de passe",
+      "setPasswordDescription": "Vous avez déjà une commande chez nous. Définissez un mot de passe pour finaliser la création de votre compte.",
+      "back": "← Utiliser une autre adresse e-mail"
     }
   },
   "sectionHeading": {

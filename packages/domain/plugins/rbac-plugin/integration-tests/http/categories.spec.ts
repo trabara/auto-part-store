@@ -278,7 +278,7 @@ medusaIntegrationTestRunner({
           expect(res.status).toEqual(204);
 
           const service = container.resolve<AuthzModuleService>(AUTHZ_MODULE);
-          const [deleted] = await service.categories.list({
+          const [deleted] = await service.listAuthzCategories({
             id: category.id,
           });
           expect(deleted).toBeUndefined();
@@ -304,7 +304,7 @@ medusaIntegrationTestRunner({
           expect(res.status).toEqual(204);
 
           const service = container.resolve<AuthzModuleService>(AUTHZ_MODULE);
-          const perms = await service.permissions.list({
+          const perms = await service.listAuthzPermissions({
             category_id: category.id,
           });
           expect(perms).toHaveLength(0);

@@ -35,7 +35,7 @@ export const login = async ({
   return customer
 }
 
-export const register = async ({
+export const registerCustomer = async ({
   email,
   password,
   firstName,
@@ -44,32 +44,27 @@ export const register = async ({
 }: {
   email: string
   password: string
-  firstName: string
-  lastName: string
+  firstName?: string
+  lastName?: string
   phone?: string
 }): Promise<StoreCustomer> => {
-  const headers = await getAuthHeaders()
-
-  const result = await sdk.auth
-    .register("customer", "emailpass", { email, password })
-    .catch(medusaError)
-
-  if (typeof result === "string") {
-    await setAuthToken(result as string)
-  }
-
-  const { customer } = await sdk.store.customer
-    .create(
+  const { token, customer } = await sdk.client
+    .fetch<{ token: string; customer: StoreCustomer }>(
+      "/store/customers/register",
       {
-        email,
-        first_name: firstName,
-        last_name: lastName,
-        phone,
-      },
-      {},
-      headers
+        method: "POST",
+        body: {
+          email,
+          password,
+          first_name: firstName,
+          last_name: lastName,
+          phone,
+        },
+      }
     )
     .catch(medusaError)
+
+  await setAuthToken(token)
 
   return customer
 }
@@ -89,6 +84,23 @@ export const updateCustomer = async (data: {
     .update(data, {}, headers)
     .catch(medusaError)
   return customer
+}
+
+export type EmailExistsResult =
+  | { status: "none" }
+  | { status: "registered" }
+  | { status: "guest"; first_name?: string; last_name?: string }
+
+export const checkEmailExists = async (
+  email: string
+): Promise<EmailExistsResult> => {
+  const result = await sdk.client
+    .fetch<EmailExistsResult>(
+      `/store/customers/exists?email=${encodeURIComponent(email)}`,
+      { method: "GET" }
+    )
+    .catch(medusaError)
+  return result
 }
 
 export const getSession = async (): Promise<StoreCustomer | null> => {

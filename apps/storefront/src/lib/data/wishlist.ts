@@ -2,6 +2,7 @@
 
 import { sdk } from "@/lib/config"
 import { getAuthHeaders } from "@/lib/data/cookies"
+import { StoreProduct } from "@medusajs/types"
 
 export type WishlistItem = {
   id: string
@@ -29,6 +30,31 @@ export async function getWishlist(): Promise<Wishlist | null> {
   } catch {
     return null
   }
+}
+
+export async function getWishlistProductItems(): Promise<Map<string, StoreProduct>> {
+  const headers = await getAuthHeaders()
+  const productMap = new Map<string, StoreProduct>()
+  const wishlist = await getWishlist()
+  const productIds = [...new Set(wishlist?.items.map((i) => i.product_id) ?? [])]
+  
+  if (productIds.length > 0) {
+    const products = await sdk.store.product
+      .list(
+        {
+          id: productIds,
+          limit: productIds.length,
+          fields: "id,title,handle,thumbnail,variants.id",
+        },
+        headers as Record<string, string>
+      )
+      .then(({ products: p }) => p)
+      .catch(() => [])
+
+    products.forEach((p) => productMap.set(p.id, p))
+  }
+
+  return productMap
 }
 
 export async function addToWishlist(

@@ -1,6 +1,7 @@
 import { OrderDTO, OrderLineItemDTO } from "@medusajs/framework/types";
 import { createStep, StepResponse } from "@medusajs/framework/workflows-sdk";
 import { INVOICE_MODULE } from "@repo/domain-modules/invoice-generator";
+import InvoiceGeneratorService from "@repo/domain-modules/invoice-generator/service";
 
 export type GenerateInvoicePdfStepInput = {
   order: OrderDTO;
@@ -12,9 +13,9 @@ export type GenerateInvoicePdfStepInput = {
 export const generateInvoicePdfStep = createStep(
   "generate-invoice-pdf",
   async (input: GenerateInvoicePdfStepInput, { container }) => {
-    const invoiceGeneratorService = container.resolve<any>(INVOICE_MODULE);
+    const invoiceGeneratorService = container.resolve<InvoiceGeneratorService>(INVOICE_MODULE);
 
-    const previousInv = await invoiceGeneratorService.retrieve(
+    const previousInv = await invoiceGeneratorService.retrieveInvoice(
       input.invoice_id,
     );
 
@@ -37,11 +38,13 @@ export const generateInvoicePdfStep = createStep(
       return;
     }
 
-    const invoiceGeneratorService = container.resolve<any>(INVOICE_MODULE);
+    const invoiceGeneratorService = container.resolve<InvoiceGeneratorService>(INVOICE_MODULE);
 
-    await invoiceGeneratorService.update({
-      id: previousInv.id,
-      pdfContent: previousInv.pdfContent,
-    });
+    await invoiceGeneratorService.updateInvoices([
+      {
+        id: previousInv.id,
+        content: previousInv.content,
+      }
+    ]);
   },
 );

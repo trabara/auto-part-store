@@ -1,29 +1,20 @@
 "use client"
 
-import { ProfileForm } from "@/modules/account/components/profile-form"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { OrdersTab } from "@/modules/account/components/orders-tab"
+import { ProfileForm } from "@/modules/account/components/profile-form"
 import { WishlistTab } from "@/modules/account/components/wishlist-tab"
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
-import type { WishlistItem } from "@/lib/data/wishlist"
-import type { StoreCustomer, StoreOrder } from "@medusajs/types"
+import type { StoreCustomer, StoreOrder, StoreProduct } from "@medusajs/types"
 import { Heart, Package, User } from "lucide-react"
 import { useTranslations } from "next-intl"
 import { useRouter, useSearchParams } from "next/navigation"
 
-type SimpleProduct = {
-  id: string
-  title?: string | null
-  handle?: string | null
-  thumbnail?: string | null
-  variants?: Array<{ id: string }>
-}
 
-type Props = {
+type AccountTabsProps = {
   defaultTab: string
   customer: StoreCustomer
   orders: StoreOrder[]
-  wishlistItems: WishlistItem[]
-  productMap: Map<string, SimpleProduct>
+  wishlistProductMap: Map<string, StoreProduct>
 }
 
 const VALID_TABS = ["profile", "orders", "wishlist"] as const
@@ -37,9 +28,8 @@ export function AccountTabs({
   defaultTab,
   customer,
   orders,
-  wishlistItems,
-  productMap,
-}: Props) {
+  wishlistProductMap,
+}: AccountTabsProps) {
   const t = useTranslations("account")
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -58,28 +48,27 @@ export function AccountTabs({
   }
 
   return (
-    <Tabs defaultValue={activeTab} onValueChange={handleTabChange} orientation="vertical" className="gap-x-12">
+    <Tabs defaultValue={activeTab} onValueChange={handleTabChange} orientation="vertical" className="gap-x-24">
       <TabsList
-        variant="line"
+        className="w-60"
+        variant='line'
       >
         <TabsTrigger value="profile" className="gap-2 pb-3">
-          <User className="size-4" />
+          <User className="size-5" />
           {t("tabs.profile")}
         </TabsTrigger>
         <TabsTrigger value="orders" className="gap-2 pb-3">
-          <Package className="size-4" />
+          <Package className="size-5" />
           {t("tabs.orders")}
         </TabsTrigger>
         <TabsTrigger value="wishlist" className="gap-2 pb-3">
-          <Heart className="size-4" />
+          <Heart className="size-5" />
           {t("tabs.wishlist")}
         </TabsTrigger>
       </TabsList>
 
       <TabsContent value="profile" className="h-screen">
-        <div className="space-y-4">
-          <ProfileForm customer={customer} />
-        </div>
+        <ProfileForm customer={customer} />
       </TabsContent>
 
       <TabsContent value="orders" className="h-screen">
@@ -87,7 +76,7 @@ export function AccountTabs({
       </TabsContent>
 
       <TabsContent value="wishlist" className="h-screen">
-        <WishlistTab items={wishlistItems} productMap={productMap} />
+        <WishlistTab productMap={wishlistProductMap} />
       </TabsContent>
     </Tabs>
   )

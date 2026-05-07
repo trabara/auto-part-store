@@ -1,5 +1,6 @@
 import { createStep, StepResponse } from "@medusajs/framework/workflows-sdk";
 import { INVOICE_MODULE } from "@repo/domain-modules/invoice-generator";
+import InvoiceGeneratorService from "@repo/domain-modules/invoice-generator/service";
 
 type StepInput = {
   id?: string;
@@ -14,7 +15,7 @@ type StepInput = {
 export const updateInvoiceConfigStep = createStep(
   "update-invoice-config",
   async ({ id, ...updateData }: StepInput, { container }) => {
-    const invoiceGeneratorService = container.resolve<any>(INVOICE_MODULE);
+    const invoiceGeneratorService = container.resolve<InvoiceGeneratorService>(INVOICE_MODULE);
 
     const prevData = id
       ? await invoiceGeneratorService.retrieveInvoiceConfig(id)
@@ -32,7 +33,7 @@ export const updateInvoiceConfigStep = createStep(
       return;
     }
 
-    const invoiceGeneratorService = container.resolve<any>(INVOICE_MODULE);
+    const invoiceGeneratorService = container.resolve<InvoiceGeneratorService>(INVOICE_MODULE);
 
     await invoiceGeneratorService.updateInvoiceConfigs({
       id: prevInvoiceConfig.id,

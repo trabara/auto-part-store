@@ -3,7 +3,7 @@ import {
   INVOICE_MODULE,
   InvoiceStatus,
 } from "@repo/domain-modules/invoice-generator";
-import { IInvoiceGeneratorModuleService } from "@trabara/core";
+import InvoiceGeneratorService from "@repo/domain-modules/invoice-generator/service";
 
 type StepInput = {
   selector: {
@@ -16,11 +16,11 @@ type StepInput = {
 export const updateInvoicesStep = createStep(
   "update-invoices",
   async ({ selector, data }: StepInput, { container }) => {
-    const invoiceGeneratorService = container.resolve<IInvoiceGeneratorModuleService>(INVOICE_MODULE);
+    const invoiceGeneratorService = container.resolve<InvoiceGeneratorService>(INVOICE_MODULE);
 
-    const prevData = await invoiceGeneratorService.list(selector);
+    const prevData = await invoiceGeneratorService.listInvoices(selector);
 
-    const updatedInvoices = await invoiceGeneratorService.update(
+    const updatedInvoices = await invoiceGeneratorService.updateInvoices(
       prevData.map((i: any) => ({ id: i.id, ...data })),
     );
 
@@ -31,9 +31,9 @@ export const updateInvoicesStep = createStep(
       return;
     }
 
-    const invoiceGeneratorService = container.resolve<IInvoiceGeneratorModuleService>(INVOICE_MODULE);
+    const invoiceGeneratorService = container.resolve<InvoiceGeneratorService>(INVOICE_MODULE);
 
-    await invoiceGeneratorService.update(
+    await invoiceGeneratorService.updateInvoices(
       prevData.map((i) => ({
         id: i.id,
         status: i.status,

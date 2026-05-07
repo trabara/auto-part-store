@@ -92,12 +92,7 @@ export const GET = async (req: MedusaRequest<{ provider: string }, { code?: stri
   }
 
   // Decode id_token (no verification needed — already validated by the provider).
-  const idPayload = jwt.decode(tokenData.id_token) as {
-    sub: string;
-    email: string;
-    given_name?: string;
-    family_name?: string;
-  } | null;
+  const idPayload = jwt.decode(tokenData.id_token) as jwt.JwtPayload
 
   if (!idPayload?.sub || !idPayload?.email) {
     res.status(502).json({ message: "Invalid id_token payload" });

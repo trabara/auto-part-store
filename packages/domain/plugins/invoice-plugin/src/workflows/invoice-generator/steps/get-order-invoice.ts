@@ -3,6 +3,7 @@ import {
   INVOICE_MODULE,
   InvoiceStatus,
 } from "@repo/domain-modules/invoice-generator";
+import InvoiceGeneratorService from "@repo/domain-modules/invoice-generator/service";
 
 type StepInput = {
   order_id: string;
@@ -11,8 +12,8 @@ type StepInput = {
 export const getOrderInvoiceStep = createStep(
   "get-order-invoice",
   async ({ order_id }: StepInput, { container }) => {
-    const invoiceGeneratorService = container.resolve<any>(INVOICE_MODULE);
-    let [invoice] = await invoiceGeneratorService.list({
+    const invoiceGeneratorService = container.resolve<InvoiceGeneratorService>(INVOICE_MODULE);
+    let [invoice] = await invoiceGeneratorService.listInvoices({
       order_id,
       status: InvoiceStatus.LATEST,
     });
@@ -20,7 +21,7 @@ export const getOrderInvoiceStep = createStep(
 
     if (!invoice) {
       // Store new invoice in database
-      const [created] = await invoiceGeneratorService.create([
+      const [created] = await invoiceGeneratorService.createInvoices([
         {
           order_id,
           status: InvoiceStatus.LATEST,
@@ -41,8 +42,8 @@ export const getOrderInvoiceStep = createStep(
     if (!created_invoice || !invoice_id) {
       return;
     }
-    const invoiceGeneratorService = container.resolve<any>(INVOICE_MODULE);
+    const invoiceGeneratorService = container.resolve<InvoiceGeneratorService>(INVOICE_MODULE);
 
-    invoiceGeneratorService.delete(invoice_id);
+    invoiceGeneratorService.deleteInvoices(invoice_id);
   },
 );

@@ -1,28 +1,20 @@
+import { Button } from "@/components/ui/button"
 import type { WishlistItem } from "@/lib/data/wishlist"
 import { WishlistButton } from "@/modules/products/components/wishlist-button"
-import { Button } from "@/components/ui/button"
+import { StoreProduct } from "@medusajs/types"
 import { Heart, Tag } from "lucide-react"
 import { useTranslations } from "next-intl"
 import Image from "next/image"
 import Link from "next/link"
 
-type SimpleProduct = {
-  id: string
-  title?: string | null
-  handle?: string | null
-  thumbnail?: string | null
-  variants?: Array<{ id: string }>
-}
-
 type Props = {
-  items: WishlistItem[]
-  productMap: Map<string, SimpleProduct>
+  productMap: Map<string, StoreProduct>
 }
 
-export function WishlistTab({ items, productMap }: Props) {
+export function WishlistTab({ productMap }: Props) {
   const t = useTranslations("wishlist")
 
-  if (items.length === 0) {
+  if (productMap.size === 0) {
     return (
       <div className="py-16 flex flex-col items-center gap-4 text-center text-muted-foreground">
         <Heart className="size-12 stroke-1" />
@@ -36,18 +28,17 @@ export function WishlistTab({ items, productMap }: Props) {
 
   return (
     <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 pt-2">
-      {items.map((item) => {
-        const product = productMap.get(item.product_id)
+      {Array.from(productMap.values()).map((product) => {
         if (!product) return null
         return (
           <div
-            key={item.id}
+            key={product.id}
             className="group relative flex flex-col bg-background border rounded-lg overflow-hidden"
           >
             <div className="absolute top-2 right-2 z-10">
               <WishlistButton
-                productId={item.product_id}
-                variantId={item.product_variant_id}
+                productId={product.id}
+                variantId={product.variants?.[0]?.id!}
                 className="size-7 bg-background/90 backdrop-blur-sm shadow-sm border border-border/50 hover:bg-background"
               />
             </div>

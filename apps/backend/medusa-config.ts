@@ -164,10 +164,10 @@ export default defineConfig({
         // Plugin-specific options can be added here
       },
     },
-    {
-      resolve: "@repo/oauth-plugin",
-      options: {},
-    },
+    // {
+    //   resolve: "@repo/oauth-plugin",
+    //   options: {},
+    // },
     {
       resolve: "@rsc-labs/medusa-wishlist",
       options: {
@@ -177,6 +177,6 @@ export default defineConfig({
   ],
   featureFlags: {
     translation: true,
-    rbac: true,
+    // rbac: true,
   },
 });

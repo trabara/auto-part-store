@@ -1,5 +1,5 @@
 import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http";
-import { CreateInvoiceConfig } from "@trabara/core";
+import { CreateInvoiceConfig } from "@repo/core";
 import { updateInvoiceConfigWorkflow } from "../../../workflows/invoice-generator";
 import { createInvoiceConfigWorkflow } from "../../../workflows/invoice-generator/create-invoice-config";
 

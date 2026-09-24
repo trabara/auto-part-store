@@ -1,5 +1,5 @@
 import { MiddlewareRoute, validateAndTransformBody } from "@medusajs/framework";
-import { CreateInvoiceConfigSchema } from "@trabara/core/validations";
+import { CreateInvoiceConfigSchema } from "@repo/core/validations";
 
 export const adminInvoiceMiddlewares: MiddlewareRoute[] = [
   {

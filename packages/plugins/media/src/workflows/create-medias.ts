@@ -4,7 +4,7 @@ import {
   when,
   WorkflowResponse,
 } from "@medusajs/framework/workflows-sdk";
-import { Media } from "@trabara/core/dtos";
+import { Media } from "@repo/core/dtos";
 import { convertEntityThumbnailsStep } from "./steps/convert-thumbnails";
 import { createMediasStep } from "./steps/create-medias";
 

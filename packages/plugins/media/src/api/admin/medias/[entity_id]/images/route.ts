@@ -1,5 +1,5 @@
 import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http";
-import { CreateMediasInput } from "@trabara/core";
+import { CreateMediasInput } from "@repo/core";
 import {
   ENTITY_MEDIA_MODULE,
   type MediaModuleService,

@@ -1,6 +1,6 @@
 import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http";
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils";
-import { UpdateMediasInput } from "@trabara/core";
+import { UpdateMediasInput } from "@repo/core";
 import {
   deleteMediasWorkflow,
   updateMediasWorkflow,

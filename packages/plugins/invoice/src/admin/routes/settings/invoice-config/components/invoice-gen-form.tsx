@@ -13,8 +13,8 @@ import {
 } from "@medusajs/ui";
 // import { AvatarUpload } from "@repo/ui/components/avatar-upload";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { CreateInvoiceConfig, InvoiceConfig } from "@trabara/core/dtos";
-import { CreateInvoiceConfigSchema } from '@trabara/core/validations';
+import { CreateInvoiceConfig, InvoiceConfig } from "@repo/core/dtos";
+import { CreateInvoiceConfigSchema } from '@repo/core/validations';
 import { vscodeDark } from "@uiw/codemirror-theme-vscode";
 import CodeMirror from "@uiw/react-codemirror";
 import Handlebars from "handlebars";

@@ -1,4 +1,4 @@
-import type { CreateCategoryInput } from "@trabara/core/dtos";
+import type { CreateCategoryInput } from "@repo/core/dtos";
 
 export const INVOICE_PERMISSION_CATEGORIES: CreateCategoryInput[] = [
   {

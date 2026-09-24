@@ -7,7 +7,7 @@ import {
   CreateMediasSchema,
   DeleteMediasSchema,
   UpdateMediasSchema,
-} from "@trabara/core/validations";
+} from "@repo/core/validations";
 
 const authenticateMiddleware = authenticate(["*"], ["bearer", "session"]);
 export const adminMediaMiddlewares: MiddlewareRoute[] = [

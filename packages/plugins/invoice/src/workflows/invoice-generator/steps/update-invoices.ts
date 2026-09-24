@@ -1,5 +1,5 @@
 import { createStep, StepResponse } from "@medusajs/framework/workflows-sdk";
-import { InvoiceStatus } from "@trabara/core";
+import { InvoiceStatus } from "@repo/core";
 import { INVOICE_MODULE } from "../../../modules/invoice-generator";
 import InvoiceGeneratorService from "../../../modules/invoice-generator/service";
 

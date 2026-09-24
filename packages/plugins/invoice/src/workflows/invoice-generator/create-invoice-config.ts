@@ -1,5 +1,5 @@
 import { createWorkflow, WorkflowResponse } from "@medusajs/framework/workflows-sdk"
-import { CreateInvoiceConfig } from "@trabara/core"
+import { CreateInvoiceConfig } from "@repo/core"
 import { createInvoiceConfigStep } from "./steps/create-invoice-config"
 
 export const createInvoiceConfigWorkflow = createWorkflow(

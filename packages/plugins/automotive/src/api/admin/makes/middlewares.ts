@@ -9,7 +9,7 @@ import {
   MakeFindParamsSchema,
   UpdateMakeBatchInputSchema,
   UpdateMakeInputSchema,
-} from "../../../modules/fitment/validations";
+} from "../../../modules/fitment/dto";
 
 const authenticateMiddleware = authenticate(["*"], ["bearer", "session"]);
 

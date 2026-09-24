@@ -6,31 +6,31 @@ import {
   Heading,
   useDataTable,
 } from "@medusajs/ui";
-import { useDeleteMutation } from "@repo/admin/hooks/use-delete-mutation";
-import { usePageQuery } from "@repo/admin/hooks/use-page-query";
-import { PageQueryParams, PageResponse } from "@repo/admin/types/query";
-import { Fitment } from "@trabara/core/dtos";
+import { PageQueryParams } from "@repo/medusa-ui";
+import { useDeleteMutation } from "@repo/medusa-ui/hooks/use-delete-mutation";
+import { usePageQuery } from "@repo/medusa-ui/hooks/use-page-query";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useParams } from "react-router-dom";
-import { sdk } from "../lib/sdk";
+import { Vehicle } from "../../modules/fitment/schemas/vehicle";
 import { createFitmentColumns } from "../components/data-table-columns";
+import { sdk } from "../lib/sdk";
 
-const listProductFitments = (productId: string) => (signal: AbortSignal, params: PageQueryParams) =>
-  sdk.client.fetch<PageResponse<Fitment>>(`/admin/products/${productId}/fitments`, {
-    signal,
-    query: {
-      ...params,
-    },
-  });
-
+const listProductFitments =
+  (productId: string) => (signal: AbortSignal, params: PageQueryParams) =>
+    sdk.client.fetch<any>(`/admin/products/${productId}/fitments`, {
+      signal,
+      query: {
+        ...params,
+      },
+    });
 
 const ProductFitmentsWidget = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { id: productId } = useParams();
 
-  const [queryConfig] = usePageQuery<Fitment>({
+  const [queryConfig] = usePageQuery({
     queryKey: "fitments",
     selectFn: (data) => ({
       data: data?.data,
@@ -50,10 +50,9 @@ const ProductFitmentsWidget = () => {
       }),
   });
 
-  const handleEdit = (f: Fitment) =>
-    navigate(`/vehicles/${f.id}/edit`);
+  const handleEdit = (f: Vehicle) => navigate(`/vehicles/${f.id}/edit`);
 
-  const handleUnlink = (f: Fitment) => unlinkMutation.mutateAsync(f.id);
+  const handleUnlink = (f: Vehicle) => unlinkMutation.mutateAsync(f.id);
 
   const columns = useMemo(
     () =>

@@ -7,7 +7,7 @@ import {
 import {
   CreateEngineInput,
   UpdateEngineBatchInput,
-} from "../../../modules/fitment/validations";
+} from "../../../modules/fitment/dto";
 
 export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY);
@@ -42,7 +42,7 @@ export const POST = async (
     `Creating new engine ${JSON.stringify({ data: req.validatedBody })}) `,
   );
 
-  const [engine] = await service.createFitmentEngines([req.validatedBody]);
+  const [engine] = await service.createVehicleEngines([req.validatedBody]);
 
   logger.info(`Created engine with ID: ${engine.id}`);
 
@@ -60,7 +60,7 @@ export const PATCH = async (
 
   logger.info(`Batch updating ${engines.length} engines`);
 
-  const updatedEngines = await service.updateFitmentEngines(engines);
+  const updatedEngines = await service.updateVehicleEngines(engines);
 
   logger.info(`Batch updated ${engines.length} engines`);
 

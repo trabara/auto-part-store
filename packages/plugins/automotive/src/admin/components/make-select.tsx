@@ -1,13 +1,12 @@
 import { Select } from "@medusajs/ui";
-import { sdk } from "@repo/admin/lib/sdk";
-import { PageQueryParams, PageResponse } from "@repo/admin/types/query";
+import { PageQueryParams } from "@repo/medusa-ui";
 import { useQuery } from "@tanstack/react-query";
-import { Make } from "@trabara/core/dtos";
 import { useTranslation } from "react-i18next";
+import { sdk } from "../lib/sdk";
 
 const listMakes = (signal: AbortSignal, params?: PageQueryParams) => {
   return sdk.client
-    .fetch<PageResponse<Make>>("/admin/makes", {
+    .fetch<any>("/admin/makes", {
       method: "GET",
       signal,
       query: {
@@ -16,7 +15,7 @@ const listMakes = (signal: AbortSignal, params?: PageQueryParams) => {
       },
     })
     .then(({ data }) =>
-      data.map((make) => ({
+      data.map((make: any) => ({
         label: make.name,
         value: make.id,
       })),
@@ -42,7 +41,7 @@ export default function MakeSelect({
         <Select.Value placeholder={t("make.field.make.placeholder")} />
       </Select.Trigger>
       <Select.Content>
-        {makes?.map((make) => (
+        {makes?.map((make: any) => (
           <Select.Item key={make.value} value={make.value}>
             {make.label}
           </Select.Item>

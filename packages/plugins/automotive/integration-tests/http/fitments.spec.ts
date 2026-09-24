@@ -11,7 +11,7 @@ jest.setTimeout(30000);
 
 medusaIntegrationTestRunner({
   testSuite: ({ getContainer, api }) => {
-    describe("/admin/fitments", () => {
+    describe("/admin/vehicles", () => {
       const headers: Record<string, string> = {};
       let container: MedusaContainer;
       let userCounter = 0;
@@ -56,21 +56,21 @@ medusaIntegrationTestRunner({
       // -----------------------------------------------------------------------
 
       it("should return 401 if no authorization header", async () => {
-        await expect(api.get("/admin/fitments")).rejects.toMatchObject({
+        await expect(api.get("/admin/vehicles")).rejects.toMatchObject({
           response: { status: 401 },
         });
       });
 
       // -----------------------------------------------------------------------
-      // POST /admin/fitments
+      // POST /admin/vehicles
       // -----------------------------------------------------------------------
 
-      describe("POST /admin/fitments", () => {
+      describe("POST /admin/vehicles", () => {
         it("should create a fitment and return 201", async () => {
           const { model, engine } = await createTestFitmentHierarchy(container);
 
           const res = await api.post(
-            "/admin/fitments",
+            "/admin/vehicles",
             {
               model_id: model.id,
               engine_id: engine.id,
@@ -94,7 +94,7 @@ medusaIntegrationTestRunner({
           const { model, engine } = await createTestFitmentHierarchy(container);
 
           const res = await api.post(
-            "/admin/fitments",
+            "/admin/vehicles",
             {
               model_id: model.id,
               engine_id: engine.id,
@@ -116,7 +116,7 @@ medusaIntegrationTestRunner({
           const { model, engine } = await createTestFitmentHierarchy(container);
 
           await expect(
-            api.post("/admin/fitments", {
+            api.post("/admin/vehicles", {
               model_id: model.id,
               engine_id: engine.id,
               body_style: "SEDAN",
@@ -133,7 +133,7 @@ medusaIntegrationTestRunner({
 
           await expect(
             api.post(
-              "/admin/fitments",
+              "/admin/vehicles",
               {
                 engine_id: engine.id,
                 body_style: "SEDAN",
@@ -152,7 +152,7 @@ medusaIntegrationTestRunner({
 
           await expect(
             api.post(
-              "/admin/fitments",
+              "/admin/vehicles",
               {
                 model_id: model.id,
                 body_style: "SEDAN",
@@ -171,7 +171,7 @@ medusaIntegrationTestRunner({
 
           await expect(
             api.post(
-              "/admin/fitments",
+              "/admin/vehicles",
               {
                 model_id: model.id,
                 engine_id: engine.id,
@@ -188,12 +188,12 @@ medusaIntegrationTestRunner({
       });
 
       // -----------------------------------------------------------------------
-      // GET /admin/fitments
+      // GET /admin/vehicles
       // -----------------------------------------------------------------------
 
-      describe("GET /admin/fitments", () => {
+      describe("GET /admin/vehicles", () => {
         it("should return a list of fitments with 200", async () => {
-          const res = await api.get("/admin/fitments", { headers });
+          const res = await api.get("/admin/vehicles", { headers });
 
           expect(res.status).toBe(200);
           expect(res.data).toHaveProperty("data");
@@ -206,7 +206,7 @@ medusaIntegrationTestRunner({
             fitmentYear: 2019,
           });
 
-          const res = await api.get("/admin/fitments", { headers });
+          const res = await api.get("/admin/vehicles", { headers });
 
           expect(res.status).toBe(200);
           const found = res.data.data.find((f: any) => f.id === fitment.id);
@@ -216,7 +216,7 @@ medusaIntegrationTestRunner({
         it("should return fitments with expected fields", async () => {
           await createTestFitmentHierarchy(container);
 
-          const res = await api.get("/admin/fitments", { headers });
+          const res = await api.get("/admin/vehicles", { headers });
 
           expect(res.status).toBe(200);
           if (res.data.data.length > 0) {
@@ -231,14 +231,14 @@ medusaIntegrationTestRunner({
       });
 
       // -----------------------------------------------------------------------
-      // GET /admin/fitments/:id
+      // GET /admin/vehicles/:id
       // -----------------------------------------------------------------------
 
-      describe("GET /admin/fitments/:id", () => {
+      describe("GET /admin/vehicles/:id", () => {
         it("should return a fitment with nested model and engine", async () => {
           const { fitment } = await createTestFitmentHierarchy(container);
 
-          const res = await api.get(`/admin/fitments/${fitment.id}`, {
+          const res = await api.get(`/admin/vehicles/${fitment.id}`, {
             headers,
           });
 
@@ -251,22 +251,22 @@ medusaIntegrationTestRunner({
 
         it("should return 404 for a non-existent fitment", async () => {
           await expect(
-            api.get("/admin/fitments/does_not_exist", { headers }),
+            api.get("/admin/vehicles/does_not_exist", { headers }),
           ).rejects.toMatchObject({ response: { status: 404 } });
         });
       });
 
       // -----------------------------------------------------------------------
-      // PATCH /admin/fitments/:id
+      // PATCH /admin/vehicles/:id
       // -----------------------------------------------------------------------
 
-      describe("PATCH /admin/fitments/:id", () => {
+      describe("PATCH /admin/vehicles/:id", () => {
         it("should update a fitment field and return 200", async () => {
           const { fitment, model, engine } =
             await createTestFitmentHierarchy(container);
 
           const res = await api.patch(
-            `/admin/fitments/${fitment.id}`,
+            `/admin/vehicles/${fitment.id}`,
             {
               id: fitment.id,
               model_id: model.id,
@@ -285,7 +285,7 @@ medusaIntegrationTestRunner({
             await createTestFitmentHierarchy(container);
 
           const res = await api.patch(
-            `/admin/fitments/${fitment.id}`,
+            `/admin/vehicles/${fitment.id}`,
             {
               id: fitment.id,
               model_id: model.id,
@@ -304,7 +304,7 @@ medusaIntegrationTestRunner({
             await createTestFitmentHierarchy(container);
 
           await expect(
-            api.patch(`/admin/fitments/${fitment.id}`, {
+            api.patch(`/admin/vehicles/${fitment.id}`, {
               id: fitment.id,
               model_id: model.id,
               engine_id: engine.id,
@@ -315,14 +315,14 @@ medusaIntegrationTestRunner({
       });
 
       // -----------------------------------------------------------------------
-      // DELETE /admin/fitments/:id
+      // DELETE /admin/vehicles/:id
       // -----------------------------------------------------------------------
 
-      describe("DELETE /admin/fitments/:id", () => {
+      describe("DELETE /admin/vehicles/:id", () => {
         it("should delete a fitment via workflow and return 204", async () => {
           const { fitment } = await createTestFitmentHierarchy(container);
 
-          const res = await api.delete(`/admin/fitments/${fitment.id}`, {
+          const res = await api.delete(`/admin/vehicles/${fitment.id}`, {
             headers,
           });
 
@@ -340,7 +340,7 @@ medusaIntegrationTestRunner({
           const { fitment } = await createTestFitmentHierarchy(container);
 
           await expect(
-            api.delete(`/admin/fitments/${fitment.id}`),
+            api.delete(`/admin/vehicles/${fitment.id}`),
           ).rejects.toMatchObject({ response: { status: 401 } });
         });
       });

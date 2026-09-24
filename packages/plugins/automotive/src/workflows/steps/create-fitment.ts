@@ -1,14 +1,14 @@
 import { Link } from "@medusajs/framework/modules-sdk";
 import { ContainerRegistrationKeys, Modules } from "@medusajs/framework/utils";
 import { createStep, StepResponse } from "@medusajs/framework/workflows-sdk";
-import { CreateFitmentInput } from "@trabara/core/dtos";
 import {
   FITMENT_MODULE,
   type FitmentModuleService,
 } from "../../modules/fitment";
+import { CreateVehicleInput } from "../../modules/fitment/dto";
 
 type CreateFitmentStepInput = {
-  fitments: CreateFitmentInput[];
+  fitments: CreateVehicleInput[];
   product_id?: string;
 };
 
@@ -16,7 +16,7 @@ export const createFitmentsStep = createStep(
   "create-fitments-step",
   async function (input: CreateFitmentStepInput, { container }) {
     const service = container.resolve<FitmentModuleService>(FITMENT_MODULE);
-    const fitments = await service.createFitments(input.fitments);
+    const fitments = await service.createVehicles(input.fitments);
 
     if (input.product_id) {
       const link = await container.resolve<Link>(
@@ -41,6 +41,6 @@ export const createFitmentsStep = createStep(
       return;
     }
     const service = container.resolve<FitmentModuleService>(FITMENT_MODULE);
-    return service.deleteFitments(input.fitment_ids);
+    return service.deleteVehicles(input.fitment_ids);
   },
 );

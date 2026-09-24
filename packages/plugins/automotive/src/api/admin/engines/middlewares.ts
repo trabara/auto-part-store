@@ -4,9 +4,12 @@ import {
   validateAndTransformBody,
   validateAndTransformQuery,
 } from "@medusajs/framework";
-import { z } from "@medusajs/framework/zod";
-import { CreateEngineInputSchema, EngineFindParamsSchema, UpdateEngineInputSchema } from "../../../modules/fitment/validations";
-
+import {
+  CreateEngineInputSchema,
+  EngineFindParamsSchema,
+  UpdateEngineBatchInputSchema,
+  UpdateEngineInputSchema,
+} from "../../../modules/fitment/dto";
 
 const authenticateMiddleware = authenticate(["*"], ["bearer", "session"]);
 
@@ -43,11 +46,7 @@ export const adminEnginesMiddlewares: MiddlewareRoute[] = [
     method: "PATCH",
     middlewares: [
       authenticateMiddleware,
-      validateAndTransformBody(
-        z.object({
-          engines: z.array(UpdateEngineInputSchema.extend({ id: z.string() })),
-        }),
-      ),
+      validateAndTransformBody(UpdateEngineBatchInputSchema),
     ],
   },
   {

@@ -8,7 +8,7 @@ import {
   Label,
   Select,
 } from "@medusajs/ui";
-import { useCreateMutation } from "@repo/admin/hooks/use-create-mutation";
+import { useCreateMutation } from "@repo/medusa-ui/hooks/use-create-mutation";
 import { Controller, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";

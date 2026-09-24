@@ -1,46 +1,38 @@
 import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http";
 import { ContainerRegistrationKeys, Modules } from "@medusajs/framework/utils";
-import FitmentProductLink from "../../../../../links/fitment-product";
+// import FitmentProductLink from "../../../../../links/fitment-product";
 import {
-  FITMENT_MODULE,
-  type FitmentModuleService,
+    FITMENT_MODULE
 } from "../../../../../modules/fitment";
 
 export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
-  const { id } = req.params;
-  const query = req.scope.resolve(ContainerRegistrationKeys.QUERY);
-  const logger = req.scope.resolve(ContainerRegistrationKeys.LOGGER);
-  const service = req.scope.resolve<FitmentModuleService>(FITMENT_MODULE);
-
-  logger.info(`Fetching fitments for product: ${id}`);
-
-  // Use the link entry point to get the fitment IDs linked to this product
-  const { data: linkRows, metadata } = await query.graph({
-    entity: FitmentProductLink.entryPoint,
-    fields: ["fitment_id"],
-    filters: { product_id: id },
-  });
-
-  const fitmentIds = linkRows.map((row: any) => row.fitment_id).filter(Boolean);
-
-  if (!fitmentIds.length) {
-    res.status(200).json({ data: [], metadata });
-    return;
-  }
-
-  // Hydrate fitments with model + make + engine via the service
-  const fitments = await service.listFitments(
-    {
-      id: { $in: fitmentIds },
-    },
-    {
-      relations: ["model", "model.make", "engine"],
-    },
-  );
-
-  logger.info(`Found ${fitments.length} fitments for product ${id}`);
-
-  res.status(200).json({ data: fitments, metadata });
+  // const { id } = req.params;
+  // const query = req.scope.resolve(ContainerRegistrationKeys.QUERY);
+  // const logger = req.scope.resolve(ContainerRegistrationKeys.LOGGER);
+  // const service = req.scope.resolve<FitmentModuleService>(FITMENT_MODULE);
+  // logger.info(`Fetching fitments for product: ${id}`);
+  // // Use the link entry point to get the fitment IDs linked to this product
+  // const { data: linkRows, metadata } = await query.graph({
+  //   entity: FitmentProductLink.entryPoint,
+  //   fields: ["fitment_id"],
+  //   filters: { product_id: id },
+  // });
+  // const fitmentIds = linkRows.map((row: any) => row.fitment_id).filter(Boolean);
+  // if (!fitmentIds.length) {
+  //   res.status(200).json({ data: [], metadata });
+  //   return;
+  // }
+  // // Hydrate fitments with model + make + engine via the service
+  // const fitments = await service.listVehicles(
+  //   {
+  //     id: { $in: fitmentIds },
+  //   },
+  //   {
+  //     relations: ["model", "model.make", "engine"],
+  //   },
+  // );
+  // logger.info(`Found ${fitments.length} fitments for product ${id}`);
+  // res.status(200).json({ data: fitments, metadata });
 };
 
 export const POST = async (

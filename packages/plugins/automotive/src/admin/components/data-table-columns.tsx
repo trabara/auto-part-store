@@ -52,11 +52,11 @@ function LinkActionCell({
     mutationFn: async () => {
       if (isLinked) {
         return sdk.client.fetch(
-          `/admin/fitments/${fitment.id}/products/${productId}`,
+          `/admin/vehicles/${fitment.id}/products/${productId}`,
           { method: "DELETE" },
         );
       } else {
-        return sdk.client.fetch(`/admin/fitments/${fitment.id}/products`, {
+        return sdk.client.fetch(`/admin/vehicles/${fitment.id}/products`, {
           method: "POST",
           body: { product_ids: [productId] },
         });

@@ -7,7 +7,7 @@ import {
   FITMENT_MODULE,
   type FitmentModuleService,
 } from "../../../../modules/fitment";
-import { UpdateMakeInput } from "../../../../modules/fitment/validations";
+import { UpdateMakeInput } from "../../../../modules/fitment/dto";
 
 export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
   const { id } = req.params;
@@ -19,7 +19,7 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
 
   const { data } = await query.graph(
     {
-      entity: "fitment_make",
+      entity: "vehicle_make",
       fields: ["id", "name", "created_at", "updated_at", "models.*"],
       filters: { id },
     },
@@ -47,7 +47,7 @@ export const PATCH = async (
   logger.info(`Updating make: ${id}`);
 
   const service = req.scope.resolve<FitmentModuleService>(FITMENT_MODULE);
-  const [make] = await service.updateFitmentMakes([
+  const [make] = await service.updateVehicleMakes([
     { ...req.validatedBody, id },
   ]);
 
@@ -63,5 +63,5 @@ export const DELETE = async (req: MedusaRequest, res: MedusaResponse) => {
 
   logger.info(`Deleting make: ${id}`);
 
-  await service.deleteFitmentMakes([id]);
+  await service.deleteVehicleMakes([id]);
 };

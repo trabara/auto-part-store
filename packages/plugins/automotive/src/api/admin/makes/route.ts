@@ -7,7 +7,7 @@ import {
 import {
   CreateMakeInput,
   UpdateMakeBatchInput,
-} from "../../../modules/fitment/validations";
+} from "../../../modules/fitment/dto";
 
 export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY);
@@ -16,7 +16,7 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
   logger.info("Fetching makes list");
 
   const { data, metadata } = await query.graph({
-    entity: "fitment_make",
+    entity: "vehicle_make",
     ...req.queryConfig,
     ...req.filterableFields,
   });
@@ -35,7 +35,7 @@ export const POST = async (
 
   logger.info(`Creating new make: ${req.validatedBody.name}`);
 
-  const [make] = await service.createFitmentMakes([req.validatedBody]);
+  const [make] = await service.createVehicleMakes([req.validatedBody]);
 
   logger.info(`Make created successfully: ${make.id}`);
 
@@ -52,7 +52,7 @@ export const PATCH = async (
   const { makes } = req.validatedBody;
   logger.info(`Updating ${makes.length} makes`);
 
-  const updatedMakes = await service.updateFitmentMakes(makes);
+  const updatedMakes = await service.updateVehicleMakes(makes);
 
   logger.info("Makes updated successfully");
 

@@ -1,15 +1,18 @@
 import { createStep, StepResponse } from "@medusajs/framework/workflows-sdk";
 import { FITMENT_MODULE, FitmentModuleService } from "../../modules/fitment";
-import { UpdateFitmentInput } from "@trabara/core/dtos";
+import { UpdateVehicleInput } from "../../modules/fitment/dto";
 
 export const updateFitmentStep = createStep(
   "update-fitment-step",
-  async (input: UpdateFitmentInput, { container }) => {
+  async (input: UpdateVehicleInput, { container }) => {
     const service = container.resolve<FitmentModuleService>(FITMENT_MODULE);
 
-    const [originalFitment] = await service.listFitments({ id: input.id });
+    const [originalFitment] = await service.listVehicles(
+      { id: input.id },
+      { relations: ["model", "engine"] },
+    );
 
-    const [updatedFitment] = await service.updateFitments([input]);
+    const [updatedFitment] = await service.updateVehicles([input]);
 
     return new StepResponse(updatedFitment, {
       id: input.id,
@@ -29,7 +32,7 @@ export const updateFitmentStep = createStep(
     if (!compensation) return;
 
     const service = container.resolve<FitmentModuleService>(FITMENT_MODULE);
-    await service.updateFitments([
+    await service.updateVehicles([
       {
         id: compensation.id,
         ...compensation.originalData,

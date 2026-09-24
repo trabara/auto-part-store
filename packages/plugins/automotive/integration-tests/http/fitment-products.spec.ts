@@ -61,16 +61,16 @@ medusaIntegrationTestRunner({
       });
 
       // -----------------------------------------------------------------------
-      // POST /admin/fitments/:id/products  (link products to fitment)
+      // POST /admin/vehicles/:id/products  (link products to fitment)
       // -----------------------------------------------------------------------
 
-      describe("POST /admin/fitments/:id/products", () => {
+      describe("POST /admin/vehicles/:id/products", () => {
         it("should link products to a fitment and return 200", async () => {
           const { fitment } = await createTestFitmentHierarchy(container);
           const product = await createTestProduct("Link-to-Fitment");
 
           const res = await api.post(
-            `/admin/fitments/${fitment.id}/products`,
+            `/admin/vehicles/${fitment.id}/products`,
             { product_ids: [product.id] },
             { headers },
           );
@@ -86,7 +86,7 @@ medusaIntegrationTestRunner({
           const product2 = await createTestProduct("MultiLink-P2");
 
           const res = await api.post(
-            `/admin/fitments/${fitment.id}/products`,
+            `/admin/vehicles/${fitment.id}/products`,
             { product_ids: [product1.id, product2.id] },
             { headers },
           );
@@ -101,7 +101,7 @@ medusaIntegrationTestRunner({
 
           await expect(
             api.post(
-              `/admin/fitments/${fitment.id}/products`,
+              `/admin/vehicles/${fitment.id}/products`,
               { product_ids: [] },
               { headers },
             ),
@@ -113,7 +113,7 @@ medusaIntegrationTestRunner({
           const product = await createTestProduct();
 
           await expect(
-            api.post(`/admin/fitments/${fitment.id}/products`, {
+            api.post(`/admin/vehicles/${fitment.id}/products`, {
               product_ids: [product.id],
             }),
           ).rejects.toMatchObject({ response: { status: 401 } });
@@ -121,14 +121,14 @@ medusaIntegrationTestRunner({
       });
 
       // -----------------------------------------------------------------------
-      // GET /admin/fitments/:id/products  (list products for fitment)
+      // GET /admin/vehicles/:id/products  (list products for fitment)
       // -----------------------------------------------------------------------
 
-      describe("GET /admin/fitments/:id/products", () => {
+      describe("GET /admin/vehicles/:id/products", () => {
         it("should return an empty product list when no links exist", async () => {
           const { fitment } = await createTestFitmentHierarchy(container);
 
-          const res = await api.get(`/admin/fitments/${fitment.id}/products`, {
+          const res = await api.get(`/admin/vehicles/${fitment.id}/products`, {
             headers,
           });
 
@@ -142,12 +142,12 @@ medusaIntegrationTestRunner({
           const product = await createTestProduct("Listed-Product");
 
           await api.post(
-            `/admin/fitments/${fitment.id}/products`,
+            `/admin/vehicles/${fitment.id}/products`,
             { product_ids: [product.id] },
             { headers },
           );
 
-          const res = await api.get(`/admin/fitments/${fitment.id}/products`, {
+          const res = await api.get(`/admin/vehicles/${fitment.id}/products`, {
             headers,
           });
 
@@ -161,28 +161,28 @@ medusaIntegrationTestRunner({
           const { fitment } = await createTestFitmentHierarchy(container);
 
           await expect(
-            api.get(`/admin/fitments/${fitment.id}/products`),
+            api.get(`/admin/vehicles/${fitment.id}/products`),
           ).rejects.toMatchObject({ response: { status: 401 } });
         });
       });
 
       // -----------------------------------------------------------------------
-      // DELETE /admin/fitments/:id/products/:productId  (unlink product)
+      // DELETE /admin/vehicles/:id/products/:productId  (unlink product)
       // -----------------------------------------------------------------------
 
-      describe("DELETE /admin/fitments/:id/products/:productId", () => {
+      describe("DELETE /admin/vehicles/:id/products/:productId", () => {
         it("should unlink a product from a fitment and return 204", async () => {
           const { fitment } = await createTestFitmentHierarchy(container);
           const product = await createTestProduct("Unlink-Me");
 
           await api.post(
-            `/admin/fitments/${fitment.id}/products`,
+            `/admin/vehicles/${fitment.id}/products`,
             { product_ids: [product.id] },
             { headers },
           );
 
           const res = await api.delete(
-            `/admin/fitments/${fitment.id}/products/${product.id}`,
+            `/admin/vehicles/${fitment.id}/products/${product.id}`,
             { headers },
           );
 
@@ -190,7 +190,7 @@ medusaIntegrationTestRunner({
 
           // Verify the link is gone
           const listRes = await api.get(
-            `/admin/fitments/${fitment.id}/products`,
+            `/admin/vehicles/${fitment.id}/products`,
             { headers },
           );
           expect(
@@ -203,13 +203,13 @@ medusaIntegrationTestRunner({
           const product = await createTestProduct();
 
           await api.post(
-            `/admin/fitments/${fitment.id}/products`,
+            `/admin/vehicles/${fitment.id}/products`,
             { product_ids: [product.id] },
             { headers },
           );
 
           await expect(
-            api.delete(`/admin/fitments/${fitment.id}/products/${product.id}`),
+            api.delete(`/admin/vehicles/${fitment.id}/products/${product.id}`),
           ).rejects.toMatchObject({ response: { status: 401 } });
         });
       });
@@ -392,10 +392,10 @@ medusaIntegrationTestRunner({
       });
 
       // -----------------------------------------------------------------------
-      // DELETE /admin/fitments/:id  (should also dismiss product links)
+      // DELETE /admin/vehicles/:id  (should also dismiss product links)
       // -----------------------------------------------------------------------
 
-      describe("DELETE /admin/fitments/:id (link cascade)", () => {
+      describe("DELETE /admin/vehicles/:id (link cascade)", () => {
         it("should remove fitment-product links when fitment is deleted", async () => {
           const { fitment } = await createTestFitmentHierarchy(container);
           const product = await createTestProduct("Cascade-Delete-Product");
@@ -408,7 +408,7 @@ medusaIntegrationTestRunner({
           );
 
           // Delete the fitment via the workflow (which dismisses links)
-          await api.delete(`/admin/fitments/${fitment.id}`, { headers });
+          await api.delete(`/admin/vehicles/${fitment.id}`, { headers });
 
           // The product's fitment list should now be empty
           const listRes = await api.get(

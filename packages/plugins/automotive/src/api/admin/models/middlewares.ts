@@ -9,7 +9,7 @@ import {
   ModelFindParamsSchema,
   UpdateModelBatchInputSchema,
   UpdateModelInputSchema,
-} from "../../../modules/fitment/validations";
+} from "../../../modules/fitment/dto";
 
 const authenticateMiddleware = authenticate(["*"], ["bearer", "session"]);
 

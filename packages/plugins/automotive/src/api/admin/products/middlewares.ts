@@ -5,43 +5,43 @@ import {
   validateAndTransformQuery,
 } from "@medusajs/framework";
 import {
-  CreateFitmentInputSchema,
+  CreateVehicleInputSchema,
   FitmentFindParamsSchema,
   LinkFitmentsInputSchema,
-  UpdateFitmentInputSchema,
-} from "../../../modules/fitment/validations";
+  UpdateVehicleInputSchema,
+} from "../../../modules/fitment/dto";
 
 const authenticateMiddleware = authenticate(["*"], ["bearer", "session"]);
 
 export const adminProductFitmentMiddlewares: MiddlewareRoute[] = [
   {
-    matcher: "/admin/fitments",
+    matcher: "/admin/vehicles",
     methods: ["POST"],
     middlewares: [
       authenticateMiddleware,
-      validateAndTransformBody(CreateFitmentInputSchema),
+      validateAndTransformBody(CreateVehicleInputSchema),
     ],
   },
   {
-    matcher: "/admin/fitments/:id",
+    matcher: "/admin/vehicles/:id",
     methods: ["GET"],
     middlewares: [authenticateMiddleware],
   },
   {
-    matcher: "/admin/fitments/:id",
+    matcher: "/admin/vehicles/:id",
     methods: ["DELETE"],
     middlewares: [authenticateMiddleware],
   },
   {
-    matcher: "/admin/fitments",
+    matcher: "/admin/vehicles",
     methods: ["PATCH"],
     middlewares: [
       authenticateMiddleware,
-      validateAndTransformBody(UpdateFitmentInputSchema),
+      validateAndTransformBody(UpdateVehicleInputSchema),
     ],
   },
   {
-    matcher: "/admin/fitments",
+    matcher: "/admin/vehicles",
     methods: ["GET"],
     middlewares: [
       authenticateMiddleware,

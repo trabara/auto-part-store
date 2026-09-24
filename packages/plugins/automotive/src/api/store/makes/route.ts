@@ -8,7 +8,7 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
   logger.info("Fetching makes list");
 
   const { data, metadata } = await query.graph({
-    entity: "fitment_make",
+    entity: "vehicle_make",
     ...req.queryConfig,
     ...req.filterableFields,
   });

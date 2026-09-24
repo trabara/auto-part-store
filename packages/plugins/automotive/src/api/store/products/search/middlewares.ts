@@ -1,8 +1,8 @@
-import { ProductSearchParams } from "@trabara/core/validations";
 import {
   MiddlewareRoute,
   validateAndTransformQuery,
 } from "@medusajs/framework";
+import { ProductSearchParams } from "../../../../modules/fitment/dto";
 
 export const storeProductSearchMiddlewares: MiddlewareRoute[] = [
   {

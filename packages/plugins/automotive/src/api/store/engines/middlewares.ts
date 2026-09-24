@@ -1,8 +1,8 @@
-import { EngineFindParamsSchema } from "@trabara/core/validations";
 import {
   MiddlewareRoute,
   validateAndTransformQuery,
 } from "@medusajs/framework";
+import { EngineFindParamsSchema } from "../../../modules/fitment/dto";
 
 export const storeEngineMiddlewares: MiddlewareRoute[] = [
   {

@@ -1,8 +1,8 @@
-import { MakeFindParamsSchema } from "@trabara/core/validations";
 import {
   MiddlewareRoute,
   validateAndTransformQuery,
 } from "@medusajs/framework";
+import { MakeFindParamsSchema } from "../../../modules/fitment/dto";
 
 export const storeMakeMiddlewares: MiddlewareRoute[] = [
   {

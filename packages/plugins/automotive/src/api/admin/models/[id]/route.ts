@@ -4,7 +4,7 @@ import {
     FITMENT_MODULE,
     type FitmentModuleService,
 } from "../../../../modules/fitment";
-import { UpdateMakeBatchInput } from "../../../../modules/fitment/validations";
+import { UpdateMakeBatchInput } from "../../../../modules/fitment/dto";
 
 export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
   const { id } = req.params;
@@ -15,7 +15,7 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
 
   const { data } = await query.graph(
     {
-      entity: "fitment_model",
+      entity: "vehicle_model",
       fields: [
         "id",
         "name",
@@ -53,7 +53,7 @@ export const PATCH = async (
     `Updating model with ID: ${id} { data: ${JSON.stringify(req.validatedBody)} }`,
   );
 
-  const [model] = await service.updateFitmentModels([
+  const [model] = await service.updateVehicleModels([
     { ...req.validatedBody, id },
   ]);
 
@@ -70,7 +70,7 @@ export const DELETE = async (req: MedusaRequest, res: MedusaResponse) => {
 
   logger.info(`Deleting model with ID: ${id}`);
 
-  await service.deleteFitmentModels([id]);
+  await service.deleteVehicleModels([id]);
 
-  res.status(200).json({ entity: "fitment_model", id, deleted: true });
+  res.status(200).json({ entity: "vehicle_model", id, deleted: true });
 };

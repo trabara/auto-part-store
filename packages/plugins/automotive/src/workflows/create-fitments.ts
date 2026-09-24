@@ -4,12 +4,12 @@ import {
   when,
   WorkflowResponse,
 } from "@medusajs/framework/workflows-sdk";
-import { CreateFitmentInput } from "@trabara/core/dtos";
+import { CreateVehicleInput } from "../modules/fitment/dto";
 import { createFitmentsStep } from "./steps/create-fitments";
 import { linkFitmentsToProductStep } from "./steps/link-fitments-to-product";
 
 type CreateFitmentsWorkflowInput = {
-  fitments: CreateFitmentInput[];
+  fitments: CreateVehicleInput[];
   product_id?: string;
 };
 

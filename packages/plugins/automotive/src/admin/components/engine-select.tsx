@@ -1,13 +1,12 @@
 import { Select } from "@medusajs/ui";
-import { sdk } from "@repo/admin/lib/sdk";
-import { PageQueryParams, PageResponse } from "@repo/admin/types/query";
+import { PageQueryParams } from "@repo/medusa-ui";
 import { useQuery } from "@tanstack/react-query";
-import { Engine } from "@trabara/core/dtos";
 import { useTranslation } from "react-i18next";
+import { sdk } from "../lib/sdk";
 
 const listEngines = (signal: AbortSignal, params?: PageQueryParams) => {
   return sdk.client
-    .fetch<PageResponse<Engine>>("/admin/engines", {
+    .fetch<any>("/admin/engines", {
       method: "GET",
       signal,
       query: {
@@ -16,7 +15,7 @@ const listEngines = (signal: AbortSignal, params?: PageQueryParams) => {
       },
     })
     .then(({ data }) =>
-      data.map((engine) => ({
+      data.map((engine: any) => ({
         label: engine.tech || `${engine.type} ${engine.size} ${engine.fuel}`,
         value: engine.id,
       })),
@@ -41,7 +40,7 @@ export default function EngineSelect({
         <Select.Value placeholder={t("fitment.field.engine.placeholder")} />
       </Select.Trigger>
       <Select.Content>
-        {engines?.map((engine) => (
+        {engines?.map((engine: any) => (
           <Select.Item key={engine.value} value={engine.value}>
             {engine.label}
           </Select.Item>

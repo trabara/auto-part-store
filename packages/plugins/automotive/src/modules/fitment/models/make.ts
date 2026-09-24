@@ -1,19 +1,30 @@
-import { InferTypeOf } from "@medusajs/framework/types";
-import { model } from "@medusajs/framework/utils";
-import { FitmentModel } from "./model";
+import { DmlEntity } from "@medusajs/framework/utils";
+import { createModel, InferDmlSchema, ref } from "@repo/orm";
+import { VehicleMakeSchema } from "../schemas/make";
+import { VehicleModelEntity } from "./model";
 
-export const FitmentMake = model.define("fitment_make", {
-  id: model.id().primaryKey(),
-  name: model.text(),
-  models: model.hasMany(() => FitmentModel, {
-    mappedBy: "make",
-  }),
-}).indexes([
+export type MakeEntity = DmlEntity<
+  InferDmlSchema<typeof VehicleMakeSchema>,
+  string
+>;
+
+export const VehicleMake: MakeEntity = createModel(
+  "VehicleMake",
+  VehicleMakeSchema,
   {
-    name: "fitment_make_name_unique",
-    on: ["name"],
-    unique: true,
-  }
-])
-
-export type Make = InferTypeOf<typeof FitmentMake>;
+    relationships: {
+      models: {
+        kind: "hasMany",
+        model: ref<VehicleModelEntity>("VehicleModel"),
+        options: { mappedBy: "make" },
+      },
+    },
+    indexes: [
+      {
+        name: "vehicle_make_name_unique",
+        on: ["name"],
+        unique: true,
+      },
+    ],
+  },
+);

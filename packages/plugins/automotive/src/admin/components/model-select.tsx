@@ -1,13 +1,12 @@
 import { Select } from "@medusajs/ui";
-import { sdk } from "@repo/admin/lib/sdk";
-import { PageQueryParams, PageResponse } from "@repo/admin/types/query";
+import { PageQueryParams } from "@repo/medusa-ui";
 import { useQuery } from "@tanstack/react-query";
-import { Model } from "@trabara/core/dtos";
 import { useTranslation } from "react-i18next";
+import { sdk } from "../lib/sdk";
 
 const listModels = (signal: AbortSignal, params?: PageQueryParams) => {
   return sdk.client
-    .fetch<PageResponse<Model>>("/admin/models", {
+    .fetch<any>("/admin/models", {
       method: "GET",
       signal,
       query: {
@@ -16,7 +15,7 @@ const listModels = (signal: AbortSignal, params?: PageQueryParams) => {
       },
     })
     .then(({ data }) =>
-      data.map((model) => ({
+      data.map((model: any) => ({
         label: model.name,
         value: model.id,
       })),
@@ -42,7 +41,7 @@ export default function ModelSelect({
         <Select.Value placeholder={t("fitment.field.model.placeholder")} />
       </Select.Trigger>
       <Select.Content>
-        {models?.map((model) => (
+        {models?.map((model: any) => (
           <Select.Item key={model.value} value={model.value}>
             {model.label}
           </Select.Item>

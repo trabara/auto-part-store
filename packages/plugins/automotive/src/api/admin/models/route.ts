@@ -7,7 +7,7 @@ import {
 import {
   CreateModelInput,
   UpdateModelBatchInput,
-} from "../../../modules/fitment/validations";
+} from "../../../modules/fitment/dto";
 
 export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY);
@@ -21,7 +21,7 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
   );
 
   const { data, metadata } = await query.graph({
-    entity: "fitment_model",
+    entity: "vehicle_model",
     ...req.queryConfig,
     ...req.filterableFields,
   });
@@ -39,7 +39,7 @@ export const POST = async (
 
   logger.info(`Creating new model ${JSON.stringify(req.validatedBody)} }`);
 
-  const [model] = await service.createFitmentModels([req.validatedBody]);
+  const [model] = await service.createVehicleModels([req.validatedBody]);
 
   logger.info(`Created model with ID: ${model.id}`);
 
@@ -56,7 +56,7 @@ export const PATCH = async (
   const { models } = req.validatedBody;
   logger.info(`Batch updating ${models.length} models`);
 
-  const updatedModels = await service.updateFitmentModels(models);
+  const updatedModels = await service.updateVehicleModels(models);
 
   logger.info(`Batch updated ${updatedModels.length} models`);
 

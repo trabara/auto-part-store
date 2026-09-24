@@ -10,7 +10,7 @@ export const deleteFitmentsStep = createStep(
     const fitmentModuleService =
       container.resolve<FitmentModuleService>(FITMENT_MODULE);
 
-    await fitmentModuleService.deleteFitments(ids);
+    await fitmentModuleService.deleteVehicles(ids);
     return new StepResponse({}, { ids });
   },
   async (compensation, { container }) => {
@@ -19,6 +19,6 @@ export const deleteFitmentsStep = createStep(
     const fitmentModuleService =
       container.resolve<FitmentModuleService>(FITMENT_MODULE);
 
-    await fitmentModuleService.restoreFitments(compensation.ids);
+    await fitmentModuleService.restoreVehicles(compensation.ids);
   },
 );

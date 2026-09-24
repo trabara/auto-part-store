@@ -1,12 +1,12 @@
 import { Container, DataTable, Heading, useDataTable } from "@medusajs/ui";
-import { useDeleteMutation } from "@repo/admin/hooks/use-delete-mutation";
-import { usePageQuery } from "@repo/admin/hooks/use-page-query";
+import { useDeleteMutation } from "@repo/medusa-ui/hooks/use-delete-mutation";
+import { usePageQuery } from "@repo/medusa-ui/hooks/use-page-query";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
-import { deleteFitment, listFitments } from "../routes/vehicles/data";
-import { AdminFitmentWithProducts } from "../routes/vehicles/types";
 import { createFitmentColumns } from "./data-table-columns";
+import { deleteFitment, listFitments } from "../routes/fitments/vehicles/data";
+import { AdminFitmentWithProducts } from "../routes/fitments/vehicles/types";
 
 const FitmentDataTable = ({ productId }: { productId?: string }) => {
   const { t } = useTranslation();

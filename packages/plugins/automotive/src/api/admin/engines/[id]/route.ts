@@ -5,9 +5,9 @@ import {
 } from "@medusajs/framework/utils";
 import {
   FITMENT_MODULE,
-  UpdateEngineInput,
   type FitmentModuleService,
 } from "../../../../modules/fitment";
+import { UpdateEngineInput } from "../../../../modules/fitment/dto";
 
 export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
   const { id } = req.params;
@@ -57,7 +57,7 @@ export const PATCH = async (
     `Updating engine with ID: ${id} ${JSON.stringify({ data: req.validatedBody })}`,
   );
 
-  const [engine] = await service.updateFitmentEngines([
+  const [engine] = await service.updateVehicleEngines([
     { ...req.validatedBody, id },
   ]);
 
@@ -74,7 +74,7 @@ export const DELETE = async (req: MedusaRequest, res: MedusaResponse) => {
 
   logger.info(`Deleting engine with ID: ${id}`);
 
-  await service.deleteFitmentEngines([id]);
+  await service.deleteVehicleEngines([id]);
 
   logger.info(`Deleted engine with ID: ${id}`);
   res.status(200).json({ id, deleted: true, object: "engine" });

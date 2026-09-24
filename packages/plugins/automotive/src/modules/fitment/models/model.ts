@@ -1,23 +1,48 @@
-import { InferTypeOf } from "@medusajs/framework/types";
-import { model } from "@medusajs/framework/utils";
-import { Fitment } from "./fitment";
-import { FitmentMake } from "./make";
+import { InferEntityType } from "@medusajs/framework/types";
+import { DmlEntity } from "@medusajs/framework/utils";
+import { createModel, InferDmlSchema, ref } from "@repo/orm";
+import { VehicleModelSchema } from "../schemas/model";
+import { MakeEntity } from "./make";
+import { VehicleEntity } from "./vehicle";
 
-export const FitmentModel = model.define("fitment_model", {
-  id: model.id().primaryKey(),
-  name: model.text(),
-  make: model.belongsTo(() => FitmentMake, {
-    mappedBy: "models",
-  }),
-  fitments: model.hasMany(() => Fitment, {
-    mappedBy: "model",
-  }),
-}).indexes([
+type VehicleModelRels = {
+  make: { kind: "belongsTo"; model: () => MakeEntity };
+  vehicles: { kind: "hasMany"; model: () => VehicleEntity };
+};
+
+export type VehicleModelEntity = DmlEntity<
+  InferDmlSchema<
+    typeof VehicleModelSchema,
+    Record<string, never>,
+    VehicleModelRels
+  >,
+  string
+>;
+
+export type VehicleModelDml = InferEntityType<VehicleModelEntity>;
+
+export const VehicleModel: VehicleModelEntity = createModel(
+  "VehicleModel",
+  VehicleModelSchema,
   {
-    name: "fitment_model_name_unique",
-    on: ["name"],
-    unique: true,
-  }
-])
-
-export type Model = InferTypeOf<typeof FitmentModel>;
+    relationships: {
+      make: {
+        kind: "belongsTo",
+        model: ref<MakeEntity>("VehicleMake"),
+        options: { mappedBy: "models" },
+      },
+      vehicles: {
+        kind: "hasMany",
+        model: ref<VehicleEntity>("Vehicle"),
+        options: { mappedBy: "model" },
+      },
+    },
+    indexes: [
+      {
+        name: "vehicle_model_name_unique",
+        on: ["name"],
+        unique: true,
+      },
+    ],
+  },
+);

@@ -41,8 +41,6 @@ COPY --from=builder --chown=medusa:nodejs /app/packages/domain/analytics-plugin/
 COPY --from=builder --chown=medusa:nodejs /app/packages/domain/analytics-plugin/package.json .medusa/server/packages/domain/analytics-plugin/package.json
 COPY --from=builder --chown=medusa:nodejs /app/packages/domain/fitment-plugin/.medusa .medusa/server/packages/domain/fitment-plugin/.medusa
 COPY --from=builder --chown=medusa:nodejs /app/packages/domain/fitment-plugin/package.json .medusa/server/packages/domain/fitment-plugin/package.json
-COPY --from=builder --chown=medusa:nodejs /app/packages/domain/rbac-plugin/.medusa .medusa/server/packages/domain/rbac-plugin/.medusa
-COPY --from=builder --chown=medusa:nodejs /app/packages/domain/rbac-plugin/package.json .medusa/server/packages/domain/rbac-plugin/package.json
 COPY --from=builder --chown=medusa:nodejs /app/packages/domain/invoice-plugin/.medusa .medusa/server/packages/domain/invoice-plugin/.medusa
 COPY --from=builder --chown=medusa:nodejs /app/packages/domain/invoice-plugin/package.json .medusa/server/packages/domain/invoice-plugin/package.json
 COPY --from=builder --chown=medusa:nodejs /app/packages/infra/common/dist .medusa/server/packages/infra/common/dist

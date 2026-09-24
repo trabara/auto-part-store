@@ -45,8 +45,8 @@ yarn workspace storefront dev
 yarn workspace storefront build
 
 # Plugin dev (syncs built output into apps/backend)
-yarn workspace @repo/fitment-plugin build
-yarn workspace @repo/fitment-plugin dev
+yarn workspace @repo/automotive-plugin build
+yarn workspace @repo/automotive-plugin dev
 ```
 
 ---
@@ -69,10 +69,9 @@ TEST_TYPE=integration:http NODE_OPTIONS=--experimental-vm-modules npx jest \
   --testPathPattern="path/to/my.spec.ts" --runInBand --forceExit
 
 # Plugin tests (fitment/invoice/media have all three; rbac/analytics only have test:unit)
-yarn workspace @repo/fitment-plugin test:unit
-yarn workspace @repo/fitment-plugin test:integration:http
-yarn workspace @repo/fitment-plugin test:integration:modules
-yarn workspace @repo/rbac-plugin test:unit
+yarn workspace @repo/automotive-plugin test:unit
+yarn workspace @repo/automotive-plugin test:integration:http
+yarn workspace @repo/automotive-plugin test:integration:modules
 ```
 
 **Test runner:** Jest 29 + `@swc/jest`. Environment: `node`.

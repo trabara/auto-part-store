@@ -12,9 +12,9 @@
     "version-packages": "changeset version",
     "release": "turbo run build --filter=./packages/* && changeset publish",
     "docker:build": "docker compose -f infra/docker/docker-compose.yml build",
-    "docker:up": "docker compose -f infra/docker/docker-compose.yml --env-file infra/docker/.env up -d",
-    "docker:down": "docker compose -f infra/docker/docker-compose.yml down",
-    "docker:logs": "docker compose -f infra/docker/docker-compose.yml --env-file infra/docker/.env logs -f"
+    "docker:up": "docker compose -f infra/docker/docker-compose.yml -f infra/docker/docker-compose.infra.yml --env-file infra/docker/.env up -d",
+    "docker:down": "docker compose -f infra/docker/docker-compose.yml -f infra/docker/docker-compose.infra.yml down",
+    "docker:logs": "docker compose -f infra/docker/docker-compose.yml -f infra/docker/docker-compose.infra.yml --env-file infra/docker/.env logs -f"
   },
   "devDependencies": {
     "@changesets/cli": "^2.27.12",
@@ -44,19 +44,18 @@
   "workspaces": [
     "apps/*",
     "packages/core",
-    "packages/common",
-    "packages/domain/*",
-    "packages/domain/plugins/*",
+    "packages/plugins/common/*",
+    "packages/plugins/domains/*",
     "packages/ui/*",
     "packages/config/*",
     "packages/tooling/*"
   ],
   "resolutions": {
-    "@medusajs/core-flows": "2.14.2",
-    "@medusajs/framework": "2.14.2",
-    "@medusajs/medusa": "2.14.2",
-    "@medusajs/orchestration": "2.14.2",
-    "@medusajs/workflows-sdk": "2.14.2",
+    "@medusajs/core-flows": "2.21.0",
+    "@medusajs/framework": "2.21.0",
+    "@medusajs/medusa": "2.21.0",
+    "@medusajs/orchestration": "2.21.0",
+    "@medusajs/workflows-sdk": "2.21.0",
     "@types/react": "^19",
     "@types/react-dom": "^19"
   },

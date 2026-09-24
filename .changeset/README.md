@@ -21,4 +21,3 @@ Only non-private packages under /packages are versioned:
 - @trabara/analytics-plugin
 - @trabara/fitment-plugin
 - @trabara/invoice-plugin
-- @trabara/rbac-plugin

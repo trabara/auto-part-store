@@ -15,6 +15,7 @@ export const listRegions = async () => {
             `/store/regions`,
             {
                 method: "GET",
+                cache: "force-cache",
                 next,
             })
         .then(({ regions }) => regions)
@@ -50,7 +51,7 @@ export const getRegion = async (countryCode?: string) => {
         if (!regions) {
             return null
         }
-
+        console.log("regions", regions)
         regions.forEach((region) => {
             region.countries?.forEach((c) => {
                 regionMap.set(c?.iso_2 ?? "", region)

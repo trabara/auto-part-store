@@ -7,11 +7,11 @@ import { retreiveFitment } from "./fitments"
 import { getRegion } from "./regions"
 import { getLocaleHeader } from "./cookies"
 import { ClientHeaders } from "@medusajs/js-sdk"
-import type {
+import {
+  ProductOptionMeta,
   ProductOptionValueFilter,
   ProductPriceRange,
-  ProductOptionMeta,
-} from "@trabara/core/dtos"
+} from "@trabara/core"
 
 export type ProductListQueryParams = {
   q?: string
@@ -88,7 +88,7 @@ export async function listProducts({
   const _pageParam = Math.max(pageParam, 1)
   const offset = _pageParam === 1 ? 0 : (_pageParam - 1) * limit
 
-  const region = await getRegion("tn")
+  const region = await getRegion()
   if (!region) {
     throw new Error("Region not found")
   }
@@ -178,7 +178,7 @@ export async function listProductsWithSort({
 export async function getProductByHandle(
   handle: string
 ): Promise<HttpTypes.StoreProduct | null> {
-  const region = await getRegion("tn")
+  const region = await getRegion()
   if (!region) return null
 
   const headers = {
@@ -222,7 +222,7 @@ export async function getRelatedProducts(
   product: HttpTypes.StoreProduct,
   limit = 4
 ): Promise<HttpTypes.StoreProduct[]> {
-  const region = await getRegion("tn")
+  const region = await getRegion()
   if (!region) return []
 
   const fitment = await retreiveFitment()
@@ -269,7 +269,7 @@ export async function searchProducts(
 ): Promise<SearchSuggestion[]> {
   if (!q || q.trim().length === 0) return []
 
-  const region = await getRegion("tn")
+  const region = await getRegion()
   if (!region) return []
 
   const fitment = await retreiveFitment()

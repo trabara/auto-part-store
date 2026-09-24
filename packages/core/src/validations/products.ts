@@ -8,6 +8,8 @@ export const ProductOptionValueFilterSchema = z.object({
   value: z.string(),
 });
 
+export type ProductOptionValueFilter = z.infer<typeof ProductOptionValueFilterSchema>;
+
 export const ProductV2FindParams = BaseFindParams.extend({
   currency_code: z.string(),
   region_id: z.string(),
@@ -31,6 +33,8 @@ export const ProductV2FindParams = BaseFindParams.extend({
     .optional(),
 });
 
+export type ProductV2FindParams = z.infer<typeof ProductV2FindParams>;
+
 export const ProductSearchParams = BaseFindParams.extend({
   q: z.string().min(1),
   currency_code: z.string(),
@@ -38,9 +42,12 @@ export const ProductSearchParams = BaseFindParams.extend({
   fitment_id: z.string().optional(),
 });
 
+export type ProductSearchParams = z.infer<typeof ProductSearchParams>;
+
 export const ProductRelatedFindParams = BaseFindParams.extend({
   product_id: z.string(),
   currency_code: z.string(),
   region_id: z.string(),
   fitment_id: z.string().optional(),
 });
+export type ProductRelatedFindParams = z.infer<typeof ProductRelatedFindParams>;

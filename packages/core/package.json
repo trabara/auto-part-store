@@ -57,8 +57,8 @@
     "@medusajs/medusa": ">=2.0.0"
   },
   "devDependencies": {
-    "@medusajs/framework": "2.14.2",
-    "@medusajs/medusa": "2.14.2",
+    "@medusajs/framework": "2.21.0",
+    "@medusajs/medusa": "2.21.0",
     "@repo/eslint-config": "workspace:*",
     "@repo/tsconfig": "workspace:*",
     "@types/node": "^20.0.0",

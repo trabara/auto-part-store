@@ -30,21 +30,19 @@
     "test:unit": "TEST_TYPE=unit NODE_OPTIONS=--experimental-vm-modules jest --silent --runInBand --forceExit --passWithNoTests"
   },
   "dependencies": {
-    "@medusajs/admin-sdk": "2.14.2",
-    "@medusajs/cli": "2.14.2",
-    "@medusajs/framework": "2.14.2",
-    "@medusajs/medusa": "2.14.2",
+    "@medusajs/admin-sdk": "2.21.0",
+    "@medusajs/cli": "2.21.0",
+    "@medusajs/framework": "2.21.0",
+    "@medusajs/medusa": "2.21.0",
     "@repo/analytics-plugin": "workspace:*",
-    "@repo/domain-modules": "workspace:*",
-    "@repo/fitment-plugin": "workspace:*",
+    "@repo/automotive-plugin": "workspace:*",
     "@repo/invoice-plugin": "workspace:*",
     "@repo/media-plugin": "workspace:*",
-    "@repo/rbac-plugin": "workspace:*",
     "@rsc-labs/medusa-wishlist": "^0.0.6",
     "react-i18next": "^15.0.0"
   },
   "devDependencies": {
-    "@medusajs/test-utils": "2.14.2",
+    "@medusajs/test-utils": "2.21.0",
     "@repo/eslint-config": "workspace:*",
     "@swc/core": "1.12.2",
     "@swc/jest": "^0.2.38",

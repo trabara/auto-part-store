@@ -1,6 +1,6 @@
 import { defineLink } from "@medusajs/framework/utils";
-import MediaModule from "@repo/domain-modules/media";
 import StoreDetailsModule from "../modules/store-details";
+import MediaModule from "@repo/media-plugin/modules/media";
 
 export default defineLink(
   {

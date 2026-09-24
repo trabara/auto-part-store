@@ -135,24 +135,6 @@ export default defineConfig({
       resolve: "@medusajs/medusa/translation",
     },
     {
-      resolve: "@repo/domain-modules/fitment",
-    },
-    {
-      resolve: "@repo/domain-modules/media",
-    },
-    {
-      resolve: "@repo/domain-modules/authz",
-    },
-    {
-      resolve: "@repo/domain-modules/invoice-generator",
-    },
-    {
-      resolve: "@repo/domain-modules/oauth",
-    },
-    {
-      resolve: "@repo/domain-modules/analytics",
-    },
-    {
       resolve: "./src/modules/store-details",
     },
   ],
@@ -164,7 +146,7 @@ export default defineConfig({
       },
     },
     {
-      resolve: "@repo/fitment-plugin",
+      resolve: "@repo/automotive-plugin",
       options: {
         // Plugin-specific options can be added here
         logoUrl: "https://smap.tn/assets/blanc-CcIuouBN.png",
@@ -172,12 +154,6 @@ export default defineConfig({
     },
     {
       resolve: "@repo/invoice-plugin",
-      options: {
-        // Plugin-specific options can be added here
-      },
-    },
-    {
-      resolve: "@repo/rbac-plugin",
       options: {
         // Plugin-specific options can be added here
       },
@@ -201,5 +177,6 @@ export default defineConfig({
   ],
   featureFlags: {
     translation: true,
+    // rbac: true,
   },
 });

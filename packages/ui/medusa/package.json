@@ -1,0 +1,64 @@
+{
+  "name": "@repo/medusa-ui",
+  "version": "0.0.0",
+  "private": true,
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./components/*": "./src/components/*.tsx",
+    "./hooks/*": "./src/hooks/*.ts",
+    "./types": "./src/lib/types/index.ts",
+    "./utils": "./src/lib/utils/index.ts",
+    "./registry": "./src/lib/registry/index.ts",
+    "./provider": "./src/provider/api-client-provider.tsx"
+  },
+  "scripts": {
+    "lint": "eslint .",
+    "check-types": "tsc --noEmit",
+    "test": "NODE_OPTIONS=--experimental-vm-modules jest --runInBand --forceExit --passWithNoTests"
+  },
+  "dependencies": {
+    "@hookform/resolvers": "^5.4.3",
+    "@medusajs/admin-bundler": "2.19.0",
+    "@medusajs/admin-sdk": "2.19.0",
+    "@medusajs/cli": "2.19.0",
+    "@medusajs/framework": "2.19.0",
+    "@medusajs/icons": "2.19.0",
+    "@medusajs/medusa": "2.19.0",
+    "@medusajs/test-utils": "2.19.0",
+    "@medusajs/ui": "4.0.25",
+    "@radix-ui/react-popover": "^1.0.3",
+    "@repo/hooks": "workspace:*",
+    "@repo/utils": "workspace:*",
+    "@tanstack/react-query": "^5.101.4",
+    "@tanstack/react-table": "^8.21.3",
+    "@types/lodash": "^4.17.24",
+    "date-fns": "^4.4.0",
+    "lodash": "^4.18.1",
+    "lucide-react": "^0.563.0",
+    "react-hook-form": "^7.83.0",
+    "react-i18next": "^15.7.4"
+  },
+  "devDependencies": {
+    "@repo/config": "workspace:*",
+    "@repo/core": "workspace:*",
+    "@swc/core": "1.12.2",
+    "@swc/jest": "^0.2.39",
+    "@types/jest": "^30.0.0",
+    "chokidar": "^4.0.3",
+    "eslint": "^9.39.5",
+    "jest": "^30.4.2"
+  },
+  "peerDependencies": {
+    "@medusajs/admin-sdk": "2.19.0",
+    "@medusajs/cli": "2.19.0",
+    "@medusajs/framework": "2.19.0",
+    "@medusajs/icons": "2.19.0",
+    "@medusajs/js-sdk": "2.19.0",
+    "@medusajs/medusa": "2.19.0",
+    "@medusajs/test-utils": "2.19.0",
+    "@medusajs/ui": "4.0.25",
+    "@repo/core": "workspace:*"
+  }
+}

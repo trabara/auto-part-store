@@ -1,0 +1,139 @@
+import { zodResolver } from "@hookform/resolvers/zod"
+import type { z } from "@medusajs/framework/zod"
+import type { DefaultValues, FieldValues } from "react-hook-form"
+
+import { getZodFieldInfo } from "@repo/utils"
+import type { FieldOverride, FieldType, SchemaFieldInfo } from "../types"
+
+/**
+ * Initialize default values based on schema types and overrides
+ *
+ * @param schemaShape - The schema shape (field definitions)
+ * @param providedValues - User-provided default values
+ * @param overrides - Field configuration overrides
+ * @returns Default values for the form
+ */
+export function initializeDefaultValues<T extends FieldValues>(
+  schemaShape: Record<string, z.ZodTypeAny>,
+  providedValues: Partial<T> = {},
+  overrides: Partial<Record<string, FieldOverride>> = {},
+): DefaultValues<T> {
+  try {
+    const defaultValues = Object.entries(schemaShape).reduce(
+      (acc, [key, field]) => {
+        const fieldInfo = getZodFieldInfo(field)
+        const override = overrides[key]
+
+        // Check if a provided value exists for this field
+        if (providedValues[key as keyof T] !== undefined) {
+          acc[key] = providedValues[key as keyof T]
+          return acc
+        }
+
+        // Initialize based on field type
+        switch (fieldInfo.baseType) {
+          case "string":
+            if (override?.emptyAsNull) acc[key] = null
+            else if (override?.emptyAsUndefined) acc[key] = undefined
+            else acc[key] = ""
+            break
+          case "number":
+            if (override?.emptyAsZero) acc[key] = 0
+            else if (override?.emptyAsNull) acc[key] = null
+            else if (override?.emptyAsUndefined) acc[key] = undefined
+            else acc[key] = null
+            break
+          case "boolean":
+            acc[key] = false
+            break
+          case "date":
+            acc[key] = null
+            break
+          case "enum":
+            acc[key] = undefined
+            break
+          case "array":
+            acc[key] = []
+            break
+          default:
+            acc[key] = undefined
+        }
+
+        return acc
+      },
+      {} as Record<string, unknown>,
+    )
+
+    return { ...defaultValues, ...providedValues } as DefaultValues<T>
+  } catch {
+    return {} as DefaultValues<T>
+  }
+}
+
+/**
+ * Apply empty value overrides before submission
+ * Transforms empty strings to null/undefined/0 based on field config
+ *
+ * @param values - The form values to transform
+ * @param overrides - Field configuration overrides
+ * @returns Transformed values
+ */
+export function applyEmptyValueOverrides<T extends FieldValues>(
+  values: T,
+  overrides: Partial<Record<string, FieldOverride>>,
+): T {
+  const transformed = { ...values }
+
+  for (const key of Object.keys(transformed)) {
+    const override = overrides[key]
+    if (!override) continue
+
+    const value = transformed[key]
+    const isEmptyString = value === "" || (typeof value === "string" && value.trim() === "")
+
+    if (override.emptyAsNull && isEmptyString) {
+      transformed[key as keyof T] = null as T[keyof T]
+    } else if (override.emptyAsUndefined && isEmptyString) {
+      transformed[key as keyof T] = undefined as T[keyof T]
+    } else if (override.emptyAsZero && (value === null || value === undefined || isEmptyString)) {
+      transformed[key as keyof T] = 0 as T[keyof T]
+    }
+  }
+
+  return transformed
+}
+
+/**
+ * Determine the field type based on schema info and override.
+ * Override type takes priority, otherwise auto-detect from schema.
+ */
+export function resolveFieldType(fieldInfo: SchemaFieldInfo, override?: FieldOverride): FieldType {
+  if (override?.type) {
+    return override.type
+  }
+
+  switch (fieldInfo.baseType) {
+    case "string":
+      return fieldInfo.isEmail ? "email" : "text"
+    case "number":
+      return "number"
+    case "boolean":
+      return "checkbox"
+    case "date":
+      return "date"
+    case "enum":
+      return "select"
+    default:
+      return "text"
+  }
+}
+
+/**
+ * Create a resolver for react-hook-form from a Zod schema.
+ *
+ * Supports schemas with refine/superRefine (ZodPipe in v4).
+ */
+export function createZodResolver(schema: z.ZodTypeAny) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return zodResolver(schema as any)
+}

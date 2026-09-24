@@ -1,18 +1,10 @@
 import { defineRouteConfig } from "@medusajs/admin-sdk";
-import {
-  Badge,
-  Button,
-  Container,
-  Heading,
-  Text,
-  toast
-} from "@medusajs/ui";
-import { sdk } from "@repo/admin/lib/sdk";
+import { Badge, Button, Container, Heading, Text, toast } from "@medusajs/ui";
 import { useEffect, useState } from "react";
 import { SUPPORTED_PROVIDERS } from "./constant";
 import ProviderDrawer from "./drawer";
 import { OAuthProvider } from "./types";
-
+import { sdk } from "../../../lib/sdk";
 
 export default function OAuthProvidersPage() {
   const [providers, setProviders] = useState<OAuthProvider[]>([]);
@@ -23,7 +15,9 @@ export default function OAuthProvidersPage() {
   const fetchProviders = async () => {
     setLoading(true);
     try {
-      const { oauth_providers } = await sdk.client.fetch<{ oauth_providers: OAuthProvider[] }>("/admin/oauth-providers");
+      const { oauth_providers } = await sdk.client.fetch<{
+        oauth_providers: OAuthProvider[];
+      }>("/admin/oauth-providers");
       setProviders(oauth_providers ?? []);
     } finally {
       setLoading(false);

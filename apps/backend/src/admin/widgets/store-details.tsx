@@ -7,12 +7,12 @@ import {
   IconButton,
   Text,
 } from "@medusajs/ui";
-import { sdk } from "@repo/admin/lib/sdk";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { LogoSection } from "../components/logo-section";
 import { StoreDetailsDrawer } from "../components/store-details-drawer";
+import { sdk } from "../lib/sdk";
 
 type StoreDetailsResponse = {
   store_details: {

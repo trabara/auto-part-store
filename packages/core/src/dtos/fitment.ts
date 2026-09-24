@@ -70,7 +70,7 @@ export type UpdateEngineInput = {
   tech?: string;
 };
 
-export type UpdateFitmentInput = {
+export type UpdateVehicletInput = {
   id: string;
   model_id: string;
   engine_id: string;

@@ -91,7 +91,7 @@ export default defineConfig({
             resolve: "@medusajs/medusa/notification-local",
             id: "local",
             options: {
-              channels: ["email"],
+              channels: ["email", "feed"],
             },
           },
         ],
@@ -149,7 +149,6 @@ export default defineConfig({
       resolve: "@repo/automotive-plugin",
       options: {
         // Plugin-specific options can be added here
-        logoUrl: "https://smap.tn/assets/blanc-CcIuouBN.png",
       },
     },
     {

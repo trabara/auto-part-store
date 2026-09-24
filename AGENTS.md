@@ -7,15 +7,15 @@ Turborepo monorepo. **Package manager:** Yarn 4 Berry (node-modules linker). **N
 ```
 apps/backend/          — Medusa v2 backend (workspace name: **backend**, NOT medusa)
 apps/storefront/       — Next.js 16 storefront (React 19, Tailwind v4, next-intl)
-packages/core/         — @trabara/core: schemas, dtos, validations, contracts, interfaces
+packages/core/         — @repo/core: schemas, dtos, validations, contracts, interfaces
 packages/common/       — @trabara/common: BaseController, error handler, logger
 packages/domain/plugins/  — @repo/{fitment,rbac,invoice,media,analytics}-plugin (Medusa plugins)
 packages/domain/modules/  — @repo/domain-modules: shared models used across plugins
 packages/ui/admin/     — @repo/admin (source-linked, no build)
 packages/ui/hooks/     — @repo/hooks (source-linked, no build)
 packages/ui/icons/     — @repo/icons (source-linked, no build)
-packages/config/tsconfig/    — @repo/tsconfig
-packages/config/eslint-config/ — @repo/eslint-config
+packages/config/ts/    — @repo/config/ts
+packages/config/eslint-config/ — @repo/config/eslint
 packages/tooling/scripts/    — @repo/scripts (plugin-dev-init, plugin-dev-watch)
 ```
 
@@ -99,8 +99,8 @@ yarn workspace @repo/automotive-plugin test:integration:modules
 
 **ESLint v9 flat config** (`eslint.config.mjs` in each workspace):
 
-- Backend/plugins extend `@repo/eslint-config/base` (`@typescript-eslint/recommended` + `turbo` plugin + `eslint-config-prettier`)
-- Storefront extends `@repo/eslint-config/next-js` (wraps `@next/eslint-plugin-next`)
+- Backend/plugins extend `@repo/config/eslint/base` (`@typescript-eslint/recommended` + `turbo` plugin + `eslint-config-prettier`)
+- Storefront extends `@repo/config/eslint/next-js` (wraps `@next/eslint-plugin-next`)
 - All violations are **warnings** via `eslint-plugin-only-warn` — zero errors policy
 - Each workspace's `eslint.config.mjs` adds: `@typescript-eslint/no-explicit-any: "off"` — `any` is allowed everywhere
 - Unused vars rule: `@typescript-eslint/no-unused-vars: ["warn", { argsIgnorePattern: "^_", varsIgnorePattern: "^_" }]`
@@ -111,9 +111,9 @@ yarn workspace @repo/automotive-plugin test:integration:modules
 
 | Context           | Config                                               | Key settings                                                                                                        |
 | ----------------- | ---------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
-| Backend / plugins | `packages/config/tsconfig/plugin.json`               | `target: ES2021`, `module: Node16`, `strictNullChecks: true`, `emitDecoratorMetadata: true`, out: `.medusa/server/` |
-| Storefront        | `packages/config/tsconfig/nextjs.json` → `base.json` | `strict: true`, `noUncheckedIndexedAccess: true`, `module: ESNext`, `moduleResolution: Bundler`, `noEmit: true`     |
-| `@trabara/core`   | own `tsconfig.json` + `tsconfig.esm.json`            | dual CJS + ESM output                                                                                               |
+| Backend / plugins | `packages/config/ts/plugin.json`               | `target: ES2021`, `module: Node16`, `strictNullChecks: true`, `emitDecoratorMetadata: true`, out: `.medusa/server/` |
+| Storefront        | `packages/config/ts/nextjs.json` → `base.json` | `strict: true`, `noUncheckedIndexedAccess: true`, `module: ESNext`, `moduleResolution: Bundler`, `noEmit: true`     |
+| `@repo/core`   | own `tsconfig.json` + `tsconfig.esm.json`            | dual CJS + ESM output                                                                                               |
 
 **Conventions:**
 
@@ -147,7 +147,7 @@ yarn workspace @repo/automotive-plugin test:integration:modules
     createOperatorMap,
   } from "@medusajs/medusa/api/utils/validators";
   ```
-- `@trabara/core` sub-paths: `@trabara/core/schemas`, `/dtos`, `/validations`, `/contracts`, `/interfaces`, `/infra`
+- `@repo/core` sub-paths: `@repo/core/schemas`, `/dtos`, `/validations`, `/contracts`, `/interfaces`, `/infra`
 - `@trabara/common` for `BaseController`, `ILogger`, `IErrorHandler`
 
 ---

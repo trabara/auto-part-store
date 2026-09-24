@@ -1,5 +1,5 @@
 import { ProductListQueryParams } from "@/lib/data/products"
-import type { ProductOptionMeta, ProductPriceRange } from "@trabara/core/dtos"
+import type { ProductOptionMeta, ProductPriceRange } from "@repo/core/dtos"
 import { SortOptions } from "@/lib/types"
 import { StoreProduct } from "@medusajs/types"
 import { createStore } from "zustand/vanilla"

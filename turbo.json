@@ -54,6 +54,7 @@
       "cache": false
     },
     "medusa:db:generate": {
+      "dependsOn": ["^build"],
       "cache": false
     },
     "medusa:db:rollback": {

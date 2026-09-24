@@ -35,7 +35,7 @@ export async function retreiveFitment(): Promise<Fitment | null> {
     return null
   }
   const { fitment } = await sdk.client.fetch<{ fitment: any }>(
-    `/store/fitments/${id}`,
+    `/store/vehicles/${id}`,
     {
       method: "GET",
       query: {

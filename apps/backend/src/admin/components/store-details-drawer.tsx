@@ -11,11 +11,11 @@ import {
   Textarea,
   toast,
 } from "@medusajs/ui";
-import { sdk } from "@repo/admin/lib/sdk";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useFieldArray, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { z } from "zod";
+import { sdk } from "../lib/sdk";
 
 const makeSchema = (t: (key: string) => string) =>
   z.object({

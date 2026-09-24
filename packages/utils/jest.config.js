@@ -13,8 +13,4 @@ module.exports = {
   testEnvironment: "node",
   moduleFileExtensions: ["js", "ts", "json"],
   modulePathIgnorePatterns: ["dist/"],
-  moduleNameMapper: {
-    "@medusajs/framework/zod":
-      "<rootDir>/node_modules/@medusajs/framework/dist/deps/zod.js",
-  },
-}
+};

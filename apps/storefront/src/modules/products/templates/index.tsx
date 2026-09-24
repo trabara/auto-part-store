@@ -11,7 +11,7 @@ import type {
   ProductOptionMeta,
   ProductOptionValueFilter,
   ProductPriceRange,
-} from "@trabara/core/dtos"
+} from "@repo/core/dtos"
 import { StoreProduct } from "@medusajs/types"
 import CategoryFilters from "../components/category-filters"
 

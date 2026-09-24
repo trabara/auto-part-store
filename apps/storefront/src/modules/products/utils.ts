@@ -1,4 +1,4 @@
-import type { ProductOptionValueFilter } from "@trabara/core/dtos"
+import type { ProductOptionValueFilter } from "@repo/core/dtos"
 import { SORT_OPTIONS, SortOptions } from "@/lib/types"
 
 export type SearchParams = {

@@ -44,12 +44,12 @@
   "workspaces": [
     "apps/*",
     "packages/*",
-    "packages/core",
-    "packages/plugins/*",
-    "packages/modules/*",
-    "packages/ui/*",
     "packages/config/*",
-    "packages/tooling/*"
+    "packages/core",
+    "packages/modules/*",
+    "packages/plugins/*",
+    "packages/tooling/*",
+    "packages/ui/*"
   ],
   "resolutions": {
     "@medusajs/core-flows": "2.21.0",

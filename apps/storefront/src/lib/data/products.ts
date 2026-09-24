@@ -11,7 +11,7 @@ import {
   ProductOptionMeta,
   ProductOptionValueFilter,
   ProductPriceRange,
-} from "@trabara/core"
+} from "@repo/core"
 
 export type ProductListQueryParams = {
   q?: string

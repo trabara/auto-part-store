@@ -4,7 +4,7 @@ import { useRef, useState } from "react";
 import { Button, Text, toast } from "@medusajs/ui";
 import { ArrowUpTray, Trash } from "@medusajs/icons";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { sdk } from "@repo/admin/lib/sdk";
+import { sdk } from "../lib/sdk";
 
 type LogoSectionProps = {
   logoUrl: string | null;

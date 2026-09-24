@@ -177,6 +177,6 @@ export default defineConfig({
   ],
   featureFlags: {
     translation: true,
-    // rbac: true,
+    rbac: true,
   },
 });

@@ -38,6 +38,7 @@
     "@repo/automotive-plugin": "workspace:*",
     "@repo/invoice-plugin": "workspace:*",
     "@repo/media-plugin": "workspace:*",
+    "@repo/oauth-plugin": "workspace:*",
     "@rsc-labs/medusa-wishlist": "^0.0.6",
     "react-i18next": "^15.0.0"
   },

@@ -1,8 +1,6 @@
 import { toast } from "@medusajs/ui";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { sdk } from "../lib/sdk";
-import { AdminProductWithFitments } from "../routes/products/types";
-
 
 /**
  * Return type from useProductLinkage
@@ -57,28 +55,38 @@ export function getSelectedProducts<
  * ```
  */
 const unlink = async (fitmentId: string, productId: string) => {
-  return sdk.client.fetch(`/admin/fitments/${fitmentId}/products/${productId}`, {
-    method: "DELETE",
-  });
-}
+  return sdk.client.fetch(
+    `/admin/fitments/${fitmentId}/products/${productId}`,
+    {
+      method: "DELETE",
+    },
+  );
+};
 
 const link = async (fitmentId: string, productIds: string[]) => {
   return sdk.client.fetch(`/admin/fitments/${fitmentId}/products`, {
     method: "POST",
     body: { product_ids: productIds },
   });
-}
+};
 
 export function useProductLinkage(): UseProductLinkageReturn {
   const queryClient = useQueryClient();
 
-  const invalidateKeys = () => ["fitments", "products"].forEach((key) => {
-    queryClient.invalidateQueries({ queryKey: [key] });
-  });
+  const invalidateKeys = () =>
+    ["fitments", "products"].forEach((key) => {
+      queryClient.invalidateQueries({ queryKey: [key] });
+    });
 
   // Link products mutation
   const linkMutation = useMutation({
-    mutationFn: ({ fitmentId, productIds }: { fitmentId: string, productIds: string[] }) => link(fitmentId, productIds),
+    mutationFn: ({
+      fitmentId,
+      productIds,
+    }: {
+      fitmentId: string;
+      productIds: string[];
+    }) => link(fitmentId, productIds),
     onSuccess: () => {
       toast.success("Products linked successfully");
       invalidateKeys();
@@ -92,7 +100,13 @@ export function useProductLinkage(): UseProductLinkageReturn {
 
   // Unlink single product mutation
   const unlinkMutation = useMutation({
-    mutationFn: ({ fitmentId, productId }: { fitmentId: string, productId: string }) => unlink(fitmentId, productId),
+    mutationFn: ({
+      fitmentId,
+      productId,
+    }: {
+      fitmentId: string;
+      productId: string;
+    }) => unlink(fitmentId, productId),
     onSuccess: () => {
       toast.success("Product unlinked successfully");
       invalidateKeys();

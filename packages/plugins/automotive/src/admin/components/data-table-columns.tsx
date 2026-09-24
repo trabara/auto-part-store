@@ -14,7 +14,7 @@ import { TFunction } from "i18next";
 import { Link, Unlink } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { sdk } from "../lib/sdk";
-import { AdminFitmentWithProducts } from "../routes/fitments/types";
+import { AdminFitmentWithProducts } from "../routes/vehicles/types";
 
 const columnHelper = createDataTableColumnHelper<AdminFitmentWithProducts>();
 

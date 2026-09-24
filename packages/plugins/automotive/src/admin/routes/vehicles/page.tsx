@@ -62,6 +62,21 @@ export default function FitmentsPage() {
   const { t } = useTranslation();
 
   const LIST_FIELDS: MedusaFieldOverrides<Fitment> = {
+    model: {
+      label: t("fitment.field.model"),
+      cell: (info) => {
+        const model = info.row.original.model;
+        return <span>{`${model.make.name} ${model.name}`}</span>;
+      },
+    },
+    engine: {
+      label: t("fitment.field.engine"),
+      cell: (info) => {
+        const engine = info.row.original.engine;
+        if (!engine) return <span>—</span>;
+        return <span>{`${engine.type} ${engine.size} ${engine.fuel}`}</span>;
+      },
+    },
     body_style: {
       label: t("fitment.field.bodyStyle.label"),
       isFiltrable: true,
@@ -87,25 +102,6 @@ export default function FitmentsPage() {
     },
     year_end: {
       label: t("fitment.field.yearEnd.label"),
-    },
-    model: {
-      label: t("fitment.field.model"),
-      cell: (info) => {
-        const model = info.row.original.model
-        return <span>{model?.name ?? "—"}</span>;
-      },
-    },
-    engine: {
-      label: t("fitment.field.engine"),
-      cell: (info) => {
-        const engine = info.row.original.engine;
-        if (!engine) return <span>—</span>;
-        return (
-          <span>
-            {engine.tech || `${engine.type} ${engine.size} ${engine.fuel}`}
-          </span>
-        );
-      },
     },
   };
 
@@ -182,10 +178,7 @@ export default function FitmentsPage() {
       label: t("fitment.field.model"),
       description: t("fitment.field.model.description"),
       render: ({ value, onChange }) => (
-        <ModelSelect
-          defaultValue={value as string}
-          onChange={onChange}
-        />
+        <ModelSelect defaultValue={value as string} onChange={onChange} />
       ),
     },
     engine_id: {
@@ -207,10 +200,10 @@ export default function FitmentsPage() {
       schema={FitmentListSchema}
       rowActions={[
         {
-          id: 'link',
+          id: "link",
           label: t("product.link"),
-          render: (fitment) => <ProductDataTable fitment={fitment} />
-        }
+          render: (fitment) => <ProductDataTable fitment={fitment} />,
+        },
       ]}
       create={{
         id: "fitment",

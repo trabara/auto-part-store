@@ -51,7 +51,7 @@ const ProductFitmentsWidget = () => {
   });
 
   const handleEdit = (f: Fitment) =>
-    navigate(`/fitments/${f.id}/edit`);
+    navigate(`/vehicles/${f.id}/edit`);
 
   const handleUnlink = (f: Fitment) => unlinkMutation.mutateAsync(f.id);
 

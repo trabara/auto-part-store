@@ -8507,9 +8507,9 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@repo/analytics-plugin@workspace:*, @repo/analytics-plugin@workspace:packages/common/plugins/analytics-plugin":
+"@repo/analytics-plugin@workspace:*, @repo/analytics-plugin@workspace:packages/plugins/analytics":
   version: 0.0.0-use.local
-  resolution: "@repo/analytics-plugin@workspace:packages/common/plugins/analytics-plugin"
+  resolution: "@repo/analytics-plugin@workspace:packages/plugins/analytics"
   dependencies:
     "@medusajs/admin-sdk": "npm:2.21.0"
     "@medusajs/cli": "npm:2.21.0"
@@ -8560,9 +8560,9 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@repo/automotive-plugin@workspace:*, @repo/automotive-plugin@workspace:packages/domain/plugins/automotive":
+"@repo/automotive-plugin@workspace:*, @repo/automotive-plugin@workspace:packages/plugins/automotive":
   version: 0.0.0-use.local
-  resolution: "@repo/automotive-plugin@workspace:packages/domain/plugins/automotive"
+  resolution: "@repo/automotive-plugin@workspace:packages/plugins/automotive"
   dependencies:
     "@codemirror/lang-html": "npm:^6.4.11"
     "@hookform/resolvers": "npm:^5.2.2"
@@ -8659,9 +8659,9 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@repo/invoice-plugin@workspace:*, @repo/invoice-plugin@workspace:packages/common/plugins/invoice-plugin":
+"@repo/invoice-plugin@workspace:*, @repo/invoice-plugin@workspace:packages/plugins/invoice":
   version: 0.0.0-use.local
-  resolution: "@repo/invoice-plugin@workspace:packages/common/plugins/invoice-plugin"
+  resolution: "@repo/invoice-plugin@workspace:packages/plugins/invoice"
   dependencies:
     "@codemirror/lang-html": "npm:^6.4.11"
     "@hookform/resolvers": "npm:^5.2.2"
@@ -8704,9 +8704,9 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@repo/media-plugin@workspace:*, @repo/media-plugin@workspace:packages/common/plugins/media-plugin":
+"@repo/media-plugin@workspace:*, @repo/media-plugin@workspace:packages/plugins/media":
   version: 0.0.0-use.local
-  resolution: "@repo/media-plugin@workspace:packages/common/plugins/media-plugin"
+  resolution: "@repo/media-plugin@workspace:packages/plugins/media"
   dependencies:
     "@codemirror/lang-html": "npm:^6.4.11"
     "@hookform/resolvers": "npm:^5.2.2"
@@ -8754,9 +8754,9 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@repo/oauth-plugin@workspace:*, @repo/oauth-plugin@workspace:packages/common/plugins/oauth-plugin":
+"@repo/oauth-plugin@workspace:*, @repo/oauth-plugin@workspace:packages/plugins/oauth":
   version: 0.0.0-use.local
-  resolution: "@repo/oauth-plugin@workspace:packages/common/plugins/oauth-plugin"
+  resolution: "@repo/oauth-plugin@workspace:packages/plugins/oauth"
   dependencies:
     "@hookform/resolvers": "npm:^3.9.1"
     "@medusajs/admin-bundler": "npm:2.21.0"

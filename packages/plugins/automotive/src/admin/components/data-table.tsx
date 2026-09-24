@@ -4,8 +4,8 @@ import { usePageQuery } from "@repo/admin/hooks/use-page-query";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
-import { deleteFitment, listFitments } from "../routes/fitments/data";
-import { AdminFitmentWithProducts } from "../routes/fitments/types";
+import { deleteFitment, listFitments } from "../routes/vehicles/data";
+import { AdminFitmentWithProducts } from "../routes/vehicles/types";
 import { createFitmentColumns } from "./data-table-columns";
 
 const FitmentDataTable = ({ productId }: { productId?: string }) => {
@@ -45,7 +45,7 @@ const FitmentDataTable = ({ productId }: { productId?: string }) => {
   const table = useDataTable({
     ...queryConfig,
     columns,
-    onRowClick: (_, row) => navigate(`/fitments/${row.id}/products`),
+    onRowClick: (_, row) => navigate(`/vehicles/${row.id}/products`),
   });
 
   return (

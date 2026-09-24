@@ -16,7 +16,7 @@ import {
   CreateFitmentInputSchema,
   CreateFitmentInput,
 } from "../../modules/fitment/validations";
-import { createFitment } from "../routes/fitments/data";
+import { createFitment } from "../routes/vehicles/data";
 import EngineSelect from "./engine-select";
 import ModelSelect from "./model-select";
 

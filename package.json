@@ -43,11 +43,10 @@
   "packageManager": "yarn@4.12.0",
   "workspaces": [
     "apps/*",
+    "packages/*",
     "packages/core",
-    "packages/common/plugins/*",
-    "packages/common/modules/*",
-    "packages/domain/plugins/*",
-    "packages/domain/modules/*",
+    "packages/plugins/*",
+    "packages/modules/*",
     "packages/ui/*",
     "packages/config/*",
     "packages/tooling/*"

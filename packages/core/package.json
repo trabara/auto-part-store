@@ -1,5 +1,5 @@
 {
-  "name": "@trabara/core",
+  "name": "@repo/core",
   "version": "0.1.0",
   "description": "Shared domain contracts: types, DTOs (Zod schemas), and service interfaces",
   "license": "MIT",
@@ -41,7 +41,7 @@
   "publishConfig": {
     "access": "restricted",
     "registry": "https://npm.pkg.github.com",
-    "name": "@trabara/core"
+    "name": "@repo/core"
   },
   "files": [
     "dist",
@@ -59,8 +59,7 @@
   "devDependencies": {
     "@medusajs/framework": "2.21.0",
     "@medusajs/medusa": "2.21.0",
-    "@repo/eslint-config": "workspace:*",
-    "@repo/tsconfig": "workspace:*",
+    "@repo/config": "workspace:*",
     "@types/node": "^20.0.0",
     "eslint": "^9.39.1",
     "typescript": "^5.6.2"

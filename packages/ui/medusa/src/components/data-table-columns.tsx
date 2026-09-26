@@ -7,6 +7,7 @@ import { createSelectDataTableColumns } from "../lib/helpers/create-select-colum
 import { CellOverride, MedusaFieldOverrides, RowAction } from "../lib/types/config"
 import { getZodFieldInfo, getZodShape } from "../lib/utils"
 import { ActionCell } from "./action-cell"
+import { startCase } from "lodash"
 
 type ColumnDefConfig<T extends FieldValues> = {
   schema: z.ZodObject<T>
@@ -33,8 +34,9 @@ export function createZodDataTableColumnDef<T extends FieldValues, K extends key
       (prev, key) => {
         const fieldInfo = getZodFieldInfo(shape[key as string]!)
         const override = fields?.[key] as CellOverride<T, K>
+        const label = startCase(override?.label || String(key))
         const accessor = columnHelper.accessor(key as any, {
-          header: () => <span className="capitalize">{override?.label || String(key)}</span>,
+          header: () => <span className="capitalize">{label}</span>,
           enableSorting: true,
           cell: (info) => {
             if (override?.cell) {
@@ -44,6 +46,7 @@ export function createZodDataTableColumnDef<T extends FieldValues, K extends key
             if (!value) {
               return <span>-</span>
             }
+            console.log(key,fieldInfo)
             if (fieldInfo.baseType === "date") {
               return format(new Date(value as string), "dd/MM/yyyy")
             }

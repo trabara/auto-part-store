@@ -1,19 +1,25 @@
-import type { ReactNode } from "react"
+import type { ReactNode } from "react";
 
-import { FormDescription, FormItem, FormLabel, FormMessage } from "./form-provider"
+import {
+  FormDescription,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "./form-provider";
+import { camelCase, startCase } from "lodash";
 
 interface FieldWrapperProps {
-  label: string
-  isRequired: boolean
-  hideLabel?: boolean
-  description?: string
+  label: string;
+  isRequired: boolean;
+  hideLabel?: boolean;
+  description?: string;
   styles?: {
-    fieldWrapper?: string
-    label?: string
-    description?: string
-    error?: string
-  }
-  children: ReactNode
+    fieldWrapper?: string;
+    label?: string;
+    description?: string;
+    error?: string;
+  };
+  children: ReactNode;
 }
 
 export function FieldWrapper({
@@ -28,14 +34,16 @@ export function FieldWrapper({
     <FormItem className={styles?.fieldWrapper}>
       {!hideLabel && (
         <FormLabel className={styles?.label} required={isRequired}>
-          {label}
+          {startCase(camelCase(label))}
         </FormLabel>
       )}
       {children}
       {description && (
-        <FormDescription className={styles?.description}>{description}</FormDescription>
+        <FormDescription className={styles?.description}>
+          {description}
+        </FormDescription>
       )}
       <FormMessage className={styles?.error} />
     </FormItem>
-  )
+  );
 }

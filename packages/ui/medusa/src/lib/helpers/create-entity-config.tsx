@@ -1,9 +1,9 @@
-import { FieldValues } from "react-hook-form";
-import { MedusaFieldOverrides } from "../types";
 import { z } from "@medusajs/framework/zod";
+import { mapKeys, snakeCase, startCase } from "lodash";
+import { FieldValues } from "react-hook-form";
 import { CrudConfig } from "../../provider/medusa-crud";
-import { lowerCase, mapKeys, snakeCase, startCase } from "lodash";
 import { TranslationFunction } from "../registry";
+import { MedusaFieldOverrides } from "../types";
 
 type EntityFieldConfigs<L extends FieldValues = {}> = (
   t: TranslationFunction,
@@ -11,7 +11,7 @@ type EntityFieldConfigs<L extends FieldValues = {}> = (
 
 type EntityFeature<S extends FieldValues = {}> = [
   z.ZodObject<S>,
-  EntityFieldConfigs<S>,
+  EntityFieldConfigs<S>?,
 ];
 
 type EntitySchemaConfig<
@@ -44,7 +44,10 @@ export const createEntityConfigs = (
     const [createSchema, createFields] = cfg.create;
     const [editSchema, editFields] = cfg.update;
 
-    function bindFields(fields: EntityFieldConfigs, t: TranslationFunction) {
+    function bindFields(fields?: EntityFieldConfigs) {
+      if (fields === undefined) {
+        return {};
+      }
       if (typeof fields === "function") {
         return fields(t);
       }
@@ -55,11 +58,11 @@ export const createEntityConfigs = (
       path: path + "/" + entity,
       entitySchema: cfg.schema,
       listSchema,
-      listFields: bindFields(listFields, t),
+      listFields: bindFields(listFields),
       createSchema,
-      createFields: bindFields(createFields, t),
+      createFields: bindFields(createFields),
       editSchema,
-      editFields: bindFields(editFields, t),
+      editFields: bindFields(editFields),
     };
   };
 };

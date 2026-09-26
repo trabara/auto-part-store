@@ -20,6 +20,7 @@ export { ImageItem } from "./components/image-item";
 export { ImageUpload } from "./components/image-upload";
 export { MediaModal } from "./components/media-modal";
 export { MediaWidget } from "./components/media-widget";
+export { EntitySelect } from "./components/entity-select";
 export { useCreateMutation } from "./hooks/use-create-mutation";
 export { useDeleteMutation } from "./hooks/use-delete-mutation";
 export { useMediaMutations } from "./hooks/use-media";

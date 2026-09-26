@@ -104,6 +104,9 @@ async function transformFile(filePath) {
       },
       keepClassNames: true,
       baseUrl: pluginDir,
+      paths: {
+        "~/*": [`${pluginDir}/src/*`],
+      },
     },
   });
   return output.code;

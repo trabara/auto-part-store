@@ -9,7 +9,7 @@
  * // Generic primitive (no side effects)
  * const { mutate, isPending } = useMutation({
  *   mutationFn: (data) => sdk.repairRequests.create(data),
- *   invalidateKeys: [["repair-requests"]],
+ *   invalidateKeys: [["users"]],
  * })
  * ```
  *
@@ -20,8 +20,8 @@
  *   const navigate = useNavigate()
  *   return useMutation({
  *     mutationFn: (data) => sdk.repairRequests.create(data),
- *     invalidateKeys: [["repair-requests"]],
- *     onSuccess: () => { toast.success("Created"); navigate("/admin/repair-requests") },
+ *     invalidateKeys: [["users"]],
+ *     onSuccess: () => { toast.success("Created"); navigate("/admin/users") },
  *   })
  * }
  * ```

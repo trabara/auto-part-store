@@ -59,7 +59,7 @@ export type UsePageQueryReturn<T extends { id: string }> = [
  * ```tsx
  * const { data, pagination, setPagination, sorting, setSorting } = usePageQuery({
  *   queryKey: "fitments",
- *   endpoint: "/admin/vehicles",
+ *   endpoint: "/admin/automotive/vehicles",
  *   fields: "*engine,*model,*model.make",
  *   queryFn: (params) => sdk.client.fetch(endpoint, { query: params })
  * });

@@ -51,6 +51,7 @@
       "cache": false
     },
     "medusa:db:migrate": {
+      "dependsOn": ["^build"],
       "cache": false
     },
     "medusa:db:generate": {

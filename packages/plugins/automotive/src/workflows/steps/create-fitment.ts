@@ -5,7 +5,7 @@ import {
   FITMENT_MODULE,
   type FitmentModuleService,
 } from "../../modules/fitment";
-import { CreateVehicleInput } from "../../modules/fitment/dto";
+import { CreateVehicleInput } from "../../modules/fitment/dtos/vehicle";
 
 type CreateFitmentStepInput = {
   fitments: CreateVehicleInput[];

@@ -1,3 +1,10 @@
 {
-  "extends": "@repo/config/ts/plugin.json"
+  "extends": "@repo/config/ts/plugin.json",
+  "compilerOptions": {
+    "paths": {
+      "~/*": [
+        "./src/*"
+      ]
+    }
+  }
 }

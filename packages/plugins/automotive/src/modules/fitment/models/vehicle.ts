@@ -1,8 +1,12 @@
+import { InferEntityType } from "@medusajs/framework/types";
 import { DmlEntity } from "@medusajs/framework/utils";
 import { createModel, InferDmlSchema, ref } from "@repo/orm";
-import { VehicleSchema } from "../schemas/vehicle";
-import { VehicleEngineEntity } from "./engine";
-import { VehicleModelEntity } from "./model";
+import {
+  VehicleEngineSchema,
+  VehicleMakeSchema,
+  VehicleModelSchema,
+  VehicleSchema,
+} from "../schemas/vehicle";
 
 type VehicleRels = {
   model: { kind: "belongsTo"; model: () => VehicleModelEntity };
@@ -10,20 +14,11 @@ type VehicleRels = {
 };
 
 export type VehicleEntity = DmlEntity<
-  InferDmlSchema<
-    typeof VehicleSchema,
-    // { model: "model_id"; engine: "engine_id" },
-    Record<string, never>,
-    VehicleRels
-  >,
+  InferDmlSchema<typeof VehicleSchema, Record<string, never>, VehicleRels>,
   string
 >;
 
 export const Vehicle: VehicleEntity = createModel("Vehicle", VehicleSchema, {
-  // flatRelations: {
-  //   model: "model_id",
-  //   engine: "engine_id",
-  // },
   relationships: {
     engine: {
       kind: "belongsTo",
@@ -58,3 +53,99 @@ export const Vehicle: VehicleEntity = createModel("Vehicle", VehicleSchema, {
     },
   ],
 });
+
+export type VehicleMakeEntity = DmlEntity<
+  InferDmlSchema<typeof VehicleMakeSchema>,
+  string
+>;
+
+type VehicleModelRels = {
+  make: { kind: "belongsTo"; model: () => VehicleMakeEntity };
+  vehicles: { kind: "hasMany"; model: () => VehicleEntity };
+};
+
+export type VehicleModelEntity = DmlEntity<
+  InferDmlSchema<
+    typeof VehicleModelSchema,
+    Record<string, never>,
+    VehicleModelRels
+  >,
+  string
+>;
+
+export type VehicleModelDml = InferEntityType<VehicleModelEntity>;
+
+export const VehicleModel: VehicleModelEntity = createModel(
+  "VehicleModel",
+  VehicleModelSchema,
+  {
+    relationships: {
+      make: {
+        kind: "belongsTo",
+        model: ref<VehicleMakeEntity>("VehicleMake"),
+        options: { mappedBy: "models" },
+      },
+      vehicles: {
+        kind: "hasMany",
+        model: ref<VehicleEntity>("Vehicle"),
+        options: { mappedBy: "model" },
+      },
+    },
+    indexes: [
+      {
+        name: "vehicle_model_name_unique",
+        on: ["name"],
+        unique: true,
+      },
+    ],
+  },
+);
+
+export const VehicleMake: VehicleMakeEntity = createModel(
+  "VehicleMake",
+  VehicleMakeSchema,
+  {
+    relationships: {
+      models: {
+        kind: "hasMany",
+        model: ref<VehicleModelEntity>("VehicleModel"),
+        options: { mappedBy: "make" },
+      },
+    },
+    indexes: [
+      {
+        name: "vehicle_make_name_unique",
+        on: ["name"],
+        unique: true,
+      },
+    ],
+  },
+);
+
+export type VehicleEngineEntity = DmlEntity<
+  InferDmlSchema<typeof VehicleEngineSchema>,
+  string
+>;
+
+export type VehicleEngineDml = InferEntityType<VehicleEngineEntity>;
+
+export const VehicleEngine: VehicleEngineEntity = createModel(
+  "VehicleEngine",
+  VehicleEngineSchema,
+  {
+    relationships: {
+      vehicles: {
+        kind: "hasMany",
+        model: ref<VehicleEntity>("Vehicle"),
+        options: { mappedBy: "engine" },
+      },
+    },
+    indexes: [
+      {
+        name: "vehicle_engine_unique",
+        on: ["fuel", "type", "size", "power"],
+        unique: true,
+      },
+    ],
+  },
+);

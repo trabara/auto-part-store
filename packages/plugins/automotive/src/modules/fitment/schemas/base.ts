@@ -1,10 +1,17 @@
 import { z } from "@medusajs/framework/zod";
 
+const process = (v) => {
+  if (typeof v === "string") {
+    return new Date(v);
+  }
+  return v;
+};
+
 export const BaseSchema = z.object({
-  id: z.string().min(1),
-  created_at: z.union([z.string().datetime(), z.date()]).optional(),
-  updated_at: z.union([z.string().datetime(), z.date()]).optional(),
-  deleted_at: z.union([z.string().datetime(), z.date()]).optional(),
+  id: z.string(),
+  created_at: z.preprocess(process, z.date().nullable()),
+  updated_at: z.preprocess(process, z.date().nullable()),
+  deleted_at: z.preprocess(process, z.date().nullable()),
 });
 
 type BaseMaskType = {

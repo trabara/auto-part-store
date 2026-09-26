@@ -1,5 +1,5 @@
 import { QueryContext } from "@medusajs/framework/utils";
-import { ProductOptionValueFilter } from "../dto";
+import { ProductOptionValueFilter } from "../dtos/vehicle";
 
 // The entry point string for the product↔fitment link table.
 // Kept as a constant to avoid a circular dependency with @repo/automotive-plugin.

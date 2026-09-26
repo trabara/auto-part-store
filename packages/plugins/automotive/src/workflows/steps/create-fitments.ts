@@ -1,6 +1,6 @@
 import { createStep, StepResponse } from "@medusajs/framework/workflows-sdk";
 import { FITMENT_MODULE, FitmentModuleService } from "../../modules/fitment";
-import { CreateVehicleInput } from "../../modules/fitment/dto";
+import { CreateVehicleInput } from "../../modules/fitment/dtos/vehicle";
 
 export const createFitmentsStep = createStep(
   "create-fitments-step",

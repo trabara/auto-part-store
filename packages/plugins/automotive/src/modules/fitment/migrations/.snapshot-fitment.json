@@ -11,8 +11,15 @@
           "type": "text",
           "unsigned": false,
           "autoincrement": false,
-          "primary": false,
+          "primary": true,
           "nullable": false,
+          "unique": false,
+          "length": null,
+          "precision": null,
+          "scale": null,
+          "default": null,
+          "comment": null,
+          "enumItems": [],
           "mappedType": "text"
         },
         "fuel": {
@@ -22,7 +29,12 @@
           "autoincrement": false,
           "primary": false,
           "nullable": false,
+          "unique": false,
+          "length": null,
+          "precision": null,
+          "scale": null,
           "default": "'GASOLINE'",
+          "comment": null,
           "enumItems": [
             "GASOLINE",
             "DIESEL",
@@ -38,7 +50,12 @@
           "autoincrement": false,
           "primary": false,
           "nullable": false,
-          "default": "'I4'",
+          "unique": false,
+          "length": null,
+          "precision": null,
+          "scale": null,
+          "default": "'ELECTRIC'",
+          "comment": null,
           "enumItems": [
             "I4",
             "V4",
@@ -56,16 +73,45 @@
           "autoincrement": false,
           "primary": false,
           "nullable": false,
+          "unique": false,
+          "length": null,
+          "precision": null,
+          "scale": null,
           "default": "'1.0'",
+          "comment": null,
+          "enumItems": [],
           "mappedType": "text"
         },
-        "tech": {
-          "name": "tech",
+        "power": {
+          "name": "power",
+          "type": "integer",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "unique": false,
+          "length": null,
+          "precision": null,
+          "scale": null,
+          "default": null,
+          "comment": null,
+          "enumItems": [],
+          "mappedType": "integer"
+        },
+        "name": {
+          "name": "name",
           "type": "text",
           "unsigned": false,
           "autoincrement": false,
           "primary": false,
           "nullable": true,
+          "unique": false,
+          "length": null,
+          "precision": null,
+          "scale": null,
+          "default": null,
+          "comment": null,
+          "enumItems": [],
           "mappedType": "text"
         },
         "created_at": {
@@ -75,8 +121,13 @@
           "autoincrement": false,
           "primary": false,
           "nullable": false,
+          "unique": false,
           "length": 6,
+          "precision": null,
+          "scale": null,
           "default": "now()",
+          "comment": null,
+          "enumItems": [],
           "mappedType": "datetime"
         },
         "updated_at": {
@@ -86,8 +137,13 @@
           "autoincrement": false,
           "primary": false,
           "nullable": false,
+          "unique": false,
           "length": 6,
+          "precision": null,
+          "scale": null,
           "default": "now()",
+          "comment": null,
+          "enumItems": [],
           "mappedType": "datetime"
         },
         "deleted_at": {
@@ -97,33 +153,39 @@
           "autoincrement": false,
           "primary": false,
           "nullable": true,
+          "unique": false,
           "length": 6,
+          "precision": null,
+          "scale": null,
+          "default": null,
+          "comment": null,
+          "enumItems": [],
           "mappedType": "datetime"
         }
       },
-      "name": "fitment_engine",
+      "name": "vehicle_engine",
       "schema": "public",
       "indexes": [
         {
-          "keyName": "IDX_fitment_engine_deleted_at",
+          "keyName": "IDX_vehicle_engine_deleted_at",
           "columnNames": [],
           "composite": false,
           "constraint": false,
           "primary": false,
           "unique": false,
-          "expression": "CREATE INDEX IF NOT EXISTS \"IDX_fitment_engine_deleted_at\" ON \"fitment_engine\" (\"deleted_at\") WHERE deleted_at IS NULL"
+          "expression": "CREATE INDEX IF NOT EXISTS \"IDX_vehicle_engine_deleted_at\" ON \"vehicle_engine\" (\"deleted_at\") WHERE deleted_at IS NULL"
         },
         {
-          "keyName": "fitment_engine_unique",
+          "keyName": "vehicle_engine_unique",
           "columnNames": [],
           "composite": false,
           "constraint": false,
           "primary": false,
           "unique": false,
-          "expression": "CREATE UNIQUE INDEX IF NOT EXISTS \"fitment_engine_unique\" ON \"fitment_engine\" (\"fuel\", \"type\", \"size\", \"tech\") WHERE deleted_at IS NULL"
+          "expression": "CREATE UNIQUE INDEX IF NOT EXISTS \"vehicle_engine_unique\" ON \"vehicle_engine\" (\"fuel\", \"type\", \"size\", \"power\") WHERE deleted_at IS NULL"
         },
         {
-          "keyName": "fitment_engine_pkey",
+          "keyName": "vehicle_engine_pkey",
           "columnNames": [
             "id"
           ],
@@ -144,8 +206,15 @@
           "type": "text",
           "unsigned": false,
           "autoincrement": false,
-          "primary": false,
+          "primary": true,
           "nullable": false,
+          "unique": false,
+          "length": null,
+          "precision": null,
+          "scale": null,
+          "default": null,
+          "comment": null,
+          "enumItems": [],
           "mappedType": "text"
         },
         "name": {
@@ -155,6 +224,29 @@
           "autoincrement": false,
           "primary": false,
           "nullable": false,
+          "unique": false,
+          "length": null,
+          "precision": null,
+          "scale": null,
+          "default": null,
+          "comment": null,
+          "enumItems": [],
+          "mappedType": "text"
+        },
+        "slug": {
+          "name": "slug",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "unique": false,
+          "length": null,
+          "precision": null,
+          "scale": null,
+          "default": null,
+          "comment": null,
+          "enumItems": [],
           "mappedType": "text"
         },
         "created_at": {
@@ -164,8 +256,13 @@
           "autoincrement": false,
           "primary": false,
           "nullable": false,
+          "unique": false,
           "length": 6,
+          "precision": null,
+          "scale": null,
           "default": "now()",
+          "comment": null,
+          "enumItems": [],
           "mappedType": "datetime"
         },
         "updated_at": {
@@ -175,8 +272,13 @@
           "autoincrement": false,
           "primary": false,
           "nullable": false,
+          "unique": false,
           "length": 6,
+          "precision": null,
+          "scale": null,
           "default": "now()",
+          "comment": null,
+          "enumItems": [],
           "mappedType": "datetime"
         },
         "deleted_at": {
@@ -186,33 +288,39 @@
           "autoincrement": false,
           "primary": false,
           "nullable": true,
+          "unique": false,
           "length": 6,
+          "precision": null,
+          "scale": null,
+          "default": null,
+          "comment": null,
+          "enumItems": [],
           "mappedType": "datetime"
         }
       },
-      "name": "fitment_make",
+      "name": "vehicle_make",
       "schema": "public",
       "indexes": [
         {
-          "keyName": "IDX_fitment_make_deleted_at",
+          "keyName": "IDX_vehicle_make_deleted_at",
           "columnNames": [],
           "composite": false,
           "constraint": false,
           "primary": false,
           "unique": false,
-          "expression": "CREATE INDEX IF NOT EXISTS \"IDX_fitment_make_deleted_at\" ON \"fitment_make\" (\"deleted_at\") WHERE deleted_at IS NULL"
+          "expression": "CREATE INDEX IF NOT EXISTS \"IDX_vehicle_make_deleted_at\" ON \"vehicle_make\" (\"deleted_at\") WHERE deleted_at IS NULL"
         },
         {
-          "keyName": "fitment_make_name_unique",
+          "keyName": "vehicle_make_name_unique",
           "columnNames": [],
           "composite": false,
           "constraint": false,
           "primary": false,
           "unique": false,
-          "expression": "CREATE UNIQUE INDEX IF NOT EXISTS \"fitment_make_name_unique\" ON \"fitment_make\" (\"name\") WHERE deleted_at IS NULL"
+          "expression": "CREATE UNIQUE INDEX IF NOT EXISTS \"vehicle_make_name_unique\" ON \"vehicle_make\" (\"name\") WHERE deleted_at IS NULL"
         },
         {
-          "keyName": "fitment_make_pkey",
+          "keyName": "vehicle_make_pkey",
           "columnNames": [
             "id"
           ],
@@ -233,8 +341,15 @@
           "type": "text",
           "unsigned": false,
           "autoincrement": false,
-          "primary": false,
+          "primary": true,
           "nullable": false,
+          "unique": false,
+          "length": null,
+          "precision": null,
+          "scale": null,
+          "default": null,
+          "comment": null,
+          "enumItems": [],
           "mappedType": "text"
         },
         "name": {
@@ -244,6 +359,29 @@
           "autoincrement": false,
           "primary": false,
           "nullable": false,
+          "unique": false,
+          "length": null,
+          "precision": null,
+          "scale": null,
+          "default": null,
+          "comment": null,
+          "enumItems": [],
+          "mappedType": "text"
+        },
+        "slug": {
+          "name": "slug",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "unique": false,
+          "length": null,
+          "precision": null,
+          "scale": null,
+          "default": null,
+          "comment": null,
+          "enumItems": [],
           "mappedType": "text"
         },
         "make_id": {
@@ -253,6 +391,13 @@
           "autoincrement": false,
           "primary": false,
           "nullable": false,
+          "unique": false,
+          "length": null,
+          "precision": null,
+          "scale": null,
+          "default": null,
+          "comment": null,
+          "enumItems": [],
           "mappedType": "text"
         },
         "created_at": {
@@ -262,8 +407,13 @@
           "autoincrement": false,
           "primary": false,
           "nullable": false,
+          "unique": false,
           "length": 6,
+          "precision": null,
+          "scale": null,
           "default": "now()",
+          "comment": null,
+          "enumItems": [],
           "mappedType": "datetime"
         },
         "updated_at": {
@@ -273,8 +423,13 @@
           "autoincrement": false,
           "primary": false,
           "nullable": false,
+          "unique": false,
           "length": 6,
+          "precision": null,
+          "scale": null,
           "default": "now()",
+          "comment": null,
+          "enumItems": [],
           "mappedType": "datetime"
         },
         "deleted_at": {
@@ -284,42 +439,48 @@
           "autoincrement": false,
           "primary": false,
           "nullable": true,
+          "unique": false,
           "length": 6,
+          "precision": null,
+          "scale": null,
+          "default": null,
+          "comment": null,
+          "enumItems": [],
           "mappedType": "datetime"
         }
       },
-      "name": "fitment_model",
+      "name": "vehicle_model",
       "schema": "public",
       "indexes": [
         {
-          "keyName": "IDX_fitment_model_make_id",
+          "keyName": "IDX_vehicle_model_make_id",
           "columnNames": [],
           "composite": false,
           "constraint": false,
           "primary": false,
           "unique": false,
-          "expression": "CREATE INDEX IF NOT EXISTS \"IDX_fitment_model_make_id\" ON \"fitment_model\" (\"make_id\") WHERE deleted_at IS NULL"
+          "expression": "CREATE INDEX IF NOT EXISTS \"IDX_vehicle_model_make_id\" ON \"vehicle_model\" (\"make_id\") WHERE deleted_at IS NULL"
         },
         {
-          "keyName": "IDX_fitment_model_deleted_at",
+          "keyName": "IDX_vehicle_model_deleted_at",
           "columnNames": [],
           "composite": false,
           "constraint": false,
           "primary": false,
           "unique": false,
-          "expression": "CREATE INDEX IF NOT EXISTS \"IDX_fitment_model_deleted_at\" ON \"fitment_model\" (\"deleted_at\") WHERE deleted_at IS NULL"
+          "expression": "CREATE INDEX IF NOT EXISTS \"IDX_vehicle_model_deleted_at\" ON \"vehicle_model\" (\"deleted_at\") WHERE deleted_at IS NULL"
         },
         {
-          "keyName": "fitment_model_name_unique",
+          "keyName": "vehicle_model_name_unique",
           "columnNames": [],
           "composite": false,
           "constraint": false,
           "primary": false,
           "unique": false,
-          "expression": "CREATE UNIQUE INDEX IF NOT EXISTS \"fitment_model_name_unique\" ON \"fitment_model\" (\"name\") WHERE deleted_at IS NULL"
+          "expression": "CREATE UNIQUE INDEX IF NOT EXISTS \"vehicle_model_name_unique\" ON \"vehicle_model\" (\"name\") WHERE deleted_at IS NULL"
         },
         {
-          "keyName": "fitment_model_pkey",
+          "keyName": "vehicle_model_pkey",
           "columnNames": [
             "id"
           ],
@@ -331,16 +492,16 @@
       ],
       "checks": [],
       "foreignKeys": {
-        "fitment_model_make_id_foreign": {
-          "constraintName": "fitment_model_make_id_foreign",
+        "vehicle_model_make_id_foreign": {
+          "constraintName": "vehicle_model_make_id_foreign",
           "columnNames": [
             "make_id"
           ],
-          "localTableName": "public.fitment_model",
+          "localTableName": "public.vehicle_model",
           "referencedColumnNames": [
             "id"
           ],
-          "referencedTableName": "public.fitment_make",
+          "referencedTableName": "public.vehicle_make",
           "updateRule": "cascade"
         }
       },
@@ -353,8 +514,15 @@
           "type": "text",
           "unsigned": false,
           "autoincrement": false,
-          "primary": false,
+          "primary": true,
           "nullable": false,
+          "unique": false,
+          "length": null,
+          "precision": null,
+          "scale": null,
+          "default": null,
+          "comment": null,
+          "enumItems": [],
           "mappedType": "text"
         },
         "body_style": {
@@ -364,7 +532,12 @@
           "autoincrement": false,
           "primary": false,
           "nullable": false,
+          "unique": false,
+          "length": null,
+          "precision": null,
+          "scale": null,
           "default": "'SEDAN'",
+          "comment": null,
           "enumItems": [
             "SEDAN",
             "SUV",
@@ -384,7 +557,13 @@
           "autoincrement": false,
           "primary": false,
           "nullable": false,
+          "unique": false,
+          "length": null,
+          "precision": null,
+          "scale": null,
           "default": "4",
+          "comment": null,
+          "enumItems": [],
           "mappedType": "integer"
         },
         "drive": {
@@ -394,7 +573,12 @@
           "autoincrement": false,
           "primary": false,
           "nullable": false,
+          "unique": false,
+          "length": null,
+          "precision": null,
+          "scale": null,
           "default": "'FWD'",
+          "comment": null,
           "enumItems": [
             "FWD",
             "RWD",
@@ -410,7 +594,12 @@
           "autoincrement": false,
           "primary": false,
           "nullable": false,
+          "unique": false,
+          "length": null,
+          "precision": null,
+          "scale": null,
           "default": "'MANUAL'",
+          "comment": null,
           "enumItems": [
             "MANUAL",
             "AUTOMATIC",
@@ -425,6 +614,13 @@
           "autoincrement": false,
           "primary": false,
           "nullable": false,
+          "unique": false,
+          "length": null,
+          "precision": null,
+          "scale": null,
+          "default": null,
+          "comment": null,
+          "enumItems": [],
           "mappedType": "integer"
         },
         "year_end": {
@@ -434,6 +630,13 @@
           "autoincrement": false,
           "primary": false,
           "nullable": true,
+          "unique": false,
+          "length": null,
+          "precision": null,
+          "scale": null,
+          "default": null,
+          "comment": null,
+          "enumItems": [],
           "mappedType": "integer"
         },
         "model_id": {
@@ -443,6 +646,13 @@
           "autoincrement": false,
           "primary": false,
           "nullable": false,
+          "unique": false,
+          "length": null,
+          "precision": null,
+          "scale": null,
+          "default": null,
+          "comment": null,
+          "enumItems": [],
           "mappedType": "text"
         },
         "engine_id": {
@@ -452,6 +662,13 @@
           "autoincrement": false,
           "primary": false,
           "nullable": false,
+          "unique": false,
+          "length": null,
+          "precision": null,
+          "scale": null,
+          "default": null,
+          "comment": null,
+          "enumItems": [],
           "mappedType": "text"
         },
         "created_at": {
@@ -461,8 +678,13 @@
           "autoincrement": false,
           "primary": false,
           "nullable": false,
+          "unique": false,
           "length": 6,
+          "precision": null,
+          "scale": null,
           "default": "now()",
+          "comment": null,
+          "enumItems": [],
           "mappedType": "datetime"
         },
         "updated_at": {
@@ -472,8 +694,13 @@
           "autoincrement": false,
           "primary": false,
           "nullable": false,
+          "unique": false,
           "length": 6,
+          "precision": null,
+          "scale": null,
           "default": "now()",
+          "comment": null,
+          "enumItems": [],
           "mappedType": "datetime"
         },
         "deleted_at": {
@@ -483,51 +710,57 @@
           "autoincrement": false,
           "primary": false,
           "nullable": true,
+          "unique": false,
           "length": 6,
+          "precision": null,
+          "scale": null,
+          "default": null,
+          "comment": null,
+          "enumItems": [],
           "mappedType": "datetime"
         }
       },
-      "name": "fitment",
+      "name": "vehicle",
       "schema": "public",
       "indexes": [
         {
-          "keyName": "IDX_fitment_model_id",
+          "keyName": "IDX_vehicle_model_id",
           "columnNames": [],
           "composite": false,
           "constraint": false,
           "primary": false,
           "unique": false,
-          "expression": "CREATE INDEX IF NOT EXISTS \"IDX_fitment_model_id\" ON \"fitment\" (\"model_id\") WHERE deleted_at IS NULL"
+          "expression": "CREATE INDEX IF NOT EXISTS \"IDX_vehicle_model_id\" ON \"vehicle\" (\"model_id\") WHERE deleted_at IS NULL"
         },
         {
-          "keyName": "IDX_fitment_engine_id",
+          "keyName": "IDX_vehicle_engine_id",
           "columnNames": [],
           "composite": false,
           "constraint": false,
           "primary": false,
           "unique": false,
-          "expression": "CREATE INDEX IF NOT EXISTS \"IDX_fitment_engine_id\" ON \"fitment\" (\"engine_id\") WHERE deleted_at IS NULL"
+          "expression": "CREATE INDEX IF NOT EXISTS \"IDX_vehicle_engine_id\" ON \"vehicle\" (\"engine_id\") WHERE deleted_at IS NULL"
         },
         {
-          "keyName": "IDX_fitment_deleted_at",
+          "keyName": "IDX_vehicle_deleted_at",
           "columnNames": [],
           "composite": false,
           "constraint": false,
           "primary": false,
           "unique": false,
-          "expression": "CREATE INDEX IF NOT EXISTS \"IDX_fitment_deleted_at\" ON \"fitment\" (\"deleted_at\") WHERE deleted_at IS NULL"
+          "expression": "CREATE INDEX IF NOT EXISTS \"IDX_vehicle_deleted_at\" ON \"vehicle\" (\"deleted_at\") WHERE deleted_at IS NULL"
         },
         {
-          "keyName": "IDX_fitment_model_id_engine_id_body_style_doors_drive_transmission_year_start_year_end_unique",
+          "keyName": "IDX_vehicle_model_id_engine_id_body_style_doors_drive_transmission_year_start_year_end_unique",
           "columnNames": [],
           "composite": false,
           "constraint": false,
           "primary": false,
           "unique": false,
-          "expression": "CREATE UNIQUE INDEX IF NOT EXISTS \"IDX_fitment_model_id_engine_id_body_style_doors_drive_transmission_year_start_year_end_unique\" ON \"fitment\" (\"model_id\", \"engine_id\", \"body_style\", \"doors\", \"drive\", \"transmission\", \"year_start\", \"year_end\") WHERE deleted_at IS NULL"
+          "expression": "CREATE UNIQUE INDEX IF NOT EXISTS \"IDX_vehicle_model_id_engine_id_body_style_doors_drive_transmission_year_start_year_end_unique\" ON \"vehicle\" (\"model_id\", \"engine_id\", \"body_style\", \"doors\", \"drive\", \"transmission\", \"year_start\", \"year_end\") WHERE deleted_at IS NULL"
         },
         {
-          "keyName": "fitment_pkey",
+          "keyName": "vehicle_pkey",
           "columnNames": [
             "id"
           ],
@@ -537,36 +770,30 @@
           "unique": true
         }
       ],
-      "checks": [
-        {
-          "name": "year_range_check",
-          "expression": "year_end IS NULL OR year_end >= year_start",
-          "definition": "check ((year_end IS NULL OR year_end >= year_start))"
-        }
-      ],
+      "checks": [],
       "foreignKeys": {
-        "fitment_model_id_foreign": {
-          "constraintName": "fitment_model_id_foreign",
+        "vehicle_model_id_foreign": {
+          "constraintName": "vehicle_model_id_foreign",
           "columnNames": [
             "model_id"
           ],
-          "localTableName": "public.fitment",
+          "localTableName": "public.vehicle",
           "referencedColumnNames": [
             "id"
           ],
-          "referencedTableName": "public.fitment_model",
+          "referencedTableName": "public.vehicle_model",
           "updateRule": "cascade"
         },
-        "fitment_engine_id_foreign": {
-          "constraintName": "fitment_engine_id_foreign",
+        "vehicle_engine_id_foreign": {
+          "constraintName": "vehicle_engine_id_foreign",
           "columnNames": [
             "engine_id"
           ],
-          "localTableName": "public.fitment",
+          "localTableName": "public.vehicle",
           "referencedColumnNames": [
             "id"
           ],
-          "referencedTableName": "public.fitment_engine",
+          "referencedTableName": "public.vehicle_engine",
           "updateRule": "cascade"
         }
       },

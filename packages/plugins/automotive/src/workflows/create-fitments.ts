@@ -4,7 +4,7 @@ import {
   when,
   WorkflowResponse,
 } from "@medusajs/framework/workflows-sdk";
-import { CreateVehicleInput } from "../modules/fitment/dto";
+import { CreateVehicleInput } from "../modules/fitment/dtos/vehicle";
 import { createFitmentsStep } from "./steps/create-fitments";
 import { linkFitmentsToProductStep } from "./steps/link-fitments-to-product";
 

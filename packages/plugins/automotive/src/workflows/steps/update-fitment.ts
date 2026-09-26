@@ -1,6 +1,6 @@
 import { createStep, StepResponse } from "@medusajs/framework/workflows-sdk";
 import { FITMENT_MODULE, FitmentModuleService } from "../../modules/fitment";
-import { UpdateVehicleInput } from "../../modules/fitment/dto";
+import { UpdateVehicleInput } from "../../modules/fitment/dtos/vehicle";
 
 export const updateFitmentStep = createStep(
   "update-fitment-step",
@@ -18,7 +18,7 @@ export const updateFitmentStep = createStep(
       id: input.id,
       originalData: {
         model_id: originalFitment.model_id,
-        engine_id: originalFitment.engine_id,
+        // engine_id: originalFitment.engine_id,
         body_style: originalFitment.body_style,
         doors: originalFitment.doors,
         drive: originalFitment.drive,

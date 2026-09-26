@@ -35,9 +35,9 @@
     "medusa-v2"
   ],
   "scripts": {
-    "build": "medusa plugin:build",
-    "dev": "plugin-dev-watch . ../../../../apps/backend",
-    "dev:init": "plugin-dev-init .",
+    "build": "medusa plugin:build && tsc-alias -p tsconfig.json",
+    "dev": "plugin-dev-watch . ../../../apps/backend",
+    "dev:init": "plugin-dev-init . && tsc-alias -p tsconfig.json",
     "prepublishOnly": "medusa plugin:build",
     "lint": "eslint .",
     "check-types": "tsc --noEmit",

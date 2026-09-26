@@ -44,11 +44,11 @@ export function getSelectedProducts<
  *   hasUnlinkedSelected
  * } = useProductLinkage({
  *   fitmentId: "fit_123",
- *   linkFn: (ids) => sdk.client.fetch(`/admin/vehicles/${fitmentId}/products`, {
+ *   linkFn: (ids) => sdk.client.fetch(`/admin/automotive/vehicles/${fitmentId}/products`, {
  *     method: "POST",
  *     body: { product_ids: ids }
  *   }),
- *   unlinkFn: (id) => sdk.client.fetch(`/admin/vehicles/${fitmentId}/products/${id}`, {
+ *   unlinkFn: (id) => sdk.client.fetch(`/admin/automotive/vehicles/${fitmentId}/products/${id}`, {
  *     method: "DELETE"
  *   })
  * });
@@ -56,7 +56,7 @@ export function getSelectedProducts<
  */
 const unlink = async (fitmentId: string, productId: string) => {
   return sdk.client.fetch(
-    `/admin/vehicles/${fitmentId}/products/${productId}`,
+    `/admin/automotive/vehicles/${fitmentId}/products/${productId}`,
     {
       method: "DELETE",
     },
@@ -64,7 +64,7 @@ const unlink = async (fitmentId: string, productId: string) => {
 };
 
 const link = async (fitmentId: string, productIds: string[]) => {
-  return sdk.client.fetch(`/admin/vehicles/${fitmentId}/products`, {
+  return sdk.client.fetch(`/admin/automotive/vehicles/${fitmentId}/products`, {
     method: "POST",
     body: { product_ids: productIds },
   });

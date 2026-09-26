@@ -492,7 +492,7 @@ function zodQueryResolveInternal(
       if (!field) return ""
 
       const info = getZodFieldInfo(field)
-      const nestedQuery = query ? `${query}.${key}` : `+${key}`
+      const nestedQuery = query ? `${query}.${key}` : `${key}`
       const unwrappedDef = (info.unwrapped as unknown as { _def: ZodDef })._def
 
       if (info.baseType === "object") {

@@ -1,6 +1,6 @@
 import { toast, usePrompt } from "@medusajs/ui"
 import { useMutation as useGenericMutation } from "./use-mutation"
-import { classifyErrorCode, getErrorMessage, parseApiError } from "../lib/utils/api-error"
+import { classifyErrorCode, getErrorMessage, parseApiError } from "../utils/api-error"
 
 /**
  * Configuration for delete mutations

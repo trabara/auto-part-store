@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query"
-import { Media, UploadedFile } from "../lib/types"
+import { Media, UploadedFile } from "../types"
 import { useSdk } from "../provider/sdk-provider"
 
 type UseMediaMutationsProps = {

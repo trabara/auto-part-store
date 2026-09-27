@@ -59,10 +59,10 @@ export {
   setOnErrorBehavior,
   setTranslationFunction,
   setupForm,
-} from "./lib/registry";
+} from "./registry";
 
-export { createZodDataTableColumnDef } from "./lib/helpers/create-zod-columns";
-export * from "./lib/helpers";
+export { createZodDataTableColumnDef } from "./helpers/create-zod-columns";
+export * from "./helpers";
 
 export {
   classifyErrorCode,
@@ -70,7 +70,7 @@ export {
   getFieldErrors,
   isErrorCode,
   parseApiError,
-} from "./lib/utils/api-error";
+} from "./utils/api-error";
 
 export {
   applyEmptyValueOverrides,
@@ -81,7 +81,7 @@ export {
   initializeDefaultValues,
   normalizeDateToISO,
   resolveFieldType,
-} from "./lib/utils";
+} from "./utils";
 
 export type {
   ActionConfig,
@@ -122,4 +122,4 @@ export type {
   StepConfig,
   SubmitButtonProps,
   ToolbarAction,
-} from "./lib/types";
+} from "./types";

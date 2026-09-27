@@ -3,7 +3,7 @@ import { Button, DropdownMenu, IconButton } from "@medusajs/ui"
 import { CellContext } from "@tanstack/react-table"
 import React from "react"
 import { FieldValues } from "react-hook-form"
-import { RowAction } from "../lib/types"
+import { RowAction } from "../types"
 
 export const ActionCell = <TData extends FieldValues, TValue>({
   info,

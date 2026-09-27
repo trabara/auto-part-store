@@ -8,7 +8,7 @@ import { useQuery, UseQueryOptions } from "@tanstack/react-query";
 import { isUndefined, keys, omitBy } from "lodash";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import { QueryFn, SelectFn } from "../lib/types";
+import { QueryFn, SelectFn } from "../types";
 
 /**
  * Turns the hook's search/sort/page/filter state into a URLSearchParams

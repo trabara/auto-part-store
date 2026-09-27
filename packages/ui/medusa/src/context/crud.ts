@@ -1,10 +1,10 @@
 import { createContext, useContext } from "react";
-import { CrudConfig } from "../lib/types";
+import { EntityConfig } from "../types";
 
 type MedusaCrudContext<TData = unknown> = {
-  config: CrudConfig<any, any, any>;
-  data: TData;
-  setData: (data: Partial<TData>) => void;
+  config: EntityConfig<any, any, any, any>;
+  details: TData;
+  setDetails: (data: Partial<TData>) => void;
 };
 
 export const MedusaCrudContext = createContext<MedusaCrudContext | null>(null);

@@ -5,16 +5,18 @@ import { Form } from "../components/form";
 import { useUpdateMutation } from "../hooks/use-update-mutation";
 import { useSdk } from "../provider/sdk-provider";
 import { useMedusaCrud } from "../context/crud";
+import _ from "lodash";
 
 const MedusaEditPage = <T extends { id: string }>() => {
   const sdk = useSdk();
-  const { config, data } = useMedusaCrud<T>();
+  const { config, details } = useMedusaCrud<T>();
   const { t } = useTranslation();
   const navigate = useNavigate();
 
+  const name = _.startCase(config.entity);
   const dispose = () => {
-    if (data?.id) {
-      navigate(`${config.path}/${data.id}`);
+    if (details?.id) {
+      navigate(`${config.path}/${details.id}`);
     } else {
       navigate(`${config.path}`);
     }
@@ -28,8 +30,8 @@ const MedusaEditPage = <T extends { id: string }>() => {
 
   const mutation = useUpdateMutation({
     invalidateKeys: [config.path],
-    errorMessage: `Failed to update ${config.name}`,
-    successMessage: `Successfully updated ${config.name}`,
+    errorMessage: `Failed to update ${name}`,
+    successMessage: `Successfully updated ${name}`,
     updateFn: (data) => updateAction(data),
     onSuccess: () => dispose(),
   });
@@ -39,13 +41,17 @@ const MedusaEditPage = <T extends { id: string }>() => {
     dispose();
   };
 
+  const { schema, fields } = config.update;
+
+  const overrideFields = typeof fields === "function" ? fields(t) : fields;
+
   return (
     <Drawer open={true} onOpenChange={() => dispose()}>
       <Drawer.Content>
         <Form
-          defaultValues={data}
-          schema={config.editSchema}
-          overrides={config.editFields}
+          defaultValues={details}
+          schema={schema}
+          overrides={overrideFields}
           onSubmit={handleSubmit}
           className="flex flex-col h-full"
         >
@@ -55,7 +61,7 @@ const MedusaEditPage = <T extends { id: string }>() => {
                 <Drawer.Header>
                   <Heading level="h2">
                     {t("common.edit")}{" "}
-                    <span className="capitalize">{config.name}</span>
+                    <span className="capitalize">{name}</span>
                   </Heading>
                   <Hint className="text-ui-fg-subtle text-sm mt-1"></Hint>
                 </Drawer.Header>
@@ -77,7 +83,7 @@ const MedusaEditPage = <T extends { id: string }>() => {
                     children: (
                       <>
                         {t("common.save")}{" "}
-                        <span className="capitalize">{config.name}</span>
+                        <span className="capitalize">{name}</span>
                       </>
                     ),
                   })}

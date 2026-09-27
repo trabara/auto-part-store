@@ -1,8 +1,8 @@
 import { useState } from "react"
 
-import { getChipClass, getRegisteredComponent } from "../lib/registry"
-import type { FieldOverride, SchemaFieldInfo } from "../lib/types"
-import { resolveFieldType } from "../lib/utils"
+import { getChipClass, getRegisteredComponent } from "../registry"
+import type { FieldOverride, SchemaFieldInfo } from "../types"
+import { resolveFieldType } from "../utils"
 import { FieldWrapper } from "./field-wrapper"
 import { FormControl } from "./form-provider"
 

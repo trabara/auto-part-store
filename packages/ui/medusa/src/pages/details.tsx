@@ -1,53 +1,85 @@
-import { zodQueryResolve } from "@repo/utils";
-import { useQuery } from "@tanstack/react-query";
+import { LayoutComposer } from "@medusajs/dashboard/components";
 import _ from "lodash";
-import { useSdk } from "../provider/sdk-provider";
+import { useEffect, useMemo } from "react";
+import { classifyValue, DetailsSection } from "../components/details-section";
+import { ManyRelationSection } from "../components/many-relation-section";
 import { useMedusaCrud } from "../context/crud";
 
 type DetailsPageProps = {
   id?: string;
-  mount?: string;
+  initialData?: any;
   children?: React.ReactNode;
 };
 
-const MedusaDetailsPage = ({ id, mount, children }: DetailsPageProps) => {
-  const { config, setData } = useMedusaCrud();
-  const sdk = useSdk();
+const MedusaDetailsPage = ({ initialData, children }: DetailsPageProps) => {
+  const { config, details, setDetails } = useMedusaCrud();
 
-  const result = useQuery<Record<string, any>>({
-    enabled: !!id,
-    queryKey: [config.path],
-    queryFn: async ({ signal }) => {
-      const result = await sdk.client.fetch<{
-        success: boolean;
-        data: Record<string, any>;
-      }>(`/admin${config.path}/${id}`, {
-        method: "GET",
-        signal,
-        query: {
-          fields: zodQueryResolve(config.entitySchema),
-        },
-      });
+  const { getTitle } = config.details;
 
-      const data = mount ? _.get(result, mount) : result.data;
-      setData(data || {});
-      return data;
-    },
-  });
+  const title = getTitle(initialData);
 
-  if (result.isLoading) {
-    return <div>Loading...</div>;
-  }
+  // Group the entity's own fields by data relationship: many -> a data
+  // table for the main column, one -> a details block for the side
+  // column, and plain scalar attributes -> the entity's own "General"
+  // details block, also in the side column. Runs unconditionally (before
+  // the early returns below) to respect the Rules of Hooks; `data` may
+  // still be undefined here while the query is loading.
+  const entities = useMemo(() => {
+    const scalar: [string, unknown][] = [];
+    const many: [string, Record<string, any>[]][] = [];
+    const one: [string, Record<string, any>][] = [];
 
-  if (result.isError) {
-    return <div>Error: {String(result.error)}</div>;
-  }
+    Object.entries(details ?? {}).forEach(([key, value]) => {
+      switch (classifyValue(value)) {
+        case "many":
+          many.push([key, value as Record<string, any>[]]);
+          break;
+        case "one":
+          one.push([key, value as Record<string, any>]);
+          break;
+        default:
+          scalar.push([key, value]);
+      }
+    });
 
-  if (!result.data) {
-    return <div>No data found</div>;
-  }
+    return { scalar, many, one };
+  }, [details]);
 
-  return <>{children}</>;
+  useEffect(() => {
+    setDetails(initialData);
+  }, []);
+
+  const mainSections = [
+    <DetailsSection key="__general" title={title} entries={entities.scalar} />,
+    ...entities.many.map(([key, rows]) => (
+      <ManyRelationSection key={key} title={_.startCase(key)} rows={rows} />
+    )),
+  ];
+
+  const sideSections = [
+    ...entities.one.map(([key, relation]) => (
+      <DetailsSection
+        key={key}
+        title={_.startCase(key)}
+        entries={Object.entries(relation ?? {})}
+      />
+    )),
+  ];
+
+  return (
+    <>
+      <LayoutComposer
+        data={details}
+        widgetsZonePrefix={`${config.entity}.details`}
+        preferredLayoutId="core:two-column"
+        sections={{
+          main: mainSections,
+          side: sideSections,
+        }}
+      />
+      {children}
+    </>
+  );
 };
 
 export default MedusaDetailsPage;

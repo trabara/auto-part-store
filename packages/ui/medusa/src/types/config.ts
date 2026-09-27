@@ -3,6 +3,7 @@ import { UseDataTableReturn } from "@medusajs/ui";
 import { CellContext, ColumnDefTemplate } from "@tanstack/react-table";
 import { FieldValues } from "react-hook-form";
 import { BaseFieldConfig, FieldOverrides } from "./form";
+import { TranslationFunction } from "../registry";
 
 export interface CellOverride<
   T = unknown,
@@ -74,20 +75,26 @@ export interface CreateConfig<T extends FieldValues> extends ActionConfig<T> {
 
 export interface EditConfig<T extends FieldValues> extends ActionConfig<T> {}
 
-export interface CrudConfig<
-  R extends FieldValues = {},
+export type EntityFieldConfigs<L extends FieldValues = {}> = (
+  t: TranslationFunction,
+) => MedusaFieldOverrides<L> | MedusaFieldOverrides<L>;
+
+export type EntityFeature<S extends FieldValues = {}> = {
+  getTitle: (data?: S) => string;
+  schema: z.ZodObject<S>;
+  fields?: EntityFieldConfigs<S>;
+};
+
+export type EntityConfig<
+  D extends FieldValues = {},
+  L extends FieldValues = {},
   C extends FieldValues = {},
   U extends FieldValues = {},
-> {
-  name: string;
+> = {
+  entity: string;
   path: string;
-  entitySchema: z.ZodObject;
-  listMount?: string;
-  listSchema: z.ZodObject<R>;
-  listFields: MedusaFieldOverrides<R>;
-  createSchema: z.ZodObject<C>;
-  createFields: MedusaFieldOverrides<C>;
-  createSteps?: StepConfig<C>[];
-  editSchema: z.ZodObject<U>;
-  editFields: MedusaFieldOverrides<U>;
-}
+  details: EntityFeature<D>;
+  list: EntityFeature<L>;
+  create: EntityFeature<C> & { steps?: StepConfig<C>[] };
+  update: EntityFeature<U>;
+};

@@ -2,7 +2,7 @@ import { ThumbnailBadge } from "@medusajs/icons"
 import { Container, Heading } from "@medusajs/ui"
 import { useQuery } from "@tanstack/react-query"
 import { useTranslation } from "react-i18next"
-import { Media } from "../lib/types"
+import { Media } from "../types"
 import { MediaModal } from "./media-modal"
 import { useSdk } from "../provider/sdk-provider"
 

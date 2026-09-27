@@ -7,6 +7,7 @@ import {
   Label,
   Select,
   Switch,
+  Text,
   Textarea,
   Toaster,
   TooltipProvider,
@@ -16,8 +17,8 @@ import React, { useEffect, useRef, useState } from "react";
 import type { FieldValues } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { MedusaCrudContext } from "../context/crud";
-import { setupForm } from "../lib/registry";
-import { CrudConfig } from "../lib/types/config";
+import { setupForm } from "../registry";
+import { EntityConfig } from "../types";
 import MedusaCreatePage from "../pages/create";
 import MedusaDetailsPage from "../pages/details";
 import MedusaEditPage from "../pages/edit";
@@ -25,13 +26,14 @@ import MedusaListPage from "../pages/list";
 import { SdkProvider } from "../provider/sdk-provider";
 
 interface MedusaCrudProps<
-  R extends FieldValues,
+  D extends FieldValues,
+  L extends FieldValues,
   C extends FieldValues,
   U extends FieldValues,
 > {
   children?: React.ReactNode;
   sdk: Medusa;
-  config: CrudConfig<R, C, U>;
+  config: EntityConfig<D, L, C, U>;
 }
 
 /**
@@ -42,17 +44,18 @@ interface MedusaCrudProps<
  * served from a pre-built bundle).
  */
 function MedusaCrud<
-  R extends FieldValues,
+  D extends FieldValues,
+  L extends FieldValues,
   C extends FieldValues,
   U extends FieldValues,
->({ children, sdk, config }: MedusaCrudProps<R, C, U>) {
+>({ children, sdk, config }: MedusaCrudProps<D, L, C, U>) {
   const queryClientRef = useRef<QueryClient | null>(null);
   if (!queryClientRef.current) {
     queryClientRef.current = new QueryClient();
   }
 
   const { t } = useTranslation();
-  const [data, setData] = useState<any>({});
+  const [details, setDetails] = useState<any>({});
 
   useEffect(() => {
     setupForm({
@@ -105,7 +108,11 @@ function MedusaCrud<
         ),
       },
       formUI: {
-        label: ({ children, ...rest }) => <Label {...rest}>{children}</Label>,
+        label: ({ children, ...rest }) => (
+          <Label {...rest}>
+            <Text size="small">{children}</Text>
+          </Label>
+        ),
         description: ({ children, ...rest }) => (
           <Hint {...rest}>{children}</Hint>
         ),
@@ -116,26 +123,21 @@ function MedusaCrud<
         ),
       },
       submitButton: ({ loading, disabled, children }) => (
-        <Button
-          size="small"
-          type="submit"
-          disabled={disabled || loading}
-          className="my-button"
-        >
+        <Button size="small" type="submit" disabled={disabled || loading}>
           {loading ? "Loading..." : children}
         </Button>
       ),
       styles: {
         form: "h-full", // Applied to <form>
-        formItem: "space-y-1 flex flex-col", // Applied to each field wrapper
-        label: "text-xs font-medium capitalize", // Applied to labels
+        formItem: "flex flex-col space-y-2", // Applied to each field wrapper
+        label: "font-sans txt-compact-small font-medium", // Applied to labels
       },
     });
   }, [t]);
 
   return (
     <QueryClientProvider client={queryClientRef.current}>
-      <MedusaCrudContext.Provider value={{ config, data, setData }}>
+      <MedusaCrudContext.Provider value={{ config, details, setDetails }}>
         <SdkProvider sdk={sdk}>
           <TooltipProvider>{children}</TooltipProvider>
           <Toaster position="top-right" />

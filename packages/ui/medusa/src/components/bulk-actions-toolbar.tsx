@@ -122,7 +122,7 @@ export function DataTableBulkActionsToolbar<TData>({
       </div>
 
       {/* Invisible anchor positioned at bottom center */}
-      <PopoverPrimitive.Anchor className="fixed bottom-6 left-1/2 -translate-x-1/2 pointer-events-none" />
+      <PopoverPrimitive.Anchor className="fixed bottom-10 left-1/2 -translate-x-1/2 pointer-events-none" />
 
       <PopoverPrimitive.Portal>
         <PopoverPrimitive.Content

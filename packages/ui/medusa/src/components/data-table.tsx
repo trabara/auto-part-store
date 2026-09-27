@@ -1,25 +1,36 @@
-import { ExclamationCircle } from "@medusajs/icons"
-import { Button, clx, DataTable as DataTableUI, Heading, Hint, useDataTable } from "@medusajs/ui"
-import { useEffect, useMemo } from "react"
-import { useTranslation } from "react-i18next"
-import { usePageQuery } from "../hooks/use-page-query"
-import { ListConfig } from "../lib/types/config"
-import { QueryFn, SelectFn } from "../lib/types/query"
-import { DataTableBulkActionsToolbar } from "./bulk-actions-toolbar"
-import { createZodDataTableColumnDef } from "../lib/helpers/create-zod-columns"
-import { createZodDataTableFilterDef } from "../lib/helpers/create-zod-filters"
+import {
+  Button,
+  clx,
+  DataTable as DataTableUI,
+  Heading,
+  Hint,
+  useDataTable,
+} from "@medusajs/ui";
+import { useEffect, useMemo } from "react";
+import { useTranslation } from "react-i18next";
+import { createZodDataTableColumnDef } from "../helpers/create-zod-columns";
+import { createZodDataTableFilterDef } from "../helpers/create-zod-filters";
+import { usePageQuery } from "../hooks/use-page-query";
+import { ListConfig } from "../types/config";
+import { QueryFn, SelectFn } from "../types/query";
+import { DataTableBulkActionsToolbar } from "./bulk-actions-toolbar";
 
-interface DataTableListProps<T extends { id: string }, R> extends ListConfig<T> {
-  className?: string
-  selectedIds?: string[]
-  queryFn: QueryFn<R>
-  selectFn?: SelectFn<T, R>
-  onCreateClicked?: () => void
-  onRowClick?: (row: T) => void
-  onRowSelectChange?: (rows: T[]) => void
+interface DataTableListProps<
+  T extends { id: string },
+  R,
+> extends ListConfig<T> {
+  className?: string;
+  selectedIds?: string[];
+  queryFn: QueryFn<R>;
+  selectFn?: SelectFn<T, R>;
+  onCreateClicked?: () => void;
+  onRowClick?: (row: T) => void;
+  onRowSelectChange?: (rows: T[]) => void;
 }
 
-export const DataTable = <T extends { id: string }, R>(props: DataTableListProps<T, R>) => {
+export const DataTable = <T extends { id: string }, R>(
+  props: DataTableListProps<T, R>,
+) => {
   const {
     id,
     className,
@@ -35,21 +46,21 @@ export const DataTable = <T extends { id: string }, R>(props: DataTableListProps
     onCreateClicked,
     onRowClick,
     onRowSelectChange,
-  } = props
+  } = props;
 
-  const { t } = useTranslation()
+  const { t } = useTranslation();
 
   const defaultRowsSelection = useMemo(
     () =>
       selectedIds.reduce(
         (acc, id) => {
-          acc[id] = true
-          return acc
+          acc[id] = true;
+          return acc;
         },
         {} as Record<string, boolean>,
       ),
     [selectedIds],
-  )
+  );
 
   const columns = useMemo(
     () =>
@@ -59,54 +70,57 @@ export const DataTable = <T extends { id: string }, R>(props: DataTableListProps
         actions: rowActions,
       }),
     [schema, fields, rowActions],
-  )
+  );
 
-  const filters = useMemo(() => createZodDataTableFilterDef(schema, fields), [schema, fields])
- 
+  const filters = useMemo(
+    () => createZodDataTableFilterDef(schema, fields),
+    [schema, fields],
+  );
+
   const [queryConfig] = usePageQuery<T, R>({
     queryKey: id,
     defaultRowsSelection,
     queryFn,
     selectFn: (resp) => {
       if (selectFn) {
-        return selectFn(resp)
+        return selectFn(resp);
       }
 
-      return resp as { data: T[]; rowCount: number }
+      return resp as { data: T[]; rowCount: number };
     },
-  })
+  });
 
   const table = useDataTable({
     ...queryConfig,
     columns,
     filters,
     onRowClick: (_, row) => onRowClick?.(row as T),
-  })
+  });
 
-  const rows = table.getRowModel().rows
+  const rows = table.getRowModel().rows;
   const rowSelection = Object.keys(table.getRowSelection())
     .map((id) => rows.find((r) => r.id === id)?.original as T)
-    .filter((r) => r !== undefined)
+    .filter((r) => r !== undefined);
 
   useEffect(() => {
-    onRowSelectChange?.(rowSelection)
-  }, [rowSelection, onRowSelectChange])
+    onRowSelectChange?.(rowSelection);
+  }, [rowSelection, onRowSelectChange]);
 
-  if (!table.isLoading && table.rowCount === 0) {
-    return (
-      <div className="flex h-[150px] w-full flex-col items-center justify-center gap-y-4">
-        <div className="flex flex-col items-center gap-y-3">
-          <ExclamationCircle width="15" height="15" className="text-ui-fg-subtle" />
-          <div className="flex flex-col items-center gap-y-1">
-            <p className="font-medium font-sans txt-compact-small">No records</p>
-            <p className="font-normal font-sans txt-small text-ui-fg-muted">
-              There are no records to show
-            </p>
-          </div>
-        </div>
-      </div>
-    )
-  }
+  // if (!table.isLoading && table.rowCount === 0) {
+  //   return (
+  //     <div className="flex h-[150px] w-full flex-col items-center justify-center gap-y-4">
+  //       <div className="flex flex-col items-center gap-y-3">
+  //         <ExclamationCircle width="15" height="15" className="text-ui-fg-subtle" />
+  //         <div className="flex flex-col items-center gap-y-1">
+  //           <p className="font-medium font-sans txt-compact-small">No records</p>
+  //           <p className="font-normal font-sans txt-small text-ui-fg-muted">
+  //             There are no records to show
+  //           </p>
+  //         </div>
+  //       </div>
+  //     </div>
+  //   )
+  // }
 
   return (
     <DataTableUI instance={table} className={className}>
@@ -131,6 +145,7 @@ export const DataTable = <T extends { id: string }, R>(props: DataTableListProps
 
       <DataTableUI.Table />
       <DataTableUI.Pagination />
+      <DataTableUI.CommandBar selectedLabel={(count) => `${count} selected`} />
 
       {toolbarActions.length > 0 && (
         <DataTableBulkActionsToolbar table={table} entityName={id}>
@@ -147,17 +162,17 @@ export const DataTable = <T extends { id: string }, R>(props: DataTableListProps
                 })}
                 variant="transparent"
                 onClick={(e) => {
-                  e.stopPropagation()
-                  action.onClick(table)
+                  e.stopPropagation();
+                  action.onClick(table);
                 }}
               >
                 {action.icon}
                 {action.label}
               </Button>
-            )
+            );
           })}
         </DataTableBulkActionsToolbar>
       )}
     </DataTableUI>
-  )
-}
+  );
+};

@@ -2,8 +2,8 @@ import { z } from "@medusajs/framework/zod"
 import { toast } from "@medusajs/ui"
 import { useCallback, useMemo, useState } from "react"
 import { UseFormReturn } from "react-hook-form"
-import { StepConfig } from "../lib/types/config"
-import { getZodShape } from "../lib/utils"
+import { StepConfig } from "../types/config"
+import { getZodShape } from "../utils"
 
 type UseWizardFormReturn<S extends z.ZodObject> = [
   {

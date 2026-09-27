@@ -1,5 +1,5 @@
 import { Button, CommandBar, FocusModal, Heading, toast } from "@medusajs/ui"
-import { UploadedFile, Media } from "../lib/types"
+import { UploadedFile, Media } from "../types"
 import { useQueryClient } from "@tanstack/react-query"
 import { useRef, useState } from "react"
 import { useTranslation } from "react-i18next"

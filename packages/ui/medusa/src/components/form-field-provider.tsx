@@ -1,9 +1,9 @@
 import { useCallback } from "react"
 import type { ControllerRenderProps, FieldValues, Path } from "react-hook-form"
 
-import { getRegisteredComponent, getT } from "../lib/registry"
-import { FieldOverride, RegisteredComponentProps, SchemaFieldInfo } from "../lib/types"
-import { resolveFieldType } from "../lib/utils"
+import { getRegisteredComponent, getT } from "../registry"
+import { FieldOverride, RegisteredComponentProps, SchemaFieldInfo } from "../types"
+import { resolveFieldType } from "../utils"
 import { ArrayFieldRenderer } from "./array-field-renderer"
 import { FieldWrapper } from "./field-wrapper"
 import { FormControl, useFormField } from "./form-provider"

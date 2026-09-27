@@ -1,6 +1,6 @@
 import { Alert, Button, clx } from "@medusajs/ui"
-import type { ParsedApiError } from "../lib/utils/api-error"
-import { classifyErrorCode, parseApiError } from "../lib/utils/api-error"
+import type { ParsedApiError } from "../utils/api-error"
+import { classifyErrorCode, parseApiError } from "../utils/api-error"
 
 // ─── Types ───────────────────────────────────────────────────
 

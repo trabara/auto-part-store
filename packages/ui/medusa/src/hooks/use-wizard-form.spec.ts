@@ -8,7 +8,7 @@
  */
 
 import { z } from "@medusajs/framework/zod"
-import { getZodShape } from "../lib/utils"
+import { getZodShape } from "../utils"
 
 // ─── Schemas ─────────────────────────────────────────────────
 

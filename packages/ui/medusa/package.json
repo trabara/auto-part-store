@@ -8,9 +8,9 @@
     ".": "./src/index.ts",
     "./components/*": "./src/components/*.tsx",
     "./hooks/*": "./src/hooks/*.ts",
-    "./types": "./src/lib/types/index.ts",
-    "./utils": "./src/lib/utils/index.ts",
-    "./registry": "./src/lib/registry/index.ts",
+    "./types": "./src/types/index.ts",
+    "./utils": "./src/utils/index.ts",
+    "./registry": "./src/registry/index.ts",
     "./provider": "./src/provider/api-client-provider.tsx"
   },
   "scripts": {

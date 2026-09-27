@@ -1,6 +1,6 @@
 import { Text } from "@medusajs/ui"
 import { useTranslation } from "react-i18next"
-import { UploadedFile, Media } from "../lib/types"
+import { UploadedFile, Media } from "../types"
 import { ImageItem } from "./image-item"
 
 type ImageGalleryProps = {

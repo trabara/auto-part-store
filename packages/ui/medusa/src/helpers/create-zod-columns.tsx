@@ -6,7 +6,7 @@ import { FieldValues } from "react-hook-form";
 import { createSelectDataTableColumns } from "./create-select-columns";
 import { MedusaFieldOverrides, RowAction } from "../types/config";
 import { getZodFieldInfo, getZodShape } from "../utils";
-import { ActionCell } from "../../components/action-cell";
+import { ActionCell } from "../components/action-cell";
 
 type ColumnDefConfig<T extends FieldValues> = {
   schema: z.ZodObject<T>;

@@ -1,3 +1,4 @@
+import { z } from "@medusajs/framework/zod";
 import { PencilSquare, Trash } from "@medusajs/icons";
 import { Button, Container, Hint, UseDataTableReturn } from "@medusajs/ui";
 import { zodQueryResolve } from "@repo/utils";
@@ -12,12 +13,10 @@ import {
   RowAction,
   SelectFn,
   ToolbarAction,
-} from "../lib/types";
+} from "../types";
 import { useSdk } from "../provider/sdk-provider";
-import { z } from "@medusajs/framework/zod";
 
 type MedusaCrudListProps<T extends { id: string }> = {
-  title: string;
   description?: string;
   rowActions?: RowAction<T>[];
   toolbarActions?: ToolbarAction<T>[];
@@ -25,7 +24,6 @@ type MedusaCrudListProps<T extends { id: string }> = {
 };
 
 const MedusaListPage = function List<T extends { id: string }>({
-  title,
   description,
   rowActions,
   toolbarActions,
@@ -37,13 +35,11 @@ const MedusaListPage = function List<T extends { id: string }>({
 
   const { t } = useTranslation();
   const { config } = useMedusaCrud();
+  const { schema, fields, getTitle } = config.list;
 
-  const DataListSchema = z.array(config.listSchema);
+  const DataListSchema = z.array(schema);
 
-  const queryFields = useMemo(
-    () => zodQueryResolve(config.listSchema),
-    [config.listSchema],
-  );
+  const queryFields = useMemo(() => zodQueryResolve(schema), [schema]);
 
   const listAction = (signal: AbortSignal, params?: PageQueryParams) =>
     sdk.client.fetch(`/admin${config.path}`, {
@@ -100,15 +96,8 @@ const MedusaListPage = function List<T extends { id: string }>({
   ];
 
   const handleDataSelect: SelectFn<T, any> = (resp) => {
-    if (config.listMount === undefined) {
-      return {
-        data: DataListSchema.parse(resp?.data || []) as T[],
-        rowCount: resp?.metadata.count || 0,
-      };
-    }
-
     return {
-      data: DataListSchema.parse(resp?.data[config.listMount] || []) as T[],
+      data: DataListSchema.parse(resp?.data || []) as T[],
       rowCount: resp?.metadata.count ?? 0,
     };
   };
@@ -119,26 +108,21 @@ const MedusaListPage = function List<T extends { id: string }>({
     }
     navigate(`${config.path}/${row.id}`);
   };
+  
+  const title = getTitle();
+  const columns = (typeof fields === "function" ? fields(t) : fields) || {};
 
   return (
     <Container className="divide-y p-0">
-      <div className="flex items-center justify-between px-6 py-4">
-        <div>
-          <h1 className="font-sans font-medium h1-core">{title}</h1>
-          {description && <Hint>{description}</Hint>}
-        </div>
-        <Button variant="secondary" size="small" asChild>
-          <Link to={`${config.path}/create`}>Create</Link>
-        </Button>
-      </div>
-
       <DataTable
         id={config.path}
-        schema={config.listSchema}
-        fields={config.listFields}
+        schema={schema}
+        title={title}
+        fields={columns}
         queryFn={listAction}
         selectFn={handleDataSelect}
         onRowClick={handleRowClick}
+        onCreateClicked={() => navigate(`${config.path}/create`)}
         rowActions={[...defaultRowActions, ...(rowActions || [])]}
         toolbarActions={[...defaultToolbarActions, ...(toolbarActions || [])]}
         {...restProps}

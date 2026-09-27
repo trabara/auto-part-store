@@ -12,8 +12,8 @@ import {
   getFormClass,
   getRegisteredSubmitButton,
   getT,
-} from "../lib/registry"
-import { FormHelpers, FormProps, SchemaFieldInfo } from "../lib/types"
+} from "../registry"
+import { FormHelpers, FormProps, SchemaFieldInfo } from "../types"
 import {
   applyEmptyValueOverrides,
   cn,
@@ -21,7 +21,7 @@ import {
   getZodFieldInfo,
   getZodShape,
   initializeDefaultValues,
-} from "../lib/utils"
+} from "../utils"
 import { FormField } from "./form-field-provider"
 import { FormFieldProvider, FormProvider } from "./form-provider"
 

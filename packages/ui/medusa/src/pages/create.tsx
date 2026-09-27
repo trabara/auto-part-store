@@ -6,10 +6,11 @@ import { useNavigate } from "react-router-dom";
 import { Form } from "../components/form";
 import { useCreateMutation } from "../hooks/use-create-mutation";
 import { useWizardForm } from "../hooks/use-wizard-form";
-import { StepConfig } from "../lib/types";
-import { cn } from "../lib/utils";
+import { StepConfig } from "../types";
+import { cn } from "../utils";
 import { useSdk } from "../provider/sdk-provider";
 import { useMedusaCrud } from "../context/crud";
+import { startCase } from "lodash";
 
 const MedusaCreatePage = <T extends Record<string, any>>() => {
   const sdk = useSdk();
@@ -18,13 +19,19 @@ const MedusaCreatePage = <T extends Record<string, any>>() => {
 
   const { config } = useMedusaCrud();
 
+  const entityName = startCase(config.entity);
+  const { schema, steps = [], fields } = config.create;
+
   const createAction = (data: T): Promise<void> =>
-    sdk.client.fetch(`/admin${config.path}`, { method: "POST", body: data });
+    sdk.client.fetch(`/admin${config.path}`, {
+      method: "POST",
+      body: data,
+    });
 
   const mutate = useCreateMutation({
     invalidateKeys: [config.path],
-    errorMessage: `Failed to create ${config.name}`,
-    successMessage: `Successfully created ${config.name}`,
+    errorMessage: `Failed to create ${entityName}`,
+    successMessage: `Successfully created ${entityName}`,
     createFn: createAction,
   });
 
@@ -33,7 +40,7 @@ const MedusaCreatePage = <T extends Record<string, any>>() => {
   };
 
   const handleSubmit = async (values: T) => {
-    if (config.createSteps && config.createSteps.length > 0) {
+    if (steps && steps.length > 0) {
       await action.handleSubmit(values);
     } else {
       await mutate.mutateAsync(values);
@@ -41,20 +48,14 @@ const MedusaCreatePage = <T extends Record<string, any>>() => {
     dispose();
   };
 
-  const [wizard, action] = useWizardForm(
-    config.createSteps,
-    async (values: T) => {
-      await mutate.mutateAsync(values);
-      dispose();
-    },
-  );
+  const [wizard, action] = useWizardForm(steps, async (values: T) => {
+    await mutate.mutateAsync(values);
+    dispose();
+  });
 
   const activeSchema = useMemo(
-    () =>
-      config.createSteps && config.createSteps.length > 0
-        ? wizard.schema
-        : config.createSchema,
-    [wizard.schema, config.createSchema, config.createSteps],
+    () => (steps && steps.length > 0 ? wizard.schema : schema),
+    [wizard.schema, schema, steps],
   );
 
   if (!activeSchema) {
@@ -67,8 +68,8 @@ const MedusaCreatePage = <T extends Record<string, any>>() => {
         base: "relative flex flex-col items-center p-16",
       },
       content: {
-        base: "flex w-full flex-col",
-        default: "max-w-[720px] w-full gap-y-8",
+        base: "flex flex-col gap-y-4",
+        default: "max-w-[720px] w-full",
         full: "flex-1",
       },
     },
@@ -88,16 +89,18 @@ const MedusaCreatePage = <T extends Record<string, any>>() => {
   const getHeaderStyle = (step: StepConfig<T>) =>
     cn(styles.header.base, styles.header[step.display ?? "default"]);
 
+  const overrideFields = typeof fields === "function" ? fields(t) : fields;
+
   return (
     <FocusModal open={true} onOpenChange={dispose}>
       <FocusModal.Content>
         <Form
-          overrides={config.createFields}
+          overrides={overrideFields}
           schema={activeSchema}
           onSubmit={handleSubmit}
         >
           {({ renderField, renderSubmitButton, form }) => {
-            if (config.createSteps && config.createSteps.length > 0) {
+            if (config.create.steps && config.create.steps.length > 0) {
               return (
                 <ProgressTabs
                   value={wizard.step}
@@ -106,7 +109,7 @@ const MedusaCreatePage = <T extends Record<string, any>>() => {
                 >
                   <FocusModal.Header>
                     <ProgressTabs.List className="-my-2 w-full border-l">
-                      {config.createSteps.map(({ id, label }) => (
+                      {config.create.steps.map(({ id, label }) => (
                         <ProgressTabs.Trigger key={id} value={id}>
                           {label}
                         </ProgressTabs.Trigger>
@@ -115,15 +118,17 @@ const MedusaCreatePage = <T extends Record<string, any>>() => {
                   </FocusModal.Header>
 
                   <FocusModal.Body className={styles.body.wrapper.base}>
-                    {config.createSteps.map((step) => {
+                    {config.create.steps.map((step) => {
                       if (wizard.step !== step.id) {
                         return <React.Fragment key={step.id} />;
                       }
+                      const stepCn = getContentStyle(step);
+
                       return (
                         <ProgressTabs.Content
                           key={step.id}
                           value={step.id}
-                          className={getContentStyle(step)}
+                          className={stepCn}
                         >
                           {(step.header === undefined ||
                             step.header === true) && (
@@ -158,7 +163,7 @@ const MedusaCreatePage = <T extends Record<string, any>>() => {
                         ) : (
                           <>
                             {t("common.create")}{" "}
-                            <span className="capitalize">{config.name}</span>
+                            <span className="capitalize">{entityName}</span>
                           </>
                         ),
                       })}
@@ -174,12 +179,17 @@ const MedusaCreatePage = <T extends Record<string, any>>() => {
                 <FocusModal.Header>
                   <FocusModal.Title>
                     <Heading level="h1">
-                      Create <span className="capitalize">{config.name}</span>
+                      Create <span className="capitalize">{entityName}</span>
                     </Heading>
                   </FocusModal.Title>
                 </FocusModal.Header>
                 <FocusModal.Body className={styles.body.wrapper.base}>
-                  <div className={styles.body.content.default}>
+                  <div
+                    className={cn(
+                      styles.body.content.base,
+                      styles.body.content.default,
+                    )}
+                  >
                     {
                       fieldKeys.map((key) =>
                         renderField(key),
@@ -197,7 +207,7 @@ const MedusaCreatePage = <T extends Record<string, any>>() => {
                       children: (
                         <>
                           {t("common.create")}{" "}
-                          <span className="capitalize">{config.name}</span>
+                          <span className="capitalize">{entityName}</span>
                         </>
                       ),
                     })}

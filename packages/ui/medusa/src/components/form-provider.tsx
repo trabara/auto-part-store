@@ -8,8 +8,8 @@ import {
   type FieldValues,
   type Path,
 } from "react-hook-form"
-import { getFormItemClass, getFormUI } from "../lib/registry"
-import { cn } from "../lib/utils"
+import { getFormItemClass, getFormUI } from "../registry"
+import { cn } from "../utils"
 
 // =============================================================================
 // Form Context (wraps react-hook-form's FormProvider)
@@ -91,7 +91,7 @@ interface FormItemProps {
  * Wrapper for a form field (container for label + input + error)
  */
 export function FormItem({ children, className }: FormItemProps): React.ReactElement {
-  return <div className={cn("medusa-form-item", getFormItemClass(), className)}>{children}</div>
+  return <div className={cn(getFormItemClass(), className)}>{children}</div>
 }
 
 interface FormLabelProps {

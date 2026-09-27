@@ -28,11 +28,7 @@ export { useMutation } from "./hooks/use-mutation";
 export { usePageQuery } from "./hooks/use-page-query";
 export { useUpdateMutation } from "./hooks/use-update-mutation";
 export { useWizardForm } from "./hooks/use-wizard-form";
-export {
-  MedusaCrud,
-  useMedusaCrud,
-  type CrudConfig,
-} from "./provider/medusa-crud";
+export { MedusaCrud } from "./provider/medusa-crud";
 export { SdkProvider, useSdk } from "./provider/sdk-provider";
 
 export {
@@ -65,7 +61,7 @@ export {
   setupForm,
 } from "./lib/registry";
 
-export { createZodDataTableColumnDef } from "./components/data-table-columns";
+export { createZodDataTableColumnDef } from "./lib/helpers/create-zod-columns";
 export * from "./lib/helpers";
 
 export {

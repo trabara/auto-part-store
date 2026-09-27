@@ -6,8 +6,8 @@ import { usePageQuery } from "../hooks/use-page-query"
 import { ListConfig } from "../lib/types/config"
 import { QueryFn, SelectFn } from "../lib/types/query"
 import { DataTableBulkActionsToolbar } from "./bulk-actions-toolbar"
-import { createZodDataTableColumnDef } from "./data-table-columns"
-import { createZodDataTableFilterDef } from "./data-table-filters"
+import { createZodDataTableColumnDef } from "../lib/helpers/create-zod-columns"
+import { createZodDataTableFilterDef } from "../lib/helpers/create-zod-filters"
 
 interface DataTableListProps<T extends { id: string }, R> extends ListConfig<T> {
   className?: string
@@ -62,7 +62,7 @@ export const DataTable = <T extends { id: string }, R>(props: DataTableListProps
   )
 
   const filters = useMemo(() => createZodDataTableFilterDef(schema, fields), [schema, fields])
-
+ 
   const [queryConfig] = usePageQuery<T, R>({
     queryKey: id,
     defaultRowsSelection,

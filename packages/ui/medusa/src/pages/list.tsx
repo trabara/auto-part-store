@@ -5,6 +5,7 @@ import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { Link, useNavigate } from "react-router-dom";
 import { DataTable } from "../components/data-table";
+import { useMedusaCrud } from "../context/crud";
 import { useDeleteMutation } from "../hooks/use-delete-mutation";
 import {
   PageQueryParams,
@@ -12,8 +13,8 @@ import {
   SelectFn,
   ToolbarAction,
 } from "../lib/types";
-import { useMedusaCrud } from "../provider/medusa-crud";
 import { useSdk } from "../provider/sdk-provider";
+import { z } from "@medusajs/framework/zod";
 
 type MedusaCrudListProps<T extends { id: string }> = {
   title: string;
@@ -36,6 +37,8 @@ const MedusaListPage = function List<T extends { id: string }>({
 
   const { t } = useTranslation();
   const { config } = useMedusaCrud();
+
+  const DataListSchema = z.array(config.listSchema);
 
   const queryFields = useMemo(
     () => zodQueryResolve(config.listSchema),
@@ -96,24 +99,16 @@ const MedusaListPage = function List<T extends { id: string }>({
     },
   ];
 
-  const parseData = (data: []): T[] => {
-    return config.listSchema.array().parse(data) as T[];
-  };
-
   const handleDataSelect: SelectFn<T, any> = (resp) => {
     if (config.listMount === undefined) {
-      const data = parseData(resp?.data || []);
-      console.log(data);
       return {
-        data,
+        data: DataListSchema.parse(resp?.data || []) as T[],
         rowCount: resp?.metadata.count || 0,
       };
     }
 
-    const data = parseData(resp?.data[config.listMount] || []);
-
     return {
-      data,
+      data: DataListSchema.parse(resp?.data[config.listMount] || []) as T[],
       rowCount: resp?.metadata.count ?? 0,
     };
   };

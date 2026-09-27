@@ -1,8 +1,8 @@
 import { zodQueryResolve } from "@repo/utils";
 import { useQuery } from "@tanstack/react-query";
 import _ from "lodash";
-import { useMedusaCrud } from "../provider/medusa-crud";
 import { useSdk } from "../provider/sdk-provider";
+import { useMedusaCrud } from "../context/crud";
 
 type DetailsPageProps = {
   id?: string;

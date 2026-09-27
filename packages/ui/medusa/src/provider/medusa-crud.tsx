@@ -1,4 +1,3 @@
-import { z } from "@medusajs/framework/zod";
 import type Medusa from "@medusajs/js-sdk";
 import {
   Button,
@@ -9,42 +8,21 @@ import {
   Select,
   Switch,
   Textarea,
+  Toaster,
+  TooltipProvider,
 } from "@medusajs/ui";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import React, {
-  createContext,
-  useContext,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import React, { useEffect, useRef, useState } from "react";
 import type { FieldValues } from "react-hook-form";
 import { useTranslation } from "react-i18next";
+import { MedusaCrudContext } from "../context/crud";
 import { setupForm } from "../lib/registry";
-import { MedusaFieldOverrides, StepConfig } from "../lib/types/config";
+import { CrudConfig } from "../lib/types/config";
 import MedusaCreatePage from "../pages/create";
 import MedusaDetailsPage from "../pages/details";
 import MedusaEditPage from "../pages/edit";
 import MedusaListPage from "../pages/list";
 import { SdkProvider } from "../provider/sdk-provider";
-
-export interface CrudConfig<
-  R extends FieldValues = {},
-  C extends FieldValues = {},
-  U extends FieldValues = {},
-> {
-  name: string;
-  path: string;
-  entitySchema: z.ZodObject;
-  listMount?: string;
-  listSchema: z.ZodObject<R>;
-  listFields: MedusaFieldOverrides<R>;
-  createSchema: z.ZodObject<C>;
-  createFields: MedusaFieldOverrides<C>;
-  createSteps?: StepConfig<C>[];
-  editSchema: z.ZodObject<U>;
-  editFields: MedusaFieldOverrides<U>;
-}
 
 interface MedusaCrudProps<
   R extends FieldValues,
@@ -55,21 +33,6 @@ interface MedusaCrudProps<
   sdk: Medusa;
   config: CrudConfig<R, C, U>;
 }
-
-type MedusaCrudContext<TData = unknown> = {
-  config: CrudConfig<any, any, any>;
-  data: TData;
-  setData: (data: Partial<TData>) => void;
-};
-
-const MedusaCrudContext = createContext<MedusaCrudContext | null>(null);
-export const useMedusaCrud = <TData,>() => {
-  const context = useContext(MedusaCrudContext);
-  if (!context) {
-    throw new Error("useMedusaCrud must be used within a MedusaCrudProvider");
-  }
-  return context as MedusaCrudContext<TData>;
-};
 
 /**
  * Wraps MedusaCrudInner with its own QueryClientProvider so that
@@ -172,11 +135,12 @@ function MedusaCrud<
 
   return (
     <QueryClientProvider client={queryClientRef.current}>
-      <SdkProvider sdk={sdk}>
-        <MedusaCrudContext.Provider value={{ config, data, setData }}>
-          {children}
-        </MedusaCrudContext.Provider>
-      </SdkProvider>
+      <MedusaCrudContext.Provider value={{ config, data, setData }}>
+        <SdkProvider sdk={sdk}>
+          <TooltipProvider>{children}</TooltipProvider>
+          <Toaster position="top-right" />
+        </SdkProvider>
+      </MedusaCrudContext.Provider>
     </QueryClientProvider>
   );
 }

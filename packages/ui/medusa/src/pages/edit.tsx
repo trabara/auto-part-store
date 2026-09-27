@@ -3,8 +3,8 @@ import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { Form } from "../components/form";
 import { useUpdateMutation } from "../hooks/use-update-mutation";
-import { useMedusaCrud } from "../provider/medusa-crud";
 import { useSdk } from "../provider/sdk-provider";
+import { useMedusaCrud } from "../context/crud";
 
 const MedusaEditPage = <T extends { id: string }>() => {
   const sdk = useSdk();

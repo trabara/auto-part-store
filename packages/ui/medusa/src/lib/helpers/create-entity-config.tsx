@@ -1,9 +1,8 @@
 import { z } from "@medusajs/framework/zod";
 import { mapKeys, snakeCase, startCase } from "lodash";
 import { FieldValues } from "react-hook-form";
-import { CrudConfig } from "../../provider/medusa-crud";
 import { TranslationFunction } from "../registry";
-import { MedusaFieldOverrides } from "../types";
+import { CrudConfig, MedusaFieldOverrides } from "../types";
 
 type EntityFieldConfigs<L extends FieldValues = {}> = (
   t: TranslationFunction,

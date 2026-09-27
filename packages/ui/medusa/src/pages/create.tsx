@@ -8,8 +8,8 @@ import { useCreateMutation } from "../hooks/use-create-mutation";
 import { useWizardForm } from "../hooks/use-wizard-form";
 import { StepConfig } from "../lib/types";
 import { cn } from "../lib/utils";
-import { useMedusaCrud } from "../provider/medusa-crud";
 import { useSdk } from "../provider/sdk-provider";
+import { useMedusaCrud } from "../context/crud";
 
 const MedusaCreatePage = <T extends Record<string, any>>() => {
   const sdk = useSdk();

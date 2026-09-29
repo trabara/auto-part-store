@@ -6,7 +6,7 @@
     "esModuleInterop": true,
     "declaration": true,
     "declarationMap": true,
-    "outDir": "dist",
+    "outDir": "dist/common",
     "rootDir": "src",
     "skipLibCheck": true,
     "strict": true,

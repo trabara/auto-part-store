@@ -142,24 +142,6 @@ export default defineConfig({
     },
   ],
   plugins: [
-    // {
-    //   resolve: "@repo/analytics-plugin",
-    //   options: {
-    //     // Plugin-specific options can be added here
-    //   },
-    // },
-    // {
-    //   resolve: "@repo/invoice-plugin",
-    //   options: {
-    //     // Plugin-specific options can be added here
-    //   },
-    // },
-    // {
-    //   resolve: "@repo/media-plugin",
-    //   options: {
-    //     // Plugin-specific options can be added here
-    //   },
-    // },
     {
       resolve: "@repo/automotive-plugin",
       options: {
@@ -167,8 +149,4 @@ export default defineConfig({
       },
     },
   ],
-  featureFlags: {
-    translation: true,
-    // rbac: true,
-  },
 });

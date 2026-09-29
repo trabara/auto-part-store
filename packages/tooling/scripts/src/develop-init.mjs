@@ -19,6 +19,7 @@
 import { Compiler } from "@medusajs/framework/build-tools";
 import { logger } from "@medusajs/framework/logger";
 import path from "path";
+import fs from "fs";
 
 const pluginDir = process.argv[2]
   ? path.resolve(process.argv[2])
@@ -40,6 +41,22 @@ if (!backendOk) {
 
 // Step 2: Build admin extensions (writes .medusa/server/src/admin/index.mjs)
 const bundler = await import("@medusajs/admin-bundler");
+
+const viteFilePath = `${pluginDir}/vite.config.mjs`;
+if (fs.existsSync(viteFilePath)) {
+  const viteConfig = await import(viteFilePath).then((mod) => mod.default);
+  
+  // bundler.build({
+  //   outDir: pluginDir,
+  //   vite: (config) => {
+  //     return {
+  //       ...config,
+  //       ...viteConfig,
+  //     };
+  //   },
+  // });
+}
+
 const adminOk = await compiler.buildPluginAdminExtensions(bundler);
 if (!adminOk) {
   logger.error("Plugin admin extensions build failed");

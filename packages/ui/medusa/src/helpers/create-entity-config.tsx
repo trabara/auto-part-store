@@ -1,34 +1,40 @@
-import { lowerCase, mapKeys, snakeCase, startCase } from "lodash";
+import { mapKeys, snakeCase, startCase } from "lodash";
 import { TranslationFunction } from "../registry";
-import { EntityConfig, EntityFieldConfigs } from "../types";
+import { FeatureConfig } from "../types";
+import { defineRouteConfig } from "@medusajs/admin-sdk";
 
-export const createEntityPages = (
-  path: string,
-  configMap: Record<string, EntityConfig>,
+export const defineFeatures = (
+  name: string,
+  routes: Record<string, FeatureConfig>,
 ) => {
-  return (entity: string, t: TranslationFunction): EntityConfig => {
+  const getFeature = (
+    entity: string,
+    t?: TranslationFunction,
+  ): FeatureConfig => {
     const entityKey = snakeCase(entity);
 
-    const cfg = mapKeys(configMap, (_, k) => snakeCase(k))[entityKey];
-
+    const cfg = mapKeys(routes, (_, k) => snakeCase(k))[entityKey];
     if (cfg === undefined) {
       throw new Error(`${startCase(entityKey)} entity is not defined`);
     }
 
-    function bindFields(fields?: EntityFieldConfigs) {
-      if (fields === undefined) {
-        return {};
-      }
-      if (typeof fields === "function") {
-        return fields(t);
-      }
-      return fields;
-    }
+    cfg.entity = entityKey;
+    return cfg;
+  };
 
+  const getRouteConfig = () => {
     return {
-      ...cfg,
-      entity: entityKey,
-      path: path + "/" + snakeCase(lowerCase(entity)),
+      label: name,
+      // @ts-ignore
+      items: Object.keys(routes).map((route) => {
+        const feature = getFeature(route);
+        return {
+          param: feature.path,
+          label: startCase(feature.entity),
+        };
+      }),
     };
   };
+
+  return { getFeature, getRouteConfig };
 };

@@ -75,6 +75,7 @@ function parseStateFromParams(
   params.forEach((value, key) => {
     const match = key.match(/^\[(.+)\]$/);
     if (match) {
+      // @ts-ignore
       (filtering as Record<string, string>)[match[1]] = value;
     }
   });
@@ -302,7 +303,7 @@ export function usePageQuery<T extends { id: string }, R>({
         onPaginationChange: setPagination,
       },
       search: {
-        debounce: 1000,
+        debounce: 500,
         state: search,
         onSearchChange: handleSearchChange,
       },

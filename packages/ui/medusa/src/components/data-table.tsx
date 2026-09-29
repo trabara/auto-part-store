@@ -24,7 +24,10 @@ interface DataTableListProps<
   queryFn: QueryFn<R>;
   selectFn?: SelectFn<T, R>;
   onCreateClicked?: () => void;
-  onRowClick?: (row: T) => void;
+  onRowClick?: (
+    e: React.MouseEvent<HTMLTableRowElement, MouseEvent>,
+    row: T,
+  ) => void;
   onRowSelectChange?: (rows: T[]) => void;
 }
 
@@ -94,7 +97,7 @@ export const DataTable = <T extends { id: string }, R>(
     ...queryConfig,
     columns,
     filters,
-    onRowClick: (_, row) => onRowClick?.(row as T),
+    onRowClick,
   });
 
   const rows = table.getRowModel().rows;
@@ -140,12 +143,11 @@ export const DataTable = <T extends { id: string }, R>(
             </Button>
           )}
         </div>
-        {filters.length > 0 && <DataTableUI.FilterMenu tooltip="Filter" />}
       </DataTableUI.Toolbar>
 
       <DataTableUI.Table />
       <DataTableUI.Pagination />
-      <DataTableUI.CommandBar selectedLabel={(count) => `${count} selected`} />
+      {/* <DataTableUI.CommandBar selectedLabel={(count) => `${count} selected`} /> */}
 
       {toolbarActions.length > 0 && (
         <DataTableBulkActionsToolbar table={table} entityName={id}>

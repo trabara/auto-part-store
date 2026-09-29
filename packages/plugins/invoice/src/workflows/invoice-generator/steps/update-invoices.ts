@@ -1,5 +1,4 @@
 import { createStep, StepResponse } from "@medusajs/framework/workflows-sdk";
-import { InvoiceStatus } from "@repo/core";
 import { INVOICE_MODULE } from "../../../modules/invoice-generator";
 import InvoiceGeneratorService from "../../../modules/invoice-generator/service";
 
@@ -8,7 +7,7 @@ type StepInput = {
     order_id: string;
   };
   data: {
-    status: InvoiceStatus;
+    status: any;
   };
 };
 export const updateInvoicesStep = createStep(

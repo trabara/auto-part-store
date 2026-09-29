@@ -1,11 +1,11 @@
 import { Button, Drawer, Heading, Hint } from "@medusajs/ui";
+import _ from "lodash";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { Form } from "../components/form";
+import { useMedusaCrud } from "../context/crud";
 import { useUpdateMutation } from "../hooks/use-update-mutation";
 import { useSdk } from "../provider/sdk-provider";
-import { useMedusaCrud } from "../context/crud";
-import _ from "lodash";
 
 const MedusaEditPage = <T extends { id: string }>() => {
   const sdk = useSdk();

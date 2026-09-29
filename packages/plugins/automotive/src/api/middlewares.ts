@@ -1,5 +1,9 @@
 import { defineMiddlewares } from "@medusajs/framework";
 import {
+  validateAndTransformEntityBody,
+  validateAndTransformEntityQuery,
+} from "@repo/core/framework";
+import {
   CreateEngineInputSchema,
   CreateMakeInputSchema,
   CreateModelInputSchema,
@@ -12,10 +16,6 @@ import {
   VehicleModelSchema,
   VehicleSchema,
 } from "~/modules/fitment/schemas/vehicle";
-import {
-  validateAndTransformEntityBody,
-  validateAndTransformEntityQuery,
-} from "./helpers";
 
 export default defineMiddlewares({
   routes: [

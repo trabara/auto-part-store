@@ -1,29 +1,23 @@
 // export async function loader(args: LoaderFunctionArgs) {}
 
 import { MedusaCrud } from "@repo/medusa-ui";
+import { zodQueryResolve } from "@repo/medusa-ui/utils";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import {
-  LoaderFunctionArgs,
-  Outlet,
-  UIMatch,
-  useLoaderData,
-  useParams,
-} from "react-router-dom";
+import { LoaderFunctionArgs, Outlet, useParams } from "react-router-dom";
 import { sdk } from "../../../../lib/sdk";
-import { entityConfig } from "../../config";
-import { lowerCase, snakeCase } from "lodash";
-import { VehicleEngineSchema } from "../../../../../modules/fitment/schemas/vehicle";
-import { zodQueryResolve } from "@repo/medusa-ui/utils";
+import moduleDef from "../../../../modules/automotive";
 
 export async function loader({ params }: LoaderFunctionArgs) {
   const { id, entity } = params;
-  // TODO fetch product by id
+
+  const feature = moduleDef.getFeature(entity!);
+
   return sdk.client.fetch<{ data: any }>(
-    `/admin/automotive/${snakeCase(lowerCase(entity))}/${id}`,
+    `${feature.path}/${feature.entity})}/${id}`,
     {
       query: {
-        fields: zodQueryResolve(VehicleEngineSchema),
+        fields: zodQueryResolve(feature.details.schema),
       },
     },
   );
@@ -33,7 +27,7 @@ const DetailPage = () => {
   const { id, entity } = useParams<{ entity: string; id: string }>();
   const { t } = useTranslation();
 
-  const config = useMemo(() => entityConfig(entity!, t), []);
+  const config = useMemo(() => moduleDef.getFeature(entity!, t), []);
 
   return (
     <MedusaCrud sdk={sdk} config={config}>

@@ -1,8 +1,8 @@
 import { createContext, useContext } from "react";
-import { EntityConfig } from "../types";
+import { FeatureConfig } from "../types";
 
 type MedusaCrudContext<TData = unknown> = {
-  config: EntityConfig<any, any, any, any>;
+  config: FeatureConfig<any, any, any, any>;
   details: TData;
   setDetails: (data: Partial<TData>) => void;
 };

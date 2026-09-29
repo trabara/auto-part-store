@@ -18,22 +18,23 @@ import type { FieldValues } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { MedusaCrudContext } from "../context/crud";
 import { setupForm } from "../registry";
-import { EntityConfig } from "../types";
+import { FeatureConfig } from "../types";
 import MedusaCreatePage from "../pages/create";
 import MedusaDetailsPage from "../pages/details";
 import MedusaEditPage from "../pages/edit";
 import MedusaListPage from "../pages/list";
 import { SdkProvider } from "../provider/sdk-provider";
+import { z } from "@medusajs/framework/zod";
 
 interface MedusaCrudProps<
-  D extends FieldValues,
-  L extends FieldValues,
-  C extends FieldValues,
-  U extends FieldValues,
+  D extends z.ZodObject = z.ZodObject,
+  L extends z.ZodObject = z.ZodObject,
+  C extends z.ZodObject = z.ZodObject,
+  U extends z.ZodObject = z.ZodObject,
 > {
   children?: React.ReactNode;
   sdk: Medusa;
-  config: EntityConfig<D, L, C, U>;
+  config: FeatureConfig<D, L, C, U>;
 }
 
 /**
@@ -44,10 +45,10 @@ interface MedusaCrudProps<
  * served from a pre-built bundle).
  */
 function MedusaCrud<
-  D extends FieldValues,
-  L extends FieldValues,
-  C extends FieldValues,
-  U extends FieldValues,
+  D extends z.ZodObject = z.ZodObject,
+  L extends z.ZodObject = z.ZodObject,
+  C extends z.ZodObject = z.ZodObject,
+  U extends z.ZodObject = z.ZodObject,
 >({ children, sdk, config }: MedusaCrudProps<D, L, C, U>) {
   const queryClientRef = useRef<QueryClient | null>(null);
   if (!queryClientRef.current) {

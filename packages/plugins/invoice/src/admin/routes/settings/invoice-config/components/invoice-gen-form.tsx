@@ -1,4 +1,3 @@
-import { html } from "@codemirror/lang-html";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AdminFile } from "@medusajs/framework/types";
 import {
@@ -12,11 +11,8 @@ import {
   toast,
 } from "@medusajs/ui";
 // import { AvatarUpload } from "@repo/ui/components/avatar-upload";
+import { z } from "@medusajs/framework/zod";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { CreateInvoiceConfig, InvoiceConfig } from "@repo/core/dtos";
-import { CreateInvoiceConfigSchema } from '@repo/core/validations';
-import { vscodeDark } from "@uiw/codemirror-theme-vscode";
-import CodeMirror from "@uiw/react-codemirror";
 import Handlebars from "handlebars";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Controller, FormProvider, useForm } from "react-hook-form";
@@ -29,14 +25,18 @@ export const InvoiceGeneratorForm = () => {
   const logoFileRef = useRef<AdminFile | null>(null);
   const [previewHtml, setPreviewHtml] = useState("");
 
-  const { data: { invoice_config } = {}, isLoading, refetch } = useQuery<{
-    invoice_config?: InvoiceConfig;
+  const {
+    data: { invoice_config } = {},
+    isLoading,
+    refetch,
+  } = useQuery<{
+    invoice_config?: any;
   }>({
     queryFn: () => sdk.client.fetch("/admin/invoice-config"),
     queryKey: ["invoice-config"],
   });
   const { mutateAsync, isPending } = useMutation({
-    mutationFn: (payload: CreateInvoiceConfig) =>
+    mutationFn: (payload: any) =>
       sdk.client.fetch("/admin/invoice-config", {
         method: "POST",
         body: payload,
@@ -50,18 +50,21 @@ export const InvoiceGeneratorForm = () => {
     },
   });
 
-  const getFormDefaultValues = useCallback(() => ({
-    company_name: invoice_config?.company_name || "",
-    company_address: invoice_config?.company_address || "",
-    company_phone: invoice_config?.company_phone || "",
-    company_email: invoice_config?.company_email || "",
-    company_logo: invoice_config?.company_logo || "",
-    notes: invoice_config?.notes || "",
-    template: invoice_config?.template || "",
-  }), [invoice_config]);
+  const getFormDefaultValues = useCallback(
+    () => ({
+      company_name: invoice_config?.company_name || "",
+      company_address: invoice_config?.company_address || "",
+      company_phone: invoice_config?.company_phone || "",
+      company_email: invoice_config?.company_email || "",
+      company_logo: invoice_config?.company_logo || "",
+      notes: invoice_config?.notes || "",
+      template: invoice_config?.template || "",
+    }),
+    [invoice_config],
+  );
 
-  const form = useForm<CreateInvoiceConfig>({
-    resolver: zodResolver(CreateInvoiceConfigSchema),
+  const form = useForm<any>({
+    resolver: zodResolver(z.object({})),
     defaultValues: getFormDefaultValues(),
   });
 
@@ -98,10 +101,8 @@ export const InvoiceGeneratorForm = () => {
         companyName: invoiceConfig.company_name || SAMPLE_DATA.companyName,
         companyAddress:
           invoiceConfig.company_address || SAMPLE_DATA.companyAddress,
-        companyPhone:
-          invoiceConfig.company_phone || SAMPLE_DATA.companyPhone,
-        companyEmail:
-          invoiceConfig.company_email || SAMPLE_DATA.companyEmail,
+        companyPhone: invoiceConfig.company_phone || SAMPLE_DATA.companyPhone,
+        companyEmail: invoiceConfig.company_email || SAMPLE_DATA.companyEmail,
         companyLogo: invoiceConfig.company_logo || SAMPLE_DATA.companyLogo,
         notes: invoiceConfig.notes || SAMPLE_DATA.notes,
         t: {
@@ -133,7 +134,6 @@ export const InvoiceGeneratorForm = () => {
       );
     }
   }, [form]);
-
 
   useEffect(() => {
     form.reset(getFormDefaultValues());
@@ -189,9 +189,7 @@ export const InvoiceGeneratorForm = () => {
                         </Label>
                       </div>
                       {/* <AvatarUpload className="w-24" onValueChange={uploadLogo} value={field.value} /> */}
-                      {error && (
-                        <Hint variant="error">{error.message}</Hint>
-                      )}
+                      {error && <Hint variant="error">{error.message}</Hint>}
                     </div>
                   );
                 }}
@@ -212,9 +210,7 @@ export const InvoiceGeneratorForm = () => {
                         onChange={field.onChange}
                         value={field.value}
                       />
-                      {error && (
-                        <Hint variant="error">{error.message}</Hint>
-                      )}
+                      {error && <Hint variant="error">{error.message}</Hint>}
                     </div>
                   );
                 }}
@@ -231,9 +227,7 @@ export const InvoiceGeneratorForm = () => {
                         </Label>
                       </div>
                       <Textarea {...field} />
-                      {error && (
-                        <Hint variant="error">{error.message}</Hint>
-                      )}
+                      {error && <Hint variant="error">{error.message}</Hint>}
                     </div>
                   );
                 }}
@@ -250,9 +244,7 @@ export const InvoiceGeneratorForm = () => {
                         </Label>
                       </div>
                       <Input {...field} />
-                      {error && (
-                        <Hint variant="error">{error.message}</Hint>
-                      )}
+                      {error && <Hint variant="error">{error.message}</Hint>}
                     </div>
                   );
                 }}
@@ -269,9 +261,7 @@ export const InvoiceGeneratorForm = () => {
                         </Label>
                       </div>
                       <Input {...field} />
-                      {error && (
-                        <Hint variant="error">{error.message}</Hint>
-                      )}
+                      {error && <Hint variant="error">{error.message}</Hint>}
                     </div>
                   );
                 }}
@@ -288,9 +278,7 @@ export const InvoiceGeneratorForm = () => {
                         </Label>
                       </div>
                       <Textarea {...field} />
-                      {error && (
-                        <Hint variant="error">{error.message}</Hint>
-                      )}
+                      {error && <Hint variant="error">{error.message}</Hint>}
                     </div>
                   );
                 }}
@@ -314,9 +302,7 @@ export const InvoiceGeneratorForm = () => {
                         style={{ fontSize: 12 }}
                         extensions={[html()]}
                       /> */}
-                      {error && (
-                        <Hint variant="error">{error.message}</Hint>
-                      )}
+                      {error && <Hint variant="error">{error.message}</Hint>}
                     </div>
                   );
                 }}

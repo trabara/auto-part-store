@@ -1,13 +1,12 @@
 import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http";
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils";
-import { UpdateMediasInput } from "@repo/core";
 import {
   deleteMediasWorkflow,
   updateMediasWorkflow,
 } from "../../../../../../workflows";
 
 export async function POST(
-  req: MedusaRequest<UpdateMediasInput>,
+  req: MedusaRequest<any>,
   res: MedusaResponse,
 ): Promise<void> {
   const logger = req.scope.resolve(ContainerRegistrationKeys.LOGGER);
@@ -19,7 +18,7 @@ export async function POST(
     })}`,
   );
 
-  const { updates } = req.validatedBody as UpdateMediasInput;
+  const { updates } = req.validatedBody;
 
   const { result } = await updateMediasWorkflow(req.scope).run({
     input: { updates },

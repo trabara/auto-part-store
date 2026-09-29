@@ -1,4 +1,3 @@
-export { ActionCell } from "./components/action-cell";
 export { ArrayFieldRenderer } from "./components/array-field-renderer";
 export { DataTableBulkActionsToolbar } from "./components/bulk-actions-toolbar";
 export { DataTable } from "./components/data-table";

@@ -10,6 +10,7 @@ export interface CellOverride<
   TValue = unknown,
 > extends BaseFieldConfig {
   cell?: ColumnDefTemplate<CellContext<T, TValue>>;
+  enableSorting?: boolean;
 }
 
 export type CellOverrides<T> = {
@@ -42,7 +43,7 @@ export interface ToolbarAction<T extends FieldValues> extends BaseAction {
 }
 
 export interface RowAction<T extends FieldValues> extends BaseAction {
-  onClick?: (row: T) => void;
+  onClick?: (e: React.MouseEvent, row: T) => void;
   render?: (row: T) => React.ReactNode;
 }
 
@@ -64,32 +65,21 @@ export interface ActionConfig<T extends FieldValues> {
   schema: z.ZodObject<T>;
 }
 
-export interface ListConfig<T extends FieldValues> extends ActionConfig<T> {
-  toolbarActions?: ToolbarAction<T>[];
-  rowActions?: RowAction<T>[];
-}
-
-export interface CreateConfig<T extends FieldValues> extends ActionConfig<T> {
-  steps?: StepConfig<T>[];
-}
-
-export interface EditConfig<T extends FieldValues> extends ActionConfig<T> {}
-
-export type EntityFieldConfigs<L extends FieldValues = {}> = (
+export type EntityFieldConfigs<T extends FieldValues = {}> = (
   t: TranslationFunction,
-) => MedusaFieldOverrides<L> | MedusaFieldOverrides<L>;
+) => MedusaFieldOverrides<T>;
 
-export type EntityFeature<S extends FieldValues = {}> = {
-  getTitle: (data?: S) => string;
-  schema: z.ZodObject<S>;
-  fields?: EntityFieldConfigs<S>;
+export type EntityFeature<S extends z.ZodObject> = {
+  schema: S;
+  getTitle: (data?: z.infer<S>) => string;
+  fields?: EntityFieldConfigs<z.infer<S>>;
 };
 
-export type EntityConfig<
-  D extends FieldValues = {},
-  L extends FieldValues = {},
-  C extends FieldValues = {},
-  U extends FieldValues = {},
+export type FeatureConfig<
+  D extends z.ZodObject = z.ZodObject,
+  L extends z.ZodObject = z.ZodObject,
+  C extends z.ZodObject = z.ZodObject,
+  U extends z.ZodObject = z.ZodObject,
 > = {
   entity: string;
   path: string;

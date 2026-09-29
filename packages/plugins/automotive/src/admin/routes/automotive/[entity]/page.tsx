@@ -4,19 +4,17 @@ import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { Outlet, UIMatch, useParams } from "react-router-dom";
 import { sdk } from "../../../lib/sdk";
-import { entityConfig } from "../config";
+import moduleDef from "../../../modules/automotive";
 
 export default function EntityPage() {
   const { t } = useTranslation();
   const { entity } = useParams();
 
-  const config = useMemo(() => entityConfig(entity!, t), []);
-
-  const title = startCase(toLower(entity!));
+  const config = useMemo(() => moduleDef.getFeature(entity!, t), []);
 
   return (
     <MedusaCrud {...{ sdk, config }}>
-      <MedusaCrud.List title={title} />
+      <MedusaCrud.List />
       <Outlet />
     </MedusaCrud>
   );

@@ -1,5 +1,4 @@
 import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http";
-import { CreateInvoiceConfig } from "@repo/core";
 import { updateInvoiceConfigWorkflow } from "../../../workflows/invoice-generator";
 import { createInvoiceConfigWorkflow } from "../../../workflows/invoice-generator/create-invoice-config";
 
@@ -25,7 +24,7 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
  * Update the invoice configuration
  */
 export async function POST(
-  req: MedusaRequest<CreateInvoiceConfig>,
+  req: MedusaRequest<any>,
   res: MedusaResponse,
 ) {
   const { id } = req.params;

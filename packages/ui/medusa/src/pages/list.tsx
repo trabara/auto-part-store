@@ -1,33 +1,24 @@
 import { z } from "@medusajs/framework/zod";
 import { PencilSquare, Trash } from "@medusajs/icons";
-import { Button, Container, Hint, UseDataTableReturn } from "@medusajs/ui";
+import { Container, UseDataTableReturn } from "@medusajs/ui";
 import { zodQueryResolve } from "@repo/utils";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { DataTable } from "../components/data-table";
 import { useMedusaCrud } from "../context/crud";
 import { useDeleteMutation } from "../hooks/use-delete-mutation";
-import {
-  PageQueryParams,
-  RowAction,
-  SelectFn,
-  ToolbarAction,
-} from "../types";
 import { useSdk } from "../provider/sdk-provider";
+import { PageQueryParams, RowAction, SelectFn, ToolbarAction } from "../types";
 
 type MedusaCrudListProps<T extends { id: string }> = {
-  description?: string;
   rowActions?: RowAction<T>[];
   toolbarActions?: ToolbarAction<T>[];
-  onRowClick?: (row: T) => void;
 };
 
 const MedusaListPage = function List<T extends { id: string }>({
-  description,
   rowActions,
   toolbarActions,
-  onRowClick,
   ...restProps
 }: MedusaCrudListProps<T>) {
   const sdk = useSdk();
@@ -73,15 +64,20 @@ const MedusaListPage = function List<T extends { id: string }>({
       id: "edit",
       label: t("common.edit"),
       icon: <PencilSquare />,
-      onClick: (row) =>
-        navigate(`${config.path}/${row.id}/edit`, { state: row }),
+      onClick: (e, row) => {
+        e.stopPropagation();
+        navigate(`${config.path}/${row.id}/edit`);
+      },
     },
     {
       id: "delete",
       label: t("common.delete"),
       icon: <Trash />,
       variant: "danger",
-      onClick: (row) => deleteMutation.mutateAsync(row.id),
+      onClick: (e, row) => {
+        e.stopPropagation();
+        deleteMutation.mutateAsync(row.id);
+      },
     },
   ];
 
@@ -102,13 +98,13 @@ const MedusaListPage = function List<T extends { id: string }>({
     };
   };
 
-  const handleRowClick = (row: T) => {
-    if (onRowClick !== undefined) {
-      return onRowClick(row);
-    }
+  const handleRowClick = (
+    e: React.MouseEvent<HTMLTableRowElement, MouseEvent>,
+    row: T,
+  ) => {
     navigate(`${config.path}/${row.id}`);
   };
-  
+
   const title = getTitle();
   const columns = (typeof fields === "function" ? fields(t) : fields) || {};
 

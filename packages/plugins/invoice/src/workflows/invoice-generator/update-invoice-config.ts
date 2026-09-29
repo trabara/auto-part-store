@@ -1,8 +1,7 @@
 import { createWorkflow, WorkflowResponse } from "@medusajs/framework/workflows-sdk"
-import { CreateInvoiceConfig } from "@repo/core"
 import { updateInvoiceConfigStep } from "./steps/update-invoice-config"
 
-type UpdateInvoiceConfigWorkflowInput = CreateInvoiceConfig & {
+type UpdateInvoiceConfigWorkflowInput = any & {
     id: string
 }
 

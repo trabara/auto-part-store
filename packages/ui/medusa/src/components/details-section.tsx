@@ -7,8 +7,20 @@ import {
   Text,
 } from "@medusajs/ui";
 import _ from "lodash";
+import { ReactNode } from "react";
 import { formatValue } from "./many-relation-section";
+import React from "react";
 
+type DetailSectionProps = {
+  title: string;
+  attributes: [string, unknown][];
+  actions?: {
+    id: string;
+    label: string;
+    icon?: ReactNode;
+    onClick: () => void;
+  }[];
+};
 /**
  * A "one" relationship, or the entity's own scalar fields: rendered as a
  * label/value details block in the side column. Renders nothing when there
@@ -16,12 +28,10 @@ import { formatValue } from "./many-relation-section";
  */
 export function DetailsSection({
   title,
-  entries,
-}: {
-  title: string;
-  entries: [string, unknown][];
-}) {
-  if (entries.length === 0) {
+  attributes,
+  actions = [],
+}: DetailSectionProps) {
+  if (attributes.length === 0) {
     return null;
   }
 
@@ -29,19 +39,31 @@ export function DetailsSection({
     <Container className="divide-y p-0">
       <div className="flex items-center justify-between px-6 py-4">
         <Heading level="h1">{title}</Heading>
-        <DropdownMenu>
-          <DropdownMenu.Trigger asChild>
-            <IconButton variant="transparent">
-              <EllipsisHorizontal />
-            </IconButton>
-          </DropdownMenu.Trigger>
-          <DropdownMenu.Content>
-            <DropdownMenu.Item></DropdownMenu.Item>
-          </DropdownMenu.Content>
-        </DropdownMenu>
+        {actions.length > 0 && (
+          <DropdownMenu>
+            <DropdownMenu.Trigger asChild>
+              <IconButton variant="transparent">
+                <EllipsisHorizontal />
+              </IconButton>
+            </DropdownMenu.Trigger>
+            <DropdownMenu.Content align="end">
+              {actions.map(({ id, label, icon, onClick }, index) => {
+                return (
+                  <React.Fragment key={id}>
+                    <DropdownMenu.Item className="gap-2" onClick={onClick}>
+                      {icon}
+                      {label}
+                    </DropdownMenu.Item>
+                    {index < actions.length - 1 && <DropdownMenu.Separator />}
+                  </React.Fragment>
+                );
+              })}
+            </DropdownMenu.Content>
+          </DropdownMenu>
+        )}
       </div>
 
-      {entries
+      {attributes
         .filter(
           ([key]) =>
             !["id", "created_at", "updated_at", "deleted_at"].includes(key),

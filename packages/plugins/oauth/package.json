@@ -40,12 +40,12 @@
     "zod": "^3.24.1"
   },
   "devDependencies": {
-    "@medusajs/admin-bundler": "2.21.0",
-    "@medusajs/admin-sdk": "2.21.0",
-    "@medusajs/cli": "2.21.0",
-    "@medusajs/framework": "2.21.0",
-    "@medusajs/icons": "2.21.0",
-    "@medusajs/medusa": "2.21.0",
+    "@medusajs/admin-bundler": "2.21.2",
+    "@medusajs/admin-sdk": "2.21.2",
+    "@medusajs/cli": "2.21.2",
+    "@medusajs/framework": "2.21.2",
+    "@medusajs/icons": "2.21.2",
+    "@medusajs/medusa": "2.21.2",
     "@medusajs/ui": "4.0.25",
     "@repo/config": "workspace:*",
     "@repo/scripts": "workspace:*",

@@ -1,5 +1,4 @@
 import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http";
-import { CreateMediasInput } from "@repo/core";
 import {
   ENTITY_MEDIA_MODULE,
   type MediaModuleService,
@@ -10,10 +9,7 @@ import { createMediasWorkflow } from "../../../../../workflows";
  * POST /admin/medias/:entity_id/images
  * Create a batch of images for a specific media entity
  */
-export async function POST(
-  req: MedusaRequest<CreateMediasInput>,
-  res: MedusaResponse,
-) {
+export async function POST(req: MedusaRequest<any>, res: MedusaResponse) {
   const { entity_id } = req.params;
   const { files } = req.validatedBody;
   // Add entity_id to each file

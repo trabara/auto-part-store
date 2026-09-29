@@ -20,7 +20,7 @@ const MedusaCreatePage = <T extends Record<string, any>>() => {
   const { config } = useMedusaCrud();
 
   const entityName = startCase(config.entity);
-  const { schema, steps = [], fields } = config.create;
+  const { schema, steps = [], fields, getTitle } = config.create;
 
   const createAction = (data: T): Promise<void> =>
     sdk.client.fetch(`/admin${config.path}`, {
@@ -178,9 +178,7 @@ const MedusaCreatePage = <T extends Record<string, any>>() => {
               <div className="flex flex-col h-full">
                 <FocusModal.Header>
                   <FocusModal.Title>
-                    <Heading level="h1">
-                      Create <span className="capitalize">{entityName}</span>
-                    </Heading>
+                    <Heading level="h1">{getTitle()}</Heading>
                   </FocusModal.Title>
                 </FocusModal.Header>
                 <FocusModal.Body className={styles.body.wrapper.base}>

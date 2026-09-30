@@ -1,7 +1,7 @@
 import {
   MedusaFieldOverrides,
   EntitySelect,
-  defineFeatures,
+  defineModule,
 } from "@repo/medusa-ui";
 import { TranslationFunction } from "@repo/medusa-ui/registry";
 import {
@@ -119,93 +119,102 @@ const vehicleModelCreateFields = (
 
 const vehicleModelUpdateFields = (t: TranslationFunction) => ({});
 
-export default defineFeatures("Automotive", {
-  vehicle: {
-    entity: "vehicle",
-    path: "/automotive/vehicle",
-    list: {
-      getTitle: () => "",
-      schema: VehicleSchema.omit({ model: true, engine: true }),
-      fields: vehicleListFields,
+export default defineModule({
+  id: "automotive",
+  name: "Automotive",
+  path: "/automotive",
+  features: {
+    vehicle: {
+      path: "/vehicle",
+      pages: {
+        list: {
+          getTitle: () => "",
+          schema: VehicleSchema.omit({ model: true, engine: true }),
+          fields: vehicleListFields,
+        },
+        details: { schema: VehicleSchema, getTitle: () => "" },
+        create: {
+          getTitle: () => "",
+          schema: CreateVehicleInputSchema,
+          fields: vehicleCreateFields,
+        },
+        update: {
+          getTitle: () => "",
+          schema: UpdateVehicleInputSchema,
+          fields: vehicleUpdateFields,
+        },
+      },
     },
-    details: { schema: VehicleSchema, getTitle: () => "" },
-    create: {
-      getTitle: () => "",
-      schema: CreateVehicleInputSchema,
-      fields: vehicleCreateFields,
+    vehicle_engine: {
+      path: "vehicle-engine",
+      pages: {
+        list: {
+          getTitle: () => "",
+          // @ts-ignore
+          schema: VehicleEngineSchema.omit({ vehicles: true }),
+          fields: vehicleEngineListFields,
+        },
+        details: {
+          getTitle: () => "",
+          schema: VehicleEngineSchema,
+        },
+        create: {
+          getTitle: () => "",
+          schema: CreateEngineInputSchema,
+          fields: vehicleEngineCreateFields,
+        },
+        update: {
+          getTitle: () => "",
+          schema: UpdateEngineInputSchema,
+          fields: vehicleEngineUpdateFields,
+        },
+      },
     },
-    update: {
-      getTitle: () => "",
-      schema: UpdateVehicleInputSchema,
-      fields: vehicleUpdateFields,
+    vehicle_make: {
+      path: "vehicle-make",
+      pages: {
+        list: {
+          getTitle: () => "",
+          // @ts-ignore
+          schema: VehicleMakeSchema.omit({ models: true }),
+          fields: vehicleMakeFields,
+        },
+        details: { getTitle: () => "", schema: VehicleMakeSchema },
+        create: {
+          getTitle: () => "",
+          schema: CreateMakeInputSchema,
+          fields: vehicleMakeCreateFields,
+        },
+        update: {
+          getTitle: () => "",
+          schema: UpdateMakeInputSchema,
+          fields: vehicleMakeUpdateFields,
+        },
+      },
     },
-  },
-  vehicle_engine: {
-    entity: "vehicle",
-    path: "/automotive/vehicle-engine",
-    list: {
-      getTitle: () => "",
-      // @ts-ignore
-      schema: VehicleEngineSchema.omit({ vehicles: true }),
-      fields: vehicleEngineListFields,
-    },
-    details: {
-      getTitle: () => "",
-      schema: VehicleEngineSchema,
-    },
-    create: {
-      getTitle: () => "",
-      schema: CreateEngineInputSchema,
-      fields: vehicleEngineCreateFields,
-    },
-    update: {
-      getTitle: () => "",
-      schema: UpdateEngineInputSchema,
-      fields: vehicleEngineUpdateFields,
-    },
-  },
-  vehicle_make: {
-    entity: "vehicle",
-    path: "/automotive/vehicle-make",
-    list: {
-      getTitle: () => "",
-      // @ts-ignore
-      schema: VehicleMakeSchema.omit({ models: true }),
-      fields: vehicleMakeFields,
-    },
-    details: { getTitle: () => "", schema: VehicleMakeSchema },
-    create: {
-      getTitle: () => "",
-      schema: CreateMakeInputSchema,
-      fields: vehicleMakeCreateFields,
-    },
-    update: {
-      getTitle: () => "",
-      schema: UpdateMakeInputSchema,
-      fields: vehicleMakeUpdateFields,
-    },
-  },
-  vehicle_model: {
-    entity: "vehicle",
-    path: "/automotive/vehicle-model",
-    list: {
-      getTitle: () => "",
-      schema: VehicleModelSchema.omit({ make: true, vehicles: true }),
-      fields: vehicleModelFields,
-    },
-    details: {
-      getTitle: () => "",
-      schema: VehicleModelSchema,
-    },
-    create: {
-      getTitle: () => "",
-      schema: CreateModelInputSchema,
-      fields: vehicleModelCreateFields,
-    },
-    update: {
-      getTitle: () => "",
-      schema: UpdateModelInputSchema,
-      fields: vehicleModelUpdateFields,
+    vehicle_model: {
+      path: "vehicle-model",
+      pages: {
+        list: {
+          getTitle: () => "",
+          schema: VehicleModelSchema.omit({ make: true, vehicles: true }),
+          fields: vehicleModelFields,
+        },
+        details: {
+          getTitle: () => "",
+          schema: VehicleModelSchema,
+        },
+        create: {
+          getTitle: () => "",
+          schema: CreateModelInputSchema,
+          fields: vehicleModelCreateFields,
+        },
+        update: {
+          getTitle: () => "",
+          schema: UpdateModelInputSchema,
+          fields: vehicleModelUpdateFields,
+        },
+      },
     },
   },
 });

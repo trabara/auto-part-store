@@ -29,6 +29,7 @@ export { useUpdateMutation } from "./hooks/use-update-mutation";
 export { useWizardForm } from "./hooks/use-wizard-form";
 export { MedusaCrud } from "./provider/medusa-crud";
 export { SdkProvider, useSdk } from "./provider/sdk-provider";
+export { useMedusaCrud } from "./context/crud";
 
 export {
   clearRegistry,
@@ -88,8 +89,6 @@ export type {
   BaseFieldConfig,
   CellOverride,
   CellOverrides,
-  CreateConfig,
-  EditConfig,
   Entity,
   FieldConfig,
   FieldOption,
@@ -106,7 +105,6 @@ export type {
   FormUIDescriptionProps,
   FormUIErrorMessageProps,
   FormUILabelProps,
-  ListConfig,
   MedusaFieldOverrides,
   PageQueryParams,
   QueryFn,

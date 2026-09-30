@@ -2,8 +2,8 @@ import { z } from "@medusajs/framework/zod";
 import { UseDataTableReturn } from "@medusajs/ui";
 import { CellContext, ColumnDefTemplate } from "@tanstack/react-table";
 import { FieldValues } from "react-hook-form";
-import { BaseFieldConfig, FieldOverrides } from "./form";
 import { TranslationFunction } from "../registry";
+import { BaseFieldConfig, FieldOverrides } from "./form";
 
 export interface CellOverride<
   T = unknown,
@@ -47,7 +47,7 @@ export interface RowAction<T extends FieldValues> extends BaseAction {
   render?: (row: T) => React.ReactNode;
 }
 
-export interface StepConfig<T extends FieldValues> {
+export interface StepConfig<T extends FieldValues = FieldValues> {
   id: string;
   description?: string;
   header?: boolean;
@@ -69,22 +69,49 @@ export type EntityFieldConfigs<T extends FieldValues = {}> = (
   t: TranslationFunction,
 ) => MedusaFieldOverrides<T>;
 
-export type EntityFeature<S extends z.ZodObject> = {
+export type FeaturePageConfig<S extends z.ZodObject = z.ZodObject> = {
+  path?: string;
   schema: S;
   getTitle: (data?: z.infer<S>) => string;
   fields?: EntityFieldConfigs<z.infer<S>>;
 };
 
+export type CreateFeature<S extends z.ZodObject = z.ZodObject> =
+  FeaturePageConfig<S> & { steps?: StepConfig<z.infer<S>>[] };
 export type FeatureConfig<
   D extends z.ZodObject = z.ZodObject,
   L extends z.ZodObject = z.ZodObject,
   C extends z.ZodObject = z.ZodObject,
   U extends z.ZodObject = z.ZodObject,
 > = {
-  entity: string;
   path: string;
-  details: EntityFeature<D>;
-  list: EntityFeature<L>;
-  create: EntityFeature<C> & { steps?: StepConfig<C>[] };
-  update: EntityFeature<U>;
+  pages: {
+    details: FeaturePageConfig<D>;
+    list: FeaturePageConfig<L>;
+    create: CreateFeature<C>;
+    update: FeaturePageConfig<U>;
+  };
+};
+
+export type ModuleDef = {
+  id: string;
+  path: string;
+  name: string;
+  features: Record<string, FeatureConfig>;
+};
+
+export type ModuleRouter = {
+  label: string;
+  items: {
+    param: string;
+    label: string;
+  }[];
+};
+
+export type MedusaModule = {
+  id: string;
+  name: string;
+  path: string;
+  getFeature: (entity: string, t?: TranslationFunction) => FeatureConfig;
+  getRouter: () => ModuleRouter;
 };

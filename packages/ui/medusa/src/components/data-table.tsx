@@ -11,14 +11,14 @@ import { useTranslation } from "react-i18next";
 import { createZodDataTableColumnDef } from "../helpers/create-zod-columns";
 import { createZodDataTableFilterDef } from "../helpers/create-zod-filters";
 import { usePageQuery } from "../hooks/use-page-query";
-import { ListConfig } from "../types/config";
 import { QueryFn, SelectFn } from "../types/query";
 import { DataTableBulkActionsToolbar } from "./bulk-actions-toolbar";
+import { FeaturePageConfig } from "../types";
 
 interface DataTableListProps<
   T extends { id: string },
   R,
-> extends ListConfig<T> {
+> extends FeaturePageConfig {
   className?: string;
   selectedIds?: string[];
   queryFn: QueryFn<R>;

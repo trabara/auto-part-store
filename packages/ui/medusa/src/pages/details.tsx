@@ -9,23 +9,28 @@ import { ManyRelationSection } from "../components/many-relation-section";
 import { useMedusaCrud } from "../context/crud";
 import { useDeleteMutation } from "../hooks/use-delete-mutation";
 import { useSdk } from "../provider/sdk-provider";
+import { FeaturePageConfig } from "../types";
 
 type DetailsPageProps = {
-  id?: string;
+  config: FeaturePageConfig;
+  entity: string;
   initialData?: any;
   children?: React.ReactNode;
 };
 
-const MedusaDetailsPage = ({ initialData, children }: DetailsPageProps) => {
+const MedusaDetailsPage = ({
+  initialData,
+  entity,
+  config,
+  children,
+}: DetailsPageProps) => {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const sdk = useSdk();
 
-  const { config, details, setDetails } = useMedusaCrud();
+  const { module, details, setDetails } = useMedusaCrud();
 
-  const { getTitle } = config.details;
-
-  const title = getTitle(initialData);
+  const title = config.getTitle(initialData);
 
   // Group the entity's own fields by data relationship: many -> a data
   // table for the main column, one -> a details block for the side
@@ -55,14 +60,14 @@ const MedusaDetailsPage = ({ initialData, children }: DetailsPageProps) => {
   }, [details]);
 
   const deleteMutation = useDeleteMutation({
-    invalidateKeys: [config.path],
+    invalidateKeys: [module.path],
     errorMessage: t("common.error_delete_item"),
     successMessage: t("common.success_delete_item"),
     deleteFn: async (id: string) => {
-      await sdk.client.fetch(`/admin${config.path}/${id}`, {
+      await sdk.client.fetch(`/admin${module.path}/${id}`, {
         method: "DELETE",
       });
-      navigate(config.path);
+      navigate(module.path);
     },
   });
 
@@ -81,7 +86,7 @@ const MedusaDetailsPage = ({ initialData, children }: DetailsPageProps) => {
             id: "edit",
             label: "Modifé",
             icon: <Pencil />,
-            onClick: () => navigate(`${config.path}/${initialData.id}/edit`),
+            onClick: () => navigate(`${module.path}/${initialData.id}/edit`),
           },
           {
             id: "delete",
@@ -122,7 +127,7 @@ const MedusaDetailsPage = ({ initialData, children }: DetailsPageProps) => {
     <>
       <LayoutComposer
         data={details}
-        widgetsZonePrefix={`${config.entity}.details`}
+        widgetsZonePrefix={`${entity}.details`}
         preferredLayoutId={preferredLayoutId()}
         sections={{
           main: mainSections,

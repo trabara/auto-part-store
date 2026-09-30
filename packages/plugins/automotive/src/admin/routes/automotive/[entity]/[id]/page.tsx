@@ -1,10 +1,14 @@
 // export async function loader(args: LoaderFunctionArgs) {}
 
-import { MedusaCrud } from "@repo/medusa-ui";
+import { MedusaCrud, useMedusaCrud } from "@repo/medusa-ui";
 import { zodQueryResolve } from "@repo/medusa-ui/utils";
-import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import { LoaderFunctionArgs, Outlet, useParams } from "react-router-dom";
+import {
+  LoaderFunctionArgs,
+  Outlet,
+  useLoaderData,
+  useParams,
+} from "react-router-dom";
 import { sdk } from "../../../../lib/sdk";
 import moduleDef from "../../../../modules/automotive";
 
@@ -14,24 +18,29 @@ export async function loader({ params }: LoaderFunctionArgs) {
   const feature = moduleDef.getFeature(entity!);
 
   return sdk.client.fetch<{ data: any }>(
-    `${feature.path}/${feature.entity})}/${id}`,
+    `admin${moduleDef.path}/${entity}/${id}`,
     {
       query: {
-        fields: zodQueryResolve(feature.details.schema),
+        fields: zodQueryResolve(feature.pages.details.schema),
       },
     },
   );
 }
 
 const DetailPage = () => {
-  const { id, entity } = useParams<{ entity: string; id: string }>();
+  const { entity } = useParams<{ entity: string; id: string }>();
   const { t } = useTranslation();
 
-  const config = useMemo(() => moduleDef.getFeature(entity!, t), []);
+  const config = moduleDef.getFeature(entity!, t);
+  const data = useLoaderData() as Awaited<{ data: any; entity: string }>;
 
   return (
-    <MedusaCrud sdk={sdk} config={config}>
-      <MedusaCrud.Detail id={id}>
+    <MedusaCrud {...{ sdk, module: moduleDef }}>
+      <MedusaCrud.Detail
+        entity={entity!}
+        initialData={data.data}
+        config={config.pages.details}
+      >
         <Outlet />
       </MedusaCrud.Detail>
     </MedusaCrud>

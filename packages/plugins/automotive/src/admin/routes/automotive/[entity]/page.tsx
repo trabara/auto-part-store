@@ -1,20 +1,19 @@
 import { MedusaCrud } from "@repo/medusa-ui";
 import { startCase, toLower } from "lodash";
-import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { Outlet, UIMatch, useParams } from "react-router-dom";
-import { sdk } from "../../../lib/sdk";
 import moduleDef from "../../../modules/automotive";
+import { defineRouteConfig } from "@medusajs/admin-sdk";
+import { sdk } from "../../../lib/sdk";
 
 export default function EntityPage() {
   const { t } = useTranslation();
   const { entity } = useParams();
-
-  const config = useMemo(() => moduleDef.getFeature(entity!, t), []);
+  const config = moduleDef.getFeature(entity!, t);
 
   return (
-    <MedusaCrud {...{ sdk, config }}>
-      <MedusaCrud.List />
+    <MedusaCrud {...{ sdk, module: moduleDef }}>
+      <MedusaCrud.List entity={entity!} config={config.pages.list} />
       <Outlet />
     </MedusaCrud>
   );
@@ -25,3 +24,5 @@ export const handle = {
     return startCase(toLower(params.entity));
   },
 };
+
+export const config = defineRouteConfig(moduleDef.getRouter());

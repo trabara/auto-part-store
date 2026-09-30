@@ -1,2 +1,2 @@
-export * from "./create-entity-config";
+export * from "./define-module";
 export * from "./create-select-columns";

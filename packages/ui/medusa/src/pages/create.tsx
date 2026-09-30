@@ -1,35 +1,37 @@
 import { Button, FocusModal, Heading, Hint, ProgressTabs } from "@medusajs/ui";
 import { getZodShape } from "@repo/utils";
+import { startCase } from "lodash";
 import React, { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { Form } from "../components/form";
 import { useCreateMutation } from "../hooks/use-create-mutation";
 import { useWizardForm } from "../hooks/use-wizard-form";
-import { StepConfig } from "../types";
-import { cn } from "../utils";
 import { useSdk } from "../provider/sdk-provider";
-import { useMedusaCrud } from "../context/crud";
-import { startCase } from "lodash";
+import { CreateFeature, StepConfig } from "../types";
+import { cn } from "../utils";
 
-const MedusaCreatePage = <T extends Record<string, any>>() => {
+const MedusaCreatePage = ({
+  config,
+  entity,
+}: {
+  config: CreateFeature;
+  entity: string;
+}) => {
   const sdk = useSdk();
   const { t } = useTranslation();
   const navigate = useNavigate();
 
-  const { config } = useMedusaCrud();
+  const entityName = startCase(entity);
 
-  const entityName = startCase(config.entity);
-  const { schema, steps = [], fields, getTitle } = config.create;
-
-  const createAction = (data: T): Promise<void> =>
+  const createAction = (data: any): Promise<void> =>
     sdk.client.fetch(`/admin${config.path}`, {
       method: "POST",
       body: data,
     });
 
   const mutate = useCreateMutation({
-    invalidateKeys: [config.path],
+    invalidateKeys: [config!.path!],
     errorMessage: `Failed to create ${entityName}`,
     successMessage: `Successfully created ${entityName}`,
     createFn: createAction,
@@ -39,8 +41,8 @@ const MedusaCreatePage = <T extends Record<string, any>>() => {
     navigate(`${config.path}`, { replace: true });
   };
 
-  const handleSubmit = async (values: T) => {
-    if (steps && steps.length > 0) {
+  const handleSubmit = async (values: any) => {
+    if (config.steps && config.steps.length > 0) {
       await action.handleSubmit(values);
     } else {
       await mutate.mutateAsync(values);
@@ -48,14 +50,15 @@ const MedusaCreatePage = <T extends Record<string, any>>() => {
     dispose();
   };
 
-  const [wizard, action] = useWizardForm(steps, async (values: T) => {
+  const [wizard, action] = useWizardForm(config.steps as [], async (values) => {
     await mutate.mutateAsync(values);
     dispose();
   });
 
   const activeSchema = useMemo(
-    () => (steps && steps.length > 0 ? wizard.schema : schema),
-    [wizard.schema, schema, steps],
+    () =>
+      config.steps && config.steps.length > 0 ? wizard.schema : config.schema,
+    [wizard.schema, config.schema, config.steps],
   );
 
   if (!activeSchema) {
@@ -80,16 +83,17 @@ const MedusaCreatePage = <T extends Record<string, any>>() => {
     },
   };
 
-  const getContentStyle = (step: StepConfig<T>) =>
+  const getContentStyle = (step: StepConfig) =>
     cn(
       styles.body.content.base,
       styles.body.content[step.display ?? "default"],
     );
 
-  const getHeaderStyle = (step: StepConfig<T>) =>
+  const getHeaderStyle = (step: StepConfig) =>
     cn(styles.header.base, styles.header[step.display ?? "default"]);
 
-  const overrideFields = typeof fields === "function" ? fields(t) : fields;
+  const overrideFields =
+    typeof config.fields === "function" ? config.fields(t) : config.fields;
 
   return (
     <FocusModal open={true} onOpenChange={dispose}>
@@ -100,7 +104,7 @@ const MedusaCreatePage = <T extends Record<string, any>>() => {
           onSubmit={handleSubmit}
         >
           {({ renderField, renderSubmitButton, form }) => {
-            if (config.create.steps && config.create.steps.length > 0) {
+            if (config.steps && config.steps.length > 0) {
               return (
                 <ProgressTabs
                   value={wizard.step}
@@ -109,7 +113,7 @@ const MedusaCreatePage = <T extends Record<string, any>>() => {
                 >
                   <FocusModal.Header>
                     <ProgressTabs.List className="-my-2 w-full border-l">
-                      {config.create.steps.map(({ id, label }) => (
+                      {config.steps.map(({ id, label }) => (
                         <ProgressTabs.Trigger key={id} value={id}>
                           {label}
                         </ProgressTabs.Trigger>
@@ -118,7 +122,7 @@ const MedusaCreatePage = <T extends Record<string, any>>() => {
                   </FocusModal.Header>
 
                   <FocusModal.Body className={styles.body.wrapper.base}>
-                    {config.create.steps.map((step) => {
+                    {config.steps.map((step) => {
                       if (wizard.step !== step.id) {
                         return <React.Fragment key={step.id} />;
                       }
@@ -178,7 +182,7 @@ const MedusaCreatePage = <T extends Record<string, any>>() => {
               <div className="flex flex-col h-full">
                 <FocusModal.Header>
                   <FocusModal.Title>
-                    <Heading level="h1">{getTitle()}</Heading>
+                    <Heading level="h1">{config.getTitle()}</Heading>
                   </FocusModal.Title>
                 </FocusModal.Header>
                 <FocusModal.Body className={styles.body.wrapper.base}>

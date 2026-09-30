@@ -1,8 +1,8 @@
 import { createContext, useContext } from "react";
-import { FeatureConfig } from "../types";
+import { MedusaModule } from "../types";
 
 type MedusaCrudContext<TData = unknown> = {
-  config: FeatureConfig<any, any, any, any>;
+  module: MedusaModule;
   details: TData;
   setDetails: (data: Partial<TData>) => void;
 };

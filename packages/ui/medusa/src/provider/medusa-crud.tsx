@@ -14,27 +14,20 @@ import {
 } from "@medusajs/ui";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import React, { useEffect, useRef, useState } from "react";
-import type { FieldValues } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { MedusaCrudContext } from "../context/crud";
-import { setupForm } from "../registry";
-import { FeatureConfig } from "../types";
 import MedusaCreatePage from "../pages/create";
 import MedusaDetailsPage from "../pages/details";
 import MedusaEditPage from "../pages/edit";
 import MedusaListPage from "../pages/list";
 import { SdkProvider } from "../provider/sdk-provider";
-import { z } from "@medusajs/framework/zod";
+import { setupForm } from "../registry";
+import { MedusaModule, ModuleDef } from "../types";
 
-interface MedusaCrudProps<
-  D extends z.ZodObject = z.ZodObject,
-  L extends z.ZodObject = z.ZodObject,
-  C extends z.ZodObject = z.ZodObject,
-  U extends z.ZodObject = z.ZodObject,
-> {
-  children?: React.ReactNode;
+interface MedusaCrudProps {
   sdk: Medusa;
-  config: FeatureConfig<D, L, C, U>;
+  module: MedusaModule;
+  children?: React.ReactNode;
 }
 
 /**
@@ -44,12 +37,7 @@ interface MedusaCrudProps<
  * QueryClientProvider is in scope (which is not guaranteed for plugin routes
  * served from a pre-built bundle).
  */
-function MedusaCrud<
-  D extends z.ZodObject = z.ZodObject,
-  L extends z.ZodObject = z.ZodObject,
-  C extends z.ZodObject = z.ZodObject,
-  U extends z.ZodObject = z.ZodObject,
->({ children, sdk, config }: MedusaCrudProps<D, L, C, U>) {
+function MedusaCrud({ children, sdk, module }: MedusaCrudProps) {
   const queryClientRef = useRef<QueryClient | null>(null);
   if (!queryClientRef.current) {
     queryClientRef.current = new QueryClient();
@@ -138,7 +126,7 @@ function MedusaCrud<
 
   return (
     <QueryClientProvider client={queryClientRef.current}>
-      <MedusaCrudContext.Provider value={{ config, details, setDetails }}>
+      <MedusaCrudContext.Provider value={{ module, details, setDetails }}>
         <SdkProvider sdk={sdk}>
           <TooltipProvider>{children}</TooltipProvider>
           <Toaster position="top-right" />

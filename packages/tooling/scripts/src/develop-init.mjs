@@ -19,48 +19,27 @@
 import { Compiler } from "@medusajs/framework/build-tools";
 import { logger } from "@medusajs/framework/logger";
 import path from "path";
-import fs from "fs";
 
 const pluginDir = process.argv[2]
   ? path.resolve(process.argv[2])
   : process.cwd();
 
 const compiler = new Compiler(pluginDir, logger);
-const parsedConfig = await compiler.loadTSConfigFile();
-if (!parsedConfig) {
-  logger.error("Unable to load tsconfig");
+
+const tsConfig = await compiler.loadTSConfigFile();
+if (!tsConfig) {
+  logger.error("Unable to compile plugin");
   process.exit(1);
 }
 
-// Step 1: Build backend (wipes .medusa/server, then compiles TS)
-const backendOk = await compiler.buildPluginBackend(parsedConfig);
-if (!backendOk) {
-  logger.error("Plugin backend build failed");
-  process.exit(1);
-}
-
-// Step 2: Build admin extensions (writes .medusa/server/src/admin/index.mjs)
 const bundler = await import("@medusajs/admin-bundler");
+const responses = await Promise.all([
+  compiler.buildPluginBackend(tsConfig),
+  compiler.buildPluginAdminExtensions(bundler),
+]);
 
-const viteFilePath = `${pluginDir}/vite.config.mjs`;
-if (fs.existsSync(viteFilePath)) {
-  const viteConfig = await import(viteFilePath).then((mod) => mod.default);
-  
-  // bundler.build({
-  //   outDir: pluginDir,
-  //   vite: (config) => {
-  //     return {
-  //       ...config,
-  //       ...viteConfig,
-  //     };
-  //   },
-  // });
-}
-
-const adminOk = await compiler.buildPluginAdminExtensions(bundler);
-if (!adminOk) {
-  logger.error("Plugin admin extensions build failed");
+if (responses.every((response) => response === true)) {
+  process.exit(0);
+} else {
   process.exit(1);
 }
-
-process.exit(0);

@@ -3,54 +3,62 @@ import _ from "lodash";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { Form } from "../components/form";
-import { useMedusaCrud } from "../context/crud";
 import { useUpdateMutation } from "../hooks/use-update-mutation";
 import { useSdk } from "../provider/sdk-provider";
+import { FeaturePageConfig } from "../types";
 
-const MedusaEditPage = <T extends { id: string }>() => {
+const MedusaEditPage = ({
+  entity,
+  config,
+  initialData,
+}: {
+  entity: string;
+  config: FeaturePageConfig;
+  initialData: any;
+}) => {
   const sdk = useSdk();
-  const { config, details } = useMedusaCrud<T>();
+
   const { t } = useTranslation();
   const navigate = useNavigate();
 
-  const name = _.startCase(config.entity);
+  const name = _.startCase(entity);
+
   const dispose = () => {
-    if (details?.id) {
-      navigate(`${config.path}/${details.id}`);
+    if (initialData?.id) {
+      navigate(`${config.path}/${initialData.id}`);
     } else {
       navigate(`${config.path}`);
     }
   };
 
-  const updateAction = (data: T): Promise<void> =>
+  const updateAction = (data: any): Promise<void> =>
     sdk.client.fetch(`/admin${config.path}/${data.id}`, {
       method: "PUT",
       body: data,
     });
 
   const mutation = useUpdateMutation({
-    invalidateKeys: [config.path],
+    invalidateKeys: [config!.path!],
     errorMessage: `Failed to update ${name}`,
     successMessage: `Successfully updated ${name}`,
     updateFn: (data) => updateAction(data),
     onSuccess: () => dispose(),
   });
 
-  const handleSubmit = async (values: T) => {
+  const handleSubmit = async (values: any) => {
     await mutation.mutateAsync(values);
     dispose();
   };
 
-  const { schema, fields } = config.update;
-
-  const overrideFields = typeof fields === "function" ? fields(t) : fields;
+  const overrideFields =
+    typeof config.fields === "function" ? config.fields(t) : config.fields;
 
   return (
     <Drawer open={true} onOpenChange={() => dispose()}>
       <Drawer.Content>
         <Form
-          defaultValues={details}
-          schema={schema}
+          defaultValues={initialData}
+          schema={config.schema}
           overrides={overrideFields}
           onSubmit={handleSubmit}
           className="flex flex-col h-full"

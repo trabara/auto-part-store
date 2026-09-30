@@ -135,12 +135,7 @@ export default defineConfig({
       cookieSecret: process.env.COOKIE_SECRET || "supersecret",
     },
   },
-  modules: [
-    ...coreModules,
-    {
-      resolve: "./src/modules/store-details",
-    },
-  ],
+  modules: [...coreModules],
   plugins: [
     {
       resolve: "@repo/automotive-plugin",

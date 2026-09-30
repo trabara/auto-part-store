@@ -151,24 +151,8 @@ async function runAdminBuild() {
     "[plugin-dev] Admin source changed — rebuilding plugin admin extensions...",
   );
 
-  const bundler = await import("@medusajs/admin-bundler");
-
-  const viteFilePath = `${pluginDir}/vite.config.mjs`;
-  if (fs.existsSync(viteFilePath)) {
-    const viteConfig = await import(viteFilePath).then((mod) => mod.default);
-
-    // bundler.build({
-    //   outDir: medusaAppDir,
-    //   vite: (config) => {
-    //     return {
-    //       ...config,
-    //       ...viteConfig,
-    //     };
-    //   },
-    // });
-  }
-
   try {
+    const bundler = await import("@medusajs/admin-bundler");
     const ok = await compiler.buildPluginAdminExtensions(bundler);
     if (ok) {
       logger.info(

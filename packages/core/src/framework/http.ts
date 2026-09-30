@@ -12,18 +12,13 @@ import {
   createFindParams,
   createOperatorMap,
 } from "@medusajs/medusa/api/utils/validators";
-import {
-  getZodFieldInfo,
-  getZodShape,
-  snakeCase,
-  zodQueryResolve,
-} from "@repo/utils";
+import { getZodFieldInfo, getZodShape, snakeCase } from "@repo/utils";
 import { forEach, mapKeys } from "lodash";
 
 function buildFilters(schema: z.ZodObject): z.ZodObject {
-  let filters = z.object();
   const shape = getZodShape(schema);
 
+  let params = z.object();
   forEach(shape, (field, key) => {
     const info = getZodFieldInfo(field);
     const PreProcessed = z.preprocess((v) => {
@@ -37,17 +32,17 @@ function buildFilters(schema: z.ZodObject): z.ZodObject {
       return v;
     }, field);
 
-    filters = filters.extend({
+    params = params.extend({
       [key]: createOperatorMap(PreProcessed).optional(),
     });
   });
 
-  return filters;
+  return params;
 }
 
 function buildFindParamsSchema(schema: z.ZodObject): z.ZodObject {
   return createFindParams().extend({
-    q: z.string(),
+    q: z.string().optional(),
     filters: buildFilters(schema).optional(),
   });
 }

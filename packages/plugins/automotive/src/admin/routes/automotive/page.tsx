@@ -1,15 +1,4 @@
 import { defineRouteConfig } from "@medusajs/admin-sdk";
+import moduleDef from "../../modules/automotive";
 
-export default function Page() {
-  return <></>;
-}
-
-export const handle = {
-  breadcrumb: () => {
-    return "Automotive";
-  },
-};
-
-export const config = defineRouteConfig({
-  label: "Automotive",
-});
+export const config = defineRouteConfig(moduleDef.getRouter());

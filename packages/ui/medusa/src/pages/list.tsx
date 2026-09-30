@@ -9,14 +9,24 @@ import { DataTable } from "../components/data-table";
 import { useMedusaCrud } from "../context/crud";
 import { useDeleteMutation } from "../hooks/use-delete-mutation";
 import { useSdk } from "../provider/sdk-provider";
-import { PageQueryParams, RowAction, SelectFn, ToolbarAction } from "../types";
+import {
+  FeaturePageConfig,
+  PageQueryParams,
+  RowAction,
+  SelectFn,
+  ToolbarAction,
+} from "../types";
 
 type MedusaCrudListProps<T extends { id: string }> = {
+  entity: string;
+  config: FeaturePageConfig;
   rowActions?: RowAction<T>[];
   toolbarActions?: ToolbarAction<T>[];
 };
 
 const MedusaListPage = function List<T extends { id: string }>({
+  config,
+  entity,
   rowActions,
   toolbarActions,
   ...restProps
@@ -25,15 +35,15 @@ const MedusaListPage = function List<T extends { id: string }>({
   const navigate = useNavigate();
 
   const { t } = useTranslation();
-  const { config } = useMedusaCrud();
-  const { schema, fields, getTitle } = config.list;
+  const { module } = useMedusaCrud();
 
-  const DataListSchema = z.array(schema);
-
-  const queryFields = useMemo(() => zodQueryResolve(schema), [schema]);
+  const queryFields = useMemo(
+    () => zodQueryResolve(config.schema),
+    [config.schema],
+  );
 
   const listAction = (signal: AbortSignal, params?: PageQueryParams) =>
-    sdk.client.fetch(`/admin${config.path}`, {
+    sdk.client.fetch(`/admin${module.path}/${entity}`, {
       method: "GET",
       signal,
       query: {
@@ -43,11 +53,13 @@ const MedusaListPage = function List<T extends { id: string }>({
     });
 
   const deleteMutation = useDeleteMutation({
-    invalidateKeys: [config.path],
+    invalidateKeys: [module.path],
     errorMessage: t("common.error_delete_item"),
     successMessage: t("common.success_delete_item"),
     deleteFn: (id: string) =>
-      sdk.client.fetch(`/admin${config.path}/${id}`, { method: "DELETE" }),
+      sdk.client.fetch(`/admin${module.path}/${entity}/${id}`, {
+        method: "DELETE",
+      }),
   });
 
   const handleBulkDelete = async (table: UseDataTableReturn<T>) => {
@@ -66,7 +78,7 @@ const MedusaListPage = function List<T extends { id: string }>({
       icon: <PencilSquare />,
       onClick: (e, row) => {
         e.stopPropagation();
-        navigate(`${config.path}/${row.id}/edit`);
+        navigate(`${module.path}/${entity}/${row.id}/edit`);
       },
     },
     {
@@ -93,7 +105,7 @@ const MedusaListPage = function List<T extends { id: string }>({
 
   const handleDataSelect: SelectFn<T, any> = (resp) => {
     return {
-      data: DataListSchema.parse(resp?.data || []) as T[],
+      data: z.array(config.schema).parse(resp?.data || []) as T[],
       rowCount: resp?.metadata.count ?? 0,
     };
   };
@@ -102,23 +114,25 @@ const MedusaListPage = function List<T extends { id: string }>({
     e: React.MouseEvent<HTMLTableRowElement, MouseEvent>,
     row: T,
   ) => {
-    navigate(`${config.path}/${row.id}`);
+    navigate(`${module.path}/${entity}/${row.id}`);
   };
 
-  const title = getTitle();
-  const columns = (typeof fields === "function" ? fields(t) : fields) || {};
+  const title = config.getTitle();
+  const columns =
+    (typeof config.fields === "function" ? config.fields(t) : config.fields) ||
+    {};
 
   return (
     <Container className="divide-y p-0">
       <DataTable
-        id={config.path}
-        schema={schema}
+        id={module.id}
+        schema={config.schema}
         title={title}
         fields={columns}
         queryFn={listAction}
         selectFn={handleDataSelect}
         onRowClick={handleRowClick}
-        onCreateClicked={() => navigate(`${config.path}/create`)}
+        onCreateClicked={() => navigate(`${module.path}/${entity}/create`)}
         rowActions={[...defaultRowActions, ...(rowActions || [])]}
         toolbarActions={[...defaultToolbarActions, ...(toolbarActions || [])]}
         {...restProps}

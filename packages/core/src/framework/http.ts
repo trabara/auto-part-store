@@ -51,11 +51,7 @@ export function validateAndTransformEntityQuery(
   schemas: Record<string, z.ZodObject>,
   config: QueryConfig<BaseEntity> = {},
 ) {
-  return (
-    req: MedusaRequest,
-    res: MedusaResponse,
-    next: MedusaNextFunction,
-  ) => {
+  return (req: any, res: any, next: any) => {
     const entity = toSnakeCase(req.params.entity);
 
     const map = mapKeys(schemas, (_, k) => snakeCase(k));
@@ -72,15 +68,10 @@ export function validateAndTransformEntityQuery(
 export function validateAndTransformEntityBody(
   schemas: Record<string, z.ZodType>,
 ) {
-  return (
-    req: MedusaRequest,
-    res: MedusaResponse,
-    next: MedusaNextFunction,
-  ) => {
+  return (req: any, res: any, next: any) => {
     const entity = toSnakeCase(req.params.entity);
-
+    
     const map = mapKeys(schemas, (_, k) => snakeCase(k));
-
     return validateAndTransformBody(map[entity])(req, res, next);
   };
 }

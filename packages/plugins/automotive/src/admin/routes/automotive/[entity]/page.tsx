@@ -1,4 +1,4 @@
-import { MedusaCrud } from "@repo/medusa-ui";
+import { MedusaCrud } from "@repo/dashboard";
 import { startCase, toLower } from "lodash";
 import { useTranslation } from "react-i18next";
 import { Outlet, UIMatch, useParams } from "react-router-dom";

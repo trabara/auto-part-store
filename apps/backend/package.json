@@ -34,12 +34,7 @@
     "@medusajs/cli": "2.21.2",
     "@medusajs/framework": "2.21.2",
     "@medusajs/medusa": "2.21.2",
-    "@repo/analytics-plugin": "workspace:*",
     "@repo/automotive-plugin": "workspace:*",
-    "@repo/invoice-plugin": "workspace:*",
-    "@repo/media-plugin": "workspace:*",
-    "@repo/oauth-plugin": "workspace:*",
-    "@rsc-labs/medusa-wishlist": "^0.0.6",
     "react-i18next": "^15.0.0"
   },
   "devDependencies": {

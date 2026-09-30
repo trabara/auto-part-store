@@ -2,8 +2,8 @@ import {
   MedusaFieldOverrides,
   EntitySelect,
   defineModule,
-} from "@repo/medusa-ui";
-import { TranslationFunction } from "@repo/medusa-ui/registry";
+} from "@repo/dashboard";
+import { TranslationFunction } from "@repo/dashboard/registry";
 import {
   Vehicle,
   VehicleEngine,

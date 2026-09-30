@@ -1,4 +1,4 @@
-import { MedusaCrud } from "@repo/medusa-ui";
+import { MedusaCrud } from "@repo/dashboard";
 import moduleDef from "../../../../modules/automotive";
 import { useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";

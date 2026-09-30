@@ -43,7 +43,7 @@ let formUIComponents: FormUIComponents = {}
  *
  * @example
  * ```typescript
- * import { registerComponent } from '@repo/medusa-ui';
+ * import { registerComponent } from '@repo/dashboard';
  * import { MyCustomInput } from './MyCustomInput';
  *
  * registerComponent('text', MyCustomInput);
@@ -63,7 +63,7 @@ export function registerComponent<TValue = unknown>(
  *
  * @example
  * ```typescript
- * import { registerComponents } from '@repo/medusa-ui';
+ * import { registerComponents } from '@repo/dashboard';
  *
  * registerComponents({
  *   text: MyInput,

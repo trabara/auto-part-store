@@ -190,7 +190,7 @@ let isSetup = false
  *
  * @example Basic setup
  * ```typescript
- * import { setupForm } from '@repo/medusa-ui';
+ * import { setupForm } from '@repo/dashboard';
  *
  * setupForm({
  *   translate: (key) => key, // Identity function if no i18n
@@ -199,7 +199,7 @@ let isSetup = false
  *
  * @example With i18next
  * ```typescript
- * import { setupForm } from '@repo/medusa-ui';
+ * import { setupForm } from '@repo/dashboard';
  * import i18next from 'i18next';
  *
  * setupForm({
@@ -209,7 +209,7 @@ let isSetup = false
  *
  * @example Full configuration
  * ```typescript
- * import { setupForm } from '@repo/medusa-ui';
+ * import { setupForm } from '@repo/dashboard';
  * import { MyInput, MySelect, MyButton } from './components';
  *
  * setupForm({

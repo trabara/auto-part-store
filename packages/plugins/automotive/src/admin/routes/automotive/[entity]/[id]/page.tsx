@@ -1,7 +1,7 @@
 // export async function loader(args: LoaderFunctionArgs) {}
 
-import { MedusaCrud, useMedusaCrud } from "@repo/medusa-ui";
-import { zodQueryResolve } from "@repo/medusa-ui/utils";
+import { MedusaCrud, useMedusaCrud } from "@repo/dashboard";
+import { zodQueryResolve } from "@repo/dashboard/utils";
 import { useTranslation } from "react-i18next";
 import {
   LoaderFunctionArgs,

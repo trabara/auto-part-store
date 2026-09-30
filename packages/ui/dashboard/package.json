@@ -5,13 +5,10 @@
   "main": "./src/index.ts",
   "types": "./src/index.ts",
   "exports": {
-    ".": "./src/index.ts",
-    "./components/*": "./src/components/*.tsx",
-    "./hooks/*": "./src/hooks/*.ts",
-    "./types": "./src/types/index.ts",
-    "./utils": "./src/utils/index.ts",
-    "./registry": "./src/registry/index.ts",
-    "./provider": "./src/provider/api-client-provider.tsx"
+    "./common": "./src/common/index.ts",
+    "./form": "./src/form/index.ts",
+    "./media": "./src/media/index.ts",
+    "./module": "./src/module/index.ts"
   },
   "scripts": {
     "lint": "eslint .",

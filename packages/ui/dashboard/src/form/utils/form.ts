@@ -1,10 +1,9 @@
-import { zodResolver } from "@hookform/resolvers/zod"
-import type { z } from "@medusajs/framework/zod"
-import type { DefaultValues, FieldValues } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod";
+import type { z } from "@medusajs/framework/zod";
+import type { DefaultValues, FieldValues } from "react-hook-form";
 
-import { getZodFieldInfo, SchemaFieldInfo } from "@repo/utils"
-import { FieldOverride, FieldType } from "../types"
-
+import { getZodFieldInfo, SchemaFieldInfo } from "@repo/utils";
+import { FieldOverride, FieldType } from "../types";
 
 /**
  * Initialize default values based on schema types and overrides
@@ -22,52 +21,52 @@ export function initializeDefaultValues<T extends FieldValues>(
   try {
     const defaultValues = Object.entries(schemaShape).reduce(
       (acc, [key, field]) => {
-        const fieldInfo = getZodFieldInfo(field)
-        const override = overrides[key]
+        const fieldInfo = getZodFieldInfo(field);
+        const override = overrides[key];
 
         // Check if a provided value exists for this field
         if (providedValues[key as keyof T] !== undefined) {
-          acc[key] = providedValues[key as keyof T]
-          return acc
+          acc[key] = providedValues[key as keyof T];
+          return acc;
         }
 
         // Initialize based on field type
         switch (fieldInfo.baseType) {
           case "string":
-            if (override?.emptyAsNull) acc[key] = null
-            else if (override?.emptyAsUndefined) acc[key] = undefined
-            else acc[key] = ""
-            break
+            if (override?.emptyAsNull) acc[key] = null;
+            else if (override?.emptyAsUndefined) acc[key] = undefined;
+            else acc[key] = "";
+            break;
           case "number":
-            if (override?.emptyAsZero) acc[key] = 0
-            else if (override?.emptyAsNull) acc[key] = null
-            else if (override?.emptyAsUndefined) acc[key] = undefined
-            else acc[key] = null
-            break
+            if (override?.emptyAsZero) acc[key] = 0;
+            else if (override?.emptyAsNull) acc[key] = null;
+            else if (override?.emptyAsUndefined) acc[key] = undefined;
+            else acc[key] = null;
+            break;
           case "boolean":
-            acc[key] = false
-            break
+            acc[key] = false;
+            break;
           case "date":
-            acc[key] = null
-            break
+            acc[key] = null;
+            break;
           case "enum":
-            acc[key] = undefined
-            break
+            acc[key] = undefined;
+            break;
           case "array":
-            acc[key] = []
-            break
+            acc[key] = [];
+            break;
           default:
-            acc[key] = undefined
+            acc[key] = undefined;
         }
 
-        return acc
+        return acc;
       },
       {} as Record<string, unknown>,
-    )
+    );
 
-    return { ...defaultValues, ...providedValues } as DefaultValues<T>
+    return { ...defaultValues, ...providedValues } as DefaultValues<T>;
   } catch {
-    return {} as DefaultValues<T>
+    return {} as DefaultValues<T>;
   }
 }
 
@@ -83,49 +82,56 @@ export function applyEmptyValueOverrides<T extends FieldValues>(
   values: T,
   overrides: Partial<Record<string, FieldOverride>>,
 ): T {
-  const transformed = { ...values }
+  const transformed = { ...values };
 
   for (const key of Object.keys(transformed)) {
-    const override = overrides[key]
-    if (!override) continue
+    const override = overrides[key];
+    if (!override) continue;
 
-    const value = transformed[key]
-    const isEmptyString = value === "" || (typeof value === "string" && value.trim() === "")
+    const value = transformed[key];
+    const isEmptyString =
+      value === "" || (typeof value === "string" && value.trim() === "");
 
     if (override.emptyAsNull && isEmptyString) {
-      transformed[key as keyof T] = null as T[keyof T]
+      transformed[key as keyof T] = null as T[keyof T];
     } else if (override.emptyAsUndefined && isEmptyString) {
-      transformed[key as keyof T] = undefined as T[keyof T]
-    } else if (override.emptyAsZero && (value === null || value === undefined || isEmptyString)) {
-      transformed[key as keyof T] = 0 as T[keyof T]
+      transformed[key as keyof T] = undefined as T[keyof T];
+    } else if (
+      override.emptyAsZero &&
+      (value === null || value === undefined || isEmptyString)
+    ) {
+      transformed[key as keyof T] = 0 as T[keyof T];
     }
   }
 
-  return transformed
+  return transformed;
 }
 
 /**
  * Determine the field type based on schema info and override.
  * Override type takes priority, otherwise auto-detect from schema.
  */
-export function resolveFieldType(fieldInfo: SchemaFieldInfo, override?: FieldOverride): FieldType {
+export function resolveFieldType(
+  fieldInfo: SchemaFieldInfo,
+  override?: FieldOverride,
+): FieldType {
   if (override?.type) {
-    return override.type
+    return override.type;
   }
 
   switch (fieldInfo.baseType) {
     case "string":
-      return fieldInfo.isEmail ? "email" : "text"
+      return fieldInfo.isEmail ? "email" : "text";
     case "number":
-      return "number"
+      return "number";
     case "boolean":
-      return "checkbox"
+      return "checkbox";
     case "date":
-      return "date"
+      return "date";
     case "enum":
-      return "select"
+      return "select";
     default:
-      return "text"
+      return "text";
   }
 }
 
@@ -136,5 +142,5 @@ export function resolveFieldType(fieldInfo: SchemaFieldInfo, override?: FieldOve
  */
 export function createZodResolver(schema: z.ZodTypeAny) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  return zodResolver(schema as any)
+  return zodResolver(schema as any);
 }

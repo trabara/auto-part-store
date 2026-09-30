@@ -10,13 +10,13 @@ import { format } from "date-fns";
 import { startCase } from "lodash";
 import React from "react";
 import { FieldValues } from "react-hook-form";
-import { EntityFieldOverrides, RowAction } from "../types";
+import { FeatureFieldOverrides, RowAction } from "../types";
 import { createSelectDataTableColumns } from "./create-select-columns";
 import { getZodFieldInfo, getZodShape } from "@repo/utils";
 
 type ColumnDefConfig<T extends FieldValues> = {
   schema: z.ZodObject<T>;
-  fields?: EntityFieldOverrides<T>;
+  fields?: FeatureFieldOverrides<T>;
   actions?: RowAction<T>[];
 };
 

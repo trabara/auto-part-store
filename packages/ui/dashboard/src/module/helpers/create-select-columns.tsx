@@ -3,20 +3,23 @@ import {
   createDataTableColumnHelper,
   DataTableRowData,
   type DataTableColumnDef,
-} from "@medusajs/ui"
+} from "@medusajs/ui";
 
 type DataTableColumnHelper<TData extends DataTableRowData, TValue> = ReturnType<
   typeof createDataTableColumnHelper<TData>
->
+>;
 
 type CreateColumnsCallback<TData extends DataTableRowData, TValue> = (
   columnHelper: DataTableColumnHelper<TData, TValue>,
-) => Array<DataTableColumnDef<TData, TValue>>
+) => Array<DataTableColumnDef<TData, TValue>>;
 
-export function createSelectDataTableColumns<TData extends DataTableRowData, TValue = unknown>(
+export function createSelectDataTableColumns<
+  TData extends DataTableRowData,
+  TValue = unknown,
+>(
   createColumns: CreateColumnsCallback<TData, TValue>,
 ): Array<DataTableColumnDef<TData, TValue>> {
-  const columnHelper = createDataTableColumnHelper<TData>()
+  const columnHelper = createDataTableColumnHelper<TData>();
   return [
     columnHelper.display({
       id: "select",
@@ -38,5 +41,5 @@ export function createSelectDataTableColumns<TData extends DataTableRowData, TVa
       ),
     }),
     ...createColumns(columnHelper),
-  ]
+  ];
 }

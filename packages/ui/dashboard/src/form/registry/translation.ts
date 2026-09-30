@@ -5,12 +5,12 @@
 /**
  * Translation function type
  */
-export type TranslationFunction = (key: string) => string
+export type TranslationFunction = (key: string) => string;
 
 /**
  * Custom translation function (set via setupForm)
  */
-let customTranslateFn: TranslationFunction | null = null
+let customTranslateFn: TranslationFunction | null = null;
 
 /**
  * Translate a key using the registered translate function.
@@ -18,10 +18,10 @@ let customTranslateFn: TranslationFunction | null = null
  */
 const translate = (key: string): string => {
   if (customTranslateFn) {
-    return customTranslateFn(key)
+    return customTranslateFn(key);
   }
-  return key
-}
+  return key;
+};
 
 // =============================================================================
 // Registration API
@@ -42,7 +42,7 @@ const translate = (key: string): string => {
  * ```
  */
 export function setTranslationFunction(fn: TranslationFunction): void {
-  customTranslateFn = fn
+  customTranslateFn = fn;
 }
 
 /**
@@ -52,7 +52,7 @@ export function setTranslationFunction(fn: TranslationFunction): void {
  * @returns The translate function
  */
 export function getT(): TranslationFunction {
-  return translate
+  return translate;
 }
 
 // =============================================================================
@@ -63,5 +63,5 @@ export function getT(): TranslationFunction {
  * Reset translation registry to defaults (mainly for testing)
  */
 export function resetTranslationRegistry(): void {
-  customTranslateFn = null
+  customTranslateFn = null;
 }

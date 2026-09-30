@@ -1,21 +1,25 @@
-import { toast, usePrompt } from "@medusajs/ui"
-import { useMutation as useGenericMutation } from "./use-mutation"
-import { classifyErrorCode, getErrorMessage, parseApiError } from "../utils/api-error"
+import { toast, usePrompt } from "@medusajs/ui";
+import { useMutation as useGenericMutation } from "./use-mutation";
+import {
+  classifyErrorCode,
+  getErrorMessage,
+  parseApiError,
+} from "../utils/api-error";
 
 /**
  * Configuration for delete mutations
  */
 export interface DeleteMutationConfig {
   /** Query key(s) to invalidate after successful deletion */
-  invalidateKeys: string[]
+  invalidateKeys: string[];
   /** Success message to display */
-  successMessage?: string
+  successMessage?: string;
   /** Error message to display */
-  errorMessage?: string
+  errorMessage?: string;
   /** Delete function that performs the actual deletion */
-  deleteFn: (id: string) => Promise<any>
+  deleteFn: (id: string) => Promise<any>;
   /** Additional mutation options */
-  mutationOptions?: any
+  mutationOptions?: any;
 }
 
 /**
@@ -23,15 +27,15 @@ export interface DeleteMutationConfig {
  */
 export interface UseDeleteMutationReturn {
   /** Execute the delete mutation with async/await */
-  mutateAsync: (...ids: string[]) => Promise<any>
+  mutateAsync: (...ids: string[]) => Promise<any>;
   /** Whether the mutation is currently running */
-  isPending: boolean
+  isPending: boolean;
   /** Whether the mutation succeeded */
-  isSuccess: boolean
+  isSuccess: boolean;
   /** Whether the mutation failed */
-  isError: boolean
+  isError: boolean;
   /** Error object if mutation failed */
-  error: any
+  error: any;
 }
 
 /**
@@ -44,38 +48,38 @@ export function useDeleteMutation({
   deleteFn,
   mutationOptions,
 }: DeleteMutationConfig): UseDeleteMutationReturn {
-  const prompt = usePrompt()
+  const prompt = usePrompt();
 
   const mutation = useGenericMutation({
     mutationFn: async (ids: string[]) => {
-      const results: unknown[] = []
+      const results: unknown[] = [];
       for (const id of ids) {
-        const result = await deleteFn(id)
-        results.push(result)
+        const result = await deleteFn(id);
+        results.push(result);
       }
-      return results
+      return results;
     },
     invalidateKeys: invalidateKeys.map((k) => [k]) as (string | number)[][],
     onSuccess: () => {
-      toast.success(successMessage)
+      toast.success(successMessage);
     },
     options: {
       onError: (error: Error) => {
-        const parsed = parseApiError(error)
-        const category = classifyErrorCode(parsed.code)
-        const description = getErrorMessage(error)
+        const parsed = parseApiError(error);
+        const category = classifyErrorCode(parsed.code);
+        const description = getErrorMessage(error);
 
         if (category === "AUTH") {
-          toast.error("Access denied", { description })
+          toast.error("Access denied", { description });
         } else if (category === "NOT_FOUND") {
-          toast.warning("Not found", { description })
+          toast.warning("Not found", { description });
         } else {
-          toast.error(errorMessage, { description })
+          toast.error(errorMessage, { description });
         }
       },
       ...mutationOptions,
     } as any,
-  })
+  });
 
   return {
     mutateAsync: async (...ids: string[]) => {
@@ -84,15 +88,15 @@ export function useDeleteMutation({
         description: "This action cannot be undone.",
         confirmText: "Delete",
         cancelText: "Cancel",
-      })
+      });
       if (!confirmed) {
-        return
+        return;
       }
-      return mutation.mutateAsync(ids)
+      return mutation.mutateAsync(ids);
     },
     isPending: mutation.isPending,
     isSuccess: mutation.isSuccess,
     isError: mutation.isError,
     error: mutation.error,
-  }
+  };
 }

@@ -7,20 +7,20 @@
  */
 export interface FormStyles {
   /** CSS class for the form container (e.g., 'space-y-4') */
-  form?: string
+  form?: string;
   /** CSS class for field wrappers (e.g., 'grid gap-2') */
-  formItem?: string
+  formItem?: string;
   /** CSS class for labels (e.g., 'text-sm font-medium') */
-  label?: string
+  label?: string;
   /** CSS class for descriptions (e.g., 'text-xs text-gray-500') */
-  description?: string
+  description?: string;
   /** CSS class for error messages (e.g., 'text-xs text-red-500') */
-  errorMessage?: string
+  errorMessage?: string;
   /** CSS class for chips container (e.g., 'flex flex-wrap gap-1') */
-  chip?: string
+  chip?: string;
 }
 
-let registeredStyles: FormStyles = {}
+let registeredStyles: FormStyles = {};
 
 /**
  * Register CSS classes for form layout elements.
@@ -35,7 +35,7 @@ let registeredStyles: FormStyles = {}
  * ```
  */
 export function setFormStyles(styles: FormStyles): void {
-  registeredStyles = { ...styles }
+  registeredStyles = { ...styles };
 }
 
 /**
@@ -43,7 +43,7 @@ export function setFormStyles(styles: FormStyles): void {
  * @internal Used by the form system
  */
 export function getFormClass(): string | undefined {
-  return registeredStyles.form
+  return registeredStyles.form;
 }
 
 /**
@@ -51,7 +51,7 @@ export function getFormClass(): string | undefined {
  * @internal Used by FormProvider
  */
 export function getFormItemClass(): string | undefined {
-  return registeredStyles.formItem
+  return registeredStyles.formItem;
 }
 
 /**
@@ -59,7 +59,7 @@ export function getFormItemClass(): string | undefined {
  * @internal Used by DEFAULT_FORM_UI
  */
 export function getLabelClass(): string | undefined {
-  return registeredStyles.label
+  return registeredStyles.label;
 }
 
 /**
@@ -67,7 +67,7 @@ export function getLabelClass(): string | undefined {
  * @internal Used by DEFAULT_FORM_UI
  */
 export function getDescriptionClass(): string | undefined {
-  return registeredStyles.description
+  return registeredStyles.description;
 }
 
 /**
@@ -75,7 +75,7 @@ export function getDescriptionClass(): string | undefined {
  * @internal Used by DEFAULT_FORM_UI
  */
 export function getErrorMessageClass(): string | undefined {
-  return registeredStyles.errorMessage
+  return registeredStyles.errorMessage;
 }
 
 /**
@@ -83,7 +83,7 @@ export function getErrorMessageClass(): string | undefined {
  * @internal Used by ArrayFieldRenderer
  */
 export function getChipClass(): string | undefined {
-  return registeredStyles.chip
+  return registeredStyles.chip;
 }
 
 /**
@@ -91,5 +91,5 @@ export function getChipClass(): string | undefined {
  * @internal
  */
 export function resetStylesRegistry(): void {
-  registeredStyles = {}
+  registeredStyles = {};
 }

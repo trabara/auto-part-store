@@ -17,7 +17,6 @@ import { createContext, useContext } from "react";
 
 export const SdkContext = createContext<Medusa | null>(null);
 
-
 /**
  * Access the SDK instance from SdkProvider context.
  * Must be called within a component wrapped in <SdkProvider>.

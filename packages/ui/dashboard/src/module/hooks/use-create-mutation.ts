@@ -1,21 +1,25 @@
-import { toast } from "@medusajs/ui"
-import { useMutation as useGenericMutation } from "./use-mutation"
-import { classifyErrorCode, getErrorMessage, parseApiError } from "../utils/api-error"
+import { toast } from "@medusajs/ui";
+import { useMutation as useGenericMutation } from "./use-mutation";
+import {
+  classifyErrorCode,
+  getErrorMessage,
+  parseApiError,
+} from "../utils/api-error";
 
 /**
  * Configuration for create mutations
  */
 export interface CreateMutationConfig<TInput = any> {
   /** Query key(s) to invalidate after successful create */
-  invalidateKeys: string[]
+  invalidateKeys: string[];
   /** Success message to display */
-  successMessage?: string
+  successMessage?: string;
   /** Error message to display */
-  errorMessage?: string
+  errorMessage?: string;
   /** Create function that performs the actual create */
-  createFn: (input: TInput) => Promise<any>
+  createFn: (input: TInput) => Promise<any>;
   /** Additional mutation options */
-  mutationOptions?: any
+  mutationOptions?: any;
 }
 
 /**
@@ -23,17 +27,17 @@ export interface CreateMutationConfig<TInput = any> {
  */
 export interface UseCreateMutationReturn<TInput = any> {
   /** Execute the create mutation */
-  mutate: (input: TInput) => void
+  mutate: (input: TInput) => void;
   /** Execute the create mutation with async/await */
-  mutateAsync: (input: TInput) => Promise<any>
+  mutateAsync: (input: TInput) => Promise<any>;
   /** Whether the mutation is currently running */
-  isPending: boolean
+  isPending: boolean;
   /** Whether the mutation succeeded */
-  isSuccess: boolean
+  isSuccess: boolean;
   /** Whether the mutation failed */
-  isError: boolean
+  isError: boolean;
   /** Error object if mutation failed */
-  error: any
+  error: any;
 }
 
 export function useCreateMutation({
@@ -47,25 +51,25 @@ export function useCreateMutation({
     mutationFn: createFn,
     invalidateKeys: invalidateKeys.map((k) => [k]) as (string | number)[][],
     onSuccess: () => {
-      toast.success(successMessage)
+      toast.success(successMessage);
     },
     options: {
       onError: (error: Error) => {
-        const parsed = parseApiError(error)
-        const category = classifyErrorCode(parsed.code)
-        const description = getErrorMessage(error)
+        const parsed = parseApiError(error);
+        const category = classifyErrorCode(parsed.code);
+        const description = getErrorMessage(error);
 
         if (category === "AUTH") {
-          toast.error("Access denied", { description })
+          toast.error("Access denied", { description });
         } else if (category === "NOT_FOUND") {
-          toast.warning("Not found", { description })
+          toast.warning("Not found", { description });
         } else {
-          toast.error(errorMessage, { description })
+          toast.error(errorMessage, { description });
         }
       },
       ...mutationOptions,
     } as any,
-  })
+  });
 
-  return mutation as UseCreateMutationReturn
+  return mutation as UseCreateMutationReturn;
 }

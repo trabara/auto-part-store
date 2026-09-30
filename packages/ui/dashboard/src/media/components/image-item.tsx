@@ -1,14 +1,14 @@
-import { ThumbnailBadge } from "@medusajs/icons"
-import { Checkbox, clx } from "@medusajs/ui"
+import { ThumbnailBadge } from "@medusajs/icons";
+import { Checkbox, clx } from "@medusajs/ui";
 
 type ImageItemProps = {
-  id: string
-  url: string
-  alt: string
-  isThumbnail: boolean
-  isSelected: boolean
-  onToggleSelect: () => void
-}
+  id: string;
+  url: string;
+  alt: string;
+  isThumbnail: boolean;
+  isSelected: boolean;
+  onToggleSelect: () => void;
+};
 
 export const ImageItem = ({
   id,
@@ -36,7 +36,11 @@ export const ImageItem = ({
       >
         <Checkbox checked={isSelected} onCheckedChange={onToggleSelect} />
       </div>
-      <img src={url} alt={alt} className="size-full object-cover object-center" />
+      <img
+        src={url}
+        alt={alt}
+        className="size-full object-cover object-center"
+      />
     </div>
-  )
-}
+  );
+};

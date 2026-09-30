@@ -31,24 +31,24 @@ import {
   useMutation as useTanStackMutation,
   type UseMutationOptions,
   useQueryClient,
-} from "@tanstack/react-query"
+} from "@tanstack/react-query";
 
 export type MutationConfig<TData, TError, TVariables, TContext> = {
-  mutationFn: (variables: TVariables) => Promise<TData>
+  mutationFn: (variables: TVariables) => Promise<TData>;
   /** Query keys to invalidate on success */
-  invalidateKeys?: (string | (string | number)[])[]
+  invalidateKeys?: (string | (string | number)[])[];
   /** Additional TanStack mutation options (onSuccess, onError, etc.) */
   options?: Omit<
     UseMutationOptions<TData, TError, TVariables, TContext>,
     "mutationFn" | "onSuccess"
-  >
+  >;
   /** Custom onSuccess handler called after invalidation */
   onSuccess?: (
     data: TData,
     variables: TVariables,
     context: TContext | undefined,
-  ) => void | Promise<void>
-}
+  ) => void | Promise<void>;
+};
 
 export function useMutation<
   TData = unknown,
@@ -56,7 +56,7 @@ export function useMutation<
   TVariables = void,
   TContext = unknown,
 >(config: MutationConfig<TData, TError, TVariables, TContext>) {
-  const queryClient = useQueryClient()
+  const queryClient = useQueryClient();
 
   return useTanStackMutation({
     mutationFn: config.mutationFn,
@@ -69,11 +69,11 @@ export function useMutation<
               queryKey: Array.isArray(key) ? key : [key],
             }),
           ),
-        )
+        );
       }
       // Run custom onSuccess handler
-      await config.onSuccess?.(data, variables, context)
+      await config.onSuccess?.(data, variables, context);
     },
     ...config.options,
-  })
+  });
 }

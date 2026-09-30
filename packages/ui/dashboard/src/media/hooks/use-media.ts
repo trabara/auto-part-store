@@ -20,7 +20,7 @@ export const useMediaMutations = ({
 }: UseMediaMutationsProps) => {
   const queryClient = useQueryClient();
   const sdk = useSdk();
-  
+
   const uploadFilesMutation = useMutation<
     { files: UploadedFile[] },
     Error,

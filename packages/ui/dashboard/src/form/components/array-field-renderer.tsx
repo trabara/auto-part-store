@@ -1,30 +1,30 @@
-import { useState } from "react"
+import { useState } from "react";
 
-import { getChipClass, getRegisteredComponent } from "../registry"
-import { FieldWrapper } from "./field-wrapper"
-import { FormControl } from "./form-provider"
-import { SchemaFieldInfo, FieldOverride } from "../types"
-import { resolveFieldType } from "../utils/form"
+import { getChipClass, getRegisteredComponent } from "../registry";
+import { FieldWrapper } from "./field-wrapper";
+import { FormControl } from "./form-provider";
+import { SchemaFieldInfo, FieldOverride } from "../types";
+import { resolveFieldType } from "../utils/form";
 
 interface ArrayFieldRendererProps {
-  name: string
-  label: string
-  isRequired: boolean
-  isDisabled?: boolean
-  arrayElementInfo: SchemaFieldInfo
-  override?: FieldOverride
+  name: string;
+  label: string;
+  isRequired: boolean;
+  isDisabled?: boolean;
+  arrayElementInfo: SchemaFieldInfo;
+  override?: FieldOverride;
   field: {
-    value: unknown
-    onChange: (value: unknown) => void
-    onBlur: () => void
-  }
+    value: unknown;
+    onChange: (value: unknown) => void;
+    onBlur: () => void;
+  };
   styles?: {
-    fieldWrapper?: string
-    label?: string
-    input?: string
-    error?: string
-    description?: string
-  }
+    fieldWrapper?: string;
+    label?: string;
+    input?: string;
+    error?: string;
+    description?: string;
+  };
 }
 
 export function ArrayFieldRenderer({
@@ -37,61 +37,65 @@ export function ArrayFieldRenderer({
   field,
   styles,
 }: ArrayFieldRendererProps): React.ReactElement | null {
-  const [inputValue, setInputValue] = useState("")
-  const arrayValue: unknown[] = Array.isArray(field.value) ? field.value : []
+  const [inputValue, setInputValue] = useState("");
+  const arrayValue: unknown[] = Array.isArray(field.value) ? field.value : [];
 
-  const isEnum = arrayElementInfo.baseType === "enum"
-  const isNumber = arrayElementInfo.baseType === "number"
-  const elementType = resolveFieldType(arrayElementInfo, override)
-  const ElementComponent = getRegisteredComponent(elementType)
+  const isEnum = arrayElementInfo.baseType === "enum";
+  const isNumber = arrayElementInfo.baseType === "number";
+  const elementType = resolveFieldType(arrayElementInfo, override);
+  const ElementComponent = getRegisteredComponent(elementType);
 
   // For enum: filter out already selected options
   const allOptions =
-    override?.options ?? arrayElementInfo.enumValues?.map((v) => ({ label: v, value: v })) ?? []
-  const availableOptions = isEnum ? allOptions.filter((opt) => !arrayValue.includes(opt.value)) : []
+    override?.options ??
+    arrayElementInfo.enumValues?.map((v) => ({ label: v, value: v })) ??
+    [];
+  const availableOptions = isEnum
+    ? allOptions.filter((opt) => !arrayValue.includes(opt.value))
+    : [];
 
   const handleAdd = () => {
-    const trimmed = inputValue.trim()
-    if (!trimmed) return
+    const trimmed = inputValue.trim();
+    if (!trimmed) return;
 
     if (isNumber) {
-      const num = Number(trimmed)
+      const num = Number(trimmed);
       if (!isNaN(num)) {
-        field.onChange([...arrayValue, num])
-        setInputValue("")
+        field.onChange([...arrayValue, num]);
+        setInputValue("");
       }
     } else {
-      field.onChange([...arrayValue, trimmed])
-      setInputValue("")
+      field.onChange([...arrayValue, trimmed]);
+      setInputValue("");
     }
-  }
+  };
 
   const handleRemove = (index: number) => {
-    field.onChange(arrayValue.filter((_, i) => i !== index))
-  }
+    field.onChange(arrayValue.filter((_, i) => i !== index));
+  };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter") {
-      e.preventDefault()
-      handleAdd()
+      e.preventDefault();
+      handleAdd();
     }
-  }
+  };
 
   if (!ElementComponent) {
     console.warn(
       `[Form] No component registered for array element type "${elementType}". ` +
         `Register it via setupForm({ components: { ${elementType}: YourComponent } }).`,
-    )
-    return null
+    );
+    return null;
   }
 
   const getDisplayLabel = (value: unknown): string => {
     if (isEnum) {
-      const option = allOptions.find((opt) => opt.value === value)
-      return option?.label ?? String(value)
+      const option = allOptions.find((opt) => opt.value === value);
+      return option?.label ?? String(value);
     }
-    return String(value)
-  }
+    return String(value);
+  };
 
   return (
     <FieldWrapper
@@ -106,7 +110,7 @@ export function ArrayFieldRenderer({
             value=""
             onChange={(val: unknown) => {
               if (val) {
-                field.onChange([...arrayValue, val])
+                field.onChange([...arrayValue, val]);
               }
             }}
             onBlur={field.onBlur}
@@ -118,7 +122,13 @@ export function ArrayFieldRenderer({
         ) : (
           <div onKeyDown={handleKeyDown}>
             <ElementComponent
-              value={isNumber ? (inputValue === "" ? "" : Number(inputValue)) : inputValue}
+              value={
+                isNumber
+                  ? inputValue === ""
+                    ? ""
+                    : Number(inputValue)
+                  : inputValue
+              }
               onChange={(val: unknown) => setInputValue(String(val ?? ""))}
               onBlur={field.onBlur}
               name={name}
@@ -147,5 +157,5 @@ export function ArrayFieldRenderer({
         </div>
       )}
     </FieldWrapper>
-  )
+  );
 }

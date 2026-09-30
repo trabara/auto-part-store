@@ -1,12 +1,25 @@
-import { createContext, useContext } from "react";
-import { MedusaModule } from "../types";
+import { Context, createContext, useContext, useEffect } from "react";
+import { ModuleType } from "../types";
 
-export const ModuleContext = createContext<MedusaModule | null>(null);
+type ModuleContext<S = {}> = ModuleType & {
+  state: S;
+  setState: (prev: S) => void;
+};
 
-export const useModule = () => {
-  const context = useContext(ModuleContext);
+export const ModuleContext = createContext<ModuleContext | null>(null);
+
+export const useModule = <S>(initialState?: S) => {
+  const context = useContext<ModuleContext<S>>(
+    ModuleContext as unknown as Context<ModuleContext<S>>,
+  );
   if (!context) {
     throw new Error("useModule must be used within a MedusaCrudProvider");
   }
+
+  if (initialState) {
+    console.log(initialState);
+    context.setState(initialState);
+  }
+
   return context;
 };

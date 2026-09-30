@@ -8,27 +8,27 @@ import { classifyValue, DetailsSection } from "../components/details-section";
 import { ManyRelationSection } from "../components/many-relation-section";
 import { useModule } from "../context/module";
 import { useDeleteMutation } from "../hooks/use-delete-mutation";
-import { FeaturePageConfig } from "../types";
+import { PageConfig } from "../types";
 import { useSdk } from "../../common/context";
 
-type DetailsPageProps = {
-  config: FeaturePageConfig;
+type DetailsFeatureProps = {
+  config: PageConfig;
   entity: string;
   initialData?: any;
   children?: React.ReactNode;
 };
 
-const MedusaDetailsPage = ({
+const DetailsFeature = ({
   initialData,
   entity,
   config,
   children,
-}: DetailsPageProps) => {
+}: DetailsFeatureProps) => {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const sdk = useSdk();
 
-  const module = useModule();
+  const module = useModule(initialData);
 
   const title = config.getTitle(initialData);
 
@@ -64,7 +64,7 @@ const MedusaDetailsPage = ({
     errorMessage: t("common.error_delete_item"),
     successMessage: t("common.success_delete_item"),
     deleteFn: async (id: string) => {
-      await sdk.client.fetch(`/admin${module.path}/${id}`, {
+      await sdk.client.fetch(`/admin${module.path}/${entity}${id}`, {
         method: "DELETE",
       });
       navigate(module.path);
@@ -82,7 +82,8 @@ const MedusaDetailsPage = ({
             id: "edit",
             label: "Modifé",
             icon: <Pencil />,
-            onClick: () => navigate(`${module.path}/${initialData.id}/edit`),
+            onClick: () =>
+              navigate(`${module.path}/${entity}/${initialData.id}/edit`),
           },
           {
             id: "delete",
@@ -135,4 +136,4 @@ const MedusaDetailsPage = ({
   );
 };
 
-export default MedusaDetailsPage;
+export default DetailsFeature;

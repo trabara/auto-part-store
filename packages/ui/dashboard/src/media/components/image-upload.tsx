@@ -1,15 +1,19 @@
-import { ArrowDownTray } from "@medusajs/icons"
-import type { RefObject } from "react"
-import { useTranslation } from "react-i18next"
+import { ArrowDownTray } from "@medusajs/icons";
+import type { RefObject } from "react";
+import { useTranslation } from "react-i18next";
 
 type ImageUploadProps = {
-  fileInputRef: RefObject<HTMLInputElement>
-  isUploading: boolean
-  onFileSelect: (files: FileList | null) => void
-}
+  fileInputRef: RefObject<HTMLInputElement>;
+  isUploading: boolean;
+  onFileSelect: (files: FileList | null) => void;
+};
 
-export const ImageUpload = ({ fileInputRef, isUploading, onFileSelect }: ImageUploadProps) => {
-  const { t } = useTranslation()
+export const ImageUpload = ({
+  fileInputRef,
+  isUploading,
+  onFileSelect,
+}: ImageUploadProps) => {
+  const { t } = useTranslation();
 
   return (
     <div className="bg-ui-bg-base overflow-auto border-b px-6 py-4 lg:border-b-0 lg:border-l">
@@ -24,7 +28,9 @@ export const ImageUpload = ({ fileInputRef, isUploading, onFileSelect }: ImageUp
                 {t("media.upload.optional")}
               </p>
             </div>
-            <span className="txt-small text-ui-fg-subtle">{t("media.upload.description")}</span>
+            <span className="txt-small text-ui-fg-subtle">
+              {t("media.upload.description")}
+            </span>
           </div>
 
           <div>
@@ -43,21 +49,23 @@ export const ImageUpload = ({ fileInputRef, isUploading, onFileSelect }: ImageUp
               disabled={isUploading}
               className="bg-ui-bg-component border-ui-border-strong transition-fg group flex w-full flex-col items-center gap-y-2 rounded-lg border border-dashed p-8 hover:border-ui-border-interactive focus:border-ui-border-interactive focus:shadow-borders-focus outline-none focus:border-solid disabled:opacity-50 disabled:cursor-not-allowed"
               onDragOver={(e) => {
-                e.preventDefault()
-                e.stopPropagation()
+                e.preventDefault();
+                e.stopPropagation();
               }}
               onDrop={(e) => {
-                e.preventDefault()
-                e.stopPropagation()
+                e.preventDefault();
+                e.stopPropagation();
                 if (!isUploading) {
-                  onFileSelect(e.dataTransfer.files)
+                  onFileSelect(e.dataTransfer.files);
                 }
               }}
             >
               <div className="text-ui-fg-subtle group-disabled:text-ui-fg-disabled flex items-center gap-x-2">
                 <ArrowDownTray />
                 <p className="font-normal font-sans txt-medium">
-                  {isUploading ? t("media.upload.uploading") : t("media.upload.button")}
+                  {isUploading
+                    ? t("media.upload.uploading")
+                    : t("media.upload.button")}
                 </p>
               </div>
               <p className="font-normal font-sans txt-compact-small text-ui-fg-muted group-disabled:text-ui-fg-disabled">
@@ -68,5 +76,5 @@ export const ImageUpload = ({ fileInputRef, isUploading, onFileSelect }: ImageUp
         </div>
       </div>
     </div>
-  )
-}
+  );
+};

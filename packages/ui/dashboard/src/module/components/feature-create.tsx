@@ -11,30 +11,32 @@ import { startCase } from "lodash";
 import React, { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
+import { useSdk } from "../../common/context";
 import { Form } from "../../form/components/form";
+import { useModule } from "../context/module";
 import { useCreateMutation } from "../hooks/use-create-mutation";
 import { useWizardForm } from "../hooks/use-wizard-form";
-import { CreateFeature, StepConfig } from "../types";
-import { useSdk } from "../../common/context";
+import { CreatePageConfig, StepConfig } from "../types";
 
-const MedusaCreatePage = ({
+const CreateFeature = ({
   config,
   entity,
 }: {
-  config: CreateFeature;
+  config: CreatePageConfig;
   entity: string;
 }) => {
   const sdk = useSdk();
   const { t } = useTranslation();
   const navigate = useNavigate();
 
-  const entityName = startCase(entity);
-
+  const module = useModule();
   const createAction = (data: any): Promise<void> =>
     sdk.client.fetch(`/admin${config.path}`, {
       method: "POST",
       body: data,
     });
+
+  const entityName = startCase(entity);
 
   const mutate = useCreateMutation({
     invalidateKeys: [config!.path!],
@@ -98,8 +100,15 @@ const MedusaCreatePage = ({
   const getHeaderStyle = (step: StepConfig) =>
     clx(styles.header.base, styles.header[step.display ?? "default"]);
 
-  const overrideFields =
-    typeof config.fields === "function" ? config.fields(t) : config.fields;
+  const overrideFields = useMemo(() => {
+    const fields =
+      typeof config.fields === "function" ? config.fields(t) : config.fields;
+
+    return {
+      ...module.buildRelationFields(entity, activeSchema),
+      ...fields,
+    };
+  }, [config, t, entity, activeSchema]);
 
   return (
     <FocusModal open={true} onOpenChange={dispose}>
@@ -230,4 +239,4 @@ const MedusaCreatePage = ({
   );
 };
 
-export default MedusaCreatePage;
+export default CreateFeature;

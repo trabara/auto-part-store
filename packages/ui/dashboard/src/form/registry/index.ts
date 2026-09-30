@@ -1,5 +1,3 @@
-
-
 import {
   registerComponent,
   registerComponents,
@@ -11,21 +9,21 @@ import {
   hasRegisteredComponent,
   getRegisteredTypes,
   clearRegistry,
-} from "./component"
+} from "./component";
 
 import {
   setTranslationFunction,
   getT,
   resetTranslationRegistry,
   type TranslationFunction,
-} from "./translation"
+} from "./translation";
 
 import {
   setOnErrorBehavior,
   executeOnErrorBehavior,
   resetBehaviorRegistry,
   type OnErrorBehavior,
-} from "./behavior"
+} from "./behavior";
 
 import {
   setFormStyles,
@@ -37,8 +35,12 @@ import {
   getChipClass,
   resetStylesRegistry,
   type FormStyles,
-} from "./styles"
-import { FormUIComponents, RegisterableComponent, RegisteredSubmitButton } from "../types"
+} from "./styles";
+import {
+  FormUIComponents,
+  RegisterableComponent,
+  RegisteredSubmitButton,
+} from "../types";
 
 // =============================================================================
 // Setup Types
@@ -59,7 +61,7 @@ export interface SetupMedusaFormOptions {
    * setupForm({ translate: t });
    * ```
    */
-  translate: TranslationFunction
+  translate: TranslationFunction;
 
   /**
    * Components to register for form fields.
@@ -89,7 +91,7 @@ export interface SetupMedusaFormOptions {
    * });
    * ```
    */
-  components?: Partial<Record<string, RegisterableComponent>>
+  components?: Partial<Record<string, RegisterableComponent>>;
 
   /**
    * Custom submit button component
@@ -106,7 +108,7 @@ export interface SetupMedusaFormOptions {
    * });
    * ```
    */
-  submitButton?: RegisteredSubmitButton
+  submitButton?: RegisteredSubmitButton;
 
   /**
    * Error behavior callback
@@ -122,7 +124,7 @@ export interface SetupMedusaFormOptions {
    * });
    * ```
    */
-  onError?: OnErrorBehavior
+  onError?: OnErrorBehavior;
 
   /**
    * Custom form UI components (label, description, errorMessage)
@@ -149,7 +151,7 @@ export interface SetupMedusaFormOptions {
    * });
    * ```
    */
-  formUI?: FormUIComponents
+  formUI?: FormUIComponents;
 
   /**
    * CSS classes for form layout and UI elements
@@ -170,14 +172,14 @@ export interface SetupMedusaFormOptions {
    * });
    * ```
    */
-  styles?: FormStyles
+  styles?: FormStyles;
 }
 
 // =============================================================================
 // Setup State
 // =============================================================================
 
-let isSetup = false
+let isSetup = false;
 
 // =============================================================================
 // Setup API
@@ -229,39 +231,41 @@ let isSetup = false
 export function setupForm(options: SetupMedusaFormOptions): void {
   // Prevent double setup (idempotent)
   if (isSetup) {
-    console.warn("[MedusaForm] setupForm has already been called. Ignoring duplicate call.")
-    return
+    console.warn(
+      "[MedusaForm] setupForm has already been called. Ignoring duplicate call.",
+    );
+    return;
   }
 
   // Set translation function (required)
-  setTranslationFunction(options.translate)
+  setTranslationFunction(options.translate);
 
   // Register components
   if (options.components) {
-    registerComponents(options.components)
+    registerComponents(options.components);
   }
 
   // Register submit button (optional)
   if (options.submitButton) {
-    registerSubmitButton(options.submitButton)
+    registerSubmitButton(options.submitButton);
   }
 
   // Set error behavior (optional)
   if (options.onError) {
-    setOnErrorBehavior(options.onError)
+    setOnErrorBehavior(options.onError);
   }
 
   // Register form UI components (optional)
   if (options.formUI) {
-    registerFormUI(options.formUI)
+    registerFormUI(options.formUI);
   }
 
   // Set form styles (optional)
   if (options.styles) {
-    setFormStyles(options.styles)
+    setFormStyles(options.styles);
   }
 
-  isSetup = true
+  isSetup = true;
 }
 
 /**
@@ -269,11 +273,11 @@ export function setupForm(options: SetupMedusaFormOptions): void {
  * Mainly used for testing.
  */
 export function resetMedusaForm(): void {
-  isSetup = false
-  resetTranslationRegistry()
-  clearRegistry()
-  resetBehaviorRegistry()
-  resetStylesRegistry()
+  isSetup = false;
+  resetTranslationRegistry();
+  clearRegistry();
+  resetBehaviorRegistry();
+  resetStylesRegistry();
 }
 
 /**
@@ -282,7 +286,7 @@ export function resetMedusaForm(): void {
  * @returns true if setupForm has been called
  */
 export function isMedusaFormSetup(): boolean {
-  return isSetup
+  return isSetup;
 }
 
 // =============================================================================
@@ -301,13 +305,23 @@ export {
   hasRegisteredComponent,
   getRegisteredTypes,
   clearRegistry,
-}
+};
 
 // Translation registry
-export { setTranslationFunction, getT, resetTranslationRegistry, type TranslationFunction }
+export {
+  setTranslationFunction,
+  getT,
+  resetTranslationRegistry,
+  type TranslationFunction,
+};
 
 // Behavior registry
-export { setOnErrorBehavior, executeOnErrorBehavior, resetBehaviorRegistry, type OnErrorBehavior }
+export {
+  setOnErrorBehavior,
+  executeOnErrorBehavior,
+  resetBehaviorRegistry,
+  type OnErrorBehavior,
+};
 
 // Styles registry
 export {
@@ -320,4 +334,4 @@ export {
   getChipClass,
   resetStylesRegistry,
   type FormStyles,
-}
+};

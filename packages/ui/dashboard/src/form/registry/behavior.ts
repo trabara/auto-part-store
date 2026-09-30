@@ -1,4 +1,4 @@
-import type { FieldErrors } from "react-hook-form"
+import type { FieldErrors } from "react-hook-form";
 
 // =============================================================================
 // Behavior Registry - Global error behavior callback
@@ -8,9 +8,12 @@ import type { FieldErrors } from "react-hook-form"
  * Callback type for error behavior
  * Called when form has validation errors
  */
-export type OnErrorBehavior = (formRef: HTMLFormElement | null, errors: FieldErrors) => void
+export type OnErrorBehavior = (
+  formRef: HTMLFormElement | null,
+  errors: FieldErrors,
+) => void;
 
-let onErrorBehavior: OnErrorBehavior | null = null
+let onErrorBehavior: OnErrorBehavior | null = null;
 
 /**
  * Register a global error behavior callback.
@@ -24,15 +27,18 @@ let onErrorBehavior: OnErrorBehavior | null = null
  * ```
  */
 export function setOnErrorBehavior(callback: OnErrorBehavior): void {
-  onErrorBehavior = callback
+  onErrorBehavior = callback;
 }
 
 /**
  * Execute the error behavior callback if registered
  * @internal Used by the form system
  */
-export function executeOnErrorBehavior(formRef: HTMLFormElement | null, errors: FieldErrors): void {
-  onErrorBehavior?.(formRef, errors)
+export function executeOnErrorBehavior(
+  formRef: HTMLFormElement | null,
+  errors: FieldErrors,
+): void {
+  onErrorBehavior?.(formRef, errors);
 }
 
 /**
@@ -40,5 +46,5 @@ export function executeOnErrorBehavior(formRef: HTMLFormElement | null, errors: 
  * @internal
  */
 export function resetBehaviorRegistry(): void {
-  onErrorBehavior = null
+  onErrorBehavior = null;
 }

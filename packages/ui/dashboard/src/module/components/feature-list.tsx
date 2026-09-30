@@ -7,25 +7,31 @@ import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { DataTable } from "../components/data-table";
 import { useDeleteMutation } from "../hooks/use-delete-mutation";
-import { FeaturePageConfig, PageQueryParams, RowAction, SelectFn, ToolbarAction } from "../types";
+import {
+  PageConfig,
+  PageQueryParams,
+  RowAction,
+  SelectFn,
+  ToolbarAction,
+} from "../types";
 import { useModule } from "../context/module";
 import { useSdk } from "../../common/context";
 
-type MedusaCrudListProps<T extends { id: string }> = {
+type ListFeatureProps<T extends { id: string }> = {
   entity: string;
-  config: FeaturePageConfig;
+  config: PageConfig;
   rowActions?: RowAction<T>[];
   toolbarActions?: ToolbarAction<T>[];
 };
 
-const MedusaListPage = function List<T extends { id: string }>({
+const ListFeature = function List<T extends { id: string }>({
   config,
   entity,
   rowActions,
   toolbarActions,
   ...restProps
-}: MedusaCrudListProps<T>) {
-  const  sdk  = useSdk();
+}: ListFeatureProps<T>) {
+  const sdk = useSdk();
   const navigate = useNavigate();
 
   const { t } = useTranslation();
@@ -135,4 +141,4 @@ const MedusaListPage = function List<T extends { id: string }>({
   );
 };
 
-export default MedusaListPage;
+export default ListFeature;

@@ -59,7 +59,7 @@ export type FilterFieldOverrides<T extends FieldValues> = {
   [K in keyof T]?: FilterFieldOverride<T, T[K]>;
 };
 
-export type EntityFieldOverrides<T extends FieldValues> =
+export type FeatureFieldOverrides<T extends FieldValues> =
   FieldOverrides<T> | CellOverrides<T> | FilterFieldOverrides<T>;
 
 export interface BaseAction {
@@ -92,35 +92,38 @@ export interface ActionConfig<T extends FieldValues> {
   id: string;
   title?: string;
   description?: string;
-  fields?: EntityFieldOverrides<T>;
+  fields?: FeatureFieldOverrides<T>;
   schema: z.ZodObject<T>;
 }
 
 export type EntityFieldConfigs<T extends FieldValues = {}> = (
   t: TranslationFunction,
-) => EntityFieldOverrides<T>;
+) => FeatureFieldOverrides<T>;
 
-export type FeaturePageConfig<S extends z.ZodObject = z.ZodObject> = {
+export type PageConfig<S extends z.ZodObject = z.ZodObject> = {
   path?: string;
   schema: S;
   getTitle: (data?: z.infer<S>) => string;
   fields?: EntityFieldConfigs<z.infer<S>>;
 };
 
-export type CreateFeature<S extends z.ZodObject = z.ZodObject> =
-  FeaturePageConfig<S> & { steps?: StepConfig<z.infer<S>>[] };
+export type CreatePageConfig<S extends z.ZodObject = z.ZodObject> =
+  PageConfig<S> & { steps?: StepConfig<z.infer<S>>[] };
+
 export type FeatureConfig<
+  E extends z.ZodObject = z.ZodObject,
   D extends z.ZodObject = z.ZodObject,
   L extends z.ZodObject = z.ZodObject,
   C extends z.ZodObject = z.ZodObject,
   U extends z.ZodObject = z.ZodObject,
 > = {
   path: string;
+  entity: E;
   pages: {
-    details: FeaturePageConfig<D>;
-    list: FeaturePageConfig<L>;
-    create: CreateFeature<C>;
-    update: FeaturePageConfig<U>;
+    details: PageConfig<D>;
+    list: PageConfig<L>;
+    create: CreatePageConfig<C>;
+    update: PageConfig<U>;
   };
 };
 
@@ -139,10 +142,14 @@ export type ModuleRouter = {
   }[];
 };
 
-export type MedusaModule = {
-  id: string;
+export type ModuleType = {
   name: string;
   path: string;
+  getFeatures: () => Record<string, FeatureConfig>;
   getFeature: (entity: string, t?: TranslationFunction) => FeatureConfig;
   getRouter: () => ModuleRouter;
+  buildRelationFields: (
+    entity: string,
+    schema: z.ZodSchema,
+  ) => FeatureFieldOverrides<any>;
 };

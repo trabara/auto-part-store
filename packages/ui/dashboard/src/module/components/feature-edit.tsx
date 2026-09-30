@@ -4,41 +4,42 @@ import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { Form } from "../../form/components/form";
 import { useUpdateMutation } from "../hooks/use-update-mutation";
-import { FeaturePageConfig } from "../types";
+import { PageConfig } from "../types";
 import { useSdk } from "../../common/context";
+import { useModule } from "../context/module";
+import { useMemo } from "react";
 
-const MedusaEditPage = ({
+const UpdateFeature = ({
   entity,
   config,
-  initialData,
 }: {
   entity: string;
-  config: FeaturePageConfig;
-  initialData: any;
+  config: PageConfig;
 }) => {
+  const module = useModule<{ id?: string }>();
+
   const sdk = useSdk();
   const { t } = useTranslation();
-
   const navigate = useNavigate();
 
   const name = _.startCase(entity);
 
   const dispose = () => {
-    if (initialData?.id) {
-      navigate(`${config.path}/${initialData.id}`);
+    if (module.state?.id) {
+      navigate(`${module.path}/${entity}/${module.state.id}`);
     } else {
-      navigate(`${config.path}`);
+      navigate(`${module.path}/${entity}`);
     }
   };
 
   const updateAction = (data: any): Promise<void> =>
-    sdk.client.fetch(`/admin${config.path}/${data.id}`, {
+    sdk.client.fetch(`/admin${module.path}/${entity}/${data.id}`, {
       method: "PUT",
       body: data,
     });
 
   const mutation = useUpdateMutation({
-    invalidateKeys: [config!.path!],
+    invalidateKeys: [module.path, entity],
     errorMessage: `Failed to update ${name}`,
     successMessage: `Successfully updated ${name}`,
     updateFn: (data) => updateAction(data),
@@ -50,14 +51,21 @@ const MedusaEditPage = ({
     dispose();
   };
 
-  const overrideFields =
-    typeof config.fields === "function" ? config.fields(t) : config.fields;
+  const overrideFields = useMemo(() => {
+    const fields =
+      typeof config.fields === "function" ? config.fields(t) : config.fields;
+
+    return {
+      ...module.buildRelationFields(entity, config.schema),
+      ...fields,
+    };
+  }, [config, t, module, entity]);
 
   return (
     <Drawer open={true} onOpenChange={() => dispose()}>
       <Drawer.Content>
         <Form
-          defaultValues={initialData}
+          defaultValues={module.state}
           schema={config.schema}
           overrides={overrideFields}
           onSubmit={handleSubmit}
@@ -105,4 +113,4 @@ const MedusaEditPage = ({
   );
 };
 
-export default MedusaEditPage;
+export default UpdateFeature;

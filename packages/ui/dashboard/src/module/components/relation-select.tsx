@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { kebabCase } from "lodash";
 import { useSdk } from "../../common/context";
 
-type EntitySelectProps = {
+type RelationSelectProps = {
   defaultValue?: string;
   entity: string;
   fields: string[];
@@ -12,7 +12,7 @@ type EntitySelectProps = {
   path: string;
   placeholder?: string;
 };
-export function EntitySelect({
+export function RelationSelect({
   defaultValue,
   entity,
   fields = ["id"],
@@ -20,13 +20,13 @@ export function EntitySelect({
   onChange,
   path,
   placeholder,
-}: EntitySelectProps) {
+}: RelationSelectProps) {
   const sdk = useSdk();
 
   const { data } = useQuery({
     queryKey: [[entity, "select"]],
     queryFn: async ({ signal }) => {
-      const uri = `${path}/${kebabCase(entity)}`;
+      const uri = `admin${path}/${kebabCase(entity)}`;
       const { data } = await sdk.client.fetch<{ data: [] }>(uri, {
         signal,
         query: {

@@ -1,4 +1,4 @@
-import { createContext, useContext, type ReactNode } from "react"
+import { createContext, useContext, type ReactNode } from "react";
 import {
   Controller,
   FieldError,
@@ -7,9 +7,9 @@ import {
   type ControllerProps,
   type FieldValues,
   type Path,
-} from "react-hook-form"
-import { getFormItemClass, getFormUI } from "../registry"
-import { clx } from "@medusajs/ui"
+} from "react-hook-form";
+import { getFormItemClass, getFormUI } from "../registry";
+import { clx } from "@medusajs/ui";
 
 // =============================================================================
 // Form Context (wraps react-hook-form's FormProvider)
@@ -18,17 +18,17 @@ import { clx } from "@medusajs/ui"
 /**
  * Re-export RHF FormProvider as FormProvider for convenience
  */
-export const FormProvider = RHFFormProvider
+export const FormProvider = RHFFormProvider;
 
 // =============================================================================
 // Field Context
 // =============================================================================
 
 interface FormFieldContextValue {
-  name: string
+  name: string;
 }
 
-const FormFieldContext = createContext<FormFieldContextValue | null>(null)
+const FormFieldContext = createContext<FormFieldContextValue | null>(null);
 
 /**
  * Provides field context (name) to child components
@@ -42,13 +42,13 @@ export function FormFieldProvider<
   render,
   ...props
 }: Omit<ControllerProps<TFieldValues, TName>, "render"> & {
-  render: ControllerProps<TFieldValues, TName>["render"]
+  render: ControllerProps<TFieldValues, TName>["render"];
 }): React.ReactElement {
   return (
     <FormFieldContext.Provider value={{ name }}>
       <Controller name={name} render={render} {...props} />
     </FormFieldContext.Provider>
-  )
+  );
 }
 
 /**
@@ -56,26 +56,26 @@ export function FormFieldProvider<
  * Must be used within a FormField component
  */
 export function useFormField(): {
-  name: string
-  id: string
-  error?: FieldError
-  invalid: boolean
+  name: string;
+  id: string;
+  error?: FieldError;
+  invalid: boolean;
 } {
-  const fieldContext = useContext(FormFieldContext)
-  const { getFieldState, formState } = useFormContext()
+  const fieldContext = useContext(FormFieldContext);
+  const { getFieldState, formState } = useFormContext();
 
   if (!fieldContext) {
-    throw new Error("useFormField must be used within a FormField component")
+    throw new Error("useFormField must be used within a FormField component");
   }
 
-  const fieldState = getFieldState(fieldContext.name, formState)
+  const fieldState = getFieldState(fieldContext.name, formState);
 
   return {
     name: fieldContext.name,
     id: fieldContext.name, // Use name as id for accessibility
     error: fieldState.error,
     invalid: !!fieldState.error,
-  }
+  };
 }
 
 // =============================================================================
@@ -83,69 +83,79 @@ export function useFormField(): {
 // =============================================================================
 
 interface FormItemProps {
-  children: ReactNode
-  className?: string
+  children: ReactNode;
+  className?: string;
 }
 
 /**
  * Wrapper for a form field (container for label + input + error)
  */
-export function FormItem({ children, className }: FormItemProps): React.ReactElement {
-  return <div className={clx(getFormItemClass(), className)}>{children}</div>
+export function FormItem({
+  children,
+  className,
+}: FormItemProps): React.ReactElement {
+  return <div className={clx(getFormItemClass(), className)}>{children}</div>;
 }
 
 interface FormLabelProps {
-  children: ReactNode
-  className?: string
-  required?: boolean
+  children: ReactNode;
+  className?: string;
+  required?: boolean;
 }
 
 /**
  * Label for a form field.
  * Uses registered label component or DEFAULT_FORM_UI fallback.
  */
-export function FormLabel({ children, required }: FormLabelProps): React.ReactElement {
-  const { id, invalid } = useFormField()
-  const { label: Label } = getFormUI()
+export function FormLabel({
+  children,
+  required,
+}: FormLabelProps): React.ReactElement {
+  const { id, invalid } = useFormField();
+  const { label: Label } = getFormUI();
 
   return (
     <Label htmlFor={id} required={required} invalid={invalid}>
       {children}
     </Label>
-  )
+  );
 }
 
 interface FormControlProps {
-  children: ReactNode
+  children: ReactNode;
 }
 
 /**
  * Container for the actual input element
  * Passes the id from FormField context to the child
  */
-export function FormControl({ children }: FormControlProps): React.ReactElement {
+export function FormControl({
+  children,
+}: FormControlProps): React.ReactElement {
   // Just render children - the id is handled via useFormField in the input
-  return <>{children}</>
+  return <>{children}</>;
 }
 
 interface FormDescriptionProps {
-  children: ReactNode
-  className?: string
+  children: ReactNode;
+  className?: string;
 }
 
 /**
  * Help text below a form field.
  * Uses registered description component or DEFAULT_FORM_UI fallback.
  */
-export function FormDescription({ children }: FormDescriptionProps): React.ReactElement {
-  const { description: Description } = getFormUI()
+export function FormDescription({
+  children,
+}: FormDescriptionProps): React.ReactElement {
+  const { description: Description } = getFormUI();
 
-  return <Description>{children}</Description>
+  return <Description>{children}</Description>;
 }
 
 interface FormMessageProps {
-  className?: string
-  children?: ReactNode
+  className?: string;
+  children?: ReactNode;
 }
 
 /**
@@ -153,14 +163,16 @@ interface FormMessageProps {
  * Automatically displays the field's error if present.
  * Uses registered errorMessage component or DEFAULT_FORM_UI fallback.
  */
-export function FormMessage({ children }: FormMessageProps): React.ReactElement | null {
-  const { error } = useFormField()
-  const { errorMessage: ErrorMessage } = getFormUI()
-  const message = error?.message ?? children
+export function FormMessage({
+  children,
+}: FormMessageProps): React.ReactElement | null {
+  const { error } = useFormField();
+  const { errorMessage: ErrorMessage } = getFormUI();
+  const message = error?.message ?? children;
 
   if (!message || typeof message !== "string") {
-    return null
+    return null;
   }
 
-  return <ErrorMessage message={message} />
+  return <ErrorMessage message={message} />;
 }

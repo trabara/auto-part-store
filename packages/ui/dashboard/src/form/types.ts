@@ -1,6 +1,6 @@
-import type { z } from "@medusajs/framework/zod"
-import type { ReactElement, ReactNode } from "react"
-import type { FieldError, FieldValues, UseFormReturn } from "react-hook-form"
+import type { z } from "@medusajs/framework/zod";
+import type { ReactElement, ReactNode } from "react";
+import type { FieldError, FieldValues, UseFormReturn } from "react-hook-form";
 
 // =============================================================================
 // Core Types
@@ -31,36 +31,36 @@ declare global {
  * Built-in component types that ship with Form.
  */
 interface FormBuiltinTypes {
-  hidden: true
-  text: true
-  password: true
-  email: true
-  number: true
-  textarea: true
-  select: true
-  checkbox: true
-  radio: true
-  date: true
-  file: true
-  time: true
-  "datetime-local": true
-  tel: true
-  url: true
-  color: true
+  hidden: true;
+  text: true;
+  password: true;
+  email: true;
+  number: true;
+  textarea: true;
+  select: true;
+  checkbox: true;
+  radio: true;
+  date: true;
+  file: true;
+  time: true;
+  "datetime-local": true;
+  tel: true;
+  url: true;
+  color: true;
 }
 
 /**
  * All available field types (built-in + custom).
  * Automatically includes types from FormCustomTypes via declaration merging.
  */
-export type FieldType = keyof (FormBuiltinTypes & FormCustomTypes)
+export type FieldType = keyof (FormBuiltinTypes & FormCustomTypes);
 
 /**
  * Option for select and radio fields
  */
 export interface FieldOption {
-  label: string
-  value: string
+  label: string;
+  value: string;
 }
 
 // =============================================================================
@@ -71,12 +71,12 @@ export interface FieldOption {
  * Render function props passed to custom render functions
  */
 export interface FieldRenderProps<TValue = unknown> {
-  value: TValue
-  onChange: (value: TValue) => void
-  onBlur: () => void
-  name: string
-  error?: FieldError
-  disabled?: boolean
+  value: TValue;
+  onChange: (value: TValue) => void;
+  onBlur: () => void;
+  name: string;
+  error?: FieldError;
+  disabled?: boolean;
 }
 
 /**
@@ -84,25 +84,25 @@ export interface FieldRenderProps<TValue = unknown> {
  */
 export interface BaseFieldConfig {
   /** Override field label (default: translated from field key) */
-  label?: string
+  label?: string;
   /** Help text displayed below the field */
-  description?: string
+  description?: string;
   /** Placeholder text */
-  placeholder?: string
+  placeholder?: string;
   /** Disable the field */
-  disabled?: boolean
+  disabled?: boolean;
   /** Override the detected field type */
-  type?: FieldType
+  type?: FieldType;
   /** Options for select/radio fields */
-  options?: FieldOption[]
+  options?: FieldOption[];
   /** Convert empty string to null on submit */
-  emptyAsNull?: boolean
+  emptyAsNull?: boolean;
   /** Convert empty string to undefined on submit */
-  emptyAsUndefined?: boolean
+  emptyAsUndefined?: boolean;
   /** Convert empty/null to 0 for number fields */
-  emptyAsZero?: boolean
+  emptyAsZero?: boolean;
   /** Hide the label (useful for custom render with inline label) */
-  hideLabel?: boolean
+  hideLabel?: boolean;
 }
 
 /**
@@ -110,9 +110,9 @@ export interface BaseFieldConfig {
  */
 export interface FieldOverride<TValue = unknown> extends BaseFieldConfig {
   /** Custom render function - replaces default component */
-  render?: (props: FieldRenderProps<TValue>) => ReactElement
+  render?: (props: FieldRenderProps<TValue>) => ReactElement;
   /** Additional props passed to the component */
-  componentProps?: Record<string, unknown>
+  componentProps?: Record<string, unknown>;
 }
 
 /**
@@ -121,17 +121,21 @@ export interface FieldOverride<TValue = unknown> extends BaseFieldConfig {
  */
 export interface FieldConfig extends BaseFieldConfig {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  render?: (field: { value: any; onChange: (value: any) => void; error?: any }) => ReactElement
+  render?: (field: {
+    value: any;
+    onChange: (value: any) => void;
+    error?: any;
+  }) => ReactElement;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  componentProps?: Record<string, any>
+  componentProps?: Record<string, any>;
 }
 
 /**
  * Map of field names to their override configurations
  */
 export type FieldOverrides<T extends FieldValues> = Partial<{
-  [K in keyof T]: FieldOverride<T[K]>
-}>
+  [K in keyof T]: FieldOverride<T[K]>;
+}>;
 
 // =============================================================================
 // Component Registry Types
@@ -141,17 +145,17 @@ export type FieldOverrides<T extends FieldValues> = Partial<{
  * Props passed to registered components
  */
 export interface RegisteredComponentProps<TValue = unknown> {
-  value: TValue
-  onChange: (value: TValue) => void
-  onBlur: () => void
-  name: string
-  error?: FieldError
-  disabled?: boolean
-  placeholder?: string
-  options?: FieldOption[]
-  className?: string
-  invalid?: boolean
-  componentProps?: Record<string, unknown>
+  value: TValue;
+  onChange: (value: TValue) => void;
+  onBlur: () => void;
+  name: string;
+  error?: FieldError;
+  disabled?: boolean;
+  placeholder?: string;
+  options?: FieldOption[];
+  className?: string;
+  invalid?: boolean;
+  componentProps?: Record<string, unknown>;
 }
 
 /**
@@ -159,7 +163,7 @@ export interface RegisteredComponentProps<TValue = unknown> {
  */
 export type RegisteredComponent<TValue = unknown> = React.ComponentType<
   RegisteredComponentProps<TValue>
->
+>;
 
 /**
  * Permissive component type for registration (avoids casts in config)
@@ -167,22 +171,24 @@ export type RegisteredComponent<TValue = unknown> = React.ComponentType<
  * to be registered without explicit type casts
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type RegisterableComponent = React.ComponentType<RegisteredComponentProps<any>>
+export type RegisterableComponent = React.ComponentType<
+  RegisteredComponentProps<any>
+>;
 
 /**
  * Submit button component props
  */
 export interface SubmitButtonProps {
-  loading?: boolean
-  disabled?: boolean
-  children?: ReactNode
-  className?: string
+  loading?: boolean;
+  disabled?: boolean;
+  children?: ReactNode;
+  className?: string;
 }
 
 /**
  * A registered submit button component
  */
-export type RegisteredSubmitButton = React.ComponentType<SubmitButtonProps>
+export type RegisteredSubmitButton = React.ComponentType<SubmitButtonProps>;
 
 // =============================================================================
 // Form UI Component Types
@@ -192,33 +198,33 @@ export type RegisteredSubmitButton = React.ComponentType<SubmitButtonProps>
  * Props for custom label components
  */
 export interface FormUILabelProps {
-  children: ReactNode
-  required?: boolean
-  invalid?: boolean
-  htmlFor: string
+  children: ReactNode;
+  required?: boolean;
+  invalid?: boolean;
+  htmlFor: string;
 }
 
 /**
  * Props for custom description components
  */
 export interface FormUIDescriptionProps {
-  children: ReactNode
+  children: ReactNode;
 }
 
 /**
  * Props for custom error message components
  */
 export interface FormUIErrorMessageProps {
-  message: string
+  message: string;
 }
 
 /**
  * Custom form UI components that can be registered
  */
 export interface FormUIComponents {
-  label?: React.ComponentType<FormUILabelProps>
-  description?: React.ComponentType<FormUIDescriptionProps>
-  errorMessage?: React.ComponentType<FormUIErrorMessageProps>
+  label?: React.ComponentType<FormUILabelProps>;
+  description?: React.ComponentType<FormUIDescriptionProps>;
+  errorMessage?: React.ComponentType<FormUIErrorMessageProps>;
 }
 
 // =============================================================================
@@ -230,15 +236,15 @@ export interface FormUIComponents {
  */
 export interface FormHelpers<T extends FieldValues> {
   /** Render specific fields by key */
-  renderField: (...keys: Array<keyof T>) => ReactNode
+  renderField: (...keys: Array<keyof T>) => ReactNode;
   /** Render the submit button */
   renderSubmitButton: (options?: {
-    disabled?: boolean
-    className?: string
-    children?: ReactNode
-  }) => ReactNode
+    disabled?: boolean;
+    className?: string;
+    children?: ReactNode;
+  }) => ReactNode;
   /** Access the full react-hook-form instance (includes watch, setValue, etc.) */
-  form: UseFormReturn<T>
+  form: UseFormReturn<T>;
 }
 
 /**
@@ -247,7 +253,7 @@ export interface FormHelpers<T extends FieldValues> {
 export type FormChildren<T extends FieldValues> = (
   helpers: FormHelpers<T>,
   fieldKeys: Array<keyof T>,
-) => ReactNode
+) => ReactNode;
 
 // =============================================================================
 // Main Component Props
@@ -269,40 +275,40 @@ export type FormChildren<T extends FieldValues> = (
  */
 export interface FormProps<TSchema extends FieldValues, TResponse = unknown> {
   /** Zod schema defining the form structure */
-  schema: z.ZodObject<TSchema>
+  schema: z.ZodObject<TSchema>;
 
   /** Field customizations - uses permissive FieldConfig for flexibility */
-  overrides?: Partial<Record<string, FieldOverride>>
+  overrides?: Partial<Record<string, FieldOverride>>;
 
   /** Static default values */
-  defaultValues?: Partial<z.infer<TSchema>>
+  defaultValues?: Partial<z.infer<TSchema>>;
 
   /** Async function to fetch default values */
-  fetchDefaultValues?: () => Promise<Partial<z.infer<TSchema>>>
+  fetchDefaultValues?: () => Promise<Partial<z.infer<TSchema>>>;
 
   /** Submit handler - receives validated form values */
-  onSubmit?: (values: z.infer<TSchema>) => Promise<TResponse>
+  onSubmit?: (values: z.infer<TSchema>) => Promise<TResponse>;
 
   /** Called after successful submission */
-  onSuccess?: (response: TResponse) => void
+  onSuccess?: (response: TResponse) => void;
 
   /** Error handler for submission errors (API errors, etc.) */
   onSubmitError?: (
     setManualFormErrors: (errors: Record<string, string> | null) => void,
     error: unknown,
-  ) => void
+  ) => void;
 
   /** Enable debug logging (dev only) */
-  debug?: boolean
+  debug?: boolean;
 
   /** CSS class for the form element */
-  className?: string
+  className?: string;
 
   /** HTML id attribute for the form element */
-  id?: string
+  id?: string;
 
   /** Custom layout via render function */
-  children?: FormChildren<z.infer<TSchema> & FieldValues>
+  children?: FormChildren<z.infer<TSchema> & FieldValues>;
 }
 
 // =============================================================================
@@ -313,24 +319,31 @@ export interface FormProps<TSchema extends FieldValues, TResponse = unknown> {
  * Base type for detected schema fields
  */
 export type SchemaFieldBaseType =
-  "string" | "number" | "boolean" | "enum" | "array" | "date" | "object" | "unknown"
+  | "string"
+  | "number"
+  | "boolean"
+  | "enum"
+  | "array"
+  | "date"
+  | "object"
+  | "unknown";
 
 /**
  * Information extracted from a schema field
  */
 export interface SchemaFieldInfo {
   /** The base Zod type (string, number, boolean, enum, array, etc.) */
-  baseType: SchemaFieldBaseType
+  baseType: SchemaFieldBaseType;
   /** Whether the field is optional (z.optional() or has .default()) */
-  isOptional: boolean
+  isOptional: boolean;
   /** Whether the field has .email() validation */
-  isEmail: boolean
+  isEmail: boolean;
   /** For enum types: the possible values */
-  enumValues?: string[]
+  enumValues?: string[];
   /** For array fields: info about the element type */
-  arrayElementInfo?: SchemaFieldInfo
+  arrayElementInfo?: SchemaFieldInfo;
   /** The unwrapped Zod type (after removing effects and optionals) */
-  unwrapped: z.ZodTypeAny
+  unwrapped: z.ZodTypeAny;
 }
 
 // =============================================================================
@@ -343,19 +356,19 @@ export interface SchemaFieldInfo {
 export interface FormConfig {
   /** Default CSS classes */
   defaultStyles?: {
-    form?: string
-    fieldWrapper?: string
-    label?: string
-    input?: string
-    error?: string
-    description?: string
-    submitButton?: string
-  }
+    form?: string;
+    fieldWrapper?: string;
+    label?: string;
+    input?: string;
+    error?: string;
+    description?: string;
+    submitButton?: string;
+  };
 
   /** Default labels when no translation is provided */
   defaultLabels?: {
-    submit?: string
-    loading?: string
-    required?: string
-  }
+    submit?: string;
+    loading?: string;
+    required?: string;
+  };
 }

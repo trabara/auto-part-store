@@ -15,18 +15,18 @@ import {
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import React, { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { SdkContext } from "../../common/context";
 import { setupForm } from "../../form/registry";
 import { ModuleContext } from "../context/module";
-import { MedusaModule } from "../types";
-import MedusaCreatePage from "./feature-create";
-import MedusaDetailsPage from "./feature-details";
-import MedusaEditPage from "./feature-edit";
-import MedusaListPage from "./feature-list";
-import { SdkContext } from "../../common/context";
+import { ModuleType } from "../types";
+import CreateFeature from "./feature-create";
+import DetailsFeature from "./feature-details";
+import UpdateFeature from "./feature-edit";
+import ListFeature from "./feature-list";
 
 interface MedusaCrudProps {
   sdk: Medusa;
-  module: MedusaModule;
+  module: ModuleType;
   children?: React.ReactNode;
 }
 
@@ -44,7 +44,7 @@ function Module({ children, sdk, module }: MedusaCrudProps) {
   }
 
   const { t } = useTranslation();
-  const [details, setDetails] = useState<any>({});
+  const [state, setState] = useState<{}>({});
 
   useEffect(() => {
     setupForm({
@@ -127,7 +127,7 @@ function Module({ children, sdk, module }: MedusaCrudProps) {
   return (
     <SdkContext.Provider value={sdk}>
       <QueryClientProvider client={queryClientRef.current}>
-        <ModuleContext.Provider value={module}>
+        <ModuleContext.Provider value={{ ...module, state, setState }}>
           <TooltipProvider>{children}</TooltipProvider>
           <Toaster position="top-right" />
         </ModuleContext.Provider>
@@ -136,9 +136,9 @@ function Module({ children, sdk, module }: MedusaCrudProps) {
   );
 }
 
-Module.List = MedusaListPage;
-Module.Create = MedusaCreatePage;
-Module.Detail = MedusaDetailsPage;
-Module.Edit = MedusaEditPage;
+Module.List = ListFeature;
+Module.Create = CreateFeature;
+Module.Detail = DetailsFeature;
+Module.Edit = UpdateFeature;
 
 export { Module };

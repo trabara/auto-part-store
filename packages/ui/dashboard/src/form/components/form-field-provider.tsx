@@ -1,12 +1,16 @@
-import { useCallback } from "react"
-import type { ControllerRenderProps, FieldValues, Path } from "react-hook-form"
+import { useCallback } from "react";
+import type { ControllerRenderProps, FieldValues, Path } from "react-hook-form";
 
-import { getRegisteredComponent, getT } from "../registry"
-import { ArrayFieldRenderer } from "./array-field-renderer"
-import { FieldWrapper } from "./field-wrapper"
-import { FormControl, useFormField } from "./form-provider"
-import { SchemaFieldInfo, FieldOverride, RegisteredComponentProps } from "../types"
-import { resolveFieldType } from "../utils/form"
+import { getRegisteredComponent, getT } from "../registry";
+import { ArrayFieldRenderer } from "./array-field-renderer";
+import { FieldWrapper } from "./field-wrapper";
+import { FormControl, useFormField } from "./form-provider";
+import {
+  SchemaFieldInfo,
+  FieldOverride,
+  RegisteredComponentProps,
+} from "../types";
+import { resolveFieldType } from "../utils/form";
 
 // =============================================================================
 // FormField Component
@@ -17,23 +21,23 @@ export interface FormFieldProps<
   TName extends Path<TFieldValues> = Path<TFieldValues>,
 > {
   /** Field name (key from schema) */
-  name: TName
+  name: TName;
   /** Schema field information */
-  fieldInfo: SchemaFieldInfo
+  fieldInfo: SchemaFieldInfo;
   /** Override configuration for this field */
-  override?: FieldOverride
+  override?: FieldOverride;
   /** RHF Controller field props */
-  field: ControllerRenderProps<TFieldValues, TName>
+  field: ControllerRenderProps<TFieldValues, TName>;
   /** Whether the form is disabled */
-  formDisabled?: boolean
+  formDisabled?: boolean;
   /** Default CSS classes */
   styles?: {
-    fieldWrapper?: string
-    label?: string
-    input?: string
-    error?: string
-    description?: string
-  }
+    fieldWrapper?: string;
+    label?: string;
+    input?: string;
+    error?: string;
+    description?: string;
+  };
 }
 
 /**
@@ -50,19 +54,19 @@ export function FormField<
   formDisabled,
   styles,
 }: FormFieldProps<TFieldValues, TName>): React.ReactElement | null {
-  const t = getT()
-  const { error } = useFormField()
-  const fieldType = resolveFieldType(fieldInfo, override)
+  const t = getT();
+  const { error } = useFormField();
+  const fieldType = resolveFieldType(fieldInfo, override);
 
   // Hidden fields render without label/wrapper
   if (fieldType === "hidden") {
-    return <input type="hidden" name={name} value={field.value ?? ""} />
+    return <input type="hidden" name={name} value={field.value ?? ""} />;
   }
 
   // Get label (override > translation)
-  const label = override?.label ?? t(name)
-  const isRequired = !fieldInfo.isOptional
-  const isDisabled = formDisabled || override?.disabled
+  const label = override?.label ?? t(name);
+  const isRequired = !fieldInfo.isOptional;
+  const isDisabled = formDisabled || override?.disabled;
 
   // Handle custom render function
   // FieldConfig render receives { value, onChange, error } for custom components
@@ -84,11 +88,15 @@ export function FormField<
           })}
         </FormControl>
       </FieldWrapper>
-    )
+    );
   }
 
   // Array fields (only use ArrayFieldRenderer if no custom type override)
-  if (fieldInfo.baseType === "array" && fieldInfo.arrayElementInfo && !override?.type) {
+  if (
+    fieldInfo.baseType === "array" &&
+    fieldInfo.arrayElementInfo &&
+    !override?.type
+  ) {
     return (
       <ArrayFieldRenderer
         name={name}
@@ -100,18 +108,18 @@ export function FormField<
         field={field}
         styles={styles}
       />
-    )
+    );
   }
 
   // Get registered component (strict: no fallback)
-  const Component = getRegisteredComponent(fieldType)
+  const Component = getRegisteredComponent(fieldType);
 
   if (!Component) {
     console.warn(
       `[Form] No component registered for type "${fieldType}". ` +
         `Register it via setupForm({ components: { ${fieldType}: YourComponent } }).`,
-    )
-    return null
+    );
+    return null;
   }
 
   // Build options for select/enum fields
@@ -119,24 +127,35 @@ export function FormField<
     override?.options ??
     (fieldInfo.baseType === "enum" && fieldInfo.enumValues
       ? fieldInfo.enumValues.map((value) => ({ label: value, value }))
-      : undefined)
+      : undefined);
 
   // Memoized onChange handler to prevent unnecessary re-renders
   const handleChange = useCallback(
     (value: unknown) => {
       // Apply empty value transformations
       if (override?.emptyAsNull && (value === "" || value === undefined)) {
-        field.onChange(null as typeof field.value)
-      } else if (override?.emptyAsUndefined && (value === "" || value === null)) {
-        field.onChange(undefined as typeof field.value)
-      } else if (override?.emptyAsZero && (value === "" || value === null || value === undefined)) {
-        field.onChange(0 as typeof field.value)
+        field.onChange(null as typeof field.value);
+      } else if (
+        override?.emptyAsUndefined &&
+        (value === "" || value === null)
+      ) {
+        field.onChange(undefined as typeof field.value);
+      } else if (
+        override?.emptyAsZero &&
+        (value === "" || value === null || value === undefined)
+      ) {
+        field.onChange(0 as typeof field.value);
       } else {
-        field.onChange(value as typeof field.value)
+        field.onChange(value as typeof field.value);
       }
     },
-    [field.onChange, override?.emptyAsNull, override?.emptyAsUndefined, override?.emptyAsZero],
-  )
+    [
+      field.onChange,
+      override?.emptyAsNull,
+      override?.emptyAsUndefined,
+      override?.emptyAsZero,
+    ],
+  );
 
   // Prepare component props
   const componentProps: RegisteredComponentProps = {
@@ -149,7 +168,7 @@ export function FormField<
     options,
     className: styles?.input,
     componentProps: override?.componentProps,
-  }
+  };
 
   return (
     <FieldWrapper
@@ -162,5 +181,5 @@ export function FormField<
         <Component {...componentProps} />
       </FormControl>
     </FieldWrapper>
-  )
+  );
 }

@@ -13,7 +13,7 @@ export const useModule = <S>(initialState?: S) => {
     ModuleContext as unknown as Context<ModuleContext<S>>,
   );
   if (!context) {
-    throw new Error("useModule must be used within a MedusaCrudProvider");
+    throw new Error("useModule must be used within a ModuleProvider");
   }
 
   if (initialState) {

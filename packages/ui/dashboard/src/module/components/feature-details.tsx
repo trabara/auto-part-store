@@ -1,15 +1,18 @@
 import { LayoutComposer } from "@medusajs/dashboard/components";
+import { z } from "@medusajs/framework/zod";
 import { Pencil, Trash } from "@medusajs/icons";
-import _ from "lodash";
+import { Container } from "@medusajs/ui";
+import { getZodFieldInfo, getZodShape, unwrap } from "@repo/utils";
+import _, { forEach } from "lodash";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
-import { classifyValue, DetailsSection } from "../components/details-section";
-import { ManyRelationSection } from "../components/many-relation-section";
+import { useSdk } from "../../common/context";
+import { DetailsSection } from "../components/details-section";
 import { useModule } from "../context/module";
 import { useDeleteMutation } from "../hooks/use-delete-mutation";
 import { PageConfig } from "../types";
-import { useSdk } from "../../common/context";
+import { DataTable } from "./data-table";
 
 type DetailsFeatureProps = {
   config: PageConfig;
@@ -17,6 +20,54 @@ type DetailsFeatureProps = {
   initialData?: any;
   children?: React.ReactNode;
 };
+
+type Scalar = { key: string; value: string; schema: z.ZodAny };
+type Many = {
+  key: string;
+  value: Record<string, any>[];
+  schema: z.ZodAny;
+};
+type One = { key: string; value: Record<string, any>; schema: z.ZodAny };
+
+export type Attribute = Scalar | Many | One;
+
+function classifyAttributes<T extends Record<string, unknown>>(
+  schema: z.ZodType<T>,
+  data: T,
+) {
+  const scalar: Scalar[] = [];
+  const many: Many[] = [];
+  const one: One[] = [];
+
+  const shape = getZodShape(schema);
+
+  forEach(shape, (attr, key) => {
+    const info = getZodFieldInfo(attr);
+    const value = data[key];
+
+    if (info.baseType === "array") {
+      many.push({
+        key,
+        value: value as Record<string, any>[],
+        schema: unwrap(attr) as z.ZodAny,
+      });
+    } else if (info.baseType === "object") {
+      one.push({
+        key,
+        value: value as Record<string, any>,
+        schema: unwrap(attr) as z.ZodAny,
+      });
+    } else {
+      scalar.push({
+        key,
+        value: String(value),
+        schema: unwrap(attr) as z.ZodAny,
+      });
+    }
+  });
+
+  return { scalar, many, one };
+}
 
 const DetailsFeature = ({
   initialData,
@@ -38,26 +89,11 @@ const DetailsFeature = ({
   // details block, also in the side column. Runs unconditionally (before
   // the early returns below) to respect the Rules of Hooks; `data` may
   // still be undefined here while the query is loading.
-  const attributes = useMemo(() => {
-    const scalar: [string, unknown][] = [];
-    const many: [string, Record<string, any>[]][] = [];
-    const one: [string, Record<string, any>][] = [];
-
-    Object.entries(initialData ?? {}).forEach(([key, value]) => {
-      switch (classifyValue(value)) {
-        case "many":
-          many.push([key, value as Record<string, any>[]]);
-          break;
-        case "one":
-          one.push([key, value as Record<string, any>]);
-          break;
-        default:
-          scalar.push([key, value]);
-      }
-    });
-
-    return { scalar, many, one };
-  }, [initialData]);
+  const attributes = useMemo(
+    () => classifyAttributes(config.schema, initialData),
+    [config.schema, initialData],
+  );
+  console.log("attributes", attributes);
 
   const deleteMutation = useDeleteMutation({
     invalidateKeys: [module.path],
@@ -93,22 +129,36 @@ const DetailsFeature = ({
           },
         ]}
       />,
-      ...attributes.many.map(([key, rows]) => (
-        <ManyRelationSection key={key} title={_.startCase(key)} rows={rows} />
+      ...attributes.many.map(({ key, schema, value }) => (
+        <Container key={key} className="divide-y p-0">
+          <DataTable
+            key={key}
+            id={key}
+            title={_.startCase(key)}
+            schema={schema}
+            overrides={{}}
+            queryFn={() =>
+              Promise.resolve({
+                data: value,
+                metadata: { count: value.length },
+              })
+            }
+          />
+        </Container>
       )),
     ],
-    [attributes.many, attributes.scalar, title],
+    [],
   );
 
   const sideSections = useMemo(
     () => [
-      ...attributes.one.map(([key, relation]) => (
-        <DetailsSection
-          key={key}
-          title={_.startCase(key)}
-          attributes={Object.entries(relation ?? {})}
-        />
-      )),
+      // ...attributes.one.map(([key, relation]) => (
+      //   <DetailsSection
+      //     key={key}
+      //     title={_.startCase(key)}
+      //     attributes={Object.entries(relation ?? {})}
+      //   />
+      // )),
     ],
     [attributes.one],
   );

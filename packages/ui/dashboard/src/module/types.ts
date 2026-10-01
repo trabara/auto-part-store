@@ -93,37 +93,32 @@ export interface ActionConfig<T extends FieldValues> {
   title?: string;
   description?: string;
   fields?: FeatureFieldOverrides<T>;
-  schema: z.ZodObject<T>;
+  schema: z.ZodType<T>;
 }
 
 export type EntityFieldConfigs<T extends FieldValues = {}> = (
   t: TranslationFunction,
 ) => FeatureFieldOverrides<T>;
 
-export type PageConfig<S extends z.ZodObject = z.ZodObject> = {
+export type PageConfig<T extends FieldValues = {}> = {
   path?: string;
-  schema: S;
-  getTitle: (data?: z.infer<S>) => string;
-  fields?: EntityFieldConfigs<z.infer<S>>;
+  schema: z.ZodType<T>;
+  getTitle: (data?: T) => string;
+  fields?: EntityFieldConfigs<T>;
 };
 
-export type CreatePageConfig<S extends z.ZodObject = z.ZodObject> =
-  PageConfig<S> & { steps?: StepConfig<z.infer<S>>[] };
+export type CreatePageConfig<T extends FieldValues = {}> = PageConfig<T> & {
+  steps?: StepConfig<T>[];
+};
 
-export type FeatureConfig<
-  E extends z.ZodObject = z.ZodObject,
-  D extends z.ZodObject = z.ZodObject,
-  L extends z.ZodObject = z.ZodObject,
-  C extends z.ZodObject = z.ZodObject,
-  U extends z.ZodObject = z.ZodObject,
-> = {
+export type FeatureConfig<T extends Entity = Entity> = {
   path: string;
-  entity: E;
+  entity: z.ZodType<T>;
   pages: {
-    details: PageConfig<D>;
-    list: PageConfig<L>;
-    create: CreatePageConfig<C>;
-    update: PageConfig<U>;
+    details: PageConfig;
+    list: PageConfig;
+    create: CreatePageConfig;
+    update: PageConfig;
   };
 };
 

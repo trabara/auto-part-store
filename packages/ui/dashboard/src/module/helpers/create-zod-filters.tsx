@@ -1,13 +1,14 @@
 import { z } from "@medusajs/framework/zod";
 import { createDataTableFilterHelper, DataTableFilter } from "@medusajs/ui";
-import { getZodShape, getZodFieldInfo } from "@repo/utils";
+import { getZodFieldInfo, getZodShape } from "@repo/utils";
 import { startCase } from "lodash";
-import { Entity, FilterFieldOverrides } from "../types";
+import { FieldValues } from "react-hook-form";
+import { FilterFieldOverrides } from "../types";
 
-export function createZodDataTableFilterDef<
-  S extends z.ZodObject,
-  T extends Entity<z.infer<S>>,
->(schema: S, overrides: FilterFieldOverrides<T>): DataTableFilter[] {
+export function createZodDataTableFilterDef<T extends FieldValues>(
+  schema: z.ZodType<T>,
+  overrides: FilterFieldOverrides<T>,
+): DataTableFilter[] {
   const helper = createDataTableFilterHelper<T>();
   const shape = getZodShape(schema);
 

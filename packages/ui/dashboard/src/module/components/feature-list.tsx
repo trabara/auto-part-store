@@ -1,11 +1,18 @@
 import { z } from "@medusajs/framework/zod";
-import { PencilSquare, Trash } from "@medusajs/icons";
+import {
+  InformationCircle,
+  MagnifyingGlass,
+  PencilSquare,
+  Trash,
+} from "@medusajs/icons";
 import { Container, UseDataTableReturn } from "@medusajs/ui";
 import { zodQueryResolve } from "@repo/utils";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
+import { useSdk } from "../../common/context";
 import { DataTable } from "../components/data-table";
+import { useModule } from "../context/module";
 import { useDeleteMutation } from "../hooks/use-delete-mutation";
 import {
   PageConfig,
@@ -14,23 +21,16 @@ import {
   SelectFn,
   ToolbarAction,
 } from "../types";
-import { useModule } from "../context/module";
-import { useSdk } from "../../common/context";
 
 type ListFeatureProps<T extends { id: string }> = {
   entity: string;
-  config: PageConfig;
-  rowActions?: RowAction<T>[];
-  toolbarActions?: ToolbarAction<T>[];
+  config: PageConfig<T>;
 };
 
-const ListFeature = function List<T extends { id: string }>({
-  config,
-  entity,
-  rowActions,
-  toolbarActions,
-  ...restProps
-}: ListFeatureProps<T>) {
+const ListFeature = function List<
+  T extends { id: string },
+  R extends { data: []; metadata: { count: number } },
+>({ config, entity, ...restProps }: ListFeatureProps<T>) {
   const sdk = useSdk();
   const navigate = useNavigate();
 
@@ -43,7 +43,7 @@ const ListFeature = function List<T extends { id: string }>({
   );
 
   const listAction = (signal: AbortSignal, params?: PageQueryParams) =>
-    sdk.client.fetch(`/admin${module.path}/${entity}`, {
+    sdk.client.fetch<R>(`/admin${module.path}/${entity}`, {
       method: "GET",
       signal,
       query: {
@@ -103,7 +103,7 @@ const ListFeature = function List<T extends { id: string }>({
     },
   ];
 
-  const handleDataSelect: SelectFn<T, any> = (resp) => {
+  const handleDataSelect: SelectFn<T, R> = (resp) => {
     return {
       data: z.array(config.schema).parse(resp?.data || []) as T[],
       rowCount: resp?.metadata.count ?? 0,
@@ -118,23 +118,57 @@ const ListFeature = function List<T extends { id: string }>({
   };
 
   const title = config.getTitle();
-  const columns =
+  const overrideColumns =
     (typeof config.fields === "function" ? config.fields(t) : config.fields) ||
     {};
 
   return (
     <Container className="divide-y p-0">
-      <DataTable
-        id={module.id}
+      <DataTable<T, R>
+        id={module.name}
         schema={config.schema}
+        emptyState={{
+          filtered: {
+            custom: (
+              <div className="flex flex-col items-center gap-y-3">
+                <MagnifyingGlass />
+                <div className="flex flex-col items-center gap-y-1">
+                  <p className="font-medium font-sans txt-compact-small">
+                    Aucun résultat
+                  </p>
+                  <p className="font-normal font-sans txt-small text-ui-fg-muted">
+                    Aucun enregistrement ne correspond à vos filtres.
+                  </p>
+                </div>
+              </div>
+            ),
+          },
+          empty: {
+            custom: (
+              <div className="flex flex-col items-center gap-y-3">
+                <InformationCircle />
+                <div className="flex flex-col items-center gap-y-1">
+                  <p className="font-medium font-sans txt-compact-small">
+                    Aucun enregistrement
+                  </p>
+                  <p className="font-normal font-sans txt-small text-ui-fg-muted">
+                    Vos {entity}s apparaîtront ici.
+                  </p>
+                </div>
+              </div>
+            ),
+          },
+        }}
         title={title}
-        fields={columns}
+        overrides={overrideColumns}
         queryFn={listAction}
         selectFn={handleDataSelect}
         onRowClick={handleRowClick}
         onCreateClicked={() => navigate(`${module.path}/${entity}/create`)}
-        rowActions={[...defaultRowActions, ...(rowActions || [])]}
-        toolbarActions={[...defaultToolbarActions, ...(toolbarActions || [])]}
+        actionState={{
+          row: [...defaultRowActions],
+          toolbar: [...defaultToolbarActions],
+        }}
         {...restProps}
       />
     </Container>

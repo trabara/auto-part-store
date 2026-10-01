@@ -24,20 +24,20 @@ import DetailsFeature from "./feature-details";
 import UpdateFeature from "./feature-edit";
 import ListFeature from "./feature-list";
 
-interface MedusaCrudProps {
+interface ModuleProps {
   sdk: Medusa;
   module: ModuleType;
   children?: React.ReactNode;
 }
 
 /**
- * Wraps MedusaCrudInner with its own QueryClientProvider so that
+ * Wraps ModuleInner with its own QueryClientProvider so that
  * @tanstack/react-query hooks (useQueryClient, useMutation, etc.) always
  * have a client available — regardless of whether the Medusa admin shell's
  * QueryClientProvider is in scope (which is not guaranteed for plugin routes
  * served from a pre-built bundle).
  */
-function Module({ children, sdk, module }: MedusaCrudProps) {
+function Module({ children, sdk, module }: ModuleProps) {
   const queryClientRef = useRef<QueryClient | null>(null);
   if (!queryClientRef.current) {
     queryClientRef.current = new QueryClient();

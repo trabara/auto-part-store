@@ -1,7 +1,8 @@
 // export async function loader(args: LoaderFunctionArgs) {}
 
-import { MedusaCrud, useMedusaCrud } from "@repo/dashboard";
-import { zodQueryResolve } from "@repo/dashboard/utils";
+import { Module } from "@repo/dashboard/module";
+
+import { zodQueryResolve } from "@repo/utils";
 import { useTranslation } from "react-i18next";
 import {
   LoaderFunctionArgs,
@@ -35,15 +36,15 @@ const DetailPage = () => {
   const data = useLoaderData() as Awaited<{ data: any; entity: string }>;
 
   return (
-    <MedusaCrud {...{ sdk, module: moduleDef }}>
-      <MedusaCrud.Detail
+    <Module {...{ sdk, module: moduleDef }}>
+      <Module.Detail
         entity={entity!}
         initialData={data.data}
         config={config.pages.details}
       >
         <Outlet />
-      </MedusaCrud.Detail>
-    </MedusaCrud>
+      </Module.Detail>
+    </Module>
   );
 };
 

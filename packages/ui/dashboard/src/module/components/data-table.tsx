@@ -1,22 +1,47 @@
+import { z } from "@medusajs/framework/zod";
 import {
   Button,
   clx,
+  DataTableEmptyStateProps,
   DataTable as DataTableUI,
   Heading,
   Hint,
   useDataTable,
 } from "@medusajs/ui";
-import { useEffect, useMemo } from "react";
+import { useMemo } from "react";
+import { FieldValues } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { createZodDataTableColumnDef } from "../helpers/create-zod-columns";
 import { createZodDataTableFilterDef } from "../helpers/create-zod-filters";
 import { usePageQuery } from "../hooks/use-page-query";
-import { PageConfig, QueryFn, SelectFn } from "../types";
+import {
+  FeatureFieldOverrides,
+  QueryFn,
+  RowAction,
+  SelectFn,
+  ToolbarAction,
+} from "../types";
 import { DataTableBulkActionsToolbar } from "./bulk-actions-toolbar";
+import { getZodShape, unwrap } from "../../../../../utils/src/zod-introspect";
 
-interface DataTableListProps<T extends { id: string }, R> extends PageConfig {
+type ActionStateProps<T extends FieldValues> = {
+  row: RowAction<T>[];
+  toolbar: ToolbarAction<T>[];
+};
+
+interface DataTableListProps<
+  T extends { id: string },
+  R extends { data: T[]; metadata: { count: number } },
+> {
+  id: string;
+  title: string;
+  description?: string;
+  schema: z.ZodType<T>;
   className?: string;
+  emptyState?: DataTableEmptyStateProps;
+  actionState?: ActionStateProps<T>;
   selectedIds?: string[];
+  overrides: FeatureFieldOverrides<T>;
   queryFn: QueryFn<R>;
   selectFn?: SelectFn<T, R>;
   onCreateClicked?: () => void;
@@ -27,7 +52,10 @@ interface DataTableListProps<T extends { id: string }, R> extends PageConfig {
   onRowSelectChange?: (rows: T[]) => void;
 }
 
-export const DataTable = <T extends { id: string }, R>(
+export const DataTable = <
+  T extends { id: string },
+  R extends { data: T[]; metadata: { count: number } },
+>(
   props: DataTableListProps<T, R>,
 ) => {
   const {
@@ -36,15 +64,14 @@ export const DataTable = <T extends { id: string }, R>(
     schema,
     title,
     description,
-    fields = {},
-    toolbarActions = [],
-    rowActions = [],
+    emptyState,
+    overrides = {},
+    actionState = { toolbar: [], row: [] },
     selectedIds = [],
     queryFn,
     selectFn,
     onCreateClicked,
     onRowClick,
-    onRowSelectChange,
   } = props;
 
   const { t } = useTranslation();
@@ -65,15 +92,15 @@ export const DataTable = <T extends { id: string }, R>(
     () =>
       createZodDataTableColumnDef({
         schema,
-        fields,
-        actions: rowActions,
+        overrides,
+        actions: actionState.row,
       }),
-    [schema, fields, rowActions],
+    [schema, overrides, actionState.row],
   );
 
   const filters = useMemo(
-    () => createZodDataTableFilterDef(schema, fields),
-    [schema, fields],
+    () => createZodDataTableFilterDef<T>(schema, overrides),
+    [schema, overrides],
   );
 
   const [queryConfig] = usePageQuery<T, R>({
@@ -85,41 +112,16 @@ export const DataTable = <T extends { id: string }, R>(
         return selectFn(resp);
       }
 
-      return resp as { data: T[]; rowCount: number };
+      return resp as unknown as { data: T[]; rowCount: number };
     },
   });
 
-  const table = useDataTable({
+  const table = useDataTable<T>({
     ...queryConfig,
     columns,
     filters,
     onRowClick,
   });
-
-  const rows = table.getRowModel().rows;
-  const rowSelection = Object.keys(table.getRowSelection())
-    .map((id) => rows.find((r) => r.id === id)?.original as T)
-    .filter((r) => r !== undefined);
-
-  useEffect(() => {
-    onRowSelectChange?.(rowSelection);
-  }, [rowSelection, onRowSelectChange]);
-
-  // if (!table.isLoading && table.rowCount === 0) {
-  //   return (
-  //     <div className="flex h-[150px] w-full flex-col items-center justify-center gap-y-4">
-  //       <div className="flex flex-col items-center gap-y-3">
-  //         <ExclamationCircle width="15" height="15" className="text-ui-fg-subtle" />
-  //         <div className="flex flex-col items-center gap-y-1">
-  //           <p className="font-medium font-sans txt-compact-small">No records</p>
-  //           <p className="font-normal font-sans txt-small text-ui-fg-muted">
-  //             There are no records to show
-  //           </p>
-  //         </div>
-  //       </div>
-  //     </div>
-  //   )
-  // }
 
   return (
     <DataTableUI instance={table} className={className}>
@@ -141,13 +143,12 @@ export const DataTable = <T extends { id: string }, R>(
         </div>
       </DataTableUI.Toolbar>
 
-      <DataTableUI.Table />
+      <DataTableUI.Table emptyState={emptyState} />
       <DataTableUI.Pagination />
-      {/* <DataTableUI.CommandBar selectedLabel={(count) => `${count} selected`} /> */}
 
-      {toolbarActions.length > 0 && (
+      {actionState.toolbar.length > 0 && (
         <DataTableBulkActionsToolbar table={table} entityName={id}>
-          {toolbarActions?.map((action) => {
+          {actionState.toolbar?.map((action) => {
             return (
               <Button
                 key={action.id}

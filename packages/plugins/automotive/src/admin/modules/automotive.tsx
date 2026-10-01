@@ -1,9 +1,5 @@
-import {
-  MedusaFieldOverrides,
-  EntitySelect,
-  defineModule,
-} from "@repo/dashboard";
-import { TranslationFunction } from "@repo/dashboard/registry";
+import { defineModule, FeatureFieldOverrides } from "@repo/dashboard/module";
+
 import {
   Vehicle,
   VehicleEngine,
@@ -31,91 +27,47 @@ import {
 } from "../../modules/fitment/dtos/vehicle";
 const vehicleListFields = (
   t: TranslationFunction,
-): MedusaFieldOverrides<Vehicle> => ({});
+): FeatureFieldOverrides<Vehicle> => ({});
 
 const vehicleCreateFields = (
   t: TranslationFunction,
-): MedusaFieldOverrides<CreateVehicleInput> => ({
-  model_id: {
-    label: "Vehicle Model",
-    render: (props: any) => {
-      return (
-        <EntitySelect
-          path="/admin/automotive"
-          fields={["id", "name"]}
-          //@ts-ignore
-          mapper={({ id, name }) => ({ label: name, value: id })}
-          entity="vehicle_model"
-          {...props}
-        />
-      );
-    },
-  },
-  engine_id: {
-    label: "Vehicle Engine",
-    render: (props: any) => {
-      return (
-        <EntitySelect
-          path="/admin/automotive"
-          fields={["id", "name"]}
-          //@ts-ignore
-          mapper={({ id, name }) => ({ label: name, value: id })}
-          entity="vehicle_engine"
-          {...props}
-        />
-      );
-    },
-  },
-});
+): FeatureFieldOverrides<CreateVehicleInput> => ({});
+
+type TranslationFunction = (key: string) => string;
 
 const vehicleUpdateFields = (t: TranslationFunction) => ({});
 
 const vehicleEngineListFields = (
   t: TranslationFunction,
-): MedusaFieldOverrides<VehicleEngine> => {
+): FeatureFieldOverrides<VehicleEngine> => {
   return {};
 };
 
 const vehicleEngineCreateFields = (
   t: TranslationFunction,
-): MedusaFieldOverrides<CreateEngineInput> => ({});
+): FeatureFieldOverrides<CreateEngineInput> => ({});
 
 const vehicleEngineUpdateFields = (
   t: TranslationFunction,
-): MedusaFieldOverrides<UpdateEngineInput> => ({});
+): FeatureFieldOverrides<UpdateEngineInput> => ({});
 
 const vehicleMakeFields = (
   t: TranslationFunction,
-): MedusaFieldOverrides<VehicleMake> => ({});
+): FeatureFieldOverrides<VehicleMake> => ({});
 
 const vehicleMakeCreateFields = (
   t: TranslationFunction,
-): MedusaFieldOverrides<CreateMakeInput> => ({});
+): FeatureFieldOverrides<CreateMakeInput> => ({});
 
 const vehicleMakeUpdateFields = (t: TranslationFunction) => ({});
 
 const vehicleModelFields = (
   t: TranslationFunction,
-): MedusaFieldOverrides<VehicleMake> => ({});
+): FeatureFieldOverrides<VehicleMake> => ({});
 
 const vehicleModelCreateFields = (
   t: TranslationFunction,
-): MedusaFieldOverrides<CreateModelInput> => ({
-  make_id: {
-    render(props) {
-      return (
-        <EntitySelect
-          path="/admin/automotive"
-          fields={["id", "name"]}
-          //@ts-ignore
-          mapper={({ id, name }) => ({ label: name, value: id })}
-          entity="vehicle_make"
-          {...props}
-        />
-      );
-    },
-  },
-});
+): FeatureFieldOverrides<CreateModelInput> => ({});
 
 const vehicleModelUpdateFields = (t: TranslationFunction) => ({});
 
@@ -126,6 +78,7 @@ export default defineModule({
   features: {
     vehicle: {
       path: "/vehicle",
+      entity: VehicleSchema,
       pages: {
         list: {
           getTitle: () => "",
@@ -147,6 +100,7 @@ export default defineModule({
     },
     vehicle_engine: {
       path: "vehicle-engine",
+      entity: VehicleEngineSchema,
       pages: {
         list: {
           getTitle: () => "",
@@ -172,6 +126,7 @@ export default defineModule({
     },
     vehicle_make: {
       path: "vehicle-make",
+      entity: VehicleMakeSchema,
       pages: {
         list: {
           getTitle: () => "",
@@ -194,6 +149,7 @@ export default defineModule({
     },
     vehicle_model: {
       path: "vehicle-model",
+      entity: VehicleModelSchema,
       pages: {
         list: {
           getTitle: () => "",

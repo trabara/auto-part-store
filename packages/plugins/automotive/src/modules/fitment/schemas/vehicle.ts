@@ -117,7 +117,7 @@ export const VehicleModelSchema: ModelSchema<VehicleModel> = BaseSchema.extend({
     .describe("The name of the vehicle model, e.g., Camry, F-150, etc."),
   slug: z.string().slugify().nullable().describe(""),
   make: z.lazy(() => VehicleMakeSchema),
-  vehicles: z.lazy(() => z.array(VehicleSchema)),
+  vehicles: z.array(z.lazy(() => VehicleSchema)),
 });
 
 export const VehicleSchema: ModelSchema<Vehicle> = BaseSchema.extend({

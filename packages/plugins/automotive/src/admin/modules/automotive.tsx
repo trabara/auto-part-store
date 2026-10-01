@@ -8,7 +8,7 @@ import {
   VehicleEngineSchema,
   VehicleMakeSchema,
   VehicleModelSchema,
-} from "../../modules/fitment/schemas/vehicle";
+} from "../../modules/automotive/models/vehicle";
 
 import {
   CreateEngineInput,
@@ -24,7 +24,7 @@ import {
   UpdateMakeInputSchema,
   UpdateModelInputSchema,
   UpdateVehicleInputSchema,
-} from "../../modules/fitment/dtos/vehicle";
+} from "../../modules/automotive/dtos/vehicle";
 const vehicleListFields = (
   t: TranslationFunction,
 ): FeatureFieldOverrides<Vehicle> => ({});

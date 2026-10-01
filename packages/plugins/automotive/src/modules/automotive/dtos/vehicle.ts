@@ -11,7 +11,7 @@ import {
   VehicleModelSchema,
   VehicleSchema,
 } from "../models/vehicle";
-import { BASE_MASK } from "../models/base";
+import { BASE_MASK } from "@repo/core/framework";
 
 // ── Create input schemas ──────────────────────────────────────────────────────
 

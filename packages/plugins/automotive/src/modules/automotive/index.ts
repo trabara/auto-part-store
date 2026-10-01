@@ -6,3 +6,5 @@ export const AUTOMOTIVE_MODULE = "automotive";
 export default Module(AUTOMOTIVE_MODULE, {
   service: AutomotiveModuleService,
 });
+
+export { type AutomotiveModuleService };

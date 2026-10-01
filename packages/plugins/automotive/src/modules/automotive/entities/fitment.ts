@@ -34,12 +34,11 @@ type AutomotiveAttributeEntity = DmlEntity<
 export const Fitment = createModel("Fitment", FitmentSchema, {
   relationships: {
     vehicle: {
-      kind: "hasOne",
+      kind: "belongsTo",
       model: ref<VehicleEntity>("Vehicle"),
-      options: { mappedBy: "fitments" },
     },
     position: {
-      kind: "hasOne",
+      kind: "belongsTo",
       model: ref<FitmentPositionEntity>("FitmentPosition"),
       options: { mappedBy: "fitments" },
     },
@@ -71,7 +70,7 @@ export const FitmentConditionGroup = createModel(
   {
     relationships: {
       fitment: {
-        kind: "hasOne",
+        kind: "belongsTo",
         model: ref<FitmentEntity>("Fitment"),
         options: { mappedBy: "conditionGroups" },
       },
@@ -86,7 +85,7 @@ export const FitmentConditionGroup = createModel(
         options: { mappedBy: "parent" },
       },
       parent: {
-        kind: "hasOne",
+        kind: "belongsTo",
         model: ref<FitmentConditionGroupEntity>("FitmentConditionGroup"),
         options: { mappedBy: "children" },
       },
@@ -105,14 +104,13 @@ export const FitmentCondition = createModel(
   {
     relationships: {
       group: {
-        kind: "hasOne",
+        kind: "belongsTo",
         model: ref<FitmentConditionGroupEntity>("FitmentConditionGroup"),
         options: { mappedBy: "conditions" },
       },
       attribute: {
-        kind: "hasOne",
+        kind: "belongsTo",
         model: ref<AutomotiveAttributeEntity>("AutomotiveAttribute"),
-        options: { mappedBy: "fitmentConditions" },
       },
     },
   },

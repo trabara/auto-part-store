@@ -1,4 +1,4 @@
-import { BaseSchema, Model, ModelSchema } from "@repo/core/framework";
+import { BaseSchema, Model, ModelSchema } from "./base";
 import { Vehicle, VehicleSchema } from "./vehicle";
 import { z } from "@medusajs/framework/zod";
 

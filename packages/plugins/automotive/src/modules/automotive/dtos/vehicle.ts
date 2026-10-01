@@ -3,6 +3,7 @@ import {
   createFindParams,
   createOperatorMap,
 } from "@medusajs/medusa/api/utils/validators";
+import { BASE_MASK } from "../schemas/base";
 import {
   EngineTypeSchema,
   FuelTypeSchema,
@@ -11,7 +12,6 @@ import {
   VehicleModelSchema,
   VehicleSchema,
 } from "../schemas/vehicle";
-import { BASE_MASK } from "@repo/core/framework";
 
 // ── Create input schemas ──────────────────────────────────────────────────────
 
@@ -26,6 +26,7 @@ export const CreateModelInputSchema = VehicleModelSchema.omit({
   make: true,
   vehicles: true,
 }).extend({ make_id: z.string() });
+
 export type CreateModelInput = z.infer<typeof CreateModelInputSchema>;
 
 export const CreateEngineInputSchema = VehicleEngineSchema.omit({

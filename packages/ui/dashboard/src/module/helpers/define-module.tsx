@@ -2,7 +2,7 @@ import { kebabCase, mapKeys, snakeCase, startCase } from "lodash";
 
 import "@medusajs/admin-sdk";
 import { z } from "@medusajs/framework/zod";
-import { getZodFieldInfo, getZodShape } from "@repo/utils";
+import { getZodFieldInfo, getZodShape, unwrap } from "@repo/utils";
 import type { ComponentType } from "react";
 import { TranslationFunction } from "../../form/registry";
 import { RelationSelect } from "../components/relation-select";
@@ -12,6 +12,7 @@ import {
   ModuleDef,
   ModuleType,
 } from "../types";
+import { DataTable } from "../components/data-table";
 
 declare module "@medusajs/admin-sdk" {
   interface RouteConfig {
@@ -64,43 +65,66 @@ export const defineModule = (def: ModuleDef): ModuleType => {
     const entityShape = getZodShape(feature.entity);
     const shape = getZodShape(schema);
 
-    return Object.keys(shape).reduce((prevFields, fieldKey) => {
-      let key = fieldKey;
-      if (fieldKey.endsWith("_id")) {
-        key = fieldKey.split("_")[0]!;
-      }
+    return Object.keys(shape).reduce(
+      (prev: FeatureFieldOverrides<any>, fieldKey) => {
+        let key = fieldKey;
+        if (fieldKey.endsWith("_id")) {
+          key = fieldKey.split("_")[0]!;
+        }
 
-      const field = entityShape[key];
-      if (!field) {
-        return prevFields;
-      }
+        const field = entityShape[key];
+        if (!field) {
+          return prev;
+        }
 
-      const entityIds = Object.keys(getFeatures());
-      const entityId =
-        entityIds.find((entityId) => entityId.includes(key)) || key;
+        const entityIds = Object.keys(getFeatures());
+        const entityId =
+          entityIds.find((entityId) => entityId.includes(key)) || key;
 
-      const fieldInfo = getZodFieldInfo(field);
+        const fieldInfo = getZodFieldInfo(field);
 
-      if (
-        fieldInfo.baseType === "object" ||
-        (fieldInfo.baseType === "string" && fieldKey.endsWith("_id"))
-      ) {
-        prevFields[fieldKey] = {
-          label: startCase(entityId),
-          render: (props) => (
-            <RelationSelect
-              path={def.path}
-              entity={entityId}
-              fields={["id", "name"]}
-              mapper={(item: any) => ({ value: item.id, label: item.name })}
-              {...props}
-            />
-          ),
-        };
-      }
+        const label = startCase(entityId);
+        if (
+          fieldInfo.baseType === "object" ||
+          (fieldInfo.baseType === "string" && fieldKey.endsWith("_id"))
+        ) {
+          const fields = Object.keys(getZodShape(field));
+          prev[fieldKey] = {
+            label,
+            render: (props) => (
+              <RelationSelect
+                defaultValue={props.value}
+                onChange={props.onChange}
+                path={def.path}
+                entity={entityId}
+                fields={fields}
+                mapper={(item: any) => {
+                  return { value: item.id, label: item.name };
+                }}
+              />
+            ),
+          };
+        } else if (fieldInfo.baseType === "array") {
+          prev[fieldKey] = {
+            label,
+            hideLabel: true,
+            render: (props) => (
+              <DataTable
+                id={entity}
+                overrides={{}}
+                schema={fieldInfo.unwrapped}
+                queryFn={(signal, params) =>
+                  Promise.resolve({ data: [], metadata: { count: 0 } })
+                }
+              />
+            ),
+          };
+        }
 
-      return prevFields;
-    }, {} as FeatureFieldOverrides<any>);
+        return prev;
+      },
+      {},
+    );
   };
 
   return {

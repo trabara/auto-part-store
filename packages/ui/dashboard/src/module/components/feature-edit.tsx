@@ -1,13 +1,13 @@
 import { Button, Drawer, Heading, Hint } from "@medusajs/ui";
 import _ from "lodash";
+import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
+import { useSdk } from "../../common/context";
 import { Form } from "../../form/components/form";
+import { useModule } from "../context/module";
 import { useUpdateMutation } from "../hooks/use-update-mutation";
 import { PageConfig } from "../types";
-import { useSdk } from "../../common/context";
-import { useModule } from "../context/module";
-import { useMemo } from "react";
 
 const UpdateFeature = ({
   entity,
@@ -65,8 +65,8 @@ const UpdateFeature = ({
     <Drawer open={true} onOpenChange={() => dispose()}>
       <Drawer.Content>
         <Form
+          schema={config.schema as any}
           defaultValues={module.state}
-          schema={config.schema}
           overrides={overrideFields}
           onSubmit={handleSubmit}
           className="flex flex-col h-full"

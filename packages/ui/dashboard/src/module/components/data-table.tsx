@@ -22,7 +22,6 @@ import {
   ToolbarAction,
 } from "../types";
 import { DataTableBulkActionsToolbar } from "./bulk-actions-toolbar";
-import { getZodShape, unwrap } from "../../../../../utils/src/zod-introspect";
 
 type ActionStateProps<T extends FieldValues> = {
   row: RowAction<T>[];
@@ -34,7 +33,7 @@ interface DataTableListProps<
   R extends { data: T[]; metadata: { count: number } },
 > {
   id: string;
-  title: string;
+  title?: string;
   description?: string;
   schema: z.ZodType<T>;
   className?: string;

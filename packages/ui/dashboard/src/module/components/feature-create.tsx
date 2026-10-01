@@ -1,3 +1,4 @@
+import { z } from "@medusajs/framework/zod";
 import {
   Button,
   clx,
@@ -6,8 +7,8 @@ import {
   Hint,
   ProgressTabs,
 } from "@medusajs/ui";
-import { getZodShape } from "@repo/utils";
-import { startCase } from "lodash";
+import { getZodFieldInfo, getZodShape, unwrap } from "@repo/utils";
+import { forEach, startCase } from "lodash";
 import React, { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
@@ -17,6 +18,36 @@ import { useModule } from "../context/module";
 import { useCreateMutation } from "../hooks/use-create-mutation";
 import { useWizardForm } from "../hooks/use-wizard-form";
 import { CreatePageConfig, StepConfig } from "../types";
+
+function buildCreateSteps(schema: z.ZodSchema): StepConfig[] {
+  const shape = getZodShape(schema);
+  const steps: StepConfig[] = [];
+
+  let generalSchema = z.object({});
+  forEach(shape, (field, key) => {
+    const fieldInfo = getZodFieldInfo(shape[key]);
+
+    if (fieldInfo.baseType === "array") {
+      steps.push({
+        id: key,
+        label: startCase(key),
+        schema: z.object({ [key]: field }),
+      });
+    } else if (fieldInfo.baseType === "object" || key.endsWith("_id")) {
+      generalSchema = generalSchema.extend({ [key]: z.string() });
+    } else {
+      generalSchema = generalSchema.extend({ [key]: field });
+    }
+  });
+
+  steps.unshift({
+    id: "general",
+    label: "General",
+    schema: generalSchema,
+  });
+
+  return steps;
+}
 
 const CreateFeature = ({
   config,
@@ -30,48 +61,44 @@ const CreateFeature = ({
   const navigate = useNavigate();
 
   const module = useModule();
-  const createAction = (data: any): Promise<void> =>
-    sdk.client.fetch(`/admin${config.path}`, {
-      method: "POST",
-      body: data,
-    });
 
   const entityName = startCase(entity);
 
   const mutate = useCreateMutation({
-    invalidateKeys: [config!.path!],
+    invalidateKeys: [module.path!, entity],
     errorMessage: `Failed to create ${entityName}`,
     successMessage: `Successfully created ${entityName}`,
-    createFn: createAction,
+    createFn: (data) =>
+      sdk.client.fetch(`/admin${module.path}/${entity}`, {
+        method: "POST",
+        body: data,
+      }),
   });
 
   const dispose = () => {
-    navigate(`${config.path}`, { replace: true });
+    navigate(`${module.path}/${entity}`, { replace: true });
   };
 
+  const steps = useMemo(() => buildCreateSteps(config.schema), [config.schema]);
+
+  const [wizard, action] = useWizardForm(steps as [], async (values) => {
+    await mutate.mutateAsync(values);
+    dispose();
+  });
+
+  const activeSchema = useMemo(
+    () => (steps.length > 0 ? wizard.schema : config.schema),
+    [wizard.schema, config.schema, steps.length],
+  );
+
   const handleSubmit = async (values: any) => {
-    if (config.steps && config.steps.length > 0) {
+    if (steps.length > 0) {
       await action.handleSubmit(values);
     } else {
       await mutate.mutateAsync(values);
     }
     dispose();
   };
-
-  const [wizard, action] = useWizardForm(config.steps as [], async (values) => {
-    await mutate.mutateAsync(values);
-    dispose();
-  });
-
-  const activeSchema = useMemo(
-    () =>
-      config.steps && config.steps.length > 0 ? wizard.schema : config.schema,
-    [wizard.schema, config.schema, config.steps],
-  );
-
-  if (!activeSchema) {
-    throw new Error("Schema is required if no steps are provided");
-  }
 
   const styles = {
     body: {
@@ -108,18 +135,18 @@ const CreateFeature = ({
       ...module.buildRelationFields(entity, activeSchema),
       ...fields,
     };
-  }, [config, t, entity, activeSchema]);
+  }, [config, t, module, entity, activeSchema]);
 
   return (
     <FocusModal open={true} onOpenChange={dispose}>
       <FocusModal.Content>
         <Form
           overrides={overrideFields}
-          schema={activeSchema}
+          schema={activeSchema as any}
           onSubmit={handleSubmit}
         >
           {({ renderField, renderSubmitButton, form }) => {
-            if (config.steps && config.steps.length > 0) {
+            if (steps.length > 0) {
               return (
                 <ProgressTabs
                   value={wizard.step}
@@ -128,7 +155,7 @@ const CreateFeature = ({
                 >
                   <FocusModal.Header>
                     <ProgressTabs.List className="-my-2 w-full border-l">
-                      {config.steps.map(({ id, label }) => (
+                      {steps.map(({ id, label }) => (
                         <ProgressTabs.Trigger key={id} value={id}>
                           {label}
                         </ProgressTabs.Trigger>
@@ -137,7 +164,7 @@ const CreateFeature = ({
                   </FocusModal.Header>
 
                   <FocusModal.Body className={styles.body.wrapper.base}>
-                    {config.steps.map((step) => {
+                    {steps.map((step) => {
                       if (wizard.step !== step.id) {
                         return <React.Fragment key={step.id} />;
                       }
@@ -220,7 +247,7 @@ const CreateFeature = ({
                       {t("common.cancel")}
                     </Button>
                     {renderSubmitButton({
-                      // disabled: !form.formState.isValid,
+                      disabled: !form.formState.isValid,
                       children: (
                         <>
                           {t("common.create")}{" "}

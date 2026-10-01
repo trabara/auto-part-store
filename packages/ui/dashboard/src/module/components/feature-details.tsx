@@ -96,7 +96,7 @@ const DetailsFeature = ({
   console.log("attributes", attributes);
 
   const deleteMutation = useDeleteMutation({
-    invalidateKeys: [module.path],
+    invalidateKeys: [module.path, entity],
     errorMessage: t("common.error_delete_item"),
     successMessage: t("common.success_delete_item"),
     deleteFn: async (id: string) => {

@@ -1,6 +1,15 @@
 import { defineModule } from "@repo/dashboard/module";
 
 import {
+  FitmentPositionSchema,
+  FitmentSchema,
+} from "../../modules/automotive/schemas/fitment";
+import {
+  CreateFitmentPosition,
+  FitmentPositionList,
+  UpdateFitmentPosition,
+} from "../../modules/automotive/dtos/fitment";
+import {
   VehicleEngineSchema,
   VehicleMakeSchema,
   VehicleModelSchema,
@@ -17,6 +26,7 @@ import {
   UpdateModelInputSchema,
   UpdateVehicleInputSchema,
 } from "../../modules/automotive/dtos/vehicle";
+import { createDto, updateDto } from "../../modules/automotive/schemas/base";
 
 export default defineModule({
   id: "automotive",
@@ -104,6 +114,44 @@ export default defineModule({
         update: {
           getTitle: () => "",
           schema: UpdateModelInputSchema,
+        },
+      },
+    },
+    fitment: {
+      path: "/fitment",
+      entity: FitmentSchema,
+      pages: {
+        list: {
+          getTitle: () => "",
+          schema: FitmentSchema,
+        },
+        details: { getTitle: () => "", schema: FitmentSchema },
+        create: {
+          getTitle: () => "",
+          schema: createDto(FitmentSchema),
+        },
+        update: {
+          getTitle: () => "",
+          schema: updateDto(FitmentSchema),
+        },
+      },
+    },
+    fitment_position: {
+      path: "/fitment-position",
+      entity: FitmentPositionSchema,
+      pages: {
+        list: {
+          getTitle: () => "",
+          schema: FitmentPositionList,
+        },
+        details: { getTitle: () => "", schema: FitmentPositionSchema },
+        create: {
+          getTitle: () => "",
+          schema: CreateFitmentPosition,
+        },
+        update: {
+          getTitle: () => "",
+          schema: UpdateFitmentPosition,
         },
       },
     },

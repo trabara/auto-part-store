@@ -5,11 +5,20 @@ import {
 } from "@repo/core/framework";
 import {
   CreateEngineInputSchema,
+  CreateFitmentPosition,
   CreateMakeInputSchema,
   CreateModelInputSchema,
   CreateVehicleInputSchema,
+  FitmentPositionList,
+  UpdateFitmentPosition,
   UpdateVehicleInputSchema,
 } from "~/modules/automotive/dtos";
+import { FitmentPosition } from "~/modules/automotive/models";
+import { createDto, updateDto } from "~/modules/automotive/schemas/base";
+import {
+  FitmentPositionSchema,
+  FitmentSchema,
+} from "~/modules/automotive/schemas/fitment";
 import {
   VehicleEngineSchema,
   VehicleMakeSchema,
@@ -26,10 +35,11 @@ export default defineMiddlewares({
         validateAndTransformEntityQuery(
           {
             vehicle: VehicleSchema,
-            // @ts-ignore
             vehicle_engine: VehicleEngineSchema.omit({ vehicles: true }),
             vehicle_model: VehicleModelSchema,
             vehicle_make: VehicleMakeSchema,
+            fitment: FitmentSchema,
+            fitment_position: FitmentPositionList,
           },
           { isList: true },
         ),
@@ -41,10 +51,11 @@ export default defineMiddlewares({
       middlewares: [
         validateAndTransformEntityQuery({
           vehicle: VehicleSchema,
-          // @ts-ignore
           vehicle_engine: VehicleEngineSchema.omit({ vehicles: true }),
           vehicle_model: VehicleModelSchema,
           vehicle_make: VehicleMakeSchema,
+          fitment: FitmentSchema,
+          fitment_position: FitmentPositionSchema,
         }),
       ],
     },
@@ -57,6 +68,8 @@ export default defineMiddlewares({
           vehicle_engine: CreateEngineInputSchema,
           vehicle_model: CreateModelInputSchema,
           vehicle_make: CreateMakeInputSchema,
+          fitment: FitmentSchema,
+          fitment_position: CreateFitmentPosition,
         }),
       ],
     },
@@ -69,6 +82,8 @@ export default defineMiddlewares({
           vehicle_engine: UpdateVehicleInputSchema,
           vehicle_model: UpdateVehicleInputSchema,
           vehicle_make: UpdateVehicleInputSchema,
+          fitment: FitmentSchema,
+          fitment_position: UpdateFitmentPosition,
         }),
       ],
     },
@@ -82,6 +97,8 @@ export default defineMiddlewares({
           vehicle_engine: UpdateVehicleInputSchema,
           vehicle_model: UpdateVehicleInputSchema,
           vehicle_make: UpdateVehicleInputSchema,
+          fitment: FitmentSchema,
+          fitment_position: UpdateFitmentPosition,
         }),
       ],
     },

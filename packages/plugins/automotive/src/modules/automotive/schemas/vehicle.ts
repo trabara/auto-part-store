@@ -1,5 +1,5 @@
 import { z } from "@medusajs/framework/zod";
-import { BaseSchema, Model, ModelSchema } from "@repo/core/framework";
+import { BaseSchema, Model, ModelSchema } from "./base";
 
 export enum FuelType {
   GASOLINE = "GASOLINE",
@@ -28,7 +28,7 @@ export type VehicleEngine = Model<{
   size: string;
   power: number;
   name?: string;
-  // vehicles: Vehicle[];
+  vehicles: Vehicle[];
 }>;
 
 export const VehicleEngineSchema: ModelSchema<VehicleEngine> =
@@ -89,7 +89,7 @@ export type Vehicle = Model<{
   drive: Drive;
   transmission: Transmission;
   year_start: number;
-  year_end?: number;
+  year_end: number|null;
 }>;
 
 export type VehicleMake = Model<{
@@ -135,7 +135,7 @@ export const VehicleSchema: ModelSchema<Vehicle> = BaseSchema.extend({
     "The type of transmission",
   ),
   year_start: z.number().describe("The starting year of the fitment"),
-  year_end: z.number().optional().describe("The ending year of the fitment"),
+  year_end: z.number().nullable().describe("The ending year of the fitment"),
   model: VehicleModelSchema,
   engine: VehicleEngineSchema,
 });

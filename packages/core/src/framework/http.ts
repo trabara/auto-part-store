@@ -1,7 +1,4 @@
 import {
-  MedusaNextFunction,
-  MedusaRequest,
-  MedusaResponse,
   validateAndTransformBody,
   validateAndTransformQuery,
 } from "@medusajs/framework/http";
@@ -15,7 +12,7 @@ import {
 import { getZodFieldInfo, getZodShape, snakeCase } from "@repo/utils";
 import { forEach, mapKeys } from "lodash";
 
-function buildFilters(schema: z.ZodObject): z.ZodObject {
+function buildFindParamsFilters(schema: z.ZodObject): z.ZodObject {
   const shape = getZodShape(schema);
 
   let params = z.object();
@@ -43,7 +40,7 @@ function buildFilters(schema: z.ZodObject): z.ZodObject {
 function buildFindParamsSchema(schema: z.ZodObject): z.ZodObject {
   return createFindParams().extend({
     q: z.string().optional(),
-    filters: buildFilters(schema).optional(),
+    filters: buildFindParamsFilters(schema).optional(),
   });
 }
 
@@ -56,7 +53,7 @@ export function validateAndTransformEntityQuery(
 
     const map = mapKeys(schemas, (_, k) => snakeCase(k));
 
-    const findParams = buildFindParamsSchema(map[entity!]);
+    const findParams = buildFindParamsSchema(map[entity!]!);
 
     return validateAndTransformQuery(findParams, {
       defaults: ["id", "created_at", "updated_at"],
@@ -70,8 +67,8 @@ export function validateAndTransformEntityBody(
 ) {
   return (req: any, res: any, next: any) => {
     const entity = toSnakeCase(req.params.entity);
-    
+
     const map = mapKeys(schemas, (_, k) => snakeCase(k));
-    return validateAndTransformBody(map[entity])(req, res, next);
+    return validateAndTransformBody(map[entity]!)(req, res, next);
   };
 }

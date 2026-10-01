@@ -1,2 +1,2 @@
-export * from "./http.js";
-export * from "./validation.js";
+export * from "./http";
+export * from "./validation";

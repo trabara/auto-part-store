@@ -90,7 +90,7 @@ const exportsConfig = (file: string) => {
 function findUnparsedRoutes(code: string, sources: string[]) {
   const parsed = new Set(
     [...code.matchAll(/import \{ config as RouteConfig\d+ \} from "([^"]+)"/g)].map((m) =>
-      normalize(path.resolve(m[1]))
+      normalize(path.resolve(m[1]!))
     )
   )
 
@@ -203,7 +203,7 @@ export function expandDynamicMenuItems(options: ExpandDynamicMenuItemsOptions = 
     },
     transform(code: string, id: string) {
       const cleanId = id.split("?")[0]
-      const mode = cleanId === APP_MODULE ? "app" : PLUGIN_ENTRY.test(cleanId) ? "plugin" : null
+      const mode = cleanId === APP_MODULE ? "app" : PLUGIN_ENTRY.test(cleanId!) ? "plugin" : null
       if (!mode) return null
       seen = true
 

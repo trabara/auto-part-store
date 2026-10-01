@@ -4,18 +4,8 @@
   "description": "",
   "license": "MIT",
   "exports": {
-    "./framework": {
-      "import": "./dist/esm/framework/index.js",
-      "require": "./dist/common/framework/index.js",
-      "default": "./dist/common/framework/index.js",
-      "types": "./dist/common/framework/index.d.ts"
-    },
-    "./vite": {
-      "import": "./dist/esm/vite/index.js",
-      "require": "./dist/common/vite/index.js",
-      "default": "./dist/common/vite/index.js",
-      "types": "./dist/common/vite/index.d.ts"
-    }
+    "./framework": "./dist/framework/index.js",
+    "./vite": "./dist/vite/index.js"
   },
   "publishConfig": {
     "access": "restricted",
@@ -27,7 +17,7 @@
     "src"
   ],
   "scripts": {
-    "build": "tsc -p tsconfig.json && tsc -p tsconfig.esm.json",
+    "build": "tsc -p tsconfig.json",
     "lint": "eslint .",
     "check-types": "tsc --noEmit"
   },

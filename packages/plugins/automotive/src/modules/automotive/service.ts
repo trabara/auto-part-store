@@ -1,10 +1,10 @@
 import { MedusaService } from "@medusajs/framework/utils";
-import * as DML from "./entities";
+import * as DML from "./models";
 import {
   DataType,
   FitmentCondition,
   FitmentConditionGroup,
-} from "./models/fitment";
+} from "./schemas/fitment";
 
 export default class AutomotiveModuleService extends MedusaService({
   Vehicle: DML.Vehicle,

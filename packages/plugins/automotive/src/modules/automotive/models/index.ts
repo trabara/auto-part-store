@@ -1,2 +1,2 @@
-export * from "./vehicle";
-export * from "./vehicle";
+export * from "./vehicle"
+export * from "./fitment"

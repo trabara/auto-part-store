@@ -15,7 +15,7 @@ import {
   VehicleMakeSchema,
   VehicleModelSchema,
   VehicleSchema,
-} from "~/modules/automotive/models/vehicle";
+} from "~/modules/automotive/schemas/vehicle";
 
 export default defineMiddlewares({
   routes: [

@@ -4,7 +4,7 @@ import {
   MedusaError,
 } from "@medusajs/framework/utils";
 import { camelCase, lowerCase, snakeCase, startCase, upperFirst } from "lodash";
-import { FITMENT_MODULE, type FitmentModuleService } from "~/modules/fitment";
+import { AUTOMOTIVE_MODULE, type AutomotiveModuleService } from "~/modules/automotive";
 
 export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
   const { id } = req.params;
@@ -37,7 +37,7 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
 
 export const PUT = async (req: MedusaRequest<any>, res: MedusaResponse) => {
   const { id } = req.params;
-  const service = req.scope.resolve<FitmentModuleService>(FITMENT_MODULE);
+  const service = req.scope.resolve<AutomotiveModuleService>(AUTOMOTIVE_MODULE);
   const logger = req.scope.resolve(ContainerRegistrationKeys.LOGGER);
 
   const entity = snakeCase(lowerCase(req.params.entity));
@@ -56,7 +56,7 @@ export const PUT = async (req: MedusaRequest<any>, res: MedusaResponse) => {
 };
 
 export const DELETE = async (req: MedusaRequest, res: MedusaResponse) => {
-  const service = req.scope.resolve<FitmentModuleService>(FITMENT_MODULE);
+  const service = req.scope.resolve<AutomotiveModuleService>(AUTOMOTIVE_MODULE);
   const logger = req.scope.resolve(ContainerRegistrationKeys.LOGGER);
 
   const { id } = req.params;

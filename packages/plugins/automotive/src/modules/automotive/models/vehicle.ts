@@ -1,5 +1,5 @@
 import { z } from "@medusajs/framework/zod";
-import { BaseSchema, Model, ModelSchema } from "./base";
+import { BaseSchema, Model, ModelSchema } from "@repo/core/framework";
 
 export enum FuelType {
   GASOLINE = "GASOLINE",

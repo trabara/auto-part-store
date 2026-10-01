@@ -157,7 +157,7 @@ yarn workspace @repo/automotive-plugin test:integration:modules
 | Construct                | Convention               | Example                     |
 | ------------------------ | ------------------------ | --------------------------- |
 | Files                    | `kebab-case`             | `fitment-module.service.ts` |
-| Classes                  | `PascalCase`             | `FitmentModuleService`      |
+| Classes                  | `PascalCase`             | `AutomotiveModuleService`      |
 | Interfaces               | `IPascalCase`            | `IFitmentCrud`              |
 | Functions / methods      | `camelCase`              | `createFitments`            |
 | React components         | `PascalCase`             | `ProductGridItem`           |
@@ -166,7 +166,7 @@ yarn workspace @repo/automotive-plugin test:integration:modules
 | Medusa workflows         | `camelCaseWorkflow`      | `createFitmentsWorkflow`    |
 | Medusa workflow steps    | `camelCaseStep`          | `createFitmentsStep`        |
 | Medusa models            | `PascalCase`             | `AuthzRole`                 |
-| Constants / module keys  | `UPPER_SNAKE_CASE`       | `FITMENT_MODULE`            |
+| Constants / module keys  | `UPPER_SNAKE_CASE`       | `AUTOMOTIVE_MODULE`            |
 | Private class properties | trailing underscore      | `fitmentRepository_`        |
 
 ---

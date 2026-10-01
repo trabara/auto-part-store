@@ -1,7 +1,7 @@
 import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http";
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils";
 import { camelCase, lowerCase, snakeCase, startCase, upperFirst } from "lodash";
-import { FITMENT_MODULE, type FitmentModuleService } from "~/modules/fitment";
+import { AUTOMOTIVE_MODULE, type AutomotiveModuleService } from "~/modules/automotive";
 
 export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY);
@@ -28,7 +28,7 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
 
 export const POST = async (req: MedusaRequest, res: MedusaResponse) => {
   const logger = req.scope.resolve(ContainerRegistrationKeys.LOGGER);
-  const service = req.scope.resolve<FitmentModuleService>(FITMENT_MODULE);
+  const service = req.scope.resolve<AutomotiveModuleService>(AUTOMOTIVE_MODULE);
 
   const entity = snakeCase(lowerCase(req.params.entity));
 
@@ -49,7 +49,7 @@ export const PUT = async (
   req: MedusaRequest<{ entities: any[] }>,
   res: MedusaResponse,
 ) => {
-  const service = req.scope.resolve<FitmentModuleService>(FITMENT_MODULE);
+  const service = req.scope.resolve<AutomotiveModuleService>(AUTOMOTIVE_MODULE);
   const logger = req.scope.resolve(ContainerRegistrationKeys.LOGGER);
 
   const { entities } = req.validatedBody;

@@ -9,13 +9,13 @@ import {
   CreateModelInputSchema,
   CreateVehicleInputSchema,
   UpdateVehicleInputSchema,
-} from "~/modules/fitment/dtos";
+} from "~/modules/automotive/dtos";
 import {
   VehicleEngineSchema,
   VehicleMakeSchema,
   VehicleModelSchema,
   VehicleSchema,
-} from "~/modules/fitment/schemas/vehicle";
+} from "~/modules/automotive/models/vehicle";
 
 export default defineMiddlewares({
   routes: [

@@ -6,7 +6,7 @@ import {
   VehicleMakeSchema,
   VehicleModelSchema,
   VehicleSchema,
-} from "../schemas/vehicle";
+} from "../models/vehicle";
 
 type VehicleRels = {
   model: { kind: "belongsTo"; model: () => VehicleModelEntity };

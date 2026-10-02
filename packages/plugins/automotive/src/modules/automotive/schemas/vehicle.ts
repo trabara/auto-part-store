@@ -89,7 +89,7 @@ export type Vehicle = Model<{
   drive: Drive;
   transmission: Transmission;
   year_start: number;
-  year_end: number|null;
+  year_end: number | null;
 }>;
 
 export type VehicleMake = Model<{
@@ -136,6 +136,6 @@ export const VehicleSchema: ModelSchema<Vehicle> = BaseSchema.extend({
   ),
   year_start: z.number().describe("The starting year of the fitment"),
   year_end: z.number().nullable().describe("The ending year of the fitment"),
-  model: VehicleModelSchema,
-  engine: VehicleEngineSchema,
+  model: z.lazy(() => VehicleModelSchema),
+  engine: z.lazy(() => VehicleEngineSchema),
 });

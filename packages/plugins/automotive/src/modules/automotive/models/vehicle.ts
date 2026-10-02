@@ -122,8 +122,16 @@ export const VehicleMake: VehicleMakeEntity = createModel(
   },
 );
 
+type VehicleEngineRels = {
+  vehicles: { kind: "hasMany"; model: () => VehicleEntity };
+};
+
 export type VehicleEngineEntity = DmlEntity<
-  InferDmlSchema<typeof VehicleEngineSchema>,
+  InferDmlSchema<
+    typeof VehicleEngineSchema,
+    Record<string, never>,
+    VehicleEngineRels
+  >,
   string
 >;
 

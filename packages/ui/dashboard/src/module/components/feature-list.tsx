@@ -118,9 +118,7 @@ const ListFeature = function List<
   };
 
   const title = config.getTitle();
-  const overrideColumns =
-    (typeof config.fields === "function" ? config.fields(t) : config.fields) ||
-    {};
+  const overrideColumns = config.getOverrides?.(t) || {};
 
   return (
     <Container className="divide-y p-0">

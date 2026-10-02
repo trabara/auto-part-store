@@ -53,7 +53,10 @@ interface DataTableListProps<
 
 export const DataTable = <
   T extends { id: string },
-  R extends { data: T[]; metadata: { count: number } },
+  R extends { data: T[]; metadata: { count: number } } = {
+    data: T[];
+    metadata: { count: number };
+  },
 >(
   props: DataTableListProps<T, R>,
 ) => {

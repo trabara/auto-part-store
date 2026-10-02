@@ -20,7 +20,7 @@ type ColumnDefConfig<T extends FieldValues> = {
   actions?: RowAction<T>[];
 };
 
-function ensureZodObject<T extends FieldValues>(
+export function ensureZodObject<T extends FieldValues>(
   schema: z.ZodType<T>,
 ): z.ZodType<T> {
   const info = getZodFieldInfo(schema);

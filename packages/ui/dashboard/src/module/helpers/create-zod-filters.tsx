@@ -4,13 +4,14 @@ import { getZodFieldInfo, getZodShape } from "@repo/utils";
 import { startCase } from "lodash";
 import { FieldValues } from "react-hook-form";
 import { FilterFieldOverrides } from "../types";
+import { ensureZodObject } from "./create-zod-columns";
 
 export function createZodDataTableFilterDef<T extends FieldValues>(
   schema: z.ZodType<T>,
   overrides: FilterFieldOverrides<T>,
 ): DataTableFilter[] {
   const helper = createDataTableFilterHelper<T>();
-  const shape = getZodShape(schema);
+  const shape = getZodShape(ensureZodObject(schema));
 
   return Object.keys(shape).reduce((accessors: DataTableFilter[], key) => {
     const field = overrides?.[key];

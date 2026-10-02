@@ -128,11 +128,10 @@ const CreateFeature = ({
     clx(styles.header.base, styles.header[step.display ?? "default"]);
 
   const overrideFields = useMemo(() => {
-    const fields =
-      typeof config.fields === "function" ? config.fields(t) : config.fields;
+    const fields = config.getOverrides?.(t) || {};
 
     return {
-      ...module.buildRelationFields(entity, activeSchema),
+      ...module.buildRelationOverrides(entity, activeSchema),
       ...fields,
     };
   }, [config, t, module, entity, activeSchema]);

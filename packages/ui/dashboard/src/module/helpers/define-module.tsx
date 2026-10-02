@@ -2,9 +2,11 @@ import { kebabCase, mapKeys, snakeCase, startCase } from "lodash";
 
 import "@medusajs/admin-sdk";
 import { z } from "@medusajs/framework/zod";
-import { getZodFieldInfo, getZodShape, unwrap } from "@repo/utils";
+import Medusa from "@medusajs/js-sdk";
+import { getZodFieldInfo, getZodShape, zodQueryResolve } from "@repo/utils";
 import type { ComponentType } from "react";
 import { TranslationFunction } from "../../form/registry";
+import { DataTable } from "../components/data-table";
 import { RelationSelect } from "../components/relation-select";
 import {
   FeatureConfig,
@@ -12,7 +14,7 @@ import {
   ModuleDef,
   ModuleType,
 } from "../types";
-import { DataTable } from "../components/data-table";
+import { classifyAttributes } from "../utils/relation";
 
 declare module "@medusajs/admin-sdk" {
   interface RouteConfig {
@@ -38,10 +40,11 @@ export const defineModule = (def: ModuleDef): ModuleType => {
     const entityName = startCase(entityKey);
 
     const feature = featureMap[entityKey];
-
     if (feature === undefined) {
       throw new Error(`${entityName} entity is not defined`);
     }
+
+    // console.log(feature.entity.omit(feature.pages.details.schema));
 
     return feature;
   };
@@ -60,10 +63,16 @@ export const defineModule = (def: ModuleDef): ModuleType => {
     return featureMap;
   };
 
-  const buildRelationFields = (entity: string, schema: z.ZodSchema) => {
+  const buildRelationOverrides = <T extends {}>(
+    entity: string,
+    schema: z.ZodObject<T>,
+    sdk: Medusa,
+  ) => {
     const feature = getFeature(entity);
     const entityShape = getZodShape(feature.entity);
     const shape = getZodShape(schema);
+
+    const { hasMany, belongsTo } = classifyAttributes(schema, {});
 
     return Object.keys(shape).reduce(
       (prev: FeatureFieldOverrides<any>, fieldKey) => {
@@ -109,13 +118,22 @@ export const defineModule = (def: ModuleDef): ModuleType => {
             label,
             hideLabel: true,
             render: (props) => (
-              <DataTable
+              <DataTable<T>
                 id={entity}
                 overrides={{}}
                 schema={fieldInfo.unwrapped}
-                queryFn={(signal, params) =>
-                  Promise.resolve({ data: [], metadata: { count: 0 } })
-                }
+                queryFn={(signal, params) => {
+                  return sdk.client.fetch<{
+                    data: T[];
+                    metadata: { count: number };
+                  }>(`/admin${module.path}/${entity}`, {
+                    signal,
+                    query: {
+                      ...params,
+                      fields: zodQueryResolve(fieldInfo.unwrapped),
+                    },
+                  });
+                }}
               />
             ),
           };
@@ -132,6 +150,6 @@ export const defineModule = (def: ModuleDef): ModuleType => {
     getFeature,
     getRouter,
     getFeatures,
-    buildRelationFields,
+    buildRelationOverrides,
   };
 };

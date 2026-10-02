@@ -1,4 +1,4 @@
-import { Context, createContext, useContext, useEffect } from "react";
+import { Context, createContext, useContext } from "react";
 import { ModuleType } from "../types";
 
 type ModuleContext<S = {}> = ModuleType & {
@@ -17,7 +17,6 @@ export const useModule = <S>(initialState?: S) => {
   }
 
   if (initialState) {
-    console.log(initialState);
     context.setState(initialState);
   }
 

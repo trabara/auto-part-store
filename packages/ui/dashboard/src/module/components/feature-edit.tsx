@@ -52,11 +52,9 @@ const UpdateFeature = ({
   };
 
   const overrideFields = useMemo(() => {
-    const fields =
-      typeof config.fields === "function" ? config.fields(t) : config.fields;
-
+    const fields = config.getOverrides?.(t) || {};
     return {
-      ...module.buildRelationFields(entity, config.schema),
+      ...module.buildRelationOverrides(entity, config.schema),
       ...fields,
     };
   }, [config, t, module, entity]);

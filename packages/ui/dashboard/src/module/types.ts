@@ -96,15 +96,11 @@ export interface ActionConfig<T extends FieldValues> {
   schema: z.ZodType<T>;
 }
 
-export type EntityFieldConfigs<T extends FieldValues = {}> = (
-  t: TranslationFunction,
-) => FeatureFieldOverrides<T>;
-
 export type PageConfig<T extends FieldValues = {}> = {
   path?: string;
   schema: z.ZodType<T>;
   getTitle: (data?: T) => string;
-  fields?: EntityFieldConfigs<T>;
+  getOverrides?: (t: TranslationFunction) => FeatureFieldOverrides<T>;
 };
 
 export type CreatePageConfig<T extends FieldValues = {}> = PageConfig<T> & {
@@ -143,7 +139,7 @@ export type ModuleType = {
   getFeatures: () => Record<string, FeatureConfig>;
   getFeature: (entity: string, t?: TranslationFunction) => FeatureConfig;
   getRouter: () => ModuleRouter;
-  buildRelationFields: (
+  buildRelationOverrides: (
     entity: string,
     schema: z.ZodSchema,
   ) => FeatureFieldOverrides<any>;

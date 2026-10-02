@@ -27,18 +27,19 @@ type DetailsFeatureProps = {
   children?: React.ReactNode;
 };
 
-type Scalar = { key: string; value: string; schema: z.ZodAny };
+type Scalar = { key: string; value: string; schema: z.ZodTypeAny };
 type Many = {
   key: string;
   value: Record<string, any>[];
-  schema: z.ZodType;
+  schema: z.ZodTypeAny;
 };
-type One = { key: string; value: Record<string, any>; schema: z.ZodAny };
+type One = { key: string; value: Record<string, any>; schema: z.ZodTypeAny };
 
 export type Attribute = Scalar | Many | One;
 
 function classifyAttributes<T extends Record<string, unknown>>(
   module: ModuleType,
+  entityKey: string,
   schema: z.ZodType<T>,
   data: T,
 ) {
@@ -47,33 +48,46 @@ function classifyAttributes<T extends Record<string, unknown>>(
   const one: One[] = [];
 
   const shape = getZodShape(schema);
+  let relations: Record<string, { targetEntity?: string }> | undefined;
+  try {
+    relations = module.getFeature(entityKey).relations;
+  } catch {
+    relations = undefined;
+  }
 
   forEach(shape, (attr, key) => {
     const info = getZodFieldInfo(attr);
-    const value = data[key];
+    const value = data?.[key];
 
-    const entityIds = Object.keys(module.getFeatures());
+    // Prefer explicit relation config for the target entity key
+    const explicit = relations?.[key];
+    const entityKeys = Object.keys(module.getFeatures());
     const entityId =
-      entityIds.find((entityId) => entityId.includes(key)) || key;
+      explicit?.targetEntity ??
+      entityKeys.find((k) => k === key) ??
+      entityKeys.find((k) => k.endsWith(`_${key}`)) ??
+      key;
 
     if (info.baseType === "array") {
-      const schema = unwrap(ensureZodObject(attr));
+      const elementSchema = unwrap(
+        ensureZodObject(attr as unknown as z.ZodType<any>),
+      );
       many.push({
         key: entityId,
-        value: value as Record<string, any>[],
-        schema: schema,
+        value: (value as Record<string, any>[]) ?? [],
+        schema: elementSchema,
       });
     } else if (info.baseType === "object") {
       one.push({
         key: entityId,
-        value: value as Record<string, any>,
-        schema: schema,
+        value: (value as Record<string, any>) ?? {},
+        schema: attr,
       });
     } else {
       scalar.push({
-        key: entityId,
-        value: String(value),
-        schema: schema,
+        key,
+        value: value != null ? String(value) : "—",
+        schema: attr,
       });
     }
   });
@@ -95,15 +109,9 @@ const DetailsFeature = <T extends { id: string }>({
 
   const title = config.getTitle(initialData);
 
-  // Group the entity's own fields by data relationship: many -> a data
-  // table for the main column, one -> a details block for the side
-  // column, and plain scalar attributes -> the entity's own "General"
-  // details block, also in the side column. Runs unconditionally (before
-  // the early returns below) to respect the Rules of Hooks; `data` may
-  // still be undefined here while the query is loading.
   const attributes = useMemo(
-    () => classifyAttributes(module, config.schema, initialData),
-    [config.schema, initialData],
+    () => classifyAttributes(module, entity, config.schema, initialData),
+    [module, entity, config.schema, initialData],
   );
 
   const deleteMutation = useDeleteMutation({
@@ -111,7 +119,7 @@ const DetailsFeature = <T extends { id: string }>({
     errorMessage: t("common.error_delete_item"),
     successMessage: t("common.success_delete_item"),
     deleteFn: async (id: string) => {
-      await sdk.client.fetch(`/admin${module.path}/${entity}${id}`, {
+      await sdk.client.fetch(`/admin${module.path}/${entity}/${id}`, {
         method: "DELETE",
       });
       navigate(module.path);
@@ -127,73 +135,83 @@ const DetailsFeature = <T extends { id: string }>({
         actions={[
           {
             id: "edit",
-            label: "Modifé",
+            label: t("common.edit"),
             icon: <Pencil />,
             onClick: () =>
               navigate(`${module.path}/${entity}/${initialData.id}/edit`),
           },
           {
             id: "delete",
-            label: "Supprimer",
+            label: t("common.delete"),
             icon: <Trash />,
             onClick: () => deleteMutation.mutateAsync(initialData.id),
           },
         ]}
       />,
-      ...attributes.many.map(({ key, schema, value }) => (
-        <Container key={key} className="divide-y p-0">
-          <DataTable
-            key={key}
-            id={key}
-            title={_.startCase(key)}
-            schema={schema}
-            overrides={{}}
-            queryFn={(signal, params) => {
-              console.log(key, schema);
-              return sdk.client.fetch<{
-                data: T[];
-                metadata: { count: number };
-              }>(`/admin${module.path}/${key}`, {
-                signal,
-                query: {
+      ...attributes.many.map(({ key, schema, value }) => {
+        const parentId = initialData?.id;
+        const parentFilterKey = `${entity}_id`;
+        return (
+          <Container key={key} className="divide-y p-0">
+            <DataTable
+              id={key}
+              title={_.startCase(key)}
+              schema={schema as unknown as z.ZodType<T>}
+              overrides={{}}
+              queryFn={(signal, params) => {
+                const query: Record<string, unknown> = {
                   ...params,
                   fields: zodQueryResolve(schema),
-                },
-              });
-            }}
-          />
-        </Container>
-      )),
+                };
+                if (parentId) {
+                  query[parentFilterKey] = parentId;
+                }
+                return sdk.client.fetch<{
+                  data: T[];
+                  metadata: { count: number };
+                }>(`/admin${module.path}/${key}`, {
+                  signal,
+                  query,
+                });
+              }}
+            />
+          </Container>
+        );
+      }),
     ],
-    [],
+    [attributes, title, initialData, entity],
   );
 
-  const sideSections = useMemo(
-    () => [
-      // ...attributes.one.map(([key, relation]) => (
-      //   <DetailsSection
-      //     key={key}
-      //     title={_.startCase(key)}
-      //     attributes={Object.entries(relation ?? {})}
-      //   />
-      // )),
-    ],
-    [attributes.one],
-  );
+  const sideSections = useMemo(() => {
+    return attributes.one.map(({ key, value, schema }) => {
+      const entries = Object.entries(value ?? {}).filter(
+        ([, v]) => v != null,
+      );
+      return (
+        <DetailsSection
+          key={key}
+          title={_.startCase(key)}
+          attributes={entries.map(([k, v]) => ({
+            key: k,
+            value: v != null ? String(v) : "—",
+            schema: z.any(),
+          }))}
+        />
+      );
+    });
+  }, [attributes.one]);
 
-  const preferredLayoutId = () => {
-    if (mainSections.length > 0 && sideSections.length > 0) {
-      return "core:two-column";
-    }
-    return "core:single-column";
-  };
+  const preferredLayoutId =
+    mainSections.length > 0 && sideSections.length > 0
+      ? "core:two-column"
+      : "core:single-column";
 
   return (
     <>
       <LayoutComposer
         data={initialData}
         widgetsZonePrefix={`${entity}.details`}
-        preferredLayoutId={preferredLayoutId()}
+        preferredLayoutId={preferredLayoutId}
         sections={{
           main: mainSections,
           side: sideSections,

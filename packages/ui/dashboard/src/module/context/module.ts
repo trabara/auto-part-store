@@ -1,4 +1,4 @@
-import { Context, createContext, useContext } from "react";
+import { Context, createContext, useContext, useRef } from "react";
 import { ModuleType } from "../types";
 
 type ModuleContext<S = {}> = ModuleType & {
@@ -16,7 +16,11 @@ export const useModule = <S>(initialState?: S) => {
     throw new Error("useModule must be used within a ModuleProvider");
   }
 
-  if (initialState) {
+  // Seed state once per hook instance so re-renders with a new
+  // initialState reference don't re-trigger setState (infinite loop).
+  const seededRef = useRef(false);
+  if (initialState && !seededRef.current) {
+    seededRef.current = true;
     context.setState(initialState);
   }
 

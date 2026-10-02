@@ -2,11 +2,10 @@ import { kebabCase, mapKeys, snakeCase, startCase } from "lodash";
 
 import "@medusajs/admin-sdk";
 import { z } from "@medusajs/framework/zod";
-import Medusa from "@medusajs/js-sdk";
-import { getZodFieldInfo, getZodShape, zodQueryResolve } from "@repo/utils";
+import { getZodFieldInfo, getZodShape } from "@repo/utils";
 import type { ComponentType } from "react";
 import { TranslationFunction } from "../../form/registry";
-import { DataTable } from "../components/data-table";
+import { RelationManyTable } from "../components/relation-many-table";
 import { RelationSelect } from "../components/relation-select";
 import {
   FeatureConfig,
@@ -14,7 +13,6 @@ import {
   ModuleDef,
   ModuleType,
 } from "../types";
-import { classifyAttributes } from "../utils/relation";
 
 declare module "@medusajs/admin-sdk" {
   interface RouteConfig {
@@ -44,8 +42,6 @@ export const defineModule = (def: ModuleDef): ModuleType => {
       throw new Error(`${entityName} entity is not defined`);
     }
 
-    // console.log(feature.entity.omit(feature.pages.details.schema));
-
     return feature;
   };
 
@@ -63,39 +59,86 @@ export const defineModule = (def: ModuleDef): ModuleType => {
     return featureMap;
   };
 
-  const buildRelationOverrides = <T extends {}>(
+  const buildRelationOverrides = (
     entity: string,
-    schema: z.ZodObject<T>,
-    sdk: Medusa,
-  ) => {
+    schema: z.ZodTypeAny,
+  ): FeatureFieldOverrides<any> => {
     const feature = getFeature(entity);
     const entityShape = getZodShape(feature.entity);
     const shape = getZodShape(schema);
-
-    const { hasMany, belongsTo } = classifyAttributes(schema, {});
+    const relations = feature.relations ?? {};
 
     return Object.keys(shape).reduce(
       (prev: FeatureFieldOverrides<any>, fieldKey) => {
-        let key = fieldKey;
-        if (fieldKey.endsWith("_id")) {
-          key = fieldKey.split("_")[0]!;
+        const explicit = relations[fieldKey];
+        const field = entityShape[fieldKey];
+        if (!field && !explicit) {
+          return prev;
         }
 
-        const field = entityShape[key];
+        // ── Explicit relation config (preferred) ──────────────
+        if (explicit) {
+          if (explicit.type === "hasMany") {
+            const targetFeature = getFeatures()[explicit.targetEntity];
+            const targetShape = targetFeature
+              ? getZodShape(targetFeature.entity)
+              : {};
+            prev[fieldKey] = {
+              label: startCase(fieldKey),
+              hideLabel: true,
+              render: () => (
+                <RelationManyTable
+                  parentEntity={entity}
+                  relationKey={fieldKey}
+                  targetEntity={explicit.targetEntity}
+                  fields={
+                    explicit.fields ?? Object.keys(targetShape ?? {})
+                  }
+                />
+              ),
+            };
+          } else {
+            prev[fieldKey] = {
+              label: startCase(explicit.displayField ?? explicit.targetEntity),
+              render: (props) => (
+                <RelationSelect
+                  defaultValue={props.value}
+                  onChange={props.onChange}
+                  path={def.path}
+                  entity={explicit.targetEntity}
+                  fields={explicit.fields ?? ["id", "name"]}
+                  displayField={explicit.displayField ?? "name"}
+                />
+              ),
+            };
+          }
+          return prev;
+        }
+
+        // ── Auto-detection fallback ──────────────────────────
         if (!field) {
           return prev;
         }
 
-        const entityIds = Object.keys(getFeatures());
-        const entityId =
-          entityIds.find((entityId) => entityId.includes(key)) || key;
+        // Strip a trailing _id to get the relation key
+        // (model_id → model, parent_category_id → parent_category)
+        const relationKey = fieldKey.replace(/_id$/, "");
+        const hasIdSuffix = relationKey !== fieldKey;
+
+        // Resolve the target entity: prefer an exact match, then
+        // fall back to a suffix match so model_id → vehicle_model
+        const entityKeys = Object.keys(getFeatures());
+        const targetEntity =
+          entityKeys.find((k) => k === relationKey) ??
+          entityKeys.find((k) => k === `vehicle_${relationKey}`) ??
+          relationKey;
 
         const fieldInfo = getZodFieldInfo(field);
+        const label = startCase(targetEntity);
 
-        const label = startCase(entityId);
         if (
           fieldInfo.baseType === "object" ||
-          (fieldInfo.baseType === "string" && fieldKey.endsWith("_id"))
+          (fieldInfo.baseType === "string" && hasIdSuffix)
         ) {
           const fields = Object.keys(getZodShape(field));
           prev[fieldKey] = {
@@ -105,11 +148,9 @@ export const defineModule = (def: ModuleDef): ModuleType => {
                 defaultValue={props.value}
                 onChange={props.onChange}
                 path={def.path}
-                entity={entityId}
-                fields={fields}
-                mapper={(item: any) => {
-                  return { value: item.id, label: item.name };
-                }}
+                entity={targetEntity}
+                fields={fields.length > 0 ? fields : ["id", "name"]}
+                displayField="name"
               />
             ),
           };
@@ -117,23 +158,12 @@ export const defineModule = (def: ModuleDef): ModuleType => {
           prev[fieldKey] = {
             label,
             hideLabel: true,
-            render: (props) => (
-              <DataTable<T>
-                id={entity}
-                overrides={{}}
-                schema={fieldInfo.unwrapped}
-                queryFn={(signal, params) => {
-                  return sdk.client.fetch<{
-                    data: T[];
-                    metadata: { count: number };
-                  }>(`/admin${module.path}/${entity}`, {
-                    signal,
-                    query: {
-                      ...params,
-                      fields: zodQueryResolve(fieldInfo.unwrapped),
-                    },
-                  });
-                }}
+            render: () => (
+              <RelationManyTable
+                parentEntity={entity}
+                relationKey={fieldKey}
+                targetEntity={targetEntity}
+                fields={Object.keys(getZodShape(fieldInfo.unwrapped))}
               />
             ),
           };

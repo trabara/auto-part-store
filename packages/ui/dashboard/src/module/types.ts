@@ -59,8 +59,11 @@ export type FilterFieldOverrides<T extends FieldValues> = {
   [K in keyof T]?: FilterFieldOverride<T, T[K]>;
 };
 
-export type FeatureFieldOverrides<T extends FieldValues> =
-  FieldOverrides<T> | CellOverrides<T> | FilterFieldOverrides<T>;
+export type FeatureFieldOverrides<T extends FieldValues> = FieldOverrides<
+  T
+> &
+  Partial<CellOverrides<T>> &
+  Partial<FilterFieldOverrides<T>>;
 
 export interface BaseAction {
   id: string;
@@ -107,16 +110,28 @@ export type CreatePageConfig<T extends FieldValues = {}> = PageConfig<T> & {
   steps?: StepConfig<T>[];
 };
 
+export interface RelationConfig {
+  /** Target entity key (matches a key in the module's `features` map) */
+  targetEntity: string;
+  /** Field on the target entity to display as the label (default: "name") */
+  displayField?: string;
+  /** Fields to fetch for the relation select / table (default: all scalar fields) */
+  fields?: string[];
+  /** Relationship cardinality (auto-detected from the schema if omitted) */
+  type?: "belongsTo" | "hasMany";
+}
+
 export type FeatureConfig<T extends Entity = Entity> = {
-  path: string;
-  entity: z.ZodType<T>;
+  path: string
+  entity: z.ZodType<T>
+  relations?: Record<string, RelationConfig>
   pages: {
-    details: PageConfig;
-    list: PageConfig;
-    create: CreatePageConfig;
-    update: PageConfig;
-  };
-};
+    details: PageConfig
+    list: PageConfig
+    create: CreatePageConfig
+    update: PageConfig
+  }
+}
 
 export type ModuleDef = {
   id: string;
@@ -141,6 +156,6 @@ export type ModuleType = {
   getRouter: () => ModuleRouter;
   buildRelationOverrides: (
     entity: string,
-    schema: z.ZodSchema,
+    schema: z.ZodTypeAny,
   ) => FeatureFieldOverrides<any>;
 };

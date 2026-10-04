@@ -13,7 +13,7 @@
     "lint": "eslint src/"
   },
   "peerDependencies": {
-    "@medusajs/framework": "2.19.0"
+    "@medusajs/framework": "2.21.0"
   },
   "devDependencies": {
     "@repo/config": "workspace:*",

@@ -2,7 +2,7 @@ import { defineMiddlewares } from "@medusajs/framework";
 import {
   validateAndTransformEntityBody,
   validateAndTransformEntityQuery,
-} from "@repo/core/framework";
+} from "@repo/framework/core";
 import {
   CreateEngineInputSchema,
   CreateFitmentPosition,

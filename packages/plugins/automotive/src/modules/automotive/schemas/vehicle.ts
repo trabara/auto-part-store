@@ -95,6 +95,7 @@ export type Vehicle = Model<{
 export type VehicleMake = Model<{
   name: string;
   slug: string | null;
+  models: VehicleModel[];
 }>;
 
 export const VehicleMakeSchema: ModelSchema<VehicleMake> = BaseSchema.extend({

@@ -1,18 +1,15 @@
 import { z } from "@medusajs/framework/zod";
 
-const processDate = (v: unknown) => {
-  if (typeof v === "string") {
-    return new Date(v);
-  }
-  return v;
-};
-
+const IsoDate = z.codec(z.iso.datetime(), z.date(), {
+  decode: (s) => new Date(s),
+  encode: (d) => d.toISOString(),
+})
 export const BaseSchema = z.object({
   id: z.string(),
-  created_at: z.preprocess(processDate, z.date().nullable()),
-  updated_at: z.preprocess(processDate, z.date().nullable()),
-  deleted_at: z.preprocess(processDate, z.date().nullable()),
-});
+  created_at: IsoDate.nullish(),
+  updated_at: IsoDate.nullish(),
+  deleted_at: IsoDate.nullish(),
+})
 
 type BaseMaskType = {
   created_at: true;
@@ -30,6 +27,9 @@ export const BASE_MASK: z.util.Exactly<
   deleted_at: true,
   id: true,
 };
+
+/** Keys the server owns; never part of a create/update payload. */
+export const SERVER_MANAGED_KEYS: readonly string[] = Object.keys(BaseSchema.shape)
 
 export type Model<T> = z.infer<typeof BaseSchema> & T;
 

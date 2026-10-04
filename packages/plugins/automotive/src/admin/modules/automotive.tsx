@@ -1,159 +1,181 @@
-import { defineModule } from "@repo/dashboard/module";
-
 import {
-  FitmentPositionSchema,
-  FitmentSchema,
-} from "../../modules/automotive/schemas/fitment";
-import {
-  CreateFitmentPosition,
-  FitmentPositionList,
-  UpdateFitmentPosition,
-} from "../../modules/automotive/dtos/fitment";
-import {
-  VehicleEngineSchema,
-  VehicleMakeSchema,
-  VehicleModelSchema,
-  VehicleSchema,
-} from "../../modules/automotive/schemas/vehicle";
+  defineModule,
+  TemplateCreate,
+  TemplateDetail,
+  TemplateList,
+  TemplateUpdate,
+} from "@repo/dashboard/module";
 
 import {
   CreateEngineInputSchema,
-  CreateMakeInputSchema,
-  CreateModelInputSchema,
   CreateVehicleInputSchema,
   UpdateEngineInputSchema,
-  UpdateMakeInputSchema,
-  UpdateModelInputSchema,
   UpdateVehicleInputSchema,
 } from "../../modules/automotive/dtos/vehicle";
-import { createDto, updateDto } from "../../modules/automotive/schemas/base";
+import {
+  VehicleEngineSchema,
+  VehicleSchema,
+} from "../../modules/automotive/schemas/vehicle";
 
 export default defineModule({
-  id: "automotive",
   name: "Automotive",
-  path: "/automotive",
-  features: {
-    vehicle: {
-      path: "/vehicle",
+  path: "automotive",
+  features: (module) => ({
+    vehicle: module.feature({
+      relations: {
+        engine: {
+          targetEntity: "vehicle_engine",
+          displayField: "id",
+        },
+      },
       entity: VehicleSchema,
-      pages: {
-        list: {
-          getTitle: () => "",
-          schema: VehicleSchema.omit({ model: true, engine: true }),
-        },
-        details: { schema: VehicleSchema, getTitle: () => "" },
-        create: {
-          getTitle: () => "",
-          schema: CreateVehicleInputSchema,
-        },
-        update: {
-          getTitle: () => "",
-          schema: UpdateVehicleInputSchema,
+      routes: (vehicle) => [
+        vehicle.route({
+          path: "vehicle",
+          dto: VehicleSchema.omit({ model: true, engine: true }),
+          getDisplayTitle: (data) => "",
+          children: (vehicle) => [
+            vehicle.route({
+              path: "create",
+              dto: CreateVehicleInputSchema,
+              getDisplayTitle: () => "",
+            }),
+          ],
+        }),
+        vehicle.route({
+          path: ":id",
+          dto: VehicleSchema,
+          getDisplayTitle: () => "",
+          children: (vehicle) => [
+            vehicle.route({
+              path: "edit",
+              dto: UpdateVehicleInputSchema,
+              getDisplayTitle: () => "",
+            }),
+          ],
+        }),
+      ],
+    }),
+    vehicle_engine: module.feature({
+      relations: {
+        vehicles: {
+          targetEntity: "vehicle",
+          displayField: "id",
         },
       },
-    },
-    vehicle_engine: {
-      path: "vehicle-engine",
       entity: VehicleEngineSchema,
-      pages: {
-        list: {
-          getTitle: () => "",
-          // @ts-ignore
-          schema: VehicleEngineSchema.omit({ vehicles: true }),
-        },
-        details: {
-          getTitle: () => "",
-          schema: VehicleEngineSchema,
-        },
-        create: {
-          getTitle: () => "",
-          schema: CreateEngineInputSchema,
-        },
-        update: {
-          getTitle: () => "",
-          schema: UpdateEngineInputSchema,
-        },
-      },
-    },
-    vehicle_make: {
-      path: "vehicle-make",
-      entity: VehicleMakeSchema,
-      pages: {
-        list: {
-          getTitle: () => "",
-          // @ts-ignore
-          schema: VehicleMakeSchema.omit({ models: true }),
-        },
-        details: { getTitle: () => "", schema: VehicleMakeSchema },
-        create: {
-          getTitle: () => "",
-          schema: CreateMakeInputSchema,
-        },
-        update: {
-          getTitle: () => "",
-          schema: UpdateMakeInputSchema,
-        },
-      },
-    },
-    vehicle_model: {
-      path: "vehicle-model",
-      entity: VehicleModelSchema,
-      pages: {
-        list: {
-          getTitle: () => "",
-          schema: VehicleModelSchema.omit({ make: true, vehicles: true }),
-        },
-        details: {
-          getTitle: () => "",
-          schema: VehicleModelSchema,
-        },
-        create: {
-          getTitle: () => "",
-          schema: CreateModelInputSchema,
-        },
-        update: {
-          getTitle: () => "",
-          schema: UpdateModelInputSchema,
-        },
-      },
-    },
-    fitment: {
-      path: "/fitment",
-      entity: FitmentSchema,
-      pages: {
-        list: {
-          getTitle: () => "",
-          schema: FitmentSchema,
-        },
-        details: { getTitle: () => "", schema: FitmentSchema },
-        create: {
-          getTitle: () => "",
-          schema: createDto(FitmentSchema),
-        },
-        update: {
-          getTitle: () => "",
-          schema: updateDto(FitmentSchema),
-        },
-      },
-    },
-    fitment_position: {
-      path: "/fitment-position",
-      entity: FitmentPositionSchema,
-      pages: {
-        list: {
-          getTitle: () => "",
-          schema: FitmentPositionList,
-        },
-        details: { getTitle: () => "", schema: FitmentPositionSchema },
-        create: {
-          getTitle: () => "",
-          schema: CreateFitmentPosition,
-        },
-        update: {
-          getTitle: () => "",
-          schema: UpdateFitmentPosition,
-        },
-      },
-    },
-  },
+      routes: (engine) => [
+        engine.route({
+          path: "engine",
+          getDisplayTitle: () => "",
+          dto: VehicleEngineSchema.omit({ vehicles: true }),
+          children: (engine) => [
+            engine.route({
+              path: "create",
+              getDisplayTitle: () => "",
+              dto: CreateEngineInputSchema,
+            }),
+          ],
+        }),
+        engine.route({
+          path: ":id",
+          getDisplayTitle: () => "",
+          dto: VehicleEngineSchema,
+          children: (engine) => [
+            engine.route({
+              path: "edit",
+              getDisplayTitle: () => "",
+              dto: UpdateEngineInputSchema,
+            }),
+          ],
+        }),
+      ],
+    }),
+    // vehicle_make: defineFeature({
+    //   path: "vehicle-make",
+    //   entity: VehicleMakeSchema,
+    //   routes: [
+    //     {
+    //       getDisplayTitle: () => "",
+    //       dto: VehicleMakeSchema.omit({ models: true }),
+    //     },
+    //     { getDisplayTitle: () => "", dto: VehicleMakeSchema },
+    //     {
+    //       getDisplayTitle: () => "",
+    //       dto: CreateMakeInputSchema,
+    //     },
+    //     {
+    //       getDisplayTitle: () => "",
+    //       dto: UpdateMakeInputSchema,
+    //     },
+    //   ],
+    // }),
+    // vehicle_model: defineFeature({
+    //   path: "vehicle-model",
+    //   entity: VehicleModelSchema,
+    //   relations: {},
+    //   routes: [
+    //     {
+    //       getDisplayTitle: () => "",
+    //       dto: VehicleModelSchema.omit({ make: true, vehicles: true }),
+    //     },
+    //     {
+    //       getDisplayTitle: () => "",
+    //       dto: VehicleModelSchema,
+    //     },
+    //     {
+    //       getDisplayTitle: () => "",
+    //       dto: CreateModelInputSchema,
+    //     },
+    //     {
+    //       getDisplayTitle: () => "",
+    //       dto: UpdateModelInputSchema,
+    //     },
+    //   ],
+    // }),
+    // fitment: defineFeature({
+    //   path: "fitment",
+    //   entity: FitmentSchema,
+    //   routes: [
+    //     {
+    //       getDisplayTitle: () => "",
+    //       dto: FitmentSchema,
+    //     },
+    //     {
+    //       getDisplayTitle: () => "",
+    //       dto: FitmentSchema,
+    //     },
+    //     {
+    //       getDisplayTitle: () => "",
+    //       dto: createDto(FitmentSchema),
+    //     },
+    //     {
+    //       getDisplayTitle: () => "",
+    //       dto: updateDto(FitmentSchema),
+    //     },
+    //   ],
+    // }),
+    // fitment_position: defineFeature({
+    //   path: "/fitment-position",
+    //   entity: FitmentPositionSchema,
+    //   routes: [
+    //     defineRoute({
+    //       getDisplayTitle: () => "",
+    //       dto: FitmentPositionList,
+    //     }),
+    //     {
+    //       getDisplayTitle: () => "",
+    //       dto: FitmentPositionSchema,
+    //     },
+    //     {
+    //       getDisplayTitle: () => "",
+    //       dto: CreateFitmentPosition,
+    //     },
+    //     {
+    //       getDisplayTitle: () => "",
+    //       dto: UpdateFitmentPosition,
+    //     },
+    //   ],
+    // }),
+  }),
 });

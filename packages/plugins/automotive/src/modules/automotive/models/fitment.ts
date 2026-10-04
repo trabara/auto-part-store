@@ -1,4 +1,4 @@
-import { createModel, InferDmlSchema, ref } from "@repo/orm";
+import { createModel, InferDmlSchema, ref } from "@repo/framework/orm";
 import {
   AutomotiveAttributeSchema,
   FitmentConditionGroupSchema,

@@ -49,6 +49,7 @@
     "@codemirror/lang-html": "^6.4.11",
     "@hookform/resolvers": "^5.2.2",
     "@repo/dashboard": "workspace:*",
+    "@repo/framework": "workspace:*",
     "@repo/hooks": "workspace:*",
     "date-fns": "^4.1.0",
     "handlebars": "^4.7.8",

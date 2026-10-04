@@ -1,6 +1,6 @@
 import { InferEntityType } from "@medusajs/framework/types";
 import { DmlEntity } from "@medusajs/framework/utils";
-import { createModel, InferDmlSchema, ref } from "@repo/orm";
+import { createModel, InferDmlSchema, ref } from "@repo/framework/orm";
 import {
   VehicleEngineSchema,
   VehicleMakeSchema,
@@ -54,8 +54,19 @@ export const Vehicle: VehicleEntity = createModel("Vehicle", VehicleSchema, {
   ],
 });
 
+type VehicleMakeRels = {
+  models: {
+    kind: "hasMany";
+    model: () => VehicleModelEntity;
+  };
+};
+
 export type VehicleMakeEntity = DmlEntity<
-  InferDmlSchema<typeof VehicleMakeSchema>,
+  InferDmlSchema<
+    typeof VehicleMakeSchema,
+    Record<string, never>,
+    VehicleMakeRels
+  >,
   string
 >;
 

@@ -6,8 +6,8 @@ import { BaseEntity, QueryConfig } from "@medusajs/framework/types";
 import { toSnakeCase } from "@medusajs/framework/utils";
 import { z } from "@medusajs/framework/zod";
 import { createFindParams } from "@medusajs/medusa/api/utils/validators";
-import { snakeCase, zodQueryResolve } from "@repo/utils";
-import { mapKeys } from "lodash";
+import { zodQueryResolve } from "@repo/framework/utils";
+import { mapKeys, snakeCase } from "lodash";
 
 export function validateAndTransformEntityQuery(
   schemas: Record<string, z.ZodType>,

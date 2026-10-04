@@ -3105,27 +3105,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@medusajs/admin-bundler@npm:2.19.0":
-  version: 2.19.0
-  resolution: "@medusajs/admin-bundler@npm:2.19.0"
-  dependencies:
-    "@medusajs/admin-shared": "npm:2.19.0"
-    "@medusajs/admin-vite-plugin": "npm:2.19.0"
-    "@medusajs/dashboard": "npm:2.19.0"
-    "@vitejs/plugin-react": "npm:^5.2.0"
-    autoprefixer: "npm:^10.4.19"
-    compression: "npm:^1.8.0"
-    express: "npm:^4.21.0"
-    get-port: "npm:^5.1.1"
-    glob: "npm:13.0.6"
-    outdent: "npm:^0.8.0"
-    postcss: "npm:^8.5.10"
-    tailwindcss: "npm:^3.4.3"
-    vite: "npm:^7.3.6"
-  checksum: 10c0/cadd60eed20edacac7235c790bedd3710532fb13ece4abb994769e9195583cbf85117b64225c4883fc748aae4567ed0e4e2a42a89df7683f9cd8640dd78c2c1c
-  languageName: node
-  linkType: hard
-
 "@medusajs/admin-bundler@npm:2.21.0":
   version: 2.21.0
   resolution: "@medusajs/admin-bundler@npm:2.21.0"
@@ -3168,16 +3147,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@medusajs/admin-sdk@npm:2.19.0":
-  version: 2.19.0
-  resolution: "@medusajs/admin-sdk@npm:2.19.0"
-  dependencies:
-    "@medusajs/admin-shared": "npm:2.19.0"
-    zod: "npm:4.2.0"
-  checksum: 10c0/197ebc92c651ccc26e164f4cbf36cc995f4873563fca76ece7157042c02a99c6f9664adbec35c484c4f6bc8b276d41eec0c5c869e2b9cba16befb8d02b35c14f
-  languageName: node
-  linkType: hard
-
 "@medusajs/admin-sdk@npm:2.21.0":
   version: 2.21.0
   resolution: "@medusajs/admin-sdk@npm:2.21.0"
@@ -3198,13 +3167,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@medusajs/admin-shared@npm:2.19.0":
-  version: 2.19.0
-  resolution: "@medusajs/admin-shared@npm:2.19.0"
-  checksum: 10c0/8c3e14d0371b11142cd9a27d218a928a062da72d8a7959ca549f6b36595cca7ae3e2eefdc31ea22783f6c1ae9d0143f44d31001f1bbb454a7ed2ac6a0a869415
-  languageName: node
-  linkType: hard
-
 "@medusajs/admin-shared@npm:2.21.0":
   version: 2.21.0
   resolution: "@medusajs/admin-shared@npm:2.21.0"
@@ -3216,24 +3178,6 @@ __metadata:
   version: 2.21.2
   resolution: "@medusajs/admin-shared@npm:2.21.2"
   checksum: 10c0/e4a394c1a6b35e8c7006345260b2e26e1f2f4233427536ccbfe5d3da46ef7fa0921d95310aa9aa988ea231c0be2d9c3f7c8838db89cc228a15d5dbdbe6b60a4a
-  languageName: node
-  linkType: hard
-
-"@medusajs/admin-vite-plugin@npm:2.19.0":
-  version: 2.19.0
-  resolution: "@medusajs/admin-vite-plugin@npm:2.19.0"
-  dependencies:
-    "@babel/parser": "npm:7.25.6"
-    "@babel/traverse": "npm:7.25.6"
-    "@babel/types": "npm:7.25.6"
-    "@medusajs/admin-shared": "npm:2.19.0"
-    fdir: "npm:6.1.1"
-    magic-string: "npm:0.30.5"
-    outdent: "npm:^0.8.0"
-    picocolors: "npm:^1.1.0"
-  peerDependencies:
-    vite: ^5.4.21 || ^6.0.0 || ^7.0.0
-  checksum: 10c0/e3b77d729ffc76cc562ffdfc4b7a2672c5e99532dbd7a52e50d4dbdcda6ba8147fd58d06ff4c9b0083d61b71f756b6de00ad43e15ecc79f6af2fa99b466da5a2
   languageName: node
   linkType: hard
 
@@ -3425,39 +3369,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@medusajs/cli@npm:2.19.0":
-  version: 2.19.0
-  resolution: "@medusajs/cli@npm:2.19.0"
-  dependencies:
-    "@medusajs/deps": "npm:2.19.0"
-    "@medusajs/telemetry": "npm:2.19.0"
-    "@medusajs/utils": "npm:2.19.0"
-    "@types/express": "npm:^4.17.21"
-    chalk: "npm:^4.1.2"
-    configstore: "npm:^5.0.1"
-    dotenv: "npm:^16.4.5"
-    execa: "npm:^5.1.1"
-    express: "npm:^4.21.0"
-    fs-exists-cached: "npm:^1.0.0"
-    fs-extra: "npm:^11.1.1"
-    glob: "npm:13.0.6"
-    hosted-git-info: "npm:^4.0.2"
-    inquirer: "npm:^8.0.0"
-    is-valid-path: "npm:^0.1.1"
-    meant: "npm:^1.0.3"
-    ora: "npm:^5.4.1"
-    prompts: "npm:^2.4.2"
-    resolve-cwd: "npm:^3.0.0"
-    stack-trace: "npm:^0.0.10"
-    ulid: "npm:^2.3.0"
-    winston: "npm:^3.9.0"
-    yargs: "npm:^17.7.2"
-  bin:
-    medusa: cli.js
-  checksum: 10c0/e2090f3601f88eebcb442f9ee365e6603e2fea5bf4aea2654685f4b37898fe2c1f530d58b32e7fc8f833118eee9783ae9cbbe83a6414c18c448d69b7e61ba8ab
-  languageName: node
-  linkType: hard
-
 "@medusajs/cli@npm:2.21.0":
   version: 2.21.0
   resolution: "@medusajs/cli@npm:2.21.0"
@@ -3555,53 +3466,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@medusajs/dashboard@npm:2.19.0":
-  version: 2.19.0
-  resolution: "@medusajs/dashboard@npm:2.19.0"
-  dependencies:
-    "@ariakit/react": "npm:^0.4.15"
-    "@babel/runtime": "npm:^7.26.10"
-    "@dnd-kit/core": "npm:^6.1.0"
-    "@dnd-kit/sortable": "npm:^8.0.0"
-    "@dnd-kit/utilities": "npm:^3.2.2"
-    "@hookform/error-message": "npm:^2.0.1"
-    "@hookform/resolvers": "npm:5.5.7"
-    "@medusajs/admin-shared": "npm:2.19.0"
-    "@medusajs/icons": "npm:2.19.0"
-    "@medusajs/js-sdk": "npm:2.19.0"
-    "@medusajs/ui": "npm:4.2.1"
-    "@radix-ui/react-dialog": "npm:1.1.4"
-    "@radix-ui/react-dismissable-layer": "npm:1.1.4"
-    "@tanstack/react-query": "npm:5.64.2"
-    "@tanstack/react-table": "npm:8.20.5"
-    "@tanstack/react-virtual": "npm:^3.8.3"
-    "@uiw/react-json-view": "npm:^2.0.0-alpha.17"
-    cmdk: "npm:^0.2.0"
-    copy-to-clipboard: "npm:^3.3.3"
-    date-fns: "npm:^3.6.0"
-    i18next: "npm:23.7.11"
-    i18next-browser-languagedetector: "npm:7.2.0"
-    lodash.debounce: "npm:^4.0.8"
-    lodash.isequal: "npm:^4.5.0"
-    match-sorter: "npm:^6.3.4"
-    motion: "npm:^11.15.0"
-    qrcode: "npm:^1.5.4"
-    qs: "npm:^6.15.2"
-    radix-ui: "npm:1.1.2"
-    react: "npm:^18.3.1"
-    react-country-flag: "npm:^3.1.0"
-    react-currency-input-field: "npm:^3.6.11"
-    react-dom: "npm:^18.3.1"
-    react-helmet-async: "npm:^2.0.5"
-    react-hook-form: "npm:7.83.0"
-    react-i18next: "npm:13.5.0"
-    react-jwt: "npm:^1.2.0"
-    react-router-dom: "npm:7.18.2"
-    zod: "npm:4.2.0"
-  checksum: 10c0/125474e69041a225af294c340d290b7ffcf7bf17ffc3e2e0f72bc0f489217bdcc1e300daedfd85132690cfc6b4d4fe2ddba100bf05680822350dbc5b4aac0484
-  languageName: node
-  linkType: hard
-
 "@medusajs/dashboard@npm:2.21.0":
   version: 2.21.0
   resolution: "@medusajs/dashboard@npm:2.21.0"
@@ -3695,27 +3559,6 @@ __metadata:
     react-router-dom: "npm:7.18.2"
     zod: "npm:4.2.0"
   checksum: 10c0/febe8db8b1a21417b46f219b61f13de5256b6ab77413cd2de9bf5a9fdd7aaacdcda173ab70883299d859a5f5110571541093c86d4fa17feb08d887bfa9c70567
-  languageName: node
-  linkType: hard
-
-"@medusajs/deps@npm:2.19.0":
-  version: 2.19.0
-  resolution: "@medusajs/deps@npm:2.19.0"
-  dependencies:
-    "@mikro-orm/cli": "npm:6.6.14"
-    "@mikro-orm/core": "npm:6.6.14"
-    "@mikro-orm/knex": "npm:6.6.14"
-    "@mikro-orm/migrations": "npm:6.6.14"
-    "@mikro-orm/postgresql": "npm:6.6.14"
-    "@opentelemetry/api": "npm:^1.9.0"
-    "@opentelemetry/instrumentation-pg": "npm:^0.52.0"
-    "@opentelemetry/resources": "npm:^2.7.0"
-    "@opentelemetry/sdk-node": "npm:^0.220.0"
-    "@opentelemetry/sdk-trace-node": "npm:^2.7.0"
-    awilix: "npm:^8.0.1"
-    pg: "npm:^8.16.3"
-    zod: "npm:4.2.0"
-  checksum: 10c0/75ed50334d7849b0fe28830194bd120c1e9dab6e772b52612a74d6e84be2a727f8e86535dd6b7b6c088103695bff41f7cdc770b43309dc4f9e42e0f685978191
   languageName: node
   linkType: hard
 
@@ -3934,15 +3777,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@medusajs/icons@npm:2.19.0":
-  version: 2.19.0
-  resolution: "@medusajs/icons@npm:2.19.0"
-  peerDependencies:
-    react: ^18.3.1 || ^19.0.0
-  checksum: 10c0/26a451147147db109f3e6ef2fa7a34226ec3845f08391a27e7ea8445e94787cbf1be8550ed355782491d5ccb54ce994295f0269c6d50c0f669c73f3b24c88859
-  languageName: node
-  linkType: hard
-
 "@medusajs/icons@npm:2.21.0":
   version: 2.21.0
   resolution: "@medusajs/icons@npm:2.21.0"
@@ -3976,16 +3810,6 @@ __metadata:
   peerDependencies:
     "@medusajs/framework": 2.21.2
   checksum: 10c0/af2516c92a7dcd6585543100225a7ca1f8dc61a8d09ac36e9130c890c078ccb44305ac9bbef9f3fc1d2bd294f05c53dbc193455cb22b3cb6cbdc28e3874236d7
-  languageName: node
-  linkType: hard
-
-"@medusajs/js-sdk@npm:2.19.0":
-  version: 2.19.0
-  resolution: "@medusajs/js-sdk@npm:2.19.0"
-  dependencies:
-    fetch-event-stream: "npm:^0.1.5"
-    qs: "npm:^6.15.2"
-  checksum: 10c0/572ed7e0c1b74eb9baa9a99dc1b96c8a4dd0e355418ba8465edde23487bd049d711d43031a565d49a14c4ca8c6b5cfaed316814f0ffd0ede954cd72648b41c01
   languageName: node
   linkType: hard
 
@@ -4341,23 +4165,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@medusajs/telemetry@npm:2.19.0":
-  version: 2.19.0
-  resolution: "@medusajs/telemetry@npm:2.19.0"
-  dependencies:
-    "@babel/runtime": "npm:^7.26.10"
-    axios: "npm:^1.13.1"
-    axios-retry: "npm:^3.1.9"
-    boxen: "npm:^5.0.1"
-    ci-info: "npm:^3.2.0"
-    configstore: "npm:^5.0.1"
-    is-docker: "npm:^2.2.1"
-    remove-trailing-slash: "npm:^0.1.1"
-    uuid: "npm:^11.1.1"
-  checksum: 10c0/ca0eb924bb0cfec993e4e85e884bb810515b2512f99e409640adeef56ff7215f9233739f42a2dfa67a7c3efade4e93511480202f55ae531779b6eda4a5b8cb53
-  languageName: node
-  linkType: hard
-
 "@medusajs/telemetry@npm:2.21.0":
   version: 2.21.0
   resolution: "@medusajs/telemetry@npm:2.21.0"
@@ -4389,28 +4196,6 @@ __metadata:
     remove-trailing-slash: "npm:^0.1.1"
     uuid: "npm:^11.1.1"
   checksum: 10c0/a2e1f222ffd9fc5856a7ef9451cdc7faa7b091ba6757af2495447627830028cf931db689d07f5260a384f5b2ae1553930bf8c56fdd0ff6ca67803ef95ad40b97
-  languageName: node
-  linkType: hard
-
-"@medusajs/test-utils@npm:2.19.0":
-  version: 2.19.0
-  resolution: "@medusajs/test-utils@npm:2.19.0"
-  dependencies:
-    "@types/express": "npm:^4.17.21"
-    axios: "npm:^1.13.1"
-    express: "npm:^4.21.0"
-    get-port: "npm:^5.1.1"
-    ulid: "npm:^2.3.0"
-  peerDependencies:
-    "@medusajs/core-flows": 2.19.0
-    "@medusajs/framework": 2.19.0
-    "@medusajs/medusa": 2.19.0
-  peerDependenciesMeta:
-    "@medusajs/core-flows":
-      optional: true
-    "@medusajs/medusa":
-      optional: true
-  checksum: 10c0/672eb65a7da8a5521e8a7362a89cbe35040169a2377b9e3d1fd47a4c49230acc43cdcc06cd6d3d3f6462103c12e8048a16ab92e9309e21919ce5d9369dde9498
   languageName: node
   linkType: hard
 
@@ -4513,36 +4298,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@medusajs/ui@npm:4.2.1":
-  version: 4.2.1
-  resolution: "@medusajs/ui@npm:4.2.1"
-  dependencies:
-    "@dnd-kit/core": "npm:^6.1.0"
-    "@dnd-kit/sortable": "npm:^8.0.0"
-    "@dnd-kit/utilities": "npm:^3.2.2"
-    "@medusajs/icons": "npm:2.19.0"
-    "@radix-ui/react-dialog": "npm:1.1.4"
-    "@radix-ui/react-dismissable-layer": "npm:1.1.4"
-    "@tanstack/react-table": "npm:8.20.5"
-    clsx: "npm:^1.2.1"
-    copy-to-clipboard: "npm:^3.3.3"
-    cva: "npm:1.0.0-beta.1"
-    lodash.isequal: "npm:^4.5.0"
-    prism-react-renderer: "npm:^2.0.6"
-    prismjs: "npm:^1.30.0"
-    radix-ui: "npm:1.1.2"
-    react-aria: "npm:^3.33.1"
-    react-currency-input-field: "npm:^3.6.11"
-    react-stately: "npm:^3.31.1"
-    sonner: "npm:^1.5.0"
-    tailwind-merge: "npm:^2.2.1"
-  peerDependencies:
-    react: ^18.3.1
-    react-dom: ^18.3.1
-  checksum: 10c0/de32b4169ed872c5d19dff7e27b40c7a26a54233697e23564f32711a3245f4af8516ca0e31644d5a666bb3f6b41ca909f027a0a19fb910aaf81bcd5ac44ac898
-  languageName: node
-  linkType: hard
-
 "@medusajs/ui@npm:4.2.4":
   version: 4.2.4
   resolution: "@medusajs/ui@npm:4.2.4"
@@ -4611,30 +4366,6 @@ __metadata:
   peerDependencies:
     "@medusajs/framework": 2.21.2
   checksum: 10c0/c7ac2e7017abb2ca0a311c1763180596a8cfbf1fe07401972fc58e29a28b10266deaea089cf05a01ba0670cf137c986ad8fd8217b9a19a1a31770e510b50286f
-  languageName: node
-  linkType: hard
-
-"@medusajs/utils@npm:2.19.0":
-  version: 2.19.0
-  resolution: "@medusajs/utils@npm:2.19.0"
-  dependencies:
-    "@graphql-codegen/core": "npm:^4.0.2"
-    "@graphql-codegen/typescript": "npm:^4.0.9"
-    "@graphql-tools/merge": "npm:^9.0.7"
-    "@graphql-tools/schema": "npm:^10.0.6"
-    "@medusajs/deps": "npm:2.19.0"
-    "@types/pluralize": "npm:^0.0.33"
-    bignumber.js: "npm:^9.1.2"
-    dotenv: "npm:^16.4.5"
-    dotenv-expand: "npm:^11.0.6"
-    graphql: "npm:^16.9.0"
-    jsonwebtoken: "npm:^9.0.2"
-    pg-connection-string: "npm:^2.7.0"
-    pluralize: "npm:^8.0.0"
-    ulid: "npm:^2.3.0"
-  peerDependencies:
-    express: ^4.21.0
-  checksum: 10c0/90f059ab17a79af876f60038a994344c59def2cd6cca41e5835dcf18a176747b0b242fa29340cdc782181411dedd10fa8e5bd9732a3d6894b0c8b7a10ab1bbd9
   languageName: node
   linkType: hard
 
@@ -7615,11 +7346,11 @@ __metadata:
     "@types/node": "npm:^20.0.0"
     eslint: "npm:^9.39.1"
     typescript: "npm:^5.6.2"
-    vite: "npm:^5.2.11"
   peerDependencies:
     "@medusajs/framework": ">=2.0.0"
     "@medusajs/medusa": ">=2.0.0"
-    "@type/vite": ""
+    react-router-dom: ">=6.4"
+    vite: ">=5"
   languageName: unknown
   linkType: soft
 
@@ -7628,13 +7359,13 @@ __metadata:
   resolution: "@repo/dashboard@workspace:packages/ui/dashboard"
   dependencies:
     "@hookform/resolvers": "npm:^5.4.3"
-    "@medusajs/admin-bundler": "npm:2.19.0"
-    "@medusajs/admin-sdk": "npm:2.19.0"
-    "@medusajs/cli": "npm:2.19.0"
-    "@medusajs/framework": "npm:2.19.0"
-    "@medusajs/icons": "npm:2.19.0"
-    "@medusajs/medusa": "npm:2.19.0"
-    "@medusajs/test-utils": "npm:2.19.0"
+    "@medusajs/admin-bundler": "npm:2.21.0"
+    "@medusajs/admin-sdk": "npm:2.21.0"
+    "@medusajs/cli": "npm:2.21.0"
+    "@medusajs/framework": "npm:2.21.0"
+    "@medusajs/icons": "npm:2.21.0"
+    "@medusajs/medusa": "npm:2.21.0"
+    "@medusajs/test-utils": "npm:2.21.0"
     "@medusajs/ui": "npm:4.0.25"
     "@radix-ui/react-popover": "npm:^1.0.3"
     "@repo/config": "workspace:*"
@@ -7658,13 +7389,13 @@ __metadata:
     react-hook-form: "npm:^7.83.0"
     react-i18next: "npm:^15.7.4"
   peerDependencies:
-    "@medusajs/admin-sdk": 2.19.0
-    "@medusajs/cli": 2.19.0
-    "@medusajs/framework": 2.19.0
-    "@medusajs/icons": 2.19.0
-    "@medusajs/js-sdk": 2.19.0
-    "@medusajs/medusa": 2.19.0
-    "@medusajs/test-utils": 2.19.0
+    "@medusajs/admin-sdk": 2.21.0
+    "@medusajs/cli": 2.21.0
+    "@medusajs/framework": 2.21.0
+    "@medusajs/icons": 2.21.0
+    "@medusajs/js-sdk": 2.21.0
+    "@medusajs/medusa": 2.21.0
+    "@medusajs/test-utils": 2.21.0
     "@medusajs/ui": 4.0.25
     "@repo/core": "workspace:*"
   languageName: unknown
@@ -7710,7 +7441,7 @@ __metadata:
     jest: "npm:^30.4.2"
     typescript: "npm:^7.0.2"
   peerDependencies:
-    "@medusajs/framework": 2.19.0
+    "@medusajs/framework": 2.21.0
   languageName: unknown
   linkType: soft
 
@@ -7739,7 +7470,7 @@ __metadata:
     jest: "npm:^30.4.2"
     typescript: "npm:^7.0.2"
   peerDependencies:
-    "@medusajs/framework": 2.19.0
+    "@medusajs/framework": 2.21.0
   languageName: unknown
   linkType: soft
 
@@ -10049,6 +9780,7 @@ __metadata:
     "@medusajs/medusa": "npm:2.21.2"
     "@medusajs/test-utils": "npm:2.21.2"
     "@repo/automotive-plugin": "workspace:*"
+    "@repo/dashboard": "workspace:*"
     "@swc/core": "npm:1.12.2"
     "@swc/jest": "npm:^0.2.38"
     "@types/jest": "npm:^29.5.13"

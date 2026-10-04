@@ -1,0 +1,17 @@
+{
+  "extends": "@repo/config/ts/base.json",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "types": [
+      "jest"
+    ]
+  },
+  "include": [
+    "src"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "**/*.spec.ts"
+  ]
+}

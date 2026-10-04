@@ -1,8 +1,0 @@
-{
-  "extends": "@repo/config/ts/base.json",
-  "compilerOptions": {
-    "rootDir": ".",
-    "types": ["jest"]
-  },
-  "include": ["src"]
-}

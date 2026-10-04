@@ -45,7 +45,6 @@
     "apps/*",
     "packages/*",
     "packages/config/*",
-    "packages/core",
     "packages/modules/*",
     "packages/plugins/*",
     "packages/tooling/*",

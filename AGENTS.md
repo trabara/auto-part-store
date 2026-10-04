@@ -7,7 +7,7 @@ Turborepo monorepo. **Package manager:** Yarn 4 Berry (node-modules linker). **N
 ```
 apps/backend/          — Medusa v2 backend (workspace name: **backend**, NOT medusa)
 apps/storefront/       — Next.js 16 storefront (React 19, Tailwind v4, next-intl)
-packages/core/         — @repo/core: schemas, dtos, validations, contracts, interfaces
+packages/core/         — @repo/framework: schemas, dtos, validations, contracts, interfaces
 packages/common/       — @trabara/common: BaseController, error handler, logger
 packages/domain/plugins/  — @repo/{fitment,rbac,invoice,media,analytics}-plugin (Medusa plugins)
 packages/domain/modules/  — @repo/domain-modules: shared models used across plugins
@@ -113,7 +113,7 @@ yarn workspace @repo/automotive-plugin test:integration:modules
 | ----------------- | ---------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
 | Backend / plugins | `packages/config/ts/plugin.json`               | `target: ES2021`, `module: Node16`, `strictNullChecks: true`, `emitDecoratorMetadata: true`, out: `.medusa/server/` |
 | Storefront        | `packages/config/ts/nextjs.json` → `base.json` | `strict: true`, `noUncheckedIndexedAccess: true`, `module: ESNext`, `moduleResolution: Bundler`, `noEmit: true`     |
-| `@repo/core`   | own `tsconfig.json` + `tsconfig.esm.json`            | dual CJS + ESM output                                                                                               |
+| `@repo/framework`   | own `tsconfig.json` + `tsconfig.esm.json`            | dual CJS + ESM output                                                                                               |
 
 **Conventions:**
 
@@ -147,7 +147,7 @@ yarn workspace @repo/automotive-plugin test:integration:modules
     createOperatorMap,
   } from "@medusajs/medusa/api/utils/validators";
   ```
-- `@repo/core` sub-paths: `@repo/core/schemas`, `/dtos`, `/validations`, `/contracts`, `/interfaces`, `/infra`
+- `@repo/framework` sub-paths: `@repo/framework/schemas`, `/dtos`, `/validations`, `/contracts`, `/interfaces`, `/infra`
 - `@trabara/common` for `BaseController`, `ILogger`, `IErrorHandler`
 
 ---
@@ -250,3 +250,14 @@ Key backend vars: `DATABASE_URL`, `REDIS_URL`, `JWT_SECRET`, `COOKIE_SECRET`, `S
 - **Deploy** (`.github/workflows/deploy.yml`): manual `workflow_dispatch` only. Uses Terraform at `iac/railway/`. Generates secrets at deploy time via `openssl rand`.
 - **Release** (`.github/workflows/release.yml`): triggers on push to `main`. Uses changesets; publishes packages to GitHub Packages (`https://npm.pkg.github.com`) under `@trabara` scope. Requires `NODE_AUTH_TOKEN=${{ secrets.GITHUB_TOKEN }}`.
 - Turbo remote cache: `TURBO_TEAM` + `TURBO_TOKEN` build args
+
+<!-- BEGIN:turborepo-agent-rules -->
+
+# This is NOT the Turborepo you know
+
+Turborepo configuration, task behavior, and CLI commands can vary between installed versions and may differ from your training data. Resolve the `turbo` package from this file's directory or relevant workspace; in monorepos, it may not be visible from the repository root. For example, run `node -p "require.resolve('turbo/package.json')"` from a workspace that depends on `turbo`.
+
+Read `docs/README.md` inside that installed package first, then read the relevant pages from its `docs/` directory before changing Turborepo configuration or commands. Heed deprecation notices. These bundled docs match the installed package version and are available without network access.
+
+This block is written and re-added by `turbo` before repository-scoped commands when an AI agent is detected. In the Turborepo source repository, its template is defined in `crates/turborepo-cli/src/cli/agent_guidance.rs`. Removing the managed block while updates are enabled means a later qualifying invocation will add it again. Set `"agentGuidance": false` in the root `turbo.json` or `turbo.jsonc` to opt out; this does not remove an existing block. Keep the block committed with your work to avoid an uncommitted change on the next agent invocation.
+<!-- END:turborepo-agent-rules -->

@@ -27,8 +27,8 @@
     "@medusajs/test-utils": "2.21.0",
     "@medusajs/ui": "4.0.25",
     "@radix-ui/react-popover": "^1.0.3",
+    "@repo/framework": "workspace:*",
     "@repo/hooks": "workspace:*",
-    "@repo/utils": "workspace:*",
     "@tanstack/react-query": "^5.101.4",
     "@tanstack/react-table": "^8.21.3",
     "@types/lodash": "^4.17.24",
@@ -41,7 +41,7 @@
   },
   "devDependencies": {
     "@repo/config": "workspace:*",
-    "@repo/core": "workspace:*",
+    "@repo/framework": "workspace:*",
     "@swc/core": "1.12.2",
     "@swc/jest": "^0.2.39",
     "@types/jest": "^30.0.0",
@@ -59,6 +59,6 @@
     "@medusajs/medusa": "2.21.0",
     "@medusajs/test-utils": "2.21.0",
     "@medusajs/ui": "4.0.25",
-    "@repo/core": "workspace:*"
+    "@repo/framework": "workspace:*"
   }
 }

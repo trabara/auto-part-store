@@ -2,7 +2,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import type { z } from "@medusajs/framework/zod";
 import type { DefaultValues, FieldValues } from "react-hook-form";
 
-import { getZodFieldInfo, SchemaFieldInfo } from "@repo/utils";
+import { getZodFieldInfo, SchemaFieldInfo } from "@repo/framework/utils";
 import { FieldOverride, FieldType } from "../types";
 
 /**

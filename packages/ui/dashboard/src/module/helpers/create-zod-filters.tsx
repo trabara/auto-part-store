@@ -1,6 +1,6 @@
 import { z } from "@medusajs/framework/zod";
 import { createDataTableFilterHelper, DataTableFilter } from "@medusajs/ui";
-import { getZodFieldInfo, getZodShape } from "@repo/utils";
+import { getZodFieldInfo, getZodShape } from "@repo/framework/utils";
 import { startCase } from "lodash";
 import { FieldValues } from "react-hook-form";
 import { FilterFieldOverrides } from "../types";

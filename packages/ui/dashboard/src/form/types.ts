@@ -133,7 +133,7 @@ export interface FieldConfig extends BaseFieldConfig {
 /**
  * Map of field names to their override configurations
  */
-export type FieldOverrides<T extends FieldValues> = Partial<{
+export type FieldOverrides<T> = Partial<{
   [K in keyof T]: FieldOverride<T[K]>;
 }>;
 
@@ -234,7 +234,7 @@ export interface FormUIComponents {
 /**
  * Helper functions passed to children render function
  */
-export interface FormHelpers<T extends FieldValues> {
+export interface FormHelpers<T extends {}> {
   /** Render specific fields by key */
   renderField: (...keys: Array<keyof T>) => ReactNode;
   /** Render the submit button */
@@ -250,7 +250,7 @@ export interface FormHelpers<T extends FieldValues> {
 /**
  * Children render function type
  */
-export type FormChildren<T extends FieldValues> = (
+export type FormChildren<T extends {}> = (
   helpers: FormHelpers<T>,
   fieldKeys: Array<keyof T>,
 ) => ReactNode;
@@ -273,7 +273,7 @@ export type FormChildren<T extends FieldValues> = (
  * @typeParam TSchema - The Zod schema type (supports refine/superRefine)
  * @typeParam TResponse - The response type from onSubmit
  */
-export interface FormProps<TSchema extends FieldValues, TResponse = unknown> {
+export interface FormProps<TSchema extends {}, TResponse = unknown> {
   /** Zod schema defining the form structure */
   schema: z.ZodObject<TSchema>;
 

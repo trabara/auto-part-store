@@ -1,6 +1,6 @@
 import { z } from "@medusajs/framework/zod";
 import { toast } from "@medusajs/ui";
-import { getZodShape } from "@repo/utils";
+import { getZodShape } from "@repo/framework/utils";
 import { useCallback, useMemo, useState } from "react";
 import { UseFormReturn } from "react-hook-form";
 import { StepConfig } from "../types";

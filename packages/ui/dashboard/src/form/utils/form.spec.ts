@@ -1,5 +1,5 @@
 import { z } from "@medusajs/framework/zod";
-import { getZodShape, SchemaFieldInfo } from "@repo/utils";
+import { getZodShape, SchemaFieldInfo } from "@repo/framework/utils";
 import {
   initializeDefaultValues,
   applyEmptyValueOverrides,

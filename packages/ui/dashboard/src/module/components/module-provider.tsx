@@ -18,15 +18,10 @@ import { useTranslation } from "react-i18next";
 import { SdkContext } from "../../common/context";
 import { setupForm } from "../../form/registry";
 import { ModuleContext } from "../context/module";
-import { ModuleType } from "../types";
-import CreateFeature from "./feature-create";
-import DetailsFeature from "./feature-details";
-import UpdateFeature from "./feature-edit";
-import ListFeature from "./feature-list";
 
 interface ModuleProps {
   sdk: Medusa;
-  module: ModuleType;
+  module: any;
   children?: React.ReactNode;
 }
 
@@ -135,10 +130,5 @@ function Module({ children, sdk, module }: ModuleProps) {
     </SdkContext.Provider>
   );
 }
-
-Module.List = ListFeature;
-Module.Create = CreateFeature;
-Module.Detail = DetailsFeature;
-Module.Edit = UpdateFeature;
 
 export { Module };

@@ -10,7 +10,7 @@ import _ from "lodash";
 import { ReactNode } from "react";
 import { formatValue } from "./many-relation-section";
 import React from "react";
-import { Attribute } from "./feature-details";
+import { Attribute } from "../templates/details";
 
 type DetailSectionProps = {
   title: string;

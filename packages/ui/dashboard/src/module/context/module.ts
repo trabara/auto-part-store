@@ -1,7 +1,7 @@
 import { Context, createContext, useContext, useRef } from "react";
-import { ModuleType } from "../types";
+import { defineModule } from "../core";
 
-type ModuleContext<S = {}> = ModuleType & {
+type ModuleContext<S = {}> = typeof defineModule & {
   state: S;
   setState: (prev: S) => void;
 };

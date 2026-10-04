@@ -7,7 +7,7 @@ import {
   DropdownMenu,
   IconButton,
 } from "@medusajs/ui";
-import { getZodFieldInfo, getZodShape } from "@repo/utils";
+import { getZodFieldInfo, getZodShape } from "@repo/framework/utils";
 import { format } from "date-fns";
 import { startCase } from "lodash";
 import React from "react";

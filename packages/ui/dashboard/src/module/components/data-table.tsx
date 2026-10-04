@@ -15,6 +15,7 @@ import { createZodDataTableColumnDef } from "../helpers/create-zod-columns";
 import { createZodDataTableFilterDef } from "../helpers/create-zod-filters";
 import { usePageQuery } from "../hooks/use-page-query";
 import {
+  Entity,
   FeatureFieldOverrides,
   QueryFn,
   RowAction,
@@ -29,7 +30,7 @@ type ActionStateProps<T extends FieldValues> = {
 };
 
 interface DataTableListProps<
-  T extends { id: string },
+  T extends Entity,
   R extends { data: T[]; metadata: { count: number } },
 > {
   id: string;

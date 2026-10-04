@@ -1,9 +1,12 @@
 import {
   ContainerRegistrationKeys,
+  deepMerge,
   defineConfig,
   loadEnv,
   Modules,
 } from "@medusajs/framework/utils";
+import { medusaRouterExt } from "@repo/framework/admin";
+
 // Load environment variables based on the current NODE_ENV
 loadEnv(process.env.NODE_ENV || "development", process.cwd());
 
@@ -108,17 +111,25 @@ export default defineConfig({
     // bundles share the same module instance as the dashboard, preventing
     // "No QueryClient" / "not in Router context" errors caused by duplicate
     // module registrations.
-    vite: (config) => ({
-      resolve: {
-        dedupe: [
-          "react",
-          "react-dom",
-          "react-router-dom",
-          "@tanstack/react-query",
-          "react-i18next",
-        ],
-      },
-    }),
+    vite: (config) => {
+      return deepMerge(config, {
+        plugins: [medusaRouterExt({ debug: true })],
+
+        rollupOptions: {
+          external: ["virtual:medusa-router-ext/runtime"],
+        },
+
+        resolve: {
+          dedupe: [
+            "react",
+            "react-dom",
+            "react-router-dom",
+            "@tanstack/react-query",
+            "react-i18next",
+          ],
+        },
+      });
+    },
   },
   projectConfig: {
     databaseUrl: process.env.DATABASE_URL,

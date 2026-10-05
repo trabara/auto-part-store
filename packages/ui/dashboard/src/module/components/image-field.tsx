@@ -1,5 +1,5 @@
 import { Photo } from "@medusajs/icons";
-import { Button, clx, toast } from "@medusajs/ui";
+import { Button, toast } from "@medusajs/ui";
 import { useMutation } from "@tanstack/react-query";
 import { useRef } from "react";
 import { useTranslation } from "react-i18next";
@@ -9,16 +9,15 @@ const ACCEPT = "image/jpeg,image/png,image/gif,image/webp,image/svg+xml";
 
 /** Square image preview, or a placeholder icon when there is no URL. */
 export function ImageThumbnail({ url, size = "small" }: { url?: string | null; size?: "small" | "large" }) {
-  const box = size === "small" ? "size-8" : "size-24";
+  // Inline size: the host admin's Tailwind build may not scan this package.
+  const px = size === "small" ? 32 : 96;
   return (
     <div
-      className={clx(
-        "bg-ui-bg-component border-ui-border-base flex shrink-0 items-center justify-center overflow-hidden rounded-md border",
-        box,
-      )}
+      style={{ width: px, height: px }}
+      className="bg-ui-bg-component border-ui-border-base flex shrink-0 items-center justify-center overflow-hidden rounded-md border"
     >
       {url ? (
-        <img src={url} alt="" className="size-full object-cover" />
+        <img src={url} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
       ) : (
         <Photo className="text-ui-fg-muted" />
       )}

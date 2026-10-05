@@ -13,6 +13,7 @@ import { useSdk } from "../../common/context";
 import { DataTable } from "../components/data-table";
 import { DetailsSection, type Attribute } from "../components/details-section";
 import { ImageThumbnail } from "../components/image-field";
+import { fieldUiOverrides } from "../helpers/field-ui-overrides";
 import { useDeleteMutation } from "../hooks/use-delete-mutation";
 import { entityFields, toQueryFilters } from "../utils/query";
 import {
@@ -66,7 +67,14 @@ function RelationTable({ parentId, relation }: { parentId: string; relation: Res
         id={`${targetEntity.modelName}:${fk}:${parentId}`}
         title={relation.label}
         schema={schema as unknown as z.ZodType<Row>}
-        overrides={{ id: { hideLabel: true }, updated_at: { hideLabel: true }, deleted_at: { hideLabel: true } } as any}
+        overrides={
+          {
+            ...fieldUiOverrides(schema),
+            id: { hideLabel: true },
+            updated_at: { hideLabel: true },
+            deleted_at: { hideLabel: true },
+          } as any
+        }
         queryFn={(signal, params) =>
           sdk.client.fetch<ListResponse>(entityUrl(module, targetEntity), {
             signal,

@@ -74,7 +74,9 @@ export function DetailsSection({
           <Text size="small" leading="compact" className="text-ui-fg-subtle">
             {label ?? _.startCase(key)}
           </Text>
-          {node ?? (
+          {node ? (
+            <div className="justify-self-start">{node}</div>
+          ) : (
             <Text size="small" leading="compact">
               {formatValue(value)}
             </Text>

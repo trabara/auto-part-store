@@ -1,14 +1,7 @@
 import { defineEntities } from "@repo/framework/entity";
-import {
-  AutomotiveAttribute,
-  Fitment,
-  FitmentCondition,
-  FitmentConditionGroup,
-  FitmentPosition,
-} from "./fitment";
+import { VEHICLE_MODULE } from "../constants";
 import { Vehicle, VehicleEngine, VehicleMake, VehicleModel } from "./vehicle";
 
-export * from "./fitment";
 export * from "./vehicle";
 
 declare module "@repo/framework/entity" {
@@ -17,23 +10,11 @@ declare module "@repo/framework/entity" {
     VehicleMake: typeof VehicleMake;
     VehicleModel: typeof VehicleModel;
     VehicleEngine: typeof VehicleEngine;
-    Fitment: typeof Fitment;
-    FitmentPosition: typeof FitmentPosition;
-    FitmentConditionGroup: typeof FitmentConditionGroup;
-    FitmentCondition: typeof FitmentCondition;
-    AutomotiveAttribute: typeof AutomotiveAttribute;
   }
 }
 
-/** All automotive entities; keys are the MedusaService model names. */
-export const automotiveEntities = defineEntities({
-  Vehicle,
-  VehicleMake,
-  VehicleModel,
-  VehicleEngine,
-  Fitment,
-  FitmentPosition,
-  FitmentConditionGroup,
-  FitmentCondition,
-  AutomotiveAttribute,
-});
+/** Vehicle module entities; keys are the MedusaService model names. */
+export const vehicleEntities = defineEntities(
+  { Vehicle, VehicleMake, VehicleModel, VehicleEngine },
+  { module: VEHICLE_MODULE },
+);

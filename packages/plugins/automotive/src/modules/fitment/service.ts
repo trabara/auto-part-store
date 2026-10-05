@@ -1,38 +1,32 @@
 import { MedusaService } from "@medusajs/framework/utils";
 import {
   DataType,
+  type Fitment,
   type FitmentCondition,
   type FitmentConditionGroup,
 } from "./entities";
-import { automotiveModels } from "./models/automotive";
+import { fitmentModels } from "./models/fitment";
 
-export default class AutomotiveModuleService extends MedusaService(automotiveModels) {
-  async getCompatibleFitments(
-    vehicleId: string,
+export default class FitmentModuleService extends MedusaService(fitmentModels) {
+  /**
+   * Fitments whose condition groups all match the given attributes.
+   *
+   * Load a vehicle's fitments through the module link, e.g.
+   * `query.graph({ entity: "vehicle", filters: { id }, fields: ["fitments.*",
+   * "fitments.conditionGroups.*", "fitments.conditionGroups.conditions.*",
+   * "fitments.conditionGroups.conditions.attribute.*", …] })`.
+   */
+  filterCompatible<F extends Pick<Fitment, "conditionGroups">>(
+    fitments: F[],
     attributes: Record<string, any> = {},
-  ) {
-    const fitments = await this.listFitments(
-      {
-        vehicle_id: vehicleId,
-      },
-      {
-        relations: [
-          "vehicle",
-          "position",
-          "conditionGroups",
-          "conditionGroups.conditions",
-          "conditionGroups.conditions.attribute",
-        ],
-      },
-    );
-
+  ): F[] {
     return fitments.filter((fitment) => {
       if (!fitment.conditionGroups?.length) {
         return true;
       }
 
       return fitment.conditionGroups.every((group) =>
-        this.evaluateGroup(group, attributes),
+        this.evaluateGroup(group as FitmentConditionGroup, attributes),
       );
     });
   }

@@ -8,12 +8,15 @@ import {
   createEntitiesStep,
   deleteEntitiesStep,
   updateEntitiesStep,
+  updateEntitiesWorkflow,
 } from "@repo/framework/entity/server";
 import { adminHeaders } from "@repo/config/jest/medusa-helpers.cjs";
 import {
-  AUTOMOTIVE_MODULE,
-  type AutomotiveModuleService,
-} from "../../src/modules/automotive";
+  VEHICLE_MODULE,
+  type VehicleModuleService,
+} from "../../src/modules/vehicle";
+import { FITMENT_MODULE } from "../../src/modules/fitment";
+import FitmentVehicleLink from "../../src/links/fitment-vehicle";
 
 // Each CRUD step followed by a step that always fails, to exercise compensation.
 const failStep = createStep("test-fail", async () => {
@@ -61,8 +64,8 @@ medusaIntegrationTestRunner({
     });
 
     describe("workflow compensation", () => {
-      const target = { module: AUTOMOTIVE_MODULE, entity: "VehicleEngine" };
-      const engines = () => getContainer().resolve<AutomotiveModuleService>(AUTOMOTIVE_MODULE);
+      const target = { module: VEHICLE_MODULE, entity: "VehicleEngine" };
+      const engines = () => getContainer().resolve<VehicleModuleService>(VEHICLE_MODULE);
 
       it("undoes a create", async () => {
         const { errors } = await createThenFail(getContainer()).run({
@@ -198,7 +201,7 @@ medusaIntegrationTestRunner({
           await status(api.get(`/admin/automotive/vehicle_engine/${id}`, headers)),
         ).toBe(404);
         const [row] = await getContainer()
-          .resolve<AutomotiveModuleService>(AUTOMOTIVE_MODULE)
+          .resolve<VehicleModuleService>(VEHICLE_MODULE)
           .listVehicleEngines({ id }, { withDeleted: true });
         expect(row.deleted_at).toBeTruthy();
       });
@@ -209,6 +212,115 @@ medusaIntegrationTestRunner({
             api.post("/admin/automotive/vehicle_engine", { fuel: "STEAM" }, headers),
           ),
         ).toBe(400);
+      });
+    });
+
+    describe("fitment ↔ vehicle link (cross-module)", () => {
+      const post = (entity: string, body: object) =>
+        api
+          .post(`/admin/automotive/${entity}`, body, headers)
+          .then((r) => r.data.data)
+          .catch((e) => {
+            throw new Error(`POST ${entity}: ${JSON.stringify(e.response?.data)}`);
+          });
+
+      let power = 400; // engines are unique by spec
+      const createVehicle = async (name: string) => {
+        const make = await post("vehicle_make", { name, slug: null });
+        const model = await post("vehicle_model", { name: `${name} M`, slug: null, make_id: make.id });
+        const engine = await post("vehicle_engine", { power: power++ });
+        return post("vehicle", { year_start: 2010, year_end: null, model_id: model.id, engine_id: engine.id });
+      };
+      /** Live rows of the fitment ↔ vehicle link table matching `filters`. */
+      const links = async (filters: Record<string, string>) => {
+        const { data } = await getContainer().resolve("query").graph({
+          entity: FitmentVehicleLink.entryPoint,
+          fields: ["fitment_id", "vehicle_id"],
+          filters,
+        });
+        return data as { fitment_id: string; vehicle_id: string }[];
+      };
+      const linkedVehicles = async (fitmentId: string) =>
+        (await links({ fitment_id: fitmentId })).map((l) => l.vehicle_id);
+
+      it("creates, reads, moves and removes the link through the generic routes", async () => {
+        const [v1, v2] = [await createVehicle("Audi"), await createVehicle("BMW")];
+        const position = await post("fitment_position", { code: "FL", name: "Front left", category: null });
+
+        const fitment = await post("fitment", {
+          notes: "pads",
+          position_id: position.id,
+          vehicle_id: v1.id,
+        });
+        expect(fitment).not.toHaveProperty("vehicle_id");
+        expect(await linkedVehicles(fitment.id)).toEqual([v1.id]);
+
+        const detail = await api.get(
+          `/admin/automotive/fitment/${fitment.id}?fields=id,*vehicle,*position`,
+          headers,
+        );
+        expect(detail.data.data).toMatchObject({
+          id: fitment.id,
+          vehicle: { id: v1.id },
+          position: { id: position.id },
+        });
+
+        await api.put(`/admin/automotive/fitment/${fitment.id}`, { vehicle_id: v2.id }, headers);
+        expect(await linkedVehicles(fitment.id)).toEqual([v2.id]);
+
+        // Other fields leave the link alone.
+        await api.put(`/admin/automotive/fitment/${fitment.id}`, { notes: "discs" }, headers);
+        expect(await linkedVehicles(fitment.id)).toEqual([v2.id]);
+
+        // The link is required, so the API rejects null; the workflow unlinks.
+        expect(
+          await status(
+            api.put(`/admin/automotive/fitment/${fitment.id}`, { vehicle_id: null }, headers),
+          ),
+        ).toBe(400);
+        await updateEntitiesWorkflow(getContainer()).run({
+          input: { module: FITMENT_MODULE, entity: "Fitment", data: [{ id: fitment.id, vehicle_id: null }] },
+        });
+        expect(await linkedVehicles(fitment.id)).toEqual([]);
+
+        await api.put(`/admin/automotive/fitment/${fitment.id}`, { vehicle_id: v1.id }, headers);
+        await api.delete(`/admin/automotive/fitment/${fitment.id}`, headers);
+        expect(await linkedVehicles(fitment.id)).toEqual([]);
+      });
+
+      it("rejects a non-string vehicle_id with 400", async () => {
+        expect(
+          await status(api.post("/admin/automotive/fitment", { vehicle_id: 42 }, headers)),
+        ).toBe(400);
+      });
+
+      it("compensates links with the rows", async () => {
+        const [v1, v2] = [await createVehicle("Kia"), await createVehicle("Seat")];
+        const position = await post("fitment_position", { code: "RR", name: "Rear right", category: null });
+        const target = { module: FITMENT_MODULE, entity: "Fitment" };
+
+        // Create rolled back → no row, no link.
+        const { errors } = await createThenFail(getContainer()).run({
+          input: { ...target, data: [{ notes: "ghost", position_id: position.id, vehicle_id: v1.id }] },
+          throwOnError: false,
+        });
+        expect(errors[0]?.error?.message).toBe("boom");
+        expect(await links({ vehicle_id: v1.id })).toEqual([]);
+
+        // Update rolled back → the link points at the previous vehicle again.
+        const fitment = await post("fitment", { notes: null, position_id: position.id, vehicle_id: v1.id });
+        await updateThenFail(getContainer()).run({
+          input: { ...target, data: [{ id: fitment.id, vehicle_id: v2.id }] },
+          throwOnError: false,
+        });
+        expect(await linkedVehicles(fitment.id)).toEqual([v1.id]);
+
+        // Delete rolled back → row and link restored.
+        await deleteThenFail(getContainer()).run({
+          input: { ...target, ids: [fitment.id] },
+          throwOnError: false,
+        });
+        expect(await linkedVehicles(fitment.id)).toEqual([v1.id]);
       });
     });
   },

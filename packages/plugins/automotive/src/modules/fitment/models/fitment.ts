@@ -2,8 +2,14 @@
 // discovers a module's models (e.g. for migrations) from the non-index files
 // of its `models/` folder, hence the named exports.
 import { toModels } from "@repo/framework/entity/server";
-import { vehicleEntities } from "../entities";
+import { fitmentEntities } from "../entities";
 
-export const vehicleModels = toModels(vehicleEntities);
+export const fitmentModels = toModels(fitmentEntities);
 
-export const { Vehicle, VehicleMake, VehicleModel, VehicleEngine } = vehicleModels;
+export const {
+  Fitment,
+  FitmentPosition,
+  FitmentConditionGroup,
+  FitmentCondition,
+  AutomotiveAttribute,
+} = fitmentModels;

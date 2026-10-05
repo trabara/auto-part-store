@@ -78,7 +78,8 @@ export const Fitment = defineEntity("Fitment", {
     notes: z.string().nullable().describe("Additional notes about the fitment"),
   }),
   relations: (r) => ({
-    vehicle: r.belongsTo("Vehicle"),
+    // Vehicle lives in the vehicle module: a Medusa module link (links/fitment-vehicle.ts).
+    vehicle: r.link("Vehicle"),
     position: r.belongsTo("FitmentPosition", { mappedBy: "fitments" }),
     conditionGroups: r.hasMany("FitmentConditionGroup", { mappedBy: "fitment" }),
   }),

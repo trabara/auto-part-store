@@ -1,19 +1,17 @@
 import { createEntityRoutes } from "@repo/framework/entity/server";
-import { AUTOMOTIVE_MODULE } from "../../../modules/automotive";
+import { Fitment, FitmentPosition } from "../../../modules/fitment/entities";
 import {
-  Fitment,
-  FitmentPosition,
   Vehicle,
   VehicleEngine,
   VehicleMake,
   VehicleModel,
-} from "../../../modules/automotive/entities";
+} from "../../../modules/vehicle/entities";
 
 /**
- * Generic CRUD API at `/admin/automotive/:entity[/:id]`. Only the entities
- * listed here are reachable; any other `:entity` is a 404.
+ * Generic CRUD API at `/admin/automotive/:entity[/:id]` over the vehicle and
+ * fitment modules (each entity uses its own module). Only the entities listed
+ * here are reachable; any other `:entity` is a 404.
  */
 export const automotiveRoutes = createEntityRoutes({
-  module: AUTOMOTIVE_MODULE,
   entities: [Vehicle, VehicleEngine, VehicleModel, VehicleMake, Fitment, FitmentPosition],
 });

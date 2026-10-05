@@ -1,11 +1,10 @@
 import { defineLink } from "@medusajs/framework/utils";
-import AutomotiveModule from "../modules/automotive";
+import FitmentModule from "../modules/fitment";
 import ProductModule from "@medusajs/medusa/product";
 
 export default defineLink(
-  //@ts-ignore
     {
-    linkable: AutomotiveModule.linkable.fitment,
+    linkable: FitmentModule.linkable.fitment,
     isList: true,
   },
   {

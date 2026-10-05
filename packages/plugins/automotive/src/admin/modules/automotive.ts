@@ -1,12 +1,11 @@
 import { defineModule } from "@repo/framework/core";
+import { Fitment, FitmentPosition } from "../../modules/fitment/entities";
 import {
-  Fitment,
-  FitmentPosition,
   Vehicle,
   VehicleEngine,
   VehicleMake,
   VehicleModel,
-} from "../../modules/automotive/entities";
+} from "../../modules/vehicle/entities";
 
 // Features must match the entities exposed by the generic API
 // (api/admin/automotive/entities.ts).

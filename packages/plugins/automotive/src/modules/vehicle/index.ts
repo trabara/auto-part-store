@@ -1,10 +1,11 @@
 import { Module } from "@medusajs/framework/utils";
-import AutomotiveModuleService from "./service";
+import { VEHICLE_MODULE } from "./constants";
+import VehicleModuleService from "./service";
 
-export const AUTOMOTIVE_MODULE = "automotive";
+export { VEHICLE_MODULE };
 
-export default Module(AUTOMOTIVE_MODULE, {
-  service: AutomotiveModuleService,
+export default Module(VEHICLE_MODULE, {
+  service: VehicleModuleService,
 });
 
-export { type AutomotiveModuleService };
+export { type VehicleModuleService };

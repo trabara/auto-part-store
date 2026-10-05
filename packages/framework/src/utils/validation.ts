@@ -1,7 +1,7 @@
-import { z } from "@medusajs/framework/zod";
+import { z } from "zod";
 import { getZodFieldInfo, getZodShape } from "./zod-introspect";
 import { forEach } from "lodash";
-import { createOperatorMap } from "@medusajs/medusa/api/utils/validators";
+// import { createOperatorMap } from "@medusajs/medusa/api/utils/validators";
 
 const processDate = (v: unknown) => {
   if (typeof v === "string") {
@@ -45,30 +45,4 @@ export function omitBaseSchema<S extends z.ZodObject>(
   mask?: z.util.Exactly<{}, z.infer<S>>,
 ) {
   return schema.omit({ ...BASE_MASK, ...mask });
-}
-
-
-export function buildFindParamsFilters(schema: z.ZodObject): z.ZodObject {
-  const shape = getZodShape(schema);
-
-  let params = z.object();
-  forEach(shape, (field, key) => {
-    const info = getZodFieldInfo(field);
-    const PreProcessed = z.preprocess((v) => {
-      if (info.baseType === "date") {
-        return new Date(String(v));
-      } else if (info.baseType === "number") {
-        return Number(v);
-      } else if (info.baseType === "array") {
-        return JSON.parse(String(v));
-      }
-      return v;
-    }, field);
-
-    params = params.extend({
-      [key]: createOperatorMap(PreProcessed).optional(),
-    });
-  });
-
-  return params;
 }

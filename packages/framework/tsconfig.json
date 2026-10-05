@@ -1,17 +1,35 @@
 {
-  "extends": "@repo/config/ts/base.json",
-  "compilerOptions": {
-    "outDir": "./dist",
-    "types": [
-      "jest"
+    "compilerOptions": {
+        "target": "ES2022",
+        "module": "ESNext",
+        "moduleResolution": "Bundler",
+        "lib": [
+            "ES2022",
+            "DOM",
+            "DOM.Iterable"
+        ],
+        "strict": true,
+        "declaration": true,
+        "declarationMap": true,
+        "sourceMap": true,
+        "esModuleInterop": true,
+        "forceConsistentCasingInFileNames": true,
+        "rootDir": "src",
+        "noEmitOnError": true,
+        "jsx": "react-jsx",
+        "types": [
+            "node",
+            "jest",
+            "vite/client",
+        ]
+    },
+    "include": [
+        "src/**/*.ts",
+        "src/**/*.tsx",
+    ],
+    "exclude": [
+        "node_modules",
+        "src/**/*.spec.ts",
+        "dist",
     ]
-  },
-  "include": [
-    "src"
-  ],
-  "exclude": [
-    "node_modules",
-    "dist",
-    "**/*.spec.ts"
-  ]
 }

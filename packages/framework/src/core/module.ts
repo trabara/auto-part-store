@@ -121,6 +121,9 @@ export interface RouteDef<S extends z.ZodType = AnySchema> {
   /** Schema of the data this route's template receives. */
   readonly dto: S;
 
+  /**  */
+  readonly templateId: string;
+
   /** Always present at runtime; defaults to the route path. */
 
   readonly children: readonly AnyRoute[];
@@ -184,6 +187,8 @@ export interface RouteConfig<
   path: string;
 
   dto: S;
+
+  templateId: string;
 
   /** Nested routes. The builder's `route` creates children of this route. */
   children?: (route: RouteBuilder<M, F, S, P>) => readonly AnyRoute[];
@@ -285,6 +290,7 @@ function createRouteFactory<
     const route = {
       path: config.path,
       dto: config.dto,
+      templateId: config.templateId,
       children: [] as readonly AnyRoute[],
       scope: undefined,
     } as unknown as Mutable<RouteDef<S>>;

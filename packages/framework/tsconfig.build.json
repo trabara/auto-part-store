@@ -1,0 +1,14 @@
+// tsconfig.build.json
+{
+    "extends": "./tsconfig.json",
+    "compilerOptions": {
+        "noEmit": false,
+        "declaration": true,
+        "incremental": false,
+        "composite": false,
+        "skipLibCheck": true,
+    },
+    "include": [
+        "src"
+    ],
+}

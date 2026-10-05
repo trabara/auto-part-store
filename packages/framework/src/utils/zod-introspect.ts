@@ -7,7 +7,7 @@
  * package boundaries.
  */
 
-import { z } from "@medusajs/framework/zod"
+import { z } from "zod"
 
 // =============================================================================
 // Shared types

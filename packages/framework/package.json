@@ -3,9 +3,12 @@
   "version": "0.1.0",
   "description": "",
   "license": "MIT",
+  "sideEffects": false,
   "exports": {
     "./admin": "./src/admin/index.ts",
+    "./admin/plugins": "./src/admin/plugins/index.ts",
     "./core": "./src/core/index.ts",
+    "./http": "./src/http/index.ts",
     "./orm": "./src/orm/index.ts",
     "./utils": "./src/utils/index.ts"
   },
@@ -15,25 +18,35 @@
     "name": "@repo/framework"
   },
   "files": [
-    "dist",
-    "src"
+    "dist"
   ],
   "scripts": {
+    "build": "rm -rf dist && tsup && tsc -p tsconfig.build.json --emitDeclarationOnly --outDir dist/types",
+    "dev": "tsup --watch",
+    "prepublishOnly": "pnpm build",
     "lint": "eslint .",
     "check-types": "tsc --noEmit"
   },
   "peerDependencies": {
+    "@medusajs/admin-bundler": ">=2.0.0",
+    "@medusajs/admin-sdk": ">=2.0.0",
     "@medusajs/framework": ">=2.0.0",
     "@medusajs/medusa": ">=2.0.0",
+    "@medusajs/test-utils": ">=2.0.0",
     "react-router-dom": ">=6.4",
     "vite": ">=5"
   },
   "devDependencies": {
-    "@medusajs/framework": "2.21.2",
-    "@medusajs/medusa": "2.21.2",
+    "@medusajs/admin-bundler": "2.21.0",
+    "@medusajs/admin-sdk": "2.21.0",
+    "@medusajs/framework": "2.21.0",
+    "@medusajs/medusa": "2.21.0",
+    "@medusajs/test-utils": "2.21.0",
     "@repo/config": "workspace:*",
+    "@types/jest": "^29.5.13",
     "@types/node": "^20.0.0",
     "eslint": "^9.39.1",
+    "tsup": "^8.5.1",
     "typescript": "^5.6.2"
   }
 }

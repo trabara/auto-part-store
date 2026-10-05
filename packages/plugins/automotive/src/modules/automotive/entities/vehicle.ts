@@ -1,6 +1,5 @@
-import type { InferEntityType } from "@medusajs/framework/types";
 import { z } from "@medusajs/framework/zod";
-import { defineEntity } from "@repo/framework/entity";
+import { defineEntity, type InferEntity } from "@repo/framework/entity";
 import { BaseSchema } from "@repo/framework/utils";
 
 // ── Enums ─────────────────────────────────────────────────────────────────────
@@ -137,7 +136,7 @@ export const Vehicle = defineEntity("Vehicle", {
   ],
 });
 
-export type VehicleMake = InferEntityType<typeof VehicleMake.model>;
-export type VehicleModel = InferEntityType<typeof VehicleModel.model>;
-export type VehicleEngine = InferEntityType<typeof VehicleEngine.model>;
-export type Vehicle = InferEntityType<typeof Vehicle.model>;
+export type VehicleMake = InferEntity<typeof VehicleMake>;
+export type VehicleModel = InferEntity<typeof VehicleModel>;
+export type VehicleEngine = InferEntity<typeof VehicleEngine>;
+export type Vehicle = InferEntity<typeof Vehicle>;

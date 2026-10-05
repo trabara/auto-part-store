@@ -1,6 +1,5 @@
-import type { InferEntityType } from "@medusajs/framework/types";
 import { z } from "@medusajs/framework/zod";
-import { defineEntity } from "@repo/framework/entity";
+import { defineEntity, type InferEntity } from "@repo/framework/entity";
 import { BaseSchema } from "@repo/framework/utils";
 
 // ── Enums ─────────────────────────────────────────────────────────────────────
@@ -118,8 +117,8 @@ export const FitmentCondition = defineEntity("FitmentCondition", {
   }),
 });
 
-export type AutomotiveAttribute = InferEntityType<typeof AutomotiveAttribute.model>;
-export type FitmentPosition = InferEntityType<typeof FitmentPosition.model>;
-export type Fitment = InferEntityType<typeof Fitment.model>;
-export type FitmentConditionGroup = InferEntityType<typeof FitmentConditionGroup.model>;
-export type FitmentCondition = InferEntityType<typeof FitmentCondition.model>;
+export type AutomotiveAttribute = InferEntity<typeof AutomotiveAttribute>;
+export type FitmentPosition = InferEntity<typeof FitmentPosition>;
+export type Fitment = InferEntity<typeof Fitment>;
+export type FitmentConditionGroup = InferEntity<typeof FitmentConditionGroup>;
+export type FitmentCondition = InferEntity<typeof FitmentCondition>;

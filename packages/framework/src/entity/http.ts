@@ -1,6 +1,7 @@
 import { validateAndTransformBody, validateAndTransformQuery } from "@medusajs/framework/http"
 import type { BaseEntity, QueryConfig } from "@medusajs/framework/types"
 import { dispatchByEntity, type Middleware } from "../http/helpers"
+import { findParams } from "./models"
 import type { EntityDef } from "./types"
 
 type AnyEntity = EntityDef<any, any, any>
@@ -19,7 +20,7 @@ export function validateEntityQuery(
     Object.fromEntries(
       entities.map((entity) => [
         entity.modelName,
-        validateAndTransformQuery(entity.query.findParams, {
+        validateAndTransformQuery(findParams(entity), {
           defaults: ["id", "created_at", "updated_at"],
           allowed: entity.query.allowed(depth),
           ...queryConfig,

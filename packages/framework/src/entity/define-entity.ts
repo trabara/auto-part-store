@@ -1,10 +1,11 @@
-import { model } from "@medusajs/framework/utils"
+/**
+ * Isomorphic entity definitions: Zod and lodash only, so the admin can import
+ * them. Server-side realisation (DML models, find params, routes, workflows)
+ * lives in `./server`.
+ */
 import { z } from "@medusajs/framework/zod"
 import { snakeCase } from "lodash"
-import { createEntityFindParams } from "../http/helpers"
-import { buildDmlProperty, buildRelationshipProperty } from "../orm/field-to-dml"
-import { define, ref } from "../orm/registry"
-import { looksLikeEntity, getZodFieldInfo } from "../utils/zod-introspect"
+import { getZodFieldInfo, looksLikeEntity } from "../utils/zod-introspect"
 import { foreignKeys, relationBuilder } from "./relations"
 import type {
   DefineEntityConfig,
@@ -65,26 +66,12 @@ function validateShape(name: string, shape: Record<string, z.ZodTypeAny>, relati
   }
 }
 
-function buildModel(
+function validateStorage(
   name: string,
-  modelName: string,
   shape: Record<string, z.ZodTypeAny>,
   relations: RelationMap,
   config: DefineEntityConfig<any, any>,
 ) {
-  const fields: Record<string, unknown> = {}
-  for (const [key, field] of Object.entries(shape)) {
-    const built = buildDmlProperty(field, key)
-    if (built) fields[built.dmlName] = built.property
-  }
-  for (const [key, rel] of Object.entries(relations)) {
-    fields[key] = buildRelationshipProperty(
-      { kind: rel.kind, model: ref(rel.target), options: rel.options },
-      rel.kind,
-      rel.options.nullable === true,
-    )
-  }
-
   const columns = new Set([...Object.keys(shape), ...foreignKeys(relations).keys()])
   for (const index of config.indexes ?? []) {
     for (const column of typeof index === "string" ? [index] : index.on) {
@@ -94,20 +81,6 @@ function buildModel(
   for (const key of config.cascadeDelete ?? []) {
     if (!(key in relations)) fail(name, `cascadeDelete "${key}" is not a relation.`)
   }
-
-  let entity = model.define(config.tableName ?? modelName, fields as any)
-  if (config.cascadeDelete?.length) {
-    entity = entity.cascades({ delete: config.cascadeDelete } as any)
-  }
-  if (config.indexes?.length) {
-    entity = entity.indexes(
-      config.indexes.map((idx) => (typeof idx === "string" ? { on: [idx] } : idx)) as any,
-    )
-  }
-  if (config.checks?.length) {
-    entity = entity.checks(config.checks)
-  }
-  return entity
 }
 
 function buildDtos(schema: z.ZodObject<any>, relations: RelationMap) {
@@ -133,15 +106,10 @@ function buildQuery(
 ): EntityQuery {
   const fields = [...Object.keys(schema.shape), ...Object.keys(fkShape)]
   const relationNames = Object.keys(relations)
-  // FK columns are filterable like any string column.
-  const findParams = createEntityFindParams(
-    schema.extend(Object.fromEntries(Object.keys(fkShape).map((k) => [k, z.string()]))),
-  )
 
   return {
     fields,
     relations: relationNames,
-    findParams,
     allowed(depth = 2) {
       const allowed = new Set<string>()
       const visit = (entity: EntityDef, prefix: string, level: number) => {
@@ -164,7 +132,8 @@ function buildQuery(
 
 /**
  * Defines an entity from a scalar Zod schema plus declared relations, and
- * derives its DML model, DTOs and query config.
+ * derives its DTOs and query config. Build DML models with `toModels` from
+ * `@repo/framework/entity/server`.
  *
  * ```ts
  * export const VehicleEngine = defineEntity("VehicleEngine", {
@@ -187,9 +156,9 @@ export function defineEntity<
     (config.relations?.(relationBuilder) ?? {}) as Record<string, RelationDef>,
   ) as Rels
   validateShape(name, shape, relations)
+  validateStorage(name, shape, relations, config)
 
   const modelName = snakeCase(name)
-  const entityModel = define(name, buildModel(name, modelName, shape, relations, config))
   const { dto, fkShape } = buildDtos(schema, relations)
   const display = config.display ?? ("name" in shape ? "name" : "id")
 
@@ -199,7 +168,12 @@ export function defineEntity<
     schema,
     relations,
     display,
-    model: entityModel,
+    storage: Object.freeze({
+      tableName: config.tableName,
+      indexes: config.indexes ?? [],
+      checks: config.checks ?? [],
+      cascadeDelete: config.cascadeDelete ?? [],
+    }),
     dto: Object.freeze(dto),
     query: Object.freeze(buildQuery(schema, relations, fkShape)),
     withRelations: buildWithRelations(schema, relations),

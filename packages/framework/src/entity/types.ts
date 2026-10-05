@@ -1,3 +1,4 @@
+import type { InferEntityType } from "@medusajs/framework/types"
 import type { DmlEntity, DMLEntitySchemaBuilder } from "@medusajs/framework/utils"
 import type { z } from "@medusajs/framework/zod"
 import type { DmlProperty, DmlRelationship } from "../orm/types/inference"
@@ -28,11 +29,9 @@ export type EntityName = [keyof EntityRegistry] extends [never]
   ? string
   : keyof EntityRegistry & string
 
-/** The DML model of a registered entity (untyped when unregistered). */
+/** The DML model type of a registered entity (untyped when unregistered). */
 export type ModelOf<Name extends string> = Name extends keyof EntityRegistry
-  ? EntityRegistry[Name] extends { model: infer M extends DmlEntity<any, any> }
-    ? M
-    : DmlEntity<any, any>
+  ? EntityModel<EntityRegistry[Name]>
   : DmlEntity<any, any>
 
 /* ==========================================================================
@@ -211,8 +210,6 @@ export interface EntityQuery {
   readonly fields: readonly string[]
   /** Relation names. */
   readonly relations: readonly string[]
-  /** Find-params schema (pagination, `fields`, `q`, operator filters). */
-  readonly findParams: z.ZodObject<any>
   /**
    * Field paths allowed in `?fields=`: own fields plus relations and their
    * fields, `depth` relations deep (default 2, e.g. `*model.make`).
@@ -243,8 +240,8 @@ export interface EntityDef<
   readonly schema: S
   readonly relations: Rels
   readonly display: string
-  /** Same schema wrapper as `model.define` (adds created_at / updated_at / deleted_at). */
-  readonly model: DmlEntity<DMLEntitySchemaBuilder<EntityDmlSchema<S, Rels>>, SnakeCase<Name>>
+  /** Storage options consumed by `toModels` (server). */
+  readonly storage: EntityStorage
   readonly dto: {
     readonly create: CreateDto<S, Rels>
     readonly update: UpdateDto<S, Rels>
@@ -257,6 +254,24 @@ export interface EntityDef<
    */
   withRelations(): WithRelationsSchema<S, Rels>
 }
+
+export interface EntityStorage {
+  readonly tableName?: string
+  readonly indexes: readonly (string | DmlIndex)[]
+  readonly checks: readonly DmlCheck[]
+  readonly cascadeDelete: readonly string[]
+}
+
+/**
+ * DML model type of an entity, as built by `toModels`. Same schema wrapper as
+ * `model.define` (adds created_at / updated_at / deleted_at).
+ */
+export type EntityModel<E> = E extends EntityDef<infer Name, infer S, infer Rels>
+  ? DmlEntity<DMLEntitySchemaBuilder<EntityDmlSchema<S, Rels>>, SnakeCase<Name>>
+  : never
+
+/** Row type of an entity (Medusa `InferEntityType` of its model). */
+export type InferEntity<E> = InferEntityType<EntityModel<E>>
 
 export interface DefineEntityConfig<S extends z.ZodObject<any>, Rels extends RelationMap> {
   /** Scalar fields. Object / entity-like fields belong in `relations`. */

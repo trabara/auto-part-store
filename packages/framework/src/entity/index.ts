@@ -1,29 +1,23 @@
+/**
+ * Isomorphic entity API (safe for admin code). Server pieces — models,
+ * validation middlewares, routes, workflows — are in `./server`.
+ */
 export { defineEntity, getEntity, resetEntities } from "./define-entity"
 export { defineEntities, type EntitySet } from "./define-entities"
-export { validateEntityBody, validateEntityQuery } from "./http"
-export { createEntityRoutes, type EntityRoutes, type EntityRoutesOptions } from "./routes"
-export {
-  createEntitiesStep,
-  createEntitiesWorkflow,
-  deleteEntitiesStep,
-  deleteEntitiesWorkflow,
-  updateEntitiesStep,
-  updateEntitiesWorkflow,
-  type CreateEntitiesInput,
-  type DeleteEntitiesInput,
-  type EntityTarget,
-  type UpdateEntitiesInput,
-} from "./workflows"
+export { foreignKeyName, foreignKeys, ownsForeignKey } from "./relations"
 export type {
   BatchUpdateDto,
   CreateDto,
   DefineEntityConfig,
   EntityDef,
   EntityDmlSchema,
+  EntityModel,
   EntityName,
   EntityQuery,
   EntityRegistry,
+  EntityStorage,
   ForeignKeys,
+  InferEntity,
   ModelOf,
   RelationBuilder,
   RelationDef,

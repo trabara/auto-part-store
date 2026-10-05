@@ -3,6 +3,7 @@ import { reset } from "../orm/registry"
 import { BaseSchema } from "../utils/validation"
 import { defineEntities, defineEntity, getEntity, resetEntities } from "./index"
 import type { EntityDef } from "./index"
+import { findParams, toModel, toModels, validateEntityBody, validateEntityQuery } from "./server"
 
 // Entities are (re)defined per test, so register their names loosely.
 declare module "./index" {
@@ -38,7 +39,7 @@ const defineVehicleAndEngine = () => {
 describe("defineEntity: model", () => {
   it("builds scalars, relations, indexes and checks", () => {
     const { Vehicle } = defineVehicleAndEngine()
-    const parsed = (Vehicle.model as any).parse()
+    const parsed = (toModel(Vehicle) as any).parse()
 
     expect(parsed.tableName).toBe("vehicle")
     expect(Object.keys(parsed.schema)).toEqual(
@@ -54,13 +55,14 @@ describe("defineEntity: model", () => {
   it("derives modelName from the entity name and honours tableName", () => {
     const E = defineEntity("FitmentPosition", { schema: BaseSchema, tableName: "positions" })
     expect(E.modelName).toBe("fitment_position")
-    expect((E.model as any).parse().tableName).toBe("positions")
+    expect((toModel(E) as any).parse().tableName).toBe("positions")
   })
 
   it("resolves relation targets lazily through the registry", () => {
     const { Vehicle, Engine } = defineVehicleAndEngine()
-    const parsed = (Vehicle.model as any).parse()
-    expect(parsed.schema.engine.parse("engine").entity()).toBe(Engine.model)
+    const engineModel = toModel(Engine)
+    const parsed = (toModel(Vehicle) as any).parse()
+    expect(parsed.schema.engine.parse("engine").entity()).toBe(engineModel)
   })
 
   it("defaults display to name when present, else id", () => {
@@ -167,7 +169,7 @@ describe("defineEntity: query", () => {
 
   it("find params filter scalars and FK columns", () => {
     const { Vehicle } = defineVehicleAndEngine()
-    const parsed = Vehicle.query.findParams.parse({
+    const parsed = findParams(Vehicle).parse({
       engine_id: "e1",
       year_start: { $gte: "2010" },
     })
@@ -186,7 +188,7 @@ describe("defineEntities", () => {
   it("returns models keyed for MedusaService and looks up by key", () => {
     const { Vehicle, Engine } = defineVehicleAndEngine()
     const set = defineEntities({ Vehicle, Engine })
-    expect(set.models).toEqual({ Vehicle: Vehicle.model, Engine: Engine.model })
+    expect(toModels(set)).toEqual({ Vehicle: toModel(Vehicle), Engine: toModel(Engine) })
     expect(set.byKey("vehicle")).toBe(Vehicle)
     expect(set.byKey("Engine")).toBe(Engine)
     expect(set.byKey("nope")).toBeUndefined()
@@ -259,7 +261,6 @@ describe("validateEntityQuery / validateEntityBody", () => {
   }
 
   it("validates exposed entities and 404s the rest", async () => {
-    const { validateEntityQuery, validateEntityBody } = await import("./index")
     const { Vehicle } = defineVehicleAndEngine()
 
     const query = validateEntityQuery([Vehicle], { isList: true })

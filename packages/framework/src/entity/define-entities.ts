@@ -7,8 +7,6 @@ type AnyEntity = EntityDef<any, any, any>
 
 export interface EntitySet<E extends Record<string, AnyEntity>> {
   readonly entities: E
-  /** `{ Vehicle: Vehicle.model, ... }`, ready for `MedusaService(...)`. */
-  readonly models: { [K in keyof E]: E[K]["model"] }
   /** Look up an entity by its URL / remote-query key (`vehicle_engine`). */
   byKey(key: string): E[keyof E] | undefined
 }
@@ -58,9 +56,6 @@ export function defineEntities<const E extends Record<string, AnyEntity>>(
   const byKey = new Map(Object.values(entities).map((e) => [snakeCase(e.name), e]))
   return Object.freeze({
     entities,
-    models: Object.fromEntries(
-      Object.entries(entities).map(([k, e]) => [k, e.model]),
-    ) as EntitySet<E>["models"],
     byKey: (key: string) => byKey.get(snakeCase(key)) as E[keyof E] | undefined,
   })
 }

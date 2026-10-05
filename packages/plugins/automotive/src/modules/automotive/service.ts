@@ -1,14 +1,12 @@
 import { MedusaService } from "@medusajs/framework/utils";
 import {
-  automotiveEntities,
   DataType,
   type FitmentCondition,
   type FitmentConditionGroup,
 } from "./entities";
+import { automotiveModels } from "./models/automotive";
 
-export default class AutomotiveModuleService extends MedusaService(
-  automotiveEntities.models,
-) {
+export default class AutomotiveModuleService extends MedusaService(automotiveModels) {
   async getCompatibleFitments(
     vehicleId: string,
     attributes: Record<string, any> = {},

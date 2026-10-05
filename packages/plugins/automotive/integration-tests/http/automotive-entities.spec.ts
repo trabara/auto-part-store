@@ -9,7 +9,7 @@ import {
   createEntitiesStep,
   deleteEntitiesStep,
   updateEntitiesStep,
-} from "@repo/framework/entity";
+} from "@repo/framework/entity/server";
 import jwt from "jsonwebtoken";
 import {
   AUTOMOTIVE_MODULE,

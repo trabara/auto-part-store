@@ -1,4 +1,4 @@
-import { createEntityRoutes } from "@repo/framework/entity";
+import { createEntityRoutes } from "@repo/framework/entity/server";
 import { AUTOMOTIVE_MODULE } from "~/modules/automotive";
 import {
   Fitment,

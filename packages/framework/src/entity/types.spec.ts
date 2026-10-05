@@ -2,11 +2,11 @@
  * Type-level tests for entity inference through the registry (P1.0 spike).
  * The assertions are checked by `tsc` (check-types); jest only runs the file.
  */
-import type { InferEntityType } from "@medusajs/framework/types"
 import { MedusaService } from "@medusajs/framework/utils"
 import { z } from "@medusajs/framework/zod"
 import { BaseSchema } from "../utils/validation"
-import { defineEntities, defineEntity } from "./index"
+import { defineEntities, defineEntity, type InferEntity } from "./index"
+import { toModels } from "./server"
 
 type Assert<T extends true> = T
 type Equals<A, B> =
@@ -56,9 +56,9 @@ const automotive = defineEntities({ TVehicle: Vehicle, TEngine: Engine, TGroup: 
 
 // ── Inferred entity types ───────────────────────────────────────────────────
 
-type VehicleT = InferEntityType<typeof Vehicle.model>
-type EngineT = InferEntityType<typeof Engine.model>
-type GroupT = InferEntityType<typeof Group.model>
+type VehicleT = InferEntity<typeof Vehicle>
+type EngineT = InferEntity<typeof Engine>
+type GroupT = InferEntity<typeof Group>
 
 type _VehicleNotAny = Assert<IsAny<VehicleT> extends false ? true : false>
 type _VehicleScalars = Assert<Equals<VehicleT["year_end"], number | null>>
@@ -84,7 +84,7 @@ type _UpdatePartial = Assert<Equals<UpdateVehicle["year_start"], number | undefi
 
 // ── Service ─────────────────────────────────────────────────────────────────
 
-class Service extends MedusaService(automotive.models) {}
+class Service extends MedusaService(toModels(automotive)) {}
 type Listed = Awaited<ReturnType<Service["listTVehicles"]>>[number]
 type _ServiceTyped = Assert<Equals<Listed["engine_id"], string>>
 

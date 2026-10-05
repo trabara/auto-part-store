@@ -47,50 +47,39 @@ export const CreateVehicleInputSchema = VehicleSchema.omit({
 export type CreateVehicleInput = z.infer<typeof CreateVehicleInputSchema>;
 
 // ── Update input schemas ──────────────────────────────────────────────────────
+// Item updates take the id from the path; batch updates carry it per entry.
 
-export const UpdateMakeInputSchema = CreateMakeInputSchema.partial().extend({
-  id: z.string(),
-});
+/** `{ entities: [{ id, ...update }] }` body for collection-level PUT. */
+export const batchUpdateOf = <S extends z.ZodObject>(update: S) =>
+  z.object({ entities: z.array(update.extend({ id: z.string() })) });
+
+export const UpdateMakeInputSchema = CreateMakeInputSchema.partial();
 export type UpdateMakeInput = z.infer<typeof UpdateMakeInputSchema>;
-
-export const UpdateMakeBatchInputSchema = z.object({
-  makes: z.array(UpdateMakeInputSchema.extend({ id: z.string() })),
-});
+export const UpdateMakeBatchInputSchema = batchUpdateOf(UpdateMakeInputSchema);
 export type UpdateMakeBatchInput = z.infer<typeof UpdateMakeBatchInputSchema>;
 
-export const UpdateModelInputSchema = CreateModelInputSchema.partial().extend({
-  id: z.string(),
-});
+export const UpdateModelInputSchema = CreateModelInputSchema.partial();
 export type UpdateModelInput = z.infer<typeof UpdateModelInputSchema>;
-
-export const UpdateModelBatchInputSchema = z.object({
-  models: z.array(UpdateModelInputSchema),
-});
+export const UpdateModelBatchInputSchema = batchUpdateOf(UpdateModelInputSchema);
 export type UpdateModelBatchInput = z.infer<typeof UpdateModelBatchInputSchema>;
 
-export const UpdateEngineInputSchema = CreateEngineInputSchema.extend({
-  id: z.string(),
-}).partial();
-
+export const UpdateEngineInputSchema = CreateEngineInputSchema.partial();
 export type UpdateEngineInput = z.infer<typeof UpdateEngineInputSchema>;
-
-export const UpdateEngineBatchInputSchema = z.object({
-  entities: z.array(UpdateEngineInputSchema),
-});
-
+export const UpdateEngineBatchInputSchema = batchUpdateOf(
+  UpdateEngineInputSchema,
+);
 export type UpdateEngineBatchInput = z.infer<
   typeof UpdateEngineBatchInputSchema
 >;
 
-export const UpdateVehicleInputSchema = VehicleSchema.omit(BASE_MASK)
-  .omit({ model: true, engine: true })
-  .partial()
-  .extend({
-    id: z.string(),
-    model_id: z.string(),
-    engine_id: z.string(),
-  });
+export const UpdateVehicleInputSchema = CreateVehicleInputSchema.partial();
 export type UpdateVehicleInput = z.infer<typeof UpdateVehicleInputSchema>;
+export const UpdateVehicleBatchInputSchema = batchUpdateOf(
+  UpdateVehicleInputSchema,
+);
+export type UpdateVehicleBatchInput = z.infer<
+  typeof UpdateVehicleBatchInputSchema
+>;
 
 // ── Link schemas ──────────────────────────────────────────────────────────────
 

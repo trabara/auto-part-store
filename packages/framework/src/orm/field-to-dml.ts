@@ -26,8 +26,8 @@ import {
   isNativeEnum,
   isLiteralUnion,
   getLiteralUnionValues,
-  getObjectShape,
   looksLikeEntity,
+  capitalizeFirstLetter,
   IMPLICIT_PROPERTIES,
 } from "../utils";
 
@@ -106,7 +106,7 @@ function arrayFieldInfo(
   nullable: boolean,
 ): ZodFieldInfo {
   const element = arrayElement(current);
-  if (element && typeTag(element) === "object") {
+  if (element && looksLikeEntity(element)) {
     return {
       fieldDef: null,
       relation: {
@@ -127,9 +127,8 @@ function objectFieldInfo(
   fieldName: string,
   nullable: boolean,
 ): ZodFieldInfo {
-  const keys = Object.keys(getObjectShape(current));
-  if (keys.includes("id")) {
-    const targetName = fieldName.charAt(0).toUpperCase() + fieldName.slice(1);
+  if (looksLikeEntity(current)) {
+    const targetName = capitalizeFirstLetter(fieldName);
     return {
       fieldDef: null,
       relation: {
@@ -149,69 +148,53 @@ function objectFieldInfo(
 // Runtime builder helpers
 // =============================================================================
 
-function buildTextProperty(nullable: boolean, defaultValue: unknown) {
-  const prop =
-    defaultValue === undefined
-      ? model.text()
-      : model.text().default(defaultValue as string);
-  return nullable ? prop.nullable() : prop;
-}
-
-function buildNumberProperty(nullable: boolean, defaultValue: unknown) {
-  const prop =
-    defaultValue === undefined
-      ? model.number()
-      : model.number().default(defaultValue as number);
-  return nullable ? prop.nullable() : prop;
-}
-
-function buildBooleanProperty(nullable: boolean, defaultValue: unknown) {
-  const prop =
-    defaultValue === undefined
-      ? model.boolean()
-      : model.boolean().default(defaultValue as boolean);
-  return nullable ? prop.nullable() : prop;
-}
-
-function buildDateTimeProperty(nullable: boolean, defaultValue: unknown) {
-  const prop =
-    defaultValue === undefined
-      ? model.dateTime()
-      : model.dateTime().default(defaultValue as Date);
-  return nullable ? prop.nullable() : prop;
-}
-
-function buildEnumProperty(
-  values: string[],
+function withNullable<P extends { nullable: () => unknown }>(
+  prop: P,
   nullable: boolean,
-  defaultValue: unknown,
 ) {
-  const prop =
-    defaultValue === undefined
-      ? model.enum(values)
-      : model.enum(values).default(defaultValue as string);
   return nullable ? prop.nullable() : prop;
 }
 
-function buildLiteralProperty(current: z.ZodTypeAny, nullable: boolean) {
-  const value = getLiteralValue(current);
+function buildScalarProperty(fieldDef: DmlFieldDef) {
+  const { dmlType, nullable, default: dv } = fieldDef;
+  const hasDefault = dv !== undefined;
 
-  if (typeof value === "string") {
-    const prop = model.text().default(value);
-    return nullable ? prop.nullable() : prop;
+  switch (dmlType) {
+    case "text":
+      return withNullable(
+        hasDefault ? model.text().default(dv as string) : model.text(),
+        nullable,
+      );
+    case "number":
+      return withNullable(
+        hasDefault ? model.number().default(dv as number) : model.number(),
+        nullable,
+      );
+    case "boolean":
+      return withNullable(
+        hasDefault ? model.boolean().default(dv as boolean) : model.boolean(),
+        nullable,
+      );
+    case "dateTime":
+      return withNullable(
+        hasDefault ? model.dateTime().default(dv as Date) : model.dateTime(),
+        nullable,
+      );
+    case "enum": {
+      const values = fieldDef.enumValues ?? [];
+      return withNullable(
+        hasDefault
+          ? model.enum(values).default(dv as string)
+          : model.enum(values),
+        nullable,
+      );
+    }
+    case "id":
+      return model.id().primaryKey();
+    case "json":
+    default:
+      return withNullable(model.json(), nullable);
   }
-
-  if (typeof value === "number") {
-    const prop = model.number().default(value);
-    return nullable ? prop.nullable() : prop;
-  }
-
-  if (typeof value === "boolean") {
-    const prop = model.boolean().default(value);
-    return nullable ? prop.nullable() : prop;
-  }
-
-  return nullable ? model.json().nullable() : model.json();
 }
 
 function relationshipOptions(
@@ -284,42 +267,6 @@ function buildRelationshipProperty(
   const kind = def.kind ?? defaultKind;
   const options = relationshipOptions(def.options);
   return applyRelationshipKind(kind, resolver, options, nullable);
-}
-
-function buildArrayProperty(
-  current: z.ZodTypeAny,
-  fieldName: string,
-  nullable: boolean,
-  relationships?: Record<string, RelationshipDef | null>,
-) {
-  const element = arrayElement(current);
-  if (element && typeTag(element) === "object") {
-    const property = buildRelationshipProperty(
-      relationships?.[fieldName],
-      "hasMany",
-      nullable,
-    );
-    if (property) return property;
-  }
-  return nullable ? model.json().nullable() : model.json();
-}
-
-function buildObjectProperty(
-  current: z.ZodTypeAny,
-  fieldName: string,
-  nullable: boolean,
-  relationships?: Record<string, RelationshipDef | null>,
-) {
-  if (looksLikeEntity(current)) {
-    const property = buildRelationshipProperty(
-      relationships?.[fieldName],
-      "belongsTo",
-      nullable,
-    );
-    if (property) return property;
-    return nullable ? model.text().nullable() : model.text();
-  }
-  return nullable ? model.json().nullable() : model.json();
 }
 
 // =============================================================================
@@ -465,100 +412,35 @@ export function buildDmlProperty(
   }
 
   const dmlName = flatRelations?.[fieldName] ?? fieldName;
-  const current = unwrap(field);
-  const nullable = isOptionalChain(field);
-  const t = typeTag(current);
-  const defaultValue = getDefaultValue(field);
+  const info = zodFieldToDml(field, fieldName);
 
-  if (fieldName === "id" && t === "string") {
-    return { property: model.id().primaryKey(), dmlName };
+  if (info.fieldDef?.dmlType === "id") {
+    return { property: buildScalarProperty(info.fieldDef), dmlName };
   }
 
   if (flatRelations && fieldName in flatRelations) {
-    return { property: buildTextProperty(nullable, defaultValue), dmlName };
-  }
-
-  if (t === "string") {
-    return { property: buildTextProperty(nullable, defaultValue), dmlName };
-  }
-
-  if (t === "boolean") {
-    return { property: buildBooleanProperty(nullable, defaultValue), dmlName };
-  }
-
-  if (t === "number") {
-    return { property: buildNumberProperty(nullable, defaultValue), dmlName };
-  }
-
-  if (t === "date") {
-    return { property: buildDateTimeProperty(nullable, defaultValue), dmlName };
-  }
-
-  if (isNativeEnum(current)) {
+    const nullable = isOptionalChain(field);
     return {
-      property: buildEnumProperty(
-        getNativeEnumValues(current),
-        nullable,
-        defaultValue,
-      ),
+      property: buildScalarProperty({ dmlType: "text", nullable }),
       dmlName,
     };
   }
 
-  if (t === "enum") {
-    return {
-      property: buildEnumProperty(
-        getEnumValues(current),
-        nullable,
-        defaultValue,
-      ),
-      dmlName,
-    };
+  const relation = info.relation;
+  if (relation && relation.kind !== "json") {
+    const property = buildRelationshipProperty(
+      relationships?.[fieldName],
+      relation.kind,
+      isOptionalChain(field),
+    );
+    if (!property) {
+      throw new Error(
+        `[dml] Field "${fieldName}" looks like a ${relation.kind} relation ` +
+          `but has no entry in \`relationships\` or \`flatRelations\`.`,
+      );
+    }
+    return { property, dmlName };
   }
 
-  if (isLiteralUnion(current)) {
-    return {
-      property: buildEnumProperty(
-        getLiteralUnionValues(current),
-        nullable,
-        defaultValue,
-      ),
-      dmlName,
-    };
-  }
-
-  if (isLiteralTag(current)) {
-    return { property: buildLiteralProperty(current, nullable), dmlName };
-  }
-
-  if (t === "array") {
-    return {
-      property: buildArrayProperty(current, fieldName, nullable, relationships),
-      dmlName,
-    };
-  }
-
-  if (t === "object") {
-    return {
-      property: buildObjectProperty(
-        current,
-        fieldName,
-        nullable,
-        relationships,
-      ),
-      dmlName,
-    };
-  }
-
-  if (t === "record") {
-    return {
-      property: nullable ? model.json().nullable() : model.json(),
-      dmlName,
-    };
-  }
-
-  return {
-    property: nullable ? model.json().nullable() : model.json(),
-    dmlName,
-  };
+  return { property: buildScalarProperty(info.fieldDef!), dmlName };
 }

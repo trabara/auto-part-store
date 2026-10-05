@@ -7,7 +7,7 @@
  * package boundaries.
  */
 
-import { z } from "zod"
+import { z } from "@medusajs/framework/zod"
 
 // =============================================================================
 // Shared types
@@ -259,21 +259,46 @@ export function isOptionalChain(field: z.ZodTypeAny): boolean {
 // Value extraction
 // =============================================================================
 
+function findDefaultWrapper(field: z.ZodTypeAny): z.ZodTypeAny | undefined {
+  let current: z.ZodTypeAny | undefined = field
+  for (let i = 0; current && i < MAX_UNWRAP_DEPTH; i++) {
+    const tag = typeTag(current)
+    if (tag === "default") return current
+    if (tag !== "optional" && tag !== "nullable") return undefined
+    current = resolveLazyIfPresent((current as unknown as { _def: ZodDef })._def.innerType)
+  }
+  return undefined
+}
+
 /**
- * Extract the default value from a `.default()` wrapper.
+ * Extract a static default value from a `.default()` wrapper (also when
+ * wrapped in `.optional()` / `.nullable()`).
+ *
+ * Zod v4 exposes every default through a getter, so a function default
+ * (`.default(() => new Date())`) cannot be told apart by inspection. The
+ * value is read twice and dropped when the reads differ, and Date defaults
+ * are always dropped — baking either into a column default would freeze
+ * one value for every row.
  *
  * @example
  * ```ts
- * const field = z.boolean().default(true)
- * getDefaultValue(field) // → true
+ * getDefaultValue(z.boolean().default(true))            // → true
+ * getDefaultValue(z.date().default(() => new Date()))   // → undefined
  * ```
  */
 export function getDefaultValue(field: z.ZodTypeAny): unknown {
-  if (typeTag(field) !== "default") return undefined
+  const wrapper = findDefaultWrapper(field)
+  if (!wrapper) return undefined
 
-  const def = (field as unknown as { _def: ZodDef })._def
-  const dv = def.defaultValue
-  return typeof dv === "function" ? dv() : dv
+  const def = (wrapper as unknown as { _def: ZodDef })._def
+  const first = def.defaultValue
+  const second = def.defaultValue
+  if (first instanceof Date) return undefined
+  if (first === second) return first
+  if (typeof first === "object" && first !== null) {
+    return JSON.stringify(first) === JSON.stringify(second) ? first : undefined
+  }
+  return undefined
 }
 
 /**
@@ -374,16 +399,8 @@ export function looksLikeEntity(field: z.ZodTypeAny): boolean {
 }
 
 // =============================================================================
-// String utilities
+// Medusa conventions
 // =============================================================================
-
-/** Convert PascalCase or camelCase to snake_case. */
-export function snakeCase(str: string): string {
-  return str
-    .replace(/([A-Z])/g, "_$1")
-    .toLowerCase()
-    .replace(/^_/, "")
-}
 
 /**
  * Fields that Medusa auto-manages on every model.
@@ -477,12 +494,13 @@ export function getZodFieldInfo(field: z.ZodTypeAny | null | undefined): SchemaF
 function zodQueryResolveInternal(
   schema: z.ZodTypeAny,
   query: string,
-  visited: WeakSet<object>,
+  ancestors: ReadonlySet<object>,
 ): string {
   const current = unwrap(schema)
   if (typeTag(current) !== "object") return query
-  if (visited.has(current as object)) return query
-  visited.add(current as object)
+  // A schema already on the current path is a cycle: emit nothing for it.
+  if (ancestors.has(current as object)) return ""
+  const path = new Set(ancestors).add(current as object)
 
   const shape = getObjectShape(current)
 
@@ -492,27 +510,30 @@ function zodQueryResolveInternal(
       if (!field) return ""
 
       const info = getZodFieldInfo(field)
-      const nestedQuery = query ? `${query}.${key}` : `${key}`
+      const nestedQuery = query ? `${query}.${key}` : key
       const unwrappedDef = (info.unwrapped as unknown as { _def: ZodDef })._def
 
       if (info.baseType === "object") {
-        return zodQueryResolveInternal(info.unwrapped, nestedQuery, visited)
+        return zodQueryResolveInternal(info.unwrapped, nestedQuery, path)
       }
 
       if (info.baseType === "array") {
-        return zodQueryResolveInternal(unwrappedDef.element, nestedQuery, visited)
+        return zodQueryResolveInternal(unwrappedDef.element, nestedQuery, path)
       }
 
-      return query ? `${query}.${key}` : key
+      return nestedQuery
     })
     .filter(Boolean)
     .join(",")
 }
 
 /**
- * Recursively build a Medusa remote-query field string from a Zod object
- * schema (e.g. `id,name,+address.city`).
+ * Recursively build a Medusa remote-query field list from a Zod object
+ * schema, as plain dotted paths (e.g. `id,name,address.city`).
+ *
+ * Schemas reused by sibling fields are expanded for each sibling; a schema
+ * that recurs on its own path (a cycle) contributes no fields.
  */
 export function zodQueryResolve(schema: z.ZodTypeAny, query = ""): string {
-  return zodQueryResolveInternal(schema, query, new WeakSet())
+  return zodQueryResolveInternal(schema, query, new Set())
 }

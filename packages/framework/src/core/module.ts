@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from "@medusajs/framework/zod";
 
 /* ==========================================================================
  * Utility types
@@ -121,10 +121,8 @@ export interface RouteDef<S extends z.ZodType = AnySchema> {
   /** Schema of the data this route's template receives. */
   readonly dto: S;
 
-  /**  */
+  /** Template used to render this route. Defaults to the route path. */
   readonly templateId: string;
-
-  /** Always present at runtime; defaults to the route path. */
 
   readonly children: readonly AnyRoute[];
 
@@ -188,7 +186,8 @@ export interface RouteConfig<
 
   dto: S;
 
-  templateId: string;
+  /** Template used to render this route. Defaults to `path`. */
+  templateId?: string;
 
   /** Nested routes. The builder's `route` creates children of this route. */
   children?: (route: RouteBuilder<M, F, S, P>) => readonly AnyRoute[];
@@ -290,7 +289,7 @@ function createRouteFactory<
     const route = {
       path: config.path,
       dto: config.dto,
-      templateId: config.templateId,
+      templateId: config.templateId || config.path,
       children: [] as readonly AnyRoute[],
       scope: undefined,
     } as unknown as Mutable<RouteDef<S>>;

@@ -10,6 +10,7 @@ export type {
   RelationshipKind,
   RelationshipOptions,
   ZodFieldInfo,
+  DmlCheck,
   DmlIndex,
   DmlGenOptions,
   CreateModelOptions,

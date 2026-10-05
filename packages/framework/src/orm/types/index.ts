@@ -8,7 +8,7 @@ export type {
   ZodFieldInfo,
   DmlPropertyResult,
 } from "./fields"
-export type { DmlIndex, DmlGenOptions, CreateModelOptions } from "./options"
+export type { DmlCheck, DmlIndex, DmlGenOptions, CreateModelOptions } from "./options"
 export type {
   DmlProperty,
   DmlRelationship,

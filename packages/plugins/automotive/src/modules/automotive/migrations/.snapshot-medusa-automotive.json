@@ -1094,7 +1094,13 @@
           "unique": true
         }
       ],
-      "checks": [],
+      "checks": [
+        {
+          "name": "year_range_check",
+          "expression": "year_end IS NULL OR year_end >= year_start",
+          "definition": "check ((year_end IS NULL OR year_end >= year_start))"
+        }
+      ],
       "foreignKeys": {
         "vehicle_model_id_foreign": {
           "constraintName": "vehicle_model_id_foreign",

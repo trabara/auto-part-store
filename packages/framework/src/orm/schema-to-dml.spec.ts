@@ -49,6 +49,23 @@ describe("zodSchemaToDml", () => {
     ])
   })
 
+  it("applies check constraints and named indexes", () => {
+    const User = zodSchemaToDml(SimpleSchema, {
+      modelName: "User",
+      indexes: [{ name: "user_name_unique", on: ["name"], unique: true }],
+      checks: [{ name: "name_not_empty", expression: "length(name) > 0" }],
+    })
+    const parsed = (User as any).parse()
+    expect(parsed.checks).toEqual([
+      { name: "name_not_empty", expression: "length(name) > 0" },
+    ])
+    expect(parsed.indexes[0]).toMatchObject({
+      name: "user_name_unique",
+      on: ["name"],
+      unique: true,
+    })
+  })
+
   it("resolves belongsTo relationships via relationships option", () => {
     const Customer = zodSchemaToDml(CustomerSchema, { modelName: "Customer" })
     const Order = zodSchemaToDml(OrderSchema, {
@@ -81,10 +98,10 @@ describe("zodSchemaToDml", () => {
     expect(getEntitySchema(Device).services).toBeDefined()
   })
 
-  it("falls back nested object to text when no resolver provided", () => {
-    const Order = zodSchemaToDml(OrderSchema, { modelName: "Order" })
-    const schema = getEntitySchema(Order)
-    expect(schema.customer).toBeDefined()
+  it("throws when an entity-like field has no relationship config", () => {
+    expect(() => zodSchemaToDml(OrderSchema, { modelName: "Order" })).toThrow(
+      /Field "customer" looks like a belongsTo relation/,
+    )
   })
 
   it("falls back primitive array to json", () => {

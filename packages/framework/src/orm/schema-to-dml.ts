@@ -91,5 +91,9 @@ export function zodSchemaToDml<
     )
   }
 
+  if (options.checks && options.checks.length > 0) {
+    entity = entity.checks(options.checks)
+  }
+
   return entity as unknown as DmlEntity<InferDmlSchema<Schema, FlatRelations>, string>
 }

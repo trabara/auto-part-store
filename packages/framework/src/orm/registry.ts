@@ -54,12 +54,21 @@ export function ref<T = any>(name: string): () => T {
 /**
  * Register a DML model and return it unchanged.
  *
+ * Throws when a different model is already registered under `name`.
+ *
  * The return type matches the input type exactly — no `any` leakage.
  * Prefer `createModel()` over `define()` for new code — it handles
  * registration and derivation of `modelName` in one step.
  */
-export function define<T>(_name: string, entity: T): T {
-  registry.set(_name, entity as unknown as DmlEntity<any, any>)
+export function define<T>(name: string, entity: T): T {
+  const existing = registry.get(name)
+  if (existing && existing !== (entity as unknown)) {
+    throw new Error(
+      `[dml-registry] Model "${name}" is already registered. ` +
+        `Model names must be unique across modules.`,
+    )
+  }
+  registry.set(name, entity as unknown as DmlEntity<any, any>)
   return entity
 }
 

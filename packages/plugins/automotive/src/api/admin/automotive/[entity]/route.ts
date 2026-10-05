@@ -1,27 +1,22 @@
 import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http";
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils";
-import { camelCase, lowerCase, snakeCase, startCase, upperFirst } from "lodash";
 import { AUTOMOTIVE_MODULE, type AutomotiveModuleService } from "~/modules/automotive";
+import { resolveEntity } from "../entities";
 
 export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY);
   const logger = req.scope.resolve(ContainerRegistrationKeys.LOGGER);
-  const entity = snakeCase(req.params.entity);
+  const { key: entity } = resolveEntity(req.params.entity);
 
-  logger.info(
-    `Fetching ${entity}s list ${JSON.stringify({
-      filters: req.filterableFields,
-      config: req.queryConfig,
-    })}`,
+  logger.debug(
+    `Listing ${entity} ${JSON.stringify({ filters: req.filterableFields })}`,
   );
 
   const { data, metadata } = await query.graph({
     entity,
     ...req.queryConfig,
-    ...req.filterableFields,
+    filters: req.filterableFields,
   });
-
-  logger.info(`Found ${data.length} ${entity}s`);
 
   res.status(200).json({ entity, data, metadata });
 };
@@ -29,39 +24,27 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
 export const POST = async (req: MedusaRequest, res: MedusaResponse) => {
   const logger = req.scope.resolve(ContainerRegistrationKeys.LOGGER);
   const service = req.scope.resolve<AutomotiveModuleService>(AUTOMOTIVE_MODULE);
+  const { key: entity, plural } = resolveEntity(req.params.entity);
 
-  const entity = snakeCase(lowerCase(req.params.entity));
+  const [result] = await service[`create${plural}`]([req.validatedBody]);
 
-  logger.info(
-    `Creating new ${entity} as ${JSON.stringify(req.validatedBody, null, 2)})`,
-  );
-
-  const [result] = await service[`create${upperFirst(camelCase(entity))}s`]([
-    req.validatedBody,
-  ]);
-
-  logger.info(`Created engine with ID: ${result.id}`);
+  logger.info(`Created ${entity} ${result.id}`);
 
   res.status(201).json({ entity, data: result });
 };
 
 export const PUT = async (
-  req: MedusaRequest<{ entities: any[] }>,
+  req: MedusaRequest<{ entities: Record<string, unknown>[] }>,
   res: MedusaResponse,
 ) => {
   const service = req.scope.resolve<AutomotiveModuleService>(AUTOMOTIVE_MODULE);
   const logger = req.scope.resolve(ContainerRegistrationKeys.LOGGER);
-
+  const { key: entity, plural } = resolveEntity(req.params.entity);
   const { entities } = req.validatedBody;
 
-  const entity = snakeCase(req.params.entity);
+  const updates = await service[`update${plural}`](entities);
 
-  logger.info(`Batch updating ${entities.length} ${entity}s`);
+  logger.info(`Batch updated ${entities.length} ${entity}`);
 
-  const updatedEngines =
-    await service[`update${upperFirst(camelCase(entity))}s`](entities);
-
-  logger.info(`Batch updated ${entities.length} engines`);
-
-  res.status(200).json({ entity: entity, updates: updatedEngines });
+  res.status(200).json({ entity, updates });
 };

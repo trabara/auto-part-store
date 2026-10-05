@@ -11,7 +11,6 @@ import {
   getLiteralUnionValues,
   getObjectShape,
   looksLikeEntity,
-  snakeCase,
   IMPLICIT_PROPERTIES,
   isEmailString,
   getZodShape,
@@ -202,6 +201,24 @@ describe("getDefaultValue", () => {
   it("returns the result of a default factory function", () => {
     expect(getDefaultValue(z.string().default(() => "dynamic"))).toBe("dynamic")
   })
+
+  it("drops non-deterministic factory defaults", () => {
+    let n = 0
+    expect(getDefaultValue(z.number().default(() => n++))).toBeUndefined()
+  })
+
+  it("drops Date defaults, static or factory", () => {
+    expect(getDefaultValue(z.date().default(() => new Date()))).toBeUndefined()
+    expect(getDefaultValue(z.date().default(new Date(0)))).toBeUndefined()
+  })
+
+  it("finds defaults under optional/nullable wrappers", () => {
+    expect(getDefaultValue(z.string().default("x").nullable())).toBe("x")
+  })
+
+  it("keeps static object defaults", () => {
+    expect(getDefaultValue(z.array(z.string()).default(["a"]))).toEqual(["a"])
+  })
 })
 
 // ---------------------------------------------------------------------------
@@ -311,22 +328,8 @@ describe("looksLikeEntity", () => {
 })
 
 // ---------------------------------------------------------------------------
-// snakeCase / IMPLICIT_PROPERTIES
+// IMPLICIT_PROPERTIES
 // ---------------------------------------------------------------------------
-describe("snakeCase", () => {
-  it("converts camelCase to snake_case", () => {
-    expect(snakeCase("createdAt")).toBe("created_at")
-  })
-
-  it("converts PascalCase to snake_case", () => {
-    expect(snakeCase("RepairRequest")).toBe("repair_request")
-  })
-
-  it("leaves snake_case unchanged", () => {
-    expect(snakeCase("already_snake")).toBe("already_snake")
-  })
-})
-
 describe("IMPLICIT_PROPERTIES", () => {
   it("contains the expected implicit property names", () => {
     expect(IMPLICIT_PROPERTIES.has("created_at")).toBe(true)
@@ -503,36 +506,31 @@ describe("zodQueryResolve", () => {
     expect(zodQueryResolve(z.string())).toBe("")
   })
 
-  it("prefixes nested object fields with +key notation", () => {
+  it("resolves nested object fields as dotted paths", () => {
     const schema = z.object({
       address: z.object({ city: z.string(), zip: z.string() }),
     })
-    const result = zodQueryResolve(schema)
-    expect(result).toContain("+address")
+    expect(zodQueryResolve(schema)).toBe("address.city,address.zip")
   })
 
-  it("resolves nested object fields", () => {
-    const schema = z.object({
-      address: z.object({ city: z.string(), zip: z.string() }),
-    })
-    const result = zodQueryResolve(schema)
-    expect(result).toContain("+address.city")
-    expect(result).toContain("+address.zip")
-  })
-
-  it("prefixes array fields with +key notation", () => {
+  it("keeps primitive array fields as a single path", () => {
     const schema = z.object({ items: z.array(z.string()) })
-    const result = zodQueryResolve(schema)
-    expect(result).toContain("+items")
+    expect(zodQueryResolve(schema)).toBe("items")
+  })
+
+  it("expands a schema reused by sibling fields for each sibling", () => {
+    const Address = z.object({ id: z.string(), city: z.string() })
+    const schema = z.object({ billing: Address, shipping: Address })
+    expect(zodQueryResolve(schema)).toBe(
+      "billing.id,billing.city,shipping.id,shipping.city",
+    )
   })
 
   it("resolves nested object inside an array", () => {
     const schema = z.object({
       items: z.array(z.object({ id: z.string(), name: z.string() })),
     })
-    const result = zodQueryResolve(schema)
-    expect(result).toContain("+items.id")
-    expect(result).toContain("+items.name")
+    expect(zodQueryResolve(schema)).toBe("items.id,items.name")
   })
 
   it("does not infinite loop on circular object schemas", () => {
@@ -565,10 +563,16 @@ describe("zodQueryResolve", () => {
 
     expect(() => zodQueryResolve(RepairRequestSchema)).not.toThrow()
 
-    const result = zodQueryResolve(RepairRequestSchema)
-    expect(result).toContain("id")
-    expect(result).toContain("status")
-    expect(result).toContain("+devices.device_id")
-    expect(result).toContain("+devices.services.name")
+    const result = zodQueryResolve(RepairRequestSchema).split(",")
+    expect(result).toEqual(
+      expect.arrayContaining([
+        "id",
+        "status",
+        "devices.device_id",
+        "devices.services.name",
+      ]),
+    )
+    // cycles back to RepairRequest contribute nothing
+    expect(result).not.toContain("devices.repair_request")
   })
 })

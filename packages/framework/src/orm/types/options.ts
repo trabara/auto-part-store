@@ -1,7 +1,10 @@
 import type { RelationshipInput } from "./fields"
 
 /** A DML index definition. */
-export type DmlIndex = { on: string[]; unique?: boolean; where?: string }
+export type DmlIndex = { on: string[]; name?: string; unique?: boolean; where?: string }
+
+/** A DML check constraint (raw SQL expression). */
+export type DmlCheck = { name?: string; expression: string }
 
 /**
  * Options passed to `zodSchemaToDml`.
@@ -14,6 +17,7 @@ export type DmlGenOptions<FlatRelations extends Record<string, string> = Record<
   tableName?: string
   indexes?: (string | DmlIndex)[]
   cascadeDelete?: string[]
+  checks?: DmlCheck[]
   relationships?: Record<string, RelationshipInput>
   flatRelations?: FlatRelations
 }

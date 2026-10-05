@@ -24,6 +24,19 @@ beforeEach(() => {
 // ─── define ──────────────────────────────────────────────────
 
 describe("define", () => {
+  it("throws when a different entity is registered under the same name", () => {
+    define("Dup", zodSchemaToDml(SimpleSchema, { modelName: "dup" }))
+    expect(() =>
+      define("Dup", zodSchemaToDml(SimpleSchema, { modelName: "dup" })),
+    ).toThrow(/already registered/)
+  })
+
+  it("allows re-registering the same entity", () => {
+    const entity = zodSchemaToDml(SimpleSchema, { modelName: "same" })
+    define("Same", entity)
+    expect(() => define("Same", entity)).not.toThrow()
+  })
+
   it("registers an entity and returns it unchanged", () => {
     const entity = zodSchemaToDml(SimpleSchema, { modelName: "test" })
     const result = define("Test", entity)
@@ -117,7 +130,9 @@ describe("createModel", () => {
   })
 
   it("accepts relationships with direct factory functions (no registry)", () => {
-    const Child = createModel("Child", ChildSchema)
+    const Child = createModel("Child", ChildSchema, {
+      flatRelations: { parent_ref: "parent_ref_id" },
+    })
     const Parent = createModel("Parent", ParentSchema, {
       relationships: { children: () => Child },
     })

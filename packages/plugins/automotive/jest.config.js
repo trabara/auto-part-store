@@ -16,6 +16,7 @@ module.exports = {
   testEnvironment: "node",
   testTimeout: 10000,
   moduleFileExtensions: ["js", "ts", "json"],
+  moduleNameMapper: { "^~/(.*)$": "<rootDir>/src/$1" },
   modulePathIgnorePatterns: ["dist/", "<rootDir>/.medusa/"],
   setupFiles: ["<rootDir>/integration-tests/setup-env.js"],
   setupFilesAfterEnv: ["<rootDir>/integration-tests/setup.js"],

@@ -45,11 +45,11 @@ describe("zodFieldToDml", () => {
     expect(result.fieldDef?.default).toBe(0)
   })
 
-  it("maps dateTime with default", () => {
+  it("drops Date defaults so no fixed timestamp is baked into the column", () => {
     const now = new Date("2026-08-03T00:00:00Z")
     const result = zodFieldToDml(z.date().default(now), "starts_at")
     expect(result.fieldDef?.dmlType).toBe("dateTime")
-    expect(result.fieldDef?.default).toEqual(now)
+    expect(result.fieldDef?.default).toBeUndefined()
   })
 
   it("maps enum with default", () => {
@@ -132,10 +132,16 @@ describe("zodFieldToDml", () => {
     expect(result.relation?.kind).toBe("belongsTo")
   })
 
-  it("maps array of objects to hasMany", () => {
+  it("maps array of entity objects to hasMany", () => {
+    const result = zodFieldToDml(z.array(CustomerSchema), "customers")
+    expect(result.relation?.kind).toBe("hasMany")
+  })
+
+  it("maps array of plain objects to json", () => {
     const itemsSchema = z.array(z.object({ product_id: z.string() }))
     const result = zodFieldToDml(itemsSchema, "items")
-    expect(result.relation?.kind).toBe("hasMany")
+    expect(result.fieldDef?.dmlType).toBe("json")
+    expect(result.relation?.kind).toBe("json")
   })
 
   it("maps primitive array to json", () => {
@@ -292,7 +298,10 @@ describe("buildDmlProperty", () => {
   })
 
   it("builds hasMany relationship with metadata options", () => {
-    const Order = zodSchemaToDml(OrderSchema, { modelName: "Order" })
+    const Order = zodSchemaToDml(OrderSchema, {
+      modelName: "Order",
+      flatRelations: { customer: "customer_id" },
+    })
     const result = buildDmlProperty(z.array(OrderSchema), "orders", {
       orders: {
         kind: "hasMany",

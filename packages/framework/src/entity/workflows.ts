@@ -90,6 +90,27 @@ function splitRow(row: Record<string, unknown>, specs: LinkSpec[]) {
 
 const links = (container: Container) => container.resolve(ContainerRegistrationKeys.LINK)
 
+const recordKey = (record: LinkRecord) =>
+  JSON.stringify(Object.keys(record).sort().map((k) => [k, record[k]]))
+
+/** Live (not soft-deleted) link records of `ids` for the entity's link relations. */
+async function liveLinks(
+  container: Container,
+  target: EntityTarget,
+  ids: string[],
+  specs: LinkSpec[],
+): Promise<LinkRecord[]> {
+  if (!specs.length || !ids.length) return []
+  const own = `${modelName(target.entity)}_id`
+  return links(container).list(
+    specs.map((spec) => ({
+      [target.module]: { [own]: ids },
+      [spec.targetModule]: { [`${spec.targetModel}_id`]: { $ne: null } },
+    })),
+    { asLinkDefinition: true },
+  )
+}
+
 // ── Create ───────────────────────────────────────────────────────────────────
 
 export const createEntitiesStep = createStep(
@@ -195,17 +216,26 @@ export const updateEntitiesStep = createStep(
 
 export const deleteEntitiesStep = createStep(
   "framework-delete-entities",
-  async ({ module, entity, ids }: DeleteEntitiesInput, { container }) => {
+  async (input: DeleteEntitiesInput, { container }) => {
+    const { module, entity, ids } = input
+    const specs = linkSpecs(entity)
+    // Dismissed links are soft-deleted too, so restoring by id would revive
+    // them; remember which links were live to undo exactly this delete.
+    const live = await liveLinks(container, input, ids, specs)
     await service(container, module)[method("softDelete", entity)]!(ids)
     // Soft-delete every link of these records (either side of the link).
     const removed = { [module]: { [`${modelName(entity)}_id`]: ids } }
     await links(container).delete(removed)
-    return new StepResponse(ids, { module, entity, ids, removed })
+    return new StepResponse(ids, { module, entity, ids, removed, live: live.map(recordKey) })
   },
   async (undo, { container }) => {
     if (!undo?.ids.length) return
     await service(container, undo.module)[method("restore", undo.entity)]!(undo.ids)
     await links(container).restore(undo.removed)
+    const wasLive = new Set(undo.live)
+    const revived = await liveLinks(container, undo, undo.ids, linkSpecs(undo.entity))
+    const stale = revived.filter((record) => !wasLive.has(recordKey(record)))
+    if (stale.length) await links(container).dismiss(stale)
   },
 )
 

@@ -1,5 +1,10 @@
 import type { InferEntityType } from "@medusajs/framework/types"
-import type { DmlEntity, DMLEntitySchemaBuilder } from "@medusajs/framework/utils"
+import type {
+  DmlEntity,
+  DMLEntitySchemaBuilder,
+  IdProperty,
+  PrimaryKeyModifier,
+} from "@medusajs/framework/utils"
 import type { z } from "@medusajs/framework/zod"
 import type { DmlProperty, DmlRelationship } from "../orm/types/inference"
 import type { DmlCheck, DmlIndex } from "../orm/types/options"
@@ -193,7 +198,11 @@ type RelationProperty<R> = R extends RelationDef<infer Kind, any, infer O>
 
 /** DML schema of an entity: scalar columns plus relation properties. */
 export type EntityDmlSchema<S extends z.ZodObject<any>, Rels extends RelationMap> = {
-  [K in keyof ScalarShape<S>]: DmlProperty<z.infer<ScalarShape<S>[K]>>
+  // `id` is the primary key (model.id().primaryKey() at runtime); typing it as
+  // such lets Medusa infer the module's linkable keys (e.g. `fitment_id`).
+  [K in keyof ScalarShape<S>]: K extends "id"
+    ? PrimaryKeyModifier<string, IdProperty>
+    : DmlProperty<z.infer<ScalarShape<S>[K]>>
 } & {
   [K in keyof Rels as IsLink<Rels[K]> extends true ? never : K]: RelationProperty<Rels[K]>
 }

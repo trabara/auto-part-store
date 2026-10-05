@@ -26,6 +26,8 @@ export type EntityRoutesOptions = {
 }
 
 export interface EntityRoutes {
+  /** The exposed entities (the allowlist). */
+  readonly entities: readonly AnyEntity[]
   /** Middlewares for `${basePath}/:entity` and `${basePath}/:entity/:id`. */
   middlewares(basePath: string): MiddlewareRoute[]
   /** Handlers for `[entity]/route.ts`. */
@@ -126,6 +128,7 @@ export function createEntityRoutes({ module, entities, depth }: EntityRoutesOpti
   }
 
   return {
+    entities,
     middlewares(basePath) {
       const base = basePath.replace(/\/$/, "")
       return [

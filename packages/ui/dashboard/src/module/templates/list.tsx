@@ -1,133 +1,135 @@
 import { z } from "@medusajs/framework/zod";
+import { PencilSquare, Trash } from "@medusajs/icons";
+import { Container } from "@medusajs/ui";
+import type { RouteRenderContext } from "@repo/framework/admin";
+import { foreignKeyName } from "@repo/framework/entity";
+import { startCase } from "lodash";
+import { useMemo } from "react";
+import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router-dom";
+import { useSdk } from "../../common/context";
+import { DataTable } from "../components/data-table";
+import { useDeleteMutation } from "../hooks/use-delete-mutation";
+import type { FeatureFieldOverrides, RowAction, ToolbarAction } from "../types";
+import { entityFields, toQueryFilters } from "../utils/query";
+import { entityUrl, featurePath, featureRelations, useFeature } from "../utils/routes";
 
-export function TemplateList<
-  S extends z.ZodTypeAny,
-  DTO extends z.infer<S> & { id: string },
-  R extends { data: DTO[]; metadata: { count: number } },
->() {
-  // const sdk = useSdk();
-  // const navigate = useNavigate();
-  // const { t } = useTranslation();
-  // const module = useModule();
-  // const deleteMutation = useDeleteMutation({
-  //   invalidateKeys: [config.path],
-  //   errorMessage: t("common.error_delete_item"),
-  //   successMessage: t("common.success_delete_item"),
-  //   deleteFn: (id: string) =>
-  //     sdk.client.fetch(`/admin${config.path}/${id}`, {
-  //       method: "DELETE",
-  //     }),
-  // });
-  // const handleBulkDelete = async (table: UseDataTableReturn<DTO>) => {
-  //   const selectedRows = table
-  //     .getRowModel()
-  //     .rows.filter((row) => row.getIsSelected())
-  //     .map((row) => row.original);
-  //   const selectedIds = selectedRows.map((row) => row.id);
-  //   await deleteMutation.mutateAsync(...selectedIds);
-  // };
-  // const defaultRowActions: RowAction<DTO>[] = [
-  //   {
-  //     id: "edit",
-  //     label: t("common.edit"),
-  //     icon: <PencilSquare />,
-  //     onClick: (e, row) => {
-  //       e.stopPropagation();
-  //       navigate(`${config.path}/${row.id}/edit`);
-  //     },
-  //   },
-  //   {
-  //     id: "delete",
-  //     label: t("common.delete"),
-  //     icon: <Trash />,
-  //     variant: "danger",
-  //     onClick: (e, row) => {
-  //       e.stopPropagation();
-  //       deleteMutation.mutateAsync(row.id);
-  //     },
-  //   },
-  // ];
-  // const defaultToolbarActions: ToolbarAction<DTO>[] = [
-  //   {
-  //     id: "delete",
-  //     icon: <Trash />,
-  //     variant: "danger",
-  //     label: t("common.delete"),
-  //     onClick: (table) => handleBulkDelete(table),
-  //   },
-  // ];
-  // const handleDataSelect: SelectFn<DTO, R> = (resp) => {
-  //   return {
-  //     data: z.array(config.dto).parse(resp?.data || []) as DTO[],
-  //     rowCount: resp?.metadata.count ?? 0,
-  //   };
-  // };
-  // const handleRowClick = (
-  //   e: React.MouseEvent<HTMLTableRowElement, MouseEvent>,
-  //   row: DTO,
-  // ) => {
-  //   navigate(`${config.path}/${row.id}`);
-  // };
-  // const title = config.getDisplayTitle();
-  // const overrideColumns = config.getOverrides?.(t) || {};
-  // const queryFields = useMemo(() => zodQueryResolve(config.dto), [config.dto]);
-  // return (
-  //   <Container className="divide-y p-0">
-  //     <DataTable
-  //       id={module.name}
-  //       schema={config.dto as any}
-  //       emptyState={{
-  //         filtered: {
-  //           custom: (
-  //             <div className="flex flex-col items-center gap-y-3">
-  //               <MagnifyingGlass />
-  //               <div className="flex flex-col items-center gap-y-1">
-  //                 <p className="font-medium font-sans txt-compact-small">
-  //                   Aucun résultat
-  //                 </p>
-  //                 <p className="font-normal font-sans txt-small text-ui-fg-muted">
-  //                   Aucun enregistrement ne correspond à vos filtres.
-  //                 </p>
-  //               </div>
-  //             </div>
-  //           ),
-  //         },
-  //         empty: {
-  //           custom: (
-  //             <div className="flex flex-col items-center gap-y-3">
-  //               <InformationCircle />
-  //               <div className="flex flex-col items-center gap-y-1">
-  //                 <p className="font-medium font-sans txt-compact-small">
-  //                   Aucun enregistrement
-  //                 </p>
-  //                 <p className="font-normal font-sans txt-small text-ui-fg-muted">
-  //                   Vos {config.getDisplayTitle()}s apparaîtront ici.
-  //                 </p>
-  //               </div>
-  //             </div>
-  //           ),
-  //         },
-  //       }}
-  //       title={title}
-  //       overrides={overrideColumns}
-  //       queryFn={(signal, params) =>
-  //         sdk.client.fetch<R>(`/admin${config.path}`, {
-  //           method: "GET",
-  //           signal,
-  //           query: {
-  //             ...(params || {}),
-  //             fields: queryFields,
-  //           },
-  //         })
-  //       }
-  //       selectFn={handleDataSelect}
-  //       onRowClick={handleRowClick}
-  //       onCreateClicked={() => navigate(`${config.path}/create`)}
-  //       actionState={{
-  //         row: [...defaultRowActions],
-  //         toolbar: [...defaultToolbarActions],
-  //       }}
-  //     />
-  //   </Container>
-  // );
+type Row = { id: string } & Record<string, any>;
+type ListResponse = { data: Row[]; metadata: { count: number } };
+
+const HIDDEN_COLUMNS = ["id", "updated_at", "deleted_at"];
+
+/** Paginated, filterable table of a feature's entity. Renders `create` in its outlet. */
+export function TemplateList({ outlet }: RouteRenderContext) {
+  const { module, feature, entity } = useFeature();
+  const sdk = useSdk();
+  const navigate = useNavigate();
+  const { t } = useTranslation();
+
+  const toOne = useMemo(
+    () =>
+      featureRelations(module, feature).filter(
+        (r) => r.targetEntity && (r.relation.kind === "belongsTo" || r.relation.kind === "hasOne"),
+      ),
+    [module, feature],
+  );
+
+  // Own scalar columns plus one column per to-one relation (keyed by its FK).
+  const schema = useMemo(() => {
+    const fkColumns = Object.fromEntries(
+      toOne.map((r) => [foreignKeyName(r.key, r.relation), z.string().nullish()]),
+    );
+    return entity.schema.extend(fkColumns) as z.ZodObject<any>;
+  }, [entity, toOne]);
+
+  const overrides = useMemo(() => {
+    const result: FeatureFieldOverrides<any> = {};
+    for (const key of HIDDEN_COLUMNS) result[key] = { hideLabel: true, isFiltrable: false };
+    for (const r of toOne) {
+      result[foreignKeyName(r.key, r.relation)] = {
+        label: r.label,
+        isFiltrable: false,
+        cell: (info: any) => {
+          const related = info.row.original[r.key];
+          return related?.[r.targetEntity!.display] || related?.id || "-";
+        },
+      };
+    }
+    return { ...result, ...(feature.ui.overrides as FeatureFieldOverrides<any>) };
+  }, [toOne, feature]);
+
+  const deletion = useDeleteMutation({
+    invalidateKeys: [entity.modelName],
+    errorMessage: t("common.error_delete_item", "Failed to delete"),
+    successMessage: t("common.success_delete_item", "Deleted"),
+    deleteFn: (id) => sdk.client.fetch(entityUrl(module, entity, id), { method: "DELETE" }),
+  });
+
+  const rowActions: RowAction<Row>[] = [
+    {
+      id: "edit",
+      label: t("common.edit", "Edit"),
+      icon: <PencilSquare />,
+      onClick: (e, row) => {
+        e.stopPropagation();
+        navigate(featurePath(feature, "edit", { id: row.id })!);
+      },
+    },
+    {
+      id: "delete",
+      label: t("common.delete", "Delete"),
+      icon: <Trash />,
+      variant: "danger",
+      onClick: (e, row) => {
+        e.stopPropagation();
+        deletion.mutateAsync(row.id);
+      },
+    },
+  ];
+
+  const toolbarActions: ToolbarAction<Row>[] = [
+    {
+      id: "delete",
+      label: t("common.delete", "Delete"),
+      icon: <Trash />,
+      variant: "danger",
+      onClick: (table) => {
+        const ids = table
+          .getRowModel()
+          .rows.filter((row) => row.getIsSelected())
+          .map((row) => row.original.id);
+        deletion.mutateAsync(...ids);
+      },
+    },
+  ];
+
+  return (
+    <>
+      <Container className="divide-y p-0">
+        <DataTable<Row, ListResponse>
+          id={entity.modelName}
+          title={startCase(feature.key)}
+          schema={schema as unknown as z.ZodType<Row>}
+          overrides={overrides}
+          queryFn={(signal, params) =>
+            sdk.client.fetch<ListResponse>(entityUrl(module, entity), {
+              signal,
+              query: {
+                limit: params.limit,
+                offset: params.offset,
+                order: params.order,
+                fields: entityFields(module, feature),
+                ...toQueryFilters(params.filters, schema),
+              },
+            })
+          }
+          selectFn={(resp) => ({ data: resp?.data, rowCount: resp?.metadata.count })}
+          onRowClick={(_, row) => navigate(featurePath(feature, "detail", { id: row.id })!)}
+          onCreateClicked={() => navigate(featurePath(feature, "create")!)}
+          actionState={{ row: rowActions, toolbar: toolbarActions }}
+        />
+      </Container>
+      {outlet}
+    </>
+  );
 }

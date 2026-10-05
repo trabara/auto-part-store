@@ -1,242 +1,151 @@
 import { z } from "@medusajs/framework/zod";
+import { Button, clx, FocusModal, Heading, Hint, ProgressTabs } from "@medusajs/ui";
+import type { RouteRenderContext } from "@repo/framework/admin";
+import { startCase } from "lodash";
+import React, { useMemo } from "react";
+import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router-dom";
+import { useSdk } from "../../common/context";
+import { Form } from "../../form/components/form";
+import { relationOverrides } from "../helpers/relation-overrides";
+import { useCreateMutation } from "../hooks/use-create-mutation";
+import { useWizardForm } from "../hooks/use-wizard-form";
+import type { StepConfig } from "../types";
+import { entityUrl, featurePath, useFeature } from "../utils/routes";
 
-// function buildCreateSteps(schema: z.ZodSchema): StepConfig[] {
-//   const shape = getZodShape(schema);
-//   const steps: StepConfig[] = [];
+const contentClass = "flex flex-col gap-y-4 max-w-[720px] w-full";
 
-//   let generalSchema = z.object({});
-//   forEach(shape, (field, key) => {
-//     const fieldInfo = getZodFieldInfo(shape[key]);
+/**
+ * Create form for a feature's entity in a focus modal: a single form, or a
+ * wizard when the feature declares `steps`.
+ */
+export function TemplateCreate(_: RouteRenderContext) {
+  const { module, feature, entity, route } = useFeature();
+  const sdk = useSdk();
+  const navigate = useNavigate();
+  const { t } = useTranslation();
 
-//     if (fieldInfo.baseType === "array") {
-//       steps.push({
-//         id: key,
-//         label: startCase(key),
-//         schema: z.object({ [key]: field }),
-//       });
-//     } else if (fieldInfo.baseType === "object" || key.endsWith("_id")) {
-//       generalSchema = generalSchema.extend({ [key]: z.string() });
-//     } else {
-//       generalSchema = generalSchema.extend({ [key]: field });
-//     }
-//   });
+  const schema = route.dto as z.ZodObject<any>;
+  const name = startCase(entity.name);
 
-//   steps.unshift({
-//     id: "general",
-//     label: "General",
-//     schema: generalSchema,
-//   });
+  const overrides = useMemo(
+    () => ({ ...relationOverrides(module, feature, schema), ...(feature.ui.overrides as object) }),
+    [module, feature, schema],
+  );
 
-//   return steps;
-// }
+  const steps = useMemo<StepConfig<any>[]>(
+    () =>
+      (feature.ui.steps ?? []).map((step) => ({
+        id: step.id,
+        label: step.label,
+        description: step.description,
+        schema: schema.pick(Object.fromEntries(step.fields.map((f) => [f, true]))),
+      })),
+    [feature, schema],
+  );
 
-export function TemplateCreate<S extends z.ZodTypeAny>() {
-  // const sdk = useSdk();
-  // const { t } = useTranslation();
-  // const navigate = useNavigate();
+  const create = useCreateMutation({
+    invalidateKeys: [entity.modelName],
+    errorMessage: `Failed to create ${name}`,
+    successMessage: `${name} created`,
+    createFn: (body) => sdk.client.fetch(entityUrl(module, entity), { method: "POST", body }),
+  });
 
-  // const module = useModule();
+  const close = () => navigate(featurePath(feature, "list")!, { replace: true });
 
-  // const entityName = startCase(entity);
+  const [wizard, wizardAction] = useWizardForm(steps, async (values) => {
+    await create.mutateAsync(values);
+    close();
+  });
 
-  // const mutate = useCreateMutation({
-  //   invalidateKeys: [module.path!, entity],
-  //   errorMessage: `Failed to create ${entityName}`,
-  //   successMessage: `Successfully created ${entityName}`,
-  //   createFn: (data) =>
-  //     sdk.client.fetch(`/admin${module.path}/${entity}`, {
-  //       method: "POST",
-  //       body: data,
-  //     }),
-  // });
+  const isWizard = steps.length > 0;
+  const activeSchema = isWizard ? wizard.schema : schema;
 
-  // const dispose = () => {
-  //   navigate(`${module.path}/${entity}`, { replace: true });
-  // };
+  const handleSubmit = async (values: any) => {
+    if (isWizard) {
+      await wizardAction.handleSubmit(values);
+      return;
+    }
+    await create.mutateAsync(values);
+    close();
+  };
 
-  // const steps = useMemo(() => buildCreateSteps(config.schema), [config.schema]);
+  return (
+    <FocusModal open onOpenChange={close}>
+      <FocusModal.Content>
+        <Form schema={activeSchema as any} overrides={overrides} onSubmit={handleSubmit}>
+          {({ renderField, renderSubmitButton, form }, fieldKeys) => {
+            const footer = (submitLabel: React.ReactNode, disabled?: boolean) => (
+              <FocusModal.Footer>
+                <div className="flex items-center justify-end gap-x-2">
+                  <Button variant="secondary" size="small" type="button" onClick={close}>
+                    {t("common.cancel", "Cancel")}
+                  </Button>
+                  {renderSubmitButton({ disabled, children: submitLabel })}
+                </div>
+              </FocusModal.Footer>
+            );
+            const createLabel = (
+              <>
+                {t("common.create", "Create")} <span>{name}</span>
+              </>
+            );
 
-  // const [wizard, action] = useWizardForm(steps as [], async (values) => {
-  //   await mutate.mutateAsync(values);
-  //   dispose();
-  // });
+            if (!isWizard) {
+              return (
+                <div className="flex h-full flex-col">
+                  <FocusModal.Header>
+                    <FocusModal.Title asChild>
+                      <Heading level="h1">
+                        {t("common.create", "Create")} {name}
+                      </Heading>
+                    </FocusModal.Title>
+                  </FocusModal.Header>
+                  <FocusModal.Body className="relative flex flex-col items-center overflow-y-auto p-16">
+                    <div className={contentClass}>{fieldKeys.map((key) => renderField(key))}</div>
+                  </FocusModal.Body>
+                  {footer(createLabel, !form.formState.isValid)}
+                </div>
+              );
+            }
 
-  // const activeSchema = useMemo(
-  //   () => (steps.length > 0 ? wizard.schema : config.schema),
-  //   [wizard.schema, config.schema, steps.length],
-  // );
-
-  // const handleSubmit = async (values: any) => {
-  //   if (steps.length > 0) {
-  //     await action.handleSubmit(values);
-  //   } else {
-  //     await mutate.mutateAsync(values);
-  //   }
-  //   dispose();
-  // };
-
-  // const styles = {
-  //   body: {
-  //     wrapper: {
-  //       base: "relative flex flex-col items-center p-16",
-  //     },
-  //     content: {
-  //       base: "flex flex-col gap-y-4",
-  //       default: "max-w-[720px] w-full",
-  //       full: "flex-1",
-  //     },
-  //   },
-  //   header: {
-  //     base: "flex flex-col gap-y-1",
-  //     default: "flex flex-col gap-y-1",
-  //     full: "flex flex-col gap-y-2",
-  //   },
-  // };
-
-  // const getContentStyle = (step: StepConfig) =>
-  //   clx(
-  //     styles.body.content.base,
-  //     styles.body.content[step.display ?? "default"],
-  //   );
-
-  // const getHeaderStyle = (step: StepConfig) =>
-  //   clx(styles.header.base, styles.header[step.display ?? "default"]);
-
-  // const overrideFields = useMemo(() => {
-  //   const fields = config.getOverrides?.(t) || {};
-
-  //   return {
-  //     ...module.buildRelationOverrides(entity, activeSchema),
-  //     ...fields,
-  //   };
-  // }, [config, t, module, entity, activeSchema]);
-
-  // return (
-  //   <FocusModal open={true} onOpenChange={dispose}>
-  //     <FocusModal.Content>
-  //       <Form
-  //         overrides={overrideFields}
-  //         schema={activeSchema as any}
-  //         onSubmit={handleSubmit}
-  //       >
-  //         {({ renderField, renderSubmitButton, form }) => {
-  //           if (steps.length > 0) {
-  //             return (
-  //               <ProgressTabs
-  //                 value={wizard.step}
-  //                 className="flex flex-col h-full"
-  //                 onValueChange={(tabId) => action.handleChange(tabId, form)}
-  //               >
-  //                 <FocusModal.Header>
-  //                   <ProgressTabs.List className="-my-2 w-full border-l">
-  //                     {steps.map(({ id, label }) => (
-  //                       <ProgressTabs.Trigger key={id} value={id}>
-  //                         {label}
-  //                       </ProgressTabs.Trigger>
-  //                     ))}
-  //                   </ProgressTabs.List>
-  //                 </FocusModal.Header>
-
-  //                 <FocusModal.Body className={styles.body.wrapper.base}>
-  //                   {steps.map((step) => {
-  //                     if (wizard.step !== step.id) {
-  //                       return <React.Fragment key={step.id} />;
-  //                     }
-  //                     const stepCn = getContentStyle(step);
-
-  //                     return (
-  //                       <ProgressTabs.Content
-  //                         key={step.id}
-  //                         value={step.id}
-  //                         className={stepCn}
-  //                       >
-  //                         {(step.header === undefined ||
-  //                           step.header === true) && (
-  //                           <div className={getHeaderStyle(step)}>
-  //                             <Heading level="h1" className="">
-  //                               {step.label}
-  //                             </Heading>
-  //                             {step.description && (
-  //                               <Hint>{step.description}</Hint>
-  //                             )}
-  //                           </div>
-  //                         )}
-
-  //                         {wizard.fields.map((key) => renderField(key))}
-  //                       </ProgressTabs.Content>
-  //                     );
-  //                   })}
-  //                 </FocusModal.Body>
-  //                 <FocusModal.Footer>
-  //                   <div className="flex items-center justify-end gap-x-2">
-  //                     <Button
-  //                       variant="secondary"
-  //                       size="small"
-  //                       onClick={dispose}
-  //                     >
-  //                       {t("common.cancel")}
-  //                     </Button>
-  //                     {renderSubmitButton({
-  //                       disabled: !form.formState.isValid && !wizard.hasNext,
-  //                       children: wizard.hasNext ? (
-  //                         t("common.next")
-  //                       ) : (
-  //                         <>
-  //                           {t("common.create")}{" "}
-  //                           <span className="capitalize">{entityName}</span>
-  //                         </>
-  //                       ),
-  //                     })}
-  //                   </div>
-  //                 </FocusModal.Footer>
-  //               </ProgressTabs>
-  //             );
-  //           }
-  //           const shape = getZodShape(activeSchema);
-  //           const fieldKeys = Object.keys(shape);
-  //           return (
-  //             <div className="flex flex-col h-full">
-  //               <FocusModal.Header>
-  //                 <FocusModal.Title>
-  //                   <Heading level="h1">{config.getTitle()}</Heading>
-  //                 </FocusModal.Title>
-  //               </FocusModal.Header>
-  //               <FocusModal.Body className={styles.body.wrapper.base}>
-  //                 <div
-  //                   className={clx(
-  //                     styles.body.content.base,
-  //                     styles.body.content.default,
-  //                   )}
-  //                 >
-  //                   {
-  //                     fieldKeys.map((key) =>
-  //                       renderField(key),
-  //                     ) as unknown as React.ReactNode
-  //                   }
-  //                 </div>
-  //               </FocusModal.Body>
-  //               <FocusModal.Footer>
-  //                 <div className="flex items-center justify-end gap-x-2">
-  //                   <Button variant="secondary" size="small" onClick={dispose}>
-  //                     {t("common.cancel")}
-  //                   </Button>
-  //                   {renderSubmitButton({
-  //                     disabled: !form.formState.isValid,
-  //                     children: (
-  //                       <>
-  //                         {t("common.create")}{" "}
-  //                         <span className="capitalize">{entityName}</span>
-  //                       </>
-  //                     ),
-  //                   })}
-  //                 </div>
-  //               </FocusModal.Footer>
-  //             </div>
-  //           );
-  //         }}
-  //       </Form>
-  //     </FocusModal.Content>
-  //   </FocusModal>
-  // );
-  return <></>;
+            return (
+              <ProgressTabs
+                value={wizard.step}
+                className="flex h-full flex-col"
+                onValueChange={(tabId) => wizardAction.handleChange(tabId, form)}
+              >
+                <FocusModal.Header>
+                  <FocusModal.Title className="sr-only">
+                    {t("common.create", "Create")} {name}
+                  </FocusModal.Title>
+                  <ProgressTabs.List className="-my-2 w-full border-l">
+                    {steps.map(({ id, label }) => (
+                      <ProgressTabs.Trigger key={id} value={id}>
+                        {label}
+                      </ProgressTabs.Trigger>
+                    ))}
+                  </ProgressTabs.List>
+                </FocusModal.Header>
+                <FocusModal.Body className="relative flex flex-col items-center overflow-y-auto p-16">
+                  {steps.map((step) =>
+                    wizard.step !== step.id ? null : (
+                      <ProgressTabs.Content key={step.id} value={step.id} className={clx(contentClass)}>
+                        <div className="flex flex-col gap-y-1">
+                          <Heading level="h1">{step.label}</Heading>
+                          {step.description && <Hint>{step.description}</Hint>}
+                        </div>
+                        {wizard.fields.map((key) => renderField(key))}
+                      </ProgressTabs.Content>
+                    ),
+                  )}
+                </FocusModal.Body>
+                {footer(wizard.hasNext ? t("common.next", "Next") : createLabel)}
+              </ProgressTabs>
+            );
+          }}
+        </Form>
+      </FocusModal.Content>
+    </FocusModal>
+  );
 }

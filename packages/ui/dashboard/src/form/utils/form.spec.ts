@@ -10,6 +10,20 @@ import {
 // initializeDefaultValues
 // ---------------------------------------------------------------------------
 describe("initializeDefaultValues", () => {
+  it("uses static schema defaults, and provided values over them", () => {
+    const withDefaults = {
+      fuel: z.enum(["GASOLINE", "DIESEL"]).default("GASOLINE"),
+      size: z.string().default("1.0"),
+      doors: z.number().default(4),
+    };
+    expect(initializeDefaultValues(withDefaults)).toEqual({
+      fuel: "GASOLINE",
+      size: "1.0",
+      doors: 4,
+    });
+    expect(initializeDefaultValues(withDefaults, { doors: 2 })).toMatchObject({ doors: 2 });
+  });
+
   const schema = z.object({
     name: z.string(),
     age: z.number().optional(),

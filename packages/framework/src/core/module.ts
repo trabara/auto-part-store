@@ -1,12 +1,11 @@
 import { z } from "@medusajs/framework/zod";
+import { kebabCase } from "lodash";
+import type { EntityDef, RelationDef } from "../entity";
+import { pluralize } from "../utils/strings";
 
 /* ==========================================================================
  * Utility types
  * ========================================================================== */
-
-type SchemaOutput<S extends z.ZodType> = z.output<S>;
-
-type StringKeyOf<T> = Extract<keyof T, string>;
 
 type Mutable<T> = { -readonly [K in keyof T]: T[K] };
 
@@ -14,10 +13,11 @@ type Mutable<T> = { -readonly [K in keyof T]: T[K] };
  * Erased aliases, used ONLY in generic constraints and defaults.
  *
  * Using `any` here avoids TypeScript trying to prove variance between
- * unrelated concrete Zod schemas. Public APIs stay strongly typed because
+ * unrelated concrete schemas. Public APIs stay strongly typed because
  * concrete types are captured by the factories below.
  */
 type AnySchema = z.ZodType<any>;
+type AnyEntity = EntityDef<any, any, any>;
 type AnyRoute = RouteDef<any>;
 type AnyFeature = FeatureDef<any, any>;
 type AnyModule = ModuleDef<any>;
@@ -42,55 +42,68 @@ export class ModuleDefinitionError extends Error {
 }
 
 /* ==========================================================================
- * Relations
+ * Templates
  * ========================================================================== */
 
-export interface RelationConfig {
-  /**
-   * Target entity key: a feature key in the same module
-   * (e.g. "company"), unless `external` is true.
-   */
-  targetEntity: string;
+/**
+ * Template ids a route can render. UI packages augment it with their
+ * templates, which makes `template` required and checked:
+ *
+ * ```ts
+ * declare module "@repo/framework/core" {
+ *   interface TemplateRegistry { list: true; create: true }
+ * }
+ * ```
+ */
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface TemplateRegistry {}
 
-  /**
-   * Set when the target lives in another module. Skips the sibling-feature
-   * validation performed by defineModule.
-   */
+/** Registered template ids, or any string before the registry is augmented. */
+export type TemplateId = [keyof TemplateRegistry] extends [never]
+  ? string
+  : keyof TemplateRegistry & string;
+
+type TemplateField = [keyof TemplateRegistry] extends [never]
+  ? { /** Template rendering this route. Defaults to `path`. */ template?: string }
+  : { /** Template rendering this route. */ template: TemplateId };
+
+/** Slots of a CRUD feature; each maps to a template id. */
+export type CrudSlot = "list" | "create" | "detail" | "edit";
+
+/* ==========================================================================
+ * Feature UI options
+ * ========================================================================== */
+
+/** UI-only tweaks for one relation of a feature's entity. */
+export interface RelationUi {
+  label?: string;
+  /** Do not render this relation (picker, column, detail section). */
+  hidden?: boolean;
+  /** The target is not a feature of this module (rendered read-only). */
   external?: boolean;
-
-  /**
-   * Field on the target entity used as the display label.
-   * Defaults to "name" (see resolveRelation).
-   */
-  displayField?: string;
-
-  /**
-   * Fields to fetch for the relation. Defaults to all scalar fields.
-   */
-  fields?: string[];
-
-  /**
-   * Relationship cardinality. If omitted, inferred from schema/metadata.
-   */
-  type?: "belongsTo" | "hasMany";
 }
 
-export type ResolvedRelation = RelationConfig & {
-  displayField: string;
-};
-
-export const DEFAULT_RELATION_DISPLAY_FIELD = "name";
-
-export function resolveRelation(relation: RelationConfig): ResolvedRelation {
-  return {
-    ...relation,
-    displayField: relation.displayField ?? DEFAULT_RELATION_DISPLAY_FIELD,
-  };
-}
-
-export type FeatureRelations<S extends z.ZodType> = Partial<
-  Record<StringKeyOf<SchemaOutput<S>>, RelationConfig>
+export type FeatureRelationsUi<E extends AnyEntity> = Partial<
+  Record<keyof E["relations"] & string, RelationUi>
 >;
+
+/** One step of the create wizard: fields of the create DTO. */
+export interface WizardStep {
+  id: string;
+  label: string;
+  description?: string;
+  fields: readonly string[];
+}
+
+export interface FeatureUi {
+  /** Create wizard steps; a single form when omitted. */
+  readonly steps?: readonly WizardStep[];
+  /**
+   * Per-field UI overrides, opaque to core (the dashboard types them as
+   * `FeatureFieldOverrides`).
+   */
+  readonly overrides?: Readonly<Record<string, object>>;
+}
 
 /* ==========================================================================
  * Definitions
@@ -121,8 +134,11 @@ export interface RouteDef<S extends z.ZodType = AnySchema> {
   /** Schema of the data this route's template receives. */
   readonly dto: S;
 
-  /** Template used to render this route. Defaults to the route path. */
-  readonly templateId: string;
+  /** Template rendering this route. */
+  readonly template: TemplateId;
+
+  /** CRUD slot when generated by `crud()`. */
+  readonly slot?: CrudSlot;
 
   readonly children: readonly AnyRoute[];
 
@@ -131,15 +147,17 @@ export interface RouteDef<S extends z.ZodType = AnySchema> {
 }
 
 export interface FeatureDef<
-  S extends z.ZodType = AnySchema,
+  E extends AnyEntity = AnyEntity,
   Routes extends RouteList = readonly AnyRoute[],
 > {
   /** Key of this feature in its module. Assigned by defineModule. */
   readonly key: string;
 
-  readonly entity: S;
+  readonly entity: E;
 
-  readonly relations?: FeatureRelations<S>;
+  readonly relations: FeatureRelationsUi<E>;
+
+  readonly ui: FeatureUi;
 
   readonly routes: Routes;
 }
@@ -176,22 +194,19 @@ export interface FeatureScope<
 
 /* ---- Route ------------------------------------------------------------- */
 
-export interface RouteConfig<
+export type RouteConfig<
   M extends AnyModule,
   F extends AnyFeature,
   S extends z.ZodType,
   P extends AnyRouteScope | undefined,
-> {
+> = TemplateField & {
   path: string;
 
   dto: S;
 
-  /** Template used to render this route. Defaults to `path`. */
-  templateId?: string;
-
   /** Nested routes. The builder's `route` creates children of this route. */
   children?: (route: RouteBuilder<M, F, S, P>) => readonly AnyRoute[];
-}
+};
 
 export type RouteFactory<
   M extends AnyModule,
@@ -216,30 +231,50 @@ export interface RouteBuilder<
 
 export interface FeatureConfig<
   M extends AnyModule,
-  S extends z.ZodType,
+  E extends AnyEntity,
   Routes extends RouteList,
 > {
-  entity: S;
+  entity: E;
 
-  relations?: FeatureRelations<S>;
+  relations?: FeatureRelationsUi<E>;
 
-  routes: (feature: FeatureBuilder<M, S>) => Routes;
+  ui?: FeatureUi;
+
+  routes: (feature: FeatureBuilder<M, E>) => Routes;
 }
 
 export interface FeatureBuilder<
   M extends AnyModule,
-  S extends z.ZodType,
-> extends FeatureScope<M, FeatureDef<S>> {
+  E extends AnyEntity,
+> extends FeatureScope<M, FeatureDef<E>> {
   /** Creates a top-level route belonging to this feature. */
-  readonly route: RouteFactory<M, FeatureDef<S>, undefined>;
+  readonly route: RouteFactory<M, FeatureDef<E>, undefined>;
 }
 
 export type FeatureFactory<M extends AnyModule> = <
-  S extends z.ZodType,
+  E extends AnyEntity,
   const Routes extends RouteList,
 >(
-  config: FeatureConfig<M, S, Routes>,
-) => FeatureDef<S, Routes>;
+  config: FeatureConfig<M, E, Routes>,
+) => FeatureDef<E, Routes>;
+
+export interface CrudOptions<E extends AnyEntity> {
+  /** List path. Defaults to the kebab-cased plural of the entity name. */
+  path?: string;
+  /** Template per slot. Defaults to the slot name. */
+  templates?: Partial<Record<CrudSlot, TemplateId>>;
+  /** Create wizard steps (fields of `entity.dto.create`). */
+  steps?: readonly (Omit<WizardStep, "fields"> & {
+    fields: readonly (keyof E["dto"]["create"]["shape"] & string)[];
+  })[];
+  overrides?: FeatureUi["overrides"];
+  relations?: FeatureRelationsUi<E>;
+}
+
+export type CrudFactory = <E extends AnyEntity>(
+  entity: E,
+  options?: CrudOptions<E>,
+) => FeatureDef<E>;
 
 /* ---- Module ------------------------------------------------------------ */
 
@@ -256,6 +291,12 @@ export interface ModuleBuilder<
 > extends ModuleScope<M> {
   /** Creates a feature belonging to this module. */
   readonly feature: FeatureFactory<M>;
+
+  /**
+   * Creates a CRUD feature: `{list}` (+ `create`) and `{list}/:id`
+   * (+ `edit`), rendered by the list/create/detail/edit templates.
+   */
+  readonly crud: CrudFactory;
 }
 
 /* ==========================================================================
@@ -283,13 +324,14 @@ function createRouteFactory<
      * RouteScope<M, F, RouteDef<S>, P>, while RouteDef stores them against
      * the wide RouteScope. Function parameters are contravariant under
      * strictFunctionTypes, so TypeScript rejects the assignment. It is safe
-     * here because the scope we pass at call time (see getRouteTitle /
-     * renderers) is always the one built below.
+     * here because the scope we pass at call time is always the one built
+     * below.
      */
     const route = {
       path: config.path,
       dto: config.dto,
-      templateId: config.templateId || config.path,
+      template: (config as { template?: string }).template || config.path,
+      slot: (config as { slot?: CrudSlot }).slot,
       children: [] as readonly AnyRoute[],
       scope: undefined,
     } as unknown as Mutable<RouteDef<S>>;
@@ -320,9 +362,9 @@ function createRouteFactory<
  * ========================================================================== */
 
 function createFeatureFactory<M extends AnyModule>(mod: M): FeatureFactory<M> {
-  return <S extends z.ZodType, const Routes extends RouteList>(
-    config: FeatureConfig<M, S, Routes>,
-  ): FeatureDef<S, Routes> => {
+  return <E extends AnyEntity, const Routes extends RouteList>(
+    config: FeatureConfig<M, E, Routes>,
+  ): FeatureDef<E, Routes> => {
     /**
      * The feature object exists before its routes so route scopes can point
      * at it. NOTE: while `config.routes` runs, `feature.routes` is empty and
@@ -331,16 +373,17 @@ function createFeatureFactory<M extends AnyModule>(mod: M): FeatureFactory<M> {
     const feature = {
       key: "",
       entity: config.entity,
-      relations: config.relations,
+      relations: config.relations ?? {},
+      ui: config.ui ?? {},
       routes: [] as unknown as Routes,
-    } as Mutable<FeatureDef<S, Routes>>;
+    } as Mutable<FeatureDef<E, Routes>>;
 
-    const builder: FeatureBuilder<M, S> = {
+    const builder: FeatureBuilder<M, E> = {
       module: mod,
-      feature: feature as unknown as FeatureDef<S>,
+      feature: feature as unknown as FeatureDef<E>,
       route: createRouteFactory(
         mod,
-        feature as unknown as FeatureDef<S>,
+        feature as unknown as FeatureDef<E>,
         undefined,
       ),
     };
@@ -348,6 +391,82 @@ function createFeatureFactory<M extends AnyModule>(mod: M): FeatureFactory<M> {
     feature.routes = config.routes(builder);
 
     return feature;
+  };
+}
+
+function isOptionalField(field: z.ZodTypeAny): boolean {
+  return field.safeParse(undefined).success;
+}
+
+function validateSteps(entity: AnyEntity, steps: readonly WizardStep[]): void {
+  const shape = entity.dto.create.shape as Record<string, z.ZodTypeAny>;
+  const where = `crud(${entity.name}) steps`;
+  const seen = new Set<string>();
+  for (const step of steps) {
+    for (const field of step.fields) {
+      if (!(field in shape)) {
+        throw new ModuleDefinitionError(
+          `${where}: "${field}" (step "${step.id}") is not a create field.`,
+        );
+      }
+      if (seen.has(field)) {
+        throw new ModuleDefinitionError(`${where}: "${field}" appears in more than one step.`);
+      }
+      seen.add(field);
+    }
+  }
+  const missing = Object.keys(shape).filter((k) => !seen.has(k) && !isOptionalField(shape[k]!));
+  if (missing.length) {
+    throw new ModuleDefinitionError(
+      `${where}: required field(s) ${missing.map((m) => `"${m}"`).join(", ")} are in no step.`,
+    );
+  }
+}
+
+function createCrudFactory<M extends AnyModule>(mod: M): CrudFactory {
+  const feature = createFeatureFactory(mod);
+  return (entity, options = {}) => {
+    if (options.steps) validateSteps(entity, options.steps);
+    const list = options.path ?? kebabCase(pluralize(entity.name));
+    const template = (slot: CrudSlot) => (options.templates?.[slot] ?? slot) as TemplateId;
+    // `slot` is internal: it lets templates find sibling CRUD routes.
+    const route = (r: any, config: Record<string, unknown>) => r.route(config);
+
+    return feature({
+      entity,
+      relations: options.relations,
+      ui: { steps: options.steps, overrides: options.overrides },
+      routes: (f) => [
+        route(f, {
+          path: list,
+          slot: "list",
+          template: template("list"),
+          dto: entity.schema,
+          children: (r: any) => [
+            route(r, {
+              path: "create",
+              slot: "create",
+              template: template("create"),
+              dto: entity.dto.create,
+            }),
+          ],
+        }),
+        route(f, {
+          path: `${list}/:id`,
+          slot: "detail",
+          template: template("detail"),
+          dto: entity.withRelations(),
+          children: (r: any) => [
+            route(r, {
+              path: "edit",
+              slot: "edit",
+              template: template("edit"),
+              dto: entity.dto.update,
+            }),
+          ],
+        }),
+      ],
+    }) as FeatureDef<typeof entity>;
   };
 }
 
@@ -375,6 +494,7 @@ export function defineModule<const Features extends FeatureMap>(
   const builder: ModuleBuilder = {
     module: mod as ModuleDef,
     feature: createFeatureFactory(mod as ModuleDef),
+    crud: createCrudFactory(mod as ModuleDef),
   };
 
   const features = config.features(builder);
@@ -395,58 +515,30 @@ export function defineModule<const Features extends FeatureMap>(
  * Validation
  * ========================================================================== */
 
-function getShape(schema: unknown): Record<string, unknown> | undefined {
-  const shape = (schema as { shape?: unknown } | undefined)?.shape;
-  return shape && typeof shape === "object"
-    ? (shape as Record<string, unknown>)
-    : undefined;
-}
-
 function validateModule(mod: AnyModule): void {
   const features = mod.features as FeatureMap;
+  const featureEntities = new Set(Object.values(features).map((f) => f.entity.name));
 
   for (const [key, feature] of Object.entries(features)) {
-    const ownShape = getShape(feature.entity);
+    const relations = feature.entity.relations as Record<string, RelationDef>;
+    const ui = feature.relations as Record<string, RelationUi>;
 
-    for (const [field, relation] of Object.entries(
-      (feature.relations ?? {}) as Record<string, RelationConfig>,
-    )) {
-      const where = `Feature "${key}", relation "${field}"`;
-
-      if (ownShape && !(field in ownShape)) {
+    for (const relKey of Object.keys(ui)) {
+      if (!(relKey in relations)) {
         throw new ModuleDefinitionError(
-          `${where}: field "${field}" does not exist on the entity schema.`,
+          `Feature "${key}": relations.${relKey} is not a relation of entity "${feature.entity.name}".`,
         );
       }
+    }
 
-      if (relation.external) continue;
-
-      const target = features[relation.targetEntity];
-      if (!target) {
-        throw new ModuleDefinitionError(
-          `${where}: targetEntity "${relation.targetEntity}" is not a feature ` +
-            `of module "${mod.name}" (known: ${Object.keys(features).join(", ")}). ` +
-            `Set \`external: true\` if it lives in another module.`,
-        );
-      }
-
-      const targetShape = getShape(target.entity);
-      if (!targetShape) continue;
-
-      const display = relation.displayField ?? DEFAULT_RELATION_DISPLAY_FIELD;
-      if (!(display in targetShape)) {
-        throw new ModuleDefinitionError(
-          `${where}: displayField "${display}" does not exist on "${relation.targetEntity}".`,
-        );
-      }
-
-      for (const f of relation.fields ?? []) {
-        if (!(f in targetShape)) {
-          throw new ModuleDefinitionError(
-            `${where}: fields entry "${f}" does not exist on "${relation.targetEntity}".`,
-          );
-        }
-      }
+    for (const [relKey, rel] of Object.entries(relations)) {
+      const relUi = ui[relKey] ?? {};
+      if (relUi.hidden || relUi.external || featureEntities.has(rel.target)) continue;
+      throw new ModuleDefinitionError(
+        `Feature "${key}", relation "${relKey}": target "${rel.target}" is not a feature of ` +
+          `module "${mod.name}". Add a feature for it, or set ` +
+          `\`relations: { ${relKey}: { hidden: true } }\` (or \`external: true\`).`,
+      );
     }
   }
 
@@ -476,7 +568,8 @@ function deepFreezeModule(mod: AnyModule): void {
       freezeRoute(route);
     }
     Object.freeze(feature.routes);
-    if (feature.relations) Object.freeze(feature.relations);
+    Object.freeze(feature.relations);
+    Object.freeze(feature.ui);
     Object.freeze(feature);
   }
 
@@ -549,6 +642,26 @@ export function flattenModuleRoutes(mod: AnyModule): FlatRoute[] {
   return out;
 }
 
+/** The route of a feature generated for a CRUD slot, if any. */
+export function findSlotRoute(feature: AnyFeature, slot: CrudSlot): AnyRoute | undefined {
+  const search = (routes: readonly AnyRoute[]): AnyRoute | undefined => {
+    for (const route of routes) {
+      if (route.slot === slot) return route;
+      const found = search(route.children);
+      if (found) return found;
+    }
+    return undefined;
+  };
+  return search(feature.routes as readonly AnyRoute[]);
+}
+
+/** Fills `:param` segments of a full path. */
+export function fillPath(path: string, params: Record<string, string> = {}): string {
+  return path.replace(/:([A-Za-z0-9_]+)/g, (segment, name: string) =>
+    params[name] === undefined ? segment : encodeURIComponent(params[name]),
+  );
+}
+
 export interface RouteMatch {
   flat: FlatRoute;
   params: Record<string, string>;
@@ -556,38 +669,43 @@ export interface RouteMatch {
 
 /**
  * Matches a pathname against a module's routes. ":name" segments capture
- * params. When several routes match, the one with the fewest params wins
- * (static segments beat dynamic ones).
+ * params and a trailing "*" captures the rest (as `params["*"]`). When several
+ * routes match, static segments beat dynamic ones and splats lose to both.
  */
 export function matchRoute(
   mod: AnyModule,
   pathname: string,
 ): RouteMatch | null {
   const target = pathname.split("/").filter(Boolean);
-  let best: (RouteMatch & { dynamic: number }) | null = null;
+  let best: (RouteMatch & { cost: number }) | null = null;
 
   for (const flat of flattenModuleRoutes(mod)) {
     const pattern = flat.fullPath.split("/").filter(Boolean);
-    if (pattern.length !== target.length) continue;
+    const splat = pattern[pattern.length - 1] === "*";
+    const fixed = splat ? pattern.slice(0, -1) : pattern;
+    if (splat ? target.length < fixed.length : target.length !== fixed.length) continue;
 
     const params: Record<string, string> = {};
-    let dynamic = 0;
+    let cost = splat ? 1000 : 0;
     let ok = true;
 
-    for (let i = 0; i < pattern.length; i++) {
-      const p = pattern[i]!;
+    for (let i = 0; i < fixed.length; i++) {
+      const p = fixed[i]!;
       const t = target[i]!;
       if (p.startsWith(":")) {
         params[p.slice(1)] = decodeURIComponent(t);
-        dynamic++;
+        cost++;
       } else if (p !== t) {
         ok = false;
         break;
       }
     }
+    if (ok && splat) {
+      params["*"] = target.slice(fixed.length).map(decodeURIComponent).join("/");
+    }
 
-    if (ok && (!best || dynamic < best.dynamic)) {
-      best = { flat, params, dynamic };
+    if (ok && (!best || cost < best.cost)) {
+      best = { flat, params, cost };
     }
   }
 

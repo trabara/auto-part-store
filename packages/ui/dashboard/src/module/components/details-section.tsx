@@ -10,7 +10,8 @@ import _ from "lodash";
 import { ReactNode } from "react";
 import { formatValue } from "./many-relation-section";
 import React from "react";
-import { Attribute } from "../templates/details";
+
+export type Attribute = { key: string; label?: string; value: unknown };
 
 type DetailSectionProps = {
   title: string;
@@ -64,13 +65,13 @@ export function DetailsSection({
         )}
       </div>
 
-      {attributes.map(({ key, value }) => (
+      {attributes.map(({ key, label, value }) => (
         <div
           key={key}
           className="text-ui-fg-subtle grid grid-cols-2 items-center px-6 py-4"
         >
           <Text size="small" leading="compact" className="text-ui-fg-subtle">
-            {_.startCase(key)}
+            {label ?? _.startCase(key)}
           </Text>
           <Text size="small" leading="compact">
             {formatValue(value)}

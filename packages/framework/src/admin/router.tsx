@@ -2,6 +2,7 @@ import {
   createContext,
   useContext,
   useMemo,
+  type ComponentType,
   type ReactNode,
 } from "react";
 import {
@@ -11,7 +12,7 @@ import {
   useRoutes,
   type RouteObject,
 } from "react-router-dom";
-import type { ModuleDef, RouteDef, RouteScope } from "../core";
+import type { ModuleDef, RouteDef, RouteScope, TemplateId } from "../core";
 
 type AnyModule = ModuleDef<any>;
 type AnyRoute = RouteDef<any>;
@@ -25,9 +26,16 @@ export type RouteRenderContext = {
   outlet: ReactNode;
 };
 
+/** Components rendering each template id. */
+export type RouteTemplates = Partial<
+  Record<TemplateId, ComponentType<RouteRenderContext>>
+>;
+
 export type ModuleRouterProps = {
   module: AnyModule;
-  /** Renders one route. Defaults to a placeholder showing the route path. */
+  /** Component per template id; each route renders `templates[route.template]`. */
+  templates?: RouteTemplates;
+  /** Renders one route; takes precedence over `templates`. */
   render?: (ctx: RouteRenderContext) => ReactNode;
   /** Rendered for URLs under the module that match no route. */
   notFound?: ReactNode;
@@ -56,12 +64,19 @@ function RouteElement(props: {
   );
 }
 
-const defaultRender = ({ route, outlet }: RouteRenderContext) => (
-  <div data-route={route.path}>
-    <span>{route.path || "(index)"}</span>
-    {outlet}
-  </div>
-);
+function MissingTemplate({ route }: RouteRenderContext) {
+  return (
+    <div data-missing-template={route.template} style={{ padding: 16, color: "#b91c1c" }}>
+      Missing template "{route.template}" for route "{route.path || "(index)"}".
+    </div>
+  );
+}
+
+const templateRender =
+  (templates: RouteTemplates) => (ctx: RouteRenderContext) => {
+    const Template = templates[ctx.route.template as TemplateId] ?? MissingTemplate;
+    return <Template {...ctx} />;
+  };
 
 const topLevelRoutes = (module: AnyModule): AnyRoute[] =>
   Object.values(
@@ -78,7 +93,13 @@ export function buildRouteObjects(
     const element = (
       <RouteElement route={route} render={render} hasChildren={hasChildren} />
     );
-    if (route.path === "") return { index: true, element };
+    if (route.path === "") {
+      // Index routes cannot have children: use a pathless layout route whose
+      // own element renders for the index and wraps the children's outlet.
+      return hasChildren
+        ? { element, children: [{ index: true, element: <></> }, ...route.children.map(toObject)] }
+        : { index: true, element };
+    }
     return {
       path: route.path,
       element,
@@ -90,15 +111,16 @@ export function buildRouteObjects(
 
 export function ModuleRouter({
   module,
-  render = defaultRender,
+  templates = {},
+  render,
   notFound = null,
 }: ModuleRouterProps) {
   const objects = useMemo(
     () => [
-      ...buildRouteObjects(module, render),
+      ...buildRouteObjects(module, render ?? templateRender(templates)),
       { path: "*", element: <>{notFound}</> },
     ],
-    [module, render, notFound],
+    [module, templates, render, notFound],
   );
   return useRoutes(objects);
 }

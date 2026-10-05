@@ -1,15 +1,26 @@
 import { z } from "@medusajs/framework/zod";
+import { defineEntity, type EntityDef } from "../entity";
 import {
-  DEFAULT_RELATION_DISPLAY_FIELD,
   ModuleDefinitionError,
   defineModule,
+  fillPath,
+  findSlotRoute,
   flattenModuleRoutes,
   getRouteChain,
   getRoutePath,
   joinPaths,
   matchRoute,
-  resolveRelation,
 } from "./module";
+
+declare module "../entity" {
+  interface EntityRegistry {
+    Company: EntityDef;
+    User: EntityDef;
+    Make: EntityDef;
+    Model: EntityDef;
+    FitmentCategory: EntityDef;
+  }
+}
 
 /* ==========================================================================
  * Fixtures
@@ -27,10 +38,11 @@ const UserSchema = z.object({
   company: CompanySchema,
 });
 
-// Schema with no "name" field, to exercise displayField validation.
-const TagSchema = z.object({
-  id: z.string(),
-  label: z.string(),
+const Company = defineEntity("Company", { schema: CompanySchema });
+
+const User = defineEntity("User", {
+  schema: UserSchema.omit({ company: true }),
+  relations: (r) => ({ company: r.belongsTo("Company") }),
 });
 
 /** Standard module used by most tests. */
@@ -40,7 +52,7 @@ function buildDashboard() {
     path: "dashboard",
     features: (m) => ({
       company: m.feature({
-        entity: CompanySchema,
+        entity: Company,
         routes: (c) => [
           c.route({
             path: "companies",
@@ -49,10 +61,7 @@ function buildDashboard() {
         ],
       }),
       user: m.feature({
-        entity: UserSchema,
-        relations: {
-          company: { targetEntity: "company", displayField: "name" },
-        },
+        entity: User,
         routes: (u) => [
           u.route({
             path: "users",
@@ -92,12 +101,11 @@ describe("defineModule: structure", () => {
     expect(mod.features.user.key).toBe("user");
   });
 
-  it("keeps entity and relations on the feature", () => {
+  it("keeps the entity, relation UI and options on the feature", () => {
     const mod = buildDashboard();
-    expect(mod.features.user.entity).toBe(UserSchema);
-    expect(mod.features.user.relations).toEqual({
-      company: { targetEntity: "company", displayField: "name" },
-    });
+    expect(mod.features.user.entity).toBe(User);
+    expect(mod.features.user.relations).toEqual({});
+    expect(mod.features.user.ui).toEqual({});
   });
 
   it("throws when the module name is empty", () => {
@@ -122,7 +130,7 @@ describe("defineModule: structure", () => {
         path: "bad",
         features: (m) => ({
           f: m.feature({
-            entity: CompanySchema,
+            entity: Company,
             routes: (f) => [
               f.route({
                 path: 42 as unknown as string,
@@ -176,7 +184,7 @@ describe("routes and scopes", () => {
       path: "deep",
       features: (m) => ({
         f: m.feature({
-          entity: CompanySchema,
+          entity: Company,
           routes: (f) => [
             f.route({
               path: "a",
@@ -208,7 +216,7 @@ describe("routes and scopes", () => {
       path: "m",
       features: (m) => ({
         f: m.feature({
-          entity: CompanySchema,
+          entity: Company,
           routes: (f) => [
             f.route({
               path: "p",
@@ -287,107 +295,41 @@ describe("validation", () => {
       });
 
   describe("relations", () => {
-    it("accepts a valid sibling relation", () => {
-      expect(buildDashboard).not.toThrow();
+    it("accepts relations whose target is a feature of the module", () => {
+      expect(() => buildDashboard()).not.toThrow();
     });
 
-    it("rejects a relation field missing from the entity schema", () => {
+    it("rejects a relation whose target is not a feature", () => {
       expect(
         withFeatures((m) => ({
-          company: m.feature({ entity: CompanySchema, routes: () => [] }),
-          user: m.feature({
-            entity: UserSchema,
-            relations: {
-              ghost: { targetEntity: "company" },
-            } as never,
-            routes: () => [],
-          }),
+          user: m.feature({ entity: User, routes: () => [] }),
         })),
-      ).toThrow(/field "ghost" does not exist on the entity schema/);
+      ).toThrow(/relation "company": target "Company" is not a feature of module "V"/);
     });
 
-    it("rejects an unknown targetEntity and lists known features", () => {
+    it("accepts hidden or external relations to non-features", () => {
       expect(
         withFeatures((m) => ({
-          user: m.feature({
-            entity: UserSchema,
-            relations: { company: { targetEntity: "ghost" } },
-            routes: () => [],
-          }),
+          user: m.feature({ entity: User, relations: { company: { hidden: true } }, routes: () => [] }),
         })),
-      ).toThrow(/targetEntity "ghost".*known: user/);
-    });
-
-    it("skips target validation for external relations", () => {
+      ).not.toThrow();
       expect(
         withFeatures((m) => ({
-          user: m.feature({
-            entity: UserSchema,
-            relations: {
-              company: { targetEntity: "other-module-company", external: true },
-            },
-            routes: () => [],
-          }),
+          user: m.feature({ entity: User, relations: { company: { external: true } }, routes: () => [] }),
         })),
       ).not.toThrow();
     });
 
-    it("rejects a displayField missing from the target schema", () => {
+    it("rejects UI config for a relation the entity does not have", () => {
       expect(
         withFeatures((m) => ({
-          company: m.feature({ entity: CompanySchema, routes: () => [] }),
-          user: m.feature({
-            entity: UserSchema,
-            relations: {
-              company: { targetEntity: "company", displayField: "Company" },
-            },
+          company: m.feature({
+            entity: Company,
+            relations: { nope: { label: "x" } } as any,
             routes: () => [],
           }),
         })),
-      ).toThrow(/displayField "Company" does not exist on "company"/);
-    });
-
-    it(`validates the default displayField ("${DEFAULT_RELATION_DISPLAY_FIELD}") when omitted`, () => {
-      expect(
-        withFeatures((m) => ({
-          tag: m.feature({ entity: TagSchema, routes: () => [] }),
-          user: m.feature({
-            entity: UserSchema,
-            // UserSchema.company -> "tag" (which has no "name")
-            relations: { company: { targetEntity: "tag" } },
-            routes: () => [],
-          }),
-        })),
-      ).toThrow(/displayField "name" does not exist on "tag"/);
-    });
-
-    it("rejects a fields entry missing from the target schema", () => {
-      expect(
-        withFeatures((m) => ({
-          company: m.feature({ entity: CompanySchema, routes: () => [] }),
-          user: m.feature({
-            entity: UserSchema,
-            relations: {
-              company: { targetEntity: "company", fields: ["id", "nope"] },
-            },
-            routes: () => [],
-          }),
-        })),
-      ).toThrow(/fields entry "nope"/);
-    });
-
-    it("skips shape checks for non-object schemas", () => {
-      expect(
-        withFeatures((m) => ({
-          s: m.feature({
-            entity: z.string(),
-            relations: {
-              anything: { targetEntity: "x", external: true },
-            } as never,
-            routes: () => [],
-          }),
-        })),
-      ).not.toThrow();
+      ).toThrow(/relations\.nope is not a relation of entity "Company"/);
     });
   });
 
@@ -396,7 +338,7 @@ describe("validation", () => {
       expect(
         withFeatures((m) => ({
           f: m.feature({
-            entity: CompanySchema,
+            entity: Company,
             routes: (f) => [
               f.route({ path: "same", dto: CompanySchema }),
               f.route({ path: "same", dto: CompanySchema }),
@@ -410,11 +352,11 @@ describe("validation", () => {
       expect(
         withFeatures((m) => ({
           a: m.feature({
-            entity: CompanySchema,
+            entity: Company,
             routes: (f) => [f.route({ path: "x", dto: CompanySchema })],
           }),
           b: m.feature({
-            entity: CompanySchema,
+            entity: Company,
             routes: (f) => [f.route({ path: "x", dto: CompanySchema })],
           }),
         })),
@@ -425,7 +367,7 @@ describe("validation", () => {
       expect(
         withFeatures((m) => ({
           f: m.feature({
-            entity: CompanySchema,
+            entity: Company,
             routes: (f) => [
               f.route({
                 path: "a",
@@ -444,7 +386,7 @@ describe("validation", () => {
       expect(
         withFeatures((m) => ({
           f: m.feature({
-            entity: CompanySchema,
+            entity: Company,
             routes: (f) => [
               f.route({
                 path: "a",
@@ -470,7 +412,7 @@ describe("validation", () => {
         path: "i",
         features: (m) => ({
           f: m.feature({
-            entity: CompanySchema,
+            entity: Company,
             routes: (f) => [f.route({ path: "", dto: CompanySchema })],
           }),
         }),
@@ -482,11 +424,11 @@ describe("validation", () => {
       expect(
         withFeatures((m) => ({
           a: m.feature({
-            entity: CompanySchema,
+            entity: Company,
             routes: (f) => [f.route({ path: "", dto: CompanySchema })],
           }),
           b: m.feature({
-            entity: CompanySchema,
+            entity: Company,
             routes: (f) => [f.route({ path: "", dto: CompanySchema })],
           }),
         })),
@@ -501,39 +443,6 @@ describe("validation", () => {
       expect(err.name).toBe("ModuleDefinitionError");
       expect(err.message).toBe("[defineModule] boom");
     });
-  });
-});
-
-/* ==========================================================================
- * Relations helper
- * ========================================================================== */
-
-describe("resolveRelation", () => {
-  it('defaults displayField to "name"', () => {
-    expect(resolveRelation({ targetEntity: "company" }).displayField).toBe(
-      "name",
-    );
-  });
-
-  it("keeps an explicit displayField and other options", () => {
-    const rel = resolveRelation({
-      targetEntity: "company",
-      displayField: "label",
-      type: "belongsTo",
-      fields: ["id"],
-    });
-    expect(rel).toEqual({
-      targetEntity: "company",
-      displayField: "label",
-      type: "belongsTo",
-      fields: ["id"],
-    });
-  });
-
-  it("does not mutate its input", () => {
-    const input = { targetEntity: "company" };
-    resolveRelation(input);
-    expect(input).toEqual({ targetEntity: "company" });
   });
 });
 
@@ -649,5 +558,142 @@ describe("matchRoute", () => {
     expect(matchRoute(mod, "/other/users")).toBeNull();
     expect(matchRoute(mod, "/dashboard/users/1/extra")).toBeNull();
     expect(matchRoute(mod, "/")).toBeNull();
+  });
+});
+
+describe("matchRoute: splats", () => {
+  const mod = defineModule({
+    name: "S",
+    path: "s",
+    features: (m) => ({
+      f: m.feature({
+        entity: Company,
+        routes: (f) => [
+          f.route({ path: "docs/*", dto: CompanySchema }),
+          f.route({ path: "docs/intro", dto: CompanySchema }),
+        ],
+      }),
+    }),
+  });
+
+  it("captures the rest of the path", () => {
+    const match = matchRoute(mod, "/s/docs/a/b%20c");
+    expect(match?.flat.fullPath).toBe("/s/docs/*");
+    expect(match?.params).toEqual({ "*": "a/b c" });
+  });
+
+  it("matches an empty rest", () => {
+    expect(matchRoute(mod, "/s/docs")?.params).toEqual({ "*": "" });
+  });
+
+  it("loses to static routes", () => {
+    expect(matchRoute(mod, "/s/docs/intro")?.flat.fullPath).toBe("/s/docs/intro");
+  });
+});
+
+/* ==========================================================================
+ * crud()
+ * ========================================================================== */
+
+describe("crud", () => {
+  const Make = defineEntity("Make", {
+    schema: z.object({ id: z.string(), name: z.string() }),
+    relations: (r) => ({ models: r.hasMany("Model", { mappedBy: "make" }) }),
+  });
+  const Model = defineEntity("Model", {
+    schema: z.object({ id: z.string(), name: z.string(), year: z.number().optional() }),
+    relations: (r) => ({ make: r.belongsTo("Make", { mappedBy: "models" }) }),
+  });
+
+  const build = (options: Parameters<typeof defineModule>[0]["features"]) =>
+    defineModule({ name: "CAT", path: "cat", features: options });
+
+  it("generates list/create and detail/edit routes", () => {
+    const mod = build((m) => ({ make: m.crud(Make), model: m.crud(Model) }));
+    expect(
+      flattenModuleRoutes(mod)
+        .filter((f) => f.featureKey === "make")
+        .map((f) => [f.fullPath, f.route.template, f.route.slot]),
+    ).toEqual([
+      ["/cat/makes", "list", "list"],
+      ["/cat/makes/create", "create", "create"],
+      ["/cat/makes/:id", "detail", "detail"],
+      ["/cat/makes/:id/edit", "edit", "edit"],
+    ]);
+  });
+
+  it("uses the entity's schemas as route DTOs", () => {
+    const mod = build((m) => ({ make: m.crud(Make), model: m.crud(Model) }));
+    const f = mod.features.model;
+    expect(findSlotRoute(f, "list")!.dto).toBe(Model.schema);
+    expect(findSlotRoute(f, "create")!.dto).toBe(Model.dto.create);
+    expect(findSlotRoute(f, "edit")!.dto).toBe(Model.dto.update);
+    expect(Object.keys((findSlotRoute(f, "detail")!.dto as any).shape)).toContain("make");
+  });
+
+  it("kebab-cases the plural entity name by default", () => {
+    const FitmentCategory = defineEntity("FitmentCategory", { schema: z.object({ id: z.string() }) });
+    const mod = build((m) => ({ c: m.crud(FitmentCategory) }));
+    expect(getRoutePath(findSlotRoute(mod.features.c, "list")!.scope)).toBe("/cat/fitment-categories");
+  });
+
+  it("accepts a custom path and template overrides", () => {
+    const mod = build((m) => ({
+      make: m.crud(Make, { path: "brands", templates: { detail: "make-detail" } }),
+      model: m.crud(Model),
+    }));
+    const detail = findSlotRoute(mod.features.make, "detail")!;
+    expect(getRoutePath(detail.scope)).toBe("/cat/brands/:id");
+    expect(detail.template).toBe("make-detail");
+  });
+
+  it("validates relations like any feature", () => {
+    expect(() => build((m) => ({ model: m.crud(Model) }))).toThrow(
+      /relation "make": target "Make" is not a feature/,
+    );
+    expect(() =>
+      build((m) => ({ model: m.crud(Model, { relations: { make: { hidden: true } } }) })),
+    ).not.toThrow();
+  });
+
+  describe("wizard steps", () => {
+    const withSteps = (steps: any) =>
+      build((m) => ({ make: m.crud(Make), model: m.crud(Model, { steps }) }));
+
+    it("stores valid steps on the feature", () => {
+      const steps = [
+        { id: "general", label: "General", fields: ["name", "make_id"] },
+        { id: "extra", label: "Extra", fields: ["year"] },
+      ];
+      expect(withSteps(steps).features.model.ui.steps).toEqual(steps);
+    });
+
+    it("allows optional fields to be left out", () => {
+      expect(() =>
+        withSteps([{ id: "g", label: "G", fields: ["name", "make_id"] }]),
+      ).not.toThrow();
+    });
+
+    it("rejects unknown, duplicated and missing required fields", () => {
+      expect(() => withSteps([{ id: "g", label: "G", fields: ["name", "make_id", "nope"] }])).toThrow(
+        /"nope" \(step "g"\) is not a create field/,
+      );
+      expect(() =>
+        withSteps([
+          { id: "a", label: "A", fields: ["name", "make_id"] },
+          { id: "b", label: "B", fields: ["name"] },
+        ]),
+      ).toThrow(/"name" appears in more than one step/);
+      expect(() => withSteps([{ id: "g", label: "G", fields: ["name"] }])).toThrow(
+        /required field\(s\) "make_id" are in no step/,
+      );
+    });
+  });
+});
+
+describe("fillPath", () => {
+  it("fills and encodes params, leaving unknown ones", () => {
+    expect(fillPath("/cat/makes/:id/edit", { id: "a b" })).toBe("/cat/makes/a%20b/edit");
+    expect(fillPath("/cat/:x")).toBe("/cat/:x");
   });
 });

@@ -1,19 +1,18 @@
-import { Context, createContext, useContext, useRef } from "react";
-import { defineModule } from "@repo/framework/core";
+import type { ModuleDef } from "@repo/framework/core";
+import { createContext, useContext, useRef } from "react";
 
-type ModuleContext<S = {}> = typeof defineModule & {
+export type ModuleContextValue<S = {}> = {
+  module: ModuleDef;
   state: S;
-  setState: (prev: S) => void;
+  setState: (next: S) => void;
 };
 
-export const ModuleContext = createContext<ModuleContext | null>(null);
+export const ModuleContext = createContext<ModuleContextValue<any> | null>(null);
 
-export const useModule = <S>(initialState?: S) => {
-  const context = useContext<ModuleContext<S>>(
-    ModuleContext as unknown as Context<ModuleContext<S>>,
-  );
+export const useModule = <S = {}>(initialState?: S): ModuleContextValue<S> => {
+  const context = useContext(ModuleContext) as ModuleContextValue<S> | null;
   if (!context) {
-    throw new Error("useModule must be used within a ModuleProvider");
+    throw new Error("useModule must be used within a <Module> provider");
   }
 
   // Seed state once per hook instance so re-renders with a new

@@ -43,7 +43,7 @@ function getPrevStep(activeId?: string) {
 }
 
 function getMergedSchema() {
-  return steps.reduce((acc, s) => acc.extend(s.schema), z.object({}));
+  return steps.reduce((acc, s) => acc.extend(s.schema.shape), z.object({}));
 }
 
 function getCurrentStepSchema(activeId?: string) {

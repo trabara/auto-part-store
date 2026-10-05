@@ -2,7 +2,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import type { z } from "@medusajs/framework/zod";
 import type { DefaultValues, FieldValues } from "react-hook-form";
 
-import { getZodFieldInfo, SchemaFieldInfo } from "@repo/framework/utils";
+import { getDefaultValue, getZodFieldInfo, SchemaFieldInfo } from "@repo/framework/utils";
 import { FieldOverride, FieldType } from "../types";
 
 /**
@@ -27,6 +27,13 @@ export function initializeDefaultValues<T extends FieldValues>(
         // Check if a provided value exists for this field
         if (providedValues[key as keyof T] !== undefined) {
           acc[key] = providedValues[key as keyof T];
+          return acc;
+        }
+
+        // Static schema default (`.default(x)`)
+        const schemaDefault = getDefaultValue(field);
+        if (schemaDefault !== undefined) {
+          acc[key] = schemaDefault;
           return acc;
         }
 

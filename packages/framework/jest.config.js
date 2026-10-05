@@ -1,16 +1,17 @@
 module.exports = {
   transform: {
-    "^.+\\.[jt]s$": [
+    "^.+\\.[jt]sx?$": [
       "@swc/jest",
       {
         jsc: {
-          parser: { syntax: "typescript", decorators: true },
+          parser: { syntax: "typescript", tsx: true, decorators: true },
+          transform: { react: { runtime: "automatic" } },
           target: "es2021",
         },
       },
     ],
   },
   testEnvironment: "node",
-  moduleFileExtensions: ["js", "ts", "json"],
+  moduleFileExtensions: ["js", "ts", "tsx", "json"],
   modulePathIgnorePatterns: ["dist/"],
 };

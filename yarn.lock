@@ -3823,7 +3823,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@medusajs/js-sdk@npm:2.21.2":
+"@medusajs/js-sdk@npm:2.21.2, @medusajs/js-sdk@npm:^2.21.0":
   version: 2.21.2
   resolution: "@medusajs/js-sdk@npm:2.21.2"
   dependencies:
@@ -7496,6 +7496,7 @@ __metadata:
     "@medusajs/cli": "npm:2.21.0"
     "@medusajs/framework": "npm:2.21.0"
     "@medusajs/icons": "npm:2.21.0"
+    "@medusajs/js-sdk": "npm:^2.21.0"
     "@medusajs/medusa": "npm:2.21.0"
     "@medusajs/test-utils": "npm:2.21.0"
     "@medusajs/ui": "npm:4.0.25"
@@ -7510,6 +7511,7 @@ __metadata:
     "@types/jest": "npm:^30.0.0"
     "@types/lodash": "npm:^4.17.24"
     "@types/query-string": "npm:^6.3.0"
+    "@types/react": "npm:^19.3.0"
     chokidar: "npm:^4.0.3"
     date-fns: "npm:^4.4.0"
     eslint: "npm:^9.39.5"
@@ -7517,18 +7519,25 @@ __metadata:
     lodash: "npm:^4.18.1"
     lucide-react: "npm:^0.563.0"
     query-string: "npm:^9.5.1"
+    react: "npm:19.2.3"
+    react-dom: "npm:19.2.3"
     react-hook-form: "npm:^7.83.0"
     react-i18next: "npm:^15.7.4"
+    react-router-dom: "npm:6.30.6"
+    typescript: "npm:^5.6.2"
   peerDependencies:
     "@medusajs/admin-sdk": 2.21.0
     "@medusajs/cli": 2.21.0
     "@medusajs/framework": 2.21.0
     "@medusajs/icons": 2.21.0
-    "@medusajs/js-sdk": 2.21.0
+    "@medusajs/js-sdk": ">=2.0.0"
     "@medusajs/medusa": 2.21.0
     "@medusajs/test-utils": 2.21.0
     "@medusajs/ui": 4.0.25
     "@repo/framework": "workspace:*"
+    react: ">=18"
+    react-dom: ">=18"
+    react-router-dom: ">=6.4"
   languageName: unknown
   linkType: soft
 
@@ -7547,10 +7556,13 @@ __metadata:
     "@types/lodash": "npm:^4.17.25"
     "@types/node": "npm:^20.0.0"
     "@types/react": "npm:^19.3.0"
+    "@types/react-dom": "npm:^19.2.0"
     eslint: "npm:^9.39.1"
     jest: "npm:^29.7.0"
     lodash: "npm:^4.18.1"
     react: "npm:19.2.3"
+    react-dom: "npm:19.2.3"
+    react-router-dom: "npm:6.30.6"
     typescript: "npm:^5.6.2"
     zod: "npm:4.2.0"
   peerDependencies:
@@ -16908,19 +16920,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-router-dom@npm:7.18.2":
-  version: 7.18.2
-  resolution: "react-router-dom@npm:7.18.2"
-  dependencies:
-    react-router: "npm:7.18.2"
-  peerDependencies:
-    react: ">=18"
-    react-dom: ">=18"
-  checksum: 10c0/234926d664a5b5c355aeb8642f505784facbb63321231428f24e5ea7fb859876443082d63eef4b8167a01ea8d8dab231a666736343c3e4a86a05b2fcb88927b5
-  languageName: node
-  linkType: hard
-
-"react-router-dom@npm:^6.30.3":
+"react-router-dom@npm:6.30.6, react-router-dom@npm:^6.30.3":
   version: 6.30.6
   resolution: "react-router-dom@npm:6.30.6"
   dependencies:
@@ -16930,6 +16930,18 @@ __metadata:
     react: ">=16.8"
     react-dom: ">=16.8"
   checksum: 10c0/57dbb2ae4ac787f78c4d10b764c1c5223635378033e33dda4e0a4417144ae847fb43dc98008075951826258287c27c67729ca713c90957cf2ecf9055561bdc2e
+  languageName: node
+  linkType: hard
+
+"react-router-dom@npm:7.18.2":
+  version: 7.18.2
+  resolution: "react-router-dom@npm:7.18.2"
+  dependencies:
+    react-router: "npm:7.18.2"
+  peerDependencies:
+    react: ">=18"
+    react-dom: ">=18"
+  checksum: 10c0/234926d664a5b5c355aeb8642f505784facbb63321231428f24e5ea7fb859876443082d63eef4b8167a01ea8d8dab231a666736343c3e4a86a05b2fcb88927b5
   languageName: node
   linkType: hard
 

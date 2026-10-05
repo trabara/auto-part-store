@@ -1,54 +1,61 @@
 import { Select } from "@medusajs/ui";
 import { useQuery } from "@tanstack/react-query";
-import { kebabCase } from "lodash";
 import { useSdk } from "../../common/context";
 
-type RelationSelectProps = {
-  defaultValue?: string;
-  entity: string;
-  fields: string[];
-  /** Field on the target entity used as the option label (default: "name") */
-  displayField?: string;
-  onChange?: (value: string) => void;
-  path: string;
+/** Sentinel for "no value" (Radix Select items cannot have an empty value). */
+const NONE = "__none__";
+
+export type RelationSelectProps = {
+  /** Collection URL of the target entity (see `entityUrl`). */
+  url: string;
+  /** Target field used as the option label. */
+  displayField: string;
+  value?: string | null;
+  onChange?: (value: string | null) => void;
   placeholder?: string;
+  /** Offer an empty choice (nullable relations). */
+  clearable?: boolean;
+  limit?: number;
 };
 
+/** Picks a related record by id, labelled by the target entity's display field. */
 export function RelationSelect({
-  defaultValue,
-  entity,
-  fields = ["id"],
-  displayField = "name",
+  url,
+  displayField,
+  value,
   onChange,
-  path,
   placeholder,
+  clearable = false,
+  limit = 100,
 }: RelationSelectProps) {
   const sdk = useSdk();
 
   const { data } = useQuery({
-    queryKey: [[entity, "select", displayField]],
+    queryKey: [url, "relation-select", displayField, limit],
     queryFn: async ({ signal }) => {
-      const uri = `admin${path}/${kebabCase(entity)}`;
-      const { data } = await sdk.client.fetch<{ data: any[] }>(uri, {
+      const fields = [...new Set(["id", displayField])].join(",");
+      const { data } = await sdk.client.fetch<{ data: Record<string, any>[] }>(url, {
         signal,
-        query: {
-          fields: fields.join(","),
-        },
+        query: { fields, limit },
       });
       return data.map((item) => ({
-        value: item.id,
-        label: item[displayField] ?? item.name ?? item.id,
+        value: String(item.id),
+        label: String(item[displayField] || item.id),
       }));
     },
   });
 
   return (
-    <Select value={defaultValue} onValueChange={onChange}>
+    <Select
+      value={value ?? (clearable ? NONE : undefined)}
+      onValueChange={(next) => onChange?.(next === NONE ? null : next)}
+    >
       <Select.Trigger>
         <Select.Value placeholder={placeholder} />
       </Select.Trigger>
       <Select.Content>
-        {data?.map((option: any) => (
+        {clearable && <Select.Item value={NONE}>—</Select.Item>}
+        {data?.map((option) => (
           <Select.Item key={option.value} value={option.value}>
             {option.label}
           </Select.Item>

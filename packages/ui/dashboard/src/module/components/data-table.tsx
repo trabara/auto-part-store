@@ -140,7 +140,7 @@ export const DataTable = <
         <div className="flex items-center gap-x-2">
           {onCreateClicked && (
             <Button variant="secondary" size="small" onClick={onCreateClicked}>
-              {t("common.create")}
+              {t("common.create", "Create")}
             </Button>
           )}
         </div>

@@ -5,6 +5,7 @@ module.exports = {
       {
         jsc: {
           parser: { syntax: "typescript", tsx: true, decorators: false },
+          transform: { react: { runtime: "automatic" } },
           target: "es2022",
         },
       },
@@ -14,9 +15,4 @@ module.exports = {
   testTimeout: 10000,
   moduleFileExtensions: ["js", "ts", "tsx", "json"],
   testMatch: ["**/src/**/*.spec.[jt]s?(x)"],
-  moduleNameMapper: {
-    // Resolve @medusajs/framework/zod to the actual module (lives in root node_modules)
-    "@medusajs/framework/zod":
-      "<rootDir>/node_modules/@medusajs/framework/dist/deps/zod.js",
-  },
 };

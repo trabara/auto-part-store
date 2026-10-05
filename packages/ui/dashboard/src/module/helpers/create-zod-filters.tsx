@@ -28,19 +28,23 @@ export function createZodDataTableFilterDef<T extends FieldValues>(
     const label = field?.label || startCase(String(key));
 
     let accessor = null;
-    if (info.baseType === "array" || info.baseType === "enum") {
-      const enumValues = (
-        info.baseType === "enum" ? info.enumValues : []
-      ) as string[];
-
+    if (info.baseType === "enum") {
       accessor = helper.accessor(key as any, {
         label,
-        type: "select",
-        options: enumValues.map((value) => ({
+        type: "multiselect",
+        options: (info.enumValues ?? []).map((value) => ({
           label: startCase(value),
           value: value,
         })),
       });
+    } else if (info.baseType === "number") {
+      accessor = helper.accessor(key as any, {
+        label,
+        type: "number",
+        includeOperators: true,
+      });
+    } else if (info.baseType === "array" || info.baseType === "boolean") {
+      accessor = null;
     } else if (info.baseType === "date") {
       accessor = helper.accessor(key as any, {
         label,

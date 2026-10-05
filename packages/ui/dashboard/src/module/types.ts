@@ -81,7 +81,7 @@ export interface StepConfig<T = {}> {
   icon?: React.ReactNode;
   display?: "default" | "full";
   label: string;
-  schema: z.ZodType<T>;
+  schema: z.ZodObject<{ [K in keyof T]: z.ZodType<T[K]> }>;
 }
 
 export interface ActionConfig<T> {

@@ -1,7 +1,12 @@
 export { Module } from "./components/module-provider";
+export { ModuleNav } from "./components/module-nav";
+export { RelationSelect } from "./components/relation-select";
+export { relationOverrides } from "./helpers/relation-overrides";
 export { useCreateMutation } from "./hooks/use-create-mutation";
 export { useDeleteMutation } from "./hooks/use-delete-mutation";
 export { usePageQuery } from "./hooks/use-page-query";
 export { useUpdateMutation } from "./hooks/use-update-mutation";
 export * from "./templates";
 export { type FeatureFieldOverrides } from "./types";
+export { entityFields, toQueryFilters } from "./utils/query";
+export { entityUrl, featurePath, featureRelations, useFeature } from "./utils/routes";

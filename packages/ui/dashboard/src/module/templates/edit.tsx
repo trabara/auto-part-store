@@ -1,90 +1,93 @@
 import { z } from "@medusajs/framework/zod";
+import { Button, Drawer, Heading } from "@medusajs/ui";
+import { useQuery } from "@tanstack/react-query";
+import type { RouteRenderContext } from "@repo/framework/admin";
+import { pick, startCase } from "lodash";
+import { useMemo } from "react";
+import { useTranslation } from "react-i18next";
+import { useNavigate, useParams } from "react-router-dom";
+import { useSdk } from "../../common/context";
+import { Form } from "../../form/components/form";
+import { relationOverrides } from "../helpers/relation-overrides";
+import { useUpdateMutation } from "../hooks/use-update-mutation";
+import { entityUrl, featurePath, useFeature } from "../utils/routes";
 
-export function TemplateUpdate<S extends z.ZodTypeAny>() {
-  // const module = useModule<{ id?: string }>();
-  // const sdk = useSdk();
-  // const { t } = useTranslation();
-  // const navigate = useNavigate();
-  // const name = _.startCase(entity);
-  // const dispose = () => {
-  //   if (module.state?.id) {
-  //     navigate(`${module.path}/${entity}/${module.state.id}`);
-  //   } else {
-  //     navigate(`${module.path}/${entity}`);
-  //   }
-  // };
-  // const updateAction = (data: any): Promise<void> =>
-  //   sdk.client.fetch(`/admin${module.path}/${entity}/${data.id}`, {
-  //     method: "PUT",
-  //     body: data,
-  //   });
-  // const mutation = useUpdateMutation({
-  //   invalidateKeys: [module.path, entity],
-  //   errorMessage: `Failed to update ${name}`,
-  //   successMessage: `Successfully updated ${name}`,
-  //   updateFn: (data) => updateAction(data),
-  //   onSuccess: () => dispose(),
-  // });
-  // const handleSubmit = async (values: any) => {
-  //   await mutation.mutateAsync(values);
-  //   dispose();
-  // };
-  // const overrideFields = useMemo(() => {
-  //   const fields = config.getOverrides?.(t) || {};
-  //   return {
-  //     ...module.buildRelationOverrides(entity, config.schema),
-  //     ...fields,
-  //   };
-  // }, [config, t, module, entity]);
-  // return (
-  //   <Drawer open={true} onOpenChange={() => dispose()}>
-  //     <Drawer.Content>
-  //       <Form
-  //         schema={config.schema as any}
-  //         defaultValues={module.state}
-  //         overrides={overrideFields}
-  //         onSubmit={handleSubmit}
-  //         className="flex flex-col h-full"
-  //       >
-  //         {({ renderField, renderSubmitButton }, fieldKeys) => {
-  //           return (
-  //             <>
-  //               <Drawer.Header>
-  //                 <Heading level="h2">
-  //                   {t("common.edit")}{" "}
-  //                   <span className="capitalize">{name}</span>
-  //                 </Heading>
-  //                 <Hint className="text-ui-fg-subtle text-sm mt-1"></Hint>
-  //               </Drawer.Header>
-  //               <Drawer.Body className="flex flex-col gap-y-4">
-  //                 {fieldKeys.map((key) => renderField(key))}
-  //               </Drawer.Body>
-  //               <Drawer.Footer>
-  //                 <Drawer.Close asChild>
-  //                   <Button
-  //                     variant="secondary"
-  //                     size="small"
-  //                     type="button"
-  //                     onClick={() => dispose()}
-  //                   >
-  //                     {t("common.cancel")}
-  //                   </Button>
-  //                 </Drawer.Close>
-  //                 {renderSubmitButton({
-  //                   children: (
-  //                     <>
-  //                       {t("common.save")}{" "}
-  //                       <span className="capitalize">{name}</span>
-  //                     </>
-  //                   ),
-  //                 })}
-  //               </Drawer.Footer>
-  //             </>
-  //           );
-  //         }}
-  //       </Form>
-  //     </Drawer.Content>
-  //   </Drawer>
-  // );
-  return <></>;
+/** Edit drawer for one record of a feature's entity (rendered in the detail outlet). */
+export function TemplateEdit(_: RouteRenderContext) {
+  const { module, feature, entity, route } = useFeature();
+  const { id = "" } = useParams();
+  const sdk = useSdk();
+  const navigate = useNavigate();
+  const { t } = useTranslation();
+
+  const schema = route.dto as z.ZodObject<any>;
+  const name = startCase(entity.name);
+
+  const { data } = useQuery({
+    queryKey: [entity.modelName, id, "edit"],
+    queryFn: ({ signal }) =>
+      sdk.client
+        .fetch<{ data: Record<string, unknown> }>(entityUrl(module, entity, id), {
+          signal,
+          query: { fields: entity.query.fields.join(",") },
+        })
+        .then((r) => r.data),
+  });
+
+  const overrides = useMemo(
+    () => ({ ...relationOverrides(module, feature, schema), ...(feature.ui.overrides as object) }),
+    [module, feature, schema],
+  );
+
+  const close = () => navigate(featurePath(feature, "detail", { id })!, { replace: true });
+
+  const update = useUpdateMutation({
+    invalidateKeys: [entity.modelName],
+    errorMessage: `Failed to update ${name}`,
+    successMessage: `${name} updated`,
+    updateFn: (body) => sdk.client.fetch(entityUrl(module, entity, id), { method: "PUT", body }),
+    onSuccess: close,
+  });
+
+  return (
+    <Drawer open onOpenChange={close}>
+      <Drawer.Content>
+        {!data && (
+          <Drawer.Title className="sr-only">
+            {t("common.edit", "Edit")} {name}
+          </Drawer.Title>
+        )}
+        {data && (
+          <Form
+            schema={schema as any}
+            defaultValues={pick(data, Object.keys(schema.shape)) as any}
+            overrides={overrides}
+            onSubmit={(values) => update.mutateAsync(values)}
+            className="flex h-full flex-col"
+          >
+            {({ renderField, renderSubmitButton }, fieldKeys) => (
+              <>
+                <Drawer.Header>
+                  <Drawer.Title asChild>
+                    <Heading level="h2">
+                      {t("common.edit", "Edit")} {name}
+                    </Heading>
+                  </Drawer.Title>
+                </Drawer.Header>
+                <Drawer.Body className="flex flex-col gap-y-4 overflow-y-auto">
+                  {fieldKeys.map((key) => renderField(key))}
+                </Drawer.Body>
+                <Drawer.Footer>
+                  <Button variant="secondary" size="small" type="button" onClick={close}>
+                    {t("common.cancel", "Cancel")}
+                  </Button>
+                  {renderSubmitButton({ children: t("common.save", "Save") })}
+                </Drawer.Footer>
+              </>
+            )}
+          </Form>
+        )}
+      </Drawer.Content>
+    </Drawer>
+  );
 }

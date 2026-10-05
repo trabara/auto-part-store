@@ -1,4 +1,5 @@
 import type Medusa from "@medusajs/js-sdk";
+import type { ModuleDef } from "@repo/framework/core";
 import {
   Button,
   DatePicker,
@@ -21,7 +22,7 @@ import { ModuleContext } from "../context/module";
 
 interface ModuleProps {
   sdk: Medusa;
-  module: any;
+  module: ModuleDef;
   children?: React.ReactNode;
 }
 
@@ -44,41 +45,52 @@ function Module({ children, sdk, module }: ModuleProps) {
   useEffect(() => {
     setupForm({
       translate: (key) => t(key),
+      // Registered components receive form-level props (`invalid`,
+      // `componentProps`) that must not reach DOM elements; inputs stay
+      // controlled (null/undefined render as empty).
       components: {
-        text: ({ invalid, ...rest }) => (
-          <Input {...rest} type="text" aria-invalid={invalid} />
+        text: ({ invalid, componentProps, value, ...rest }) => (
+          <Input {...rest} {...componentProps} value={(value as string) ?? ""} type="text" aria-invalid={invalid} />
         ),
-        email: ({ invalid, ...rest }) => (
-          <Input {...rest} type="email" aria-invalid={invalid} />
+        email: ({ invalid, componentProps, value, ...rest }) => (
+          <Input {...rest} {...componentProps} value={(value as string) ?? ""} type="email" aria-invalid={invalid} />
         ),
-        password: ({ invalid, ...rest }) => (
-          <Input {...rest} type="password" aria-invalid={invalid} />
+        password: ({ invalid, componentProps, value, ...rest }) => (
+          <Input {...rest} {...componentProps} value={(value as string) ?? ""} type="password" aria-invalid={invalid} />
         ),
-        textarea: ({ invalid, ...rest }) => (
-          <Textarea {...rest} aria-invalid={invalid} />
+        textarea: ({ invalid, componentProps, value, ...rest }) => (
+          <Textarea {...rest} {...componentProps} value={(value as string) ?? ""} aria-invalid={invalid} />
         ),
-        checkbox: ({ onChange, value, invalid, ...rest }) => (
+        checkbox: ({ onChange, value, invalid, componentProps, ...rest }) => (
           <Switch
             {...rest}
+            {...componentProps}
             onCheckedChange={onChange}
-            checked={value}
+            checked={!!value}
             aria-invalid={invalid}
           />
         ),
-        number: ({ onChange, invalid, ...rest }) => (
+        number: ({ onChange, invalid, componentProps, value, ...rest }) => (
           <Input
             {...rest}
+            {...componentProps}
             type="number"
-            onChange={(e) => onChange?.(Number(e.target.value))}
+            value={(value as number | null | undefined) ?? ""}
+            onChange={(e) => onChange?.(e.target.value === "" ? null : Number(e.target.value))}
             aria-invalid={invalid}
           />
         ),
-        date: ({ invalid, ...rest }) => (
-          <DatePicker {...rest} aria-invalid={invalid} />
+        date: ({ invalid, componentProps, ...rest }) => (
+          <DatePicker {...(rest as any)} {...componentProps} aria-invalid={invalid} />
         ),
-        select: ({ options, placeholder, onChange, value, ...rest }) => (
-          <Select {...rest} defaultValue={value} onValueChange={onChange}>
-            <Select.Trigger>
+        select: ({ options, placeholder, onChange, value, invalid, componentProps, ...rest }) => (
+          <Select
+            {...(rest as any)}
+            {...componentProps}
+            value={(value as string) ?? ""}
+            onValueChange={onChange}
+          >
+            <Select.Trigger aria-invalid={invalid}>
               <Select.Value placeholder={placeholder} />
             </Select.Trigger>
             <Select.Content>
@@ -92,15 +104,18 @@ function Module({ children, sdk, module }: ModuleProps) {
         ),
       },
       formUI: {
-        label: ({ children, ...rest }) => (
+        label: ({ children, required, invalid: _invalid, ...rest }: any) => (
           <Label {...rest}>
-            <Text size="small">{children}</Text>
+            <Text size="small">
+              {children}
+              {required && <span aria-hidden="true"> *</span>}
+            </Text>
           </Label>
         ),
-        description: ({ children, ...rest }) => (
+        description: ({ children, invalid: _invalid, required: _required, ...rest }: any) => (
           <Hint {...rest}>{children}</Hint>
         ),
-        errorMessage: ({ message, ...rest }) => (
+        errorMessage: ({ message, invalid: _invalid, required: _required, ...rest }: any) => (
           <Hint variant="error" {...rest}>
             {message}
           </Hint>
@@ -122,7 +137,7 @@ function Module({ children, sdk, module }: ModuleProps) {
   return (
     <SdkContext.Provider value={sdk}>
       <QueryClientProvider client={queryClientRef.current}>
-        <ModuleContext.Provider value={{ ...module, state, setState }}>
+        <ModuleContext.Provider value={{ module, state, setState }}>
           <TooltipProvider>{children}</TooltipProvider>
           <Toaster position="top-right" />
         </ModuleContext.Provider>

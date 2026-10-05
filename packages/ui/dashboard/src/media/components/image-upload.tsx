@@ -3,7 +3,7 @@ import type { RefObject } from "react";
 import { useTranslation } from "react-i18next";
 
 type ImageUploadProps = {
-  fileInputRef: RefObject<HTMLInputElement>;
+  fileInputRef: RefObject<HTMLInputElement | null>;
   isUploading: boolean;
   onFileSelect: (files: FileList | null) => void;
 };

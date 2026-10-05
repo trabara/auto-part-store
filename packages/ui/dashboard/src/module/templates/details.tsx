@@ -1,120 +1,188 @@
 import { z } from "@medusajs/framework/zod";
+import { ArrowUpRightOnBox, PencilSquare, Trash } from "@medusajs/icons";
+import { Container, Text } from "@medusajs/ui";
+import { useQuery } from "@tanstack/react-query";
+import type { RouteRenderContext } from "@repo/framework/admin";
+import type { FeatureDef } from "@repo/framework/core";
+import { foreignKeyName, ownsForeignKey, type RelationDef } from "@repo/framework/entity";
+import { startCase } from "lodash";
+import { useTranslation } from "react-i18next";
+import { useNavigate, useParams } from "react-router-dom";
+import { useSdk } from "../../common/context";
+import { DataTable } from "../components/data-table";
+import { DetailsSection, type Attribute } from "../components/details-section";
+import { useDeleteMutation } from "../hooks/use-delete-mutation";
+import { entityFields, toQueryFilters } from "../utils/query";
+import {
+  entityUrl,
+  featurePath,
+  featureRelations,
+  useFeature,
+  type ResolvedRelation,
+} from "../utils/routes";
 
-export function TemplateDetail<S extends z.ZodTypeAny>() {
-  // const navigate = useNavigate();
-  // const { t } = useTranslation();
-  // const sdk = useSdk();
+type Row = { id: string } & Record<string, any>;
+type ListResponse = { data: Row[]; metadata: { count: number } };
 
-  // const module = useModule(initialData);
+const HIDDEN_FIELDS = new Set(["deleted_at"]);
 
-  // const title = config.getDisplayTitle(initialData);
+function scalarAttributes(
+  entity: FeatureDef["entity"],
+  record: Record<string, unknown> | null | undefined,
+  exclude: Set<string> = new Set(),
+): Attribute[] {
+  if (!record) return [];
+  return Object.keys(entity.schema.shape)
+    .filter((key) => !HIDDEN_FIELDS.has(key) && !exclude.has(key))
+    .map((key) => ({ key, value: record[key] }));
+}
 
-  // const attributes = useMemo(
-  //   () => classifyAttributes(module, entity, config.schema, initialData),
-  //   [module, entity, config.schema, initialData],
-  // );
-
-  // const deleteMutation = useDeleteMutation({
-  //   invalidateKeys: [module.path, entity],
-  //   errorMessage: t("common.error_delete_item"),
-  //   successMessage: t("common.success_delete_item"),
-  //   deleteFn: async (id: string) => {
-  //     await sdk.client.fetch(`/admin${module.path}/${entity}/${id}`, {
-  //       method: "DELETE",
-  //     });
-  //     navigate(module.path);
-  //   },
-  // });
-
-  // const mainSections = useMemo(
-  //   () => [
-  //     <DetailsSection
-  //       key="__general"
-  //       title={title}
-  //       attributes={attributes.scalar}
-  //       actions={[
-  //         {
-  //           id: "edit",
-  //           label: t("common.edit"),
-  //           icon: <Pencil />,
-  //           onClick: () =>
-  //             navigate(`${module.path}/${entity}/${initialData.id}/edit`),
-  //         },
-  //         {
-  //           id: "delete",
-  //           label: t("common.delete"),
-  //           icon: <Trash />,
-  //           onClick: () => deleteMutation.mutateAsync(initialData.id),
-  //         },
-  //       ]}
-  //     />,
-  //     ...attributes.many.map(({ key, schema, value }) => {
-  //       const parentId = initialData?.id;
-  //       const parentFilterKey = `${entity}_id`;
-  //       return (
-  //         <Container key={key} className="divide-y p-0">
-  //           <DataTable
-  //             id={key}
-  //             title={_.startCase(key)}
-  //             schema={schema as unknown as z.ZodType<T>}
-  //             overrides={{}}
-  //             queryFn={(signal, params) => {
-  //               const query: Record<string, unknown> = {
-  //                 ...params,
-  //                 fields: zodQueryResolve(schema),
-  //               };
-  //               if (parentId) {
-  //                 query[parentFilterKey] = parentId;
-  //               }
-  //               return sdk.client.fetch<{
-  //                 data: T[];
-  //                 metadata: { count: number };
-  //               }>(`/admin${module.path}/${key}`, {
-  //                 signal,
-  //                 query,
-  //               });
-  //             }}
-  //           />
-  //         </Container>
-  //       );
-  //     }),
-  //   ],
-  //   [attributes, title, initialData, entity],
-  // );
-
-  // const sideSections = useMemo(() => {
-  //   return attributes.one.map(({ key, value, schema }) => {
-  //     const entries = Object.entries(value ?? {}).filter(([, v]) => v != null);
-  //     return (
-  //       <DetailsSection
-  //         key={key}
-  //         title={_.startCase(key)}
-  //         attributes={entries.map(([k, v]) => ({
-  //           key: k,
-  //           value: v != null ? String(v) : "—",
-  //           schema: z.any(),
-  //         }))}
-  //       />
-  //     );
-  //   });
-  // }, [attributes.one]);
-
-  // const preferredLayoutId =
-  //   mainSections.length > 0 && sideSections.length > 0
-  //     ? "core:two-column"
-  //     : "core:single-column";
+/** Records of a to-many relation, filtered by the inverse FK. */
+function RelationTable({ parentId, relation }: { parentId: string; relation: ResolvedRelation }) {
+  const { module } = useFeature();
+  const sdk = useSdk();
+  const navigate = useNavigate();
+  const target = relation.target!;
+  const targetEntity = relation.targetEntity!;
+  const inverse = (targetEntity.relations as Record<string, RelationDef>)[
+    relation.relation.options.mappedBy!
+  ]!;
+  const fk = foreignKeyName(relation.relation.options.mappedBy!, inverse);
+  const schema = targetEntity.schema as z.ZodObject<any>;
 
   return (
-    <>
-      {/* <LayoutComposer
-        data={initialData}
-        widgetsZonePrefix={`${entity}.details`}
-        preferredLayoutId={preferredLayoutId}
-        sections={{
-          main: mainSections,
-          side: sideSections,
-        }}
-      /> */}
-    </>
+    <Container className="divide-y p-0">
+      <DataTable<Row, ListResponse>
+        id={`${targetEntity.modelName}:${fk}:${parentId}`}
+        title={relation.label}
+        schema={schema as unknown as z.ZodType<Row>}
+        overrides={{ id: { hideLabel: true }, updated_at: { hideLabel: true }, deleted_at: { hideLabel: true } } as any}
+        queryFn={(signal, params) =>
+          sdk.client.fetch<ListResponse>(entityUrl(module, targetEntity), {
+            signal,
+            query: {
+              limit: params.limit,
+              offset: params.offset,
+              order: params.order,
+              fields: entityFields(module, target),
+              ...toQueryFilters(params.filters, schema),
+              [fk]: parentId,
+            },
+          })
+        }
+        selectFn={(resp) => ({ data: resp?.data, rowCount: resp?.metadata.count })}
+        onRowClick={(_, row) => navigate(featurePath(target, "detail", { id: row.id })!)}
+      />
+    </Container>
+  );
+}
+
+/**
+ * Detail page of one record: its fields, a card per to-one relation and a
+ * table per to-many relation. Renders `edit` in its outlet.
+ */
+export function TemplateDetail({ outlet }: RouteRenderContext) {
+  const { module, feature, entity } = useFeature();
+  const { id = "" } = useParams();
+  const sdk = useSdk();
+  const navigate = useNavigate();
+  const { t } = useTranslation();
+
+  const { data: record, isLoading } = useQuery({
+    queryKey: [entity.modelName, id],
+    queryFn: ({ signal }) =>
+      sdk.client
+        .fetch<{ data: Record<string, any> }>(entityUrl(module, entity, id), {
+          signal,
+          query: { fields: entityFields(module, feature) },
+        })
+        .then((r) => r.data),
+  });
+
+  const deletion = useDeleteMutation({
+    invalidateKeys: [entity.modelName],
+    deleteFn: async (recordId) => {
+      await sdk.client.fetch(entityUrl(module, entity, recordId), { method: "DELETE" });
+      navigate(featurePath(feature, "list")!, { replace: true });
+    },
+  });
+
+  const relations = featureRelations(module, feature);
+  const toOne = relations.filter((r) => ownsForeignKey(r.relation) || r.relation.kind === "hasOne");
+  const toMany = relations.filter(
+    (r) => (r.relation.kind === "hasMany" || r.relation.kind === "manyToMany") &&
+      r.target && r.relation.options.mappedBy,
+  );
+
+  if (isLoading || !record) {
+    return (
+      <Container>
+        <Text size="small" className="text-ui-fg-subtle">
+          {isLoading ? t("common.loading", "Loading…") : t("common.not_found", "Not found")}
+        </Text>
+      </Container>
+    );
+  }
+
+  const title = String(record[entity.display] || startCase(entity.name));
+
+  return (
+    <div className="flex flex-col gap-x-4 gap-y-3 xl:flex-row xl:items-start">
+      <div className="flex w-full flex-col gap-y-3">
+        <DetailsSection
+          title={title}
+          attributes={scalarAttributes(entity, record)}
+          actions={[
+            {
+              id: "edit",
+              label: t("common.edit", "Edit"),
+              icon: <PencilSquare />,
+              onClick: () => navigate(featurePath(feature, "edit", { id })!),
+            },
+            {
+              id: "delete",
+              label: t("common.delete", "Delete"),
+              icon: <Trash />,
+              onClick: () => deletion.mutateAsync(id),
+            },
+          ]}
+        />
+        {toMany.map((relation) => (
+          <RelationTable key={relation.key} parentId={id} relation={relation} />
+        ))}
+      </div>
+      {toOne.length > 0 && (
+        <div className="flex w-full flex-col gap-y-3 xl:max-w-[440px]">
+          {toOne.map((relation) => {
+            const related = record[relation.key] as Record<string, unknown> | null | undefined;
+            return (
+              <DetailsSection
+                key={relation.key}
+                title={relation.label}
+                attributes={
+                  relation.targetEntity
+                    ? scalarAttributes(relation.targetEntity, related, new Set(["created_at", "updated_at"]))
+                    : []
+                }
+                actions={
+                  relation.target && related?.id
+                    ? [
+                        {
+                          id: "open",
+                          label: t("common.open", "Open"),
+                          icon: <ArrowUpRightOnBox />,
+                          onClick: () =>
+                            navigate(featurePath(relation.target!, "detail", { id: String(related.id) })!),
+                        },
+                      ]
+                    : []
+                }
+              />
+            );
+          })}
+        </div>
+      )}
+      {outlet}
+    </div>
   );
 }

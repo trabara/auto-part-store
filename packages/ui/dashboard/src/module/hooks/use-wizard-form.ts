@@ -51,7 +51,7 @@ export const useWizardForm = <S extends z.ZodObject>(
 
   const mergedSchema = useMemo(() => {
     return steps.reduce(
-      (acc, step) => acc.merge(step.schema),
+      (acc, step) => acc.extend(step.schema.shape),
       z.object({}),
     ) as S;
   }, [steps]);

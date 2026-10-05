@@ -1,5 +1,5 @@
 import { createEntityRoutes } from "@repo/framework/entity/server";
-import { AUTOMOTIVE_MODULE } from "~/modules/automotive";
+import { AUTOMOTIVE_MODULE } from "../../../modules/automotive";
 import {
   Fitment,
   FitmentPosition,
@@ -7,7 +7,7 @@ import {
   VehicleEngine,
   VehicleMake,
   VehicleModel,
-} from "~/modules/automotive/entities";
+} from "../../../modules/automotive/entities";
 
 /**
  * Generic CRUD API at `/admin/automotive/:entity[/:id]`. Only the entities

@@ -4,7 +4,7 @@ import { Container, Text } from "@medusajs/ui";
 import { useQuery } from "@tanstack/react-query";
 import type { RouteRenderContext } from "@repo/framework/admin";
 import type { FeatureDef } from "@repo/framework/core";
-import { foreignKeyName, ownsForeignKey, type RelationDef } from "@repo/framework/entity";
+import { foreignKeyName, isToOne, type RelationDef } from "@repo/framework/entity";
 import { startCase } from "lodash";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useParams } from "react-router-dom";
@@ -108,7 +108,7 @@ export function TemplateDetail({ outlet }: RouteRenderContext) {
   });
 
   const relations = featureRelations(module, feature);
-  const toOne = relations.filter((r) => ownsForeignKey(r.relation) || r.relation.kind === "hasOne");
+  const toOne = relations.filter((r) => isToOne(r.relation));
   const toMany = relations.filter(
     (r) => (r.relation.kind === "hasMany" || r.relation.kind === "manyToMany") &&
       r.target && r.relation.options.mappedBy,

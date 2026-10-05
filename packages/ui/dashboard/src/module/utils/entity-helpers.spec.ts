@@ -1,6 +1,6 @@
 import { z } from "@medusajs/framework/zod";
 import { defineModule } from "@repo/framework/core";
-import { defineEntity } from "@repo/framework/entity";
+import { defineEntities, defineEntity } from "@repo/framework/entity";
 import { relationOverrides } from "../helpers/relation-overrides";
 import { entityFields, toQueryFilters } from "./query";
 import { entityUrl, featureFor, featurePath, featureRelations } from "./routes";
@@ -90,5 +90,31 @@ describe("relationOverrides", () => {
 
   it("ignores FKs missing from the schema", () => {
     expect(relationOverrides(mod, mod.features.model, Model.schema)).toEqual({});
+  });
+});
+
+describe("link relations", () => {
+  const Car = defineEntity("DashCar", { schema: z.object({ id: z.string(), name: z.string() }) });
+  const Fit = defineEntity("DashFit", {
+    schema: z.object({ id: z.string(), notes: z.string() }),
+    relations: (r) => ({ dash_car: r.link("DashCar") }),
+  });
+  defineEntities({ DashCar: Car }, { module: "dash_car_module" });
+  defineEntities({ DashFit: Fit }, { module: "dash_fit_module" });
+  const linked = defineModule({
+    name: "Links",
+    path: "links",
+    features: (m) => ({ car: m.crud(Car), fit: m.crud(Fit) }),
+  });
+
+  it("selects the linked entity and offers a picker for its link key", () => {
+    expect(entityFields(linked, linked.features.fit).split(",")).toEqual(["id", "notes", "*dash_car"]);
+    const overrides = relationOverrides(linked, linked.features.fit, Fit.dto.create) as Record<string, any>;
+    expect(Object.keys(overrides)).toEqual(["dash_car_id"]);
+    expect(overrides.dash_car_id.render({ value: "c1", onChange: () => {} }).props).toMatchObject({
+      url: "/admin/links/dash_car",
+      displayField: "name",
+      value: "c1",
+    });
   });
 });

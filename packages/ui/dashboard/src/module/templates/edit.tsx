@@ -10,7 +10,9 @@ import { useSdk } from "../../common/context";
 import { Form } from "../../form/components/form";
 import { relationOverrides } from "../helpers/relation-overrides";
 import { useUpdateMutation } from "../hooks/use-update-mutation";
-import { entityUrl, featurePath, useFeature } from "../utils/routes";
+import { entityFields } from "../utils/query";
+import { entityUrl, featurePath, featureRelations, useFeature } from "../utils/routes";
+import { isLink } from "@repo/framework/entity";
 
 /** Edit drawer for one record of a feature's entity (rendered in the detail outlet). */
 export function TemplateEdit(_: RouteRenderContext) {
@@ -29,7 +31,7 @@ export function TemplateEdit(_: RouteRenderContext) {
       sdk.client
         .fetch<{ data: Record<string, unknown> }>(entityUrl(module, entity, id), {
           signal,
-          query: { fields: entity.query.fields.join(",") },
+          query: { fields: entityFields(module, feature) },
         })
         .then((r) => r.data),
   });
@@ -38,6 +40,16 @@ export function TemplateEdit(_: RouteRenderContext) {
     () => ({ ...relationOverrides(module, feature, schema), ...(feature.ui.overrides as object) }),
     [module, feature, schema],
   );
+
+  // Link keys (`vehicle_id`) aren't columns: seed them from the linked record.
+  const defaultValues = (record: Record<string, any>) => {
+    const values: Record<string, unknown> = pick(record, Object.keys(schema.shape));
+    for (const rel of featureRelations(module, feature)) {
+      const field = `${rel.key}_id`;
+      if (isLink(rel.relation) && field in schema.shape) values[field] = record[rel.key]?.id ?? null;
+    }
+    return values;
+  };
 
   const close = () => navigate(featurePath(feature, "detail", { id })!, { replace: true });
 
@@ -60,7 +72,7 @@ export function TemplateEdit(_: RouteRenderContext) {
         {data && (
           <Form
             schema={schema as any}
-            defaultValues={pick(data, Object.keys(schema.shape)) as any}
+            defaultValues={defaultValues(data) as any}
             overrides={overrides}
             onSubmit={(values) => update.mutateAsync(values)}
             className="flex h-full flex-col"

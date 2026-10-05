@@ -284,3 +284,83 @@ describe("validateEntityQuery / validateEntityBody", () => {
     expect(created.req.validatedBody).toEqual({ year_start: 2010, year_end: null, engine_id: "e1" })
   })
 })
+
+describe("link relations (cross-module)", () => {
+  const defineLinked = () => {
+    const Vehicle = defineEntity("Vehicle", {
+      schema: BaseSchema.extend({ year: z.number() }),
+    })
+    const Fitment = defineEntity("Fitment", {
+      schema: BaseSchema.extend({ notes: z.string().nullable() }),
+      relations: (r) => ({ vehicle: r.link("Vehicle") }),
+    })
+    const Group = defineEntity("Group", {
+      schema: BaseSchema,
+      relations: (r) => ({ vehicle: r.link("Vehicle", { nullable: true }) }),
+    })
+    defineEntities({ Vehicle }, { module: "vehicle" })
+    defineEntities({ Fitment, Group }, { module: "fitment" })
+    return { Vehicle, Fitment, Group }
+  }
+
+  it("adds the link key to DTOs but not to columns, fields or filters", () => {
+    const { Fitment, Group } = defineLinked()
+    expect(Object.keys(Fitment.dto.create.shape)).toEqual(["notes", "vehicle_id"])
+    expect(Fitment.dto.create.parse({ notes: null, vehicle_id: "v1" })).toEqual({ notes: null, vehicle_id: "v1" })
+    expect(() => Fitment.dto.create.parse({ notes: null })).toThrow()
+    expect(Group.dto.create.parse({})).toEqual({})
+
+    expect(Fitment.query.fields).not.toContain("vehicle_id")
+    expect(Object.keys(findParams(Fitment).shape)).not.toContain("vehicle_id")
+    expect(Object.keys((toModel(Fitment) as any).parse().schema)).not.toContain("vehicle")
+  })
+
+  it("allows selecting the linked entity and its fields", () => {
+    const { Fitment } = defineLinked()
+    expect(Fitment.query.allowed()).toEqual(expect.arrayContaining(["vehicle", "vehicle.year"]))
+    expect(Object.keys(Fitment.withRelations().shape)).toContain("vehicle")
+  })
+
+  it("records each entity's module", async () => {
+    defineLinked()
+    const { getEntityModule } = await import("./index")
+    expect(getEntityModule("Vehicle")).toBe("vehicle")
+    expect(getEntityModule("Fitment")).toBe("fitment")
+  })
+
+  it("rejects database relations across modules and links inside one", () => {
+    const Vehicle = defineEntity("Vehicle", { schema: BaseSchema })
+    const Fitment = defineEntity("Fitment", {
+      schema: BaseSchema,
+      relations: (r) => ({ vehicle: r.belongsTo("Vehicle") }),
+    })
+    defineEntities({ Vehicle }, { module: "vehicle" })
+    expect(() => defineEntities({ Fitment }, { module: "fitment" })).toThrow(
+      /Fitment\.vehicle: "Vehicle" is not in module "fitment"; use r\.link\("Vehicle"\)/,
+    )
+
+    const A = defineEntity("A", { schema: BaseSchema, relations: (r) => ({ b: r.link("B") }) })
+    const B = defineEntity("B", { schema: BaseSchema })
+    expect(() => defineEntities({ A, B }, { module: "same" })).toThrow(
+      /A\.b: "B" is in the same module; use a database relation/,
+    )
+  })
+
+  it("requires a link to be named after the target model", () => {
+    const Vehicle = defineEntity("Vehicle", { schema: BaseSchema })
+    const Fitment = defineEntity("Fitment", {
+      schema: BaseSchema,
+      relations: (r) => ({ car: r.link("Vehicle") }),
+    })
+    defineEntities({ Vehicle }, { module: "vehicle" })
+    expect(() => defineEntities({ Fitment }, { module: "fitment" })).toThrow(
+      /Fitment\.car: a link to "Vehicle" must be named "vehicle"/,
+    )
+  })
+
+  it("refuses to move an entity to another module", () => {
+    const Vehicle = defineEntity("Vehicle", { schema: BaseSchema })
+    defineEntities({ Vehicle }, { module: "vehicle" })
+    expect(() => defineEntities({ Vehicle }, { module: "other" })).toThrow(/already in module "vehicle"/)
+  })
+})

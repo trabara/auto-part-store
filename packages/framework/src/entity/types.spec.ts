@@ -44,8 +44,14 @@ const Group = defineEntity("TGroup", {
   }),
 })
 
+const Fit = defineEntity("TFit", {
+  schema: BaseSchema.extend({ notes: z.string() }),
+  relations: (r) => ({ t_vehicle: r.link("TVehicle") }),
+})
+
 declare module "./index" {
   interface EntityRegistry {
+    TFit: typeof Fit
     TVehicle: typeof Vehicle
     TEngine: typeof Engine
     TGroup: typeof Group
@@ -69,6 +75,11 @@ type _EngineOptional = Assert<Equals<EngineT["name"], string | undefined>>
 type _GroupSelf = Assert<Equals<GroupT["children"][number]["operator"], "and" | "or">>
 type _GroupNullableFk = Assert<Equals<GroupT["parent_id"], string | null>>
 type _ModelName = Assert<Equals<typeof Vehicle.modelName, "t_vehicle">>
+// links: a DTO field, not a column
+type FitT = InferEntity<typeof Fit>
+type _LinkNotColumn = Assert<"t_vehicle_id" extends keyof FitT ? false : true>
+type _LinkNotRelation = Assert<"t_vehicle" extends keyof FitT ? false : true>
+type _LinkInCreate = Assert<Equals<z.infer<typeof Fit.dto.create>["t_vehicle_id"], string>>
 type _Timestamps = Assert<Equals<VehicleT["deleted_at"], Date | null>>
 
 // ── DTOs ────────────────────────────────────────────────────────────────────

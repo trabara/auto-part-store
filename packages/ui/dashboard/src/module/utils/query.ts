@@ -1,4 +1,5 @@
 import type { FeatureDef, ModuleDef } from "@repo/framework/core";
+import { isToOne } from "@repo/framework/entity";
 import { getZodFieldInfo, getZodShape } from "@repo/framework/utils";
 import type { z } from "@medusajs/framework/zod";
 import { featureRelations } from "./routes";
@@ -26,7 +27,7 @@ export function toQueryFilters(
 /** `?fields=` for a feature: own fields plus `*rel` for visible to-one relations. */
 export function entityFields(module: ModuleDef, feature: FeatureDef): string {
   const toOne = featureRelations(module, feature)
-    .filter((r) => r.relation.kind === "belongsTo" || r.relation.kind === "hasOne")
+    .filter((r) => isToOne(r.relation))
     .map((r) => `*${r.key}`);
   return [...feature.entity.query.fields, ...toOne].join(",");
 }

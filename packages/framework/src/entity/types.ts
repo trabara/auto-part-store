@@ -38,7 +38,12 @@ export type ModelOf<Name extends string> = Name extends keyof EntityRegistry
  * Relations
  * ========================================================================== */
 
-export type RelationKind = "belongsTo" | "hasOne" | "hasMany" | "manyToMany"
+/**
+ * `belongsTo` / `hasOne` / `hasMany` / `manyToMany` are database relations
+ * between entities of the same module. `link` relates entities of different
+ * modules through a Medusa module link (pivot table, no column).
+ */
+export type RelationKind = "belongsTo" | "hasOne" | "hasMany" | "manyToMany" | "link"
 
 export type RelationOptions = {
   /** Inverse relation name on the target entity. */
@@ -87,7 +92,18 @@ export interface RelationBuilder {
     target: T,
     options?: O,
   ): RelationDef<"manyToMany", T, O>
+  /**
+   * A single linked entity in another module (Medusa module link). The key
+   * must be the target's model name (e.g. `vehicle`); the plugin defines the
+   * link itself with Medusa's `defineLink` in `src/links/`.
+   */
+  link<T extends EntityName, const O extends LinkOptions = {}>(
+    target: T,
+    options?: O,
+  ): RelationDef<"link", T, O>
 }
+
+export type LinkOptions = Pick<RelationOptions, "nullable">
 
 /* ==========================================================================
  * Foreign keys
@@ -124,6 +140,24 @@ export type ForeignKeys<Rels extends RelationMap> = {
     : never]: IsNullable<Rels[K]> extends true ? string | null : string
 }
 
+type IsLink<R> = R extends RelationDef<"link", any, any> ? true : false
+
+/** `{ vehicle_id: string }` for link relations (DTO fields, not columns). */
+export type LinkKeys<Rels extends RelationMap> = {
+  [K in keyof Rels & string as IsLink<Rels[K]> extends true ? `${K}_id` : never]: IsNullable<
+    Rels[K]
+  > extends true
+    ? string | null
+    : string
+}
+
+/** Zod shape of the link keys in DTOs. */
+export type LinkKeyShape<Rels extends RelationMap> = {
+  [K in keyof LinkKeys<Rels>]: null extends LinkKeys<Rels>[K]
+    ? z.ZodOptional<z.ZodNullable<z.ZodString>>
+    : z.ZodString
+}
+
 /** Zod shape of the FK columns, used by DTOs and filters. */
 export type ForeignKeyShape<Rels extends RelationMap> = {
   [K in keyof ForeignKeys<Rels>]: null extends ForeignKeys<Rels>[K]
@@ -149,7 +183,7 @@ type RelationDataType<R> = R extends RelationDef<infer Kind, infer T, any>
   : never
 
 type RelationProperty<R> = R extends RelationDef<infer Kind, any, infer O>
-  ? DmlRelationship<RelationDataType<R>, Kind> &
+  ? DmlRelationship<RelationDataType<R>, Exclude<Kind, "link">> &
       (OwnsForeignKey<R> extends true
         ? { $foreignKey: true } & (O extends { foreignKeyName: infer N extends string }
             ? { $foreignKeyName: N }
@@ -161,7 +195,7 @@ type RelationProperty<R> = R extends RelationDef<infer Kind, any, infer O>
 export type EntityDmlSchema<S extends z.ZodObject<any>, Rels extends RelationMap> = {
   [K in keyof ScalarShape<S>]: DmlProperty<z.infer<ScalarShape<S>[K]>>
 } & {
-  [K in keyof Rels]: RelationProperty<Rels[K]>
+  [K in keyof Rels as IsLink<Rels[K]> extends true ? never : K]: RelationProperty<Rels[K]>
 }
 
 /* ==========================================================================
@@ -185,7 +219,8 @@ type CreateShape<S extends z.ZodObject<any>, Rels extends RelationMap> = Omit<
   S["shape"],
   ServerManagedKey
 > &
-  ForeignKeyShape<Rels>
+  ForeignKeyShape<Rels> &
+  LinkKeyShape<Rels>
 
 export type CreateDto<S extends z.ZodObject<any>, Rels extends RelationMap> = z.ZodObject<
   CreateShape<S, Rels>

@@ -6,7 +6,7 @@
 import { z } from "@medusajs/framework/zod"
 import { snakeCase } from "lodash"
 import { getZodFieldInfo, looksLikeEntity } from "../utils/zod-introspect"
-import { foreignKeys, relationBuilder } from "./relations"
+import { foreignKeys, linkKeys, relationBuilder } from "./relations"
 import type {
   DefineEntityConfig,
   EntityDef,
@@ -18,15 +18,33 @@ import type {
 const SERVER_MANAGED_KEYS = ["id", "created_at", "updated_at", "deleted_at"] as const
 
 const entities = new Map<string, EntityDef<any, any, any>>()
+const entityModules = new Map<string, string>()
 
 /** A defined entity by name, if any. */
 export function getEntity(name: string): EntityDef | undefined {
   return entities.get(name)
 }
 
+/** The Medusa module key an entity belongs to (set by `defineEntities`). */
+export function getEntityModule(name: string): string | undefined {
+  return entityModules.get(name)
+}
+
+/** @internal Records an entity's module; called by `defineEntities`. */
+export function setEntityModule(name: string, module: string): void {
+  const current = entityModules.get(name)
+  if (current && current !== module) {
+    throw new Error(
+      `[defineEntities] ${name} is already in module "${current}", not "${module}".`,
+    )
+  }
+  entityModules.set(name, module)
+}
+
 /** Clears defined entities. For tests only (pair with orm `reset()`). */
 export function resetEntities(): void {
   entities.clear()
+  entityModules.clear()
 }
 
 function requireEntity(name: string): EntityDef {
@@ -88,10 +106,15 @@ function buildDtos(schema: z.ZodObject<any>, relations: RelationMap) {
   for (const [fk, key] of foreignKeys(relations)) {
     fkShape[fk] = relations[key]!.options.nullable ? z.string().nullish() : z.string()
   }
+  // Link keys set the linked entity on create/update; they are not columns.
+  const linkShape: Record<string, z.ZodTypeAny> = {}
+  for (const [field, key] of linkKeys(relations)) {
+    linkShape[field] = relations[key]!.options.nullable ? z.string().nullish() : z.string()
+  }
   const mask = Object.fromEntries(
     SERVER_MANAGED_KEYS.filter((k) => k in schema.shape).map((k) => [k, true as const]),
   )
-  const create = schema.omit(mask).extend(fkShape)
+  const create = schema.omit(mask).extend(fkShape).extend(linkShape)
   const update = create.partial()
   const batchUpdate = z.object({
     entities: z.array(update.extend({ id: z.string() })),

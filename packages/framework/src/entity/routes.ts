@@ -5,6 +5,7 @@ import type {
 } from "@medusajs/framework/http"
 import { ContainerRegistrationKeys, MedusaError } from "@medusajs/framework/utils"
 import { snakeCase } from "lodash"
+import { getEntityModule } from "./define-entity"
 import { validateEntityBody, validateEntityQuery } from "./http"
 import type { EntityDef } from "./types"
 import {
@@ -17,8 +18,12 @@ type AnyEntity = EntityDef<any, any, any>
 type Handler = (req: MedusaRequest<any>, res: MedusaResponse) => Promise<void>
 
 export type EntityRoutesOptions = {
-  /** Container key of the module service owning the entities. */
-  module: string
+  /**
+   * Module service key for entities that have none recorded. Entities grouped
+   * with `defineEntities(…, { module })` use their own module, so one API can
+   * serve entities from several modules.
+   */
+  module?: string
   /** Entities reachable through the routes (the allowlist). */
   entities: readonly AnyEntity[]
   /** Relation depth allowed in `?fields=` (default 2). */
@@ -58,7 +63,16 @@ export function createEntityRoutes({ module, entities, depth }: EntityRoutesOpti
     return entity
   }
 
-  const target = (entity: AnyEntity) => ({ module, entity: entity.name as string })
+  const target = (entity: AnyEntity) => {
+    const entityModule = getEntityModule(entity.name) ?? module
+    if (!entityModule) {
+      throw new MedusaError(
+        MedusaError.Types.UNEXPECTED_STATE,
+        `${entity.name} has no module: pass { module } to its defineEntities or to createEntityRoutes.`,
+      )
+    }
+    return { module: entityModule, entity: entity.name as string }
+  }
 
   const collection = {
     async GET(req: MedusaRequest, res: MedusaResponse) {

@@ -23,6 +23,7 @@ function buildModel(entity: AnyEntity) {
     if (built) fields[built.dmlName] = built.property
   }
   for (const [key, rel] of Object.entries(relations)) {
+    if (rel.kind === "link") continue // module links live in Medusa link tables, not columns
     fields[key] = buildRelationshipProperty(
       { kind: rel.kind, model: ref(rel.target), options: rel.options },
       rel.kind,

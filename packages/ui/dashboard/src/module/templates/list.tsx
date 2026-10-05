@@ -3,7 +3,7 @@ import { PencilSquare, Trash } from "@medusajs/icons";
 import { Container } from "@medusajs/ui";
 import type { RouteRenderContext } from "@repo/framework/admin";
 import { featureLabel } from "@repo/framework/core";
-import { foreignKeyName } from "@repo/framework/entity";
+import { isToOne, relationField } from "@repo/framework/entity";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
@@ -29,7 +29,7 @@ export function TemplateList({ outlet }: RouteRenderContext) {
   const toOne = useMemo(
     () =>
       featureRelations(module, feature).filter(
-        (r) => r.targetEntity && (r.relation.kind === "belongsTo" || r.relation.kind === "hasOne"),
+        (r) => r.targetEntity && isToOne(r.relation),
       ),
     [module, feature],
   );
@@ -37,7 +37,7 @@ export function TemplateList({ outlet }: RouteRenderContext) {
   // Own scalar columns plus one column per to-one relation (keyed by its FK).
   const schema = useMemo(() => {
     const fkColumns = Object.fromEntries(
-      toOne.map((r) => [foreignKeyName(r.key, r.relation), z.string().nullish()]),
+      toOne.map((r) => [relationField(r.key, r.relation) ?? r.key, z.string().nullish()]),
     );
     return entity.schema.extend(fkColumns) as z.ZodObject<any>;
   }, [entity, toOne]);
@@ -46,7 +46,7 @@ export function TemplateList({ outlet }: RouteRenderContext) {
     const result: FeatureFieldOverrides<any> = {};
     for (const key of HIDDEN_COLUMNS) result[key] = { hideLabel: true, isFiltrable: false };
     for (const r of toOne) {
-      result[foreignKeyName(r.key, r.relation)] = {
+      result[relationField(r.key, r.relation) ?? r.key] = {
         label: r.label,
         isFiltrable: false,
         cell: (info: any) => {

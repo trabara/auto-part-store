@@ -1,5 +1,5 @@
 import type { FeatureDef, ModuleDef } from "@repo/framework/core";
-import { foreignKeyName, ownsForeignKey } from "@repo/framework/entity";
+import { relationField } from "@repo/framework/entity";
 import type { z } from "@medusajs/framework/zod";
 import { getZodShape } from "@repo/framework/utils";
 import { RelationSelect } from "../components/relation-select";
@@ -20,8 +20,8 @@ export function relationOverrides(
   const overrides: FeatureFieldOverrides<any> = {};
 
   for (const rel of featureRelations(module, feature)) {
-    if (!ownsForeignKey(rel.relation) || !rel.targetEntity) continue;
-    const fk = foreignKeyName(rel.key, rel.relation);
+    const fk = relationField(rel.key, rel.relation);
+    if (!fk || !rel.targetEntity) continue;
     if (!(fk in shape)) continue;
     const target = rel.targetEntity;
 

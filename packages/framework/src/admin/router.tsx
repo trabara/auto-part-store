@@ -135,3 +135,4 @@ export function ModuleHome({ module }: { module: AnyModule }) {
 
 /** Convenience for templates: ":id" etc. from the URL. */
 export const useRouteParams = () => useParams();
+

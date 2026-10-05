@@ -1,6 +1,9 @@
 import fs from "node:fs";
 import path from "node:path";
+import { wrapMenuItems } from "./menu";
 import { RUNTIME_SOURCE } from "./runtime-source";
+
+export { expandMenuItems, wrapMenuItems } from "./menu";
 
 export type MedusaRouterExtOptions = {
   /**
@@ -17,6 +20,14 @@ const RUNTIME_ID = "virtual:medusa-router-ext/runtime";
 const RUNTIME_RESOLVED = "\0" + RUNTIME_ID;
 const ROUTES_MARKER = "/admin/routes";
 const EXTS = ["tsx", "jsx", "ts", "js"];
+// Prebuilt plugin admin bundles embed their own menu items.
+const PLUGIN_ADMIN_BUNDLE = /\/\.medusa\/server\/src\/admin\/index\.m?js$/;
+
+function expandMenus(code: string): string | null {
+  const { code: out, wrapped } = wrapMenuItems(code);
+  if (!wrapped) return null;
+  return `import { expandMenuItems as __expandMenuItems } from "${RUNTIME_ID}"\n${out}`;
+}
 
 /**
  * Medusa 2.21.0 maps:  [*] -> *   [[*]] -> *?   [id] -> :id   [[id]] -> :id?   (g) -> g?
@@ -131,6 +142,10 @@ export function medusaRouterExt(opts: MedusaRouterExtOptions = {}) {
 
     // Runs after Medusa's own plugin has produced the virtual modules.
     transform(code: string, id: string) {
+      if (PLUGIN_ADMIN_BUNDLE.test(id.split("?")[0]!)) {
+        const out = expandMenus(code);
+        return out ? { code: out, map: null } : null;
+      }
       if (id !== ROUTES_ID && id !== MENU_ID) return null;
       let out = rewritePaths(code, groups);
       if (id === ROUTES_ID) {
@@ -139,6 +154,7 @@ export function medusaRouterExt(opts: MedusaRouterExtOptions = {}) {
         if (r.wrapped === 0 && opts.debug)
           console.log("[router-ext] no layouts/loading/error found");
       }
+      if (id === MENU_ID) out = expandMenus(out) ?? out;
       if (opts.debug) console.log(`[router-ext] ${id}\n${out}`);
       return { code: out, map: null };
     },

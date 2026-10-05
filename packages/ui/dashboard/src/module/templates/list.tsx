@@ -2,8 +2,8 @@ import { z } from "@medusajs/framework/zod";
 import { PencilSquare, Trash } from "@medusajs/icons";
 import { Container } from "@medusajs/ui";
 import type { RouteRenderContext } from "@repo/framework/admin";
+import { featureLabel } from "@repo/framework/core";
 import { foreignKeyName } from "@repo/framework/entity";
-import { startCase } from "lodash";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
@@ -108,7 +108,7 @@ export function TemplateList({ outlet }: RouteRenderContext) {
       <Container className="divide-y p-0">
         <DataTable<Row, ListResponse>
           id={entity.modelName}
-          title={startCase(feature.key)}
+          title={featureLabel(feature)}
           schema={schema as unknown as z.ZodType<Row>}
           overrides={overrides}
           queryFn={(signal, params) =>

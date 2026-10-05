@@ -1,5 +1,4 @@
 export { Module } from "./components/module-provider";
-export { ModuleNav } from "./components/module-nav";
 export { RelationSelect } from "./components/relation-select";
 export { relationOverrides } from "./helpers/relation-overrides";
 export { useCreateMutation } from "./hooks/use-create-mutation";

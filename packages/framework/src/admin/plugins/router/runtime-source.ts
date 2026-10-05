@@ -1,5 +1,9 @@
+import { expandMenuItems } from "./menu";
+
 /** Source of the virtual module `virtual:medusa-router-ext/runtime`. */
 export const RUNTIME_SOURCE = `
+export ${expandMenuItems.toString()}
+
 import React, { Suspense } from "react"
 import { useLocation, useParams } from "react-router-dom"
 

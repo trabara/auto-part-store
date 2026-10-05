@@ -96,6 +96,8 @@ export interface WizardStep {
 }
 
 export interface FeatureUi {
+  /** Sidebar / heading label. Defaults to the entity's plural name. */
+  readonly label?: string;
   /** Create wizard steps; a single form when omitted. */
   readonly steps?: readonly WizardStep[];
   /**
@@ -259,6 +261,8 @@ export type FeatureFactory<M extends AnyModule> = <
 ) => FeatureDef<E, Routes>;
 
 export interface CrudOptions<E extends AnyEntity> {
+  /** Sidebar / heading label. Defaults to the entity's plural name. */
+  label?: string;
   /** List path. Defaults to the kebab-cased plural of the entity name. */
   path?: string;
   /** Template per slot. Defaults to the slot name. */
@@ -435,7 +439,7 @@ function createCrudFactory<M extends AnyModule>(mod: M): CrudFactory {
     return feature({
       entity,
       relations: options.relations,
-      ui: { steps: options.steps, overrides: options.overrides },
+      ui: { label: options.label, steps: options.steps, overrides: options.overrides },
       routes: (f) => [
         route(f, {
           path: list,
@@ -710,4 +714,37 @@ export function matchRoute(
   }
 
   return best ? { flat: best.flat, params: best.params } : null;
+}
+
+/** A sidebar entry for a module feature. */
+export interface SidebarItem {
+  label: string;
+  /** Absolute admin path (e.g. "/automotive/vehicles"). */
+  path: string;
+  rank?: number;
+}
+
+function startCaseKey(key: string): string {
+  return key
+    .replace(/([a-z0-9])([A-Z])/g, "$1 $2")
+    .replace(/[_-]+/g, " ")
+    .replace(/\b\w/g, (c) => c.toUpperCase())
+    .trim();
+}
+
+/** Display label of a feature: `ui.label`, else its entity's plural name ("Vehicle Engines"). */
+export function featureLabel(feature: AnyFeature): string {
+  return feature.ui.label ?? startCaseKey(pluralize(feature.entity.name));
+}
+
+/**
+ * One sidebar entry per feature that has a list route, in declaration order.
+ * Use as `defineRouteConfig({ label, items: sidebarItems(module) })` on the
+ * module's catch-all page (expanded by `medusaRouterExt`).
+ */
+export function sidebarItems(mod: AnyModule): SidebarItem[] {
+  return Object.values(mod.features as FeatureMap).flatMap((feature, rank) => {
+    const list = findSlotRoute(feature, "list");
+    return list ? [{ label: featureLabel(feature), path: getRoutePath(list.scope), rank }] : [];
+  });
 }

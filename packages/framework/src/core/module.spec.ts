@@ -10,6 +10,7 @@ import {
   getRoutePath,
   joinPaths,
   matchRoute,
+  sidebarItems,
 } from "./module";
 
 declare module "../entity" {
@@ -19,6 +20,8 @@ declare module "../entity" {
     Make: EntityDef;
     Model: EntityDef;
     FitmentCategory: EntityDef;
+    SideMake: EntityDef;
+    SideThing: EntityDef;
   }
 }
 
@@ -695,5 +698,26 @@ describe("fillPath", () => {
   it("fills and encodes params, leaving unknown ones", () => {
     expect(fillPath("/cat/makes/:id/edit", { id: "a b" })).toBe("/cat/makes/a%20b/edit");
     expect(fillPath("/cat/:x")).toBe("/cat/:x");
+  });
+});
+
+describe("sidebarItems", () => {
+  const Make = defineEntity("SideMake", { schema: z.object({ id: z.string(), name: z.string() }) });
+  const Thing = defineEntity("SideThing", { schema: z.object({ id: z.string() }) });
+
+  it("lists each feature's list route with its label, in order", () => {
+    const mod = defineModule({
+      name: "S",
+      path: "shop",
+      features: (m) => ({
+        side_make: m.crud(Make, { label: "Brands" }),
+        side_thing: m.crud(Thing),
+        custom: m.feature({ entity: Thing, routes: (f) => [f.route({ path: "x", dto: Thing.schema })] }),
+      }),
+    });
+    expect(sidebarItems(mod)).toEqual([
+      { label: "Brands", path: "/shop/side-makes", rank: 0 },
+      { label: "Side Things", path: "/shop/side-things", rank: 1 },
+    ]);
   });
 });

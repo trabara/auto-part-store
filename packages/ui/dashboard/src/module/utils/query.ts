@@ -24,10 +24,16 @@ export function toQueryFilters(
   return out;
 }
 
-/** `?fields=` for a feature: own fields plus `*rel` for visible to-one relations. */
+/**
+ * `?fields=` for a feature: own fields and label fields, plus `*rel` and the
+ * target's label fields for each visible to-one relation.
+ */
 export function entityFields(module: ModuleDef, feature: FeatureDef): string {
-  const toOne = featureRelations(module, feature)
-    .filter((r) => isToOne(r.relation))
-    .map((r) => `*${r.key}`);
-  return [...feature.entity.query.fields, ...toOne].join(",");
+  const fields = [...feature.entity.query.fields, ...feature.entity.label.fields];
+  for (const r of featureRelations(module, feature)) {
+    if (!isToOne(r.relation)) continue;
+    fields.push(`*${r.key}`);
+    for (const f of r.targetEntity?.label.fields ?? []) fields.push(`${r.key}.${f}`);
+  }
+  return [...new Set(fields)].join(",");
 }

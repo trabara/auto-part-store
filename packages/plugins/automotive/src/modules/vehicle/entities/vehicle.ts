@@ -76,6 +76,14 @@ export const VehicleModel = defineEntity("VehicleModel", {
   indexes: [{ name: "vehicle_model_name_unique", on: ["name"], unique: true }],
 });
 
+type EngineLabelRow = { size?: string; type?: string; power?: number; name?: string | null };
+
+/** "1.8 HYBRID 120 hp (Turbo)" */
+const engineLabel = (e: EngineLabelRow) =>
+  [e.size, e.type, e.power != null ? `${e.power} hp` : "", e.name ? `(${e.name})` : ""]
+    .filter(Boolean)
+    .join(" ");
+
 export const VehicleEngine = defineEntity("VehicleEngine", {
   schema: BaseSchema.extend({
     fuel: FuelTypeSchema.default(FuelType.GASOLINE).describe(
@@ -99,6 +107,7 @@ export const VehicleEngine = defineEntity("VehicleEngine", {
   indexes: [
     { name: "vehicle_engine_unique", on: ["fuel", "type", "size", "power"], unique: true },
   ],
+  label: { fields: ["size", "type", "power", "name"], format: engineLabel },
 });
 
 export const Vehicle = defineEntity("Vehicle", {
@@ -136,6 +145,25 @@ export const Vehicle = defineEntity("Vehicle", {
   checks: [
     { name: "year_range_check", expression: "year_end IS NULL OR year_end >= year_start" },
   ],
+  // "Toyota Corolla 2015–2020 · 1.8 HYBRID 120 hp"
+  label: {
+    fields: [
+      "model.name",
+      "model.make.name",
+      "year_start",
+      "year_end",
+      "engine.size",
+      "engine.type",
+      "engine.power",
+      "engine.name",
+    ],
+    format: (v) => {
+      const name = [v.model?.make?.name, v.model?.name].filter(Boolean).join(" ");
+      const years = `${v.year_start ?? ""}–${v.year_end ?? ""}`;
+      const engine = v.engine ? engineLabel(v.engine) : "";
+      return name ? [`${name} ${years}`, engine].filter(Boolean).join(" · ") : "";
+    },
+  },
 });
 
 export type VehicleMake = InferEntity<typeof VehicleMake>;

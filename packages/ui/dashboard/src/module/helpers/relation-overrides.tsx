@@ -8,7 +8,7 @@ import { entityUrl, featureRelations } from "../utils/routes";
 
 /**
  * Form overrides turning each FK field of `schema` (e.g. `engine_id`) into a
- * picker over the related entity, labelled by its `display` field. Targets
+ * picker over the related entity, labelled by its `label`. Targets
  * that are not features of the module are left as plain inputs.
  */
 export function relationOverrides(
@@ -30,7 +30,7 @@ export function relationOverrides(
       render: (props: { value: unknown; onChange: (value: unknown) => void }) => (
         <RelationSelect
           url={entityUrl(module, target)}
-          displayField={target.display}
+          entity={target}
           value={(props.value as string | null | undefined) ?? null}
           onChange={props.onChange}
           clearable={rel.relation.options.nullable === true}

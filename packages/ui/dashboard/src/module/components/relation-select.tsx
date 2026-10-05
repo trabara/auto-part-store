@@ -1,5 +1,6 @@
 import { Select } from "@medusajs/ui";
 import { useQuery } from "@tanstack/react-query";
+import { entityLabel, type EntityDef } from "@repo/framework/entity";
 import { useSdk } from "../../common/context";
 
 /** Sentinel for "no value" (Radix Select items cannot have an empty value). */
@@ -8,8 +9,8 @@ const NONE = "__none__";
 export type RelationSelectProps = {
   /** Collection URL of the target entity (see `entityUrl`). */
   url: string;
-  /** Target field used as the option label. */
-  displayField: string;
+  /** Target entity: options are labelled with its `label`. */
+  entity: EntityDef<any, any, any>;
   value?: string | null;
   onChange?: (value: string | null) => void;
   placeholder?: string;
@@ -18,10 +19,10 @@ export type RelationSelectProps = {
   limit?: number;
 };
 
-/** Picks a related record by id, labelled by the target entity's display field. */
+/** Picks a related record by id, labelled by the target entity's label. */
 export function RelationSelect({
   url,
-  displayField,
+  entity,
   value,
   onChange,
   placeholder,
@@ -31,16 +32,16 @@ export function RelationSelect({
   const sdk = useSdk();
 
   const { data } = useQuery({
-    queryKey: [url, "relation-select", displayField, limit],
+    queryKey: [url, "relation-select", entity.label.fields, limit],
     queryFn: async ({ signal }) => {
-      const fields = [...new Set(["id", displayField])].join(",");
+      const fields = [...new Set(["id", ...entity.label.fields])].join(",");
       const { data } = await sdk.client.fetch<{ data: Record<string, any>[] }>(url, {
         signal,
         query: { fields, limit },
       });
       return data.map((item) => ({
         value: String(item.id),
-        label: String(item[displayField] || item.id),
+        label: entityLabel(entity, item),
       }));
     },
   });

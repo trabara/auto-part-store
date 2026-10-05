@@ -10,6 +10,7 @@ import { foreignKeys, linkKeys, relationBuilder } from "./relations"
 import type {
   DefineEntityConfig,
   EntityDef,
+  EntityLabel,
   EntityQuery,
   RelationDef,
   RelationMap,
@@ -122,10 +123,44 @@ function buildDtos(schema: z.ZodObject<any>, relations: RelationMap) {
   return { dto: { create, update, batchUpdate }, fkShape }
 }
 
+function buildLabel(
+  name: string,
+  shape: Record<string, z.ZodTypeAny>,
+  relations: RelationMap,
+  display: string,
+  config: DefineEntityConfig<any, any>["label"],
+): EntityLabel {
+  if (!config) {
+    return Object.freeze({
+      fields: Object.freeze([display]),
+      format: (row: any) => (row?.[display] == null ? "" : String(row[display])),
+    })
+  }
+  for (const path of config.fields) {
+    const [root, ...rest] = path.split(".")
+    const ok = rest.length ? root! in relations : root! in shape
+    if (!ok) fail(name, `label field "${path}" must be a field or start with a relation.`)
+  }
+  return Object.freeze({ fields: Object.freeze([...config.fields]), format: config.format })
+}
+
+/** A record's label (see `label` in `defineEntity`), falling back to its id. */
+export function entityLabel(entity: EntityDef<any, any, any>, row: Record<string, any> | null | undefined): string {
+  if (!row) return ""
+  let label = ""
+  try {
+    label = entity.label.format(row)
+  } catch {
+    // Label fields not fetched: fall back to the id.
+  }
+  return label || (row.id == null ? "" : String(row.id))
+}
+
 function buildQuery(
   schema: z.ZodObject<any>,
   relations: RelationMap,
   fkShape: Record<string, z.ZodTypeAny>,
+  label: EntityLabel,
 ): EntityQuery {
   const fields = [...Object.keys(schema.shape), ...Object.keys(fkShape)]
   const relationNames = Object.keys(relations)
@@ -135,8 +170,16 @@ function buildQuery(
     relations: relationNames,
     allowed(depth = 2) {
       const allowed = new Set<string>()
+      // Related records' label fields are always allowed, past `depth` too,
+      // so a relation can be shown by its label (`vehicle.model.make.name`).
+      const addLabels = (rels: RelationMap, prefix: string) => {
+        for (const [key, rel] of Object.entries(rels)) {
+          for (const f of requireEntity(rel.target).label.fields) allowed.add(`${prefix}${key}.${f}`)
+        }
+      }
       const visit = (entity: EntityDef, prefix: string, level: number) => {
         for (const f of entity.query.fields) allowed.add(prefix + f)
+        addLabels(entity.relations as RelationMap, prefix)
         if (level === 0) return
         for (const [key, rel] of Object.entries(entity.relations as RelationMap)) {
           allowed.add(prefix + key)
@@ -144,6 +187,8 @@ function buildQuery(
         }
       }
       for (const f of fields) allowed.add(f)
+      for (const f of label.fields) allowed.add(f)
+      addLabels(relations, "")
       for (const [key, rel] of Object.entries(relations)) {
         allowed.add(key)
         visit(requireEntity(rel.target), `${key}.`, depth - 1)
@@ -184,6 +229,7 @@ export function defineEntity<
   const modelName = snakeCase(name)
   const { dto, fkShape } = buildDtos(schema, relations)
   const display = config.display ?? ("name" in shape ? "name" : "id")
+  const label = buildLabel(name, shape, relations, display, config.label)
 
   const entity = Object.freeze({
     name,
@@ -191,6 +237,7 @@ export function defineEntity<
     schema,
     relations,
     display,
+    label,
     storage: Object.freeze({
       tableName: config.tableName,
       indexes: config.indexes ?? [],
@@ -198,7 +245,7 @@ export function defineEntity<
       cascadeDelete: config.cascadeDelete ?? [],
     }),
     dto: Object.freeze(dto),
-    query: Object.freeze(buildQuery(schema, relations, fkShape)),
+    query: Object.freeze(buildQuery(schema, relations, fkShape, label)),
     withRelations: buildWithRelations(schema, relations),
   }) as unknown as EntityDef<Name, S, Rels>
 

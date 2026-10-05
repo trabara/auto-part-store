@@ -51,7 +51,9 @@ describe("entityFields", () => {
       "parent_id",
       "secret_id",
       "*make",
+      "make.name",
       "*parent",
+      "parent.name",
     ]);
   });
 });
@@ -83,7 +85,7 @@ describe("relationOverrides", () => {
     const picker = overrides.parent_id.render({ value: undefined, onChange: () => {} });
     expect(picker.props).toMatchObject({
       url: "/admin/catalog/dash_model",
-      displayField: "name",
+      entity: Model,
       clearable: true,
       value: null,
     });
@@ -109,12 +111,12 @@ describe("link relations", () => {
   });
 
   it("selects the linked entity and offers a picker for its link key", () => {
-    expect(entityFields(linked, linked.features.fit).split(",")).toEqual(["id", "notes", "*dash_car"]);
+    expect(entityFields(linked, linked.features.fit).split(",")).toEqual(["id", "notes", "*dash_car", "dash_car.name"]);
     const overrides = relationOverrides(linked, linked.features.fit, Fit.dto.create) as Record<string, any>;
     expect(Object.keys(overrides)).toEqual(["dash_car_id"]);
     expect(overrides.dash_car_id.render({ value: "c1", onChange: () => {} }).props).toMatchObject({
       url: "/admin/links/dash_car",
-      displayField: "name",
+      entity: Car,
       value: "c1",
     });
   });

@@ -2,7 +2,7 @@ import { z } from "@medusajs/framework/zod"
 import { reset } from "../orm/registry"
 import { BaseSchema } from "../utils/validation"
 import { getFieldUi } from "../utils/zod-introspect"
-import { defineEntities, defineEntity, fields, getEntity, resetEntities } from "./index"
+import { defineEntities, defineEntity, entityLabel, fields, getEntity, resetEntities } from "./index"
 import type { EntityDef } from "./index"
 import { findParams, toModel, toModels, validateEntityBody, validateEntityQuery } from "./server"
 
@@ -163,6 +163,50 @@ describe("defineEntity: DTOs", () => {
     expect(Vehicle.dto.batchUpdate.parse({ entities: [{ id: "v1", year_start: 1 }] })).toEqual({
       entities: [{ id: "v1", year_start: 1 }],
     })
+  })
+})
+
+describe("labels", () => {
+  it("default to the display field, falling back to the id", () => {
+    const { Engine, Vehicle } = defineVehicleAndEngine()
+    expect(Engine.label.fields).toEqual(["name"])
+    expect(entityLabel(Engine, { id: "e1", name: "V8" })).toBe("V8")
+    expect(entityLabel(Vehicle, { id: "v1" })).toBe("v1")
+    expect(entityLabel(Vehicle, null)).toBe("")
+  })
+
+  it("compute from related fields, which are allowed past the depth", () => {
+    const Engine = defineEntity("Engine", {
+      schema: BaseSchema.extend({ name: z.string(), power: z.number() }),
+    })
+    const Vehicle = defineEntity("Vehicle", {
+      schema: BaseSchema.extend({ year_start: z.number() }),
+      relations: (r) => ({ engine: r.belongsTo("Engine") }),
+      label: {
+        fields: ["engine.name", "year_start"],
+        format: (v) => `${v.engine.name} ${v.year_start}`,
+      },
+    })
+    const Fit = defineEntity("Fit", {
+      schema: BaseSchema,
+      relations: (r) => ({ vehicle: r.belongsTo("Vehicle") }),
+    })
+    expect(entityLabel(Vehicle, { id: "v1", year_start: 2020, engine: { name: "V8" } })).toBe("V8 2020")
+    // A format failing on unfetched fields falls back to the id.
+    expect(entityLabel(Vehicle, { id: "v1" })).toBe("v1")
+    expect(Vehicle.query.allowed(1)).toEqual(expect.arrayContaining(["engine.name", "year_start"]))
+    expect(Fit.query.allowed(1)).toEqual(expect.arrayContaining(["vehicle.engine.name"]))
+    expect(Fit.query.allowed(1)).not.toContain("vehicle.engine.power")
+    expect(Engine.label.fields).toEqual(["name"])
+  })
+
+  it("rejects label fields that are neither fields nor relation paths", () => {
+    expect(() =>
+      defineEntity("Engine", {
+        schema: BaseSchema.extend({ name: z.string() }),
+        label: { fields: ["nope.name"], format: () => "" },
+      }),
+    ).toThrow(/label field "nope.name"/)
   })
 })
 

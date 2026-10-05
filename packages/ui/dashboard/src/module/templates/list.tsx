@@ -3,7 +3,7 @@ import { PencilSquare, Trash } from "@medusajs/icons";
 import { Container } from "@medusajs/ui";
 import type { RouteRenderContext } from "@repo/framework/admin";
 import { featureLabel } from "@repo/framework/core";
-import { isToOne, relationField } from "@repo/framework/entity";
+import { entityLabel, isToOne, relationField } from "@repo/framework/entity";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
@@ -52,7 +52,7 @@ export function TemplateList({ outlet }: RouteRenderContext) {
         isFiltrable: false,
         cell: (info: any) => {
           const related = info.row.original[r.key];
-          return related?.[r.targetEntity!.display] || related?.id || "-";
+          return entityLabel(r.targetEntity!, related) || "-";
         },
       };
     }

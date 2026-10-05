@@ -3,7 +3,13 @@
  * validation middlewares, routes, workflows — are in `./server`.
  */
 export { fields } from "./fields"
-export { defineEntity, getEntity, getEntityModule, resetEntities } from "./define-entity"
+export {
+  defineEntity,
+  entityLabel,
+  getEntity,
+  getEntityModule,
+  resetEntities,
+} from "./define-entity"
 export { defineEntities, type DefineEntitiesOptions, type EntitySet } from "./define-entities"
 export {
   foreignKeyName,
@@ -19,6 +25,7 @@ export type {
   CreateDto,
   DefineEntityConfig,
   EntityDef,
+  EntityLabel,
   EntityDmlSchema,
   EntityModel,
   EntityName,

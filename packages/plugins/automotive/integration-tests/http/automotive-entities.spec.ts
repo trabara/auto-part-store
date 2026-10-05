@@ -17,6 +17,8 @@ import {
 } from "../../src/modules/vehicle";
 import { FITMENT_MODULE } from "../../src/modules/fitment";
 import FitmentVehicleLink from "../../src/links/fitment-vehicle";
+import { entityLabel } from "@repo/framework/entity";
+import { Vehicle } from "../../src/modules/vehicle/entities/vehicle";
 
 // Each CRUD step followed by a step that always fails, to exercise compensation.
 const failStep = createStep("test-fail", async () => {
@@ -286,6 +288,24 @@ medusaIntegrationTestRunner({
         await api.put(`/admin/automotive/fitment/${fitment.id}`, { vehicle_id: v1.id }, headers);
         await api.delete(`/admin/automotive/fitment/${fitment.id}`, headers);
         expect(await linkedVehicles(fitment.id)).toEqual([]);
+      });
+
+      it("resolves the vehicle's label fields through the link (past the depth limit)", async () => {
+        const vehicle = await createVehicle("Mazda");
+        const position = await post("fitment_position", { code: "FR", name: "Front right", category: null });
+        const fitment = await post("fitment", { notes: null, position_id: position.id, vehicle_id: vehicle.id });
+
+        const fields = ["id", "*vehicle", ...Vehicle.label.fields.map((f) => `vehicle.${f}`)].join(",");
+        const { data } = await api.get(`/admin/automotive/fitment/${fitment.id}?fields=${fields}`, headers);
+        expect(entityLabel(Vehicle, data.data.vehicle)).toMatch(/^Mazda Mazda M 2010– · 1\.0 ELECTRIC \d+ hp$/);
+
+        // Other depth-3 fields are not allowed: Medusa strips them from the query.
+        const deep = await api.get(
+          `/admin/automotive/fitment/${fitment.id}?fields=id,vehicle.model.make.slug,vehicle.model.vehicles.year_start`,
+          headers,
+        );
+        expect(deep.data.data.vehicle?.model?.make?.slug).toBeUndefined();
+        expect(deep.data.data.vehicle?.model?.vehicles).toBeUndefined();
       });
 
       it("rejects a non-string vehicle_id with 400", async () => {

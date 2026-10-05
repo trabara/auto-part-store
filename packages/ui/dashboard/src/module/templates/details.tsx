@@ -4,7 +4,7 @@ import { Container, Text } from "@medusajs/ui";
 import { useQuery } from "@tanstack/react-query";
 import type { RouteRenderContext } from "@repo/framework/admin";
 import type { FeatureDef } from "@repo/framework/core";
-import { foreignKeyName, isToOne, type RelationDef } from "@repo/framework/entity";
+import { entityLabel, foreignKeyName, isToOne, type RelationDef } from "@repo/framework/entity";
 import { getFieldUi } from "@repo/framework/utils";
 import { startCase } from "lodash";
 import { useTranslation } from "react-i18next";
@@ -142,7 +142,7 @@ export function TemplateDetail({ outlet }: RouteRenderContext) {
     );
   }
 
-  const title = String(record[entity.display] || startCase(entity.name));
+  const title = entityLabel(entity, record) || startCase(entity.name);
 
   return (
     <div className="flex flex-col gap-x-4 gap-y-3 xl:flex-row xl:items-start">

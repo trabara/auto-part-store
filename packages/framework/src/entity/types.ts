@@ -284,6 +284,8 @@ export interface EntityDef<
   readonly schema: S
   readonly relations: Rels
   readonly display: string
+  /** How a record is labelled (pickers, relation cells, titles). See `entityLabel`. */
+  readonly label: EntityLabel
   /** Storage options consumed by `toModels` (server). */
   readonly storage: EntityStorage
   readonly dto: {
@@ -297,6 +299,15 @@ export interface EntityDef<
    * schemas. Lazy — every relation target must be defined.
    */
   withRelations(): WithRelationsSchema<S, Rels>
+}
+
+/**
+ * A computed record label: the field paths it reads (fetched with the record,
+ * may traverse relations, e.g. `model.make.name`) and how to format them.
+ */
+export interface EntityLabel {
+  readonly fields: readonly string[]
+  readonly format: (row: any) => string
 }
 
 export interface EntityStorage {
@@ -327,4 +338,9 @@ export interface DefineEntityConfig<S extends z.ZodObject<any>, Rels extends Rel
   cascadeDelete?: (keyof Rels & string)[]
   /** Field used as the label in relation pickers. Defaults to "name" if present, else "id". */
   display?: keyof S["shape"] & string
+  /**
+   * Computed label, when one field isn't enough. Defaults to the `display`
+   * field. `fields` are dotted paths from this entity (`model.make.name`).
+   */
+  label?: { fields: string[]; format: (row: any) => string }
 }

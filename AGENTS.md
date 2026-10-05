@@ -44,7 +44,7 @@ Local infrastructure (Postgres, Redis, MinIO): `docker compose -f infra/docker/d
 ## Building a capability
 
 1. `yarn gen:plugin invoicing --entity Invoice`, then follow the printed steps.
-2. Declare entities with `defineEntity` in `src/modules/<module>/entities/` (scalar Zod schema + `relations: (r) => ({ … })`), add them to `defineEntities` and to the `EntityRegistry` augmentation in `entities/index.ts`.
+2. Declare entities with `defineEntity` in `src/modules/<module>/entities/` (scalar Zod schema + `relations: (r) => ({ … })`), add them to `defineEntities` and to the `EntityRegistry` augmentation in `entities/index.ts`. Optional: `label: { fields, format }` for how records read in pickers, relation cells and titles (fields may traverse relations, e.g. `model.make.name`); `fields.image()` for image URLs with an upload widget.
 3. Models: `models/<module>.ts` exports `toModels(entities)` (Medusa only discovers models in non-index files of `models/`).
 4. API: list exposed entities in `createEntityRoutes({ module, entities })`; route files and middlewares are one-liners.
 5. Admin: one `m.crud(Entity, { label?, steps?, relations? })` per feature in `src/admin/modules/<module>.ts`; the catch-all page declares `items: sidebarItems(module)`.

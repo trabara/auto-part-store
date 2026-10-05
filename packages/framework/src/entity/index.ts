@@ -2,6 +2,7 @@
  * Isomorphic entity API (safe for admin code). Server pieces — models,
  * validation middlewares, routes, workflows — are in `./server`.
  */
+export { fields } from "./fields"
 export { defineEntity, getEntity, getEntityModule, resetEntities } from "./define-entity"
 export { defineEntities, type DefineEntitiesOptions, type EntitySet } from "./define-entities"
 export {

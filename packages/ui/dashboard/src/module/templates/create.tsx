@@ -7,6 +7,7 @@ import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { useSdk } from "../../common/context";
 import { Form } from "../../form/components/form";
+import { fieldUiOverrides } from "../helpers/field-ui-overrides";
 import { relationOverrides } from "../helpers/relation-overrides";
 import { useCreateMutation } from "../hooks/use-create-mutation";
 import { useWizardForm } from "../hooks/use-wizard-form";
@@ -29,7 +30,11 @@ export function TemplateCreate(_: RouteRenderContext) {
   const name = startCase(entity.name);
 
   const overrides = useMemo(
-    () => ({ ...relationOverrides(module, feature, schema), ...(feature.ui.overrides as object) }),
+    () => ({
+      ...relationOverrides(module, feature, schema),
+      ...fieldUiOverrides(schema),
+      ...(feature.ui.overrides as object),
+    }),
     [module, feature, schema],
   );
 

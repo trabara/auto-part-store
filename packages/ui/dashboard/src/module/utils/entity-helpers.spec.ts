@@ -1,6 +1,7 @@
 import { z } from "@medusajs/framework/zod";
 import { defineModule } from "@repo/framework/core";
-import { defineEntities, defineEntity } from "@repo/framework/entity";
+import { defineEntities, defineEntity, fields } from "@repo/framework/entity";
+import { fieldUiOverrides } from "../helpers/field-ui-overrides";
 import { relationOverrides } from "../helpers/relation-overrides";
 import { entityFields, toQueryFilters } from "./query";
 import { entityUrl, featureFor, featurePath, featureRelations } from "./routes";
@@ -116,5 +117,18 @@ describe("link relations", () => {
       displayField: "name",
       value: "c1",
     });
+  });
+});
+
+describe("fieldUiOverrides", () => {
+  it("gives image fields an upload widget, a thumbnail cell and no filter", () => {
+    const Logo = defineEntity("DashLogo", {
+      schema: z.object({ id: z.string(), name: z.string(), logo: fields.image() }),
+    });
+    const overrides = fieldUiOverrides(Logo.dto.create) as Record<string, any>;
+    expect(Object.keys(overrides)).toEqual(["logo"]);
+    expect(overrides.logo.isFiltrable).toBe(false);
+    expect(overrides.logo.render({ value: "u", onChange: () => {} }).props).toMatchObject({ value: "u" });
+    expect(overrides.logo.cell({ getValue: () => "u" }).props).toMatchObject({ url: "u" });
   });
 });

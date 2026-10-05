@@ -5,12 +5,14 @@ import { useQuery } from "@tanstack/react-query";
 import type { RouteRenderContext } from "@repo/framework/admin";
 import type { FeatureDef } from "@repo/framework/core";
 import { foreignKeyName, isToOne, type RelationDef } from "@repo/framework/entity";
+import { getFieldUi } from "@repo/framework/utils";
 import { startCase } from "lodash";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useParams } from "react-router-dom";
 import { useSdk } from "../../common/context";
 import { DataTable } from "../components/data-table";
 import { DetailsSection, type Attribute } from "../components/details-section";
+import { ImageThumbnail } from "../components/image-field";
 import { useDeleteMutation } from "../hooks/use-delete-mutation";
 import { entityFields, toQueryFilters } from "../utils/query";
 import {
@@ -32,9 +34,17 @@ function scalarAttributes(
   exclude: Set<string> = new Set(),
 ): Attribute[] {
   if (!record) return [];
-  return Object.keys(entity.schema.shape)
+  const shape = entity.schema.shape as Record<string, z.ZodTypeAny>;
+  return Object.keys(shape)
     .filter((key) => !HIDDEN_FIELDS.has(key) && !exclude.has(key))
-    .map((key) => ({ key, value: record[key] }));
+    .map((key) => ({
+      key,
+      value: record[key],
+      node:
+        getFieldUi(shape[key]) === "image" ? (
+          <ImageThumbnail url={record[key] as string | null} size="large" />
+        ) : undefined,
+    }));
 }
 
 /** Records of a to-many relation, filtered by the inverse FK. */

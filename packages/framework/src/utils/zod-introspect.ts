@@ -537,3 +537,32 @@ function zodQueryResolveInternal(
 export function zodQueryResolve(schema: z.ZodTypeAny, query = ""): string {
   return zodQueryResolveInternal(schema, query, new Set())
 }
+
+// =============================================================================
+// UI hints
+// =============================================================================
+
+/** UI hints a field can carry through `.meta({ ui })` (see `fields` in entity). */
+export type FieldUi = "image"
+
+/**
+ * The `ui` hint of a field, read from Zod's global registry on the field or any
+ * wrapper inside it (optional, nullable, default, …), so it survives
+ * `.partial()` and `.describe()`.
+ *
+ * @example
+ * ```ts
+ * getFieldUi(z.string().meta({ ui: "image" }).optional()) // → "image"
+ * getFieldUi(z.string())                                   // → undefined
+ * ```
+ */
+export function getFieldUi(field: z.ZodTypeAny | null | undefined): FieldUi | undefined {
+  let current: z.ZodTypeAny | undefined = field ?? undefined
+  for (let i = 0; current && i < 20; i++) {
+    const ui = (z.globalRegistry.get(current as any) as { ui?: FieldUi } | undefined)?.ui
+    if (ui) return ui
+    const def = (current as unknown as { _def: ZodDef & Record<string, any> })._def
+    current = def.innerType ?? def.in ?? def.schema
+  }
+  return undefined
+}

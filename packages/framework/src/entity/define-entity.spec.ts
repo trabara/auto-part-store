@@ -1,7 +1,8 @@
 import { z } from "@medusajs/framework/zod"
 import { reset } from "../orm/registry"
 import { BaseSchema } from "../utils/validation"
-import { defineEntities, defineEntity, getEntity, resetEntities } from "./index"
+import { getFieldUi } from "../utils/zod-introspect"
+import { defineEntities, defineEntity, fields, getEntity, resetEntities } from "./index"
 import type { EntityDef } from "./index"
 import { findParams, toModel, toModels, validateEntityBody, validateEntityQuery } from "./server"
 
@@ -69,6 +70,19 @@ describe("defineEntity: model", () => {
     const { Vehicle, Engine } = defineVehicleAndEngine()
     expect(Engine.display).toBe("name")
     expect(Vehicle.display).toBe("id")
+  })
+})
+
+describe("fields.image", () => {
+  it("is a nullable text column, optional in DTOs, hinted for the admin", () => {
+    const E = defineEntity("Vehicle", {
+      schema: z.object({ id: z.string(), logo: fields.image() }),
+    })
+    const parsed = (toModel(E) as any).parse()
+    expect(parsed.schema.logo.parse("logo")).toMatchObject({ dataType: { name: "text" }, nullable: true })
+    expect(E.dto.create.parse({})).toEqual({})
+    expect(E.dto.create.parse({ logo: null })).toEqual({ logo: null })
+    expect(getFieldUi(E.dto.update.shape.logo)).toBe("image")
   })
 })
 

@@ -11,7 +11,8 @@ import { ReactNode } from "react";
 import { formatValue } from "./many-relation-section";
 import React from "react";
 
-export type Attribute = { key: string; label?: string; value: unknown };
+/** A label/value row; `node` replaces the formatted value (e.g. an image). */
+export type Attribute = { key: string; label?: string; value: unknown; node?: ReactNode };
 
 type DetailSectionProps = {
   title: string;
@@ -65,7 +66,7 @@ export function DetailsSection({
         )}
       </div>
 
-      {attributes.map(({ key, label, value }) => (
+      {attributes.map(({ key, label, value, node }) => (
         <div
           key={key}
           className="text-ui-fg-subtle grid grid-cols-2 items-center px-6 py-4"
@@ -73,9 +74,11 @@ export function DetailsSection({
           <Text size="small" leading="compact" className="text-ui-fg-subtle">
             {label ?? _.startCase(key)}
           </Text>
-          <Text size="small" leading="compact">
-            {formatValue(value)}
-          </Text>
+          {node ?? (
+            <Text size="small" leading="compact">
+              {formatValue(value)}
+            </Text>
+          )}
         </div>
       ))}
     </Container>

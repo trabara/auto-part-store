@@ -16,6 +16,7 @@ import {
   getZodShape,
   getZodFieldInfo,
   zodQueryResolve,
+  getFieldUi,
 } from "./zod-introspect"
 
 // ---------------------------------------------------------------------------
@@ -574,5 +575,20 @@ describe("zodQueryResolve", () => {
     )
     // cycles back to RepairRequest contribute nothing
     expect(result).not.toContain("devices.repair_request")
+  })
+})
+
+describe("getFieldUi", () => {
+  it("reads the ui hint through wrappers, describe and partial", () => {
+    const image = z.string().meta({ ui: "image" })
+    expect(getFieldUi(image)).toBe("image")
+    expect(getFieldUi(image.nullable().optional())).toBe("image")
+    expect(getFieldUi(image.describe("Logo"))).toBe("image")
+    expect(getFieldUi(z.object({ logo: image.nullable() }).partial().shape.logo)).toBe("image")
+  })
+
+  it("is undefined without a hint", () => {
+    expect(getFieldUi(z.string().describe("x"))).toBeUndefined()
+    expect(getFieldUi(undefined)).toBeUndefined()
   })
 })

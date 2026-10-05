@@ -7,6 +7,7 @@ import { isToOne, relationField } from "@repo/framework/entity";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
+import { fieldUiOverrides } from "../helpers/field-ui-overrides";
 import { useSdk } from "../../common/context";
 import { DataTable } from "../components/data-table";
 import { useDeleteMutation } from "../hooks/use-delete-mutation";
@@ -55,8 +56,12 @@ export function TemplateList({ outlet }: RouteRenderContext) {
         },
       };
     }
-    return { ...result, ...(feature.ui.overrides as FeatureFieldOverrides<any>) };
-  }, [toOne, feature]);
+    return {
+      ...result,
+      ...fieldUiOverrides(entity.schema),
+      ...(feature.ui.overrides as FeatureFieldOverrides<any>),
+    };
+  }, [toOne, feature, entity]);
 
   const deletion = useDeleteMutation({
     invalidateKeys: [entity.modelName],

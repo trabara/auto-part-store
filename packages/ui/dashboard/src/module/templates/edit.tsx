@@ -8,6 +8,7 @@ import { useTranslation } from "react-i18next";
 import { useNavigate, useParams } from "react-router-dom";
 import { useSdk } from "../../common/context";
 import { Form } from "../../form/components/form";
+import { fieldUiOverrides } from "../helpers/field-ui-overrides";
 import { relationOverrides } from "../helpers/relation-overrides";
 import { useUpdateMutation } from "../hooks/use-update-mutation";
 import { entityFields } from "../utils/query";
@@ -37,7 +38,11 @@ export function TemplateEdit(_: RouteRenderContext) {
   });
 
   const overrides = useMemo(
-    () => ({ ...relationOverrides(module, feature, schema), ...(feature.ui.overrides as object) }),
+    () => ({
+      ...relationOverrides(module, feature, schema),
+      ...fieldUiOverrides(schema),
+      ...(feature.ui.overrides as object),
+    }),
     [module, feature, schema],
   );
 

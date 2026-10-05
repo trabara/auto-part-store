@@ -1,5 +1,5 @@
 import { z } from "@medusajs/framework/zod";
-import { defineEntity, type InferEntity } from "@repo/framework/entity";
+import { defineEntity, fields, type InferEntity } from "@repo/framework/entity";
 import { BaseSchema } from "@repo/framework/utils";
 
 // ── Enums ─────────────────────────────────────────────────────────────────────
@@ -55,6 +55,7 @@ export const VehicleMake = defineEntity("VehicleMake", {
   schema: BaseSchema.extend({
     name: z.string().describe("The name of the vehicle make, e.g., Toyota, Ford, etc."),
     slug: z.string().slugify().nullable().describe(""),
+    logo: fields.image().describe("Brand logo"),
   }),
   relations: (r) => ({
     models: r.hasMany("VehicleModel", { mappedBy: "make" }),
@@ -66,6 +67,7 @@ export const VehicleModel = defineEntity("VehicleModel", {
   schema: BaseSchema.extend({
     name: z.string().describe("The name of the vehicle model, e.g., Camry, F-150, etc."),
     slug: z.string().slugify().nullable().describe(""),
+    image: fields.image().describe("Model image"),
   }),
   relations: (r) => ({
     make: r.belongsTo("VehicleMake", { mappedBy: "models" }),

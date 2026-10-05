@@ -323,5 +323,30 @@ medusaIntegrationTestRunner({
         expect(await linkedVehicles(fitment.id)).toEqual([v1.id]);
       });
     });
+
+    describe("image fields", () => {
+      it("stores, returns and clears make logos and model images", async () => {
+        const logo = "https://cdn.example.com/logo.png";
+        const make = await api
+          .post("/admin/automotive/vehicle_make", { name: "Volvo", slug: null, logo }, headers)
+          .then((r) => r.data.data);
+        expect(make.logo).toBe(logo);
+
+        const model = await api
+          .post("/admin/automotive/vehicle_model", { name: "XC60", slug: null, make_id: make.id }, headers)
+          .then((r) => r.data.data);
+        expect(model.image).toBeNull();
+
+        const updated = await api.put(
+          `/admin/automotive/vehicle_model/${model.id}`,
+          { image: "https://cdn.example.com/xc60.png" },
+          headers,
+        );
+        expect(updated.data.data.image).toBe("https://cdn.example.com/xc60.png");
+
+        const cleared = await api.put(`/admin/automotive/vehicle_make/${make.id}`, { logo: null }, headers);
+        expect(cleared.data.data.logo).toBeNull();
+      });
+    });
   },
 });

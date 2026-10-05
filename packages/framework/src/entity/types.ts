@@ -1,4 +1,4 @@
-import type { DmlEntity } from "@medusajs/framework/utils"
+import type { DmlEntity, DMLEntitySchemaBuilder } from "@medusajs/framework/utils"
 import type { z } from "@medusajs/framework/zod"
 import type { DmlProperty, DmlRelationship } from "../orm/types/inference"
 import type { DmlCheck, DmlIndex } from "../orm/types/options"
@@ -243,7 +243,8 @@ export interface EntityDef<
   readonly schema: S
   readonly relations: Rels
   readonly display: string
-  readonly model: DmlEntity<EntityDmlSchema<S, Rels>, SnakeCase<Name>>
+  /** Same schema wrapper as `model.define` (adds created_at / updated_at / deleted_at). */
+  readonly model: DmlEntity<DMLEntitySchemaBuilder<EntityDmlSchema<S, Rels>>, SnakeCase<Name>>
   readonly dto: {
     readonly create: CreateDto<S, Rels>
     readonly update: UpdateDto<S, Rels>

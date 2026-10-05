@@ -69,6 +69,7 @@ type _EngineOptional = Assert<Equals<EngineT["name"], string | undefined>>
 type _GroupSelf = Assert<Equals<GroupT["children"][number]["operator"], "and" | "or">>
 type _GroupNullableFk = Assert<Equals<GroupT["parent_id"], string | null>>
 type _ModelName = Assert<Equals<typeof Vehicle.modelName, "t_vehicle">>
+type _Timestamps = Assert<Equals<VehicleT["deleted_at"], Date | null>>
 
 // ── DTOs ────────────────────────────────────────────────────────────────────
 

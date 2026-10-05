@@ -1,6 +1,40 @@
 import { medusaIntegrationTestRunner } from "@medusajs/test-utils";
 import { ContainerRegistrationKeys, Modules } from "@medusajs/framework/utils";
+import {
+  createStep,
+  createWorkflow,
+  WorkflowResponse,
+} from "@medusajs/framework/workflows-sdk";
+import {
+  createEntitiesStep,
+  deleteEntitiesStep,
+  updateEntitiesStep,
+} from "@repo/framework/entity";
 import jwt from "jsonwebtoken";
+import {
+  AUTOMOTIVE_MODULE,
+  type AutomotiveModuleService,
+} from "../../src/modules/automotive";
+
+// Each CRUD step followed by a step that always fails, to exercise compensation.
+const failStep = createStep("test-fail", async () => {
+  throw new Error("boom");
+});
+const createThenFail = createWorkflow("test-create-then-fail", (input: any) => {
+  const created = createEntitiesStep(input);
+  failStep();
+  return new WorkflowResponse(created);
+});
+const updateThenFail = createWorkflow("test-update-then-fail", (input: any) => {
+  const updated = updateEntitiesStep(input);
+  failStep();
+  return new WorkflowResponse(updated);
+});
+const deleteThenFail = createWorkflow("test-delete-then-fail", (input: any) => {
+  const deleted = deleteEntitiesStep(input);
+  failStep();
+  return new WorkflowResponse(deleted);
+});
 
 jest.setTimeout(60 * 1000);
 
@@ -36,6 +70,40 @@ medusaIntegrationTestRunner({
             await status(api.delete(`/admin/automotive/${entity}/x`, headers)),
           ).toBe(404);
         }
+      });
+    });
+
+    describe("workflow compensation", () => {
+      const target = { module: AUTOMOTIVE_MODULE, entity: "VehicleEngine" };
+      const engines = () => getContainer().resolve<AutomotiveModuleService>(AUTOMOTIVE_MODULE);
+
+      it("undoes a create", async () => {
+        const { errors } = await createThenFail(getContainer()).run({
+          input: { ...target, data: [{ power: 77 }] },
+          throwOnError: false,
+        });
+        expect(errors[0]?.error?.message).toBe("boom");
+        expect(await engines().listVehicleEngines({ power: 77 }, { withDeleted: true })).toEqual([]);
+      });
+
+      it("restores previous values after an update", async () => {
+        const [engine] = await engines().createVehicleEngines([{ power: 100, name: "before" }]);
+        await updateThenFail(getContainer()).run({
+          input: { ...target, data: [{ id: engine.id, power: 200, name: "after" }] },
+          throwOnError: false,
+        });
+        const [row] = await engines().listVehicleEngines({ id: engine.id });
+        expect(row).toMatchObject({ power: 100, name: "before" });
+      });
+
+      it("restores a soft-deleted entity", async () => {
+        const [engine] = await engines().createVehicleEngines([{ power: 55 }]);
+        await deleteThenFail(getContainer()).run({
+          input: { ...target, ids: [engine.id] },
+          throwOnError: false,
+        });
+        const [row] = await engines().listVehicleEngines({ id: engine.id });
+        expect(row?.deleted_at).toBeFalsy();
       });
     });
 
@@ -129,6 +197,23 @@ medusaIntegrationTestRunner({
             api.put(`/admin/automotive/vehicle/${vehicle.id}`, { year_end: 2000 }, headers),
           ),
         ).toBeGreaterThanOrEqual(400);
+      });
+
+      it("soft-deletes: a deleted entity is gone from reads", async () => {
+        const created = await api.post(
+          "/admin/automotive/vehicle_engine",
+          { power: 90 },
+          headers,
+        );
+        const id = created.data.data.id;
+        await api.delete(`/admin/automotive/vehicle_engine/${id}`, headers);
+        expect(
+          await status(api.get(`/admin/automotive/vehicle_engine/${id}`, headers)),
+        ).toBe(404);
+        const [row] = await getContainer()
+          .resolve<AutomotiveModuleService>(AUTOMOTIVE_MODULE)
+          .listVehicleEngines({ id }, { withDeleted: true });
+        expect(row.deleted_at).toBeTruthy();
       });
 
       it("rejects an invalid engine payload with 400", async () => {

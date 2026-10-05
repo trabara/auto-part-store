@@ -1,0 +1,12 @@
+# Build context is the repository root (see apps/backend/Dockerfile).
+**/node_modules
+**/.turbo
+**/.medusa
+**/dist
+**/.next
+**/coverage
+.git
+**/.env
+**/.env.*
+!**/.env.template
+.DS_Store

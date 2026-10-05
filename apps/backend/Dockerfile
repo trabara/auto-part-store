@@ -1,50 +1,49 @@
-# Base stage for dependencies
+# Medusa backend image. Build from the repository root:
+#   docker build -f apps/backend/Dockerfile .
+
 FROM node:20-alpine AS base
-RUN apk update
 RUN apk add --no-cache libc6-compat
-# Set working directory
 WORKDIR /app
+
 # ---
+# Partial monorepo containing only the backend and the workspaces it uses.
 FROM base AS prepare
 RUN yarn global add turbo@^2.7.6
 COPY . .
-# Add lockfile and package.json's of isolated subworkspace
-# Generate a partial monorepo with a pruned lockfile for a target workspace.
-# Assuming "medusa" is the name entered in the project's package.json: { name: "medusa" }
-RUN turbo prune medusa --docker
+RUN turbo prune backend --docker
+
 # ---
 FROM base AS builder
-# First install the dependencies (as they change less often)
-COPY --from=prepare /app/.yarn/releases .yarn/releases
-COPY --from=prepare /app/.yarn/patches .yarn/patches
+# Dependencies first (cached until a package.json or the lockfile changes)
 COPY --from=prepare /app/out/json/ .
-RUN yarn install
-# Build the project
+RUN yarn install --immutable
 COPY --from=prepare /app/out/full/ .
 # Uncomment and use build args to enable remote caching
 # ARG TURBO_TEAM
 # ENV TURBO_TEAM=$TURBO_TEAM
 # ARG TURBO_TOKEN
 # ENV TURBO_TOKEN=$TURBO_TOKEN
-RUN yarn turbo build
+RUN yarn turbo run build --filter=backend...
+# Runtime artifacts of the workspace packages the server loads, at the same
+# relative paths as the node_modules/@repo/* symlinks expect.
+RUN set -e; \
+    for pkg in packages/framework packages/plugins/*; do \
+      mkdir -p "/runtime/$pkg"; \
+      cp "$pkg/package.json" "/runtime/$pkg/"; \
+      if [ -d "$pkg/dist" ]; then cp -r "$pkg/dist" "/runtime/$pkg/"; fi; \
+      if [ -d "$pkg/.medusa" ]; then cp -r "$pkg/.medusa" "/runtime/$pkg/"; fi; \
+    done
+
 # ---
 FROM base AS runner
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 medusa
 USER medusa
 
-# Automatically leverage output traces to reduce image size
 COPY --from=builder --chown=medusa:nodejs /app/apps/backend/.medusa .medusa
 COPY --from=builder --chown=medusa:nodejs /app/apps/backend/start.sh .medusa/server/start.sh
 COPY --from=builder --chown=medusa:nodejs /app/node_modules .medusa/server/node_modules
-COPY --from=builder --chown=medusa:nodejs /app/packages/domain/analytics-plugin/.medusa .medusa/server/packages/domain/analytics-plugin/.medusa
-COPY --from=builder --chown=medusa:nodejs /app/packages/domain/analytics-plugin/package.json .medusa/server/packages/domain/analytics-plugin/package.json
-COPY --from=builder --chown=medusa:nodejs /app/packages/domain/fitment-plugin/.medusa .medusa/server/packages/domain/fitment-plugin/.medusa
-COPY --from=builder --chown=medusa:nodejs /app/packages/domain/fitment-plugin/package.json .medusa/server/packages/domain/fitment-plugin/package.json
-COPY --from=builder --chown=medusa:nodejs /app/packages/domain/invoice-plugin/.medusa .medusa/server/packages/domain/invoice-plugin/.medusa
-COPY --from=builder --chown=medusa:nodejs /app/packages/domain/invoice-plugin/package.json .medusa/server/packages/domain/invoice-plugin/package.json
-COPY --from=builder --chown=medusa:nodejs /app/packages/infra/common/dist .medusa/server/packages/infra/common/dist
-COPY --from=builder --chown=medusa:nodejs /app/packages/infra/common/package.json .medusa/server/packages/infra/common/package.json
+COPY --from=builder --chown=medusa:nodejs /runtime/packages .medusa/server/packages
 
 RUN chmod +x .medusa/server/start.sh
 

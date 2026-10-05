@@ -5,17 +5,54 @@
   "description": "",
   "license": "MIT",
   "sideEffects": false,
+  "files": [
+    "dist"
+  ],
   "exports": {
-    "./admin": "./src/admin/index.ts",
-    "./admin/plugins": "./src/admin/plugins/index.ts",
-    "./core": "./src/core/index.ts",
-    "./entity": "./src/entity/index.ts",
-    "./entity/server": "./src/entity/server.ts",
-    "./http": "./src/http/index.ts",
-    "./orm": "./src/orm/index.ts",
-    "./utils": "./src/utils/index.ts"
+    "./admin": {
+      "types": "./dist/cjs/admin/index.d.ts",
+      "import": "./dist/esm/admin/index.js",
+      "require": "./dist/cjs/admin/index.js"
+    },
+    "./admin/plugins": {
+      "types": "./dist/cjs/admin/plugins/index.d.ts",
+      "import": "./dist/esm/admin/plugins/index.js",
+      "require": "./dist/cjs/admin/plugins/index.js"
+    },
+    "./core": {
+      "types": "./dist/cjs/core/index.d.ts",
+      "import": "./dist/esm/core/index.js",
+      "require": "./dist/cjs/core/index.js"
+    },
+    "./entity": {
+      "types": "./dist/cjs/entity/index.d.ts",
+      "import": "./dist/esm/entity/index.js",
+      "require": "./dist/cjs/entity/index.js"
+    },
+    "./entity/server": {
+      "types": "./dist/cjs/entity/server.d.ts",
+      "import": "./dist/esm/entity/server.js",
+      "require": "./dist/cjs/entity/server.js"
+    },
+    "./http": {
+      "types": "./dist/cjs/http/index.d.ts",
+      "import": "./dist/esm/http/index.js",
+      "require": "./dist/cjs/http/index.js"
+    },
+    "./orm": {
+      "types": "./dist/cjs/orm/index.d.ts",
+      "import": "./dist/esm/orm/index.js",
+      "require": "./dist/cjs/orm/index.js"
+    },
+    "./utils": {
+      "types": "./dist/cjs/utils/index.d.ts",
+      "import": "./dist/esm/utils/index.js",
+      "require": "./dist/cjs/utils/index.js"
+    }
   },
   "scripts": {
+    "build": "rm -rf dist && tsc -p tsconfig.build.cjs.json && tsc -p tsconfig.build.esm.json && node -e \"require('fs').writeFileSync('dist/esm/package.json', JSON.stringify({type:'module'}))\"",
+    "dev": "tsc -p tsconfig.build.cjs.json --watch --preserveWatchOutput & tsc -p tsconfig.build.esm.json --watch --preserveWatchOutput",
     "lint": "eslint .",
     "check-types": "tsc --noEmit",
     "test": "jest",
@@ -36,11 +73,11 @@
     "vite": ">=5"
   },
   "devDependencies": {
-    "@medusajs/admin-bundler": "2.21.0",
-    "@medusajs/admin-sdk": "2.21.0",
-    "@medusajs/framework": "2.21.0",
-    "@medusajs/medusa": "2.21.0",
-    "@medusajs/test-utils": "2.21.0",
+    "@medusajs/admin-bundler": "2.21.2",
+    "@medusajs/admin-sdk": "2.21.2",
+    "@medusajs/framework": "2.21.2",
+    "@medusajs/medusa": "2.21.2",
+    "@medusajs/test-utils": "2.21.2",
     "@repo/config": "workspace:*",
     "@swc/jest": "^0.2.39",
     "@types/jest": "^29.5.13",

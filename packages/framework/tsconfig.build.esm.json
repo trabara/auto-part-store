@@ -1,0 +1,12 @@
+{
+  // ES modules for bundlers (the admin's Vite build). Not for direct Node use.
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": false,
+    "outDir": "dist/esm",
+    "sourceMap": true,
+    "types": ["node", "vite/client"]
+  },
+  "include": ["src/**/*.ts", "src/**/*.tsx"],
+  "exclude": ["node_modules", "dist", "src/**/*.spec.ts", "src/**/*.spec.tsx", "src/orm/_test-utils.ts"]
+}

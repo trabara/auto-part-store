@@ -6721,7 +6721,6 @@ __metadata:
     "@swc/core": "npm:1.12.2"
     "@swc/jest": "npm:^0.2.39"
     "@types/jest": "npm:^29.5.13"
-    "@types/jsonwebtoken": "npm:^9.0.10"
     "@types/node": "npm:^20.12.11"
     "@types/react": "npm:^19.3.0"
     "@types/react-dom": "npm:^19.2.0"
@@ -6730,17 +6729,14 @@ __metadata:
     eslint: "npm:^9.39.5"
     handlebars: "npm:^4.7.8"
     jest: "npm:^29.7.0"
-    jsonwebtoken: "npm:^9.0.3"
     lodash: "npm:^4.18.1"
     lucide-react: "npm:^0.563.0"
-    pg-god: "npm:^1.0.12"
     react: "npm:19.2.3"
     react-dom: "npm:19.2.3"
     react-hook-form: "npm:^7.83.0"
     ts-node: "npm:^10.9.2"
     typescript: "npm:^5.9.2"
     vite: "npm:^5.4.14"
-    yalc: "npm:^1.0.0-pre.53"
   peerDependencies:
     "@medusajs/admin-sdk": ~2.21.2
     "@medusajs/framework": ~2.21.2
@@ -6756,6 +6752,7 @@ __metadata:
   dependencies:
     "@eslint/js": "npm:^9.39.5"
     "@next/eslint-plugin-next": "npm:^15.5.21"
+    dotenv: "npm:^16.6.1"
     eslint: "npm:^9.39.5"
     eslint-config-prettier: "npm:^10.1.8"
     eslint-plugin-only-warn: "npm:^1.2.1"
@@ -6763,6 +6760,8 @@ __metadata:
     eslint-plugin-react-hooks: "npm:^5.2.0"
     eslint-plugin-turbo: "npm:^2.10.7"
     globals: "npm:^16.5.0"
+    jsonwebtoken: "npm:^9.0.3"
+    pg-god: "npm:^1.0.12"
     typescript: "npm:^5.9.2"
     typescript-eslint: "npm:^8.65.0"
   languageName: unknown
@@ -6898,6 +6897,7 @@ __metadata:
     "@swc/core": ">=1.0.0"
     chokidar: ">=3.0.0"
   bin:
+    gen-plugin: ./src/gen-plugin.mjs
     plugin-dev-init: ./src/develop-init.mjs
     plugin-dev-watch: ./src/develop-watch.mjs
   languageName: unknown
@@ -7747,7 +7747,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/jsonwebtoken@npm:^9.0.10, @types/jsonwebtoken@npm:^9.0.4":
+"@types/jsonwebtoken@npm:^9.0.4":
   version: 9.0.10
   resolution: "@types/jsonwebtoken@npm:9.0.10"
   dependencies:
@@ -8691,6 +8691,7 @@ __metadata:
     "@medusajs/medusa": "npm:2.21.2"
     "@medusajs/test-utils": "npm:2.21.2"
     "@repo/automotive-plugin": "workspace:*"
+    "@repo/config": "workspace:*"
     "@repo/dashboard": "workspace:*"
     "@swc/core": "npm:1.12.2"
     "@swc/jest": "npm:^0.2.39"
@@ -10053,7 +10054,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"dotenv@npm:^16.4.5":
+"dotenv@npm:^16.4.5, dotenv@npm:^16.6.1":
   version: 16.6.1
   resolution: "dotenv@npm:16.6.1"
   checksum: 10c0/15ce56608326ea0d1d9414a5c8ee6dcf0fffc79d2c16422b4ac2268e7e2d76ff5a572d37ffe747c377de12005f14b3cc22361e79fc7f1061cce81f77d2c973dc

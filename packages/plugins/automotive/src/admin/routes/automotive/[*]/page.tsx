@@ -5,7 +5,6 @@ import { defineRouteConfig } from "@medusajs/admin-sdk";
 import { Module, crudTemplates } from "@repo/dashboard/module";
 import { sidebarItems } from "@repo/framework/core";
 import { ModuleRouter } from "@repo/framework/admin";
-import { sdk } from "../../../lib/sdk";
 import automotive from "../../../modules/automotive";
 
 export const config = defineRouteConfig({
@@ -15,7 +14,7 @@ export const config = defineRouteConfig({
 
 export default function AutomotiveRoutes() {
   return (
-    <Module sdk={sdk} module={automotive}>
+    <Module module={automotive}>
       <ModuleRouter module={automotive} templates={crudTemplates} />
     </Module>
   );

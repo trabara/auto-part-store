@@ -16,12 +16,14 @@ import {
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import React, { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { adminSdk } from "../../common/admin-sdk";
 import { SdkContext } from "../../common/context";
 import { setupForm } from "../../form/registry";
 import { ModuleContext } from "../context/module";
 
 interface ModuleProps {
-  sdk: Medusa;
+  /** Medusa client; defaults to the shared admin client (`adminSdk()`). */
+  sdk?: Medusa;
   module: ModuleDef;
   children?: React.ReactNode;
 }
@@ -135,7 +137,7 @@ function Module({ children, sdk, module }: ModuleProps) {
   }, [t]);
 
   return (
-    <SdkContext.Provider value={sdk}>
+    <SdkContext.Provider value={sdk ?? adminSdk()}>
       <QueryClientProvider client={queryClientRef.current}>
         <ModuleContext.Provider value={{ module, state, setState }}>
           <TooltipProvider>{children}</TooltipProvider>

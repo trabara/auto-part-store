@@ -1,24 +1,16 @@
 {
   "name": "@repo/automotive-plugin",
   "version": "0.0.1",
-  "description": "A Medusa plugin for fitment",
-  "author": "Medusa (https://medusajs.com)",
-  "license": "MIT",
-  "publishConfig": {
-    "access": "restricted",
-    "registry": "https://npm.pkg.github.com",
-    "name": "@trabara/fitment-plugin"
-  },
+  "private": true,
+  "description": "Automotive capability (vehicles, fitment) for the Medusa ERP",
+  "license": "UNLICENSED",
   "files": [
     ".medusa/server"
   ],
   "exports": {
     "./package.json": "./package.json",
-    "./workflows": "./.medusa/server/src/workflows/index.js",
     "./.medusa/server/src/modules/*": "./.medusa/server/src/modules/*/index.js",
     "./modules/*": "./.medusa/server/src/modules/*/index.js",
-    "./modules/i18n/*": "./.medusa/server/src/modules/i18n/*",
-    "./providers/*": "./.medusa/server/src/providers/*/index.js",
     "./links/*": "./.medusa/server/src/links/*.js",
     "./*": "./.medusa/server/src/*.js",
     "./admin": {
@@ -27,23 +19,16 @@
       "default": "./.medusa/server/src/admin/index.js"
     }
   },
-  "keywords": [
-    "medusa",
-    "plugin",
-    "medusa-plugin-fitment",
-    "medusa-plugin",
-    "medusa-v2"
-  ],
   "scripts": {
-    "build": "medusa plugin:build && tsc-alias -p tsconfig.json",
+    "build": "medusa plugin:build",
     "check-types": "tsc --noEmit",
     "dev": "plugin-dev-watch . ../../../apps/backend",
     "lint": "eslint .",
-    "prepublishOnly": "medusa plugin:build",
     "test:integration:http": "TEST_TYPE=integration:http NODE_OPTIONS=--experimental-vm-modules jest --silent=false --runInBand --forceExit",
-    "test:integration:modules": "TEST_TYPE=integration:modules NODE_OPTIONS=--experimental-vm-modules jest --silent=false --runInBand --forceExit",
+    "test:integration:modules": "TEST_TYPE=integration:modules NODE_OPTIONS=--experimental-vm-modules jest --silent=false --runInBand --forceExit --passWithNoTests",
     "test:unit": "TEST_TYPE=unit NODE_OPTIONS=--experimental-vm-modules jest --silent=false --forceExit --passWithNoTests",
-    "test": "TEST_TYPE=integration:http NODE_OPTIONS=--experimental-vm-modules jest --silent=false --forceExit --passWithNoTests"
+    "test": "TEST_TYPE=integration:http NODE_OPTIONS=--experimental-vm-modules jest --silent=false --forceExit --passWithNoTests",
+    "db:generate": "sh -c 'set -a; . ./.env.test; set +a; medusa plugin:db:generate'"
   },
   "dependencies": {
     "@codemirror/lang-html": "^6.4.11",
@@ -71,21 +56,17 @@
     "@swc/core": "1.12.2",
     "@swc/jest": "^0.2.39",
     "@types/jest": "^29.5.13",
-    "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^20.12.11",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.2.0",
     "chokidar": "^4.0.3",
     "eslint": "^9.39.5",
     "jest": "^29.7.0",
-    "jsonwebtoken": "^9.0.3",
-    "pg-god": "^1.0.12",
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.2",
-    "vite": "^5.4.14",
-    "yalc": "^1.0.0-pre.53"
+    "vite": "^5.4.14"
   },
   "peerDependencies": {
     "@medusajs/admin-sdk": "~2.21.2",

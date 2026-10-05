@@ -8,6 +8,7 @@
     "src"
   ],
   "bin": {
+    "gen-plugin": "./src/gen-plugin.mjs",
     "plugin-dev-init": "./src/develop-init.mjs",
     "plugin-dev-watch": "./src/develop-watch.mjs"
   },

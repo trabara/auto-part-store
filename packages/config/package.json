@@ -8,7 +8,8 @@
   },
   "exports": {
     "./ts/*": "./ts/*",
-    "./eslint/*": "./eslint/*"
+    "./eslint/*": "./eslint/*",
+    "./jest/*": "./jest/*"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.5",
@@ -22,5 +23,10 @@
     "globals": "^16.5.0",
     "typescript": "^5.9.2",
     "typescript-eslint": "^8.65.0"
+  },
+  "dependencies": {
+    "dotenv": "^16.6.1",
+    "jsonwebtoken": "^9.0.3",
+    "pg-god": "^1.0.12"
   }
 }

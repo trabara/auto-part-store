@@ -1,5 +1,4 @@
 import { medusaIntegrationTestRunner } from "@medusajs/test-utils";
-import { ContainerRegistrationKeys, Modules } from "@medusajs/framework/utils";
 import {
   createStep,
   createWorkflow,
@@ -10,7 +9,7 @@ import {
   deleteEntitiesStep,
   updateEntitiesStep,
 } from "@repo/framework/entity/server";
-import jwt from "jsonwebtoken";
+import { adminHeaders } from "@repo/config/jest/medusa-helpers.cjs";
 import {
   AUTOMOTIVE_MODULE,
   type AutomotiveModuleService,
@@ -43,19 +42,7 @@ medusaIntegrationTestRunner({
     let headers: { headers: Record<string, string> };
 
     beforeEach(async () => {
-      const container = getContainer();
-      const user = await container
-        .resolve(Modules.USER)
-        .createUsers({ email: "admin@test.local" });
-      const { projectConfig } = container.resolve(
-        ContainerRegistrationKeys.CONFIG_MODULE,
-      );
-      const token = jwt.sign(
-        { actor_id: user.id, actor_type: "user", auth_identity_id: "test" },
-        projectConfig.http.jwtSecret as string,
-        { expiresIn: "1d" },
-      );
-      headers = { headers: { authorization: `Bearer ${token}` } };
+      headers = await adminHeaders(getContainer());
     });
 
     const status = (p: Promise<any>) =>

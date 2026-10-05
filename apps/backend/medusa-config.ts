@@ -5,7 +5,7 @@ import {
   loadEnv,
   Modules,
 } from "@medusajs/framework/utils";
-import { medusaRouterExt } from "@repo/framework/admin";
+import { medusaRouterExt } from "@repo/framework/admin/plugins";
 
 // Load environment variables based on the current NODE_ENV
 loadEnv(process.env.NODE_ENV || "development", process.cwd());

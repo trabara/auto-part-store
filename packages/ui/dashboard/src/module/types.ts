@@ -1,22 +1,7 @@
 import { z } from "@medusajs/framework/zod";
 import { UseDataTableReturn } from "@medusajs/ui";
 import { CellContext, ColumnDefTemplate } from "@tanstack/react-table";
-import { ComponentType, ReactNode } from "react";
-import { TranslationFunction } from "../form/registry";
 import { BaseFieldConfig, FieldOverrides } from "../form/types";
-
-declare module "@medusajs/admin-sdk" {
-  interface RouteConfig {
-    /** Expands a dynamic route ([param]) into one sidebar item per entry. */
-    items?: Array<{
-      param: string;
-      label: string;
-      icon?: ComponentType;
-      rank?: number;
-      translationNs?: string;
-    }>;
-  }
-}
 
 export type Entity<T = {}> = T & { id: string };
 
@@ -106,7 +91,6 @@ export interface ActionConfig<T> {
   fields?: FeatureFieldOverrides<T>;
   schema: z.ZodType<T>;
 }
-
 
 export type ModuleRouter = {
   label: string;

@@ -2,7 +2,7 @@ import { defineMiddlewares } from "@medusajs/framework";
 import {
   validateAndTransformEntityBody,
   validateAndTransformEntityQuery,
-} from "@repo/framework/core";
+} from "@repo/framework/http";
 import {
   CreateEngineInputSchema,
   CreateFitmentPosition,
@@ -13,8 +13,6 @@ import {
   UpdateFitmentPosition,
   UpdateVehicleInputSchema,
 } from "~/modules/automotive/dtos";
-import { FitmentPosition } from "~/modules/automotive/models";
-import { createDto, updateDto } from "~/modules/automotive/schemas/base";
 import {
   FitmentPositionSchema,
   FitmentSchema,

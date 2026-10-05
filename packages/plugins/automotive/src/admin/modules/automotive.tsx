@@ -1,11 +1,4 @@
-import {
-  defineModule,
-  TemplateCreate,
-  TemplateDetail,
-  TemplateList,
-  TemplateUpdate,
-} from "@repo/dashboard/module";
-
+import { defineModule } from "@repo/framework/core";
 import {
   CreateEngineInputSchema,
   CreateVehicleInputSchema,
@@ -31,26 +24,26 @@ export default defineModule({
       entity: VehicleSchema,
       routes: (vehicle) => [
         vehicle.route({
-          path: "vehicle",
+          path: "vehicles",
+          templateId: "list-template",
           dto: VehicleSchema.omit({ model: true, engine: true }),
-          getDisplayTitle: (data) => "",
           children: (vehicle) => [
             vehicle.route({
               path: "create",
+              templateId: "create-template",
               dto: CreateVehicleInputSchema,
-              getDisplayTitle: () => "",
             }),
           ],
         }),
         vehicle.route({
-          path: ":id",
+          path: "vehicle/:id",
+          templateId: "detail-template",
           dto: VehicleSchema,
-          getDisplayTitle: () => "",
           children: (vehicle) => [
             vehicle.route({
               path: "edit",
+              templateId: "edit-template",
               dto: UpdateVehicleInputSchema,
-              getDisplayTitle: () => "",
             }),
           ],
         }),
@@ -66,35 +59,35 @@ export default defineModule({
       entity: VehicleEngineSchema,
       routes: (engine) => [
         engine.route({
-          path: "engine",
-          getDisplayTitle: () => "",
+          path: "engines",
+          templateId: "",
           dto: VehicleEngineSchema.omit({ vehicles: true }),
           children: (engine) => [
             engine.route({
               path: "create",
-              getDisplayTitle: () => "",
+              templateId: "",
               dto: CreateEngineInputSchema,
             }),
           ],
         }),
         engine.route({
-          path: ":id",
-          getDisplayTitle: () => "",
+          path: "engine/:id",
           dto: VehicleEngineSchema,
+          templateId: "",
           children: (engine) => [
             engine.route({
               path: "edit",
-              getDisplayTitle: () => "",
+              templateId: "",
               dto: UpdateEngineInputSchema,
             }),
           ],
         }),
       ],
     }),
-    // vehicle_make: defineFeature({
+    // vehicle_make: module.feature({
     //   path: "vehicle-make",
     //   entity: VehicleMakeSchema,
-    //   routes: [
+    //   routes : ()=> [
     //     {
     //       getDisplayTitle: () => "",
     //       dto: VehicleMakeSchema.omit({ models: true }),

@@ -1,5 +1,5 @@
 import { Context, createContext, useContext, useRef } from "react";
-import { defineModule } from "../core";
+import { defineModule } from "@repo/framework/core";
 
 type ModuleContext<S = {}> = typeof defineModule & {
   state: S;

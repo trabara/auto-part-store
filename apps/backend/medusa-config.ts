@@ -149,7 +149,7 @@ export default defineConfig({
   modules: [...coreModules],
   plugins: [
     {
-      resolve: "@repo/automotive-plugin",
+      resolve: "@repo/plugin-automotive",
       options: {
         // Plugin-specific options can be added here
       },

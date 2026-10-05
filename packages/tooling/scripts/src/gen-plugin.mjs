@@ -53,7 +53,7 @@ const reference = fs
   .find((dir) => fs.existsSync(path.join(dir, "package.json")));
 if (!reference) fail("no existing plugin to copy dependency versions from.");
 const refPkg = JSON.parse(fs.readFileSync(path.join(reference, "package.json"), "utf8"));
-const refEnvTest = path.join(reference, ".env.test");
+const refEnvTest = path.join(reference, ".env.test.example");
 
 // ── Files ────────────────────────────────────────────────────────────────────
 
@@ -83,7 +83,8 @@ const files = {
         "check-types": "tsc --noEmit",
         dev: "plugin-dev-watch . ../../../apps/backend",
         lint: "eslint .",
-        "db:generate": "sh -c 'set -a; . ./.env.test; set +a; medusa plugin:db:generate'",
+        "db:generate":
+          "sh -c 'set -a; . ./.env.test.example; [ -f .env.test ] && . ./.env.test; set +a; medusa plugin:db:generate'",
         "test:unit":
           "TEST_TYPE=unit NODE_OPTIONS=--experimental-vm-modules jest --silent=false --forceExit --passWithNoTests",
         "test:integration:http":
@@ -379,14 +380,14 @@ for (const [file, content] of Object.entries(files)) {
   fs.mkdirSync(path.dirname(out), { recursive: true });
   fs.writeFileSync(out, content);
 }
-if (fs.existsSync(refEnvTest)) fs.copyFileSync(refEnvTest, path.join(target, ".env.test"));
+if (fs.existsSync(refEnvTest)) fs.copyFileSync(refEnvTest, path.join(target, ".env.test.example"));
 
 const rel = path.relative(repoRoot, target);
 console.log(`Created ${rel} (${packageName}) with entity ${entity}.
 
 Next steps:
   1. yarn install
-  2. yarn workspace ${packageName} db:generate     # first migration (uses ${rel}/.env.test)
+  2. yarn workspace ${packageName} db:generate     # first migration (${rel}/.env.test.example; override in .env.test)
   3. yarn workspace ${packageName} test:unit && yarn workspace ${packageName} test:integration:http
   4. Enable it in the app: add "${packageName}": "workspace:*" to apps/backend/package.json
      and { resolve: "${packageName}" } to plugins in apps/backend/medusa-config.ts`);

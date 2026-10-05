@@ -1,255 +1,83 @@
 # AGENTS.md — Coding Agent Reference
 
-## Project Structure
+ERP SaaS on Medusa v2. Each client (tenant) runs its own Medusa instance; business capabilities ship as plugins built on `@repo/framework`.
 
-Turborepo monorepo. **Package manager:** Yarn 4 Berry (node-modules linker). **Node >= 20.**
+## Layout
+
+Turborepo + Yarn 4 (node-modules linker), Node >= 20.
 
 ```
-apps/backend/          — Medusa v2 backend (workspace name: **backend**, NOT medusa)
-apps/storefront/       — Next.js 16 storefront (React 19, Tailwind v4, next-intl)
-packages/core/         — @repo/framework: schemas, dtos, validations, contracts, interfaces
-packages/common/       — @trabara/common: BaseController, error handler, logger
-packages/domain/plugins/  — @repo/{fitment,rbac,invoice,media,analytics}-plugin (Medusa plugins)
-packages/domain/modules/  — @repo/domain-modules: shared models used across plugins
-packages/ui/admin/     — @repo/admin (source-linked, no build)
-packages/ui/hooks/     — @repo/hooks (source-linked, no build)
-packages/ui/icons/     — @repo/icons (source-linked, no build)
-packages/config/ts/    — @repo/config/ts
-packages/config/eslint-config/ — @repo/config/eslint
-packages/tooling/scripts/    — @repo/scripts (plugin-dev-init, plugin-dev-watch)
+apps/backend/                 Medusa app (workspace "backend"): config, scripts, no domain code
+packages/framework/           @repo/framework — platform SDK, built to dist/ (cjs for Node, esm for Vite)
+packages/ui/dashboard/        @repo/dashboard — admin templates, form engine, data table (source-linked)
+packages/plugins/<name>/      @repo/plugin-<name> — one capability per plugin (today: automotive)
+packages/config/              @repo/config — tsconfig, eslint (incl. layers.js), jest presets
+packages/tooling/scripts/     @repo/scripts — plugin dev watcher, plugin generator
+infra/docker, infra/k8s       local infra and Kubernetes manifests (target: Kubernetes on OVHcloud)
 ```
 
----
+`@repo/framework` entries: `entity`, `core`, `utils`, `admin` are isomorphic (safe in admin code); `entity/server`, `http`, `orm`, `admin/plugins` are server-only.
 
-## Commands (run from repo root unless noted)
+## Commands (repo root)
 
 ```bash
-yarn install                          # install deps
-yarn build                            # build all packages + apps
-yarn check-types                      # type-check all packages
-yarn lint                             # lint all packages
-yarn format                           # prettier --write **/*.{ts,tsx,md}
-yarn dev                              # dev (backend + storefront hot reload)
-yarn clean                            # remove node_modules, .turbo, .next, .medusa
+yarn install
+yarn build                       # turbo build (framework dist, plugins, backend)
+yarn dev                         # backend + plugin watchers
+yarn check-types                 # needs built deps; turbo runs ^build first
+yarn lint                        # per-workspace lint (warnings only)
+yarn check-layers                # dependency layers — fails on violations
+yarn constraints                 # dependency versions — fails on drift
+yarn gen:plugin <name> [--entity Name]   # scaffold a new plugin
 
-# Backend (workspace name is "backend")
 yarn workspace backend dev
-yarn workspace backend build
 yarn workspace backend medusa:db:migrate
-yarn workspace backend medusa:db:generate
-yarn workspace backend seed
-yarn workspace backend medusa:user:create  # creates admin@example.com / supersecret
-
-# Storefront
-yarn workspace storefront dev
-yarn workspace storefront build
-
-# Plugin dev (syncs built output into apps/backend)
-yarn workspace @repo/automotive-plugin build
-yarn workspace @repo/automotive-plugin dev
+yarn workspace @repo/plugin-automotive db:generate        # migration from entity changes
+yarn workspace @repo/plugin-automotive test:unit
+yarn workspace @repo/plugin-automotive test:integration:http
+yarn workspace @repo/framework test
+yarn workspace @repo/dashboard test
 ```
 
----
+Local infrastructure (Postgres, Redis, MinIO): `docker compose -f infra/docker/docker-compose.infra.yml up -d`.
+
+## Building a capability
+
+1. `yarn gen:plugin invoicing --entity Invoice`, then follow the printed steps.
+2. Declare entities with `defineEntity` in `src/modules/<module>/entities/` (scalar Zod schema + `relations: (r) => ({ … })`), add them to `defineEntities` and to the `EntityRegistry` augmentation in `entities/index.ts`.
+3. Models: `models/<module>.ts` exports `toModels(entities)` (Medusa only discovers models in non-index files of `models/`).
+4. API: list exposed entities in `createEntityRoutes({ module, entities })`; route files and middlewares are one-liners.
+5. Admin: one `m.crud(Entity, { label?, steps?, relations? })` per feature in `src/admin/modules/<module>.ts`; the catch-all page declares `items: sidebarItems(module)`.
+6. Run `db:generate` after entity changes and commit the migration.
+
+Writes go through the framework's compensating workflows (`createEntitiesWorkflow`, …); DELETE is a soft delete.
+
+## Rules enforced in CI
+
+- **Layers** (`packages/config/eslint/layers.js`): framework never imports UI or plugins; isomorphic framework files never import server code; UI packages and plugin admin code use only isomorphic framework entries and admin-safe Medusa packages (`@medusajs/ui`, `icons`, `admin-sdk`, `js-sdk`, `framework/zod`); only apps import plugins. Type-only imports are always allowed.
+- **Versions** (`yarn.config.cjs`): Medusa core packages pinned to one version (change `MEDUSA` there to upgrade), plus React, react-router-dom, zod; every other dependency uses one range across workspaces; internal packages use `workspace:*`.
 
 ## Testing
 
-Tests live in **`apps/backend`** and **`packages/domain/plugins/*`**. No storefront tests.
+- Jest presets: `@repo/config/jest/base.cjs` (all packages), `@repo/config/jest/medusa.cjs` (apps and plugins).
+- `TEST_TYPE` selects the suite: `unit` (`src/**/__tests__/**/*.unit.spec.ts`), `integration:http` (`integration-tests/http/*.spec.ts`), `integration:modules`.
+- Integration tests use `medusaIntegrationTestRunner` and a per-worker temp database (dropped afterwards). Admin auth: `adminHeaders(getContainer())` from `@repo/config/jest/medusa-helpers.cjs`.
+- Env: committed defaults in `.env.test.example` (match `infra/docker` defaults); put personal overrides in `.env.test` (git-ignored).
+- Plugins carry a test-only `medusa-config.ts` that loads their module for the runner.
 
-```bash
-# Backend — run from repo root
-yarn workspace backend test:unit
-yarn workspace backend test:integration:http
-yarn workspace backend test:integration:modules
+## Conventions
 
-# Single test file — run from apps/backend/
-TEST_TYPE=unit NODE_OPTIONS=--experimental-vm-modules npx jest \
-  --testPathPattern="path/to/my.unit.spec.ts" --runInBand --forceExit --passWithNoTests
+- Prettier with default settings (no config file); ESLint flat configs extend `@repo/config/eslint/base.js`.
+- Plugin source uses relative imports, not `~/…` aliases: the built output keeps aliases and production Node can't resolve them.
+- Medusa imports use sub-paths (`@medusajs/framework/utils`, `/workflows-sdk`, `/zod`, …).
+- Derive types from schemas: `InferEntity<typeof Entity>`, `z.infer<typeof Schema>`; don't hand-write duplicates.
+- Files kebab-case; entities and React components PascalCase; module keys `UPPER_SNAKE_CASE` constants.
+- Admin code must not import server code (see Layers); `@repo/dashboard` is admin-only.
 
-TEST_TYPE=integration:http NODE_OPTIONS=--experimental-vm-modules npx jest \
-  --testPathPattern="path/to/my.spec.ts" --runInBand --forceExit
+## Production notes
 
-# Plugin tests (fitment/invoice/media have all three; rbac/analytics only have test:unit)
-yarn workspace @repo/automotive-plugin test:unit
-yarn workspace @repo/automotive-plugin test:integration:http
-yarn workspace @repo/automotive-plugin test:integration:modules
-```
-
-**Test runner:** Jest 29 + `@swc/jest`. Environment: `node`.
-
-`TEST_TYPE` controls which glob jest uses:
-
-| `TEST_TYPE`           | Glob                                       |
-| --------------------- | ------------------------------------------ |
-| `unit`                | `**/src/**/__tests__/**/*.unit.spec.[jt]s` |
-| `integration:http`    | `**/integration-tests/http/*.spec.[jt]s`   |
-| `integration:modules` | `**/src/modules/*/__tests__/**/*.[jt]s`    |
-
-- Integration tests use `medusaIntegrationTestRunner` from `@medusajs/test-utils`. The `afterAll` in `integration-tests/setup.js` drops the temp DB via `pg-god`.
-- Required env vars for tests come from `.env.test` (backend) or `integration-tests/setup-env.js` (plugins).
-- **Plugins have two `.env.test` files**: root-level (`DB_HOST`, `DB_USERNAME`, `DB_PASSWORD`, `JWT_SECRET`, `COOKIE_SECRET`) and `integration-tests/.env.test` (loaded by `setup-env.js` — adds `LOG_LEVEL=error`). Both must exist.
-- `DB_TEMP_NAME` is NOT in any `.env.test` — auto-generated as `medusa-integration-{workerId}-{chunk}`. If a test run is killed, stale DBs matching this pattern may be left on Postgres.
-- Backend `.env.test` uses explicit `DB_PORT=5432`; plugin `.env.test` files do not set `DB_PORT`.
-- `rbac` and `analytics` plugins only have `test:unit` — no integration test scripts.
-
----
-
-## Code Style
-
-**Prettier** (`.prettierrc`): `semi: false`, `singleQuote: false`, `tabWidth: 2`, `trailingComma: "es5"`, `arrowParens: "always"`.
-
-**ESLint v9 flat config** (`eslint.config.mjs` in each workspace):
-
-- Backend/plugins extend `@repo/config/eslint/base` (`@typescript-eslint/recommended` + `turbo` plugin + `eslint-config-prettier`)
-- Storefront extends `@repo/config/eslint/next-js` (wraps `@next/eslint-plugin-next`)
-- All violations are **warnings** via `eslint-plugin-only-warn` — zero errors policy
-- Each workspace's `eslint.config.mjs` adds: `@typescript-eslint/no-explicit-any: "off"` — `any` is allowed everywhere
-- Unused vars rule: `@typescript-eslint/no-unused-vars: ["warn", { argsIgnorePattern: "^_", varsIgnorePattern: "^_" }]`
-
----
-
-## TypeScript
-
-| Context           | Config                                               | Key settings                                                                                                        |
-| ----------------- | ---------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
-| Backend / plugins | `packages/config/ts/plugin.json`               | `target: ES2021`, `module: Node16`, `strictNullChecks: true`, `emitDecoratorMetadata: true`, out: `.medusa/server/` |
-| Storefront        | `packages/config/ts/nextjs.json` → `base.json` | `strict: true`, `noUncheckedIndexedAccess: true`, `module: ESNext`, `moduleResolution: Bundler`, `noEmit: true`     |
-| `@repo/framework`   | own `tsconfig.json` + `tsconfig.esm.json`            | dual CJS + ESM output                                                                                               |
-
-**Conventions:**
-
-- Prefer `import type { Foo }` for type-only imports
-- Derive types from Zod: `type Foo = z.infer<typeof FooSchema>` — never hand-write duplicates
-- Use `Infer<typeof Model>` from `@medusajs/framework/types` for data model types
-- Name types: `*Input`, `*Output`, `*Params`, `*Response`
-- **Never re-export types from `"use server"` files** — Next.js/Turbopack treats all named exports as callable server actions; type-only re-exports produce no runtime value and fail the build
-
----
-
-## Import Conventions
-
-- Order: external packages → `@repo/*` / `@trabara/*` workspace packages → relative
-- Storefront: use `@/` alias (maps to `src/`); never use relative paths crossing module boundaries
-- Medusa framework: always use sub-path imports:
-  ```ts
-  import {
-    createWorkflow,
-    WorkflowResponse,
-  } from "@medusajs/framework/workflows-sdk";
-  import {
-    MedusaService,
-    InjectManager,
-    MedusaContext,
-  } from "@medusajs/framework/utils";
-  import { model } from "@medusajs/framework/utils";
-  import { z } from "@medusajs/framework/zod";
-  import {
-    createFindParams,
-    createOperatorMap,
-  } from "@medusajs/medusa/api/utils/validators";
-  ```
-- `@repo/framework` sub-paths: `@repo/framework/schemas`, `/dtos`, `/validations`, `/contracts`, `/interfaces`, `/infra`
-- `@trabara/common` for `BaseController`, `ILogger`, `IErrorHandler`
-
----
-
-## Naming Conventions
-
-| Construct                | Convention               | Example                     |
-| ------------------------ | ------------------------ | --------------------------- |
-| Files                    | `kebab-case`             | `fitment-module.service.ts` |
-| Classes                  | `PascalCase`             | `AutomotiveModuleService`      |
-| Interfaces               | `IPascalCase`            | `IFitmentCrud`              |
-| Functions / methods      | `camelCase`              | `createFitments`            |
-| React components         | `PascalCase`             | `ProductGridItem`           |
-| Zod schemas              | `PascalCaseSchema`       | `CreateFitmentInputSchema`  |
-| Zod-inferred types       | `PascalCase` (same name) | `CreateFitmentInput`        |
-| Medusa workflows         | `camelCaseWorkflow`      | `createFitmentsWorkflow`    |
-| Medusa workflow steps    | `camelCaseStep`          | `createFitmentsStep`        |
-| Medusa models            | `PascalCase`             | `AuthzRole`                 |
-| Constants / module keys  | `UPPER_SNAKE_CASE`       | `AUTOMOTIVE_MODULE`            |
-| Private class properties | trailing underscore      | `fitmentRepository_`        |
-
----
-
-## Architecture Patterns
-
-### Backend / Plugin structure
-
-```
-packages/domain/plugins/<name>/src/
-  modules/<name>/
-    index.ts          ← exports module definition, service, MODULE_KEY
-    constant.ts       ← UPPER_SNAKE_CASE module key
-    schema.ts         ← all Zod schemas + inferred types (co-located)
-    models/           ← model.define(...)
-    services/         ← extends MedusaService(Models)
-    migrations/       ← Migration*.ts
-  workflows/
-    create-foo.ts     ← createStep + createWorkflow (compensation included)
-  api/<scope>/<resource>/
-    route.ts          ← thin: new FooController(req, res).method()
-    middlewares.ts    ← validateAndTransformBody/Query + Zod schema
-  api/_controllers/
-    foo.controller.ts ← extends BaseController from @trabara/common
-```
-
-- Route files are always thin — only instantiate the controller and delegate
-- Services: public methods use `@InjectManager`, private implementations use `@InjectTransactionManager`
-- Workflow steps always include a compensation function as the third argument to `createStep`
-- Shared models reused across plugins live in `packages/domain/modules/` (`@repo/domain-modules`)
-- Plugins build to `.medusa/server/` (not `dist/`). Build command: `medusa plugin:build`.
-- **Turbo `dev` depends on `^dev:init`** — plugins must complete `dev:init` (outputs `.medusa/server/**`) before running `dev`. Run `yarn workspace @repo/<name>-plugin dev:init` first if the output directory is missing.
-- **Vite deduplication**: `medusa-config.ts` force-dedupes `react`, `react-dom`, `react-router-dom`, `@tanstack/react-query`, `react-i18next`. Any new plugin contributing admin UI must not bundle its own copy of these — omit them from its bundle or the admin will crash with "No QueryClient / not in Router context".
-
-### Error handling (backend)
-
-```ts
-// In a controller method:
-async create(): Promise<void> {
-  await this.execute(async () => {
-    const input = CreateFooSchema.parse(this.req.validatedBody)
-    const service = this.req.scope.resolve<FooService>(FOO_MODULE)
-    const result = await service.createFoo(input)
-    this.created({ foo: result })
-  }, "Foo created")
-}
-```
-
-- `this.execute()` catches all errors and delegates to `ApiErrorHandler`
-- Response helpers: `this.success(data)`, `this.created(data)`, `this.noContent()`, `this.notFound(msg)`, `this.badRequest(msg)`, `this.unauthorized(msg)`, `this.forbidden(msg)`
-- Log via `this.logger.info(...)` / `this.logger.error(...)` — never `console.log`
-
-### Storefront patterns
-
-- All pages under `src/app/[locale]/` (Next.js App Router + `next-intl`)
-- Server actions in `src/lib/data/` marked `"use server"` — only export async functions, never types
-- Client components marked `"use client"` at top of file
-- UI primitives: `src/components/ui/` (shadcn/ui: Radix + CVA + Tailwind v4)
-- Domain modules: `src/modules/<domain>/` (components, hooks, templates, store)
-- Global client state: **Zustand** vanilla store (`createStore`)
-- Server state / infinite scroll: **React Query** via `@repo/hooks`
-- SDK calls: `sdk.client.fetch(...)` from `@medusajs/js-sdk`
-
----
-
-## Environment Variables
-
-| File                     | Purpose                                     |
-| ------------------------ | ------------------------------------------- |
-| `apps/backend/.env`      | Backend runtime (copy from `.env.template`) |
-| `apps/backend/.env.test` | Test DB credentials + JWT secret            |
-| `apps/storefront/.env`   | Storefront (`NEXT_PUBLIC_*` vars)           |
-
-Key backend vars: `DATABASE_URL`, `REDIS_URL`, `JWT_SECRET`, `COOKIE_SECRET`, `STORE_CORS`, `ADMIN_CORS`, `AUTH_CORS`, `MINIO_*`, `TENANT_NAME`.
-
----
-
-## CI / CD
-
-- **CI** (`.github/workflows/ci.yml`): triggers on PRs to `main`/`develop` only. Runs `yarn lint` + `yarn check-types`; Docker build+push to `obha507/{medusa,storefront}` only on non-PR events (i.e., merge).
-- **Deploy** (`.github/workflows/deploy.yml`): manual `workflow_dispatch` only. Uses Terraform at `iac/railway/`. Generates secrets at deploy time via `openssl rand`.
-- **Release** (`.github/workflows/release.yml`): triggers on push to `main`. Uses changesets; publishes packages to GitHub Packages (`https://npm.pkg.github.com`) under `@trabara` scope. Requires `NODE_AUTH_TOKEN=${{ secrets.GITHUB_TOKEN }}`.
-- Turbo remote cache: `TURBO_TEAM` + `TURBO_TOKEN` build args
+- `apps/backend/Dockerfile` (context: repo root) prunes the `backend` workspace, builds with turbo and copies built framework/plugin artifacts next to `node_modules`.
+- Medusa enables database SSL in production mode; local databases without SSL need `?sslmode=disable`.
 
 <!-- BEGIN:turborepo-agent-rules -->
 

@@ -34,8 +34,7 @@
     "@medusajs/cli": "2.21.2",
     "@medusajs/framework": "2.21.2",
     "@medusajs/medusa": "2.21.2",
-    "@repo/automotive-plugin": "workspace:*",
-    "@repo/dashboard": "workspace:*",
+    "@repo/plugin-automotive": "workspace:*",
     "react-i18next": "^15.7.4"
   },
   "devDependencies": {

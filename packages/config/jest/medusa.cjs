@@ -4,7 +4,8 @@
  *   // jest.config.js
  *   module.exports = require("@repo/config/jest/medusa.cjs")(__dirname)
  *
- * - loads `<rootDir>/.env.test`
+ * - loads `<rootDir>/.env.test` (git-ignored, personal overrides), then the
+ *   committed `<rootDir>/.env.test.example` defaults
  * - `TEST_TYPE` selects the suite:
  *     unit                → src/**\/__tests__/**\/*.unit.spec.ts
  *     integration:http    → integration-tests/http/*.spec.ts
@@ -23,7 +24,9 @@ const SUITES = {
 };
 
 module.exports = function medusaJestConfig(rootDir, overrides = {}) {
+  // First file wins: dotenv never overrides a variable that is already set.
   dotenv.config({ path: path.join(rootDir, ".env.test"), quiet: true });
+  dotenv.config({ path: path.join(rootDir, ".env.test.example"), quiet: true });
 
   const type = process.env.TEST_TYPE;
   const integration = type === "integration:http" || type === "integration:modules";

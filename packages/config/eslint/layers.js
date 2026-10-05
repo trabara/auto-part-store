@@ -22,7 +22,7 @@ const PLUGINS = {
 };
 
 const UI_PACKAGES = {
-  group: ["@repo/dashboard", "@repo/dashboard/*", "@repo/hooks", "@repo/hooks/*", "@repo/icons", "@repo/icons/*"],
+  group: ["@repo/dashboard", "@repo/dashboard/*"],
   message: "UI packages are admin-only; server code must not import them.",
 };
 

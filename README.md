@@ -1,263 +1,62 @@
-# Medusa E-commerce Store with Traefik
+# Medusa ERP
 
-A full-stack e-commerce solution using Medusa backend, Next.js storefront, and Traefik as a reverse proxy/load balancer.
+An ERP SaaS built on [Medusa v2](https://docs.medusajs.com). Each client runs its own Medusa instance with the capabilities their business needs: an auto-parts seller gets vehicles and fitment, others get different plugins.
 
-## Architecture
+## What's in the repo
 
-- **Traefik**: Reverse proxy and load balancer
-- **Medusa Backend**: E-commerce backend API (Port 9000)
-- **Medusa Admin**: Admin dashboard (Port 5173)
-- **Storefront**: Next.js frontend (Port 8000)
-- **PostgreSQL**: Database
-- **Redis**: Cache and session storage
-- **MinIO**: Object storage for files and images
+| Path | What it is |
+| --- | --- |
+| `apps/backend` | The Medusa application (API + admin) |
+| `packages/framework` | `@repo/framework`: define an entity once and get its database model, API, validation and admin screens |
+| `packages/ui/dashboard` | `@repo/dashboard`: admin list, create, detail and edit templates |
+| `packages/plugins/*` | One business capability per plugin (`@repo/plugin-automotive` today) |
+| `packages/config` | Shared TypeScript, ESLint and Jest configuration |
+| `packages/tooling/scripts` | Plugin dev watcher and the plugin generator |
+| `infra/docker`, `infra/k8s` | Local services and Kubernetes manifests |
 
-## Quick Start
+## Getting started
 
-### Prerequisites
-
-- Docker and Docker Compose
-- Git
-
-### Running in Development Mode (Recommended)
-
-Development mode includes hot reloading for both backend and frontend.
-
-1. Clone the repository and navigate to the project root:
+Requirements: Node 20+, Yarn (via Corepack), Docker.
 
 ```bash
-cd /home/oussama/Projects/my-medusa-store
+yarn install
+docker compose -f infra/docker/docker-compose.infra.yml up -d   # Postgres, Redis, MinIO
+cp apps/backend/.env.template apps/backend/.env                  # then fill in values
+yarn build
+yarn workspace backend medusa:db:migrate
+yarn workspace backend medusa:user:create                        # admin@example.com
+yarn dev
 ```
 
-2. Start all services in development mode:
+The admin is at http://localhost:9000/app.
+
+## Everyday commands
 
 ```bash
-docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d
+yarn dev                  # backend with plugin hot reload
+yarn check-types          # type check every workspace
+yarn lint                 # lint every workspace
+yarn check-layers         # dependency layer rules
+yarn constraints          # dependency version rules
+yarn gen:plugin <name>    # scaffold a new capability plugin
 ```
 
-Or use the shorthand:
+Tests: `yarn workspace <package> test` (framework, dashboard) or `test:unit` / `test:integration:http` (plugins). Integration tests need the local Postgres running; defaults are in each package's `.env.test.example`, and you can override them in a git-ignored `.env.test`.
+
+## Adding a capability
 
 ```bash
-docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d
+yarn gen:plugin invoicing --entity Invoice
 ```
 
-3. Watch logs (optional):
+This creates `packages/plugins/invoicing` with an entity, its admin API and admin screens, and tests. The command prints the remaining steps (first migration, tests, enabling it in the app). See [AGENTS.md](AGENTS.md) for the conventions.
+
+## Deployment
+
+The backend image builds from the repository root:
 
 ```bash
-docker compose -f docker-compose.yml -f docker-compose.dev.yml logs -f
+docker build -f apps/backend/Dockerfile -t medusa-erp-backend .
 ```
 
-4. Access the applications:
-   - **Storefront**: http://localhost or http://shop.localhost
-   - **Admin Dashboard**: http://admin.localhost
-   - **Backend API**: http://api.localhost
-   - **Traefik Dashboard**: http://traefik.localhost or http://localhost:8080
-   - **MinIO Console**: http://minio.localhost
-   - **MinIO API**: http://minio-api.localhost
-
-5. Create an admin user:
-
-```bash
-docker compose exec medusa yarn medusa user -e admin@example.com -p supersecret
-```
-
-### Running in Production Mode
-
-For production deployment without hot reloading:
-
-```bash
-docker compose up -d
-```
-
-## Services Overview
-
-### Traefik (Load Balancer)
-
-- Routes traffic to appropriate services
-- Provides SSL termination (when configured)
-- Dashboard available at port 8080
-
-### Medusa Backend
-
-- RESTful API for e-commerce operations
-- Admin API endpoints
-- Store API endpoints
-- Available at http://api.localhost
-
-### Medusa Admin
-
-- Admin dashboard built with Vite
-- Manage products, orders, customers
-- Available at http://admin.localhost
-
-### Development Workflow
-
-The development setup includes:
-
-- **Hot Module Replacement (HMR)** for Next.js storefront
-- **Live reload** for Medusa backend
-- **Volume mounts** for instant code changes
-- **Debug logging** enabled
-
-### Individual Service Management
-
-Stop all services:
-
-```bash
-docker compose -f docker-compose.yml -f docker-compose.dev.yml down
-```
-
-Rebuild a specific service:
-
-```bash
-docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d --build medusa
-docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d --build storefront
-```
-
-View logs:
-
-```bash
-docker compose -f docker-compose.yml -f docker-compose.dev.yml logs -f medusa
-docker compose -f docker-compose.yml -f docker-compose.dev.yml logs -f storefront
-docker compose -f docker-compose.yml -f docker-compose.dev.yml logs -f traefik
-```
-
-Restart a service:
-
-```bash
-docker compose -f docker-compose.yml -f docker-compose.dev.yml restart medusa
-```
-
-### Helper Scripts
-
-Create these helper scripts in the root directory for convenience:
-
-**dev-up.sh**:
-
-```bash
-#!/bin/bash
-docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d "$@"
-```
-
-**dev-down.sh**:
-
-```bash
-#!/bin/bash
-docker compose -f docker-compose.yml -f docker-compose.dev.yml down "$@"
-```
-
-**dev-logs.sh**:
-
-```bash
-#!/bin/bash
-docker compose -f docker-compose.yml -f docker-compose.dev.yml logs -f "$@"
-```
-
-Make them executable:
-
-```bash
-chmod +x dev-up.sh dev-down.sh dev-logs.sh
-```
-
-Then use:
-
-```bash
-./dev-up.sh
-./dev-logs.sh medusa
-./dev-down.sh
-```
-
-### Environment Variables
-
-#### Development Environment
-
-Edit `.env.dev` for shared development configuration.
-
-#### Medusa Backend
-
-Edit `medusa/.env` for backend-specific configuration.
-
-#### Storefront
-
-Edit `medusa-storefront/.env.local` for storefront-specific
-docker compose logs -f medusa
-docker compose logs -f storefront
-docker compose logs -f traefik
-
-````
-
-### Environment Variables
-
-#### Medusa Backend
-Edit `medusa/.env` for backend configuration.
-
-#### Storefront
-Edit `medusa-storefront/.env.local` for storefront configuration.
-
-## Traefik Configuration
-
-Traefik is configured via Docker labels in the `docker-compose.yml` file. Key features:
-
-- **Automatic service discovery**: Traefik automatically detects services
-- **Load balancing**: Distributes traffic across service instances
-- **Path-based routing**: Routes based on hostnames and paths
-- **Health checks**: Only routes to healthy containers
-
-### Custom Domain Routing
-
-To use custom domains locally, add entries to `/etc/hosts`:
-
-```bash
-127.0.0.1 shop.localhost
-127.0.0.1 admin.localhost
-127.0.0.1 api.localhost
-127.0.0.1 traefik.localhost
-127.0.0.1 minio.localhost
-````
-
-## Production Deployment
-
-For production:
-
-1. Update Traefik configuration for SSL/TLS:
-   - Add Let's Encrypt certificate resolver
-   - Enable HTTPS redirects
-   - Configure proper domain names
-
-2. Update environment variables for production
-3. Use secrets management for sensitive data
-4. Configure proper database backups
-5. Set up monitoring and logging
-
-## Troubleshooting
-
-### Services not accessible
-
-Check if all services are running:
-
-```bash
-docker compose ps
-```
-
-### Check service logs
-
-```bash
-docker compose logs -f [service-name]
-```
-
-### Restart a service
-
-```bash
-docker compose restart [service-name]
-```
-
-### Clean restart
-
-```bash
-docker compose down -v
-docker compose up -d
-```
-
-## License
-
-MIT
+Production runs on Kubernetes (OVHcloud), one namespace per tenant; see `infra/k8s`.

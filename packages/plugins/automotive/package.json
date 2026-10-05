@@ -1,5 +1,5 @@
 {
-  "name": "@repo/automotive-plugin",
+  "name": "@repo/plugin-automotive",
   "version": "0.0.1",
   "private": true,
   "description": "Automotive capability (vehicles, fitment) for the Medusa ERP",
@@ -28,14 +28,13 @@
     "test:integration:modules": "TEST_TYPE=integration:modules NODE_OPTIONS=--experimental-vm-modules jest --silent=false --runInBand --forceExit --passWithNoTests",
     "test:unit": "TEST_TYPE=unit NODE_OPTIONS=--experimental-vm-modules jest --silent=false --forceExit --passWithNoTests",
     "test": "TEST_TYPE=integration:http NODE_OPTIONS=--experimental-vm-modules jest --silent=false --forceExit --passWithNoTests",
-    "db:generate": "sh -c 'set -a; . ./.env.test; set +a; medusa plugin:db:generate'"
+    "db:generate": "sh -c 'set -a; . ./.env.test.example; [ -f .env.test ] && . ./.env.test; set +a; medusa plugin:db:generate'"
   },
   "dependencies": {
     "@codemirror/lang-html": "^6.4.11",
     "@hookform/resolvers": "^5.4.3",
     "@repo/dashboard": "workspace:*",
     "@repo/framework": "workspace:*",
-    "@repo/hooks": "workspace:*",
     "date-fns": "^4.4.0",
     "handlebars": "^4.7.8",
     "lodash": "^4.18.1",

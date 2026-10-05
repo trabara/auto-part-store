@@ -28,7 +28,6 @@
     "@medusajs/ui": "4.0.25",
     "@radix-ui/react-popover": "^1.0.3",
     "@repo/framework": "workspace:*",
-    "@repo/hooks": "workspace:*",
     "@tanstack/react-query": "^5.101.4",
     "@tanstack/react-table": "^8.21.3",
     "@types/lodash": "^4.17.25",

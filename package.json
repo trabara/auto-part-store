@@ -47,8 +47,6 @@
   "workspaces": [
     "apps/*",
     "packages/*",
-    "packages/config/*",
-    "packages/modules/*",
     "packages/plugins/*",
     "packages/tooling/*",
     "packages/ui/*"

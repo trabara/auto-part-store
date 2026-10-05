@@ -9,6 +9,7 @@
     "./admin": "./src/admin/index.ts",
     "./admin/plugins": "./src/admin/plugins/index.ts",
     "./core": "./src/core/index.ts",
+    "./entity": "./src/entity/index.ts",
     "./http": "./src/http/index.ts",
     "./orm": "./src/orm/index.ts",
     "./utils": "./src/utils/index.ts"

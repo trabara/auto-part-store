@@ -14,10 +14,10 @@ import {
   createFindParams,
   createOperatorMap,
 } from "@medusajs/medusa/api/utils/validators";
-import { mapKeys, snakeCase } from "lodash";
+import { mapKeys, mapValues, snakeCase } from "lodash";
 import { getZodFieldInfo, getZodShape, zodQueryResolve } from "../utils";
 
-type Middleware = (
+export type Middleware = (
   req: MedusaRequest,
   res: MedusaResponse,
   next: MedusaNextFunction,
@@ -114,15 +114,29 @@ export function createEntityFindParams(schema: z.ZodTypeAny) {
   });
 }
 
-function toEntityMap<T>(schemas: Record<string, T>): Map<string, T> {
-  return new Map(Object.entries(mapKeys(schemas, (_, k) => snakeCase(k))));
-}
-
 function unknownEntity(entity: string): MedusaError {
   return new MedusaError(
     MedusaError.Types.NOT_FOUND,
     `Unknown entity "${entity}"`,
   );
+}
+
+/**
+ * Routes a generic `/:entity` request to the middleware registered for its
+ * (snake_case) entity key; any other entity yields a 404.
+ */
+export function dispatchByEntity(
+  middlewares: Record<string, Middleware>,
+): Middleware {
+  const byKey = new Map(
+    Object.entries(mapKeys(middlewares, (_, k) => snakeCase(k))),
+  );
+  return (req, res, next) => {
+    const entity = snakeCase(req.params.entity);
+    const middleware = byKey.get(entity);
+    if (!middleware) return next(unknownEntity(entity));
+    return middleware(req, res, next);
+  };
 }
 
 /**
@@ -133,24 +147,17 @@ export function validateAndTransformEntityQuery(
   schemas: Record<string, z.ZodObject>,
   config: QueryConfig<BaseEntity> = {},
 ): Middleware {
-  const middlewares = new Map<string, Middleware>();
-  for (const [entity, schema] of toEntityMap(schemas)) {
-    middlewares.set(
-      entity,
-      validateAndTransformQuery(createEntityFindParams(schema), {
-        defaults: ["id", "created_at", "updated_at"],
-        allowed: zodAllowedFields(schema),
-        ...config,
-      }) as Middleware,
-    );
-  }
-
-  return (req, res, next) => {
-    const entity = snakeCase(req.params.entity);
-    const middleware = middlewares.get(entity);
-    if (!middleware) return next(unknownEntity(entity));
-    return middleware(req, res, next);
-  };
+  return dispatchByEntity(
+    mapValues(
+      schemas,
+      (schema) =>
+        validateAndTransformQuery(createEntityFindParams(schema), {
+          defaults: ["id", "created_at", "updated_at"],
+          allowed: zodAllowedFields(schema),
+          ...config,
+        }) as Middleware,
+    ),
+  );
 }
 
 /**
@@ -160,15 +167,10 @@ export function validateAndTransformEntityQuery(
 export function validateAndTransformEntityBody(
   schemas: Record<string, z.ZodType>,
 ): Middleware {
-  const middlewares = new Map<string, Middleware>();
-  for (const [entity, schema] of toEntityMap(schemas)) {
-    middlewares.set(entity, validateAndTransformBody(schema) as Middleware);
-  }
-
-  return (req, res, next) => {
-    const entity = snakeCase(req.params.entity);
-    const middleware = middlewares.get(entity);
-    if (!middleware) return next(unknownEntity(entity));
-    return middleware(req, res, next);
-  };
+  return dispatchByEntity(
+    mapValues(
+      schemas,
+      (schema) => validateAndTransformBody(schema) as Middleware,
+    ),
+  );
 }

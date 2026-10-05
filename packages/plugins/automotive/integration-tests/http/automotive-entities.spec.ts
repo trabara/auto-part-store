@@ -88,6 +88,49 @@ medusaIntegrationTestRunner({
         expect(deleted.data).toEqual({ id, object: "vehicle_engine", deleted: true });
       });
 
+      it("creates a vehicle through FK columns and expands nested relations", async () => {
+        const post = (entity: string, body: object) =>
+          api.post(`/admin/automotive/${entity}`, body, headers).then((r) => r.data.data);
+
+        const make = await post("vehicle_make", { name: "Toyota", slug: null });
+        const model = await post("vehicle_model", {
+          name: "Corolla",
+          slug: null,
+          make_id: make.id,
+        });
+        const engine = await post("vehicle_engine", { power: 120 });
+        const vehicle = await post("vehicle", {
+          year_start: 2015,
+          year_end: null,
+          model_id: model.id,
+          engine_id: engine.id,
+        });
+
+        const detail = await api.get(
+          `/admin/automotive/vehicle/${vehicle.id}?fields=id,year_start,*engine,*model,*model.make`,
+          headers,
+        );
+        expect(detail.status).toBe(200);
+        expect(detail.data.data).toMatchObject({
+          id: vehicle.id,
+          engine: { id: engine.id, power: 120 },
+          model: { id: model.id, make: { id: make.id, name: "Toyota" } },
+        });
+
+        const byEngine = await api.get(
+          `/admin/automotive/vehicle?engine_id=${engine.id}`,
+          headers,
+        );
+        expect(byEngine.data.data.map((v: any) => v.id)).toEqual([vehicle.id]);
+
+        // year_range_check: year_end before year_start is rejected by Postgres.
+        expect(
+          await status(
+            api.put(`/admin/automotive/vehicle/${vehicle.id}`, { year_end: 2000 }, headers),
+          ),
+        ).toBeGreaterThanOrEqual(400);
+      });
+
       it("rejects an invalid engine payload with 400", async () => {
         expect(
           await status(

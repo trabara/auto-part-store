@@ -1,14 +1,5 @@
 import { defineModule } from "@repo/framework/core";
-import {
-  CreateEngineInputSchema,
-  CreateVehicleInputSchema,
-  UpdateEngineInputSchema,
-  UpdateVehicleInputSchema,
-} from "../../modules/automotive/dtos/vehicle";
-import {
-  VehicleEngineSchema,
-  VehicleSchema,
-} from "../../modules/automotive/schemas/vehicle";
+import { Vehicle, VehicleEngine } from "../../modules/automotive/entities";
 
 export default defineModule({
   name: "Automotive",
@@ -21,29 +12,29 @@ export default defineModule({
           displayField: "id",
         },
       },
-      entity: VehicleSchema,
+      entity: Vehicle.withRelations(),
       routes: (vehicle) => [
         vehicle.route({
           path: "vehicles",
           templateId: "list-template",
-          dto: VehicleSchema.omit({ model: true, engine: true }),
+          dto: Vehicle.schema,
           children: (vehicle) => [
             vehicle.route({
               path: "create",
               templateId: "create-template",
-              dto: CreateVehicleInputSchema,
+              dto: Vehicle.dto.create,
             }),
           ],
         }),
         vehicle.route({
           path: "vehicle/:id",
           templateId: "detail-template",
-          dto: VehicleSchema,
+          dto: Vehicle.withRelations(),
           children: (vehicle) => [
             vehicle.route({
               path: "edit",
               templateId: "edit-template",
-              dto: UpdateVehicleInputSchema,
+              dto: Vehicle.dto.update,
             }),
           ],
         }),
@@ -56,29 +47,29 @@ export default defineModule({
           displayField: "id",
         },
       },
-      entity: VehicleEngineSchema,
+      entity: VehicleEngine.withRelations(),
       routes: (engine) => [
         engine.route({
           path: "engines",
           templateId: "",
-          dto: VehicleEngineSchema.omit({ vehicles: true }),
+          dto: VehicleEngine.schema,
           children: (engine) => [
             engine.route({
               path: "create",
               templateId: "",
-              dto: CreateEngineInputSchema,
+              dto: VehicleEngine.dto.create,
             }),
           ],
         }),
         engine.route({
           path: "engine/:id",
-          dto: VehicleEngineSchema,
+          dto: VehicleEngine.withRelations(),
           templateId: "",
           children: (engine) => [
             engine.route({
               path: "edit",
               templateId: "",
-              dto: UpdateEngineInputSchema,
+              dto: VehicleEngine.dto.update,
             }),
           ],
         }),

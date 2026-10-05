@@ -2,7 +2,6 @@ import type { PropertyType, RelationshipType, RelationshipTypes } from "@medusaj
 import type { DmlEntity } from "@medusajs/framework/utils"
 import type { z } from "@medusajs/framework/zod"
 import type { CreateModelOptions } from "./options"
-import type { RelationshipKind } from "./fields"
 
 /** Supported relationship kinds — mirrored from ./fields to keep type file self-contained. */
 type RelationshipKindInternal = "hasOne" | "hasMany" | "belongsTo" | "manyToMany"

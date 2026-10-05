@@ -75,6 +75,9 @@ export function define<T>(name: string, entity: T): T {
 /**
  * Define, register, and return a DML model from a Zod schema.
  *
+ * @deprecated Use `defineEntity` from `@repo/framework/entity`, which also
+ * derives DTOs and query config and types relations through the registry.
+ *
  * Derives `modelName` as `snakeCase(name)` automatically.
  * Pass `tableName` in options for a custom DB table name.
  *

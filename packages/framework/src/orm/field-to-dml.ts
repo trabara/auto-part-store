@@ -256,7 +256,7 @@ function applyRelationshipKind(
   return prop;
 }
 
-function buildRelationshipProperty(
+export function buildRelationshipProperty(
   def: RelationshipDef | null | undefined,
   defaultKind: RelationshipKind,
   nullable: boolean,

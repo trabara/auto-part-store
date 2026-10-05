@@ -1,22 +1,14 @@
 import { MedusaService } from "@medusajs/framework/utils";
-import * as DML from "./models";
 import {
+  automotiveEntities,
   DataType,
-  FitmentCondition,
-  FitmentConditionGroup,
-} from "./schemas/fitment";
+  type FitmentCondition,
+  type FitmentConditionGroup,
+} from "./entities";
 
-export default class AutomotiveModuleService extends MedusaService({
-  Vehicle: DML.Vehicle,
-  VehicleMake: DML.VehicleMake,
-  VehicleModel: DML.VehicleModel,
-  VehicleEngine: DML.VehicleEngine,
-  Fitment: DML.Fitment,
-  FitmentPosition: DML.FitmentPosition,
-  FitmentConditionGroup: DML.FitmentConditionGroup,
-  FitmentCondition: DML.FitmentCondition,
-  AutomotiveAttribute: DML.AutomotiveAttribute,
-}) {
+export default class AutomotiveModuleService extends MedusaService(
+  automotiveEntities.models,
+) {
   async getCompatibleFitments(
     vehicleId: string,
     attributes: Record<string, any> = {},

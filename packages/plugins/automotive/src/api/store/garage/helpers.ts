@@ -17,6 +17,8 @@ const FIELDS = [
   "vin",
   "registration",
   "is_default",
+  "build_year",
+  "build_month",
   "vehicle_id",
   "created_at",
   ...Vehicle.label.fields.map((f) => `vehicle.${f}`),
@@ -32,7 +34,7 @@ export async function listGarage(req: AuthenticatedMedusaRequest, id?: string) {
     fields: FIELDS,
     filters: { customer_id: customerId(req), ...(id ? { id } : {}) },
   });
-  return (data as Record<string, any>[]).map((row) => ({
+  return (data as Record<string, any>[]).map((row): Record<string, any> => ({
     ...row,
     vehicle_label: entityLabel(Vehicle, row.vehicle),
   }));

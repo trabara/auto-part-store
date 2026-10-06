@@ -1213,6 +1213,38 @@
           "enumItems": [],
           "mappedType": "boolean"
         },
+        "build_year": {
+          "name": "build_year",
+          "type": "integer",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "unique": false,
+          "length": null,
+          "precision": null,
+          "scale": null,
+          "default": null,
+          "comment": null,
+          "enumItems": [],
+          "mappedType": "integer"
+        },
+        "build_month": {
+          "name": "build_month",
+          "type": "integer",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "unique": false,
+          "length": null,
+          "precision": null,
+          "scale": null,
+          "default": null,
+          "comment": null,
+          "enumItems": [],
+          "mappedType": "integer"
+        },
         "customer_id": {
           "name": "customer_id",
           "type": "text",
@@ -1335,7 +1367,13 @@
           "unique": true
         }
       ],
-      "checks": [],
+      "checks": [
+        {
+          "name": "customer_vehicle_build_month_check",
+          "expression": "build_month IS NULL OR build_year IS NOT NULL",
+          "definition": "check ((build_month IS NULL OR build_year IS NOT NULL))"
+        }
+      ],
       "foreignKeys": {
         "customer_vehicle_vehicle_id_foreign": {
           "constraintName": "customer_vehicle_vehicle_id_foreign",

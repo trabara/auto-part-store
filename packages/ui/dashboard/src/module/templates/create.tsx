@@ -1,7 +1,6 @@
 import { z } from "@medusajs/framework/zod";
 import { Button, clx, FocusModal, Heading, Hint, ProgressTabs } from "@medusajs/ui";
 import type { RouteRenderContext } from "@repo/framework/admin";
-import { startCase } from "lodash";
 import React, { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
@@ -9,11 +8,11 @@ import { useSdk } from "../../common/context";
 import { Form } from "../../form/components/form";
 import { initializeDefaultValues } from "../../form/utils/form";
 import { getZodShape } from "@repo/framework/utils";
-import { fieldUiOverrides } from "../helpers/field-ui-overrides";
-import { relationOverrides } from "../helpers/relation-overrides";
 import { useCreateMutation } from "../hooks/use-create-mutation";
+import { useLabels } from "../hooks/use-labels";
 import { useWizardForm } from "../hooks/use-wizard-form";
 import type { StepConfig } from "../types";
+import { formOverrides } from "../utils/form-values";
 import { entityUrl, featurePath, useFeature } from "../utils/routes";
 
 const contentClass = "flex flex-col gap-y-4 max-w-[720px] w-full";
@@ -27,17 +26,14 @@ export function TemplateCreate(_: RouteRenderContext) {
   const sdk = useSdk();
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const labels = useLabels();
 
   const schema = route.dto as z.ZodObject<any>;
-  const name = startCase(entity.name);
+  const name = labels.entity(entity);
 
   const overrides = useMemo(
-    () => ({
-      ...relationOverrides(module, feature, schema),
-      ...fieldUiOverrides(schema),
-      ...(feature.ui.overrides as object),
-    }),
-    [module, feature, schema],
+    () => labels.overrides(entity, schema, formOverrides(module, feature, schema)),
+    [module, feature, entity, schema, labels],
   );
 
   // Every step's defaults, given up front: the form starts on step 1's schema.
@@ -50,11 +46,11 @@ export function TemplateCreate(_: RouteRenderContext) {
     () =>
       (feature.ui.steps ?? []).map((step) => ({
         id: step.id,
-        label: step.label,
+        label: labels.step(module, feature, step),
         description: step.description,
         schema: schema.pick(Object.fromEntries(step.fields.map((f) => [f, true]))),
       })),
-    [feature, schema],
+    [module, feature, schema, labels],
   );
 
   const create = useCreateMutation({

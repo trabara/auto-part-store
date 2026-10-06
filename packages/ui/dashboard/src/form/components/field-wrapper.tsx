@@ -6,7 +6,6 @@ import {
   FormLabel,
   FormMessage,
 } from "./form-provider";
-import { camelCase, startCase } from "lodash";
 
 interface FieldWrapperProps {
   label: string;
@@ -34,7 +33,7 @@ export function FieldWrapper({
     <FormItem className={styles?.fieldWrapper}>
       {!hideLabel && (
         <FormLabel className={styles?.label} required={isRequired}>
-          {startCase(camelCase(label))}
+          {label}
         </FormLabel>
       )}
       {children}

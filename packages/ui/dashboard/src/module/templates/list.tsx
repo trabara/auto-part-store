@@ -2,7 +2,6 @@ import { z } from "@medusajs/framework/zod";
 import { PencilSquare, Trash } from "@medusajs/icons";
 import { Container } from "@medusajs/ui";
 import type { RouteRenderContext } from "@repo/framework/admin";
-import { featureLabel } from "@repo/framework/core";
 import { entityLabel, isToOne, relationField } from "@repo/framework/entity";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
@@ -11,6 +10,7 @@ import { fieldUiOverrides } from "../helpers/field-ui-overrides";
 import { useSdk } from "../../common/context";
 import { DataTable } from "../components/data-table";
 import { useDeleteMutation } from "../hooks/use-delete-mutation";
+import { useLabels } from "../hooks/use-labels";
 import type { FeatureFieldOverrides, RowAction, ToolbarAction } from "../types";
 import { entityFields, toQueryFilters } from "../utils/query";
 import { entityUrl, featurePath, featureRelations, useFeature } from "../utils/routes";
@@ -26,6 +26,7 @@ export function TemplateList({ outlet }: RouteRenderContext) {
   const sdk = useSdk();
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const labels = useLabels();
 
   const toOne = useMemo(
     () =>
@@ -56,12 +57,12 @@ export function TemplateList({ outlet }: RouteRenderContext) {
         },
       };
     }
-    return {
+    return labels.overrides(entity, schema, {
       ...result,
       ...fieldUiOverrides(entity.schema),
       ...(feature.ui.overrides as FeatureFieldOverrides<any>),
-    };
-  }, [toOne, feature, entity]);
+    });
+  }, [toOne, feature, entity, schema, labels]);
 
   const deletion = useDeleteMutation({
     invalidateKeys: [entity.modelName],
@@ -113,7 +114,7 @@ export function TemplateList({ outlet }: RouteRenderContext) {
       <Container className="divide-y p-0">
         <DataTable<Row, ListResponse>
           id={entity.modelName}
-          title={featureLabel(feature)}
+          title={labels.feature(module, feature)}
           schema={schema as unknown as z.ZodType<Row>}
           overrides={overrides}
           queryFn={(signal, params) =>

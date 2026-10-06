@@ -1,5 +1,7 @@
 import { findSlotRoute, flattenModuleRoutes, getRoutePath, type ModuleDef } from "@repo/framework/core";
 import { getEntityUrl } from "@repo/framework/entity";
+import { getZodFieldInfo } from "@repo/framework/utils";
+import i18n from "../admin/i18n";
 import fitments from "../modules/fitment/admin/module";
 import { fitmentRoutes } from "../modules/fitment/http";
 import parts from "../modules/parts/admin/module";
@@ -50,5 +52,37 @@ describe("admin routes", () => {
 
   it("keeps server-managed brand fields out of the form", () => {
     expect(Object.keys(parts.features.brand.entity.dto.create.shape)).toEqual(["name", "logo", "kind"]);
+  });
+});
+
+describe("admin translations", () => {
+  const resources = i18n;
+  const leafKeys = (o: object, prefix = ""): string[] =>
+    Object.entries(o).flatMap(([k, v]) => (typeof v === "string" ? [`${prefix}${k}`] : leafKeys(v, `${prefix}${k}.`)));
+
+  it("labels every feature and every enum value of each module, in every locale", () => {
+    for (const locale of ["en", "fr", "ar"] as const) {
+      const t = resources[locale].translation;
+      for (const module of [vehicles, fitments, parts]) {
+        for (const feature of Object.values(module.features)) {
+          expect(t.modules[module.path].features[feature.key]).toEqual(expect.any(String));
+          const shape = feature.entity.schema.shape as Record<string, any>;
+          for (const [field, schema] of Object.entries(shape)) {
+            const info = getZodFieldInfo(schema);
+            if (info.baseType !== "enum") continue;
+            for (const value of info.enumValues ?? []) {
+              expect([locale, feature.entity.name, field, value, t.entities[feature.entity.name]?.values?.[field]?.[value]]).toEqual([
+                locale, feature.entity.name, field, value, expect.any(String),
+              ]);
+            }
+          }
+        }
+      }
+    }
+  });
+
+  it("has the same keys in every locale", () => {
+    expect(leafKeys(resources.fr.translation)).toEqual(leafKeys(resources.en.translation));
+    expect(leafKeys(resources.ar.translation)).toEqual(leafKeys(resources.en.translation));
   });
 });

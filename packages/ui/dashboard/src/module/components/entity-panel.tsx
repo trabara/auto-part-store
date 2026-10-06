@@ -4,13 +4,13 @@ import { z } from "@medusajs/framework/zod";
 import { useQuery } from "@tanstack/react-query";
 import type { FeatureDef, ModuleDef } from "@repo/framework/core";
 import { entityLabel, isToOne, relationField } from "@repo/framework/entity";
-import { startCase } from "lodash";
 import { useState, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import { useSdk } from "../../common/context";
 import { Form } from "../../form/components/form";
 import { useCreateMutation } from "../hooks/use-create-mutation";
 import { useDeleteMutation } from "../hooks/use-delete-mutation";
+import { useLabels } from "../hooks/use-labels";
 import { useUpdateMutation } from "../hooks/use-update-mutation";
 import { formOverrides, recordDefaults, stepOrdered } from "../utils/form-values";
 import { entityFields } from "../utils/query";
@@ -63,8 +63,9 @@ export function EntityPanel({
 }: EntityPanelProps) {
   const sdk = useSdk();
   const { t } = useTranslation();
+  const labels = useLabels();
   const entity = feature.entity;
-  const name = startCase(entity.name);
+  const name = labels.entity(entity);
   const [editing, setEditing] = useState<Row | "new" | null>(null);
 
   const createSchema = ordered(feature, omit(entity.dto.create as z.ZodObject<any>, parent.field));
@@ -116,8 +117,8 @@ export function EntityPanel({
     Object.keys(createSchema.shape).map((key) => {
       const rel = relationByField.get(key);
       return rel
-        ? { key, label: rel.label, render: (row) => entityLabel(rel.targetEntity!, row[rel.key]) || "—" }
-        : { key, label: startCase(key) };
+        ? { key, label: labels.field(entity, rel.key, rel.label), render: (row) => entityLabel(rel.targetEntity!, row[rel.key]) || "—" }
+        : { key, label: labels.field(entity, key) };
     });
 
   const isNew = editing === "new";
@@ -197,7 +198,7 @@ export function EntityPanel({
               defaultValues={
                 isNew ? undefined : (recordDefaults(module, feature, schema, editing as Row) as any)
               }
-              overrides={formOverrides(module, feature, schema)}
+              overrides={labels.overrides(entity, schema, formOverrides(module, feature, schema))}
               onSubmit={async (values) => {
                 await (isNew ? create : update).mutateAsync(values);
                 setEditing(null);

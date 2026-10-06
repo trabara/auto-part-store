@@ -11,6 +11,7 @@ import {
   joinPaths,
   matchRoute,
   sidebarItems,
+  translatedMenu,
 } from "./module";
 
 declare module "../entity" {
@@ -733,5 +734,13 @@ describe("sidebarItems", () => {
       { label: "Brands", path: "/shop/side-makes", rank: 0 },
       { label: "Side Things", path: "/shop/side-things", rank: 1 },
     ]);
+    expect(translatedMenu(mod)).toEqual({
+      label: "modules.shop.name",
+      translationNs: "translation",
+      items: [
+        { label: "modules.shop.features.side_make", path: "/shop/side-makes", rank: 0 },
+        { label: "modules.shop.features.side_thing", path: "/shop/side-things", rank: 1 },
+      ],
+    });
   });
 });

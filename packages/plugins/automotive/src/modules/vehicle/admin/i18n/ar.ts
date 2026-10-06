@@ -1,0 +1,141 @@
+import type { SameShape } from "@repo/framework/core";
+import type { en } from "./en";
+
+export const ar: SameShape<typeof en> = {
+  name: "المركبات",
+  features: {
+    vehicle: "التهيئات",
+    vehicle_make: "العلامات التجارية",
+    vehicle_model: "الطرازات",
+    vehicle_generation: "الأجيال",
+    vehicle_engine: "المحركات",
+    vehicle_reference: "معرّفات الكتالوج",
+    customer_vehicle: "المرآب",
+  },
+  steps: {
+    vehicle: { general: "عام", specs: "المواصفات" },
+  },
+  entities: {
+    Vehicle: {
+      name: "مركبة",
+      plural: "المركبات",
+      fields: {
+        generation: "الجيل",
+        engine: "المحرك",
+        references: "معرّفات الكتالوج",
+        trim: "الفئة",
+        year_start: "سنة بداية الإنتاج",
+        year_end: "سنة نهاية الإنتاج",
+        body_style: "نوع الهيكل",
+        doors: "الأبواب",
+        drive: "نظام الدفع",
+        transmission: "ناقل الحركة",
+      },
+      values: {
+        body_style: {
+          SEDAN: "سيدان",
+          SUV: "رباعية الدفع (SUV)",
+          HATCHBACK: "هاتشباك",
+          COUPE: "كوبيه",
+          CONVERTIBLE: "مكشوفة",
+          WAGON: "ستيشن واغن",
+          MINIVAN: "ميني فان",
+          VAN: "فان",
+          PICKUP: "بيك أب",
+          CHASSIS_CAB: "شاسيه بكابينة",
+          MOTORCYCLE: "دراجة نارية",
+        },
+        drive: { FWD: "دفع أمامي", RWD: "دفع خلفي", AWD: "دفع كلي", FOUR_WD: "دفع رباعي 4×4" },
+        transmission: { MANUAL: "يدوي", AUTOMATIC: "أوتوماتيكي", DUAL_CLUTCH: "قابض مزدوج", CVT: "CVT" },
+      },
+    },
+    VehicleMake: {
+      name: "علامة تجارية",
+      plural: "العلامات التجارية",
+      fields: { name: "الاسم", slug: "المعرّف النصي", logo: "الشعار", models: "الطرازات" },
+    },
+    VehicleModel: {
+      name: "طراز",
+      plural: "الطرازات",
+      fields: {
+        make: "العلامة التجارية",
+        name: "الاسم",
+        slug: "المعرّف النصي",
+        image: "الصورة",
+        category: "الفئة",
+        generations: "الأجيال",
+      },
+      values: {
+        category: { CAR: "سيارة", LCV: "مركبة تجارية خفيفة", TRUCK: "شاحنة", MOTORCYCLE: "دراجة نارية" },
+      },
+    },
+    VehicleGeneration: {
+      name: "جيل",
+      plural: "الأجيال",
+      fields: {
+        model: "الطراز",
+        name: "الاسم",
+        code: "الرمز",
+        year_start: "سنة بداية الإنتاج",
+        year_end: "سنة نهاية الإنتاج",
+        image: "الصورة",
+        vehicles: "التهيئات",
+      },
+    },
+    VehicleEngine: {
+      name: "محرك",
+      plural: "المحركات",
+      fields: {
+        code: "رمز المحرك",
+        name: "التقنية",
+        fuel: "الوقود",
+        layout: "تصميم المحرك",
+        cylinders: "الأسطوانات",
+        displacement_cc: "السعة (سم³)",
+        power_kw: "القدرة (كيلوواط)",
+        power_hp: "القدرة (حصان)",
+        vehicles: "التهيئات",
+      },
+      values: {
+        fuel: {
+          GASOLINE: "بنزين",
+          DIESEL: "ديزل",
+          ELECTRIC: "كهربائي",
+          HYBRID: "هجين",
+          PLUG_IN_HYBRID: "هجين قابل للشحن",
+          LPG: "غاز البترول المسال",
+          CNG: "الغاز الطبيعي المضغوط",
+          HYDROGEN: "هيدروجين",
+        },
+        layout: { INLINE: "خطي", V: "على شكل V", BOXER: "متقابل (بوكسر)", W: "على شكل W", ROTARY: "دوّار", ELECTRIC_MOTOR: "محرك كهربائي" },
+      },
+    },
+    VehicleReference: {
+      name: "معرّف كتالوج",
+      plural: "معرّفات الكتالوج",
+      fields: { vehicle: "المركبة", source: "المصدر", external_id: "المعرّف الخارجي" },
+      values: {
+        source: {
+          TECDOC_KTYPE: "TecDoc K-type",
+          ACES_VEHICLE_ID: "ACES vehicle ID",
+          ACES_BASE_VEHICLE: "ACES base vehicle",
+          OTHER: "أخرى",
+        },
+      },
+    },
+    CustomerVehicle: {
+      name: "مركبة في المرآب",
+      plural: "المرآب",
+      fields: {
+        customer: "العميل",
+        vehicle: "المركبة",
+        nickname: "الاسم المستعار",
+        vin: "رقم الهيكل (VIN)",
+        registration: "رقم التسجيل",
+        is_default: "المركبة الافتراضية",
+        build_year: "سنة الصنع",
+        build_month: "شهر الصنع",
+      },
+    },
+  },
+};

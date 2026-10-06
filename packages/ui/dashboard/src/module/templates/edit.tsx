@@ -2,7 +2,6 @@ import { z } from "@medusajs/framework/zod";
 import { Button, Drawer, Heading } from "@medusajs/ui";
 import { useQuery } from "@tanstack/react-query";
 import type { RouteRenderContext } from "@repo/framework/admin";
-import { startCase } from "lodash";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useParams } from "react-router-dom";
@@ -10,6 +9,7 @@ import { useSdk } from "../../common/context";
 import { Form } from "../../form/components/form";
 import { useUpdateMutation } from "../hooks/use-update-mutation";
 import { entityFields } from "../utils/query";
+import { useLabels } from "../hooks/use-labels";
 import { formOverrides, recordDefaults, stepOrdered } from "../utils/form-values";
 import { entityUrl, featurePath, useFeature } from "../utils/routes";
 
@@ -20,9 +20,10 @@ export function TemplateEdit(_: RouteRenderContext) {
   const sdk = useSdk();
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const labels = useLabels();
 
   const schema = route.dto as z.ZodObject<any>;
-  const name = startCase(entity.name);
+  const name = labels.entity(entity);
 
   const { data } = useQuery({
     queryKey: [entity.modelName, id, "edit"],
@@ -35,7 +36,10 @@ export function TemplateEdit(_: RouteRenderContext) {
         .then((r) => r.data),
   });
 
-  const overrides = useMemo(() => formOverrides(module, feature, schema), [module, feature, schema]);
+  const overrides = useMemo(
+    () => labels.overrides(entity, schema, formOverrides(module, feature, schema)),
+    [module, feature, entity, schema, labels],
+  );
 
   const close = () => navigate(featurePath(feature, "detail", { id })!, { replace: true });
 

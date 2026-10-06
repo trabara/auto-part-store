@@ -1,0 +1,60 @@
+import { defineTranslations, humanizeValue, i18nKeys, toAdminI18n, type SameShape } from "./i18n";
+
+const en = {
+  name: "Vehicles",
+  features: { vehicle_make: "Makes" },
+  entities: { VehicleMake: { name: "Make", fields: { name: "Name" }, values: { kind: { OEM: "OEM" } } } },
+};
+const fr: SameShape<typeof en> = {
+  name: "Véhicules",
+  features: { vehicle_make: "Marques" },
+  entities: { VehicleMake: { name: "Marque", fields: { name: "Nom" }, values: { kind: { OEM: "Constructeur" } } } },
+};
+
+describe("defineTranslations", () => {
+  it("requires every English key in each locale", () => {
+    // @ts-expect-error — "ar" lacks features.vehicle_make
+    defineTranslations("vehicles", { en, fr, ar: { ...fr, features: {} } });
+    expect(defineTranslations("vehicles", { en, fr, ar: fr }).module).toBe("vehicles");
+  });
+});
+
+describe("toAdminI18n", () => {
+  it("puts module messages under modules.<path> and entity labels under entities.<Name>", () => {
+    const resources = toAdminI18n(
+      defineTranslations("vehicles", { en, fr, ar: fr }),
+      defineTranslations("parts", {
+        en: { name: "Parts" },
+        fr: { name: "Pièces" },
+        ar: { name: "قطع الغيار" },
+      }),
+    );
+    expect(resources.fr.translation).toEqual({
+      modules: { vehicles: { name: "Véhicules", features: { vehicle_make: "Marques" } }, parts: { name: "Pièces" } },
+      entities: fr.entities,
+      erp: { fields: expect.objectContaining({ created_at: "Créé le" }) },
+    });
+    expect(Object.keys(resources)).toEqual(["en", "fr", "ar"]);
+  });
+
+  it("refuses an entity translated by two modules", () => {
+    const a = defineTranslations("a", { en, fr, ar: fr });
+    const b = defineTranslations("b", { en, fr, ar: fr });
+    expect(() => toAdminI18n(a, b)).toThrow(/entity "VehicleMake" is translated by two modules/);
+  });
+});
+
+describe("keys", () => {
+  it("match the resource layout", () => {
+    expect(i18nKeys.feature("vehicles", "vehicle_make")).toBe("modules.vehicles.features.vehicle_make");
+    expect(i18nKeys.field("VehicleMake", "name")).toBe("entities.VehicleMake.fields.name");
+    expect(i18nKeys.value("VehicleEngine", "fuel", "DIESEL")).toBe("entities.VehicleEngine.values.fuel.DIESEL");
+    expect(i18nKeys.entity("VehicleMake", true)).toBe("entities.VehicleMake.plural");
+  });
+
+  it("humanizes enum values by default", () => {
+    expect(humanizeValue("PLUG_IN_HYBRID")).toBe("Plug in hybrid");
+    expect(humanizeValue("SUV")).toBe("SUV");
+    expect(humanizeValue("FWD")).toBe("FWD");
+  });
+});

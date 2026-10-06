@@ -5,8 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 import type { RouteRenderContext } from "@repo/framework/admin";
 import type { FeatureDef } from "@repo/framework/core";
 import { entityLabel, foreignKeyName, isToOne, type RelationDef } from "@repo/framework/entity";
-import { getFieldUi } from "@repo/framework/utils";
-import { startCase } from "lodash";
+import { getFieldUi, getZodFieldInfo } from "@repo/framework/utils";
 import { Fragment, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useParams } from "react-router-dom";
@@ -17,6 +16,7 @@ import { ImageThumbnail } from "../components/image-field";
 import { fieldUiOverrides } from "../helpers/field-ui-overrides";
 import { useModule } from "../context/module";
 import { useDeleteMutation } from "../hooks/use-delete-mutation";
+import { useLabels, type Labels } from "../hooks/use-labels";
 import { entityFields, toQueryFilters } from "../utils/query";
 import {
   entityUrl,
@@ -32,9 +32,11 @@ type ListResponse = { data: Row[]; metadata: { count: number } };
 const HIDDEN_FIELDS = new Set(["deleted_at"]);
 
 function scalarAttributes(
+  labels: Labels,
   entity: FeatureDef["entity"],
   record: Record<string, unknown> | null | undefined,
   exclude: Set<string> = new Set(),
+  overrides: Record<string, { label?: string }> = {},
 ): Attribute[] {
   if (!record) return [];
   const shape = entity.schema.shape as Record<string, z.ZodTypeAny>;
@@ -42,7 +44,11 @@ function scalarAttributes(
     .filter((key) => !HIDDEN_FIELDS.has(key) && !exclude.has(key))
     .map((key) => ({
       key,
-      value: record[key],
+      label: labels.field(entity, key, overrides[key]?.label),
+      value:
+        getZodFieldInfo(shape[key]!).baseType === "enum" && typeof record[key] === "string"
+          ? labels.value(entity, key, record[key] as string)
+          : record[key],
       node:
         getFieldUi(shape[key]) === "image" ? (
           <ImageThumbnail url={record[key] as string | null} size="large" />
@@ -52,7 +58,8 @@ function scalarAttributes(
 
 /** Records of a to-many relation, filtered by the inverse FK. */
 function RelationTable({ parentId, relation }: { parentId: string; relation: ResolvedRelation }) {
-  const { module } = useFeature();
+  const { module, entity } = useFeature();
+  const labels = useLabels();
   const sdk = useSdk();
   const navigate = useNavigate();
   const target = relation.target!;
@@ -67,16 +74,14 @@ function RelationTable({ parentId, relation }: { parentId: string; relation: Res
     <Container className="divide-y p-0">
       <DataTable<Row, ListResponse>
         id={`${targetEntity.modelName}:${fk}:${parentId}`}
-        title={relation.label}
+        title={labels.field(entity, relation.key, relation.label)}
         schema={schema as unknown as z.ZodType<Row>}
-        overrides={
-          {
-            ...fieldUiOverrides(schema),
-            id: { hideLabel: true },
-            updated_at: { hideLabel: true },
-            deleted_at: { hideLabel: true },
-          } as any
-        }
+        overrides={labels.overrides(targetEntity, schema, {
+          ...fieldUiOverrides(schema),
+          id: { hideLabel: true },
+          updated_at: { hideLabel: true },
+          deleted_at: { hideLabel: true },
+        } as any)}
         queryFn={(signal, params) =>
           sdk.client.fetch<ListResponse>(entityUrl(module, targetEntity), {
             signal,
@@ -108,6 +113,7 @@ export function TemplateDetail({ outlet }: RouteRenderContext) {
   const sdk = useSdk();
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const labels = useLabels();
 
   const { data: record, isLoading, refetch } = useQuery({
     queryKey: [entity.modelName, id],
@@ -145,7 +151,7 @@ export function TemplateDetail({ outlet }: RouteRenderContext) {
     );
   }
 
-  const title = entityLabel(entity, record) || startCase(entity.name);
+  const title = entityLabel(entity, record) || labels.entity(entity);
 
   return (
     <div className="flex flex-col gap-x-4 gap-y-3 xl:flex-row xl:items-start">
@@ -153,6 +159,7 @@ export function TemplateDetail({ outlet }: RouteRenderContext) {
         <DetailsSection
           title={title}
           attributes={scalarAttributes(
+            labels,
             entity,
             record,
             new Set(
@@ -160,6 +167,7 @@ export function TemplateDetail({ outlet }: RouteRenderContext) {
                 .filter(([, o]) => o?.hideInDetails)
                 .map(([key]) => key),
             ),
+            (feature.ui.overrides ?? {}) as Record<string, { label?: string }>,
           )}
           actions={[
             {
@@ -192,10 +200,10 @@ export function TemplateDetail({ outlet }: RouteRenderContext) {
             return (
               <DetailsSection
                 key={relation.key}
-                title={relation.label}
+                title={labels.field(entity, relation.key, relation.label)}
                 attributes={
                   relation.targetEntity
-                    ? scalarAttributes(relation.targetEntity, related, new Set(["created_at", "updated_at"]))
+                    ? scalarAttributes(labels, relation.targetEntity, related, new Set(["created_at", "updated_at"]))
                     : []
                 }
                 actions={

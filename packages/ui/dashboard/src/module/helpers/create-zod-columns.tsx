@@ -58,9 +58,10 @@ export function createZodDataTableColumnDef<
         return accessors;
       }
 
-      const label = startCase(override?.label || String(key));
+      // Given labels are shown as is (translated text); keys are humanized.
+      const label = override?.label || startCase(String(key));
       const accessor = helper.accessor(key as any, {
-        header: () => <span className="capitalize">{label}</span>,
+        header: () => <span>{label}</span>,
         enableSorting: override ? override?.enableSorting : false,
         sortLabel: label,
         cell: (info) => {
@@ -73,6 +74,9 @@ export function createZodDataTableColumnDef<
           }
           if (fieldInfo.baseType === "date") {
             return format(new Date(value as string), "dd/MM/yyyy");
+          }
+          if (fieldInfo.baseType === "enum" && override?.options) {
+            return override.options.find((o: { value: unknown }) => o.value === value)?.label ?? String(value);
           }
           if (fieldInfo.baseType === "array") {
             return <span>{(value as unknown[]).length}</span>;

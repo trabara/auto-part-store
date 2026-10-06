@@ -32,10 +32,9 @@ export function createZodDataTableFilterDef<T extends FieldValues>(
       accessor = helper.accessor(key as any, {
         label,
         type: "multiselect",
-        options: (info.enumValues ?? []).map((value) => ({
-          label: startCase(value),
-          value: value,
-        })),
+        options:
+          (field as { options?: { value: string; label: string }[] } | undefined)?.options ??
+          (info.enumValues ?? []).map((value) => ({ label: startCase(value), value })),
       });
     } else if (info.baseType === "number") {
       accessor = helper.accessor(key as any, {

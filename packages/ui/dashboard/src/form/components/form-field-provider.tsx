@@ -1,3 +1,4 @@
+import { camelCase, startCase } from "lodash";
 import { useCallback } from "react";
 import type { ControllerRenderProps, FieldValues, Path } from "react-hook-form";
 
@@ -63,8 +64,8 @@ export function FormField<
     return <input type="hidden" name={name} value={field.value ?? ""} />;
   }
 
-  // Get label (override > translation)
-  const label = override?.label ?? t(name);
+  // Label: override (already readable, possibly translated) > translation of the key, humanized.
+  const label = override?.label ?? startCase(camelCase(t(name)));
   const isRequired = !fieldInfo.isOptional;
   const isDisabled = formDisabled || override?.disabled;
 

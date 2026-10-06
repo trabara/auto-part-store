@@ -4,6 +4,7 @@ export { RelationSelect } from "./components/relation-select";
 export { relationOverrides } from "./helpers/relation-overrides";
 export { useCreateMutation } from "./hooks/use-create-mutation";
 export { useDeleteMutation } from "./hooks/use-delete-mutation";
+export { useLabels, type Labels } from "./hooks/use-labels";
 export { usePageQuery } from "./hooks/use-page-query";
 export { useUpdateMutation } from "./hooks/use-update-mutation";
 export * from "./templates";

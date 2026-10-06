@@ -3,6 +3,7 @@ import { kebabCase } from "lodash";
 import type { EntityDef, RelationDef } from "../entity";
 import { getEntityUrl } from "../entity/define-entity";
 import { pluralize } from "../utils/strings";
+import { i18nKeys } from "./i18n";
 
 /* ==========================================================================
  * Utility types
@@ -758,9 +759,27 @@ export function featureLabel(feature: AnyFeature): string {
  * Use as `defineRouteConfig({ label, items: sidebarItems(module) })` on the
  * module's catch-all page (expanded by `medusaRouterExt`).
  */
-export function sidebarItems(mod: AnyModule): SidebarItem[] {
+export function sidebarItems(mod: AnyModule, options: { translated?: boolean } = {}): SidebarItem[] {
   return Object.values(mod.features as FeatureMap).flatMap((feature, rank) => {
     const list = findSlotRoute(feature, "list");
-    return list ? [{ label: featureLabel(feature), path: getRoutePath(list.scope), rank }] : [];
+    const label = options.translated ? i18nKeys.feature(mod.path, feature.key) : featureLabel(feature);
+    return list ? [{ label, path: getRoutePath(list.scope), rank }] : [];
   });
+}
+
+/**
+ * Sidebar part of `defineRouteConfig` for a module that ships translations
+ * (`defineTranslations`): the module and feature labels are translation keys,
+ * looked up by Medusa in the admin's default namespace.
+ *
+ * ```ts
+ * export const config = defineRouteConfig(translatedMenu(vehicles));
+ * ```
+ */
+export function translatedMenu(mod: AnyModule) {
+  return {
+    label: i18nKeys.module(mod.path),
+    translationNs: "translation",
+    items: sidebarItems(mod, { translated: true }),
+  };
 }

@@ -35,8 +35,11 @@ export enum FitmentConditionGroupOperator {
 
 export const AutomotiveAttribute = defineEntity("AutomotiveAttribute", {
   schema: BaseSchema.extend({
+    // Lowercase: matched against vehicle field names (drive, body_style, …).
     code: z
       .string()
+      .trim()
+      .toLowerCase()
       .describe("The code of the automotive attribute, e.g., 'engine_size', 'fuel_type', etc."),
     name: z
       .string()
@@ -60,6 +63,8 @@ export const FitmentPosition = defineEntity("FitmentPosition", {
   schema: BaseSchema.extend({
     code: z
       .string()
+      .trim()
+      .toUpperCase()
       .describe("The code of the fitment position, e.g., 'FRONT_LEFT', 'REAR_RIGHT', etc."),
     name: z
       .string()

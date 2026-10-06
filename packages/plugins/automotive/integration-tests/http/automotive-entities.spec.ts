@@ -398,10 +398,34 @@ medusaIntegrationTestRunner({
         expect(await status(post("vehicle_engine", { power: 100 }))).toBe(400);
       });
 
-      it("keeps position codes unique", async () => {
-        const body = { code: "RL", name: "Rear left", category: null };
-        expect((await post("fitment_position", body)).status).toBe(201);
-        expect(await status(post("fitment_position", body))).toBeGreaterThanOrEqual(400);
+      it("normalises position codes to uppercase and keeps them unique", async () => {
+        const created = await post("fitment_position", { code: " rl ", name: "Rear left", category: null });
+        expect(created.data.data.code).toBe("RL");
+        expect(
+          await status(post("fitment_position", { code: "RL", name: "Rear left 2", category: null })),
+        ).toBeGreaterThanOrEqual(400);
+      });
+
+      it("compares make and model names case-insensitively", async () => {
+        const make = (await post("vehicle_make", { name: "Peugeot", slug: null })).data.data;
+        expect(await status(post("vehicle_make", { name: "PEUGEOT", slug: null }))).toBeGreaterThanOrEqual(400);
+        expect((await post("vehicle_model", { name: "208", slug: null, make_id: make.id })).status).toBe(201);
+        expect((await post("vehicle_model", { name: "Partner", slug: null, make_id: make.id })).status).toBe(201);
+        expect(
+          await status(post("vehicle_model", { name: "partner", slug: null, make_id: make.id })),
+        ).toBeGreaterThanOrEqual(400);
+      });
+
+      it("bounds production years", async () => {
+        const make = (await post("vehicle_make", { name: "Fiat", slug: null })).data.data;
+        const model = (await post("vehicle_model", { name: "Panda", slug: null, make_id: make.id })).data.data;
+        const engine = (await post("vehicle_engine", { type: "I4", size: "1.2", power: 69 })).data.data;
+        const vehicle = (year_start: number) =>
+          post("vehicle", { model_id: model.id, engine_id: engine.id, year_start, year_end: null });
+        expect(await status(vehicle(1800))).toBe(400);
+        expect(await status(vehicle(new Date().getFullYear() + 3))).toBe(400);
+        expect(await status(vehicle(2012.5))).toBe(400);
+        expect((await vehicle(2012)).status).toBe(201);
       });
     });
   },

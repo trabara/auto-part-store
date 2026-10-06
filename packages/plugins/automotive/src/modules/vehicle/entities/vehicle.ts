@@ -51,6 +51,13 @@ export const BodyStyleSchema = z.enum(BodyStyle);
 
 // ── Entities ──────────────────────────────────────────────────────────────────
 
+/** First production car (1886) up to announced model years. */
+const YearSchema = z
+  .number()
+  .int()
+  .min(1886)
+  .max(new Date().getFullYear() + 2);
+
 export const VehicleMake = defineEntity("VehicleMake", {
   schema: BaseSchema.extend({
     name: z.string().describe("The name of the vehicle make, e.g., Toyota, Ford, etc."),
@@ -60,7 +67,8 @@ export const VehicleMake = defineEntity("VehicleMake", {
   relations: (r) => ({
     models: r.hasMany("VehicleModel", { mappedBy: "make" }),
   }),
-  indexes: [{ name: "vehicle_make_name_unique", on: ["name"], unique: true }],
+  // Unique on lower(name): hand-written index (migration 20261006…), DML
+  // indexes can't hold expressions.
 });
 
 export const VehicleModel = defineEntity("VehicleModel", {
@@ -73,8 +81,8 @@ export const VehicleModel = defineEntity("VehicleModel", {
     make: r.belongsTo("VehicleMake", { mappedBy: "models" }),
     vehicles: r.hasMany("Vehicle", { mappedBy: "model" }),
   }),
-  // Model names repeat across makes (Ford / GMC Sierra).
-  indexes: [{ name: "vehicle_model_make_name_unique", on: ["make_id", "name"], unique: true }],
+  // Unique on (make_id, lower(name)): model names repeat across makes (Ford /
+  // GMC Sierra). Hand-written index (migration 20261006…).
 });
 
 type EngineLabelRow = { size?: string; type?: string; power?: number; name?: string | null };
@@ -120,8 +128,8 @@ export const Vehicle = defineEntity("Vehicle", {
     transmission: TransmissionSchema.default(Transmission.MANUAL).describe(
       "The type of transmission",
     ),
-    year_start: z.number().describe("The starting year of the fitment"),
-    year_end: z.number().nullable().describe("The ending year of the fitment"),
+    year_start: YearSchema.describe("The first production year"),
+    year_end: YearSchema.nullable().describe("The last production year (empty: still produced)"),
   }),
   relations: (r) => ({
     model: r.belongsTo("VehicleModel", { mappedBy: "vehicles" }),
@@ -162,6 +170,8 @@ export const Vehicle = defineEntity("Vehicle", {
   ],
   checks: [
     { name: "year_range_check", expression: "year_end IS NULL OR year_end >= year_start" },
+    // Static bounds (CHECK can't use now()); the schema enforces the moving max.
+    { name: "year_bounds_check", expression: "year_start BETWEEN 1886 AND 2100" },
   ],
   // "Toyota Corolla 2015–2020 · 1.8 HYBRID 120 hp"
   label: {

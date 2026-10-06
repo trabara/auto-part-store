@@ -327,15 +327,6 @@
           "expression": "CREATE INDEX IF NOT EXISTS \"IDX_vehicle_make_deleted_at\" ON \"vehicle_make\" (\"deleted_at\") WHERE deleted_at IS NULL"
         },
         {
-          "keyName": "vehicle_make_name_unique",
-          "columnNames": [],
-          "composite": false,
-          "constraint": false,
-          "primary": false,
-          "unique": false,
-          "expression": "CREATE UNIQUE INDEX IF NOT EXISTS \"vehicle_make_name_unique\" ON \"vehicle_make\" (\"name\") WHERE deleted_at IS NULL"
-        },
-        {
           "keyName": "vehicle_make_pkey",
           "columnNames": [
             "id"
@@ -501,15 +492,6 @@
           "primary": false,
           "unique": false,
           "expression": "CREATE INDEX IF NOT EXISTS \"IDX_vehicle_model_deleted_at\" ON \"vehicle_model\" (\"deleted_at\") WHERE deleted_at IS NULL"
-        },
-        {
-          "keyName": "vehicle_model_make_name_unique",
-          "columnNames": [],
-          "composite": false,
-          "constraint": false,
-          "primary": false,
-          "unique": false,
-          "expression": "CREATE UNIQUE INDEX IF NOT EXISTS \"vehicle_model_make_name_unique\" ON \"vehicle_model\" (\"make_id\", \"name\") WHERE deleted_at IS NULL"
         },
         {
           "keyName": "vehicle_model_pkey",
@@ -816,6 +798,11 @@
           "name": "year_range_check",
           "expression": "year_end IS NULL OR year_end >= year_start",
           "definition": "check ((year_end IS NULL OR year_end >= year_start))"
+        },
+        {
+          "name": "year_bounds_check",
+          "expression": "year_start BETWEEN 1886 AND 2100",
+          "definition": "check ((year_start BETWEEN 1886 AND 2100))"
         }
       ],
       "foreignKeys": {

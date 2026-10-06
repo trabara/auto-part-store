@@ -64,7 +64,7 @@ medusaIntegrationTestRunner({
 
     describe("entity allowlist", () => {
       it("404s for models not exposed by the generic routes", async () => {
-        for (const entity of ["fitment_condition", "automotive_attribute", "nope"]) {
+        for (const entity of ["fitment_condition", "fitment_condition_group", "nope"]) {
           expect(await status(api.get(`/admin/automotive/${entity}`, headers))).toBe(404);
           expect(await status(api.post(`/admin/automotive/${entity}`, {}, headers))).toBe(404);
           expect(

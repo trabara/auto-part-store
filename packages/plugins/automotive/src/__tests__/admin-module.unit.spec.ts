@@ -14,6 +14,7 @@ describe("automotive admin module", () => {
       "customer_vehicle",
       "fitment",
       "fitment_position",
+      "automotive_attribute",
     ]);
     expect(automotive.features.vehicle.ui.steps?.map((s) => s.id)).toEqual(["general", "specs"]);
   });
@@ -32,8 +33,9 @@ describe("automotive admin module", () => {
       "/automotive/customer-vehicles",
       "/automotive/fitments",
       "/automotive/fitment-positions",
+      "/automotive/automotive-attributes",
     ]);
-    expect(flattenModuleRoutes(automotive)).toHaveLength(36);
+    expect(flattenModuleRoutes(automotive)).toHaveLength(40);
   });
 
   it("matches the entities exposed by the API", () => {

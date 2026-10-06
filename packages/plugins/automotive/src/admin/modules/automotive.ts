@@ -1,5 +1,6 @@
 import { defineModule } from "@repo/framework/core";
-import { Fitment, FitmentPosition } from "../../modules/fitment/entities";
+import { VEHICLE_ATTRIBUTES } from "../../modules/fitment/conditions";
+import { AutomotiveAttribute, Fitment, FitmentPosition } from "../../modules/fitment/entities";
 import {
   CustomerVehicle,
   Vehicle,
@@ -37,6 +38,8 @@ export default defineModule({
     vehicle_reference: m.crud(VehicleReference, { label: "Catalog IDs" }),
     customer_vehicle: m.crud(CustomerVehicle, { label: "Garage" }),
     fitment: m.crud(Fitment, {
+      // Shown by the Conditions section instead.
+      overrides: { conditions_summary: { label: "Conditions", hideInDetails: true } },
       relations: {
         variant: { label: "Part" },
         conditionGroups: { hidden: true },
@@ -56,5 +59,15 @@ export default defineModule({
       ],
     }),
     fitment_position: m.crud(FitmentPosition),
+    automotive_attribute: m.crud(AutomotiveAttribute, {
+      label: "Vehicle attributes",
+      // The code is a vehicle field from the catalog; its type is derived.
+      overrides: {
+        code: {
+          type: "select",
+          options: VEHICLE_ATTRIBUTES.map((a) => ({ value: a.code, label: `${a.label} (${a.code})` })),
+        },
+      },
+    }),
   }),
 });

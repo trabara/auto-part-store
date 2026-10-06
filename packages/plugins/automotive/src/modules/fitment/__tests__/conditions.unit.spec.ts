@@ -1,0 +1,114 @@
+import {
+  deserializeCondition,
+  serializeValue,
+  summarizeConditions,
+  validateTree,
+  VEHICLE_ATTRIBUTES,
+  vehicleAttribute,
+  type ConditionGroupInput,
+} from "../conditions";
+
+const tree = (patch: Partial<ConditionGroupInput>): ConditionGroupInput => ({
+  operator: "and",
+  conditions: [],
+  groups: [],
+  ...patch,
+});
+
+describe("vehicle attribute catalog", () => {
+  it("is generated from the vehicle schemas, with types, units and enum values", () => {
+    expect(vehicleAttribute("drive")).toMatchObject({
+      label: "Drive",
+      data_type: "enum",
+      values: expect.arrayContaining([{ value: "FWD", label: "Front-wheel drive" }, { value: "FOUR_WD", label: "4×4" }]),
+    });
+    expect(vehicleAttribute("engine.power_kw")).toMatchObject({ label: "Power", data_type: "number", unit: "kW" });
+    expect(vehicleAttribute("engine.fuel")!.values!.map((v) => v.label)).toContain("Plug-in hybrid");
+    expect(vehicleAttribute("generation.model.make.name")).toMatchObject({ label: "Make", data_type: "string" });
+    expect(vehicleAttribute("generation.model.category")!.data_type).toBe("enum");
+    expect(VEHICLE_ATTRIBUTES.map((a) => a.code)).not.toContain("id");
+  });
+});
+
+describe("validateTree", () => {
+  it("accepts a valid nested tree", () => {
+    const ok = tree({
+      conditions: [{ code: "drive", operator: "eq", value: "FWD" }],
+      groups: [
+        tree({
+          operator: "or",
+          conditions: [
+            { code: "engine.fuel", operator: "in", value: ["DIESEL", "HYBRID"] },
+            { code: "engine.power_kw", operator: "between", value: 80, value_to: 110 },
+          ],
+        }),
+      ],
+    });
+    expect(validateTree(ok)).toEqual([]);
+  });
+
+  it("explains each problem in plain words", () => {
+    const bad = tree({
+      conditions: [
+        { code: "colour", operator: "eq", value: "red" },
+        { code: "drive", operator: "gt", value: "FWD" },
+        { code: "drive", operator: "eq", value: "HOVER" },
+        { code: "engine.power_kw", operator: "between", value: 110, value_to: 80 },
+        { code: "engine.fuel", operator: "in", value: [] },
+        { code: "trim", operator: "eq", value: "" },
+      ],
+    });
+    expect(validateTree(bad)).toEqual([
+      'Conditions › #1: "colour" is not a vehicle field.',
+      'Conditions › #2: Drive can\'t use "is above".',
+      "Conditions › #3: HOVER is not a valid drive.",
+      "Conditions › #4: the upper bound of Power is below the lower one.",
+      "Conditions › #5: Fuel needs at least one value.",
+      "Conditions › #6: Trim needs a value.",
+    ]);
+  });
+
+  it("limits nesting depth", () => {
+    const deep = tree({ groups: [tree({ groups: [tree({ groups: [tree({})] })] })] });
+    expect(validateTree(deep)[0]).toMatch(/nested 3 levels deep at most/);
+  });
+});
+
+describe("storage round trip", () => {
+  it("stores lists as JSON and types values back from the attribute", () => {
+    const list = { code: "engine.fuel", operator: "in" as const, value: ["DIESEL", "LPG"] };
+    expect(serializeValue(list)).toBe('["DIESEL","LPG"]');
+    expect(
+      deserializeCondition({ operator: "in", value: '["DIESEL","LPG"]', value_to: null, attribute: { code: "engine.fuel", data_type: "enum" } }),
+    ).toEqual({ ...list, value_to: null });
+    expect(
+      deserializeCondition({ operator: "between", value: "80", value_to: "110", attribute: { code: "engine.power_kw", data_type: "number" } }),
+    ).toEqual({ code: "engine.power_kw", operator: "between", value: 80, value_to: 110 });
+  });
+});
+
+describe("summarizeConditions", () => {
+  it("reads like a sentence, with labels, units and nested groups", () => {
+    const t = tree({
+      conditions: [{ code: "drive", operator: "eq", value: "FWD" }],
+      groups: [
+        tree({
+          operator: "or",
+          conditions: [
+            { code: "engine.fuel", operator: "in", value: ["DIESEL", "PLUG_IN_HYBRID"] },
+            { code: "engine.power_kw", operator: "between", value: 80, value_to: 110 },
+          ],
+        }),
+      ],
+    });
+    expect(summarizeConditions(t)).toBe(
+      "Drive is front-wheel drive and (Fuel is one of diesel, plug-in hybrid or Power is between 80 and 110 kW)",
+    );
+    expect(summarizeConditions(tree({ groups: [tree({})] }))).toBeNull();
+    // While editing: empty values read as "…", not "null".
+    expect(
+      summarizeConditions(tree({ conditions: [{ code: "engine.power_kw", operator: "between", value: "", value_to: null }] })),
+    ).toBe("Power is between … and …");
+    expect(summarizeConditions(null)).toBeNull();
+  });
+});

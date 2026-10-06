@@ -1,7 +1,12 @@
 // "Fits vehicles" on the product variant page: the variant's fitments.
 import { defineWidgetConfig } from "@medusajs/admin-sdk";
 import type { AdminProductVariant, DetailWidgetProps } from "@medusajs/framework/types";
+import { AdjustmentsDone } from "@medusajs/icons";
+import { useQueryClient } from "@tanstack/react-query";
+import { useState } from "react";
 import { EntityPanel, Module } from "@repo/dashboard/module";
+import { ConditionsDrawer } from "../components/conditions-drawer";
+import { Fitment } from "../../modules/fitment/entities";
 import { entityLabel } from "@repo/framework/entity";
 import automotive from "../modules/automotive";
 import { Vehicle } from "../../modules/vehicle/entities";
@@ -17,13 +22,15 @@ function productionWindow(row: Row): string {
   return from || to ? `${from} – ${to}`.trim() : "";
 }
 
-export default function VariantFitmentsWidget({ data }: DetailWidgetProps<AdminProductVariant>) {
+function VariantFitments({ variantId }: { variantId: string }) {
+  const [editing, setEditing] = useState<string | null>(null);
+  const queryClient = useQueryClient();
   return (
-    <Module module={automotive}>
+    <>
       <EntityPanel
         module={automotive}
         feature={automotive.features.fitment}
-        parent={{ field: "variant_id", value: data.id }}
+        parent={{ field: "variant_id", value: variantId }}
         title="Fits vehicles"
         description="Vehicles this variant fits, per position."
         columns={[
@@ -31,8 +38,28 @@ export default function VariantFitmentsWidget({ data }: DetailWidgetProps<AdminP
           { key: "position", label: "Position", render: (r) => r.position?.name ?? "—" },
           { key: "quantity", label: "Qty" },
           { key: "production", label: "Production", render: (r) => productionWindow(r) || "—" },
+          { key: "conditions", label: "Conditions", render: (r) => r.conditions_summary ?? "—" },
+        ]}
+        rowActions={[
+          { id: "conditions", label: "Edit conditions", icon: <AdjustmentsDone />, onClick: (r) => setEditing(r.id) },
         ]}
       />
+      {editing && (
+        <ConditionsDrawer
+          fitmentId={editing}
+          open
+          onOpenChange={(open) => !open && setEditing(null)}
+          onSaved={() => queryClient.invalidateQueries({ queryKey: [Fitment.modelName] })}
+        />
+      )}
+    </>
+  );
+}
+
+export default function VariantFitmentsWidget({ data }: DetailWidgetProps<AdminProductVariant>) {
+  return (
+    <Module module={automotive}>
+      <VariantFitments variantId={data.id} />
     </Module>
   );
 }

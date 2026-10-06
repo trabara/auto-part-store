@@ -1,8 +1,9 @@
 import { z } from "@medusajs/framework/zod";
 import { defineEntity, type InferEntity } from "@repo/framework/entity";
 import { BaseSchema } from "@repo/framework/utils";
-import { Vehicle, VehicleEngine, YearSchema } from "../../vehicle/entities/vehicle";
+import { Vehicle, YearSchema } from "../../vehicle/entities/vehicle";
 import { ProductVariant } from "../../../entities/medusa";
+import { VEHICLE_ATTRIBUTES, vehicleAttribute } from "../conditions";
 
 // ── Enums ─────────────────────────────────────────────────────────────────────
 
@@ -35,22 +36,11 @@ export enum FitmentConditionGroupOperator {
 
 // ── Condition attributes ──────────────────────────────────────────────────────
 
-const ownFields = (schema: { shape: object }) =>
-  Object.keys(schema.shape).filter((k) => !["id", "created_at", "updated_at", "deleted_at"].includes(k));
-
 /**
  * Vehicle paths a condition can test (`drive`, `engine.fuel`, …). Load the
  * vehicle with these fields to evaluate fitments (`filterCompatible`).
  */
-export const VEHICLE_ATTRIBUTE_PATHS: readonly string[] = [
-  ...ownFields(Vehicle.schema),
-  ...ownFields(VehicleEngine.schema).map((k) => `engine.${k}`),
-  "generation.name",
-  "generation.code",
-  "generation.model.name",
-  "generation.model.category",
-  "generation.model.make.name",
-];
+export const VEHICLE_ATTRIBUTE_PATHS: readonly string[] = VEHICLE_ATTRIBUTES.map((a) => a.code);
 
 const MonthSchema = z.number().int().min(1).max(12);
 
@@ -66,22 +56,16 @@ export const AutomotiveAttribute = defineEntity("AutomotiveAttribute", {
       .refine((code) => VEHICLE_ATTRIBUTE_PATHS.includes(code), {
         message: `must be a vehicle field: ${VEHICLE_ATTRIBUTE_PATHS.join(", ")}`,
       })
-      .describe("The code of the automotive attribute, e.g., 'engine_size', 'fuel_type', etc."),
-    name: z
-      .string()
-      .describe("The name of the automotive attribute, e.g., 'Engine Size', 'Fuel Type', etc."),
-    data_type: z
-      .enum(DataType)
-      .describe("The data type of the automotive attribute, e.g., 'string', 'number', etc."),
-    default_unit: z
-      .string()
-      .nullable()
-      .describe("The default unit of the automotive attribute, e.g., 'inches', 'cm', etc."),
-    category: z
-      .string()
-      .nullable()
-      .describe("The category of the automotive attribute, e.g., 'Engine', 'Transmission', etc."),
+      .describe("The vehicle field this attribute tests"),
+    name: z.string().trim().min(1).describe("Display name, e.g. Drive, Power"),
+    data_type: z.enum(DataType).describe("Value type, derived from the vehicle field"),
+    default_unit: z.string().nullable().describe("Unit shown with values, e.g. kW"),
+    category: z.string().nullable().describe("Grouping in pickers, e.g. Engine"),
   }),
+  // The type comes from the vehicle field: staff never choose it.
+  derived: {
+    data_type: { from: ["code"], compute: (a) => vehicleAttribute(a.code)?.data_type ?? DataType.STRING },
+  },
   indexes: [{ name: "automotive_attribute_code_unique", on: ["code"], unique: true }],
 });
 
@@ -120,7 +104,10 @@ export const Fitment = defineEntity("Fitment", {
     to_year: YearSchema.nullable().describe("Fits up to this production year (empty: the vehicle's)"),
     to_month: MonthSchema.nullable().describe("Fits up to this month of to_year"),
     notes: z.string().nullable().describe("Additional notes about the fitment"),
+    // Readable summary of the condition tree, kept by the conditions workflow.
+    conditions_summary: z.string().nullable().optional().describe("When the fitment applies"),
   }),
+  readOnly: ["conditions_summary"],
   relations: (r) => ({
     // Ids stored on the fitment, resolved by read-only links (src/links/).
     variant: r.link("ProductVariant", { storage: "column" }),
@@ -163,6 +150,7 @@ export const FitmentConditionGroup = defineEntity("FitmentConditionGroup", {
     operator: z
       .enum(FitmentConditionGroupOperator)
       .describe("The operator of the condition group"),
+    rank: z.number().int().default(0).describe("Order among its siblings"),
   }),
   relations: (r) => ({
     fitment: r.belongsTo("Fitment", { mappedBy: "conditionGroups" }),
@@ -175,6 +163,7 @@ export const FitmentConditionGroup = defineEntity("FitmentConditionGroup", {
 export const FitmentCondition = defineEntity("FitmentCondition", {
   schema: BaseSchema.extend({
     operator: z.enum(FitmentConditionOperator).describe("The operator of the fitment condition"),
+    rank: z.number().int().default(0).describe("Order within its group"),
     value: z.string().describe("The value of the fitment condition"),
     value_to: z
       .string()

@@ -19,6 +19,8 @@ export type FitmentMatch = {
   to_year: number | null;
   to_month: number | null;
   notes: string | null;
+  /** When it applies, e.g. "Drive is front-wheel drive" (null: always). */
+  conditions: string | null;
   position: { id: string; code: string; name: string } | null;
 };
 
@@ -60,7 +62,7 @@ export class PostgresFitmentSearch implements FitmentSearch {
     const fitments: any[] = await fitmentService.listFitments(
       { vehicle_id: vehicleId },
       {
-        select: ["id", "variant_id", "quantity", "from_year", "from_month", "to_year", "to_month", "notes"],
+        select: ["id", "variant_id", "quantity", "from_year", "from_month", "to_year", "to_month", "notes", "conditions_summary"],
         relations: ["position"],
       },
     );
@@ -96,6 +98,7 @@ export class PostgresFitmentSearch implements FitmentSearch {
         to_year: f.to_year,
         to_month: f.to_month,
         notes: f.notes,
+        conditions: f.conditions_summary ?? null,
         position: f.position ? { id: f.position.id, code: f.position.code, name: f.position.name } : null,
       };
       byVariant.set(f.variant_id, [...(byVariant.get(f.variant_id) ?? []), match]);

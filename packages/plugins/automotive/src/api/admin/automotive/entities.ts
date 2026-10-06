@@ -1,5 +1,5 @@
 import { createEntityRoutes } from "@repo/framework/entity/server";
-import { Fitment, FitmentPosition } from "../../../modules/fitment/entities";
+import { AutomotiveAttribute, Fitment, FitmentPosition } from "../../../modules/fitment/entities";
 import {
   CustomerVehicle,
   Vehicle,
@@ -26,5 +26,6 @@ export const automotiveRoutes = createEntityRoutes({
     CustomerVehicle,
     Fitment,
     FitmentPosition,
+    AutomotiveAttribute,
   ],
 });

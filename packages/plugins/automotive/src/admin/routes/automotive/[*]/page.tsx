@@ -6,6 +6,12 @@ import { Module, crudTemplates } from "@repo/dashboard/module";
 import { sidebarItems } from "@repo/framework/core";
 import { ModuleRouter } from "@repo/framework/admin";
 import automotive from "../../../modules/automotive";
+import { ConditionsSection } from "../../../components/conditions-drawer";
+
+// Detail-page panels (UI code stays out of the module definition).
+const sections = {
+  fitment: [{ id: "conditions", render: (ctx: any) => <ConditionsSection {...ctx} /> }],
+};
 
 export const config = defineRouteConfig({
   label: automotive.name,
@@ -14,7 +20,7 @@ export const config = defineRouteConfig({
 
 export default function AutomotiveRoutes() {
   return (
-    <Module module={automotive}>
+    <Module module={automotive} sections={sections}>
       <ModuleRouter module={automotive} templates={crudTemplates} />
     </Module>
   );

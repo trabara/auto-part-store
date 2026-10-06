@@ -3,6 +3,7 @@ import { authenticate, validateAndTransformBody, validateAndTransformQuery } fro
 import { automotiveRoutes } from "./admin/automotive/entities";
 import { partsRoutes } from "./admin/parts/entities";
 import { GarageCreateSchema, GarageUpdateSchema } from "./store/garage/helpers";
+import { ReplaceConditionsSchema } from "../modules/fitment/conditions";
 import {
   StorePartSearchParams,
   StorePartsParams,
@@ -16,6 +17,7 @@ export default defineMiddlewares({
   routes: [
     ...automotiveRoutes.middlewares("/admin/automotive"),
     ...partsRoutes.middlewares("/admin/parts"),
+    { matcher: "/admin/fitment-conditions/:id", methods: ["PUT"], middlewares: [validateAndTransformBody(ReplaceConditionsSchema)] },
     // Customer garage: logged-in customers only, scoped to themselves.
     { matcher: "/store/garage*", middlewares: [authenticate("customer", ["session", "bearer"])] },
     { matcher: "/store/garage", methods: ["POST"], middlewares: [validateAndTransformBody(GarageCreateSchema)] },

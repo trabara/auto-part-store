@@ -3,15 +3,15 @@ import { defineWidgetConfig } from "@medusajs/admin-sdk";
 import type { AdminCustomer, DetailWidgetProps } from "@medusajs/framework/types";
 import { EntityPanel, Module } from "@repo/dashboard/module";
 import { entityLabel } from "@repo/framework/entity";
-import automotive from "../modules/automotive";
+import vehicles from "../../modules/vehicle/admin/module";
 import { Vehicle } from "../../modules/vehicle/entities";
 
 export default function CustomerGarageWidget({ data }: DetailWidgetProps<AdminCustomer>) {
   return (
-    <Module module={automotive}>
+    <Module module={vehicles}>
       <EntityPanel
-        module={automotive}
-        feature={automotive.features.customer_vehicle}
+        module={vehicles}
+        feature={vehicles.features.customer_vehicle}
         parent={{ field: "customer_id", value: data.id }}
         title="Garage"
         description="Vehicles this customer saved."

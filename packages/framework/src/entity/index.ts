@@ -9,6 +9,7 @@ export {
   withDerived,
   getEntity,
   getEntityModule,
+  getEntityUrl,
   resetEntities,
 } from "./define-entity"
 export { defineEntities, type DefineEntitiesOptions, type EntitySet } from "./define-entities"

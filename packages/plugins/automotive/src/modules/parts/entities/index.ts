@@ -14,4 +14,4 @@ declare module "@repo/framework/entity" {
 }
 
 /** Parts module entities; keys are the MedusaService model names. */
-export const partsEntities = defineEntities({ Brand, PartNumber }, { module: PARTS_MODULE });
+export const partsEntities = defineEntities({ Brand, PartNumber }, { module: PARTS_MODULE, path: "parts" });

@@ -1,5 +1,5 @@
 import { z } from "@medusajs/framework/zod";
-import { defineEntity, type EntityDef } from "../entity";
+import { defineEntities, defineEntity, type EntityDef } from "../entity";
 import {
   ModuleDefinitionError,
   defineModule,
@@ -16,6 +16,8 @@ import {
 declare module "../entity" {
   interface EntityRegistry {
     Company: EntityDef;
+    Team: EntityDef;
+    Member: EntityDef;
     User: EntityDef;
     Make: EntityDef;
     Model: EntityDef;
@@ -320,6 +322,18 @@ describe("validation", () => {
         withFeatures((m) => ({
           user: m.feature({ entity: User, relations: { company: { external: true } }, routes: () => [] }),
         })),
+      ).not.toThrow();
+    });
+
+    it("accepts targets served by another module's API (set with a path)", () => {
+      const Team = defineEntity("Team", { schema: CompanySchema });
+      defineEntities({ Team }, { path: "teams" });
+      const Member = defineEntity("Member", {
+        schema: CompanySchema,
+        relations: (r) => ({ team: r.belongsTo("Team") }),
+      });
+      expect(
+        withFeatures((m) => ({ member: m.feature({ entity: Member, routes: () => [] }) })),
       ).not.toThrow();
     });
 

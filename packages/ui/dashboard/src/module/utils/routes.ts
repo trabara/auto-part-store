@@ -8,7 +8,7 @@ import {
   type RelationUi,
 } from "@repo/framework/core";
 import { useRouteScope } from "@repo/framework/admin";
-import { getEntity, type EntityDef, type RelationDef } from "@repo/framework/entity";
+import { getEntity, getEntityUrl, type EntityDef, type RelationDef } from "@repo/framework/entity";
 
 type AnyEntity = EntityDef<any, any, any>;
 
@@ -25,11 +25,16 @@ export function useFeature() {
   };
 }
 
-/** Admin API URL of an entity collection or item: `/admin/<module>/<entity>[/id]`. */
+/**
+ * Admin API URL of an entity collection or item. The entity's own URL when
+ * known (external entities, sets with a `path`: entities of other modules
+ * resolve to their owner's routes), else `/admin/<module path>/<entity>`.
+ */
 export function entityUrl(module: ModuleDef, entity: AnyEntity, id?: string): string {
-  // External entities (Medusa models) are served by their own admin routes.
   const base =
-    entity.external?.url ?? `/admin/${module.path.replace(/^\/|\/$/g, "")}/${entity.modelName}`;
+    getEntityUrl(entity.name) ??
+    entity.external?.url ??
+    `/admin/${module.path.replace(/^\/|\/$/g, "")}/${entity.modelName}`;
   return id ? `${base}/${encodeURIComponent(id)}` : base;
 }
 
@@ -58,12 +63,12 @@ export type ResolvedRelation = {
   targetEntity?: AnyEntity;
 };
 
-/** Visible (non-hidden) relations of a feature, with their target features. */
-function externalEntity(name: string): AnyEntity | undefined {
-  const entity = getEntity(name);
-  return entity?.external ? (entity as AnyEntity) : undefined;
+/** An entity outside the module that admin code can still reach (it has an API URL). */
+function reachableEntity(name: string): AnyEntity | undefined {
+  return getEntityUrl(name) ? (getEntity(name) as AnyEntity | undefined) : undefined;
 }
 
+/** Visible (non-hidden) relations of a feature, with their target features. */
 export function featureRelations(module: ModuleDef, feature: FeatureDef): ResolvedRelation[] {
   const relations = feature.entity.relations as Record<string, RelationDef>;
   const ui = feature.relations as Record<string, RelationUi>;
@@ -77,9 +82,9 @@ export function featureRelations(module: ModuleDef, feature: FeatureDef): Resolv
         ui: ui[key] ?? {},
         label: ui[key]?.label ?? startCase(key),
         target,
-        // Medusa-owned targets (external entities) have no feature, but can
-        // still be picked and labelled.
-        targetEntity: (target?.entity ?? externalEntity(relation.target)) as AnyEntity | undefined,
+        // Targets outside the module (Medusa-owned, other modules) have no
+        // feature here, but can still be picked and labelled.
+        targetEntity: (target?.entity ?? reachableEntity(relation.target)) as AnyEntity | undefined,
       };
     });
 }

@@ -1,7 +1,7 @@
 import { z } from "@medusajs/framework/zod";
 import { kebabCase } from "lodash";
 import type { EntityDef, RelationDef } from "../entity";
-import { getEntity } from "../entity/define-entity";
+import { getEntityUrl } from "../entity/define-entity";
 import { pluralize } from "../utils/strings";
 
 /* ==========================================================================
@@ -551,11 +551,12 @@ function validateModule(mod: AnyModule): void {
     for (const [relKey, rel] of Object.entries(relations)) {
       const relUi = ui[relKey] ?? {};
       if (relUi.hidden || relUi.external || featureEntities.has(rel.target)) continue;
-      // Medusa-owned targets (defineEntity({ external })) have no feature by design.
-      if (getEntity(rel.target)?.external) continue;
+      // Targets with their own API (Medusa-owned entities, entities of other
+      // modules whose set declares a `path`) are picked from there.
+      if (getEntityUrl(rel.target)) continue;
       throw new ModuleDefinitionError(
         `Feature "${key}", relation "${relKey}": target "${rel.target}" is not a feature of ` +
-          `module "${mod.name}". Add a feature for it, or set ` +
+          `module "${mod.name}" and has no API path (defineEntities({ path })). Add a feature for it, or set ` +
           `\`relations: { ${relKey}: { hidden: true } }\` (or \`external: true\`).`,
       );
     }

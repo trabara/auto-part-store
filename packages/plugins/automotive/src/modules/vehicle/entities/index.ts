@@ -29,5 +29,5 @@ declare module "@repo/framework/entity" {
 /** Vehicle module entities; keys are the MedusaService model names. */
 export const vehicleEntities = defineEntities(
   { Vehicle, VehicleMake, VehicleModel, VehicleGeneration, VehicleEngine, VehicleReference, CustomerVehicle },
-  { module: VEHICLE_MODULE },
+  { module: VEHICLE_MODULE, path: "vehicles" },
 );

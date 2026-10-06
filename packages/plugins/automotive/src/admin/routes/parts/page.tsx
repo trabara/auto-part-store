@@ -1,8 +1,8 @@
 import { defineRouteConfig } from "@medusajs/admin-sdk";
 import { ModuleHome } from "@repo/framework/admin";
-import parts from "../../modules/parts";
+import definition from "../../../modules/parts/admin/module";
 
-export const config = defineRouteConfig({ label: parts.name });
+export const config = defineRouteConfig({ label: definition.name });
 export default function PartsIndex() {
-  return <ModuleHome module={parts} />;
+  return <ModuleHome module={definition} />;
 }

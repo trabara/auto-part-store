@@ -26,5 +26,5 @@ declare module "@repo/framework/entity" {
 /** Fitment module entities; keys are the MedusaService model names. */
 export const fitmentEntities = defineEntities(
   { Fitment, FitmentPosition, FitmentConditionGroup, FitmentCondition, AutomotiveAttribute },
-  { module: FITMENT_MODULE },
+  { module: FITMENT_MODULE, path: "fitments" },
 );

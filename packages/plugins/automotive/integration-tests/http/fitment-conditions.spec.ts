@@ -1,3 +1,4 @@
+import { adminUrl } from "../admin-url";
 import { medusaIntegrationTestRunner } from "@medusajs/test-utils";
 import { adminHeaders } from "@repo/config/jest/medusa-helpers.cjs";
 
@@ -10,7 +11,7 @@ medusaIntegrationTestRunner({
     let c: Record<string, any>;
 
     const post = (path: string, body: object) => api.post(path, body, admin).then((r) => r.data);
-    const entity = (name: string, body: object) => post(`/admin/automotive/${name}`, body).then((d) => d.data);
+    const entity = (name: string, body: object) => post(adminUrl(name), body).then((d) => d.data);
     const fail = (p: Promise<any>) => p.catch((e) => e.response);
 
     beforeEach(async () => {
@@ -72,22 +73,22 @@ medusaIntegrationTestRunner({
 
     it("saves a condition tree as a whole, with a readable summary", async () => {
       for (const id of [c.dieselFit.id, c.petrolFit.id]) {
-        const { data } = await api.put(`/admin/fitment-conditions/${id}`, { tree: dieselOnly }, admin);
+        const { data } = await api.put(`/admin/fitments/fitment/${id}/conditions`, { tree: dieselOnly }, admin);
         expect(data.summary).toBe(
           "Fuel is diesel and (Drive is one of front-wheel drive, all-wheel drive or Power is between 80 and 120 kW)",
         );
       }
 
-      const { data } = await api.get(`/admin/fitment-conditions/${c.dieselFit.id}`, admin);
+      const { data } = await api.get(`/admin/fitments/fitment/${c.dieselFit.id}/conditions`, admin);
       expect(data.tree).toMatchObject(dieselOnly);
 
-      const fitment = await api.get(`/admin/automotive/fitment/${c.dieselFit.id}?fields=id,conditions_summary`, admin);
+      const fitment = await api.get(`/admin/fitments/fitment/${c.dieselFit.id}?fields=id,conditions_summary`, admin);
       expect(fitment.data.data.conditions_summary).toBe(data.summary);
     });
 
     it("creates missing attributes from the vehicle catalog, typed from the field", async () => {
-      await api.put(`/admin/fitment-conditions/${c.dieselFit.id}`, { tree: dieselOnly }, admin);
-      const { data } = await api.get("/admin/automotive/automotive_attribute?fields=code,name,data_type,default_unit", admin);
+      await api.put(`/admin/fitments/fitment/${c.dieselFit.id}/conditions`, { tree: dieselOnly }, admin);
+      const { data } = await api.get("/admin/fitments/automotive_attribute?fields=code,name,data_type,default_unit", admin);
       const byCode = Object.fromEntries(data.data.map((a: any) => [a.code, a]));
       expect(byCode).toMatchObject({
         "engine.fuel": { name: "Fuel", data_type: "enum" },
@@ -99,7 +100,7 @@ medusaIntegrationTestRunner({
     it("rejects invalid trees with every problem listed", async () => {
       const res = await fail(
         api.put(
-          `/admin/fitment-conditions/${c.dieselFit.id}`,
+          `/admin/fitments/fitment/${c.dieselFit.id}/conditions`,
           {
             tree: {
               operator: "and",
@@ -118,24 +119,24 @@ medusaIntegrationTestRunner({
         "Conditions › #1: Drive can't use \"is above\". Conditions › #2: the upper bound of Power is below the lower one.",
       );
       // Nothing was saved.
-      expect((await api.get(`/admin/fitment-conditions/${c.dieselFit.id}`, admin)).data.tree).toBeNull();
+      expect((await api.get(`/admin/fitments/fitment/${c.dieselFit.id}/conditions`, admin)).data.tree).toBeNull();
     });
 
     it("drives the storefront: non-matching vehicles lose the part, matches show the summary", async () => {
-      await api.put(`/admin/fitment-conditions/${c.petrolFit.id}`, { tree: dieselOnly }, admin);
-      await api.put(`/admin/fitment-conditions/${c.dieselFit.id}`, { tree: dieselOnly }, admin);
+      await api.put(`/admin/fitments/fitment/${c.petrolFit.id}/conditions`, { tree: dieselOnly }, admin);
+      await api.put(`/admin/fitments/fitment/${c.dieselFit.id}/conditions`, { tree: dieselOnly }, admin);
 
-      const parts = (id: string) => api.get(`/store/automotive/vehicles/${id}/parts`, store).then((r) => r.data.products);
+      const parts = (id: string) => api.get(`/store/vehicles/${id}/parts`, store).then((r) => r.data.products);
       expect(await parts(c.petrol.id)).toEqual([]);
       const diesel = await parts(c.diesel.id);
       expect(diesel[0].variants[0].fitments[0].conditions).toMatch(/^Fuel is diesel and/);
     });
 
     it("removes all conditions with a null tree", async () => {
-      await api.put(`/admin/fitment-conditions/${c.petrolFit.id}`, { tree: dieselOnly }, admin);
-      const { data } = await api.put(`/admin/fitment-conditions/${c.petrolFit.id}`, { tree: null }, admin);
+      await api.put(`/admin/fitments/fitment/${c.petrolFit.id}/conditions`, { tree: dieselOnly }, admin);
+      const { data } = await api.put(`/admin/fitments/fitment/${c.petrolFit.id}/conditions`, { tree: null }, admin);
       expect(data).toEqual({ tree: null, summary: null });
-      const parts = await api.get(`/store/automotive/vehicles/${c.petrol.id}/parts`, store);
+      const parts = await api.get(`/store/vehicles/${c.petrol.id}/parts`, store);
       expect(parts.data.products).toHaveLength(1);
     });
 
@@ -145,13 +146,13 @@ medusaIntegrationTestRunner({
       });
       expect(created).toMatchObject({ code: "engine.displacement_cc", data_type: "number" });
       const bad = await fail(
-        api.post("/admin/automotive/automotive_attribute", { code: "colour", name: "Colour", default_unit: null, category: null }, admin),
+        api.post("/admin/fitments/automotive_attribute", { code: "colour", name: "Colour", default_unit: null, category: null }, admin),
       );
       expect(bad.status).toBe(400);
     });
 
     it("404s for an unknown fitment", async () => {
-      expect((await fail(api.get("/admin/fitment-conditions/nope", admin))).status).toBe(404);
+      expect((await fail(api.get("/admin/fitments/fitment/nope/conditions", admin))).status).toBe(404);
     });
   },
 });

@@ -2,7 +2,7 @@ import { z } from "@medusajs/framework/zod"
 import { reset } from "../orm/registry"
 import { BaseSchema } from "../utils/validation"
 import { getFieldUi } from "../utils/zod-introspect"
-import { defineEntities, defineEntity, entityLabel, fields, getEntity, resetEntities } from "./index"
+import { defineEntities, defineEntity, entityLabel, fields, getEntity, getEntityUrl, resetEntities } from "./index"
 import type { EntityDef } from "./index"
 import { findParams, toModel, toModels, validateEntityBody, validateEntityQuery } from "./server"
 
@@ -295,6 +295,21 @@ describe("defineEntities", () => {
     expect(message).toMatch(/A\.noInverse: mappedBy "nope" is not a relation of "B"/)
     expect(message).toMatch(/A\.wrongTarget: "B\.toC" points to "C", not "A"/)
     expect(message).toMatch(/A\.wrongKind: belongsTo cannot be mapped by belongsTo/)
+  })
+
+  it("records each entity's API URL from the set's path (external URLs win)", () => {
+    const { Vehicle, Engine } = defineVehicleAndEngine()
+    const Variant = defineEntity("Variant", {
+      schema: BaseSchema,
+      external: { module: "product", url: "/admin/product-variants" },
+    })
+    const set = defineEntities({ Vehicle, Engine }, { path: "/vehicles/" })
+    expect(set.path).toBe("vehicles")
+    expect(getEntityUrl("Vehicle")).toBe("/admin/vehicles/vehicle")
+    expect(getEntityUrl("Engine")).toBe("/admin/vehicles/engine")
+    expect(getEntityUrl("Variant")).toBe("/admin/product-variants")
+    expect(getEntityUrl("Nope")).toBeUndefined()
+    expect(() => defineEntities({ Vehicle }, { path: "cars" })).toThrow(/already served at "\/admin\/vehicles\/vehicle"/)
   })
 
   it("requires keys to match entity names", () => {

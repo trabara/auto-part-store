@@ -151,9 +151,9 @@ export const layers = [
     files: ["packages/plugins/*/src/**"],
     rules: restrict(PLUGINS, UI_PACKAGES),
   },
-  // plugin admin: no other plugin, no server code
+  // plugin admin (domain admin and each module's admin/): no other plugin, no server code
   {
-    files: ["packages/plugins/*/src/admin/**"],
+    files: ["packages/plugins/*/src/admin/**", "packages/plugins/*/src/modules/*/admin/**"],
     rules: restrict(PLUGINS, FRAMEWORK_SERVER_ENTRIES, MEDUSA_SERVER_PACKAGES, PLUGIN_SERVER_FOLDERS),
   },
 ];

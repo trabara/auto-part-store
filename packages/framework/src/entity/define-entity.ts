@@ -21,6 +21,7 @@ const SERVER_MANAGED_KEYS = ["id", "created_at", "updated_at", "deleted_at"] as 
 
 const entities = new Map<string, EntityDef<any, any, any>>()
 const entityModules = new Map<string, string>()
+const entityUrls = new Map<string, string>()
 
 /** A defined entity by name, if any. */
 export function getEntity(name: string): EntityDef | undefined {
@@ -43,10 +44,28 @@ export function setEntityModule(name: string, module: string): void {
   entityModules.set(name, module)
 }
 
+/**
+ * Admin API collection URL of an entity: its `external.url`, or
+ * `/admin/<path>/<modelName>` when its set declares a `path`.
+ */
+export function getEntityUrl(name: string): string | undefined {
+  return entities.get(name)?.external?.url ?? entityUrls.get(name)
+}
+
+/** @internal Records an entity's API URL; called by `defineEntities`. */
+export function setEntityUrl(name: string, url: string): void {
+  const current = entityUrls.get(name)
+  if (current && current !== url) {
+    throw new Error(`[defineEntities] ${name} is already served at "${current}", not "${url}".`)
+  }
+  entityUrls.set(name, url)
+}
+
 /** Clears defined entities. For tests only (pair with orm `reset()`). */
 export function resetEntities(): void {
   entities.clear()
   entityModules.clear()
+  entityUrls.clear()
 }
 
 function requireEntity(name: string): EntityDef {

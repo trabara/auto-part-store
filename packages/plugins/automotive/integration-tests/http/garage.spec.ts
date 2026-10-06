@@ -1,3 +1,4 @@
+import { adminUrl } from "../admin-url";
 import { medusaIntegrationTestRunner } from "@medusajs/test-utils";
 import { adminHeaders } from "@repo/config/jest/medusa-helpers.cjs";
 
@@ -31,7 +32,7 @@ medusaIntegrationTestRunner({
     let seq = 0;
     const vehicle = async () => {
       const post = (entity: string, body: object) =>
-        api.post(`/admin/automotive/${entity}`, body, admin).then((r) => r.data.data);
+        api.post(adminUrl(entity), body, admin).then((r) => r.data.data);
       const make = await post("vehicle_make", { name: `Make ${++seq}`, slug: null });
       const model = await post("vehicle_model", { name: "Model", slug: null, make_id: make.id });
       const generation = await post("vehicle_generation", {

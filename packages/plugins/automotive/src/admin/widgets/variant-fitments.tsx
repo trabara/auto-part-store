@@ -5,10 +5,10 @@ import { AdjustmentsDone } from "@medusajs/icons";
 import { useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { EntityPanel, Module } from "@repo/dashboard/module";
-import { ConditionsDrawer } from "../components/conditions-drawer";
+import { ConditionsDrawer } from "../../modules/fitment/admin/components/conditions-drawer";
 import { Fitment } from "../../modules/fitment/entities";
 import { entityLabel } from "@repo/framework/entity";
-import automotive from "../modules/automotive";
+import fitments from "../../modules/fitment/admin/module";
 import { Vehicle } from "../../modules/vehicle/entities";
 
 type Row = Record<string, any>;
@@ -28,8 +28,8 @@ function VariantFitments({ variantId }: { variantId: string }) {
   return (
     <>
       <EntityPanel
-        module={automotive}
-        feature={automotive.features.fitment}
+        module={fitments}
+        feature={fitments.features.fitment}
         parent={{ field: "variant_id", value: variantId }}
         title="Fits vehicles"
         description="Vehicles this variant fits, per position."
@@ -58,7 +58,7 @@ function VariantFitments({ variantId }: { variantId: string }) {
 
 export default function VariantFitmentsWidget({ data }: DetailWidgetProps<AdminProductVariant>) {
   return (
-    <Module module={automotive}>
+    <Module module={fitments}>
       <VariantFitments variantId={data.id} />
     </Module>
   );

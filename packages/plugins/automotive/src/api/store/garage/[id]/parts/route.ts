@@ -1,7 +1,7 @@
 // Parts fitting one of the customer's garage vehicles (its build date narrows windows).
 import type { AuthenticatedMedusaRequest, MedusaResponse } from "@medusajs/framework/http";
 import { partsForVehicle } from "../../../../../queries/parts-for-vehicle";
-import type { StorePartsParams } from "../../../automotive/validators";
+import type { StorePartsParams } from "../../../validators";
 import { ownGarageVehicle, vehicleService } from "../../helpers";
 
 export async function GET(req: AuthenticatedMedusaRequest, res: MedusaResponse) {

@@ -1,5 +1,5 @@
 import { snakeCase } from "lodash"
-import { getEntity, setEntityModule } from "./define-entity"
+import { getEntity, setEntityModule, setEntityUrl } from "./define-entity"
 import { INVERSE_KINDS, isColumnLink, isLink } from "./relations"
 import type { EntityDef, RelationDef } from "./types"
 
@@ -11,11 +11,18 @@ export interface DefineEntitiesOptions {
    * must stay inside the set; relations to other modules use `r.link(...)`.
    */
   module?: string
+  /**
+   * URL segment of the module's generic API (`createEntityRoutes`): entities
+   * are served at `/admin/<path>/<entity>`. Lets admin code reach an entity
+   * from any module (relation pickers, panels) without knowing its owner.
+   */
+  path?: string
 }
 
 export interface EntitySet<E extends Record<string, AnyEntity>> {
   readonly entities: E
   readonly module?: string
+  readonly path?: string
   /** Look up an entity by its URL / remote-query key (`vehicle_engine`). */
   byKey(key: string): E[keyof E] | undefined
 }
@@ -32,6 +39,7 @@ export function defineEntities<const E extends Record<string, AnyEntity>>(
 ): EntitySet<E> {
   const errors: string[] = []
   const { module } = options
+  const path = options.path?.replace(/^\/+|\/+$/g, "")
   const members = new Set(Object.values(entities).map((e) => e.name))
 
   for (const [key, entity] of Object.entries(entities)) {
@@ -94,11 +102,15 @@ export function defineEntities<const E extends Record<string, AnyEntity>>(
   if (module) {
     for (const entity of Object.values(entities)) setEntityModule(entity.name, module)
   }
+  if (path) {
+    for (const entity of Object.values(entities)) setEntityUrl(entity.name, `/admin/${path}/${entity.modelName}`)
+  }
 
   const byKey = new Map(Object.values(entities).map((e) => [snakeCase(e.name), e]))
   return Object.freeze({
     entities,
     module,
+    path,
     byKey: (key: string) => byKey.get(snakeCase(key)) as E[keyof E] | undefined,
   })
 }

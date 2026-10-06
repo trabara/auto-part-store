@@ -31,16 +31,16 @@ medusaIntegrationTestRunner({
       c.region = (await post("/admin/regions", { name: "Tunisia", currency_code: "tnd", countries: ["tn"] })).region;
 
       // Vehicles: Peugeot 308 T9 (2013–2021), FWD and AWD configurations.
-      const make = await entity("automotive", "vehicle_make", { name: "Peugeot", slug: null });
-      const model = await entity("automotive", "vehicle_model", { name: "308", slug: null, make_id: make.id });
-      c.generation = await entity("automotive", "vehicle_generation", {
+      const make = await entity("vehicles", "vehicle_make", { name: "Peugeot", slug: null });
+      const model = await entity("vehicles", "vehicle_model", { name: "308", slug: null, make_id: make.id });
+      c.generation = await entity("vehicles", "vehicle_generation", {
         name: "T9", code: null, year_start: 2013, year_end: 2021, image: null, model_id: model.id,
       });
-      const engine = await entity("automotive", "vehicle_engine", {
+      const engine = await entity("vehicles", "vehicle_engine", {
         code: "DV6", fuel: "DIESEL", layout: "INLINE", cylinders: 4, displacement_cc: 1560, power_kw: 88,
       });
       const vehicle = (drive: string) =>
-        entity("automotive", "vehicle", {
+        entity("vehicles", "vehicle", {
           generation_id: c.generation.id, engine_id: engine.id, trim: null, drive, year_start: 2014, year_end: 2020,
         });
       c.fwd = await vehicle("FWD");
@@ -74,9 +74,9 @@ medusaIntegrationTestRunner({
       c.padsBrembo = variant(c.pads, "Brembo");
 
       // Fitments.
-      const position = await entity("automotive", "fitment_position", { code: "FRONT", name: "Front axle", category: null });
+      const position = await entity("fitments", "fitment_position", { code: "FRONT", name: "Front axle", category: null });
       const fit = (variant_id: string, vehicle_id: string, extra = {}) =>
-        entity("automotive", "fitment", {
+        entity("fitments", "fitment", {
           variant_id, vehicle_id, position_id: position.id, quantity: 1, notes: null,
           from_year: null, from_month: null, to_year: null, to_month: null, ...extra,
         });
@@ -106,31 +106,31 @@ medusaIntegrationTestRunner({
     const variantsOf = (products: any[]) => products.flatMap((p) => p.variants.map((v: any) => v.id)).sort();
 
     it("needs a publishable key", async () => {
-      const res = await api.get("/store/automotive/makes").catch((e) => e.response);
+      const res = await api.get("/store/vehicles/makes").catch((e) => e.response);
       expect(res.status).toBe(400);
     });
 
     it("serves the vehicle selector, narrowed by year", async () => {
-      const makes = (await api.get("/store/automotive/makes", store)).data.makes;
+      const makes = (await api.get("/store/vehicles/makes", store)).data.makes;
       expect(makes.map((m: any) => m.name)).toEqual(["Peugeot"]);
-      const models = (await api.get(`/store/automotive/models?make_id=${makes[0].id}`, store)).data.models;
+      const models = (await api.get(`/store/vehicles/models?make_id=${makes[0].id}`, store)).data.models;
       expect(models.map((m: any) => [m.name, m.category])).toEqual([["308", "CAR"]]);
 
       const gens = (year: number) =>
-        api.get(`/store/automotive/generations?model_id=${models[0].id}&year=${year}`, store).then((r) => r.data.generations);
+        api.get(`/store/vehicles/generations?model_id=${models[0].id}&year=${year}`, store).then((r) => r.data.generations);
       expect((await gens(2016)).map((g: any) => g.label)).toEqual(["Peugeot 308 T9 2013–2021"]);
       expect(await gens(2023)).toEqual([]);
 
-      const vehicles = (await api.get(`/store/automotive/vehicles?generation_id=${c.generation.id}&year=2016`, store)).data.vehicles;
+      const vehicles = (await api.get(`/store/vehicles?generation_id=${c.generation.id}&year=2016`, store)).data.vehicles;
       expect(vehicles.map((v: any) => v.drive).sort()).toEqual(["AWD", "FWD"]);
       expect(vehicles[0].label).toMatch(/^Peugeot 308 T9 2014–2020 · 1\.6 diesel I4 88 kW \(118 hp\) DV6$/);
 
-      const missing = await api.get("/store/automotive/models", store).catch((e) => e.response);
+      const missing = await api.get("/store/vehicles/models", store).catch((e) => e.response);
       expect(missing.status).toBe(400);
     });
 
     it("lists published, channel-visible parts fitting a vehicle, with fitments, brand and TND price", async () => {
-      const { data } = await api.get(`/store/automotive/vehicles/${c.fwd.id}/parts?region_id=${c.region.id}`, store);
+      const { data } = await api.get(`/store/vehicles/${c.fwd.id}/parts?region_id=${c.region.id}`, store);
       expect(data.vehicle.label).toMatch(/^Peugeot 308 T9 2014–2020/);
       expect(data.count).toBe(1);
       expect(data.products.map((p: any) => p.title)).toEqual(["Front brake pad set"]);
@@ -144,7 +144,7 @@ medusaIntegrationTestRunner({
 
     it("narrows production windows by build date", async () => {
       const ids = (q: string) =>
-        api.get(`/store/automotive/vehicles/${c.fwd.id}/parts?${q}`, store).then((r) => variantsOf(r.data.products));
+        api.get(`/store/vehicles/${c.fwd.id}/parts?${q}`, store).then((r) => variantsOf(r.data.products));
       expect(await ids("build_year=2017")).toEqual([c.padsBosch]);
       expect(await ids("build_year=2018&build_month=3")).toEqual([c.padsBosch]);
       expect(await ids("build_year=2018&build_month=7")).toEqual([c.padsBosch, c.padsBrembo].sort());
@@ -153,19 +153,19 @@ medusaIntegrationTestRunner({
     });
 
     it("applies fitment conditions to the vehicle", async () => {
-      const { data } = await api.get(`/store/automotive/vehicles/${c.awd.id}/parts`, store);
+      const { data } = await api.get(`/store/vehicles/${c.awd.id}/parts`, store);
       expect(data.products).toEqual([]);
     });
 
     it("filters by brand and pages by product", async () => {
-      const byBrand = await api.get(`/store/automotive/vehicles/${c.fwd.id}/parts?brand_id=${c.brembo.id}`, store);
+      const byBrand = await api.get(`/store/vehicles/${c.fwd.id}/parts?brand_id=${c.brembo.id}`, store);
       expect(variantsOf(byBrand.data.products)).toEqual([c.padsBrembo]);
-      const paged = await api.get(`/store/automotive/vehicles/${c.fwd.id}/parts?limit=1&offset=1`, store);
+      const paged = await api.get(`/store/vehicles/${c.fwd.id}/parts?limit=1&offset=1`, store);
       expect([paged.data.count, paged.data.products]).toEqual([1, []]);
     });
 
     it("finds parts by any number, however typed, with equivalents", async () => {
-      const byMpn = (await api.get(`/store/automotive/parts/search?q=${encodeURIComponent("0986-494262")}`, store)).data;
+      const byMpn = (await api.get(`/store/parts/search?q=${encodeURIComponent("0986-494262")}`, store)).data;
       expect(byMpn.normalized).toBe("0986494262");
       const variants = byMpn.products.flatMap((p: any) => p.variants);
       expect(variants.find((v: any) => v.id === c.padsBosch).matches).toEqual([
@@ -174,9 +174,9 @@ medusaIntegrationTestRunner({
       // Brembo shares PSA's OE number with the Bosch pads.
       expect(variants.find((v: any) => v.id === c.padsBrembo)).toMatchObject({ matches: [], equivalent_of: c.padsBosch });
 
-      const byOe = (await api.get("/store/automotive/parts/search?q=4253.90", store)).data;
+      const byOe = (await api.get("/store/parts/search?q=4253.90", store)).data;
       expect(variantsOf(byOe.products)).toEqual([c.padsBosch, c.padsBrembo].sort());
-      expect((await api.get("/store/automotive/parts/search?q=99999", store)).data.products).toEqual([]);
+      expect((await api.get("/store/parts/search?q=99999", store)).data.products).toEqual([]);
     });
 
     it("uses a garage vehicle's build date", async () => {

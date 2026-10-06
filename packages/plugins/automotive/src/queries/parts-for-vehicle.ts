@@ -1,7 +1,7 @@
 import type { MedusaStoreRequest } from "@medusajs/framework/http";
 import { fitmentSearch, type BuildDate } from "./fitment-search";
 import { storeProducts } from "./store-products";
-import type { StorePartsParams } from "../api/store/automotive/validators";
+import type { StorePartsParams } from "../api/store/validators";
 
 /** Products fitting a vehicle (optionally built at `build`), each variant with its fitments. */
 export async function partsForVehicle(

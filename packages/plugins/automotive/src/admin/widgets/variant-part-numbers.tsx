@@ -7,7 +7,7 @@ import { Badge, Text } from "@medusajs/ui";
 import { useQuery } from "@tanstack/react-query";
 import { useSdk } from "@repo/dashboard/common";
 import { EntityPanel, Module, entityUrl } from "@repo/dashboard/module";
-import parts from "../modules/parts";
+import parts from "../../modules/parts/admin/module";
 import { Brand } from "../../modules/parts/entities";
 
 function VariantBrand({ variant }: { variant: AdminProductVariant }) {

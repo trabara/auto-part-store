@@ -43,15 +43,15 @@ medusaIntegrationTestRunner({
     beforeEach(async () => {
       admin = await adminHeaders(getContainer());
       c = {};
-      const make = await entity("automotive", "vehicle_make", { name: "Dacia", slug: null });
-      const model = await entity("automotive", "vehicle_model", { name: "Sandero", slug: null, make_id: make.id });
-      c.generation = await entity("automotive", "vehicle_generation", {
+      const make = await entity("vehicles", "vehicle_make", { name: "Dacia", slug: null });
+      const model = await entity("vehicles", "vehicle_model", { name: "Sandero", slug: null, make_id: make.id });
+      c.generation = await entity("vehicles", "vehicle_generation", {
         name: "III", code: null, year_start: 2020, year_end: null, image: null, model_id: model.id,
       });
-      const engine = await entity("automotive", "vehicle_engine", {
+      const engine = await entity("vehicles", "vehicle_engine", {
         code: "H4D", layout: "INLINE", cylinders: 3, displacement_cc: 999, power_kw: 49,
       });
-      c.vehicle = await entity("automotive", "vehicle", {
+      c.vehicle = await entity("vehicles", "vehicle", {
         generation_id: c.generation.id, engine_id: engine.id, trim: "Stepway", year_start: 2021, year_end: null,
       });
       c.product = (
@@ -64,7 +64,7 @@ medusaIntegrationTestRunner({
       [c.variantA, c.variantB] = c.product.variants.map((v: any) => v.id);
       c.brand = await entity("parts", "brand", { name: "Mann", logo: null, kind: "AFTERMARKET" });
       const fit = (variant_id: string) =>
-        entity("automotive", "fitment", {
+        entity("fitments", "fitment", {
           variant_id, vehicle_id: c.vehicle.id, position_id: null, quantity: 1, notes: null,
           from_year: null, from_month: null, to_year: null, to_month: null,
         });
@@ -76,9 +76,9 @@ medusaIntegrationTestRunner({
     describe("linked ids must exist", () => {
       it("rejects unknown variants and vehicles", async () => {
         const body = { position_id: null, quantity: 1, notes: null, from_year: null, from_month: null, to_year: null, to_month: null };
-        const badVariant = await fail(api.post("/admin/automotive/fitment", { ...body, variant_id: "variant_nope", vehicle_id: c.vehicle.id }, admin));
+        const badVariant = await fail(api.post("/admin/fitments/fitment", { ...body, variant_id: "variant_nope", vehicle_id: c.vehicle.id }, admin));
         expect([badVariant.status, badVariant.data.message]).toEqual([400, 'Product variant "variant_nope" not found.']);
-        const badVehicle = await fail(api.put(`/admin/automotive/fitment/${c.fitA.id}`, { vehicle_id: "veh_nope" }, admin));
+        const badVehicle = await fail(api.put(`/admin/fitments/fitment/${c.fitA.id}`, { vehicle_id: "veh_nope" }, admin));
         expect([badVehicle.status, badVehicle.data.message]).toEqual([400, 'Vehicle "veh_nope" not found.']);
       });
     });
@@ -87,16 +87,16 @@ medusaIntegrationTestRunner({
       it("deleting a variant removes its fitments and part numbers", async () => {
         await api.delete(`/admin/products/${c.product.id}/variants/${c.variantA}`, admin);
         await eventually(async () => {
-          expect(await live("automotive", "fitment", `variant_id=${c.variantA}`)).toEqual([]);
+          expect(await live("fitments", "fitment", `variant_id=${c.variantA}`)).toEqual([]);
           expect(await live("parts", "part_number", `variant_id=${c.variantA}`)).toEqual([]);
         });
-        expect(await live("automotive", "fitment", `variant_id=${c.variantB}`)).toEqual([c.fitB.id]);
+        expect(await live("fitments", "fitment", `variant_id=${c.variantB}`)).toEqual([c.fitB.id]);
       });
 
       it("deleting a product removes its variants' fitments", async () => {
         await api.delete(`/admin/products/${c.product.id}`, admin);
         await eventually(async () => {
-          expect(await live("automotive", "fitment", `vehicle_id=${c.vehicle.id}`)).toEqual([]);
+          expect(await live("fitments", "fitment", `vehicle_id=${c.vehicle.id}`)).toEqual([]);
         });
       });
 
@@ -108,11 +108,11 @@ medusaIntegrationTestRunner({
           input: { module: VEHICLE_MODULE, entity: "Vehicle", ids: [c.vehicle.id] },
           throwOnError: false,
         });
-        expect(await live("automotive", "fitment", `vehicle_id=${c.vehicle.id}`)).toHaveLength(2);
+        expect(await live("fitments", "fitment", `vehicle_id=${c.vehicle.id}`)).toHaveLength(2);
         expect(await vehicles.listCustomerVehicles({ vehicle_id: c.vehicle.id })).toHaveLength(1);
 
-        await api.delete(`/admin/automotive/vehicle/${c.vehicle.id}`, admin);
-        expect(await live("automotive", "fitment", `vehicle_id=${c.vehicle.id}`)).toEqual([]);
+        await api.delete(`/admin/vehicles/vehicle/${c.vehicle.id}`, admin);
+        expect(await live("fitments", "fitment", `vehicle_id=${c.vehicle.id}`)).toEqual([]);
         expect(await vehicles.listCustomerVehicles({ vehicle_id: c.vehicle.id })).toEqual([]);
       });
 
@@ -133,13 +133,13 @@ medusaIntegrationTestRunner({
         ]);
         expect((await removeOrphansWorkflow(getContainer()).run({ input: { all: true } })).result).toEqual({ fitments: 1, partNumbers: 0, garage: 0 });
         expect((await removeOrphansWorkflow(getContainer()).run({ input: { all: true } })).result).toEqual({ fitments: 0, partNumbers: 0, garage: 0 });
-        expect(await live("automotive", "fitment", `vehicle_id=${c.vehicle.id}`)).toHaveLength(2);
+        expect(await live("fitments", "fitment", `vehicle_id=${c.vehicle.id}`)).toHaveLength(2);
       });
     });
 
     describe("search (?q=)", () => {
       it("matches every word against the label's text fields", async () => {
-        const ids = (q: string) => live("automotive", "vehicle", `q=${encodeURIComponent(q)}`);
+        const ids = (q: string) => live("vehicles", "vehicle", `q=${encodeURIComponent(q)}`);
         expect(await ids("sandero")).toEqual([c.vehicle.id]);
         expect(await ids("dacia stepway")).toEqual([c.vehicle.id]);
         expect(await ids("h4d")).toEqual([c.vehicle.id]); // engine code

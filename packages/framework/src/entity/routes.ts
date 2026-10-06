@@ -16,6 +16,37 @@ import {
 } from "./workflows"
 
 type AnyEntity = EntityDef<any, any, any>
+
+/**
+ * Filters on single-source derived fields go through the same `compute` as
+ * the stored value ("04465 02220" → "0446502220"); `$ilike` keeps its `%`.
+ */
+export function normalizeDerivedFilters(
+  entity: AnyEntity,
+  filters: Record<string, unknown> = {},
+): Record<string, unknown> {
+  const out = { ...filters }
+  for (const [field, def] of Object.entries(entity.derived ?? {})) {
+    if (def.from.length !== 1 || !(field in out)) continue
+    const normalize = (value: unknown) =>
+      typeof value === "string" ? def.compute({ [def.from[0]!]: value }) : value
+    const value = out[field]
+    if (value && typeof value === "object" && !Array.isArray(value)) {
+      out[field] = Object.fromEntries(
+        Object.entries(value).map(([op, v]) => {
+          if (op === "$ilike" || op === "$like") {
+            const m = typeof v === "string" ? v.match(/^(%?)(.*?)(%?)$/s) : null
+            return [op, m ? `${m[1]}${normalize(m[2])}${m[3]}` : v]
+          }
+          return [op, Array.isArray(v) ? v.map(normalize) : normalize(v)]
+        }),
+      )
+    } else {
+      out[field] = Array.isArray(value) ? value.map(normalize) : normalize(value)
+    }
+  }
+  return out
+}
 type Handler = (req: MedusaRequest<any>, res: MedusaResponse) => Promise<void>
 
 export type EntityRoutesOptions = {
@@ -82,7 +113,7 @@ export function createEntityRoutes({ module, entities, depth }: EntityRoutesOpti
       const { data, metadata } = await query.graph({
         entity: entity.modelName,
         ...req.queryConfig,
-        filters: req.filterableFields,
+        filters: normalizeDerivedFilters(entity, req.filterableFields),
       })
       res.status(200).json({ entity: entity.modelName, data, metadata })
     },

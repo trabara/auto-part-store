@@ -10,6 +10,7 @@ import { foreignKeys, linkColumns, linkKeys, relationBuilder } from "./relations
 import type {
   DefineEntityConfig,
   EntityDef,
+  DerivedField,
   EntityLabel,
   EntityQuery,
   RelationDef,
@@ -117,7 +118,7 @@ const idField = (nullable: boolean | undefined) => {
   return nullable ? id.nullish() : id
 }
 
-function buildDtos(schema: z.ZodObject<any>, relations: RelationMap) {
+function buildDtos(schema: z.ZodObject<any>, relations: RelationMap, readOnly: readonly string[]) {
   const fkShape: Record<string, z.ZodTypeAny> = {}
   for (const [fk, key] of foreignKeys(relations)) {
     fkShape[fk] = idField(relations[key]!.options.nullable)
@@ -128,7 +129,7 @@ function buildDtos(schema: z.ZodObject<any>, relations: RelationMap) {
     linkShape[field] = idField(relations[key]!.options.nullable)
   }
   const mask = Object.fromEntries(
-    SERVER_MANAGED_KEYS.filter((k) => k in schema.shape).map((k) => [k, true as const]),
+    [...SERVER_MANAGED_KEYS, ...readOnly].filter((k) => k in schema.shape).map((k) => [k, true as const]),
   )
   const create = schema.omit(mask).extend(fkShape).extend(linkShape)
   const update = create.partial()
@@ -139,6 +140,35 @@ function buildDtos(schema: z.ZodObject<any>, relations: RelationMap) {
   const columnShape = { ...fkShape }
   for (const field of linkColumns(relations).keys()) columnShape[field] = linkShape[field]!
   return { dto: { create, update, batchUpdate }, columnShape }
+}
+
+function buildDerived(
+  name: string,
+  shape: Record<string, z.ZodTypeAny>,
+  config: DefineEntityConfig<any, any>["derived"],
+): Record<string, DerivedField> {
+  const out: Record<string, DerivedField> = {}
+  for (const [field, def] of Object.entries(config ?? {})) {
+    if (!def) continue
+    if (!(field in shape)) fail(name, `derived field "${field}" is not a schema field.`)
+    for (const source of def.from) {
+      if (!(source in shape)) fail(name, `derived "${field}" reads "${source}", which is not a schema field.`)
+    }
+    out[field] = Object.freeze({ from: Object.freeze([...def.from]), compute: def.compute })
+  }
+  return Object.freeze(out)
+}
+
+/** Fills an entity's derived fields from `row` (all their sources present). */
+export function withDerived(
+  entity: EntityDef<any, any, any>,
+  row: Record<string, any>,
+): Record<string, any> {
+  const out = { ...row }
+  for (const [field, def] of Object.entries(entity.derived ?? {})) {
+    if (def.from.every((source) => source in row)) out[field] = def.compute(row)
+  }
+  return out
 }
 
 function buildLabel(
@@ -247,7 +277,12 @@ export function defineEntity<
   validateStorage(name, shape, relations, config)
 
   const modelName = snakeCase(name)
-  const { dto, columnShape } = buildDtos(schema, relations)
+  const derived = buildDerived(name, shape, config.derived)
+  const readOnly = Object.freeze([...new Set([...(config.readOnly ?? []), ...Object.keys(derived)])])
+  for (const key of readOnly) {
+    if (!(key in shape)) fail(name, `readOnly field "${key}" is not a schema field.`)
+  }
+  const { dto, columnShape } = buildDtos(schema, relations, readOnly)
   const display = config.display ?? ("name" in shape ? "name" : "id")
   const label = buildLabel(name, shape, relations, display, config.label, !!config.external)
 
@@ -267,6 +302,8 @@ export function defineEntity<
     dto: Object.freeze(dto),
     query: Object.freeze(buildQuery(schema, relations, columnShape, label)),
     external: config.external ? Object.freeze({ ...config.external }) : undefined,
+    derived,
+    readOnly,
     messages: Object.freeze({
       unique: Object.freeze((config.messages?.unique ?? []).map((m) => Object.freeze({ ...m, on: [...m.on] }))),
     }),

@@ -311,6 +311,10 @@ export interface EntityDef<
   readonly label: EntityLabel
   /** User-facing error messages (see `messages` in the config). */
   readonly messages: EntityMessages
+  /** Fields computed by the workflows from other fields (see `derived`). */
+  readonly derived: Readonly<Record<string, DerivedField>>
+  /** Fields set by the server only: not in DTOs (derived fields included). */
+  readonly readOnly: readonly string[]
   /** Storage options consumed by `toModels` (server). */
   readonly storage: EntityStorage
   readonly dto: {
@@ -333,6 +337,12 @@ export interface EntityDef<
 export interface EntityLabel {
   readonly fields: readonly string[]
   readonly format: (row: any) => string
+}
+
+/** A column computed from other columns of the same row on every write. */
+export interface DerivedField {
+  readonly from: readonly string[]
+  readonly compute: (row: Record<string, any>) => unknown
 }
 
 /** A readable message for violations of a unique index on `on`. */
@@ -399,4 +409,13 @@ export interface DefineEntityConfig<S extends z.ZodObject<any>, Rels extends Rel
    * others get "A <entity> with this <columns> already exists."
    */
   messages?: { unique?: { on: string[]; message: string }[] }
+  /**
+   * Columns computed from others on create/update, e.g. a search key:
+   * `{ number_normalized: { from: ["number"], compute: (r) => normalize(r.number) } }`.
+   * Not in DTOs; selectable and filterable (a filter on a single-source
+   * derived field is normalized with `compute` too).
+   */
+  derived?: { [K in keyof S["shape"]]?: { from: (keyof S["shape"] & string)[]; compute: (row: any) => unknown } }
+  /** Fields set by the server (hooks, workflows): left out of the DTOs. */
+  readOnly?: (keyof S["shape"] & string)[]
 }

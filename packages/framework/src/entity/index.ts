@@ -6,6 +6,7 @@ export { fields } from "./fields"
 export {
   defineEntity,
   entityLabel,
+  withDerived,
   getEntity,
   getEntityModule,
   resetEntities,
@@ -27,6 +28,7 @@ export type {
   CreateDto,
   DefineEntityConfig,
   EntityDef,
+  DerivedField,
   EntityExternal,
   EntityMessages,
   EntityLabel,

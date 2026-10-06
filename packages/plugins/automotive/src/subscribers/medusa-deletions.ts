@@ -1,21 +1,23 @@
 // Deleting a product, variant or customer (in Medusa's own workflows) also
-// soft-deletes this plugin's records pointing at them: fitments and part
+// soft-deletes this domain's records pointing at them: fitments and part
 // numbers of the variants, garage entries of the customer.
 import type { SubscriberArgs, SubscriberConfig } from "@medusajs/framework";
-import { removeCustomerRecords, removeVariantRecords, variantsOfProducts } from "../lib/orphans";
+import { removeOrphansWorkflow, type FindOrphansInput } from "../workflows/remove-orphans";
+
+function orphansOf(event: string, ids: string[]): FindOrphansInput {
+  if (event.endsWith("customer.deleted")) return { customer_ids: ids };
+  if (event.endsWith("product-variant.deleted")) return { variant_ids: ids };
+  return { product_ids: ids };
+}
 
 export default async function onMedusaDeletion({ event, container }: SubscriberArgs<{ id: string | string[] }>) {
   const ids = ([] as string[]).concat(event.data.id ?? []);
-  const logger = container.resolve("logger");
-  if (event.name.endsWith("customer.deleted")) {
-    const removed = await removeCustomerRecords(container as any, ids);
-    if (removed.garage) logger.info(`[automotive] removed ${removed.garage} garage vehicle(s) of deleted customers`);
-    return;
-  }
-  const variantIds = event.name.endsWith("product-variant.deleted") ? ids : await variantsOfProducts(container as any, ids);
-  const removed = await removeVariantRecords(container as any, variantIds);
-  if (removed.fitments || removed.partNumbers) {
-    logger.info(`[automotive] removed ${removed.fitments} fitment(s), ${removed.partNumbers} part number(s) of deleted variants`);
+  if (!ids.length) return;
+  const { result } = await removeOrphansWorkflow(container).run({ input: orphansOf(event.name, ids) });
+  if (result.fitments || result.partNumbers || result.garage) {
+    container.resolve("logger").info(
+      `[automotive] removed ${result.fitments} fitment(s), ${result.partNumbers} part number(s), ${result.garage} garage vehicle(s) after ${event.name}`,
+    );
   }
 }
 

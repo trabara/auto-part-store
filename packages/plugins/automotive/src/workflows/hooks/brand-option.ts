@@ -1,18 +1,20 @@
 // Sold brands own the values of the shared "Brand" product option: variants
 // pick a brand as an option value (catalog model B). These hooks keep the two
-// in sync inside the framework's create / update / delete workflows.
+// in sync inside the framework's create / update / delete workflows. Domain
+// hook (parts ↔ Medusa product module): loaded with the domain's workflows.
+import type { IProductModuleService } from "@medusajs/framework/types";
 import { MedusaError, Modules } from "@medusajs/framework/utils";
 import { onEntity, type HookContext } from "@repo/framework/entity/server";
-import { PARTS_MODULE } from "./constants";
-import { BrandKind } from "./entities/parts";
+import { PARTS_MODULE, type PartsModuleService } from "../../modules/parts";
+import { BrandKind } from "../../modules/parts/entities";
 
 export const BRAND_OPTION_TITLE = "Brand";
 
 type BrandRow = { id: string; name: string; kind: BrandKind; option_value_id: string | null };
 
 const sold = (kind: BrandKind | undefined) => kind !== BrandKind.OE;
-const product = (ctx: HookContext) => ctx.container.resolve<any>(Modules.PRODUCT);
-const parts = (ctx: HookContext) => ctx.container.resolve<any>(PARTS_MODULE);
+const product = (ctx: HookContext) => ctx.container.resolve<IProductModuleService>(Modules.PRODUCT);
+const parts = (ctx: HookContext) => ctx.container.resolve<PartsModuleService>(PARTS_MODULE);
 
 /** The shared (non-exclusive) "Brand" option, created on first use. */
 async function brandOptionId(ctx: HookContext): Promise<string> {

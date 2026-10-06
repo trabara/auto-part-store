@@ -2,7 +2,7 @@ import { medusaIntegrationTestRunner } from "@medusajs/test-utils";
 import { createStep, createWorkflow, WorkflowResponse } from "@medusajs/framework/workflows-sdk";
 import { deleteEntitiesStep } from "@repo/framework/entity/server";
 import { adminHeaders } from "@repo/config/jest/medusa-helpers.cjs";
-import { removeOrphans } from "../../src/lib/orphans";
+import { removeOrphansWorkflow } from "../../src/workflows/remove-orphans";
 import { FITMENT_MODULE } from "../../src/modules/fitment";
 import { VEHICLE_MODULE } from "../../src/modules/vehicle";
 
@@ -131,8 +131,8 @@ medusaIntegrationTestRunner({
         await getContainer().resolve<any>(FITMENT_MODULE).createFitments([
           { variant_id: "variant_gone", vehicle_id: c.vehicle.id, quantity: 1 },
         ]);
-        expect(await removeOrphans(getContainer() as any)).toEqual({ fitments: 1, partNumbers: 0, garage: 0 });
-        expect(await removeOrphans(getContainer() as any)).toEqual({ fitments: 0, partNumbers: 0, garage: 0 });
+        expect((await removeOrphansWorkflow(getContainer()).run({ input: { all: true } })).result).toEqual({ fitments: 1, partNumbers: 0, garage: 0 });
+        expect((await removeOrphansWorkflow(getContainer()).run({ input: { all: true } })).result).toEqual({ fitments: 0, partNumbers: 0, garage: 0 });
         expect(await live("automotive", "fitment", `vehicle_id=${c.vehicle.id}`)).toHaveLength(2);
       });
     });

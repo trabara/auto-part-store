@@ -18,7 +18,7 @@ import {
 import { FITMENT_MODULE } from "../../src/modules/fitment";
 import FitmentVehicleLink from "../../src/links/fitment-vehicle";
 import { entityLabel } from "@repo/framework/entity";
-import { Vehicle } from "../../src/modules/vehicle/entities/vehicle";
+import { EngineType, Vehicle } from "../../src/modules/vehicle/entities/vehicle";
 
 // Each CRUD step followed by a step that always fails, to exercise compensation.
 const failStep = createStep("test-fail", async () => {
@@ -71,7 +71,7 @@ medusaIntegrationTestRunner({
 
       it("undoes a create", async () => {
         const { errors } = await createThenFail(getContainer()).run({
-          input: { ...target, data: [{ power: 77 }] },
+          input: { ...target, data: [{ type: "I4", size: "1.6", power: 77 }] },
           throwOnError: false,
         });
         expect(errors[0]?.error?.message).toBe("boom");
@@ -79,7 +79,7 @@ medusaIntegrationTestRunner({
       });
 
       it("restores previous values after an update", async () => {
-        const [engine] = await engines().createVehicleEngines([{ power: 100, name: "before" }]);
+        const [engine] = await engines().createVehicleEngines([{ type: EngineType.I4, size: "1.6", power: 100, name: "before" }]);
         await updateThenFail(getContainer()).run({
           input: { ...target, data: [{ id: engine.id, power: 200, name: "after" }] },
           throwOnError: false,
@@ -89,7 +89,7 @@ medusaIntegrationTestRunner({
       });
 
       it("restores a soft-deleted entity", async () => {
-        const [engine] = await engines().createVehicleEngines([{ power: 55 }]);
+        const [engine] = await engines().createVehicleEngines([{ type: EngineType.I4, size: "1.6", power: 55 }]);
         await deleteThenFail(getContainer()).run({
           input: { ...target, ids: [engine.id] },
           throwOnError: false,
@@ -158,7 +158,7 @@ medusaIntegrationTestRunner({
           slug: null,
           make_id: make.id,
         });
-        const engine = await post("vehicle_engine", { power: 120 });
+        const engine = await post("vehicle_engine", { type: "I4", size: "1.6", power: 120 });
         const vehicle = await post("vehicle", {
           year_start: 2015,
           year_end: null,
@@ -194,7 +194,7 @@ medusaIntegrationTestRunner({
       it("soft-deletes: a deleted entity is gone from reads", async () => {
         const created = await api.post(
           "/admin/automotive/vehicle_engine",
-          { power: 90 },
+          { type: "I4", size: "1.6", power: 90 },
           headers,
         );
         const id = created.data.data.id;
@@ -230,7 +230,7 @@ medusaIntegrationTestRunner({
       const createVehicle = async (name: string) => {
         const make = await post("vehicle_make", { name, slug: null });
         const model = await post("vehicle_model", { name: `${name} M`, slug: null, make_id: make.id });
-        const engine = await post("vehicle_engine", { power: power++ });
+        const engine = await post("vehicle_engine", { type: "I4", size: "1.6", power: power++ });
         return post("vehicle", { year_start: 2010, year_end: null, model_id: model.id, engine_id: engine.id });
       };
       /** Live rows of the fitment ↔ vehicle link table matching `filters`. */
@@ -297,7 +297,7 @@ medusaIntegrationTestRunner({
 
         const fields = ["id", "*vehicle", ...Vehicle.label.fields.map((f) => `vehicle.${f}`)].join(",");
         const { data } = await api.get(`/admin/automotive/fitment/${fitment.id}?fields=${fields}`, headers);
-        expect(entityLabel(Vehicle, data.data.vehicle)).toMatch(/^Mazda Mazda M 2010– · 1\.0 ELECTRIC \d+ hp$/);
+        expect(entityLabel(Vehicle, data.data.vehicle)).toMatch(/^Mazda Mazda M 2010– · 1\.6 I4 \d+ hp$/);
 
         // Other depth-3 fields are not allowed: Medusa strips them from the query.
         const deep = await api.get(
@@ -366,6 +366,42 @@ medusaIntegrationTestRunner({
 
         const cleared = await api.put(`/admin/automotive/vehicle_make/${make.id}`, { logo: null }, headers);
         expect(cleared.data.data.logo).toBeNull();
+      });
+    });
+
+    describe("data integrity", () => {
+      const post = (entity: string, body: object) => api.post(`/admin/automotive/${entity}`, body, headers);
+
+      it("scopes model names to their make", async () => {
+        const ford = (await post("vehicle_make", { name: "Ford", slug: null })).data.data;
+        const gmc = (await post("vehicle_make", { name: "GMC", slug: null })).data.data;
+        expect((await post("vehicle_model", { name: "Sierra", slug: null, make_id: ford.id })).status).toBe(201);
+        expect((await post("vehicle_model", { name: "Sierra", slug: null, make_id: gmc.id })).status).toBe(201);
+        expect(
+          await status(post("vehicle_model", { name: "Sierra", slug: null, make_id: ford.id })),
+        ).toBeGreaterThanOrEqual(400);
+      });
+
+      it("rejects duplicate vehicle configurations, open-ended ones included", async () => {
+        const make = (await post("vehicle_make", { name: "Skoda", slug: null })).data.data;
+        const model = (await post("vehicle_model", { name: "Octavia", slug: null, make_id: make.id })).data.data;
+        const engine = (await post("vehicle_engine", { type: "I4", size: "2.0", power: 150 })).data.data;
+        const base = { model_id: model.id, engine_id: engine.id, year_start: 2020 };
+
+        expect((await post("vehicle", { ...base, year_end: null })).status).toBe(201);
+        expect(await status(post("vehicle", { ...base, year_end: null }))).toBeGreaterThanOrEqual(400);
+        expect((await post("vehicle", { ...base, year_end: 2024 })).status).toBe(201);
+        expect(await status(post("vehicle", { ...base, year_end: 2024 }))).toBeGreaterThanOrEqual(400);
+      });
+
+      it("requires an engine's type and size", async () => {
+        expect(await status(post("vehicle_engine", { power: 100 }))).toBe(400);
+      });
+
+      it("keeps position codes unique", async () => {
+        const body = { code: "RL", name: "Rear left", category: null };
+        expect((await post("fitment_position", body)).status).toBe(201);
+        expect(await status(post("fitment_position", body))).toBeGreaterThanOrEqual(400);
       });
     });
   },

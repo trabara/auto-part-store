@@ -73,7 +73,8 @@ export const VehicleModel = defineEntity("VehicleModel", {
     make: r.belongsTo("VehicleMake", { mappedBy: "models" }),
     vehicles: r.hasMany("Vehicle", { mappedBy: "model" }),
   }),
-  indexes: [{ name: "vehicle_model_name_unique", on: ["name"], unique: true }],
+  // Model names repeat across makes (Ford / GMC Sierra).
+  indexes: [{ name: "vehicle_model_make_name_unique", on: ["make_id", "name"], unique: true }],
 });
 
 type EngineLabelRow = { size?: string; type?: string; power?: number; name?: string | null };
@@ -89,11 +90,10 @@ export const VehicleEngine = defineEntity("VehicleEngine", {
     fuel: FuelTypeSchema.default(FuelType.GASOLINE).describe(
       "The type of fuel used by the engine",
     ),
-    type: EngineTypeSchema.default(EngineType.ELECTRIC).describe("The type of engine"),
+    type: EngineTypeSchema.describe("The type of engine"),
     size: z
       .string()
       .regex(/^\d+(\.\d+)?$/)
-      .default("1.0")
       .describe("The size of the engine in liters"),
     power: z.number(),
     name: z
@@ -127,8 +127,11 @@ export const Vehicle = defineEntity("Vehicle", {
     model: r.belongsTo("VehicleModel", { mappedBy: "vehicles" }),
     engine: r.belongsTo("VehicleEngine", { mappedBy: "vehicles" }),
   }),
+  // One row per configuration. Two partial indexes because Postgres treats
+  // NULLs as distinct: open-ended ranges (year_end IS NULL) would never clash.
   indexes: [
     {
+      name: "vehicle_configuration_unique",
       unique: true,
       on: [
         "model_id",
@@ -140,6 +143,21 @@ export const Vehicle = defineEntity("Vehicle", {
         "year_start",
         "year_end",
       ],
+      where: "year_end IS NOT NULL",
+    },
+    {
+      name: "vehicle_configuration_open_unique",
+      unique: true,
+      on: [
+        "model_id",
+        "engine_id",
+        "body_style",
+        "doors",
+        "drive",
+        "transmission",
+        "year_start",
+      ],
+      where: "year_end IS NULL",
     },
   ],
   checks: [

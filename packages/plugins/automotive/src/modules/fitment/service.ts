@@ -63,7 +63,7 @@ export default class FitmentModuleService extends MedusaService(fitmentModels) {
 
     const expected = this.parseValue(
       condition.value,
-      condition.attribute.dataType,
+      condition.attribute.data_type,
     );
 
     switch (condition.operator) {
@@ -87,8 +87,8 @@ export default class FitmentModuleService extends MedusaService(fitmentModels) {
 
       case "between": {
         const upper = this.parseValue(
-          condition.valueTo!,
-          condition.attribute.dataType,
+          condition.value_to!,
+          condition.attribute.data_type,
         );
 
         return (
@@ -100,7 +100,7 @@ export default class FitmentModuleService extends MedusaService(fitmentModels) {
         return condition.value
           .split(",")
           .map((value) =>
-            this.parseValue(value.trim(), condition.attribute.dataType),
+            this.parseValue(value.trim(), condition.attribute.data_type),
           )
           .some((value) => value === actual);
 
@@ -108,7 +108,7 @@ export default class FitmentModuleService extends MedusaService(fitmentModels) {
         return !condition.value
           .split(",")
           .map((value) =>
-            this.parseValue(value.trim(), condition.attribute.dataType),
+            this.parseValue(value.trim(), condition.attribute.data_type),
           )
           .some((value) => value === actual);
 

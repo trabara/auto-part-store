@@ -41,10 +41,10 @@ export const AutomotiveAttribute = defineEntity("AutomotiveAttribute", {
     name: z
       .string()
       .describe("The name of the automotive attribute, e.g., 'Engine Size', 'Fuel Type', etc."),
-    dataType: z
+    data_type: z
       .enum(DataType)
       .describe("The data type of the automotive attribute, e.g., 'string', 'number', etc."),
-    defaultUnit: z
+    default_unit: z
       .string()
       .nullable()
       .describe("The default unit of the automotive attribute, e.g., 'inches', 'cm', etc."),
@@ -53,6 +53,7 @@ export const AutomotiveAttribute = defineEntity("AutomotiveAttribute", {
       .nullable()
       .describe("The category of the automotive attribute, e.g., 'Engine', 'Transmission', etc."),
   }),
+  indexes: [{ name: "automotive_attribute_code_unique", on: ["code"], unique: true }],
 });
 
 export const FitmentPosition = defineEntity("FitmentPosition", {
@@ -71,6 +72,7 @@ export const FitmentPosition = defineEntity("FitmentPosition", {
   relations: (r) => ({
     fitments: r.hasMany("Fitment", { mappedBy: "position" }),
   }),
+  indexes: [{ name: "fitment_position_code_unique", on: ["code"], unique: true }],
 });
 
 export const Fitment = defineEntity("Fitment", {
@@ -103,7 +105,7 @@ export const FitmentCondition = defineEntity("FitmentCondition", {
   schema: BaseSchema.extend({
     operator: z.enum(FitmentConditionOperator).describe("The operator of the fitment condition"),
     value: z.string().describe("The value of the fitment condition"),
-    valueTo: z
+    value_to: z
       .string()
       .nullable()
       .describe("The second value of the fitment condition, used for range comparisons"),

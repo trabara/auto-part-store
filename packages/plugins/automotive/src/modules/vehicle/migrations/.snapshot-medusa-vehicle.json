@@ -54,7 +54,7 @@
           "length": null,
           "precision": null,
           "scale": null,
-          "default": "'ELECTRIC'",
+          "default": null,
           "comment": null,
           "enumItems": [
             "I4",
@@ -77,7 +77,7 @@
           "length": null,
           "precision": null,
           "scale": null,
-          "default": "'1.0'",
+          "default": null,
           "comment": null,
           "enumItems": [],
           "mappedType": "text"
@@ -503,13 +503,13 @@
           "expression": "CREATE INDEX IF NOT EXISTS \"IDX_vehicle_model_deleted_at\" ON \"vehicle_model\" (\"deleted_at\") WHERE deleted_at IS NULL"
         },
         {
-          "keyName": "vehicle_model_name_unique",
+          "keyName": "vehicle_model_make_name_unique",
           "columnNames": [],
           "composite": false,
           "constraint": false,
           "primary": false,
           "unique": false,
-          "expression": "CREATE UNIQUE INDEX IF NOT EXISTS \"vehicle_model_name_unique\" ON \"vehicle_model\" (\"name\") WHERE deleted_at IS NULL"
+          "expression": "CREATE UNIQUE INDEX IF NOT EXISTS \"vehicle_model_make_name_unique\" ON \"vehicle_model\" (\"make_id\", \"name\") WHERE deleted_at IS NULL"
         },
         {
           "keyName": "vehicle_model_pkey",
@@ -783,13 +783,22 @@
           "expression": "CREATE INDEX IF NOT EXISTS \"IDX_vehicle_deleted_at\" ON \"vehicle\" (\"deleted_at\") WHERE deleted_at IS NULL"
         },
         {
-          "keyName": "IDX_vehicle_model_id_engine_id_body_style_doors_drive_transmission_year_start_year_end_unique",
+          "keyName": "vehicle_configuration_unique",
           "columnNames": [],
           "composite": false,
           "constraint": false,
           "primary": false,
           "unique": false,
-          "expression": "CREATE UNIQUE INDEX IF NOT EXISTS \"IDX_vehicle_model_id_engine_id_body_style_doors_drive_transmission_year_start_year_end_unique\" ON \"vehicle\" (\"model_id\", \"engine_id\", \"body_style\", \"doors\", \"drive\", \"transmission\", \"year_start\", \"year_end\") WHERE deleted_at IS NULL"
+          "expression": "CREATE UNIQUE INDEX IF NOT EXISTS \"vehicle_configuration_unique\" ON \"vehicle\" (\"model_id\", \"engine_id\", \"body_style\", \"doors\", \"drive\", \"transmission\", \"year_start\", \"year_end\") WHERE year_end IS NOT NULL AND deleted_at IS NULL"
+        },
+        {
+          "keyName": "vehicle_configuration_open_unique",
+          "columnNames": [],
+          "composite": false,
+          "constraint": false,
+          "primary": false,
+          "unique": false,
+          "expression": "CREATE UNIQUE INDEX IF NOT EXISTS \"vehicle_configuration_open_unique\" ON \"vehicle\" (\"model_id\", \"engine_id\", \"body_style\", \"doors\", \"drive\", \"transmission\", \"year_start\") WHERE year_end IS NULL AND deleted_at IS NULL"
         },
         {
           "keyName": "vehicle_pkey",

@@ -54,8 +54,8 @@
           "enumItems": [],
           "mappedType": "text"
         },
-        "dataType": {
-          "name": "dataType",
+        "data_type": {
+          "name": "data_type",
           "type": "text",
           "unsigned": false,
           "autoincrement": false,
@@ -78,8 +78,8 @@
           ],
           "mappedType": "enum"
         },
-        "defaultUnit": {
-          "name": "defaultUnit",
+        "default_unit": {
+          "name": "default_unit",
           "type": "text",
           "unsigned": false,
           "autoincrement": false,
@@ -170,6 +170,15 @@
           "primary": false,
           "unique": false,
           "expression": "CREATE INDEX IF NOT EXISTS \"IDX_automotive_attribute_deleted_at\" ON \"automotive_attribute\" (\"deleted_at\") WHERE deleted_at IS NULL"
+        },
+        {
+          "keyName": "automotive_attribute_code_unique",
+          "columnNames": [],
+          "composite": false,
+          "constraint": false,
+          "primary": false,
+          "unique": false,
+          "expression": "CREATE UNIQUE INDEX IF NOT EXISTS \"automotive_attribute_code_unique\" ON \"automotive_attribute\" (\"code\") WHERE deleted_at IS NULL"
         },
         {
           "keyName": "automotive_attribute_pkey",
@@ -312,6 +321,15 @@
           "primary": false,
           "unique": false,
           "expression": "CREATE INDEX IF NOT EXISTS \"IDX_fitment_position_deleted_at\" ON \"fitment_position\" (\"deleted_at\") WHERE deleted_at IS NULL"
+        },
+        {
+          "keyName": "fitment_position_code_unique",
+          "columnNames": [],
+          "composite": false,
+          "constraint": false,
+          "primary": false,
+          "unique": false,
+          "expression": "CREATE UNIQUE INDEX IF NOT EXISTS \"fitment_position_code_unique\" ON \"fitment_position\" (\"code\") WHERE deleted_at IS NULL"
         },
         {
           "keyName": "fitment_position_pkey",
@@ -725,8 +743,8 @@
           "enumItems": [],
           "mappedType": "text"
         },
-        "valueTo": {
-          "name": "valueTo",
+        "value_to": {
+          "name": "value_to",
           "type": "text",
           "unsigned": false,
           "autoincrement": false,

@@ -6,4 +6,12 @@ import { vehicleEntities } from "../entities";
 
 export const vehicleModels = toModels(vehicleEntities);
 
-export const { Vehicle, VehicleMake, VehicleModel, VehicleEngine } = vehicleModels;
+export const {
+  Vehicle,
+  VehicleMake,
+  VehicleModel,
+  VehicleGeneration,
+  VehicleEngine,
+  VehicleReference,
+  CustomerVehicle,
+} = vehicleModels;

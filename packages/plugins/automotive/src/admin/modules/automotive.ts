@@ -1,10 +1,13 @@
 import { defineModule } from "@repo/framework/core";
 import { Fitment, FitmentPosition } from "../../modules/fitment/entities";
 import {
+  CustomerVehicle,
   Vehicle,
   VehicleEngine,
+  VehicleGeneration,
   VehicleMake,
   VehicleModel,
+  VehicleReference,
 } from "../../modules/vehicle/entities";
 
 // Features must match the entities exposed by the generic API
@@ -18,7 +21,7 @@ export default defineModule({
         {
           id: "general",
           label: "General",
-          fields: ["model_id", "engine_id", "year_start", "year_end"],
+          fields: ["generation_id", "engine_id", "trim", "year_start", "year_end"],
         },
         {
           id: "specs",
@@ -30,6 +33,9 @@ export default defineModule({
     vehicle_engine: m.crud(VehicleEngine),
     vehicle_make: m.crud(VehicleMake),
     vehicle_model: m.crud(VehicleModel),
+    vehicle_generation: m.crud(VehicleGeneration),
+    vehicle_reference: m.crud(VehicleReference, { label: "Catalog IDs" }),
+    customer_vehicle: m.crud(CustomerVehicle, { label: "Garage" }),
     fitment: m.crud(Fitment, {
       relations: {
         variant: { label: "Part" },

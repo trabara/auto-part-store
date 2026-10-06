@@ -28,8 +28,28 @@ export const ProductOptionValue = defineEntity("ProductOptionValue", {
   external: { module: "product", url: "/admin/product-options" },
 });
 
+/** A storefront customer: owns garage vehicles. */
+export const Customer = defineEntity("Customer", {
+  schema: z.object({
+    id: z.string(),
+    email: z.string(),
+    first_name: z.string().nullable(),
+    last_name: z.string().nullable(),
+  }),
+  // "Jane Doe <jane@example.com>"
+  label: {
+    fields: ["email", "first_name", "last_name"],
+    format: (c) => {
+      const name = [c.first_name, c.last_name].filter(Boolean).join(" ");
+      return name ? `${name} <${c.email}>` : (c.email ?? "");
+    },
+  },
+  external: { module: "customer", url: "/admin/customers" },
+});
+
 declare module "@repo/framework/entity" {
   interface EntityRegistry {
+    Customer: typeof Customer;
     ProductVariant: typeof ProductVariant;
     ProductOptionValue: typeof ProductOptionValue;
   }

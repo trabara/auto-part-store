@@ -45,8 +45,11 @@ const ownFields = (schema: { shape: object }) =>
 export const VEHICLE_ATTRIBUTE_PATHS: readonly string[] = [
   ...ownFields(Vehicle.schema),
   ...ownFields(VehicleEngine.schema).map((k) => `engine.${k}`),
-  "model.name",
-  "model.make.name",
+  "generation.name",
+  "generation.code",
+  "generation.model.name",
+  "generation.model.category",
+  "generation.model.make.name",
 ];
 
 const MonthSchema = z.number().int().min(1).max(12);

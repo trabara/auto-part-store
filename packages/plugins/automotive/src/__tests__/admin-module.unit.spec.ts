@@ -9,6 +9,9 @@ describe("automotive admin module", () => {
       "vehicle_engine",
       "vehicle_make",
       "vehicle_model",
+      "vehicle_generation",
+      "vehicle_reference",
+      "customer_vehicle",
       "fitment",
       "fitment_position",
     ]);
@@ -24,10 +27,13 @@ describe("automotive admin module", () => {
       "/automotive/vehicle-engines",
       "/automotive/vehicle-makes",
       "/automotive/vehicle-models",
+      "/automotive/vehicle-generations",
+      "/automotive/vehicle-references",
+      "/automotive/customer-vehicles",
       "/automotive/fitments",
       "/automotive/fitment-positions",
     ]);
-    expect(flattenModuleRoutes(automotive)).toHaveLength(24);
+    expect(flattenModuleRoutes(automotive)).toHaveLength(36);
   });
 
   it("matches the entities exposed by the API", () => {

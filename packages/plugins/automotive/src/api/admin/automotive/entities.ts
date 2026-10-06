@@ -1,10 +1,13 @@
 import { createEntityRoutes } from "@repo/framework/entity/server";
 import { Fitment, FitmentPosition } from "../../../modules/fitment/entities";
 import {
+  CustomerVehicle,
   Vehicle,
   VehicleEngine,
+  VehicleGeneration,
   VehicleMake,
   VehicleModel,
+  VehicleReference,
 } from "../../../modules/vehicle/entities";
 
 /**
@@ -13,5 +16,15 @@ import {
  * here are reachable; any other `:entity` is a 404.
  */
 export const automotiveRoutes = createEntityRoutes({
-  entities: [Vehicle, VehicleEngine, VehicleModel, VehicleMake, Fitment, FitmentPosition],
+  entities: [
+    Vehicle,
+    VehicleEngine,
+    VehicleModel,
+    VehicleMake,
+    VehicleGeneration,
+    VehicleReference,
+    CustomerVehicle,
+    Fitment,
+    FitmentPosition,
+  ],
 });

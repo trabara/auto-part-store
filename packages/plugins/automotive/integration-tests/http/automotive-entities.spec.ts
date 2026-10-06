@@ -17,7 +17,7 @@ import {
 import { FITMENT_MODULE } from "../../src/modules/fitment";
 import { AutomotiveAttribute, Fitment } from "../../src/modules/fitment/entities";
 import { entityLabel } from "@repo/framework/entity";
-import { EngineType, Vehicle } from "../../src/modules/vehicle/entities/vehicle";
+import { EngineLayout, Vehicle } from "../../src/modules/vehicle/entities/vehicle";
 
 // Each CRUD step followed by a step that always fails, to exercise compensation.
 const failStep = createStep("test-fail", async () => {
@@ -40,6 +40,16 @@ const deleteThenFail = createWorkflow("test-delete-then-fail", (input: any) => {
 });
 
 jest.setTimeout(60 * 1000);
+
+/** A create payload for an engine (nullable fields are required keys). */
+const engineBody = (power_kw: number, extra: Record<string, unknown> = {}) => ({
+  code: null,
+  layout: "INLINE",
+  cylinders: 4,
+  displacement_cc: 1600,
+  power_kw,
+  ...extra,
+});
 
 medusaIntegrationTestRunner({
   testSuite: ({ api, getContainer }) => {
@@ -70,25 +80,25 @@ medusaIntegrationTestRunner({
 
       it("undoes a create", async () => {
         const { errors } = await createThenFail(getContainer()).run({
-          input: { ...target, data: [{ type: "I4", size: "1.6", power: 77 }] },
+          input: { ...target, data: [engineBody(77)] },
           throwOnError: false,
         });
         expect(errors[0]?.error?.message).toBe("boom");
-        expect(await engines().listVehicleEngines({ power: 77 }, { withDeleted: true })).toEqual([]);
+        expect(await engines().listVehicleEngines({ power_kw: 77 }, { withDeleted: true })).toEqual([]);
       });
 
       it("restores previous values after an update", async () => {
-        const [engine] = await engines().createVehicleEngines([{ type: EngineType.I4, size: "1.6", power: 100, name: "before" }]);
+        const [engine] = await engines().createVehicleEngines([{ layout: EngineLayout.INLINE, cylinders: 4, displacement_cc: 1600, power_kw: 100, power_hp: 134, code: null, name: "before" }]);
         await updateThenFail(getContainer()).run({
-          input: { ...target, data: [{ id: engine.id, power: 200, name: "after" }] },
+          input: { ...target, data: [{ id: engine.id, power_kw: 200, name: "after" }] },
           throwOnError: false,
         });
         const [row] = await engines().listVehicleEngines({ id: engine.id });
-        expect(row).toMatchObject({ power: 100, name: "before" });
+        expect(row).toMatchObject({ power_kw: 100, power_hp: 134, name: "before" });
       });
 
       it("restores a soft-deleted entity", async () => {
-        const [engine] = await engines().createVehicleEngines([{ type: EngineType.I4, size: "1.6", power: 55 }]);
+        const [engine] = await engines().createVehicleEngines([{ layout: EngineLayout.INLINE, cylinders: 4, displacement_cc: 1600, power_kw: 55, power_hp: 74, code: null }]);
         await deleteThenFail(getContainer()).run({
           input: { ...target, ids: [engine.id] },
           throwOnError: false,
@@ -102,21 +112,21 @@ medusaIntegrationTestRunner({
       it("creates, filters, updates (engine DTO) and deletes", async () => {
         const created = await api.post(
           "/admin/automotive/vehicle_engine",
-          { fuel: "DIESEL", type: "V6", size: "3.0", power: 250 },
+          engineBody(250, { fuel: "DIESEL", layout: "V", cylinders: 6, displacement_cc: 3000 }),
           headers,
         );
         expect(created.status).toBe(201);
         const id = created.data.data.id;
 
         const list = await api.get(
-          "/admin/automotive/vehicle_engine?power[$gte]=200&fuel=DIESEL",
+          "/admin/automotive/vehicle_engine?power_kw[$gte]=200&fuel=DIESEL",
           headers,
         );
         expect(list.status).toBe(200);
         expect(list.data.data.map((e: any) => e.id)).toEqual([id]);
 
         const empty = await api.get(
-          "/admin/automotive/vehicle_engine?power[$gte]=300",
+          "/admin/automotive/vehicle_engine?power_kw[$gte]=300",
           headers,
         );
         expect(empty.data.data).toEqual([]);
@@ -124,11 +134,12 @@ medusaIntegrationTestRunner({
         // Engine fields validate; previously validated by the vehicle DTO.
         const updated = await api.put(
           `/admin/automotive/vehicle_engine/${id}`,
-          { power: 300 },
+          { power_kw: 300 },
           headers,
         );
         expect(updated.status).toBe(200);
-        expect(updated.data.data.power).toBe(300);
+        // power_hp is derived from power_kw on every write.
+        expect(updated.data.data).toMatchObject({ power_kw: 300, power_hp: 402 });
 
         const batch = await api.put(
           "/admin/automotive/vehicle_engine",
@@ -138,10 +149,10 @@ medusaIntegrationTestRunner({
         expect(batch.status).toBe(200);
 
         const detail = await api.get(
-          `/admin/automotive/vehicle_engine/${id}?fields=id,power,name`,
+          `/admin/automotive/vehicle_engine/${id}?fields=id,power_kw,power_hp,name`,
           headers,
         );
-        expect(detail.data.data).toEqual({ id, power: 300, name: "turbo" });
+        expect(detail.data.data).toEqual({ id, power_kw: 300, power_hp: 402, name: "turbo" });
 
         const deleted = await api.delete(`/admin/automotive/vehicle_engine/${id}`, headers);
         expect(deleted.data).toEqual({ id, object: "vehicle_engine", deleted: true });
@@ -157,24 +168,40 @@ medusaIntegrationTestRunner({
           slug: null,
           make_id: make.id,
         });
-        const engine = await post("vehicle_engine", { type: "I4", size: "1.6", power: 120 });
+        const engine = await post("vehicle_engine", engineBody(120));
+        const generation = await post("vehicle_generation", {
+          name: "E210",
+          code: null,
+          year_start: 2012,
+          year_end: null,
+          image: null,
+          model_id: model.id,
+        });
         const vehicle = await post("vehicle", {
           year_start: 2015,
           year_end: null,
-          model_id: model.id,
+          trim: "Comfort",
+          generation_id: generation.id,
           engine_id: engine.id,
         });
 
         const detail = await api.get(
-          `/admin/automotive/vehicle/${vehicle.id}?fields=id,year_start,*engine,*model,*model.make`,
+          `/admin/automotive/vehicle/${vehicle.id}?fields=id,year_start,*engine,*generation,*generation.model,generation.model.make.name`,
           headers,
         );
         expect(detail.status).toBe(200);
         expect(detail.data.data).toMatchObject({
           id: vehicle.id,
-          engine: { id: engine.id, power: 120 },
-          model: { id: model.id, make: { id: make.id, name: "Toyota" } },
+          engine: { id: engine.id, power_kw: 120, power_hp: 161 },
+          generation: { id: generation.id, model: { id: model.id, make: { name: "Toyota" } } },
         });
+        const labelled = await api.get(
+          `/admin/automotive/vehicle/${vehicle.id}?fields=${["id", ...Vehicle.label.fields].join(",")}`,
+          headers,
+        );
+        expect(entityLabel(Vehicle, labelled.data.data)).toBe(
+          "Toyota Corolla E210 Comfort 2015– · 1.6 gasoline I4 120 kW (161 hp)",
+        );
 
         const byEngine = await api.get(
           `/admin/automotive/vehicle?engine_id=${engine.id}`,
@@ -182,18 +209,25 @@ medusaIntegrationTestRunner({
         );
         expect(byEngine.data.data.map((v: any) => v.id)).toEqual([vehicle.id]);
 
-        // year_range_check: year_end before year_start is rejected by Postgres.
-        expect(
-          await status(
-            api.put(`/admin/automotive/vehicle/${vehicle.id}`, { year_end: 2000 }, headers),
-          ),
-        ).toBeGreaterThanOrEqual(400);
+        // Check constraint → readable 400 (was a 500).
+        const reversed = await api
+          .put(`/admin/automotive/vehicle/${vehicle.id}`, { year_end: 2014 }, headers)
+          .catch((e) => e.response);
+        expect(reversed.status).toBe(400);
+        expect(reversed.data.message).toBe("The last production year can't be before the first.");
+
+        // Years outside the generation's (hook).
+        const outside = await api
+          .put(`/admin/automotive/vehicle/${vehicle.id}`, { year_start: 2010 }, headers)
+          .catch((e) => e.response);
+        expect(outside.status).toBe(400);
+        expect(outside.data.message).toBe("Production years must be within the generation's (2012–).");
       });
 
       it("soft-deletes: a deleted entity is gone from reads", async () => {
         const created = await api.post(
           "/admin/automotive/vehicle_engine",
-          { type: "I4", size: "1.6", power: 90 },
+          engineBody(90),
           headers,
         );
         const id = created.data.data.id;
@@ -229,8 +263,11 @@ medusaIntegrationTestRunner({
       const createVehicle = async (name: string) => {
         const make = await post("vehicle_make", { name, slug: null });
         const model = await post("vehicle_model", { name: `${name} M`, slug: null, make_id: make.id });
-        const engine = await post("vehicle_engine", { type: "I4", size: "1.6", power: power++ });
-        return post("vehicle", { year_start: 2010, year_end: 2020, model_id: model.id, engine_id: engine.id });
+        const engine = await post("vehicle_engine", engineBody(power++));
+        const generation = await post("vehicle_generation", {
+          name: "Gen", code: null, year_start: 2005, year_end: null, image: null, model_id: model.id,
+        });
+        return post("vehicle", { year_start: 2010, year_end: 2020, trim: null, generation_id: generation.id, engine_id: engine.id });
       };
       let sku = 0;
       const createVariant = async (title: string) => {
@@ -261,7 +298,7 @@ medusaIntegrationTestRunner({
         const { data } = await api.get(`/admin/automotive/fitment/${created.id}?fields=${fields}`, headers);
         expect(data.data).toMatchObject({ vehicle: { id: vehicle.id }, variant: { id: variant.id, sku: variant.sku } });
         expect(entityLabel(Fitment, data.data)).toMatch(
-          new RegExp(`^Brake pads · Default \\(${variant.sku}\\) → Audi Audi M 2010–2020 · 1\\.6 I4 \\d+ hp$`),
+          new RegExp(`^Brake pads · Default \\(${variant.sku}\\) → Audi Audi M Gen 2010–2020 · 1\\.6 gasoline I4 \\d+ kW \\(\\d+ hp\\)$`),
         );
       });
 
@@ -367,22 +404,42 @@ medusaIntegrationTestRunner({
         ).toBeGreaterThanOrEqual(400);
       });
 
-      it("rejects duplicate vehicle configurations, open-ended ones included", async () => {
-        const make = (await post("vehicle_make", { name: "Skoda", slug: null })).data.data;
-        const model = (await post("vehicle_model", { name: "Octavia", slug: null, make_id: make.id })).data.data;
-        const engine = (await post("vehicle_engine", { type: "I4", size: "2.0", power: 150 })).data.data;
-        const base = { model_id: model.id, engine_id: engine.id, year_start: 2020 };
+      const generationFor = async (makeName: string, modelName: string, year_start = 2000) => {
+        const make = (await post("vehicle_make", { name: makeName, slug: null })).data.data;
+        const model = (await post("vehicle_model", { name: modelName, slug: null, make_id: make.id })).data.data;
+        return (
+          await post("vehicle_generation", {
+            name: "Gen", code: null, year_start, year_end: null, image: null, model_id: model.id,
+          })
+        ).data.data;
+      };
 
-        expect((await post("vehicle", { ...base, year_end: null })).status).toBe(201);
-        const dup = await post("vehicle", { ...base, year_end: null }).catch((e) => e.response);
-        expect(dup.status).toBe(400);
-        expect(dup.data.message).toBe("This vehicle configuration (model, engine, specifications and years) already exists.");
-        expect((await post("vehicle", { ...base, year_end: 2024 })).status).toBe(201);
-        expect(await status(post("vehicle", { ...base, year_end: 2024 }))).toBeGreaterThanOrEqual(400);
+      it("rejects configurations whose years overlap (exclusion constraint), open-ended included", async () => {
+        const generation = await generationFor("Skoda", "Octavia");
+        const engine = (await post("vehicle_engine", engineBody(110, { displacement_cc: 2000 }))).data.data;
+        const base = { generation_id: generation.id, engine_id: engine.id, trim: null };
+        const vehicle = (year_start: number, year_end: number | null, extra = {}) =>
+          post("vehicle", { ...base, year_start, year_end, ...extra }).catch((e) => e.response);
+        const overlap =
+          "A vehicle with the same generation, engine and specifications already covers some of these years.";
+
+        expect((await vehicle(2015, 2020)).status).toBe(201);
+        for (const [start, end] of [[2015, 2020], [2018, 2022], [2010, 2015], [2019, null]] as const) {
+          const res = await vehicle(start, end);
+          expect([res.status, res.data.message]).toEqual([400, overlap]);
+        }
+        expect((await vehicle(2021, null)).status).toBe(201);
+        expect((await vehicle(2030, null)).status).toBe(400); // open-ended 2021– covers it
+        // Another trim (or body, drive…) is another configuration.
+        expect((await vehicle(2015, 2020, { trim: "GTI" })).status).toBe(201);
       });
 
-      it("requires an engine's type and size", async () => {
-        expect(await status(post("vehicle_engine", { power: 100 }))).toBe(400);
+      it("requires an engine's power; derives hp; keeps engines unique by specification", async () => {
+        expect(await status(post("vehicle_engine", { layout: "INLINE" }))).toBe(400);
+        const ev = (await post("vehicle_engine", engineBody(150, { fuel: "ELECTRIC", layout: "ELECTRIC_MOTOR", cylinders: null, displacement_cc: null }))).data.data;
+        expect(ev).toMatchObject({ power_kw: 150, power_hp: 201 });
+        const dup = await post("vehicle_engine", engineBody(150, { fuel: "ELECTRIC", layout: "ELECTRIC_MOTOR", cylinders: null, displacement_cc: null })).catch((e) => e.response);
+        expect([dup.status, dup.data.message]).toEqual([400, "An engine with these specifications already exists."]);
       });
 
       it("normalises position codes to uppercase and keeps them unique", async () => {
@@ -406,11 +463,10 @@ medusaIntegrationTestRunner({
       });
 
       it("bounds production years", async () => {
-        const make = (await post("vehicle_make", { name: "Fiat", slug: null })).data.data;
-        const model = (await post("vehicle_model", { name: "Panda", slug: null, make_id: make.id })).data.data;
-        const engine = (await post("vehicle_engine", { type: "I4", size: "1.2", power: 69 })).data.data;
+        const generation = await generationFor("Fiat", "Panda", 1886);
+        const engine = (await post("vehicle_engine", engineBody(51, { displacement_cc: 1200 }))).data.data;
         const vehicle = (year_start: number) =>
-          post("vehicle", { model_id: model.id, engine_id: engine.id, year_start, year_end: null });
+          post("vehicle", { generation_id: generation.id, engine_id: engine.id, trim: null, year_start, year_end: null });
         expect(await status(vehicle(1800))).toBe(400);
         expect(await status(vehicle(new Date().getFullYear() + 3))).toBe(400);
         expect(await status(vehicle(2012.5))).toBe(400);

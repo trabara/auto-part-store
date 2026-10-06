@@ -309,6 +309,8 @@ export interface EntityDef<
   readonly external?: EntityExternal
   /** How a record is labelled (pickers, relation cells, titles). See `entityLabel`. */
   readonly label: EntityLabel
+  /** User-facing error messages (see `messages` in the config). */
+  readonly messages: EntityMessages
   /** Storage options consumed by `toModels` (server). */
   readonly storage: EntityStorage
   readonly dto: {
@@ -331,6 +333,16 @@ export interface EntityDef<
 export interface EntityLabel {
   readonly fields: readonly string[]
   readonly format: (row: any) => string
+}
+
+/** A readable message for violations of a unique index on `on`. */
+export interface UniqueMessage {
+  readonly on: readonly string[]
+  readonly message: string
+}
+
+export interface EntityMessages {
+  readonly unique: readonly UniqueMessage[]
 }
 
 /** A Medusa (or third-party) model described for links and pickers only. */
@@ -380,4 +392,11 @@ export interface DefineEntityConfig<S extends z.ZodObject<any>, Rels extends Rel
    * routes or workflows. `schema` lists the fields used for display.
    */
   external?: { module: string; url: string }
+  /**
+   * Messages returned by the generic routes instead of the database's
+   * ("Fitment with variant_id: …, already exists."). `unique` entries match a
+   * violated unique index by its columns, hand-written indexes included;
+   * others get "A <entity> with this <columns> already exists."
+   */
+  messages?: { unique?: { on: string[]; message: string }[] }
 }

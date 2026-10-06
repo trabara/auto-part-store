@@ -4,6 +4,8 @@ import {
   initializeDefaultValues,
   applyEmptyValueOverrides,
   resolveFieldType,
+  emptyStringsToNull,
+  createZodResolver,
 } from "./form";
 
 // ---------------------------------------------------------------------------
@@ -215,5 +217,39 @@ describe("resolveFieldType", () => {
 
   it("returns 'text' for unknown fields", () => {
     expect(resolveFieldType(makeInfo({ baseType: "unknown" }))).toBe("text");
+  });
+});
+
+describe("emptyStringsToNull", () => {
+  const shape = {
+    position_id: z.string().nullish(),
+    notes: z.string().nullable(),
+    name: z.string(),
+    count: z.number().nullable(),
+  };
+
+  it("sends null for blank strings in nullable fields only", () => {
+    expect(
+      emptyStringsToNull({ position_id: "", notes: "  ", name: "", count: null } as any, shape),
+    ).toEqual({ position_id: null, notes: null, name: "", count: null });
+  });
+
+  it("keeps values and unknown fields", () => {
+    expect(emptyStringsToNull({ position_id: "p1", extra: "" } as any, shape)).toEqual({
+      position_id: "p1",
+      extra: "",
+    });
+  });
+});
+
+describe("createZodResolver", () => {
+  it("validates blank optional ids as null", async () => {
+    const schema = z.object({ vehicle_id: z.string().min(1), position_id: z.string().min(1).nullish() });
+    const resolve = createZodResolver(schema);
+    const ok = await resolve({ vehicle_id: "v1", position_id: "" }, undefined, { fields: {}, shouldUseNativeValidation: false } as any);
+    expect(ok.errors).toEqual({});
+    expect(ok.values).toEqual({ vehicle_id: "v1", position_id: null });
+    const bad = await resolve({ vehicle_id: "", position_id: "" }, undefined, { fields: {}, shouldUseNativeValidation: false } as any);
+    expect(Object.keys(bad.errors)).toEqual(["vehicle_id"]);
   });
 });

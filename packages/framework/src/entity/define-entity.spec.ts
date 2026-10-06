@@ -156,6 +156,21 @@ describe("defineEntity: DTOs", () => {
     expect(Object.keys(Engine.dto.create.shape)).toEqual(["name", "power"])
   })
 
+  it("FK and link ids can't be empty strings", () => {
+    const Engine = defineEntity("Engine", { schema: BaseSchema.extend({ name: z.string() }) })
+    const Vehicle = defineEntity("Vehicle", {
+      schema: BaseSchema,
+      relations: (r) => ({
+        engine: r.belongsTo("Engine"),
+        spare: r.belongsTo("Engine", { nullable: true }),
+      }),
+    })
+    expect(Engine).toBeDefined()
+    expect(() => Vehicle.dto.create.parse({ engine_id: "" })).toThrow()
+    expect(() => Vehicle.dto.create.parse({ engine_id: "e1", spare_id: "" })).toThrow()
+    expect(Vehicle.dto.create.parse({ engine_id: "e1", spare_id: null })).toEqual({ engine_id: "e1", spare_id: null })
+  })
+
   it("update is partial; batch update requires ids", () => {
     const { Vehicle } = defineVehicleAndEngine()
     expect(Vehicle.dto.update.parse({})).toEqual({})

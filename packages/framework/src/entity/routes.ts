@@ -6,6 +6,7 @@ import type {
 import { ContainerRegistrationKeys, MedusaError } from "@medusajs/framework/utils"
 import { snakeCase } from "lodash"
 import { getEntityModule } from "./define-entity"
+import { withReadableErrors } from "./errors"
 import { validateEntityBody, validateEntityQuery } from "./http"
 import type { EntityDef } from "./types"
 import {
@@ -88,17 +89,21 @@ export function createEntityRoutes({ module, entities, depth }: EntityRoutesOpti
 
     async POST(req: MedusaRequest, res: MedusaResponse) {
       const entity = resolve(req)
-      const { result } = await createEntitiesWorkflow(req.scope).run({
-        input: { ...target(entity), data: [req.validatedBody as Record<string, unknown>] },
-      })
+      const { result } = await withReadableErrors(entity, () =>
+        createEntitiesWorkflow(req.scope).run({
+          input: { ...target(entity), data: [req.validatedBody as Record<string, unknown>] },
+        }),
+      )
       res.status(201).json({ entity: entity.modelName, data: result[0] })
     },
 
     async PUT(req: MedusaRequest<{ entities: { id: string }[] }>, res: MedusaResponse) {
       const entity = resolve(req)
-      const { result } = await updateEntitiesWorkflow(req.scope).run({
-        input: { ...target(entity), data: req.validatedBody.entities },
-      })
+      const { result } = await withReadableErrors(entity, () =>
+        updateEntitiesWorkflow(req.scope).run({
+          input: { ...target(entity), data: req.validatedBody.entities },
+        }),
+      )
       res.status(200).json({ entity: entity.modelName, updates: result })
     },
   }
@@ -124,12 +129,14 @@ export function createEntityRoutes({ module, entities, depth }: EntityRoutesOpti
 
     async PUT(req: MedusaRequest, res: MedusaResponse) {
       const entity = resolve(req)
-      const { result } = await updateEntitiesWorkflow(req.scope).run({
-        input: {
-          ...target(entity),
-          data: [{ ...(req.validatedBody as Record<string, unknown>), id: req.params.id }],
-        },
-      })
+      const { result } = await withReadableErrors(entity, () =>
+        updateEntitiesWorkflow(req.scope).run({
+          input: {
+            ...target(entity),
+            data: [{ ...(req.validatedBody as Record<string, unknown>), id: req.params.id }],
+          },
+        }),
+      )
       res.status(200).json({ entity: entity.modelName, data: result[0] })
     },
 

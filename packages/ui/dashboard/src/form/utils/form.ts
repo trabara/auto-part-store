@@ -2,7 +2,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import type { z } from "@medusajs/framework/zod";
 import type { DefaultValues, FieldValues } from "react-hook-form";
 
-import { getDefaultValue, getZodFieldInfo, SchemaFieldInfo } from "@repo/framework/utils";
+import { getDefaultValue, getZodFieldInfo, getZodShape, SchemaFieldInfo } from "@repo/framework/utils";
 import { FieldOverride, FieldType } from "../types";
 
 /**
@@ -149,5 +149,29 @@ export function resolveFieldType(
  */
 export function createZodResolver(schema: z.ZodTypeAny) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  return zodResolver(schema as any);
+  const resolve = zodResolver(schema as any);
+  const shape = getZodShape(schema);
+  // Blank optional fields validate (and submit) as null, not "".
+  return ((values: FieldValues, context: unknown, options: any) =>
+    resolve(emptyStringsToNull(values, shape), context, options)) as typeof resolve;
+}
+
+/**
+ * Blank strings in fields that accept null become null: an unset optional
+ * picker or an empty nullable text sends `null`, never `""` (an empty id
+ * would otherwise reach the API as a value). Runs after the per-field
+ * `emptyAs*` overrides, which win.
+ */
+export function emptyStringsToNull<T extends FieldValues>(
+  values: T,
+  shape: Record<string, z.ZodTypeAny>,
+): T {
+  const transformed = { ...values };
+  for (const key of Object.keys(transformed)) {
+    const value = transformed[key];
+    const field = shape[key];
+    if (typeof value !== "string" || value.trim() !== "" || !field) continue;
+    if (field.safeParse(null).success) transformed[key as keyof T] = null as T[keyof T];
+  }
+  return transformed;
 }

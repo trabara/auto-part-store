@@ -83,6 +83,10 @@ export const VehicleModel = defineEntity("VehicleModel", {
   }),
   // Unique on (make_id, lower(name)): model names repeat across makes (Ford /
   // GMC Sierra). Hand-written index (migration 20261006…).
+  // Medusa's error parser reports only `name` for that expression index.
+  messages: {
+    unique: [{ on: ["name"], message: "This make already has a model with this name." }],
+  },
 });
 
 type EngineLabelRow = { size?: string; type?: string; power?: number; name?: string | null };
@@ -173,6 +177,13 @@ export const Vehicle = defineEntity("Vehicle", {
     // Static bounds (CHECK can't use now()); the schema enforces the moving max.
     { name: "year_bounds_check", expression: "year_start BETWEEN 1886 AND 2100" },
   ],
+  // Both configuration indexes (open-ended or not) report the same message.
+  messages: {
+    unique: [
+      { on: ["model_id", "engine_id", "body_style", "doors", "drive", "transmission", "year_start", "year_end"], message: "This vehicle configuration (model, engine, specifications and years) already exists." },
+      { on: ["model_id", "engine_id", "body_style", "doors", "drive", "transmission", "year_start"], message: "This vehicle configuration (model, engine, specifications and years) already exists." },
+    ],
+  },
   // "Toyota Corolla 2015–2020 · 1.8 HYBRID 120 hp"
   label: {
     fields: [

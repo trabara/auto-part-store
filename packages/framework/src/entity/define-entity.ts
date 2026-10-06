@@ -101,20 +101,31 @@ function validateStorage(
       if (!columns.has(column)) fail(name, `index column "${column}" does not exist.`)
     }
   }
+  for (const { on } of config.messages?.unique ?? []) {
+    for (const column of on) {
+      if (!columns.has(column)) fail(name, `messages.unique column "${column}" does not exist.`)
+    }
+  }
   for (const key of config.cascadeDelete ?? []) {
     if (!(key in relations)) fail(name, `cascadeDelete "${key}" is not a relation.`)
   }
 }
 
+/** An id field: never empty ("" would reach the ORM as a relation id). */
+const idField = (nullable: boolean | undefined) => {
+  const id = z.string().min(1, "Required")
+  return nullable ? id.nullish() : id
+}
+
 function buildDtos(schema: z.ZodObject<any>, relations: RelationMap) {
   const fkShape: Record<string, z.ZodTypeAny> = {}
   for (const [fk, key] of foreignKeys(relations)) {
-    fkShape[fk] = relations[key]!.options.nullable ? z.string().nullish() : z.string()
+    fkShape[fk] = idField(relations[key]!.options.nullable)
   }
   // Link keys set the linked entity on create/update; they are not columns.
   const linkShape: Record<string, z.ZodTypeAny> = {}
   for (const [field, key] of linkKeys(relations)) {
-    linkShape[field] = relations[key]!.options.nullable ? z.string().nullish() : z.string()
+    linkShape[field] = idField(relations[key]!.options.nullable)
   }
   const mask = Object.fromEntries(
     SERVER_MANAGED_KEYS.filter((k) => k in schema.shape).map((k) => [k, true as const]),
@@ -256,6 +267,9 @@ export function defineEntity<
     dto: Object.freeze(dto),
     query: Object.freeze(buildQuery(schema, relations, columnShape, label)),
     external: config.external ? Object.freeze({ ...config.external }) : undefined,
+    messages: Object.freeze({
+      unique: Object.freeze((config.messages?.unique ?? []).map((m) => Object.freeze({ ...m, on: [...m.on] }))),
+    }),
     withRelations: buildWithRelations(schema, relations),
   }) as unknown as EntityDef<Name, S, Rels>
 

@@ -282,7 +282,9 @@ medusaIntegrationTestRunner({
         const base = { variant_id: part.id, vehicle_id: vehicle.id };
 
         expect((await fitment(base)).status).toBe(201);
-        expect(await status(fitment(base))).toBeGreaterThanOrEqual(400);
+        const duplicate = await fitment(base).catch((e) => e.response);
+        expect(duplicate.status).toBe(400);
+        expect(duplicate.data.message).toBe("This part is already fitted to this vehicle in this position.");
         expect((await fitment({ ...base, position_id: position.id })).status).toBe(201);
         expect(await status(fitment({ ...base, position_id: position.id }))).toBeGreaterThanOrEqual(400);
       });
@@ -303,6 +305,9 @@ medusaIntegrationTestRunner({
         const vehicle = await createVehicle("Fiat");
         expect(await status(fitment({ vehicle_id: vehicle.id }))).toBe(400);
         expect(await status(fitment({ variant_id: "variant_x" }))).toBe(400);
+        // An empty id is a validation error, not a relation lookup (was a 500).
+        const part = await createVariant("Hose");
+        expect(await status(fitment({ variant_id: part.id, vehicle_id: vehicle.id, position_id: "" }))).toBe(400);
       });
 
       it("rolls back a failed create", async () => {
@@ -369,7 +374,9 @@ medusaIntegrationTestRunner({
         const base = { model_id: model.id, engine_id: engine.id, year_start: 2020 };
 
         expect((await post("vehicle", { ...base, year_end: null })).status).toBe(201);
-        expect(await status(post("vehicle", { ...base, year_end: null }))).toBeGreaterThanOrEqual(400);
+        const dup = await post("vehicle", { ...base, year_end: null }).catch((e) => e.response);
+        expect(dup.status).toBe(400);
+        expect(dup.data.message).toBe("This vehicle configuration (model, engine, specifications and years) already exists.");
         expect((await post("vehicle", { ...base, year_end: 2024 })).status).toBe(201);
         expect(await status(post("vehicle", { ...base, year_end: 2024 }))).toBeGreaterThanOrEqual(400);
       });
@@ -381,19 +388,21 @@ medusaIntegrationTestRunner({
       it("normalises position codes to uppercase and keeps them unique", async () => {
         const created = await post("fitment_position", { code: " rl ", name: "Rear left", category: null });
         expect(created.data.data.code).toBe("RL");
-        expect(
-          await status(post("fitment_position", { code: "RL", name: "Rear left 2", category: null })),
-        ).toBeGreaterThanOrEqual(400);
+        const dup = await post("fitment_position", { code: "RL", name: "Rear left 2", category: null }).catch((e) => e.response);
+        expect(dup.status).toBe(400);
+        expect(dup.data.message).toBe("A fitment position with this code already exists.");
       });
 
       it("compares make and model names case-insensitively", async () => {
         const make = (await post("vehicle_make", { name: "Peugeot", slug: null })).data.data;
-        expect(await status(post("vehicle_make", { name: "PEUGEOT", slug: null }))).toBeGreaterThanOrEqual(400);
+        const dup = await post("vehicle_make", { name: "PEUGEOT", slug: null }).catch((e) => e.response);
+        expect(dup.status).toBe(400);
+        expect(dup.data.message).toBe("A vehicle make with this name already exists.");
         expect((await post("vehicle_model", { name: "208", slug: null, make_id: make.id })).status).toBe(201);
         expect((await post("vehicle_model", { name: "Partner", slug: null, make_id: make.id })).status).toBe(201);
-        expect(
-          await status(post("vehicle_model", { name: "partner", slug: null, make_id: make.id })),
-        ).toBeGreaterThanOrEqual(400);
+        const dup2 = await post("vehicle_model", { name: "partner", slug: null, make_id: make.id }).catch((e) => e.response);
+        expect(dup2.status).toBe(400);
+        expect(dup2.data.message).toBe("This make already has a model with this name.");
       });
 
       it("bounds production years", async () => {

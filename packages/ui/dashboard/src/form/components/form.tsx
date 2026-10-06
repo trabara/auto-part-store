@@ -27,6 +27,7 @@ import { getZodFieldInfo, getZodShape } from "@repo/framework/utils";
 import { FormHelpers, FormProps, SchemaFieldInfo } from "../types";
 import {
   applyEmptyValueOverrides,
+  emptyStringsToNull,
   createZodResolver,
   initializeDefaultValues,
 } from "../utils/form";
@@ -209,9 +210,9 @@ export function Form<TSchema extends z.ZodObject, TResponse = unknown>({
 
     try {
       // Apply empty value transformations
-      const transformedValues = applyEmptyValueOverrides(
-        values,
-        overrides ?? {},
+      const transformedValues = emptyStringsToNull(
+        applyEmptyValueOverrides(values, overrides ?? {}),
+        schemaShape,
       );
       if (debug) {
         console.log("[Form] Submitting:", transformedValues);

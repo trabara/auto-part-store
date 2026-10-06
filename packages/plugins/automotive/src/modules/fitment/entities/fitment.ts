@@ -134,6 +134,14 @@ export const Fitment = defineEntity("Fitment", {
         "from_year IS NULL OR to_year IS NULL OR to_year * 100 + COALESCE(to_month, 12) >= from_year * 100 + COALESCE(from_month, 1)",
     },
   ],
+  messages: {
+    unique: [
+      {
+        on: ["variant_id", "vehicle_id", "position_id"],
+        message: "This part is already fitted to this vehicle in this position.",
+      },
+    ],
+  },
   // "Brake pad set (BP-123) → Toyota Corolla 2015–2020 · 1.6 I4 132 hp"
   label: {
     fields: [

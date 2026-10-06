@@ -4,7 +4,7 @@ import { reset } from "../orm/registry"
 import { BaseSchema } from "../utils/validation"
 import { defineEntity, resetEntities } from "./index"
 import type { EntityDef } from "./index"
-import { uniqueViolationMessage, withReadableErrors } from "./server"
+import { constraintViolationMessage, uniqueViolationMessage, withReadableErrors } from "./server"
 
 declare module "./index" {
   interface EntityRegistry {
@@ -111,5 +111,37 @@ describe("withReadableErrors", () => {
         throw new Error("boom")
       }),
     ).rejects.toThrow("boom")
+  })
+})
+
+describe("constraintViolationMessage", () => {
+  // Raw driver messages, as Medusa passes check / exclusion violations through.
+  const raw = (kind: string, name: string) =>
+    new Error(`update "engine" set … - new row for relation "engine" violates ${kind} constraint "${name}"`)
+
+  it("uses the entity's message for the constraint, else a generic one", () => {
+    const Engine = defineEntity("Engine", {
+      schema: BaseSchema.extend({ a: z.number() }),
+      messages: { constraints: { year_range_check: "The last year can't be before the first." } },
+    })
+    expect(constraintViolationMessage(Engine, raw("check", "year_range_check"))).toBe(
+      "The last year can't be before the first.",
+    )
+    expect(constraintViolationMessage(Engine, raw("check", "power_positive_check"))).toBe(
+      "Invalid engine: power positive.",
+    )
+    expect(constraintViolationMessage(Engine, raw("exclusion", "engine_overlap"))).toBe(
+      "This conflicts with an existing engine.",
+    )
+    expect(constraintViolationMessage(Engine, new Error("boom"))).toBeUndefined()
+  })
+
+  it("is applied by withReadableErrors", async () => {
+    const Engine = defineEntity("Engine", { schema: BaseSchema })
+    await expect(
+      withReadableErrors(Engine, async () => {
+        throw raw("exclusion", "x")
+      }),
+    ).rejects.toMatchObject({ type: MedusaError.Types.INVALID_DATA, message: "This conflicts with an existing engine." })
   })
 })

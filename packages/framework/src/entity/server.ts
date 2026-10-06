@@ -20,3 +20,4 @@ export {
 export { uniqueViolationMessage, withReadableErrors } from "./errors"
 export { onEntity, type EntityHooks, type Hook, type HookContext } from "./hooks"
 export { normalizeDerivedFilters } from "./routes"
+export { constraintViolationMessage } from "./errors"

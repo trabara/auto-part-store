@@ -52,12 +52,33 @@ export function uniqueViolationMessage(entity: AnyEntity, error: unknown): strin
   return `${article(noun)} ${noun} with this ${what} already exists.`
 }
 
-/** Runs a write; unique violations are rethrown with the readable message. */
+// Postgres errors Medusa leaves unmapped (raw driver message).
+const CONSTRAINT_VIOLATION = /violates (check|exclusion) constraint "([^"]+)"/
+
+/**
+ * The readable message for a check or exclusion violation: the entity's
+ * `messages.constraints[name]`, else a generic one naming the constraint.
+ */
+export function constraintViolationMessage(entity: AnyEntity, error: unknown): string | undefined {
+  const message = (error as { message?: unknown })?.message
+  if (typeof message !== "string") return undefined
+  const match = message.match(CONSTRAINT_VIOLATION)
+  if (!match) return undefined
+  const [, kind, name] = match
+  const custom = entity.messages.constraints[name!]
+  if (custom) return custom
+  const noun = words(entity.modelName)
+  return kind === "exclusion"
+    ? `This conflicts with an existing ${noun}.`
+    : `Invalid ${noun}: ${words(name!.replace(/_check$/, ""))}.`
+}
+
+/** Runs a write; constraint violations are rethrown as 400s with a readable message. */
 export async function withReadableErrors<T>(entity: AnyEntity, write: () => Promise<T>): Promise<T> {
   try {
     return await write()
   } catch (error) {
-    const message = uniqueViolationMessage(entity, error)
+    const message = uniqueViolationMessage(entity, error) ?? constraintViolationMessage(entity, error)
     if (message) throw new MedusaError(MedusaError.Types.INVALID_DATA, message)
     throw error
   }

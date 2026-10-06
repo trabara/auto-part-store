@@ -306,6 +306,7 @@ export function defineEntity<
     readOnly,
     messages: Object.freeze({
       unique: Object.freeze((config.messages?.unique ?? []).map((m) => Object.freeze({ ...m, on: [...m.on] }))),
+      constraints: Object.freeze({ ...(config.messages?.constraints ?? {}) }),
     }),
     withRelations: buildWithRelations(schema, relations),
   }) as unknown as EntityDef<Name, S, Rels>

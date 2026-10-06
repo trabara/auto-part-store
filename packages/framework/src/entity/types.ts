@@ -353,6 +353,8 @@ export interface UniqueMessage {
 
 export interface EntityMessages {
   readonly unique: readonly UniqueMessage[]
+  /** Messages for check / exclusion constraints, by constraint name. */
+  readonly constraints: Readonly<Record<string, string>>
 }
 
 /** A Medusa (or third-party) model described for links and pickers only. */
@@ -408,7 +410,11 @@ export interface DefineEntityConfig<S extends z.ZodObject<any>, Rels extends Rel
    * violated unique index by its columns, hand-written indexes included;
    * others get "A <entity> with this <columns> already exists."
    */
-  messages?: { unique?: { on: string[]; message: string }[] }
+  messages?: {
+    unique?: { on: string[]; message: string }[]
+    /** Check / exclusion constraint name → message (e.g. `{ year_range_check: "…" }`). */
+    constraints?: Record<string, string>
+  }
   /**
    * Columns computed from others on create/update, e.g. a search key:
    * `{ number_normalized: { from: ["number"], compute: (r) => normalize(r.number) } }`.

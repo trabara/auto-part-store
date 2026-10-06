@@ -39,6 +39,11 @@
       "import": "./dist/esm/http/index.js",
       "require": "./dist/cjs/http/index.js"
     },
+    "./medusa": {
+      "types": "./dist/cjs/medusa/index.d.ts",
+      "import": "./dist/esm/medusa/index.js",
+      "require": "./dist/cjs/medusa/index.js"
+    },
     "./orm": {
       "types": "./dist/cjs/orm/index.d.ts",
       "import": "./dist/esm/orm/index.js",

@@ -1,4 +1,5 @@
 // "Fits vehicles" on the product variant page: the variant's fitments.
+import "../setup";
 import { defineWidgetConfig } from "@medusajs/admin-sdk";
 import type { AdminProductVariant, DetailWidgetProps } from "@medusajs/framework/types";
 import { AdjustmentsDone } from "@medusajs/icons";

@@ -1,6 +1,6 @@
 import { defineEntities } from "@repo/framework/entity";
 // Link targets must be defined before this module's relations are validated.
-import "../../../entities/medusa";
+import "@repo/framework/medusa";
 import { VEHICLE_MODULE } from "../constants";
 import {
   CustomerVehicle,

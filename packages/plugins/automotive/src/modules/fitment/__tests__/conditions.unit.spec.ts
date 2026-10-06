@@ -3,10 +3,27 @@ import {
   serializeValue,
   summarizeConditions,
   validateTree,
-  VEHICLE_ATTRIBUTES,
-  vehicleAttribute,
+  conditionAttribute,
+  provideConditionAttributes,
+  type ConditionAttribute,
   type ConditionGroupInput,
 } from "../conditions";
+
+// The module knows no vehicle: tests register their own catalog.
+const enumOf = (code: string, label: string, values: [string, string][]): ConditionAttribute => ({
+  code,
+  label,
+  data_type: "enum",
+  values: values.map(([value, label]) => ({ value, label })),
+});
+const CATALOG: ConditionAttribute[] = [
+  enumOf("drive", "Drive", [["FWD", "Front-wheel drive"], ["AWD", "All-wheel drive"]]),
+  enumOf("engine.fuel", "Fuel", [["DIESEL", "Diesel"], ["HYBRID", "Hybrid"], ["LPG", "LPG"], ["PLUG_IN_HYBRID", "Plug-in hybrid"]]),
+  { code: "engine.power_kw", label: "Power", data_type: "number", unit: "kW" },
+  { code: "trim", label: "Trim", data_type: "string" },
+];
+
+beforeAll(() => provideConditionAttributes(CATALOG));
 
 const tree = (patch: Partial<ConditionGroupInput>): ConditionGroupInput => ({
   operator: "and",
@@ -15,18 +32,13 @@ const tree = (patch: Partial<ConditionGroupInput>): ConditionGroupInput => ({
   ...patch,
 });
 
-describe("vehicle attribute catalog", () => {
-  it("is generated from the vehicle schemas, with types, units and enum values", () => {
-    expect(vehicleAttribute("drive")).toMatchObject({
-      label: "Drive",
-      data_type: "enum",
-      values: expect.arrayContaining([{ value: "FWD", label: "Front-wheel drive" }, { value: "FOUR_WD", label: "4×4" }]),
-    });
-    expect(vehicleAttribute("engine.power_kw")).toMatchObject({ label: "Power", data_type: "number", unit: "kW" });
-    expect(vehicleAttribute("engine.fuel")!.values!.map((v) => v.label)).toContain("Plug-in hybrid");
-    expect(vehicleAttribute("generation.model.make.name")).toMatchObject({ label: "Make", data_type: "string" });
-    expect(vehicleAttribute("generation.model.category")!.data_type).toBe("enum");
-    expect(VEHICLE_ATTRIBUTES.map((a) => a.code)).not.toContain("id");
+describe("condition attribute port", () => {
+  it("serves the registered catalog; a new registration replaces it", () => {
+    expect(conditionAttribute("engine.power_kw")).toMatchObject({ unit: "kW" });
+    provideConditionAttributes(() => [{ code: "colour", label: "Colour", data_type: "string" }]);
+    expect(conditionAttribute("drive")).toBeUndefined();
+    expect(conditionAttribute("colour")).toBeDefined();
+    provideConditionAttributes(CATALOG);
   });
 });
 
@@ -59,7 +71,7 @@ describe("validateTree", () => {
       ],
     });
     expect(validateTree(bad)).toEqual([
-      'Conditions › #1: "colour" is not a vehicle field.',
+      'Conditions › #1: "colour" is not a known attribute.',
       'Conditions › #2: Drive can\'t use "is above".',
       "Conditions › #3: HOVER is not a valid drive.",
       "Conditions › #4: the upper bound of Power is below the lower one.",

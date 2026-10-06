@@ -1,6 +1,6 @@
 // Editor for a fitment's condition tree: groups (all / any) of conditions on
-// vehicle fields, nestable. Inputs follow each field's type (enum, number,
-// text); the catalog comes from the vehicle schemas.
+// the attributes of the injected catalog, nestable. Inputs follow each
+// attribute's type (enum, number, text).
 import { Plus, Trash, XMark } from "@medusajs/icons";
 import { Button, clx, IconButton, Input, Select, Text } from "@medusajs/ui";
 import {
@@ -8,20 +8,23 @@ import {
   MAX_GROUP_DEPTH,
   OPERATOR_LABELS,
   OPERATORS_BY_TYPE,
-  VEHICLE_ATTRIBUTES,
-  vehicleAttribute,
+  conditionAttribute,
+  conditionAttributes,
   type ConditionGroupInput,
   type ConditionInput,
   type ConditionOperator,
-  type VehicleAttribute,
+  type ConditionAttribute,
 } from "../../conditions";
 
-const CATEGORY = (code: string) =>
-  code.startsWith("engine.") ? "Engine" : code.startsWith("generation.") ? "Model" : "Vehicle";
-const CATEGORIES = ["Vehicle", "Engine", "Model"] as const;
+/** Catalog attributes by group, in catalog order ("" for ungrouped). */
+function groupedAttributes() {
+  const groups = new Map<string, ConditionAttribute[]>();
+  for (const a of conditionAttributes()) groups.set(a.group ?? "", [...(groups.get(a.group ?? "") ?? []), a]);
+  return [...groups];
+}
 
-/** A new condition on `attr` with sensible defaults. */
-export function newCondition(attr: VehicleAttribute = VEHICLE_ATTRIBUTES.find((a) => a.code === "drive")!): ConditionInput {
+/** A new condition on `attr` (default: the catalog's first) with sensible defaults. */
+export function newCondition(attr: ConditionAttribute = conditionAttributes()[0]!): ConditionInput {
   const operator = OPERATORS_BY_TYPE[attr.data_type][0]!;
   const value = attr.data_type === "enum" ? attr.values![0]!.value : attr.data_type === "boolean" ? true : "";
   return { code: attr.code, operator, value, value_to: null };
@@ -30,7 +33,7 @@ export function newCondition(attr: VehicleAttribute = VEHICLE_ATTRIBUTES.find((a
 export const emptyTree = (): ConditionGroupInput => ({ operator: "and", conditions: [newCondition()], groups: [] });
 
 /** Keeps the value consistent when the operator changes (single ⇄ list). */
-function withOperator(c: ConditionInput, operator: ConditionOperator, attr: VehicleAttribute): ConditionInput {
+function withOperator(c: ConditionInput, operator: ConditionOperator, attr: ConditionAttribute): ConditionInput {
   const wasList = isListOperator(c.operator);
   const isList = isListOperator(operator);
   let value = c.value;
@@ -39,7 +42,7 @@ function withOperator(c: ConditionInput, operator: ConditionOperator, attr: Vehi
   return { ...c, operator, value, value_to: operator === "between" ? c.value_to ?? null : null };
 }
 
-function ValueInput({ condition, attr, onChange }: { condition: ConditionInput; attr: VehicleAttribute; onChange: (c: ConditionInput) => void }) {
+function ValueInput({ condition, attr, onChange }: { condition: ConditionInput; attr: ConditionAttribute; onChange: (c: ConditionInput) => void }) {
   const set = (patch: Partial<ConditionInput>) => onChange({ ...condition, ...patch });
 
   if (attr.data_type === "enum" && isListOperator(condition.operator)) {
@@ -132,19 +135,19 @@ function ValueInput({ condition, attr, onChange }: { condition: ConditionInput; 
 }
 
 function ConditionRow({ condition, onChange, onRemove }: { condition: ConditionInput; onChange: (c: ConditionInput) => void; onRemove: () => void }) {
-  const attr = vehicleAttribute(condition.code) ?? VEHICLE_ATTRIBUTES[0]!;
+  const attr = conditionAttribute(condition.code) ?? conditionAttributes()[0]!;
   return (
     // Inline grid: the host admin's Tailwind may not generate arbitrary classes from plugin code.
     <div className="grid items-start gap-2" style={{ gridTemplateColumns: "minmax(0,10rem) minmax(0,8.5rem) minmax(12rem,1fr) auto" }}>
-      <Select value={attr.code} onValueChange={(code) => onChange(newCondition(vehicleAttribute(code)))}>
+      <Select value={attr.code} onValueChange={(code) => onChange(newCondition(conditionAttribute(code)))}>
         <Select.Trigger>
           <Select.Value />
         </Select.Trigger>
         <Select.Content>
-          {CATEGORIES.map((category) => (
-            <Select.Group key={category}>
-              <Select.Label>{category}</Select.Label>
-              {VEHICLE_ATTRIBUTES.filter((a) => CATEGORY(a.code) === category).map((a) => (
+          {groupedAttributes().map(([group, attrs]) => (
+            <Select.Group key={group}>
+              {group && <Select.Label>{group}</Select.Label>}
+              {attrs.map((a) => (
                 <Select.Item key={a.code} value={a.code}>
                   {a.label}
                 </Select.Item>

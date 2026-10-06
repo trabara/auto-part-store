@@ -1,99 +1,100 @@
-// Fitment conditions: the vehicle fields a condition can test (catalog), the
-// condition tree as edited in the admin, its validation and its readable
-// summary. Isomorphic: shared by the admin editor and the server.
+// Fitment conditions: the attributes a condition can test (an injected
+// catalog), the condition tree as edited in the admin, its validation and its
+// readable summary. Isomorphic: shared by the admin editor and the server.
+//
+// The module knows no vehicle: the domain provides the catalog
+// (`provideConditionAttributes`), e.g. the vehicle fields a fitment can test.
 import { z } from "@medusajs/framework/zod";
 import { getZodFieldInfo } from "@repo/framework/utils";
-import { Vehicle, VehicleEngine, VehicleModel } from "../vehicle/entities/vehicle";
 
-// ── Vehicle attribute catalog ─────────────────────────────────────────────────
+// ── Condition attribute catalog (port) ────────────────────────────────────────
 
 export type ConditionDataType = "string" | "number" | "boolean" | "enum";
 
-export type VehicleAttribute = {
-  /** Vehicle path the condition reads (`drive`, `engine.fuel`). */
+export type ConditionAttribute = {
+  /** Path the condition reads on the tested record (`drive`, `engine.fuel`). */
   code: string;
   label: string;
   data_type: ConditionDataType;
   unit?: string;
   /** Allowed values for enums, with labels. */
   values?: { value: string; label: string }[];
+  /** Picker grouping, e.g. "Engine". */
+  group?: string;
 };
 
-const LABELS: Record<string, { label: string; unit?: string }> = {
-  body_style: { label: "Body style" },
-  doors: { label: "Doors" },
-  drive: { label: "Drive" },
-  transmission: { label: "Transmission" },
-  trim: { label: "Trim" },
-  year_start: { label: "First production year" },
-  year_end: { label: "Last production year" },
-  "engine.code": { label: "Engine code" },
-  "engine.fuel": { label: "Fuel" },
-  "engine.layout": { label: "Engine layout" },
-  "engine.cylinders": { label: "Cylinders" },
-  "engine.displacement_cc": { label: "Displacement", unit: "cm³" },
-  "engine.power_kw": { label: "Power", unit: "kW" },
-  "engine.power_hp": { label: "Power (hp)", unit: "hp" },
-  "engine.name": { label: "Engine technology" },
-  "generation.name": { label: "Generation" },
-  "generation.code": { label: "Generation code" },
-  "generation.model.name": { label: "Model" },
-  "generation.model.category": { label: "Vehicle category" },
-  "generation.model.make.name": { label: "Make" },
-};
+/** Supplies the attributes conditions may test; registered by the domain. */
+export type ConditionAttributeProvider = () => readonly ConditionAttribute[];
 
-const VALUE_LABELS: Record<string, string> = {
-  FWD: "Front-wheel drive",
-  RWD: "Rear-wheel drive",
-  AWD: "All-wheel drive",
-  FOUR_WD: "4×4",
-  CVT: "CVT",
-  LPG: "LPG",
-  CNG: "CNG",
-  SUV: "SUV",
-  LCV: "Light commercial",
-  V: "V",
-  W: "W",
-};
+let provider: ConditionAttributeProvider = () => [];
+let cache: { list: readonly ConditionAttribute[]; byCode: Map<string, ConditionAttribute> } | null = null;
 
-/** "PLUG_IN_HYBRID" → "Plug-in hybrid" (overrides for acronyms and drives). */
-export const valueLabel = (value: string) =>
-  VALUE_LABELS[value] ??
+/**
+ * Registers the catalog conditions test (server and admin each call it at
+ * startup, from the domain). The last registration wins.
+ */
+export function provideConditionAttributes(next: ConditionAttributeProvider | readonly ConditionAttribute[]): void {
+  provider = typeof next === "function" ? next : () => next;
+  cache = null;
+}
+
+function catalog() {
+  if (!cache) {
+    const list = provider();
+    cache = { list, byCode: new Map(list.map((a) => [a.code, a])) };
+  }
+  return cache;
+}
+
+/** The registered attributes (empty until the domain provides them). */
+export const conditionAttributes = (): readonly ConditionAttribute[] => catalog().list;
+
+export const conditionAttribute = (code: string): ConditionAttribute | undefined => catalog().byCode.get(code);
+
+/** "PLUG_IN_HYBRID" → "Plug-in hybrid": the default label of an enum value. */
+export const humanizeValue = (value: string) =>
   value.charAt(0) + value.slice(1).toLowerCase().replace(/_in_/g, "-in ").replace(/_/g, " ");
 
-function describe(code: string, field: z.ZodTypeAny): VehicleAttribute {
+export type AttributeMeta = { label?: string; unit?: string; group?: string };
+
+/** An attribute for `code` typed from a Zod field (enums get their values). */
+export function describeAttribute(
+  code: string,
+  field: z.ZodTypeAny,
+  meta: AttributeMeta = {},
+  valueLabel: (value: string) => string = humanizeValue,
+): ConditionAttribute {
   const info = getZodFieldInfo(field);
-  const meta = LABELS[code] ?? { label: code };
+  const base = { code, label: meta.label ?? code, unit: meta.unit, group: meta.group };
   if (info.baseType === "enum") {
-    return {
-      code,
-      ...meta,
-      data_type: "enum",
-      values: (info.enumValues ?? []).map((value) => ({ value, label: valueLabel(value) })),
-    };
+    return { ...base, data_type: "enum", values: (info.enumValues ?? []).map((value) => ({ value, label: valueLabel(value) })) };
   }
   const data_type: ConditionDataType =
     info.baseType === "number" ? "number" : info.baseType === "boolean" ? "boolean" : "string";
-  return { code, ...meta, data_type };
+  return { ...base, data_type };
 }
 
-const ownFields = (schema: { shape: Record<string, z.ZodTypeAny> }) =>
-  Object.entries(schema.shape).filter(([k]) => !["id", "created_at", "updated_at", "deleted_at"].includes(k));
+const SYSTEM_FIELDS = ["id", "created_at", "updated_at", "deleted_at"];
 
-/** Every vehicle field a condition can test, generated from the vehicle schemas. */
-export const VEHICLE_ATTRIBUTES: readonly VehicleAttribute[] = [
-  ...ownFields(Vehicle.schema).map(([k, f]) => describe(k, f)),
-  ...ownFields(VehicleEngine.schema).map(([k, f]) => describe(`engine.${k}`, f)),
-  describe("generation.name", z.string()),
-  describe("generation.code", z.string()),
-  describe("generation.model.name", z.string()),
-  describe("generation.model.category", VehicleModel.schema.shape.category),
-  describe("generation.model.make.name", z.string()),
-];
-
-const byCode = new Map(VEHICLE_ATTRIBUTES.map((a) => [a.code, a]));
-
-export const vehicleAttribute = (code: string) => byCode.get(code);
+/**
+ * Attributes for every field of an entity schema, e.g. a vehicle's:
+ * `attributesFromSchema(VehicleEngine.schema, { prefix: "engine.", group: "Engine", meta })`.
+ */
+export function attributesFromSchema(
+  schema: { shape: Record<string, z.ZodTypeAny> },
+  options: {
+    prefix?: string;
+    group?: string;
+    meta?: Record<string, AttributeMeta>;
+    valueLabel?: (value: string) => string;
+    exclude?: string[];
+  } = {},
+): ConditionAttribute[] {
+  const { prefix = "", group, meta = {}, valueLabel, exclude = [] } = options;
+  return Object.entries(schema.shape)
+    .filter(([key]) => !SYSTEM_FIELDS.includes(key) && !exclude.includes(key))
+    .map(([key, field]) => describeAttribute(`${prefix}${key}`, field, { group, ...meta[`${prefix}${key}`] }, valueLabel));
+}
 
 // ── Operators ─────────────────────────────────────────────────────────────────
 
@@ -159,8 +160,8 @@ export function validateTree(tree: ConditionGroupInput, depth = 1, path = "Condi
   if (depth > MAX_GROUP_DEPTH) return [`${path}: groups can be nested ${MAX_GROUP_DEPTH} levels deep at most.`];
   tree.conditions.forEach((c, i) => {
     const where = `${path} › #${i + 1}`;
-    const attr = vehicleAttribute(c.code);
-    if (!attr) return errors.push(`${where}: "${c.code}" is not a vehicle field.`);
+    const attr = conditionAttribute(c.code);
+    if (!attr) return errors.push(`${where}: "${c.code}" is not a known attribute.`);
     if (!OPERATORS_BY_TYPE[attr.data_type].includes(c.operator)) {
       return errors.push(`${where}: ${attr.label} can't use "${OPERATOR_LABELS[c.operator]}".`);
     }
@@ -228,14 +229,17 @@ export function deserializeCondition(row: {
 
 // ── Summary ───────────────────────────────────────────────────────────────────
 
-function describeValue(attr: VehicleAttribute | undefined, value: unknown) {
+const enumLabel = (attr: ConditionAttribute, value: string) =>
+  attr.values?.find((v) => v.value === value)?.label ?? humanizeValue(value);
+
+function describeValue(attr: ConditionAttribute | undefined, value: unknown) {
   if (value === "" || value == null) return "…";
-  const text = attr?.data_type === "enum" ? valueLabel(String(value)).toLowerCase() : String(value);
+  const text = attr?.data_type === "enum" ? enumLabel(attr, String(value)).toLowerCase() : String(value);
   return attr?.unit ? `${text} ${attr.unit}` : text;
 }
 
 function describeCondition(c: ConditionInput): string {
-  const attr = vehicleAttribute(c.code);
+  const attr = conditionAttribute(c.code);
   const label = attr?.label ?? c.code;
   if (c.operator === "between") {
     return `${label} is between ${describeValue(undefined, c.value)} and ${describeValue(attr, c.value_to)}`;

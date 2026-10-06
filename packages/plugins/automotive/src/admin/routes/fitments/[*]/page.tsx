@@ -1,5 +1,6 @@
 // Every /fitments/* URL: the module's routes rendered by the CRUD templates,
 // with one sidebar entry per feature under "Fitments".
+import "../../../setup";
 import { defineRouteConfig } from "@medusajs/admin-sdk";
 import { Module, crudTemplates } from "@repo/dashboard/module";
 import { translatedMenu } from "@repo/framework/core";

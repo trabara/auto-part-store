@@ -1,7 +1,14 @@
-// Medusa models described for links and pickers (no models here): shared by
-// the plugin's modules. Outside src/modules: every folder there is a module.
-import { z } from "@medusajs/framework/zod";
-import { defineEntity } from "@repo/framework/entity";
+/**
+ * Medusa's own models, described as external entities (no models here) so
+ * any module can link to them and the admin can pick them. Isomorphic.
+ *
+ * ```ts
+ * import { ProductVariant } from "@repo/framework/medusa"
+ * relations: (r) => ({ variant: r.link("ProductVariant", { storage: "column" }) })
+ * ```
+ */
+import { z } from "@medusajs/framework/zod"
+import { defineEntity } from "../entity"
 
 /** The sellable SKU: fitments and part numbers point at it. */
 export const ProductVariant = defineEntity("ProductVariant", {
@@ -47,7 +54,7 @@ export const Customer = defineEntity("Customer", {
   external: { module: "customer", url: "/admin/customers" },
 });
 
-declare module "@repo/framework/entity" {
+declare module "../entity" {
   interface EntityRegistry {
     Customer: typeof Customer;
     ProductVariant: typeof ProductVariant;

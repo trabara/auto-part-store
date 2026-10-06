@@ -360,11 +360,11 @@ medusaIntegrationTestRunner({
         expect(list.data.data).toEqual([]);
       });
 
-      it("only accepts vehicle paths as condition attribute codes", async () => {
+      it("only accepts catalog paths (vehicle fields) as condition attribute codes", async () => {
         const attribute = AutomotiveAttribute.dto.create;
         const base = { name: "Fuel", data_type: "enum", default_unit: null, category: null };
         expect(attribute.parse({ ...base, code: " Engine.Fuel " }).code).toBe("engine.fuel");
-        expect(() => attribute.parse({ ...base, code: "colour" })).toThrow(/must be a vehicle field/);
+        expect(() => attribute.parse({ ...base, code: "colour" })).toThrow(/must be a field conditions can test/);
       });
     });
 

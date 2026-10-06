@@ -13,7 +13,7 @@ import {
   serializeValue,
   summarizeConditions,
   validateTree,
-  vehicleAttribute,
+  conditionAttribute,
   type ConditionGroupInput,
 } from "./conditions";
 import { windowContains, type BuildDate, type FitmentMatch } from "./matching";
@@ -63,7 +63,7 @@ export default class FitmentModuleService extends MedusaService(fitmentModels) {
    *
    * `vehicle` holds the fields conditions test, by path (`drive`,
    * `engine.fuel`, `model.make.name`): load it with
-   * `query.graph({ entity: "vehicle", fields: [...VEHICLE_ATTRIBUTE_PATHS] })`.
+   * the codes of the registered condition attributes (`conditionAttributes()`).
    * Fitments need `conditionGroups.conditions.attribute` and
    * `conditionGroups.children…` loaded.
    */
@@ -223,7 +223,7 @@ export default class FitmentModuleService extends MedusaService(fitmentModels) {
             operator: c.operator as any,
             value: serializeValue(c),
             value_to: c.value_to == null ? null : String(c.value_to),
-            unit: vehicleAttribute(c.code)?.unit ?? null,
+            unit: conditionAttribute(c.code)?.unit ?? null,
           })),
           ctx,
         );
@@ -270,8 +270,8 @@ export default class FitmentModuleService extends MedusaService(fitmentModels) {
     if (missing.length) {
       const created = await this.createAutomotiveAttributes(
         missing.map((code) => {
-          const attr = vehicleAttribute(code)!;
-          return { code, name: attr.label, data_type: attr.data_type as any, default_unit: attr.unit ?? null, category: null };
+          const attr = conditionAttribute(code)!;
+          return { code, name: attr.label, data_type: attr.data_type as any, default_unit: attr.unit ?? null, category: attr.group ?? null };
         }),
         ctx,
       );
@@ -285,7 +285,7 @@ export default class FitmentModuleService extends MedusaService(fitmentModels) {
   /**
    * Fitments of a vehicle that apply to it, grouped by variant: production
    * window (narrowed by `build` when known) and condition groups evaluated
-   * against `vehicle` (its fields by path, see `VEHICLE_ATTRIBUTE_PATHS`).
+   * against `vehicle` (its fields by attribute code).
    */
   @InjectManager()
   async findMatching(

@@ -9,3 +9,5 @@ export default Module(FITMENT_MODULE, {
 });
 
 export { type FitmentModuleService };
+
+export { fitmentManifest } from "./manifest";

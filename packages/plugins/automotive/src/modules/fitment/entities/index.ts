@@ -1,7 +1,7 @@
 import { defineEntities } from "@repo/framework/entity";
 // Link targets must be defined before this module's relations are validated.
 import "../../vehicle/entities";
-import "../../../entities/medusa";
+import "@repo/framework/medusa";
 import { FITMENT_MODULE } from "../constants";
 import {
   AutomotiveAttribute,

@@ -11,3 +11,5 @@ export default Module(VEHICLE_MODULE, {
 });
 
 export { type VehicleModuleService };
+
+export { vehicleManifest } from "./manifest";

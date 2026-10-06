@@ -2,7 +2,7 @@
 // no UI code here; the Conditions panel is given by the admin page
 // (./sections.tsx).
 import { defineModule } from "@repo/framework/core";
-import { VEHICLE_ATTRIBUTES } from "../conditions";
+import { conditionAttributes } from "../conditions";
 import { AutomotiveAttribute, Fitment, FitmentPosition } from "../entities";
 
 // Features match the entities of the module's API (../http.ts).
@@ -36,11 +36,14 @@ export default defineModule({
     automotive_attribute: m.crud(AutomotiveAttribute, {
       path: "attributes",
       label: "Vehicle attributes",
-      // The code is a vehicle field from the catalog; its type is derived.
+      // The code comes from the injected catalog; its type is derived.
       overrides: {
         code: {
           type: "select",
-          options: VEHICLE_ATTRIBUTES.map((a) => ({ value: a.code, label: `${a.label} (${a.code})` })),
+          // A getter: the domain registers the catalog after this module loads.
+          get options() {
+            return conditionAttributes().map((a) => ({ value: a.code, label: `${a.label} (${a.code})` }));
+          },
         },
       },
     }),

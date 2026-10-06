@@ -1,3 +1,4 @@
+import "../../setup";
 import { defineRouteConfig } from "@medusajs/admin-sdk";
 import { ModuleHome } from "@repo/framework/admin";
 import { i18nKeys } from "@repo/framework/core";

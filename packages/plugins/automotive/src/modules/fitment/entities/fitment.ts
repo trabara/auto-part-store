@@ -1,9 +1,9 @@
 import { z } from "@medusajs/framework/zod";
 import { defineEntity, type InferEntity } from "@repo/framework/entity";
 import { BaseSchema } from "@repo/framework/utils";
-import { Vehicle, YearSchema } from "../../vehicle/entities/vehicle";
-import { ProductVariant } from "../../../entities/medusa";
-import { VEHICLE_ATTRIBUTES, vehicleAttribute } from "../conditions";
+import { Vehicle, YearSchema } from "../../vehicle/entities";
+import { ProductVariant } from "@repo/framework/medusa";
+import { conditionAttribute } from "../conditions";
 
 // ── Enums ─────────────────────────────────────────────────────────────────────
 
@@ -34,28 +34,19 @@ export enum FitmentConditionGroupOperator {
   OR = "or",
 }
 
-// ── Condition attributes ──────────────────────────────────────────────────────
-
-/**
- * Vehicle paths a condition can test (`drive`, `engine.fuel`, …). Load the
- * vehicle with these fields to evaluate fitments (`filterCompatible`).
- */
-export const VEHICLE_ATTRIBUTE_PATHS: readonly string[] = VEHICLE_ATTRIBUTES.map((a) => a.code);
-
 const MonthSchema = z.number().int().min(1).max(12);
 
 // ── Entities ──────────────────────────────────────────────────────────────────
 
 export const AutomotiveAttribute = defineEntity("AutomotiveAttribute", {
   schema: BaseSchema.extend({
-    // A vehicle path (drive, engine.fuel, …): what the condition tests.
+    // A path in the injected catalog (drive, engine.fuel, …): what the
+    // condition tests. Read at validation time, after the domain registered it.
     code: z
       .string()
       .trim()
       .toLowerCase()
-      .refine((code) => VEHICLE_ATTRIBUTE_PATHS.includes(code), {
-        message: `must be a vehicle field: ${VEHICLE_ATTRIBUTE_PATHS.join(", ")}`,
-      })
+      .refine((code) => !!conditionAttribute(code), { message: "must be a field conditions can test" })
       .describe("The vehicle field this attribute tests"),
     name: z.string().trim().min(1).describe("Display name, e.g. Drive, Power"),
     data_type: z.enum(DataType).describe("Value type, derived from the vehicle field"),
@@ -64,7 +55,7 @@ export const AutomotiveAttribute = defineEntity("AutomotiveAttribute", {
   }),
   // The type comes from the vehicle field: staff never choose it.
   derived: {
-    data_type: { from: ["code"], compute: (a) => vehicleAttribute(a.code)?.data_type ?? DataType.STRING },
+    data_type: { from: ["code"], compute: (a) => conditionAttribute(a.code)?.data_type ?? DataType.STRING },
   },
   indexes: [{ name: "automotive_attribute_code_unique", on: ["code"], unique: true }],
 });

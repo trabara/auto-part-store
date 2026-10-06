@@ -9,3 +9,5 @@ export default Module(PARTS_MODULE, {
 });
 
 export { type PartsModuleService };
+
+export { partsManifest } from "./manifest";

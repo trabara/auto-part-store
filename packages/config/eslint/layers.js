@@ -10,10 +10,13 @@
  *   plugin admin    → isomorphic framework entries, ui, admin-safe Medusa packages
  *   ui packages     → isomorphic framework entries, admin-safe Medusa packages
  *   framework       → Medusa, zod, lodash; never ui or plugins
+ *   modules         → own files + declared dependencies' `entities` entry
+ *                     (manifest.ts); never their domain (see module-boundaries.js)
  *
  * Type-only imports are always allowed (they are erased at build time).
  */
 import tseslint from "typescript-eslint";
+import { moduleBoundaries } from "./module-boundaries.js";
 
 const PLUGINS = {
   group: ["@repo/*-plugin", "@repo/*-plugin/*", "@repo/plugin-*", "@repo/plugin-*/**"],
@@ -118,7 +121,7 @@ export const layers = [
   {
     files: ["**/*.{ts,tsx,mts,cts,js,mjs,jsx}"],
     languageOptions: { parser: tseslint.parser },
-    plugins: { "@typescript-eslint": tseslint.plugin },
+    plugins: { "@typescript-eslint": tseslint.plugin, layers: { rules: { "module-boundaries": moduleBoundaries } } },
     // Inline eslint-disable comments are ignored: they reference rules this
     // config doesn't load, and a layer rule must not be silenced in place.
     linterOptions: { noInlineConfig: true, reportUnusedDisableDirectives: "off" },
@@ -136,6 +139,7 @@ export const layers = [
       "packages/framework/src/utils/**",
       "packages/framework/src/admin/*.{ts,tsx}",
       "packages/framework/src/entity/{index,define-entity,define-entities,relations,types}.ts",
+      "packages/framework/src/medusa/**",
     ],
     rules: restrict(UI_PACKAGES, PLUGINS, FRAMEWORK_SERVER_MODULES, MEDUSA_SERVER_PACKAGES),
   },
@@ -155,6 +159,12 @@ export const layers = [
   {
     files: ["packages/plugins/*/src/admin/**", "packages/plugins/*/src/modules/*/admin/**"],
     rules: restrict(PLUGINS, FRAMEWORK_SERVER_ENTRIES, MEDUSA_SERVER_PACKAGES, PLUGIN_SERVER_FOLDERS),
+  },
+
+  // reusable modules: own files + declared dependencies' entities only
+  {
+    files: ["packages/plugins/*/src/modules/**", "packages/modules/*/src/**"],
+    rules: { "layers/module-boundaries": "error" },
   },
 ];
 

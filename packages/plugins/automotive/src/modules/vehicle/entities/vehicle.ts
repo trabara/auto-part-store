@@ -1,7 +1,7 @@
 import { z } from "@medusajs/framework/zod";
 import { defineEntity, fields, type InferEntity } from "@repo/framework/entity";
 import { BaseSchema } from "@repo/framework/utils";
-import "../../../entities/medusa";
+import "@repo/framework/medusa";
 
 // ── Enums ─────────────────────────────────────────────────────────────────────
 

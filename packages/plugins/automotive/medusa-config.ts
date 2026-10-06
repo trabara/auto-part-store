@@ -16,5 +16,9 @@ export default defineConfig({
       authCors: "",
     },
   },
-  modules: [{ resolve: "./src/modules/vehicle" }, { resolve: "./src/modules/fitment" }],
+  modules: [
+    { resolve: "./src/modules/vehicle" },
+    { resolve: "./src/modules/fitment" },
+    { resolve: "./src/modules/parts" },
+  ],
 });

@@ -2,7 +2,7 @@ import { z } from "@medusajs/framework/zod";
 import { defineEntity, type InferEntity } from "@repo/framework/entity";
 import { BaseSchema } from "@repo/framework/utils";
 import { Vehicle, VehicleEngine, YearSchema } from "../../vehicle/entities/vehicle";
-import { ProductVariant } from "./product-variant";
+import { ProductVariant } from "../../../entities/medusa";
 
 // ── Enums ─────────────────────────────────────────────────────────────────────
 

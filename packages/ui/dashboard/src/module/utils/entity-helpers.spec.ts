@@ -144,4 +144,24 @@ describe("external entities", () => {
     expect(entityUrl(mod, Variant)).toBe("/admin/product-variants");
     expect(entityUrl(mod, Variant, "v1")).toBe("/admin/product-variants/v1");
   });
+
+  it("resolve as relation targets: picker from their URL, no feature", () => {
+    const Variant = defineEntity("DashVariant2", {
+      schema: z.object({ id: z.string(), sku: z.string() }),
+      display: "sku",
+      external: { module: "product", url: "/admin/product-variants" },
+    });
+    const App = defineEntity("DashApp", {
+      schema: z.object({ id: z.string() }),
+      relations: (r) => ({ variant: r.link("DashVariant2", { storage: "column" }) }),
+    });
+    const apps = defineModule({ name: "Apps", path: "apps", features: (m) => ({ app: m.crud(App) }) });
+    const [rel] = featureRelations(apps, apps.features.app);
+    expect(rel).toMatchObject({ key: "variant", target: undefined, targetEntity: Variant });
+    const overrides = relationOverrides(apps, apps.features.app, App.dto.create) as Record<string, any>;
+    expect(overrides.variant_id.render({ value: "v1", onChange: () => {} }).props).toMatchObject({
+      url: "/admin/product-variants",
+      entity: Variant,
+    });
+  });
 });

@@ -1,6 +1,7 @@
 // "Fits vehicles" on the product variant page: the variant's fitments
 // (applications), added and removed where the part is managed.
 import { defineWidgetConfig } from "@medusajs/admin-sdk";
+import { z } from "@medusajs/framework/zod";
 import type { AdminProductVariant, DetailWidgetProps } from "@medusajs/framework/types";
 import { PencilSquare, Plus, Trash } from "@medusajs/icons";
 import { Button, Container, Drawer, Heading, IconButton, Table, Text } from "@medusajs/ui";
@@ -26,8 +27,9 @@ import { Vehicle } from "../../modules/vehicle/entities";
 type Row = { id: string } & Record<string, any>;
 
 const feature = automotive.features.fitment;
-// The variant is fixed by the page.
-const createSchema = Fitment.dto.create.omit({ variant_id: true });
+// The variant is fixed by the page; the vehicle comes first.
+const { variant_id: _variant, vehicle_id, position_id, quantity, ...rest } = Fitment.dto.create.shape;
+const createSchema = z.object({ vehicle_id, position_id, quantity, ...rest });
 
 /** "2018/03 – 2019", "– 2019", or "" for the vehicle's whole range. */
 function productionWindow(row: Row): string {

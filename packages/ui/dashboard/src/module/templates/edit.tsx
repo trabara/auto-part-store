@@ -56,6 +56,13 @@ export function TemplateEdit(_: RouteRenderContext) {
     return values;
   };
 
+  // Fields in the wizard's order when the feature declares steps.
+  const stepOrder = (feature.ui.steps ?? []).flatMap((step) => step.fields as string[]);
+  const ordered = (keys: string[]) => [
+    ...stepOrder.filter((key) => keys.includes(key)),
+    ...keys.filter((key) => !stepOrder.includes(key)),
+  ];
+
   const close = () => navigate(featurePath(feature, "detail", { id })!, { replace: true });
 
   const update = useUpdateMutation({
@@ -92,7 +99,7 @@ export function TemplateEdit(_: RouteRenderContext) {
                   </Drawer.Title>
                 </Drawer.Header>
                 <Drawer.Body className="flex flex-col gap-y-4 overflow-y-auto">
-                  {fieldKeys.map((key) => renderField(key))}
+                  {ordered(fieldKeys as string[]).map((key) => renderField(key as any))}
                 </Drawer.Body>
                 <Drawer.Footer>
                   <Button variant="secondary" size="small" type="button" onClick={close}>

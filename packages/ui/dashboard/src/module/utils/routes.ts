@@ -8,7 +8,7 @@ import {
   type RelationUi,
 } from "@repo/framework/core";
 import { useRouteScope } from "@repo/framework/admin";
-import type { EntityDef, RelationDef } from "@repo/framework/entity";
+import { getEntity, type EntityDef, type RelationDef } from "@repo/framework/entity";
 
 type AnyEntity = EntityDef<any, any, any>;
 
@@ -59,6 +59,11 @@ export type ResolvedRelation = {
 };
 
 /** Visible (non-hidden) relations of a feature, with their target features. */
+function externalEntity(name: string): AnyEntity | undefined {
+  const entity = getEntity(name);
+  return entity?.external ? (entity as AnyEntity) : undefined;
+}
+
 export function featureRelations(module: ModuleDef, feature: FeatureDef): ResolvedRelation[] {
   const relations = feature.entity.relations as Record<string, RelationDef>;
   const ui = feature.relations as Record<string, RelationUi>;
@@ -72,7 +77,9 @@ export function featureRelations(module: ModuleDef, feature: FeatureDef): Resolv
         ui: ui[key] ?? {},
         label: ui[key]?.label ?? startCase(key),
         target,
-        targetEntity: target?.entity as AnyEntity | undefined,
+        // Medusa-owned targets (external entities) have no feature, but can
+        // still be picked and labelled.
+        targetEntity: (target?.entity ?? externalEntity(relation.target)) as AnyEntity | undefined,
       };
     });
 }

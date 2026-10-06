@@ -3,6 +3,16 @@ import { useQuery } from "@tanstack/react-query";
 import { entityLabel, type EntityDef } from "@repo/framework/entity";
 import { useSdk } from "../../common/context";
 
+/**
+ * Records of a list response: `data` for framework routes, the first array
+ * property for Medusa's (`{ variants: [...], count }`).
+ */
+function listOf(response: Record<string, unknown>): Record<string, any>[] {
+  if (Array.isArray(response.data)) return response.data;
+  const list = Object.values(response).find(Array.isArray);
+  return (list as Record<string, any>[] | undefined) ?? [];
+}
+
 /** Sentinel for "no value" (Radix Select items cannot have an empty value). */
 const NONE = "__none__";
 
@@ -35,11 +45,11 @@ export function RelationSelect({
     queryKey: [url, "relation-select", entity.label.fields, limit],
     queryFn: async ({ signal }) => {
       const fields = [...new Set(["id", ...entity.label.fields])].join(",");
-      const { data } = await sdk.client.fetch<{ data: Record<string, any>[] }>(url, {
+      const response = await sdk.client.fetch<Record<string, unknown>>(url, {
         signal,
         query: { fields, limit },
       });
-      return data.map((item) => ({
+      return listOf(response).map((item) => ({
         value: String(item.id),
         label: entityLabel(entity, item),
       }));

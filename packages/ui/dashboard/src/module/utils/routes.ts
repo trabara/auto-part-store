@@ -27,7 +27,9 @@ export function useFeature() {
 
 /** Admin API URL of an entity collection or item: `/admin/<module>/<entity>[/id]`. */
 export function entityUrl(module: ModuleDef, entity: AnyEntity, id?: string): string {
-  const base = `/admin/${module.path.replace(/^\/|\/$/g, "")}/${entity.modelName}`;
+  // External entities (Medusa models) are served by their own admin routes.
+  const base =
+    entity.external?.url ?? `/admin/${module.path.replace(/^\/|\/$/g, "")}/${entity.modelName}`;
   return id ? `${base}/${encodeURIComponent(id)}` : base;
 }
 

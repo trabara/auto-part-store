@@ -49,9 +49,18 @@ const Fit = defineEntity("TFit", {
   relations: (r) => ({ t_vehicle: r.link("TVehicle") }),
 })
 
+const App = defineEntity("TApp", {
+  schema: BaseSchema,
+  relations: (r) => ({
+    vehicle: r.link("TVehicle", { storage: "column" }),
+    owner: r.link("TVehicle", { storage: "column", nullable: true }),
+  }),
+})
+
 declare module "./index" {
   interface EntityRegistry {
     TFit: typeof Fit
+    TApp: typeof App
     TVehicle: typeof Vehicle
     TEngine: typeof Engine
     TGroup: typeof Group
@@ -80,6 +89,12 @@ type FitT = InferEntity<typeof Fit>
 type _LinkNotColumn = Assert<"t_vehicle_id" extends keyof FitT ? false : true>
 type _LinkNotRelation = Assert<"t_vehicle" extends keyof FitT ? false : true>
 type _LinkInCreate = Assert<Equals<z.infer<typeof Fit.dto.create>["t_vehicle_id"], string>>
+// column links: a real column (and a DTO field), still no relation property
+type AppT = InferEntity<typeof App>
+type _ColumnLink = Assert<Equals<AppT["vehicle_id"], string>>
+type _ColumnLinkNullable = Assert<Equals<AppT["owner_id"], string | null>>
+type _ColumnLinkNotRelation = Assert<"vehicle" extends keyof AppT ? false : true>
+type _ColumnLinkInCreate = Assert<Equals<z.infer<typeof App.dto.create>["vehicle_id"], string>>
 type _Timestamps = Assert<Equals<VehicleT["deleted_at"], Date | null>>
 
 // ── DTOs ────────────────────────────────────────────────────────────────────

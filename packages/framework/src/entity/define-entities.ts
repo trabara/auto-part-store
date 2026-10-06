@@ -1,6 +1,6 @@
 import { snakeCase } from "lodash"
 import { getEntity, setEntityModule } from "./define-entity"
-import { INVERSE_KINDS, isLink } from "./relations"
+import { INVERSE_KINDS, isColumnLink, isLink } from "./relations"
 import type { EntityDef, RelationDef } from "./types"
 
 type AnyEntity = EntityDef<any, any, any>
@@ -38,6 +38,9 @@ export function defineEntities<const E extends Record<string, AnyEntity>>(
     if (key !== entity.name) {
       errors.push(`key "${key}" must match the entity name "${entity.name}".`)
     }
+    if (entity.external) {
+      errors.push(`${entity.name} is external (module "${entity.external.module}"); it can't join a set.`)
+    }
     for (const [relKey, rel] of Object.entries(entity.relations as Record<string, RelationDef>)) {
       const where = `${entity.name}.${relKey}`
       const target = getEntity(rel.target)
@@ -51,11 +54,15 @@ export function defineEntities<const E extends Record<string, AnyEntity>>(
             `${where}: "${rel.target}" is in the same module; use a database relation (r.belongsTo) instead of r.link.`,
           )
         }
-        if (relKey !== target.modelName) {
+        if (!isColumnLink(rel) && relKey !== target.modelName) {
           errors.push(
             `${where}: a link to "${rel.target}" must be named "${target.modelName}" (the alias Medusa's query uses through the link).`,
           )
         }
+        continue
+      }
+      if (target.external) {
+        errors.push(`${where}: "${rel.target}" is external; use r.link("${rel.target}").`)
         continue
       }
       if (module && !members.has(rel.target)) {

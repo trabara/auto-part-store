@@ -6,7 +6,7 @@
 import { z } from "@medusajs/framework/zod"
 import { snakeCase } from "lodash"
 import { getZodFieldInfo, looksLikeEntity } from "../utils/zod-introspect"
-import { foreignKeys, linkKeys, relationBuilder } from "./relations"
+import { foreignKeys, linkColumns, linkKeys, relationBuilder } from "./relations"
 import type {
   DefineEntityConfig,
   EntityDef,
@@ -91,7 +91,11 @@ function validateStorage(
   relations: RelationMap,
   config: DefineEntityConfig<any, any>,
 ) {
-  const columns = new Set([...Object.keys(shape), ...foreignKeys(relations).keys()])
+  const columns = new Set([
+    ...Object.keys(shape),
+    ...foreignKeys(relations).keys(),
+    ...linkColumns(relations).keys(),
+  ])
   for (const index of config.indexes ?? []) {
     for (const column of typeof index === "string" ? [index] : index.on) {
       if (!columns.has(column)) fail(name, `index column "${column}" does not exist.`)
@@ -120,7 +124,10 @@ function buildDtos(schema: z.ZodObject<any>, relations: RelationMap) {
   const batchUpdate = z.object({
     entities: z.array(update.extend({ id: z.string() })),
   })
-  return { dto: { create, update, batchUpdate }, fkShape }
+  // FK and column-link columns: selectable and filterable like scalars.
+  const columnShape = { ...fkShape }
+  for (const field of linkColumns(relations).keys()) columnShape[field] = linkShape[field]!
+  return { dto: { create, update, batchUpdate }, columnShape }
 }
 
 function buildLabel(
@@ -129,6 +136,7 @@ function buildLabel(
   relations: RelationMap,
   display: string,
   config: DefineEntityConfig<any, any>["label"],
+  external: boolean,
 ): EntityLabel {
   if (!config) {
     return Object.freeze({
@@ -136,7 +144,8 @@ function buildLabel(
       format: (row: any) => (row?.[display] == null ? "" : String(row[display])),
     })
   }
-  for (const path of config.fields) {
+  // External schemas describe only the displayed fields: paths aren't checked.
+  for (const path of external ? [] : config.fields) {
     const [root, ...rest] = path.split(".")
     const ok = rest.length ? root! in relations : root! in shape
     if (!ok) fail(name, `label field "${path}" must be a field or start with a relation.`)
@@ -159,10 +168,10 @@ export function entityLabel(entity: EntityDef<any, any, any>, row: Record<string
 function buildQuery(
   schema: z.ZodObject<any>,
   relations: RelationMap,
-  fkShape: Record<string, z.ZodTypeAny>,
+  columnShape: Record<string, z.ZodTypeAny>,
   label: EntityLabel,
 ): EntityQuery {
-  const fields = [...Object.keys(schema.shape), ...Object.keys(fkShape)]
+  const fields = [...Object.keys(schema.shape), ...Object.keys(columnShape)]
   const relationNames = Object.keys(relations)
 
   return {
@@ -227,9 +236,9 @@ export function defineEntity<
   validateStorage(name, shape, relations, config)
 
   const modelName = snakeCase(name)
-  const { dto, fkShape } = buildDtos(schema, relations)
+  const { dto, columnShape } = buildDtos(schema, relations)
   const display = config.display ?? ("name" in shape ? "name" : "id")
-  const label = buildLabel(name, shape, relations, display, config.label)
+  const label = buildLabel(name, shape, relations, display, config.label, !!config.external)
 
   const entity = Object.freeze({
     name,
@@ -245,10 +254,12 @@ export function defineEntity<
       cascadeDelete: config.cascadeDelete ?? [],
     }),
     dto: Object.freeze(dto),
-    query: Object.freeze(buildQuery(schema, relations, fkShape, label)),
+    query: Object.freeze(buildQuery(schema, relations, columnShape, label)),
+    external: config.external ? Object.freeze({ ...config.external }) : undefined,
     withRelations: buildWithRelations(schema, relations),
   }) as unknown as EntityDef<Name, S, Rels>
 
   entities.set(name, entity)
+  if (config.external) setEntityModule(name, config.external.module)
   return entity
 }

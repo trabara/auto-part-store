@@ -1,6 +1,7 @@
 import { z } from "@medusajs/framework/zod";
 import { kebabCase } from "lodash";
 import type { EntityDef, RelationDef } from "../entity";
+import { getEntity } from "../entity/define-entity";
 import { pluralize } from "../utils/strings";
 
 /* ==========================================================================
@@ -538,6 +539,8 @@ function validateModule(mod: AnyModule): void {
     for (const [relKey, rel] of Object.entries(relations)) {
       const relUi = ui[relKey] ?? {};
       if (relUi.hidden || relUi.external || featureEntities.has(rel.target)) continue;
+      // Medusa-owned targets (defineEntity({ external })) have no feature by design.
+      if (getEntity(rel.target)?.external) continue;
       throw new ModuleDefinitionError(
         `Feature "${key}", relation "${relKey}": target "${rel.target}" is not a feature of ` +
           `module "${mod.name}". Add a feature for it, or set ` +

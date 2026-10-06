@@ -60,6 +60,12 @@ export type RelationOptions = {
   foreignKey?: boolean
   /** belongsTo / hasOne+foreignKey: FK column name. Defaults to `${key}_id`. */
   foreignKeyName?: string
+  /**
+   * link: `"table"` (default) keeps the link in a Medusa link table, synced by
+   * the workflows; `"column"` stores the target id in a `${key}_id` column on
+   * this entity, resolved through a read-only Medusa link.
+   */
+  storage?: "table" | "column"
   /** manyToMany */
   pivotTable?: string
   joinColumn?: string
@@ -98,9 +104,13 @@ export interface RelationBuilder {
     options?: O,
   ): RelationDef<"manyToMany", T, O>
   /**
-   * A single linked entity in another module (Medusa module link). The key
-   * must be the target's model name (e.g. `vehicle`); the plugin defines the
-   * link itself with Medusa's `defineLink` in `src/links/`.
+   * A single linked entity in another module (Medusa module link); the plugin
+   * defines the link itself with Medusa's `defineLink` in `src/links/`.
+   * - table storage (default): the key must be the target's model name
+   *   (e.g. `vehicle`), the alias Medusa's query uses through the link.
+   * - `{ storage: "column" }`: a `${key}_id` column; define a read-only link
+   *   whose alias is the key (`defineLink({ linkable, field: "vehicle_id" },
+   *   { linkable, alias: "vehicle" }, { readOnly: true })`).
    */
   link<T extends EntityName, const O extends LinkOptions = {}>(
     target: T,
@@ -108,7 +118,7 @@ export interface RelationBuilder {
   ): RelationDef<"link", T, O>
 }
 
-export type LinkOptions = Pick<RelationOptions, "nullable">
+export type LinkOptions = Pick<RelationOptions, "nullable" | "storage">
 
 /* ==========================================================================
  * Foreign keys
@@ -146,6 +156,12 @@ export type ForeignKeys<Rels extends RelationMap> = {
 }
 
 type IsLink<R> = R extends RelationDef<"link", any, any> ? true : false
+
+type IsColumnLink<R> = R extends RelationDef<"link", any, infer O>
+  ? O extends { storage: "column" }
+    ? true
+    : false
+  : false
 
 /** `{ vehicle_id: string }` for link relations (DTO fields, not columns). */
 export type LinkKeys<Rels extends RelationMap> = {
@@ -205,6 +221,11 @@ export type EntityDmlSchema<S extends z.ZodObject<any>, Rels extends RelationMap
     : DmlProperty<z.infer<ScalarShape<S>[K]>>
 } & {
   [K in keyof Rels as IsLink<Rels[K]> extends true ? never : K]: RelationProperty<Rels[K]>
+} & {
+  // Column-stored links: a plain id column, no DML relation.
+  [K in keyof Rels & string as IsColumnLink<Rels[K]> extends true ? `${K}_id` : never]: DmlProperty<
+    IsNullable<Rels[K]> extends true ? string | null : string
+  >
 }
 
 /* ==========================================================================
@@ -284,6 +305,8 @@ export interface EntityDef<
   readonly schema: S
   readonly relations: Rels
   readonly display: string
+  /** Set for entities owned by a Medusa module (see `external` in the config). */
+  readonly external?: EntityExternal
   /** How a record is labelled (pickers, relation cells, titles). See `entityLabel`. */
   readonly label: EntityLabel
   /** Storage options consumed by `toModels` (server). */
@@ -308,6 +331,14 @@ export interface EntityDef<
 export interface EntityLabel {
   readonly fields: readonly string[]
   readonly format: (row: any) => string
+}
+
+/** A Medusa (or third-party) model described for links and pickers only. */
+export interface EntityExternal {
+  /** Medusa module key, e.g. "product". */
+  readonly module: string
+  /** Admin collection URL, e.g. "/admin/product-variants". */
+  readonly url: string
 }
 
 export interface EntityStorage {
@@ -343,4 +374,10 @@ export interface DefineEntityConfig<S extends z.ZodObject<any>, Rels extends Rel
    * field. `fields` are dotted paths from this entity (`model.make.name`).
    */
   label?: { fields: string[]; format: (row: any) => string }
+  /**
+   * The entity belongs to another module (e.g. Medusa's ProductVariant): it can
+   * be a link target and is picked from `url` in the admin, but gets no model,
+   * routes or workflows. `schema` lists the fields used for display.
+   */
+  external?: { module: string; url: string }
 }

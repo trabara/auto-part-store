@@ -416,6 +416,51 @@ describe("link relations (cross-module)", () => {
     )
   })
 
+  it("column links are indexed id columns: selectable, filterable, not synced", () => {
+    const Vehicle = defineEntity("Vehicle", { schema: BaseSchema.extend({ year: z.number() }) })
+    const Fitment = defineEntity("Fitment", {
+      schema: BaseSchema,
+      relations: (r) => ({
+        car: r.link("Vehicle", { storage: "column" }), // any key: the read-only link sets the alias
+        spare: r.link("Vehicle", { storage: "column", nullable: true }),
+      }),
+      indexes: [{ on: ["car_id", "spare_id"], unique: true }],
+    })
+    defineEntities({ Vehicle }, { module: "vehicle" })
+    defineEntities({ Fitment }, { module: "fitment" })
+
+    const schema = (toModel(Fitment) as any).parse().schema
+    expect(schema.car_id.parse("car_id")).toMatchObject({ nullable: false, indexes: [expect.anything()] })
+    expect(schema.spare_id.parse("spare_id")).toMatchObject({ nullable: true })
+    expect(schema).not.toHaveProperty("car")
+
+    expect(Fitment.query.fields).toEqual(expect.arrayContaining(["car_id", "spare_id"]))
+    expect(findParams(Fitment).parse({ car_id: "v1" })).toMatchObject({ car_id: "v1" })
+    expect(Fitment.dto.create.parse({ car_id: "v1" })).toEqual({ car_id: "v1" })
+    expect(Fitment.query.allowed()).toEqual(expect.arrayContaining(["car", "car.year"]))
+  })
+
+  it("external entities are link targets without models or sets", () => {
+    const Variant = defineEntity("Vehicle", {
+      schema: z.object({ id: z.string(), sku: z.string().nullable() }),
+      label: { fields: ["sku", "product.title"], format: (v) => v.sku ?? "" },
+      external: { module: "product", url: "/admin/product-variants" },
+    })
+    const Fitment = defineEntity("Fitment", {
+      schema: BaseSchema,
+      relations: (r) => ({ variant: r.link("Vehicle", { storage: "column" }) }),
+    })
+    defineEntities({ Fitment }, { module: "fitment" })
+
+    expect(getEntity("Vehicle")?.external).toEqual({ module: "product", url: "/admin/product-variants" })
+    expect(() => toModel(Variant)).toThrow(/external/)
+    expect(() => defineEntities({ Vehicle: Variant })).toThrow(/is external/)
+    expect(Fitment.query.allowed(1)).toContain("variant.product.title")
+
+    const Bad = defineEntity("A", { schema: BaseSchema, relations: (r) => ({ v: r.belongsTo("Vehicle") }) })
+    expect(() => defineEntities({ A: Bad })).toThrow(/"Vehicle" is external; use r\.link/)
+  })
+
   it("refuses to move an entity to another module", () => {
     const Vehicle = defineEntity("Vehicle", { schema: BaseSchema })
     defineEntities({ Vehicle }, { module: "vehicle" })

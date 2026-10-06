@@ -4,7 +4,7 @@ import { createEntityFindParams } from "../http/helpers"
 import { buildDmlProperty, buildRelationshipProperty } from "../orm/field-to-dml"
 import { define, ref } from "../orm/registry"
 import type { EntitySet } from "./define-entities"
-import { foreignKeys } from "./relations"
+import { foreignKeys, isColumnLink, linkColumns } from "./relations"
 import type { EntityDef, EntityModel, RelationMap } from "./types"
 
 type AnyEntity = EntityDef<any, any, any>
@@ -13,6 +13,9 @@ const models = new WeakMap<AnyEntity, unknown>()
 const findParamsCache = new WeakMap<AnyEntity, z.ZodObject<any>>()
 
 function buildModel(entity: AnyEntity) {
+  if (entity.external) {
+    throw new Error(`[toModel] ${entity.name} is external (module "${entity.external.module}"): no model.`)
+  }
   const shape = entity.schema.shape as Record<string, z.ZodTypeAny>
   const relations = entity.relations as RelationMap
   const { storage } = entity
@@ -23,7 +26,13 @@ function buildModel(entity: AnyEntity) {
     if (built) fields[built.dmlName] = built.property
   }
   for (const [key, rel] of Object.entries(relations)) {
-    if (rel.kind === "link") continue // module links live in Medusa link tables, not columns
+    if (isColumnLink(rel)) {
+      // The target id, indexed; resolved through a read-only Medusa link.
+      const column = model.text().index()
+      fields[`${key}_id`] = rel.options.nullable ? column.nullable() : column
+      continue
+    }
+    if (rel.kind === "link") continue // table links live in Medusa link tables
     fields[key] = buildRelationshipProperty(
       { kind: rel.kind, model: ref(rel.target), options: rel.options },
       rel.kind,
@@ -72,8 +81,9 @@ export function toModels<E extends Record<string, AnyEntity>>(
 export function findParams(entity: AnyEntity): z.ZodObject<any> {
   let schema = findParamsCache.get(entity)
   if (!schema) {
+    const relations = entity.relations as RelationMap
     const fkColumns = Object.fromEntries(
-      [...foreignKeys(entity.relations as RelationMap).keys()].map((k) => [k, z.string()]),
+      [...foreignKeys(relations).keys(), ...linkColumns(relations).keys()].map((k) => [k, z.string()]),
     )
     schema = createEntityFindParams(entity.schema.extend(fkColumns))
     findParamsCache.set(entity, schema)

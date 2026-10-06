@@ -134,3 +134,14 @@ describe("fieldUiOverrides", () => {
     expect(overrides.logo.cell({ getValue: () => "u" }).props).toMatchObject({ url: "u" });
   });
 });
+
+describe("external entities", () => {
+  it("are fetched from their own admin URL", () => {
+    const Variant = defineEntity("DashVariant", {
+      schema: z.object({ id: z.string(), sku: z.string() }),
+      external: { module: "product", url: "/admin/product-variants" },
+    });
+    expect(entityUrl(mod, Variant)).toBe("/admin/product-variants");
+    expect(entityUrl(mod, Variant, "v1")).toBe("/admin/product-variants/v1");
+  });
+});

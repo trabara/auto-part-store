@@ -56,7 +56,8 @@ function linkSpecs(entity: string): LinkSpec[] {
   const def = getEntity(entity)
   if (!def) return []
   return Object.entries(def.relations as Record<string, RelationDef>)
-    .filter(([, rel]) => rel.kind === "link")
+    // Column-stored links are plain columns: nothing to sync.
+    .filter(([, rel]) => rel.kind === "link" && rel.options.storage !== "column")
     .map(([key, rel]) => {
       const targetModule = getEntityModule(rel.target)
       if (!targetModule) {

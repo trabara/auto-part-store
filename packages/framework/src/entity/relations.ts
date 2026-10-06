@@ -36,6 +36,20 @@ export function isLink(rel: RelationDef): boolean {
   return rel.kind === "link"
 }
 
+/** A link stored as a `${key}_id` column on the entity (read-only Medusa link). */
+export function isColumnLink(rel: RelationDef): boolean {
+  return rel.kind === "link" && rel.options.storage === "column"
+}
+
+/** `{ [`${key}_id`]: key }` for column-stored links: real columns, filterable. */
+export function linkColumns(relations: Record<string, RelationDef>): Map<string, string> {
+  const out = new Map<string, string>()
+  for (const [key, rel] of Object.entries(relations)) {
+    if (isColumnLink(rel)) out.set(`${key}_id`, key)
+  }
+  return out
+}
+
 /** `{ [`${key}_id`]: key }` for every link relation (DTO keys, not columns). */
 export function linkKeys(relations: Record<string, RelationDef>): Map<string, string> {
   const out = new Map<string, string>()

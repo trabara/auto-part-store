@@ -14,7 +14,9 @@ export { defineEntities, type DefineEntitiesOptions, type EntitySet } from "./de
 export {
   foreignKeyName,
   foreignKeys,
+  isColumnLink,
   isLink,
+  linkColumns,
   isToOne,
   linkKeys,
   ownsForeignKey,
@@ -25,6 +27,7 @@ export type {
   CreateDto,
   DefineEntityConfig,
   EntityDef,
+  EntityExternal,
   EntityLabel,
   EntityDmlSchema,
   EntityModel,

@@ -1,6 +1,8 @@
 import { z } from "@medusajs/framework/zod";
 import { defineEntity, type InferEntity } from "@repo/framework/entity";
 import { BaseSchema } from "@repo/framework/utils";
+import { Vehicle, VehicleEngine, YearSchema } from "../../vehicle/entities/vehicle";
+import { ProductVariant } from "./product-variant";
 
 // ── Enums ─────────────────────────────────────────────────────────────────────
 
@@ -31,15 +33,36 @@ export enum FitmentConditionGroupOperator {
   OR = "or",
 }
 
+// ── Condition attributes ──────────────────────────────────────────────────────
+
+const ownFields = (schema: { shape: object }) =>
+  Object.keys(schema.shape).filter((k) => !["id", "created_at", "updated_at", "deleted_at"].includes(k));
+
+/**
+ * Vehicle paths a condition can test (`drive`, `engine.fuel`, …). Load the
+ * vehicle with these fields to evaluate fitments (`filterCompatible`).
+ */
+export const VEHICLE_ATTRIBUTE_PATHS: readonly string[] = [
+  ...ownFields(Vehicle.schema),
+  ...ownFields(VehicleEngine.schema).map((k) => `engine.${k}`),
+  "model.name",
+  "model.make.name",
+];
+
+const MonthSchema = z.number().int().min(1).max(12);
+
 // ── Entities ──────────────────────────────────────────────────────────────────
 
 export const AutomotiveAttribute = defineEntity("AutomotiveAttribute", {
   schema: BaseSchema.extend({
-    // Lowercase: matched against vehicle field names (drive, body_style, …).
+    // A vehicle path (drive, engine.fuel, …): what the condition tests.
     code: z
       .string()
       .trim()
       .toLowerCase()
+      .refine((code) => VEHICLE_ATTRIBUTE_PATHS.includes(code), {
+        message: `must be a vehicle field: ${VEHICLE_ATTRIBUTE_PATHS.join(", ")}`,
+      })
       .describe("The code of the automotive attribute, e.g., 'engine_size', 'fuel_type', etc."),
     name: z
       .string()
@@ -80,16 +103,48 @@ export const FitmentPosition = defineEntity("FitmentPosition", {
   indexes: [{ name: "fitment_position_code_unique", on: ["code"], unique: true }],
 });
 
+/**
+ * An application: this part (variant) fits this vehicle, optionally in a
+ * position, a quantity per vehicle and a narrower production window, subject
+ * to its condition groups. Unique per (variant, vehicle, position), including
+ * a missing position (hand-written NULLS NOT DISTINCT index).
+ */
 export const Fitment = defineEntity("Fitment", {
   schema: BaseSchema.extend({
+    quantity: z.number().int().min(1).default(1).describe("Units needed per vehicle"),
+    from_year: YearSchema.nullable().describe("Fits from this production year (empty: the vehicle's)"),
+    from_month: MonthSchema.nullable().describe("Fits from this month of from_year"),
+    to_year: YearSchema.nullable().describe("Fits up to this production year (empty: the vehicle's)"),
+    to_month: MonthSchema.nullable().describe("Fits up to this month of to_year"),
     notes: z.string().nullable().describe("Additional notes about the fitment"),
   }),
   relations: (r) => ({
-    // Vehicle lives in the vehicle module: a Medusa module link (links/fitment-vehicle.ts).
-    vehicle: r.link("Vehicle"),
-    position: r.belongsTo("FitmentPosition", { mappedBy: "fitments" }),
+    // Ids stored on the fitment, resolved by read-only links (src/links/).
+    variant: r.link("ProductVariant", { storage: "column" }),
+    vehicle: r.link("Vehicle", { storage: "column" }),
+    position: r.belongsTo("FitmentPosition", { mappedBy: "fitments", nullable: true }),
     conditionGroups: r.hasMany("FitmentConditionGroup", { mappedBy: "fitment" }),
   }),
+  checks: [
+    { name: "fitment_from_month_check", expression: "from_month IS NULL OR from_year IS NOT NULL" },
+    { name: "fitment_to_month_check", expression: "to_month IS NULL OR to_year IS NOT NULL" },
+    {
+      name: "fitment_range_check",
+      expression:
+        "from_year IS NULL OR to_year IS NULL OR to_year * 100 + COALESCE(to_month, 12) >= from_year * 100 + COALESCE(from_month, 1)",
+    },
+  ],
+  // "Brake pad set (BP-123) → Toyota Corolla 2015–2020 · 1.6 I4 132 hp"
+  label: {
+    fields: [
+      ...ProductVariant.label.fields.map((f) => `variant.${f}`),
+      ...Vehicle.label.fields.map((f) => `vehicle.${f}`),
+    ],
+    format: (f) =>
+      [f.variant && ProductVariant.label.format(f.variant), f.vehicle && Vehicle.label.format(f.vehicle)]
+        .filter(Boolean)
+        .join(" → "),
+  },
 });
 
 export const FitmentConditionGroup = defineEntity("FitmentConditionGroup", {

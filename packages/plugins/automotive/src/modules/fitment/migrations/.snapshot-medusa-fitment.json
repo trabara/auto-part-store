@@ -364,6 +364,86 @@
           "enumItems": [],
           "mappedType": "text"
         },
+        "quantity": {
+          "name": "quantity",
+          "type": "integer",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "unique": false,
+          "length": null,
+          "precision": null,
+          "scale": null,
+          "default": "1",
+          "comment": null,
+          "enumItems": [],
+          "mappedType": "integer"
+        },
+        "from_year": {
+          "name": "from_year",
+          "type": "integer",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "unique": false,
+          "length": null,
+          "precision": null,
+          "scale": null,
+          "default": null,
+          "comment": null,
+          "enumItems": [],
+          "mappedType": "integer"
+        },
+        "from_month": {
+          "name": "from_month",
+          "type": "integer",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "unique": false,
+          "length": null,
+          "precision": null,
+          "scale": null,
+          "default": null,
+          "comment": null,
+          "enumItems": [],
+          "mappedType": "integer"
+        },
+        "to_year": {
+          "name": "to_year",
+          "type": "integer",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "unique": false,
+          "length": null,
+          "precision": null,
+          "scale": null,
+          "default": null,
+          "comment": null,
+          "enumItems": [],
+          "mappedType": "integer"
+        },
+        "to_month": {
+          "name": "to_month",
+          "type": "integer",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "unique": false,
+          "length": null,
+          "precision": null,
+          "scale": null,
+          "default": null,
+          "comment": null,
+          "enumItems": [],
+          "mappedType": "integer"
+        },
         "notes": {
           "name": "notes",
           "type": "text",
@@ -380,13 +460,45 @@
           "enumItems": [],
           "mappedType": "text"
         },
+        "variant_id": {
+          "name": "variant_id",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "unique": false,
+          "length": null,
+          "precision": null,
+          "scale": null,
+          "default": null,
+          "comment": null,
+          "enumItems": [],
+          "mappedType": "text"
+        },
+        "vehicle_id": {
+          "name": "vehicle_id",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "unique": false,
+          "length": null,
+          "precision": null,
+          "scale": null,
+          "default": null,
+          "comment": null,
+          "enumItems": [],
+          "mappedType": "text"
+        },
         "position_id": {
           "name": "position_id",
           "type": "text",
           "unsigned": false,
           "autoincrement": false,
           "primary": false,
-          "nullable": false,
+          "nullable": true,
           "unique": false,
           "length": null,
           "precision": null,
@@ -449,6 +561,24 @@
       "schema": "public",
       "indexes": [
         {
+          "keyName": "IDX_fitment_variant_id",
+          "columnNames": [],
+          "composite": false,
+          "constraint": false,
+          "primary": false,
+          "unique": false,
+          "expression": "CREATE INDEX IF NOT EXISTS \"IDX_fitment_variant_id\" ON \"fitment\" (\"variant_id\") WHERE deleted_at IS NULL"
+        },
+        {
+          "keyName": "IDX_fitment_vehicle_id",
+          "columnNames": [],
+          "composite": false,
+          "constraint": false,
+          "primary": false,
+          "unique": false,
+          "expression": "CREATE INDEX IF NOT EXISTS \"IDX_fitment_vehicle_id\" ON \"fitment\" (\"vehicle_id\") WHERE deleted_at IS NULL"
+        },
+        {
           "keyName": "IDX_fitment_position_id",
           "columnNames": [],
           "composite": false,
@@ -477,7 +607,23 @@
           "unique": true
         }
       ],
-      "checks": [],
+      "checks": [
+        {
+          "name": "fitment_from_month_check",
+          "expression": "from_month IS NULL OR from_year IS NOT NULL",
+          "definition": "check ((from_month IS NULL OR from_year IS NOT NULL))"
+        },
+        {
+          "name": "fitment_to_month_check",
+          "expression": "to_month IS NULL OR to_year IS NOT NULL",
+          "definition": "check ((to_month IS NULL OR to_year IS NOT NULL))"
+        },
+        {
+          "name": "fitment_range_check",
+          "expression": "from_year IS NULL OR to_year IS NULL OR to_year * 100 + COALESCE(to_month, 12) >= from_year * 100 + COALESCE(from_month, 1)",
+          "definition": "check ((from_year IS NULL OR to_year IS NULL OR to_year * 100 + COALESCE(to_month, 12) >= from_year * 100 + COALESCE(from_month, 1)))"
+        }
+      ],
       "foreignKeys": {
         "fitment_position_id_foreign": {
           "constraintName": "fitment_position_id_foreign",
@@ -489,6 +635,7 @@
             "id"
           ],
           "referencedTableName": "public.fitment_position",
+          "deleteRule": "set null",
           "updateRule": "cascade"
         }
       },

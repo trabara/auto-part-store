@@ -31,7 +31,23 @@ export default defineModule({
     vehicle_make: m.crud(VehicleMake),
     vehicle_model: m.crud(VehicleModel),
     fitment: m.crud(Fitment, {
-      relations: { conditionGroups: { hidden: true } },
+      relations: {
+        variant: { label: "Part" },
+        conditionGroups: { hidden: true },
+      },
+      steps: [
+        {
+          id: "application",
+          label: "Application",
+          fields: ["variant_id", "vehicle_id", "position_id", "quantity"],
+        },
+        {
+          id: "production",
+          label: "Production window",
+          description: "Leave empty when the part fits the vehicle's whole production range.",
+          fields: ["from_year", "from_month", "to_year", "to_month", "notes"],
+        },
+      ],
     }),
     fitment_position: m.crud(FitmentPosition),
   }),

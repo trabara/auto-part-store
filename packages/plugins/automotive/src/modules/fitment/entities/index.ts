@@ -10,11 +10,15 @@ import {
   FitmentPosition,
 } from "./fitment";
 
+import { ProductVariant } from "./product-variant";
+
 export * from "./fitment";
+export * from "./product-variant";
 
 declare module "@repo/framework/entity" {
   interface EntityRegistry {
     Fitment: typeof Fitment;
+    ProductVariant: typeof ProductVariant;
     FitmentPosition: typeof FitmentPosition;
     FitmentConditionGroup: typeof FitmentConditionGroup;
     FitmentCondition: typeof FitmentCondition;

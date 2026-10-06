@@ -8,7 +8,6 @@ import {
   createEntitiesStep,
   deleteEntitiesStep,
   updateEntitiesStep,
-  updateEntitiesWorkflow,
 } from "@repo/framework/entity/server";
 import { adminHeaders } from "@repo/config/jest/medusa-helpers.cjs";
 import {
@@ -16,7 +15,7 @@ import {
   type VehicleModuleService,
 } from "../../src/modules/vehicle";
 import { FITMENT_MODULE } from "../../src/modules/fitment";
-import FitmentVehicleLink from "../../src/links/fitment-vehicle";
+import { AutomotiveAttribute, Fitment } from "../../src/modules/fitment/entities";
 import { entityLabel } from "@repo/framework/entity";
 import { EngineType, Vehicle } from "../../src/modules/vehicle/entities/vehicle";
 
@@ -217,7 +216,7 @@ medusaIntegrationTestRunner({
       });
     });
 
-    describe("fitment ↔ vehicle link (cross-module)", () => {
+    describe("fitments (applications: variant × vehicle)", () => {
       const post = (entity: string, body: object) =>
         api
           .post(`/admin/automotive/${entity}`, body, headers)
@@ -231,116 +230,97 @@ medusaIntegrationTestRunner({
         const make = await post("vehicle_make", { name, slug: null });
         const model = await post("vehicle_model", { name: `${name} M`, slug: null, make_id: make.id });
         const engine = await post("vehicle_engine", { type: "I4", size: "1.6", power: power++ });
-        return post("vehicle", { year_start: 2010, year_end: null, model_id: model.id, engine_id: engine.id });
+        return post("vehicle", { year_start: 2010, year_end: 2020, model_id: model.id, engine_id: engine.id });
       };
-      /** Live rows of the fitment ↔ vehicle link table matching `filters`. */
-      const links = async (filters: Record<string, string>) => {
-        const { data } = await getContainer().resolve("query").graph({
-          entity: FitmentVehicleLink.entryPoint,
-          fields: ["fitment_id", "vehicle_id"],
-          filters,
-        });
-        return data as { fitment_id: string; vehicle_id: string }[];
+      let sku = 0;
+      const createVariant = async (title: string) => {
+        const { data } = await api.post(
+          "/admin/products",
+          {
+            title,
+            options: [{ title: "Default", values: ["Default"] }],
+            variants: [
+              { title: "Default", sku: `SKU-${++sku}`, options: { Default: "Default" }, prices: [] },
+            ],
+          },
+          headers,
+        );
+        return data.product.variants[0] as { id: string; sku: string };
       };
-      const linkedVehicles = async (fitmentId: string) =>
-        (await links({ fitment_id: fitmentId })).map((l) => l.vehicle_id);
+      const fitment = (body: object) =>
+        api.post("/admin/automotive/fitment", { notes: null, from_year: null, from_month: null, to_year: null, to_month: null, ...body }, headers);
 
-      it("creates, reads, moves and removes the link through the generic routes", async () => {
-        const [v1, v2] = [await createVehicle("Audi"), await createVehicle("BMW")];
+      it("creates an application and reads its part and vehicle through read-only links", async () => {
+        const [vehicle, variant] = [await createVehicle("Audi"), await createVariant("Brake pads")];
         const position = await post("fitment_position", { code: "FL", name: "Front left", category: null });
 
-        const fitment = await post("fitment", {
-          notes: "pads",
-          position_id: position.id,
-          vehicle_id: v1.id,
-        });
-        expect(fitment).not.toHaveProperty("vehicle_id");
-        expect(await linkedVehicles(fitment.id)).toEqual([v1.id]);
+        const created = (await fitment({ variant_id: variant.id, vehicle_id: vehicle.id, position_id: position.id, quantity: 2 })).data.data;
+        expect(created).toMatchObject({ variant_id: variant.id, vehicle_id: vehicle.id, quantity: 2 });
 
-        const detail = await api.get(
-          `/admin/automotive/fitment/${fitment.id}?fields=id,*vehicle,*position`,
-          headers,
+        const fields = ["id", "*vehicle", "*variant", ...Fitment.label.fields].join(",");
+        const { data } = await api.get(`/admin/automotive/fitment/${created.id}?fields=${fields}`, headers);
+        expect(data.data).toMatchObject({ vehicle: { id: vehicle.id }, variant: { id: variant.id, sku: variant.sku } });
+        expect(entityLabel(Fitment, data.data)).toMatch(
+          new RegExp(`^Brake pads · Default \\(${variant.sku}\\) → Audi Audi M 2010–2020 · 1\\.6 I4 \\d+ hp$`),
         );
-        expect(detail.data.data).toMatchObject({
-          id: fitment.id,
-          vehicle: { id: v1.id },
-          position: { id: position.id },
-        });
-
-        await api.put(`/admin/automotive/fitment/${fitment.id}`, { vehicle_id: v2.id }, headers);
-        expect(await linkedVehicles(fitment.id)).toEqual([v2.id]);
-
-        // Other fields leave the link alone.
-        await api.put(`/admin/automotive/fitment/${fitment.id}`, { notes: "discs" }, headers);
-        expect(await linkedVehicles(fitment.id)).toEqual([v2.id]);
-
-        // The link is required, so the API rejects null; the workflow unlinks.
-        expect(
-          await status(
-            api.put(`/admin/automotive/fitment/${fitment.id}`, { vehicle_id: null }, headers),
-          ),
-        ).toBe(400);
-        await updateEntitiesWorkflow(getContainer()).run({
-          input: { module: FITMENT_MODULE, entity: "Fitment", data: [{ id: fitment.id, vehicle_id: null }] },
-        });
-        expect(await linkedVehicles(fitment.id)).toEqual([]);
-
-        await api.put(`/admin/automotive/fitment/${fitment.id}`, { vehicle_id: v1.id }, headers);
-        await api.delete(`/admin/automotive/fitment/${fitment.id}`, headers);
-        expect(await linkedVehicles(fitment.id)).toEqual([]);
       });
 
-      it("resolves the vehicle's label fields through the link (past the depth limit)", async () => {
-        const vehicle = await createVehicle("Mazda");
-        const position = await post("fitment_position", { code: "FR", name: "Front right", category: null });
-        const fitment = await post("fitment", { notes: null, position_id: position.id, vehicle_id: vehicle.id });
+      it("finds a variant's and a vehicle's fitments by column", async () => {
+        const [v1, v2, part] = [await createVehicle("BMW"), await createVehicle("Seat"), await createVariant("Filter")];
+        const a = (await fitment({ variant_id: part.id, vehicle_id: v1.id })).data.data;
+        const b = (await fitment({ variant_id: part.id, vehicle_id: v2.id })).data.data;
 
-        const fields = ["id", "*vehicle", ...Vehicle.label.fields.map((f) => `vehicle.${f}`)].join(",");
-        const { data } = await api.get(`/admin/automotive/fitment/${fitment.id}?fields=${fields}`, headers);
-        expect(entityLabel(Vehicle, data.data.vehicle)).toMatch(/^Mazda Mazda M 2010– · 1\.6 I4 \d+ hp$/);
-
-        // Other depth-3 fields are not allowed: Medusa strips them from the query.
-        const deep = await api.get(
-          `/admin/automotive/fitment/${fitment.id}?fields=id,vehicle.model.make.slug,vehicle.model.vehicles.year_start`,
-          headers,
-        );
-        expect(deep.data.data.vehicle?.model?.make?.slug).toBeUndefined();
-        expect(deep.data.data.vehicle?.model?.vehicles).toBeUndefined();
+        const byVariant = await api.get(`/admin/automotive/fitment?variant_id=${part.id}&fields=id`, headers);
+        expect(byVariant.data.data.map((f: any) => f.id).sort()).toEqual([a.id, b.id].sort());
+        const byVehicle = await api.get(`/admin/automotive/fitment?vehicle_id=${v2.id}&fields=id`, headers);
+        expect(byVehicle.data.data.map((f: any) => f.id)).toEqual([b.id]);
       });
 
-      it("rejects a non-string vehicle_id with 400", async () => {
-        expect(
-          await status(api.post("/admin/automotive/fitment", { vehicle_id: 42 }, headers)),
-        ).toBe(400);
-      });
-
-      it("compensates links with the rows", async () => {
-        const [v1, v2] = [await createVehicle("Kia"), await createVehicle("Seat")];
+      it("allows one application per variant, vehicle and position (missing position included)", async () => {
+        const [vehicle, part] = [await createVehicle("Kia"), await createVariant("Wiper")];
         const position = await post("fitment_position", { code: "RR", name: "Rear right", category: null });
-        const target = { module: FITMENT_MODULE, entity: "Fitment" };
+        const base = { variant_id: part.id, vehicle_id: vehicle.id };
 
-        // Create rolled back → no row, no link.
+        expect((await fitment(base)).status).toBe(201);
+        expect(await status(fitment(base))).toBeGreaterThanOrEqual(400);
+        expect((await fitment({ ...base, position_id: position.id })).status).toBe(201);
+        expect(await status(fitment({ ...base, position_id: position.id }))).toBeGreaterThanOrEqual(400);
+      });
+
+      it("validates quantity and the production window", async () => {
+        const [vehicle, part] = [await createVehicle("Opel"), await createVariant("Disc")];
+        const base = { variant_id: part.id, vehicle_id: vehicle.id };
+        expect(await status(fitment({ ...base, quantity: 0 }))).toBe(400);
+        expect(await status(fitment({ ...base, from_month: 13, from_year: 2015 }))).toBe(400);
+        // Month without a year, and a window ending before it starts: DB checks.
+        expect(await status(fitment({ ...base, from_month: 3 }))).toBeGreaterThanOrEqual(400);
+        expect(await status(fitment({ ...base, from_year: 2018, to_year: 2016 }))).toBeGreaterThanOrEqual(400);
+        expect(await status(fitment({ ...base, from_year: 2018, from_month: 6, to_year: 2018, to_month: 3 }))).toBeGreaterThanOrEqual(400);
+        expect((await fitment({ ...base, from_year: 2018, from_month: 3, to_year: 2018, to_month: 6 })).status).toBe(201);
+      });
+
+      it("requires the part and the vehicle", async () => {
+        const vehicle = await createVehicle("Fiat");
+        expect(await status(fitment({ vehicle_id: vehicle.id }))).toBe(400);
+        expect(await status(fitment({ variant_id: "variant_x" }))).toBe(400);
+      });
+
+      it("rolls back a failed create", async () => {
+        const [vehicle, part] = [await createVehicle("Mini"), await createVariant("Bulb")];
         const { errors } = await createThenFail(getContainer()).run({
-          input: { ...target, data: [{ notes: "ghost", position_id: position.id, vehicle_id: v1.id }] },
+          input: { module: FITMENT_MODULE, entity: "Fitment", data: [{ variant_id: part.id, vehicle_id: vehicle.id, quantity: 1 }] },
           throwOnError: false,
         });
         expect(errors[0]?.error?.message).toBe("boom");
-        expect(await links({ vehicle_id: v1.id })).toEqual([]);
+        const list = await api.get(`/admin/automotive/fitment?variant_id=${part.id}&fields=id`, headers);
+        expect(list.data.data).toEqual([]);
+      });
 
-        // Update rolled back → the link points at the previous vehicle again.
-        const fitment = await post("fitment", { notes: null, position_id: position.id, vehicle_id: v1.id });
-        await updateThenFail(getContainer()).run({
-          input: { ...target, data: [{ id: fitment.id, vehicle_id: v2.id }] },
-          throwOnError: false,
-        });
-        expect(await linkedVehicles(fitment.id)).toEqual([v1.id]);
-
-        // Delete rolled back → row and link restored.
-        await deleteThenFail(getContainer()).run({
-          input: { ...target, ids: [fitment.id] },
-          throwOnError: false,
-        });
-        expect(await linkedVehicles(fitment.id)).toEqual([v1.id]);
+      it("only accepts vehicle paths as condition attribute codes", async () => {
+        const attribute = AutomotiveAttribute.dto.create;
+        const base = { name: "Fuel", data_type: "enum", default_unit: null, category: null };
+        expect(attribute.parse({ ...base, code: " Engine.Fuel " }).code).toBe("engine.fuel");
+        expect(() => attribute.parse({ ...base, code: "colour" })).toThrow(/must be a vehicle field/);
       });
     });
 

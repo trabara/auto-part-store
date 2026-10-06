@@ -1,14 +1,11 @@
 import { defineLink } from "@medusajs/framework/utils";
-import FitmentModule from "../modules/fitment";
 import ProductModule from "@medusajs/medusa/product";
+import FitmentModule from "../modules/fitment";
 
+// fitment.variant_id → product variant, readable as `fitment.variant`.
+// Matches `variant: r.link("ProductVariant", { storage: "column" })` on Fitment.
 export default defineLink(
-    {
-    linkable: FitmentModule.linkable.fitment,
-    isList: true,
-  },
-  {
-    linkable: ProductModule.linkable.productVariant,
-    isList: true,
-  },
+  { linkable: FitmentModule.linkable.fitment, field: "variant_id" },
+  { linkable: ProductModule.linkable.productVariant, alias: "variant" },
+  { readOnly: true },
 );

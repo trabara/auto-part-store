@@ -52,7 +52,7 @@ export const BodyStyleSchema = z.enum(BodyStyle);
 // ── Entities ──────────────────────────────────────────────────────────────────
 
 /** First production car (1886) up to announced model years. */
-const YearSchema = z
+export const YearSchema = z
   .number()
   .int()
   .min(1886)

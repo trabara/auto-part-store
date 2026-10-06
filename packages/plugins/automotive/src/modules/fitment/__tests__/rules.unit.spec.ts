@@ -77,16 +77,36 @@ describe("evaluateCondition", () => {
     expect(rules.evaluateCondition(cond("drive", "like", "FWD"), { drive: "FWD" })).toBe(false);
   });
 
-  // Known bugs, pinned: these fail today. When one is fixed, Jest reports it
-  // — turn it into a regular `it`.
-  it.failing("BUG: date eq matches the same date (compares Date objects by reference)", () => {
+  it("compares dates by time", () => {
     const c = cond("built", "eq", "2020-01-01", { data_type: "date" });
     expect(rules.evaluateCondition(c, { built: new Date("2020-01-01") })).toBe(true);
+    expect(rules.evaluateCondition(c, { built: "2020-01-01T00:00:00.000Z" })).toBe(true);
+    const after = cond("built", "gte", "2019-06-01", { data_type: "date" });
+    expect(rules.evaluateCondition(after, { built: new Date("2020-01-01") })).toBe(true);
   });
 
-  it.failing("BUG: in supports values containing commas (value is comma-split)", () => {
-    const c = cond("trim", "in", "Sport, Line", {});
+  it("in accepts a JSON array, so values may contain commas", () => {
+    const c = cond("trim", "in", '["Sport, Line", "Base"]');
     expect(rules.evaluateCondition(c, { trim: "Sport, Line" })).toBe(true);
+    expect(rules.evaluateCondition(c, { trim: "Sport" })).toBe(false);
+  });
+
+  it("reads nested vehicle paths", () => {
+    const c = cond("engine.fuel", "eq", "DIESEL");
+    expect(rules.evaluateCondition(c, { engine: { fuel: "DIESEL" } })).toBe(true);
+    expect(rules.evaluateCondition(cond("model.make.name", "in", "Audi, VW"), { model: { make: { name: "VW" } } })).toBe(true);
+  });
+
+  it("array attributes: eq tests membership, in tests overlap", () => {
+    const vehicle = { options: ["SPORT_SUSPENSION", "TOW_BAR"] };
+    expect(rules.evaluateCondition(cond("options", "eq", "TOW_BAR"), vehicle)).toBe(true);
+    expect(rules.evaluateCondition(cond("options", "neq", "TOW_BAR"), vehicle)).toBe(false);
+    expect(rules.evaluateCondition(cond("options", "in", '["XENON", "TOW_BAR"]'), vehicle)).toBe(true);
+    expect(rules.evaluateCondition(cond("options", "not_in", '["XENON"]'), vehicle)).toBe(true);
+  });
+
+  it("between without an upper value never matches", () => {
+    expect(rules.evaluateCondition(cond("power", "between", "100", { data_type: "number" }), { power: 120 })).toBe(false);
   });
 });
 

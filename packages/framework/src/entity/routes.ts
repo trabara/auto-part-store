@@ -7,6 +7,7 @@ import { ContainerRegistrationKeys, MedusaError } from "@medusajs/framework/util
 import { snakeCase } from "lodash"
 import { getEntityModule } from "./define-entity"
 import { withReadableErrors } from "./errors"
+import { searchFilter } from "./search"
 import { validateEntityBody, validateEntityQuery } from "./http"
 import type { EntityDef } from "./types"
 import {
@@ -110,10 +111,13 @@ export function createEntityRoutes({ module, entities, depth }: EntityRoutesOpti
     async GET(req: MedusaRequest, res: MedusaResponse) {
       const entity = resolve(req)
       const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
+      const { q, ...filterable } = (req.filterableFields ?? {}) as Record<string, unknown>
+      const filters = normalizeDerivedFilters(entity, filterable)
+      const search = searchFilter(entity, typeof q === "string" ? q : undefined)
       const { data, metadata } = await query.graph({
         entity: entity.modelName,
         ...req.queryConfig,
-        filters: normalizeDerivedFilters(entity, req.filterableFields),
+        filters: search ? { $and: [filters, search] } : filters,
       })
       res.status(200).json({ entity: entity.modelName, data, metadata })
     },

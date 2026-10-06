@@ -315,6 +315,8 @@ export interface EntityDef<
   readonly derived: Readonly<Record<string, DerivedField>>
   /** Fields set by the server only: not in DTOs (derived fields included). */
   readonly readOnly: readonly string[]
+  /** Text paths `?q=` searches; defaults to the label's text fields (see `searchPaths`). */
+  readonly search?: readonly string[]
   /** Storage options consumed by `toModels` (server). */
   readonly storage: EntityStorage
   readonly dto: {
@@ -424,4 +426,9 @@ export interface DefineEntityConfig<S extends z.ZodObject<any>, Rels extends Rel
   derived?: { [K in keyof S["shape"]]?: { from: (keyof S["shape"] & string)[]; compute: (row: any) => unknown } }
   /** Fields set by the server (hooks, workflows): left out of the DTOs. */
   readOnly?: (keyof S["shape"] & string)[]
+  /**
+   * Text paths searched by `?q=` (own fields or same-module relation paths,
+   * e.g. `generation.model.make.name`). Defaults to the label's text fields.
+   */
+  search?: string[]
 }

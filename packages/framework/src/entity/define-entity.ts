@@ -304,6 +304,7 @@ export function defineEntity<
     external: config.external ? Object.freeze({ ...config.external }) : undefined,
     derived,
     readOnly,
+    search: config.search ? Object.freeze([...config.search]) : undefined,
     messages: Object.freeze({
       unique: Object.freeze((config.messages?.unique ?? []).map((m) => Object.freeze({ ...m, on: [...m.on] }))),
       constraints: Object.freeze({ ...(config.messages?.constraints ?? {}) }),

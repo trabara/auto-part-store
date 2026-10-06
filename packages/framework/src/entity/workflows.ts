@@ -1,4 +1,4 @@
-import { ContainerRegistrationKeys, pluralize } from "@medusajs/framework/utils"
+import { ContainerRegistrationKeys, MedusaError, pluralize } from "@medusajs/framework/utils"
 import {
   createStep,
   createWorkflow,
@@ -55,6 +55,32 @@ function derive(entity: string, row: Record<string, unknown>): Record<string, un
 function derivedSources(entity: string): string[] {
   const derived = getEntity(entity)?.derived ?? {}
   return [...new Set(Object.values(derived).flatMap((d) => [...d.from]))]
+}
+
+/**
+ * Linked ids must point at live records: links aren't foreign keys (other
+ * modules), so an unknown id would otherwise be stored as an orphan.
+ */
+async function assertLinkTargets(container: Container, entity: string, rows: Record<string, unknown>[]) {
+  const def = getEntity(entity)
+  if (!def) return
+  const query = container.resolve(ContainerRegistrationKeys.QUERY)
+  for (const [key, rel] of Object.entries(def.relations as Record<string, RelationDef>)) {
+    if (rel.kind !== "link") continue
+    const ids = [...new Set(rows.map((r) => r[`${key}_id`]).filter((v): v is string => typeof v === "string" && !!v))]
+    if (!ids.length) continue
+    const target = getEntity(rel.target)
+    const { data } = await query.graph({ entity: target?.modelName ?? snakeCase(rel.target), fields: ["id"], filters: { id: ids } })
+    const found = new Set((data as { id: string }[]).map((d) => d.id))
+    const missing = ids.filter((id) => !found.has(id))
+    if (missing.length) {
+      const noun = snakeCase(rel.target).replace(/_/g, " ")
+      throw new MedusaError(
+        MedusaError.Types.INVALID_DATA,
+        `${noun.charAt(0).toUpperCase()}${noun.slice(1)} ${missing.map((id) => `"${id}"`).join(", ")} not found.`,
+      )
+    }
+  }
 }
 
 const hookContext = (container: Container, target: EntityTarget) => ({
@@ -136,6 +162,7 @@ async function liveLinks(
 export const createEntitiesStep = createStep(
   "framework-create-entities",
   async (input: CreateEntitiesInput, { container }) => {
+    await assertLinkTargets(container, input.entity, input.data)
     const specs = linkSpecs(input.entity)
     const split = input.data.map((row) => splitRow(row, specs))
     const created: Row[] = await service(container, input.module)[method("create", input.entity)]!(
@@ -184,6 +211,7 @@ export const updateEntitiesStep = createStep(
   "framework-update-entities",
   async (input: UpdateEntitiesInput, { container }) => {
     const svc = service(container, input.module)
+    await assertLinkTargets(container, input.entity, input.data)
     const specs = linkSpecs(input.entity)
     const split = input.data.map((row) => splitRow(row, specs))
     const ids = input.data.map((row) => row.id)

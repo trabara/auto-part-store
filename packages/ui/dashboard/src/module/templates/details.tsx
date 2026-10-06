@@ -4,10 +4,9 @@ import { Container, Text } from "@medusajs/ui";
 import { useQuery } from "@tanstack/react-query";
 import type { RouteRenderContext } from "@repo/framework/admin";
 import type { FeatureDef } from "@repo/framework/core";
-import { entityLabel, foreignKeyName, isToOne, type RelationDef } from "@repo/framework/entity";
+import { foreignKeyName, isToOne, type RelationDef } from "@repo/framework/entity";
 import { getFieldUi, getZodFieldInfo } from "@repo/framework/utils";
 import { Fragment, type ReactNode } from "react";
-import { useTranslation } from "react-i18next";
 import { useNavigate, useParams } from "react-router-dom";
 import { useSdk } from "../../common/context";
 import { DataTable } from "../components/data-table";
@@ -112,7 +111,6 @@ export function TemplateDetail({ outlet }: RouteRenderContext) {
   const { id = "" } = useParams();
   const sdk = useSdk();
   const navigate = useNavigate();
-  const { t } = useTranslation();
   const labels = useLabels();
 
   const { data: record, isLoading, refetch } = useQuery({
@@ -145,13 +143,13 @@ export function TemplateDetail({ outlet }: RouteRenderContext) {
     return (
       <Container>
         <Text size="small" className="text-ui-fg-subtle">
-          {isLoading ? t("common.loading", "Loading…") : t("common.not_found", "Not found")}
+          {isLoading ? labels.ui("loading") : labels.ui("notFound")}
         </Text>
       </Container>
     );
   }
 
-  const title = entityLabel(entity, record) || labels.entity(entity);
+  const title = labels.record(entity, record) || labels.entity(entity);
 
   return (
     <div className="flex flex-col gap-x-4 gap-y-3 xl:flex-row xl:items-start">
@@ -172,13 +170,13 @@ export function TemplateDetail({ outlet }: RouteRenderContext) {
           actions={[
             {
               id: "edit",
-              label: t("common.edit", "Edit"),
+              label: labels.action("edit"),
               icon: <PencilSquare />,
               onClick: () => navigate(featurePath(feature, "edit", { id })!),
             },
             {
               id: "delete",
-              label: t("common.delete", "Delete"),
+              label: labels.action("delete"),
               icon: <Trash />,
               onClick: () => deletion.mutateAsync(id),
             },
@@ -211,7 +209,7 @@ export function TemplateDetail({ outlet }: RouteRenderContext) {
                     ? [
                         {
                           id: "open",
-                          label: t("common.open", "Open"),
+                          label: labels.ui("open"),
                           icon: <ArrowUpRightOnBox />,
                           onClick: () =>
                             navigate(featurePath(relation.target!, "detail", { id: String(related.id) })!),

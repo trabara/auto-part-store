@@ -159,6 +159,9 @@ export function createZodResolver(schema: z.ZodTypeAny) {
   }) as typeof resolve;
 }
 
+/** Message of a missing required value (translated as `erp.ui.required` where shown). */
+export const REQUIRED_MESSAGE = "Required";
+
 // Zod's message for a missing value ("Invalid input: expected number, received null").
 const MISSING_VALUE = /^Invalid input: expected \w+, received (null|undefined|NaN)$/;
 
@@ -174,7 +177,7 @@ export function humanizeErrors<E extends Record<string, any>>(errors: E, values:
   for (const [key, error] of Object.entries(errors ?? {})) {
     const message = error && typeof error.message === "string" ? error.message : "";
     const missing = MISSING_VALUE.test(message) || (/^Invalid/.test(message) && key in values && isEmpty(values[key]));
-    out[key] = missing ? { ...error, message: "Required" } : error;
+    out[key] = missing ? { ...error, message: REQUIRED_MESSAGE } : error;
   }
   return out as E;
 }

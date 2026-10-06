@@ -2,7 +2,7 @@ import { Photo } from "@medusajs/icons";
 import { Button, toast } from "@medusajs/ui";
 import { useMutation } from "@tanstack/react-query";
 import { useRef } from "react";
-import { useTranslation } from "react-i18next";
+import { useLabels } from "../hooks/use-labels";
 import { useSdk } from "../../common/context";
 
 const ACCEPT = "image/jpeg,image/png,image/gif,image/webp,image/svg+xml";
@@ -37,7 +37,7 @@ type ImageFieldProps = {
  */
 export function ImageField({ value, onChange, disabled }: ImageFieldProps) {
   const sdk = useSdk();
-  const { t } = useTranslation();
+  const labels = useLabels();
   const input = useRef<HTMLInputElement>(null);
 
   const upload = useMutation({
@@ -65,7 +65,7 @@ export function ImageField({ value, onChange, disabled }: ImageFieldProps) {
           isLoading={upload.isPending}
           onClick={() => input.current?.click()}
         >
-          {value ? t("actions.replace", "Replace") : t("actions.upload", "Upload")}
+          {value ? labels.ui("replace") : labels.ui("upload")}
         </Button>
         {value && (
           <Button
@@ -75,7 +75,7 @@ export function ImageField({ value, onChange, disabled }: ImageFieldProps) {
             disabled={disabled || upload.isPending}
             onClick={() => onChange(null)}
           >
-            {t("actions.remove", "Remove")}
+            {labels.action("remove")}
           </Button>
         )}
       </div>

@@ -13,6 +13,9 @@ export const en = {
   steps: {
     vehicle: { general: "General", specs: "Specifications" },
   },
+  messages: {
+    units: { hp: "hp" },
+  },
   entities: {
     Vehicle: {
       name: "Vehicle",

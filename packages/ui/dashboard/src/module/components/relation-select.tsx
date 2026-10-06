@@ -1,9 +1,10 @@
 import { ChevronUpDown, MagnifyingGlass } from "@medusajs/icons";
 import { clx, Input, Text } from "@medusajs/ui";
 import { useQuery } from "@tanstack/react-query";
-import { entityLabel, type EntityDef } from "@repo/framework/entity";
+import type { EntityDef } from "@repo/framework/entity";
 import { useEffect, useRef, useState } from "react";
 import { useSdk } from "../../common/context";
+import { useLabels } from "../hooks/use-labels";
 
 export type RelationSelectProps = {
   /** Collection URL of the target entity (see `entityUrl`). */
@@ -20,6 +21,7 @@ export type RelationSelectProps = {
 };
 
 type Option = { value: string; label: string };
+type Item = Record<string, any>;
 
 /**
  * Records of a list response: `data` for framework routes, the first array
@@ -54,6 +56,7 @@ export function RelationSelect({
   limit = 20,
 }: RelationSelectProps) {
   const sdk = useSdk();
+  const labels = useLabels();
   const root = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
@@ -61,23 +64,27 @@ export function RelationSelect({
   const q = useDebounced(search.trim(), 250);
   const fields = [...new Set(["id", ...entity.label.fields])].join(",");
 
-  const fetchOptions = async (query: Record<string, unknown>, signal?: AbortSignal): Promise<Option[]> => {
+  // Records are cached raw and labelled at render (in the user's language).
+  const fetchItems = async (query: Record<string, unknown>, signal?: AbortSignal): Promise<Item[]> => {
     const response = await sdk.client.fetch<Record<string, unknown>>(url, { signal, query: { fields, ...query } });
-    return listOf(response).map((item) => ({ value: String(item.id), label: entityLabel(entity, item) }));
+    return listOf(response);
   };
+  const toOption = (item: Item): Option => ({ value: String(item.id), label: labels.record(entity, item) });
 
-  const { data: options = [], isFetching } = useQuery({
+  const { data: items = [], isFetching } = useQuery({
     queryKey: [url, "relation-select", fields, q, limit],
     enabled: open,
-    queryFn: ({ signal }) => fetchOptions({ limit, ...(q ? { q } : {}) }, signal),
+    queryFn: ({ signal }) => fetchItems({ limit, ...(q ? { q } : {}) }, signal),
   });
+  const options = items.map(toOption);
 
   // The selected record may be outside the current results: load its label.
-  const { data: selected } = useQuery({
+  const { data: selectedItem } = useQuery({
     queryKey: [url, "relation-select-value", fields, value],
     enabled: !!value,
-    queryFn: ({ signal }) => fetchOptions({ id: value, limit: 1 }, signal).then((r) => r[0] ?? null),
+    queryFn: ({ signal }) => fetchItems({ id: value, limit: 1 }, signal).then((r) => r[0] ?? null),
   });
+  const selected = selectedItem ? toOption(selectedItem) : null;
 
   const choices: (Option | null)[] = clearable ? [null, ...options] : options;
 
@@ -127,7 +134,7 @@ export function RelationSelect({
           "hover:bg-ui-bg-field-hover focus-visible:shadow-borders-interactive-with-active",
         )}
       >
-        <span className={clx("truncate", !label && "text-ui-fg-muted")}>{label ?? placeholder ?? "Select"}</span>
+        <span className={clx("truncate", !label && "text-ui-fg-muted")}>{label ?? placeholder ?? labels.ui("select")}</span>
         <ChevronUpDown className="text-ui-fg-muted shrink-0" />
       </button>
 
@@ -141,7 +148,7 @@ export function RelationSelect({
               autoFocus
               size="small"
               type="search"
-              placeholder="Search…"
+              placeholder={labels.ui("search")}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               onKeyDown={onKeyDown}
@@ -163,21 +170,21 @@ export function RelationSelect({
                   (option?.value ?? null) === (value ?? null) && "font-medium",
                 )}
               >
-                {option ? option.label : <span className="text-ui-fg-muted">— None</span>}
+                {option ? option.label : <span className="text-ui-fg-muted">{labels.ui("none")}</span>}
               </button>
             ))}
             {!isFetching && options.length === 0 && (
               <Text size="small" className="text-ui-fg-subtle px-2 py-1.5">
-                {q ? `No results for "${q}"` : "Nothing to choose yet"}
+                {q ? labels.ui("noResultsFor", { q }) : labels.ui("nothingToChoose")}
               </Text>
             )}
             {isFetching && options.length === 0 && (
-              <Text size="small" className="text-ui-fg-subtle px-2 py-1.5">Loading…</Text>
+              <Text size="small" className="text-ui-fg-subtle px-2 py-1.5">{labels.ui("loading")}</Text>
             )}
           </div>
           {options.length >= limit && (
             <Text size="xsmall" className="text-ui-fg-muted px-2 pb-1 pt-1.5">
-              Showing the first {limit}: type to narrow.
+              {labels.ui("showingFirst", { count: limit })}
             </Text>
           )}
         </div>

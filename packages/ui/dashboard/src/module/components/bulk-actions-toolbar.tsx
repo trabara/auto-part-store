@@ -137,7 +137,7 @@ export function DataTableBulkActionsToolbar<TData>({
         <PopoverPrimitive.Content
           ref={toolbarRef}
           role="toolbar"
-          aria-label={`Bulk actions for ${selectedCount} selected ${entityName}${selectedCount > 1 ? "s" : ""}`}
+          aria-label={t("erp.ui.bulkActions", { count: selectedCount, defaultValue: `Bulk actions (${selectedCount} selected)` })}
           aria-describedby="bulk-actions-description"
           side="top"
           align="center"

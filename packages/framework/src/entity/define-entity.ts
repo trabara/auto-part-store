@@ -5,6 +5,7 @@
  */
 import { z } from "@medusajs/framework/zod"
 import { snakeCase } from "lodash"
+import { humanizeValue } from "../utils/strings"
 import { getZodFieldInfo, looksLikeEntity } from "../utils/zod-introspect"
 import { foreignKeys, linkColumns, linkKeys, relationBuilder } from "./relations"
 import type {
@@ -12,6 +13,7 @@ import type {
   EntityDef,
   DerivedField,
   EntityLabel,
+  LabelContext,
   EntityQuery,
   RelationDef,
   RelationMap,
@@ -210,15 +212,32 @@ function buildLabel(
     const ok = rest.length ? root! in relations : root! in shape
     if (!ok) fail(name, `label field "${path}" must be a field or start with a relation.`)
   }
-  return Object.freeze({ fields: Object.freeze([...config.fields]), format: config.format })
+  const format = config.format
+  return Object.freeze({
+    fields: Object.freeze([...config.fields]),
+    format: (row: any, ctx: LabelContext = defaultLabelContext) => format(row, ctx),
+  })
 }
 
-/** A record's label (see `label` in `defineEntity`), falling back to its id. */
-export function entityLabel(entity: EntityDef<any, any, any>, row: Record<string, any> | null | undefined): string {
+/** English labels: humanized enum values, untranslated text. */
+export const defaultLabelContext: LabelContext = Object.freeze({
+  value: (_entity: string, _field: string, value: string) => humanizeValue(value),
+  text: (_key: string, fallback: string) => fallback,
+})
+
+/**
+ * A record's label (see `label` in `defineEntity`), falling back to its id.
+ * `ctx` translates enum values and text (the admin passes the user's locale).
+ */
+export function entityLabel(
+  entity: EntityDef<any, any, any>,
+  row: Record<string, any> | null | undefined,
+  ctx: LabelContext = defaultLabelContext,
+): string {
   if (!row) return ""
   let label = ""
   try {
-    label = entity.label.format(row)
+    label = entity.label.format(row, ctx)
   } catch {
     // Label fields not fetched: fall back to the id.
   }

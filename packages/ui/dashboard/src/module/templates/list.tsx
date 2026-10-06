@@ -2,9 +2,8 @@ import { z } from "@medusajs/framework/zod";
 import { PencilSquare, Trash } from "@medusajs/icons";
 import { Container } from "@medusajs/ui";
 import type { RouteRenderContext } from "@repo/framework/admin";
-import { entityLabel, isToOne, relationField } from "@repo/framework/entity";
+import { isToOne, relationField } from "@repo/framework/entity";
 import { useMemo } from "react";
-import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { fieldUiOverrides } from "../helpers/field-ui-overrides";
 import { useSdk } from "../../common/context";
@@ -25,7 +24,6 @@ export function TemplateList({ outlet }: RouteRenderContext) {
   const { module, feature, entity } = useFeature();
   const sdk = useSdk();
   const navigate = useNavigate();
-  const { t } = useTranslation();
   const labels = useLabels();
 
   const toOne = useMemo(
@@ -53,7 +51,7 @@ export function TemplateList({ outlet }: RouteRenderContext) {
         isFiltrable: false,
         cell: (info: any) => {
           const related = info.row.original[r.key];
-          return entityLabel(r.targetEntity!, related) || "-";
+          return labels.record(r.targetEntity!, related) || "-";
         },
       };
     }
@@ -66,15 +64,15 @@ export function TemplateList({ outlet }: RouteRenderContext) {
 
   const deletion = useDeleteMutation({
     invalidateKeys: [entity.modelName],
-    errorMessage: t("common.error_delete_item", "Failed to delete"),
-    successMessage: t("common.success_delete_item", "Deleted"),
+    errorMessage: labels.ui("deleteFailed"),
+    successMessage: labels.ui("deleted"),
     deleteFn: (id) => sdk.client.fetch(entityUrl(module, entity, id), { method: "DELETE" }),
   });
 
   const rowActions: RowAction<Row>[] = [
     {
       id: "edit",
-      label: t("common.edit", "Edit"),
+      label: labels.action("edit"),
       icon: <PencilSquare />,
       onClick: (e, row) => {
         e.stopPropagation();
@@ -83,7 +81,7 @@ export function TemplateList({ outlet }: RouteRenderContext) {
     },
     {
       id: "delete",
-      label: t("common.delete", "Delete"),
+      label: labels.action("delete"),
       icon: <Trash />,
       variant: "danger",
       onClick: (e, row) => {
@@ -96,7 +94,7 @@ export function TemplateList({ outlet }: RouteRenderContext) {
   const toolbarActions: ToolbarAction<Row>[] = [
     {
       id: "delete",
-      label: t("common.delete", "Delete"),
+      label: labels.action("delete"),
       icon: <Trash />,
       variant: "danger",
       onClick: (table) => {

@@ -15,6 +15,9 @@ export const ar: SameShape<typeof en> = {
   steps: {
     vehicle: { general: "عام", specs: "المواصفات" },
   },
+  messages: {
+    units: { hp: "حصان" },
+  },
   entities: {
     Vehicle: {
       name: "مركبة",

@@ -5,12 +5,12 @@ import type { AdminProductVariant, DetailWidgetProps } from "@medusajs/framework
 import { AdjustmentsDone } from "@medusajs/icons";
 import { useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { EntityPanel, Module } from "@repo/dashboard/module";
+import { EntityPanel, Module, useLabels } from "@repo/dashboard/module";
 import { ConditionsDrawer } from "@repo/module-fitment/admin/ui";
 import { Fitment } from "@repo/module-fitment/entities";
-import { entityLabel } from "@repo/framework/entity";
 import { fitmentAdmin as fitments } from "@repo/module-fitment/admin";
 import { Vehicle } from "@repo/module-vehicle/entities";
+import { useDomainText } from "../use-domain-text";
 
 type Row = Record<string, any>;
 
@@ -26,23 +26,47 @@ function productionWindow(row: Row): string {
 function VariantFitments({ variantId }: { variantId: string }) {
   const [editing, setEditing] = useState<string | null>(null);
   const queryClient = useQueryClient();
+  const labels = useLabels();
+  const text = useDomainText();
+  const field = (key: string) => labels.field(Fitment, key);
   return (
     <>
       <EntityPanel
         module={fitments}
         feature={fitments.features.fitment}
         parent={{ field: "variant_id", value: variantId }}
-        title="Fits vehicles"
-        description="Vehicles this variant fits, per position."
+        title={text("widgets.fitments.title")}
+        description={text("widgets.fitments.description")}
         columns={[
-          { key: "vehicle", label: "Vehicle", render: (r) => entityLabel(Vehicle, r.vehicle) || r.vehicle_id },
-          { key: "position", label: "Position", render: (r) => r.position?.name ?? "—" },
-          { key: "quantity", label: "Qty" },
-          { key: "production", label: "Production", render: (r) => productionWindow(r) || "—" },
-          { key: "conditions", label: "Conditions", render: (r) => r.conditions_summary ?? "—" },
+          {
+            key: "vehicle",
+            label: field("vehicle"),
+            render: (r) => labels.record(Vehicle, r.vehicle) || r.vehicle_id,
+          },
+          {
+            key: "position",
+            label: field("position"),
+            render: (r) => r.position?.name ?? "—",
+          },
+          { key: "quantity", label: field("quantity") },
+          {
+            key: "production",
+            label: text("widgets.fitments.production"),
+            render: (r) => productionWindow(r) || "—",
+          },
+          {
+            key: "conditions",
+            label: field("conditions_summary"),
+            render: (r) => r.conditions_summary ?? "—",
+          },
         ]}
         rowActions={[
-          { id: "conditions", label: "Edit conditions", icon: <AdjustmentsDone />, onClick: (r) => setEditing(r.id) },
+          {
+            id: "conditions",
+            label: text("widgets.fitments.editConditions"),
+            icon: <AdjustmentsDone />,
+            onClick: (r) => setEditing(r.id),
+          },
         ]}
       />
       {editing && (

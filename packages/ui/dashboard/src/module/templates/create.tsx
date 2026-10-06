@@ -2,7 +2,6 @@ import { z } from "@medusajs/framework/zod";
 import { Button, clx, FocusModal, Heading, Hint, ProgressTabs } from "@medusajs/ui";
 import type { RouteRenderContext } from "@repo/framework/admin";
 import React, { useMemo } from "react";
-import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { useSdk } from "../../common/context";
 import { Form } from "../../form/components/form";
@@ -25,7 +24,6 @@ export function TemplateCreate(_: RouteRenderContext) {
   const { module, feature, entity, route } = useFeature();
   const sdk = useSdk();
   const navigate = useNavigate();
-  const { t } = useTranslation();
   const labels = useLabels();
 
   const schema = route.dto as z.ZodObject<any>;
@@ -55,8 +53,8 @@ export function TemplateCreate(_: RouteRenderContext) {
 
   const create = useCreateMutation({
     invalidateKeys: [entity.modelName],
-    errorMessage: `Failed to create ${name}`,
-    successMessage: `${name} created`,
+    errorMessage: labels.ui("createFailed", { name }),
+    successMessage: labels.ui("created", { name }),
     createFn: (body) => sdk.client.fetch(entityUrl(module, entity), { method: "POST", body }),
   });
 
@@ -94,16 +92,14 @@ export function TemplateCreate(_: RouteRenderContext) {
               <FocusModal.Footer>
                 <div className="flex items-center justify-end gap-x-2">
                   <Button variant="secondary" size="small" type="button" onClick={close}>
-                    {t("common.cancel", "Cancel")}
+                    {labels.action("cancel")}
                   </Button>
                   {renderSubmitButton({ disabled, children: submitLabel })}
                 </div>
               </FocusModal.Footer>
             );
             const createLabel = (
-              <>
-                {t("common.create", "Create")} <span>{name}</span>
-              </>
+<>{labels.ui("createEntity", { name })}</>
             );
 
             if (!isWizard) {
@@ -112,7 +108,7 @@ export function TemplateCreate(_: RouteRenderContext) {
                   <FocusModal.Header>
                     <FocusModal.Title asChild>
                       <Heading level="h1">
-                        {t("common.create", "Create")} {name}
+                        {labels.ui("createEntity", { name })}
                       </Heading>
                     </FocusModal.Title>
                   </FocusModal.Header>
@@ -132,7 +128,7 @@ export function TemplateCreate(_: RouteRenderContext) {
               >
                 <FocusModal.Header>
                   <FocusModal.Title className="sr-only">
-                    {t("common.create", "Create")} {name}
+                    {labels.ui("createEntity", { name })}
                   </FocusModal.Title>
                   <ProgressTabs.List className="-my-2 w-full border-l">
                     {steps.map(({ id, label }) => (
@@ -155,7 +151,7 @@ export function TemplateCreate(_: RouteRenderContext) {
                     ),
                   )}
                 </FocusModal.Body>
-                {footer(wizard.hasNext ? t("common.next", "Next") : createLabel)}
+                {footer(wizard.hasNext ? labels.action("continue") : createLabel)}
               </ProgressTabs>
             );
           }}

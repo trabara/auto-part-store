@@ -45,6 +45,12 @@ export function setTranslationFunction(fn: TranslationFunction): void {
   customTranslateFn = fn;
 }
 
+/** `key` translated, or `fallback` when no translation is registered for it. */
+export function translateOr(key: string, fallback: string): string {
+  const text = translate(key);
+  return text && text !== key ? text : fallback;
+}
+
 /**
  * Get the translate function.
  * Used internally by form components.

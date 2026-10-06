@@ -5,6 +5,7 @@ import {
   getErrorMessage,
   parseApiError,
 } from "../utils/api-error";
+import { useLabels } from "./use-labels";
 
 /**
  * Configuration for update mutations
@@ -46,18 +47,19 @@ export interface UseUpdateMutationReturn<TInput = any> {
 
 export function useUpdateMutation({
   invalidateKeys,
-  successMessage = "Item updated successfully",
-  errorMessage = "Failed to update item",
+  successMessage,
+  errorMessage,
   mutationOptions,
   updateFn,
   onSuccess: onSuccessCb,
   onFailure,
 }: UpdateMutationConfig): UseUpdateMutationReturn {
+  const labels = useLabels();
   const mutation = useGenericMutation({
     mutationFn: updateFn,
     invalidateKeys: invalidateKeys.map((k) => [k]) as (string | number)[][],
     onSuccess: () => {
-      toast.success(successMessage);
+      toast.success(successMessage ?? labels.ui("saved"));
       onSuccessCb?.();
     },
     options: {
@@ -67,11 +69,11 @@ export function useUpdateMutation({
         const description = getErrorMessage(error);
 
         if (category === "AUTH") {
-          toast.error("Access denied", { description });
+          toast.error(labels.ui("accessDenied"), { description });
         } else if (category === "NOT_FOUND") {
-          toast.warning("Not found", { description });
+          toast.warning(labels.ui("notFound"), { description });
         } else {
-          toast.error(errorMessage, { description });
+          toast.error(errorMessage ?? labels.ui("saveFailed"), { description });
         }
         onFailure?.(error);
       },

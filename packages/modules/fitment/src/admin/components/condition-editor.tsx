@@ -6,7 +6,6 @@ import { Button, clx, IconButton, Input, Select, Text } from "@medusajs/ui";
 import {
   isListOperator,
   MAX_GROUP_DEPTH,
-  OPERATOR_LABELS,
   OPERATORS_BY_TYPE,
   conditionAttribute,
   conditionAttributes,
@@ -15,6 +14,7 @@ import {
   type ConditionOperator,
   type ConditionAttribute,
 } from "@repo/module-fitment/conditions";
+import { useConditionTexts } from "./use-condition-texts";
 
 /** Catalog attributes by group, in catalog order ("" for ungrouped). */
 function groupedAttributes() {
@@ -43,6 +43,7 @@ function withOperator(c: ConditionInput, operator: ConditionOperator, attr: Cond
 }
 
 function ValueInput({ condition, attr, onChange }: { condition: ConditionInput; attr: ConditionAttribute; onChange: (c: ConditionInput) => void }) {
+  const texts = useConditionTexts();
   const set = (patch: Partial<ConditionInput>) => onChange({ ...condition, ...patch });
 
   if (attr.data_type === "enum" && isListOperator(condition.operator)) {
@@ -68,7 +69,7 @@ function ValueInput({ condition, attr, onChange }: { condition: ConditionInput; 
                   : "bg-ui-bg-field text-ui-fg-subtle border-ui-border-base hover:bg-ui-bg-field-hover",
               )}
             >
-              {v.label}
+              {texts.value(attr, v.value)}
             </button>
           );
         })}
@@ -85,7 +86,7 @@ function ValueInput({ condition, attr, onChange }: { condition: ConditionInput; 
         <Select.Content>
           {attr.values!.map((v) => (
             <Select.Item key={v.value} value={v.value}>
-              {v.label}
+              {texts.value(attr, v.value)}
             </Select.Item>
           ))}
         </Select.Content>
@@ -101,17 +102,17 @@ function ValueInput({ condition, attr, onChange }: { condition: ConditionInput; 
         <Input
           style={{ minWidth: "5.5rem", flex: 1 }}
           type="number"
-          placeholder={condition.operator === "between" ? "from" : "value"}
+          placeholder={texts.text("editor", condition.operator === "between" ? "from" : "value")}
           value={String(condition.value)}
           onChange={(e) => set({ value: number(e.target.value) })}
         />
         {condition.operator === "between" && (
           <>
-            <Text size="small" className="text-ui-fg-muted">and</Text>
+            <Text size="small" className="text-ui-fg-muted">{texts.message("and")}</Text>
             <Input
               style={{ minWidth: "5.5rem", flex: 1 }}
               type="number"
-              placeholder="to"
+              placeholder={texts.text("editor", "to")}
               value={condition.value_to == null ? "" : String(condition.value_to)}
               onChange={(e) => set({ value_to: e.target.value === "" ? null : Number(e.target.value) })}
             />
@@ -125,7 +126,7 @@ function ValueInput({ condition, attr, onChange }: { condition: ConditionInput; 
   if (isListOperator(condition.operator)) {
     return (
       <Input
-        placeholder="Comma-separated, e.g. GTI, R-Line"
+        placeholder={texts.text("editor", "listPlaceholder")}
         value={(condition.value as string[]).join(", ")}
         onChange={(e) => set({ value: e.target.value.split(",").map((v) => v.trim()).filter(Boolean) })}
       />
@@ -135,6 +136,7 @@ function ValueInput({ condition, attr, onChange }: { condition: ConditionInput; 
 }
 
 function ConditionRow({ condition, onChange, onRemove }: { condition: ConditionInput; onChange: (c: ConditionInput) => void; onRemove: () => void }) {
+  const texts = useConditionTexts();
   const attr = conditionAttribute(condition.code) ?? conditionAttributes()[0]!;
   return (
     // Inline grid: the host admin's Tailwind may not generate arbitrary classes from plugin code.
@@ -146,10 +148,10 @@ function ConditionRow({ condition, onChange, onRemove }: { condition: ConditionI
         <Select.Content>
           {groupedAttributes().map(([group, attrs]) => (
             <Select.Group key={group}>
-              {group && <Select.Label>{group}</Select.Label>}
+              {group && <Select.Label>{texts.group(attrs[0]!)}</Select.Label>}
               {attrs.map((a) => (
                 <Select.Item key={a.code} value={a.code}>
-                  {a.label}
+                  {texts.attribute(a)}
                 </Select.Item>
               ))}
             </Select.Group>
@@ -166,13 +168,13 @@ function ConditionRow({ condition, onChange, onRemove }: { condition: ConditionI
         <Select.Content>
           {OPERATORS_BY_TYPE[attr.data_type].map((op) => (
             <Select.Item key={op} value={op}>
-              {OPERATOR_LABELS[op]}
+              {texts.operator(op)}
             </Select.Item>
           ))}
         </Select.Content>
       </Select>
       <ValueInput condition={condition} attr={attr} onChange={onChange} />
-      <IconButton size="small" variant="transparent" type="button" aria-label="Remove condition" onClick={onRemove}>
+      <IconButton size="small" variant="transparent" type="button" aria-label={texts.text("editor", "removeCondition")} onClick={onRemove}>
         <XMark />
       </IconButton>
     </div>
@@ -190,6 +192,7 @@ export function GroupEditor({
   onRemove?: () => void;
   depth?: number;
 }) {
+  const texts = useConditionTexts();
   const setCondition = (i: number, c: ConditionInput) =>
     onChange({ ...group, conditions: group.conditions.map((x, j) => (j === i ? c : x)) });
   const setGroup = (i: number, g: ConditionGroupInput) =>
@@ -199,20 +202,20 @@ export function GroupEditor({
     <div className={clx("flex flex-col gap-y-3", depth > 1 && "border-ui-border-base rounded-lg border p-3")}>
       <div className="flex items-center justify-between gap-x-2">
         <div className="flex items-center gap-x-2">
-          <Text size="small" className="text-ui-fg-subtle">Fits when</Text>
+          <Text size="small" className="text-ui-fg-subtle">{texts.text("editor", "fitsWhen")}</Text>
           <Select value={group.operator} onValueChange={(op) => onChange({ ...group, operator: op as "and" | "or" })}>
             <Select.Trigger className="w-24">
               <Select.Value />
             </Select.Trigger>
             <Select.Content>
-              <Select.Item value="and">all</Select.Item>
-              <Select.Item value="or">any</Select.Item>
+              <Select.Item value="and">{texts.text("editor", "all")}</Select.Item>
+              <Select.Item value="or">{texts.text("editor", "any")}</Select.Item>
             </Select.Content>
           </Select>
-          <Text size="small" className="text-ui-fg-subtle">of these match:</Text>
+          <Text size="small" className="text-ui-fg-subtle">{texts.text("editor", "ofTheseMatch")}</Text>
         </div>
         {onRemove && (
-          <IconButton size="small" variant="transparent" type="button" aria-label="Remove group" onClick={onRemove}>
+          <IconButton size="small" variant="transparent" type="button" aria-label={texts.text("editor", "removeGroup")} onClick={onRemove}>
             <Trash />
           </IconButton>
         )}
@@ -243,7 +246,7 @@ export function GroupEditor({
           type="button"
           onClick={() => onChange({ ...group, conditions: [...group.conditions, newCondition()] })}
         >
-          <Plus /> Condition
+          <Plus /> {texts.text("editor", "condition")}
         </Button>
         {depth < MAX_GROUP_DEPTH && (
           <Button
@@ -257,7 +260,7 @@ export function GroupEditor({
               })
             }
           >
-            <Plus /> Group
+            <Plus /> {texts.text("editor", "group")}
           </Button>
         )}
       </div>

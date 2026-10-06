@@ -3,7 +3,6 @@ import { Button, Drawer, Heading } from "@medusajs/ui";
 import { useQuery } from "@tanstack/react-query";
 import type { RouteRenderContext } from "@repo/framework/admin";
 import { useMemo } from "react";
-import { useTranslation } from "react-i18next";
 import { useNavigate, useParams } from "react-router-dom";
 import { useSdk } from "../../common/context";
 import { Form } from "../../form/components/form";
@@ -19,7 +18,6 @@ export function TemplateEdit(_: RouteRenderContext) {
   const { id = "" } = useParams();
   const sdk = useSdk();
   const navigate = useNavigate();
-  const { t } = useTranslation();
   const labels = useLabels();
 
   const schema = route.dto as z.ZodObject<any>;
@@ -45,8 +43,8 @@ export function TemplateEdit(_: RouteRenderContext) {
 
   const update = useUpdateMutation({
     invalidateKeys: [entity.modelName],
-    errorMessage: `Failed to update ${name}`,
-    successMessage: `${name} updated`,
+    errorMessage: labels.ui("updateFailed", { name }),
+    successMessage: labels.ui("updated", { name }),
     updateFn: (body) => sdk.client.fetch(entityUrl(module, entity, id), { method: "PUT", body }),
     onSuccess: close,
   });
@@ -56,7 +54,7 @@ export function TemplateEdit(_: RouteRenderContext) {
       <Drawer.Content>
         {!data && (
           <Drawer.Title className="sr-only">
-            {t("common.edit", "Edit")} {name}
+            {labels.ui("editEntity", { name })}
           </Drawer.Title>
         )}
         {data && (
@@ -72,7 +70,7 @@ export function TemplateEdit(_: RouteRenderContext) {
                 <Drawer.Header>
                   <Drawer.Title asChild>
                     <Heading level="h2">
-                      {t("common.edit", "Edit")} {name}
+                      {labels.ui("editEntity", { name })}
                     </Heading>
                   </Drawer.Title>
                 </Drawer.Header>
@@ -81,9 +79,9 @@ export function TemplateEdit(_: RouteRenderContext) {
                 </Drawer.Body>
                 <Drawer.Footer>
                   <Button variant="secondary" size="small" type="button" onClick={close}>
-                    {t("common.cancel", "Cancel")}
+                    {labels.action("cancel")}
                   </Button>
-                  {renderSubmitButton({ children: t("common.save", "Save") })}
+                  {renderSubmitButton({ children: labels.action("save") })}
                 </Drawer.Footer>
               </>
             )}

@@ -12,3 +12,10 @@ export function pluralize(word: string): string {
   if (/(s|x|z|ch|sh)$/i.test(word)) return word + "es";
   return word + "s";
 }
+
+/** Default label of an enum value: "PLUG_IN_HYBRID" → "Plug in hybrid". */
+export function humanizeValue(value: string): string {
+  const words = value.replace(/[_-]+/g, " ").trim();
+  if (!/[a-z]/.test(words) && words.length <= 3) return words;
+  return words.charAt(0).toUpperCase() + words.slice(1).toLowerCase();
+}

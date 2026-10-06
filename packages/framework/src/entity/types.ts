@@ -338,7 +338,18 @@ export interface EntityDef<
  */
 export interface EntityLabel {
   readonly fields: readonly string[]
-  readonly format: (row: any) => string
+  readonly format: (row: any, ctx?: LabelContext) => string
+}
+
+/**
+ * Translations a label format may use (the admin passes the user's locale;
+ * elsewhere the English defaults apply). Pass `ctx` on to nested formats.
+ */
+export interface LabelContext {
+  /** Label of an enum value of `entity.field` (default: humanized value). */
+  value(entity: string, field: string, value: string): string
+  /** Translated text by key (default: `fallback`), e.g. units. */
+  text(key: string, fallback: string): string
 }
 
 /** A column computed from other columns of the same row on every write. */
@@ -399,7 +410,7 @@ export interface DefineEntityConfig<S extends z.ZodObject<any>, Rels extends Rel
    * Computed label, when one field isn't enough. Defaults to the `display`
    * field. `fields` are dotted paths from this entity (`model.make.name`).
    */
-  label?: { fields: string[]; format: (row: any) => string }
+  label?: { fields: string[]; format: (row: any, ctx: LabelContext) => string }
   /**
    * The entity belongs to another module (e.g. Medusa's ProductVariant): it can
    * be a link target and is picked from `url` in the admin, but gets no model,

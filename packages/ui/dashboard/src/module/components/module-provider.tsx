@@ -15,6 +15,7 @@ import {
 } from "@medusajs/ui";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import React, { useEffect, useRef, useState } from "react";
+import { COMMON_MESSAGES } from "@repo/framework/core";
 import { useTranslation } from "react-i18next";
 import { adminSdk } from "../../common/admin-sdk";
 import { SdkContext } from "../../common/context";
@@ -51,7 +52,11 @@ function Module({ children, sdk, module, sections }: ModuleProps) {
 
   useEffect(() => {
     setupForm({
-      translate: (key) => t(key),
+      // English defaults for the dashboard's own keys (`erp.ui.*`).
+      translate: (key) => {
+        const ui = key.startsWith("erp.ui.") ? (COMMON_MESSAGES.en.ui as Record<string, string>)[key.slice(7)] : undefined;
+        return t(key, ui ? { defaultValue: ui } : {}) as string;
+      },
       // Registered components receive form-level props (`invalid`,
       // `componentProps`) that must not reach DOM elements; inputs stay
       // controlled (null/undefined render as empty).
@@ -136,7 +141,7 @@ function Module({ children, sdk, module, sections }: ModuleProps) {
       },
       submitButton: ({ loading, disabled, children }) => (
         <Button size="small" type="submit" disabled={disabled || loading}>
-          {loading ? "Loading..." : children}
+          {loading ? (t("erp.ui.loading", { defaultValue: COMMON_MESSAGES.en.ui.loading }) as string) : children}
         </Button>
       ),
       styles: {

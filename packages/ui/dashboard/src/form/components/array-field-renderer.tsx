@@ -5,6 +5,7 @@ import { FieldWrapper } from "./field-wrapper";
 import { FormControl } from "./form-provider";
 import { SchemaFieldInfo, FieldOverride } from "../types";
 import { resolveFieldType } from "../utils/form";
+import { translateOr } from "../registry/translation";
 
 interface ArrayFieldRendererProps {
   name: string;
@@ -149,7 +150,7 @@ export function ArrayFieldRenderer({
               onClick={() => handleRemove(index)}
               disabled={isDisabled}
               className={getChipClass()}
-              aria-label={`Remove ${getDisplayLabel(item)}`}
+              aria-label={translateOr("actions.remove", "Remove") + " " + getDisplayLabel(item)}
             >
               {getDisplayLabel(item)} ×
             </button>

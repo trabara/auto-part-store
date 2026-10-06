@@ -5,6 +5,7 @@ import {
   getErrorMessage,
   parseApiError,
 } from "../utils/api-error";
+import { useLabels } from "./use-labels";
 
 /**
  * Configuration for create mutations
@@ -42,16 +43,17 @@ export interface UseCreateMutationReturn<TInput = any> {
 
 export function useCreateMutation({
   invalidateKeys,
-  successMessage = "Item created successfully",
-  errorMessage = "Failed to create item",
+  successMessage,
+  errorMessage,
   createFn,
   mutationOptions,
 }: CreateMutationConfig): UseCreateMutationReturn {
+  const labels = useLabels();
   const mutation = useGenericMutation({
     mutationFn: createFn,
     invalidateKeys: invalidateKeys.map((k) => [k]) as (string | number)[][],
     onSuccess: () => {
-      toast.success(successMessage);
+      toast.success(successMessage ?? labels.ui("saved"));
     },
     options: {
       onError: (error: Error) => {
@@ -60,11 +62,11 @@ export function useCreateMutation({
         const description = getErrorMessage(error);
 
         if (category === "AUTH") {
-          toast.error("Access denied", { description });
+          toast.error(labels.ui("accessDenied"), { description });
         } else if (category === "NOT_FOUND") {
-          toast.warning("Not found", { description });
+          toast.warning(labels.ui("notFound"), { description });
         } else {
-          toast.error(errorMessage, { description });
+          toast.error(errorMessage ?? labels.ui("saveFailed"), { description });
         }
       },
       ...mutationOptions,

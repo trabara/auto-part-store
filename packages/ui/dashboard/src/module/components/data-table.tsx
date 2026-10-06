@@ -10,9 +10,9 @@ import {
 } from "@medusajs/ui";
 import { useMemo } from "react";
 import { FieldValues } from "react-hook-form";
-import { useTranslation } from "react-i18next";
 import { createZodDataTableColumnDef } from "../helpers/create-zod-columns";
 import { createZodDataTableFilterDef } from "../helpers/create-zod-filters";
+import { useLabels } from "../hooks/use-labels";
 import { usePageQuery } from "../hooks/use-page-query";
 import {
   Entity,
@@ -77,7 +77,7 @@ export const DataTable = <
     onRowClick,
   } = props;
 
-  const { t } = useTranslation();
+  const labels = useLabels();
 
   const defaultRowsSelection = useMemo(
     () =>
@@ -102,8 +102,17 @@ export const DataTable = <
   );
 
   const filters = useMemo(
-    () => createZodDataTableFilterDef<T>(schema, overrides),
-    [schema, overrides],
+    () =>
+      createZodDataTableFilterDef<T>(schema, overrides, {
+        rangeFrom: labels.ui("rangeFrom"),
+        rangeTo: labels.ui("rangeTo"),
+        rangeBetween: labels.ui("rangeBetween"),
+        today: labels.ui("today"),
+        yesterday: labels.ui("yesterday"),
+        lastWeek: labels.ui("lastWeek"),
+        filterBy: (name) => labels.ui("filterBy", { name }),
+      }),
+    [schema, overrides, labels],
   );
 
   const [queryConfig] = usePageQuery<T, R>({
@@ -140,14 +149,22 @@ export const DataTable = <
         <div className="flex items-center gap-x-2">
           {onCreateClicked && (
             <Button variant="secondary" size="small" onClick={onCreateClicked}>
-              {t("common.create", "Create")}
+              {labels.action("create")}
             </Button>
           )}
         </div>
       </DataTableUI.Toolbar>
 
       <DataTableUI.Table emptyState={emptyState} />
-      <DataTableUI.Pagination />
+      <DataTableUI.Pagination
+        translations={{
+          of: labels.general("of", "of"),
+          results: labels.general("results", "results"),
+          pages: labels.general("pages", "pages"),
+          prev: labels.general("prev", "Prev"),
+          next: labels.general("next", "Next"),
+        }}
+      />
 
       {actionState.toolbar.length > 0 && (
         <DataTableBulkActionsToolbar table={table} entityName={id}>

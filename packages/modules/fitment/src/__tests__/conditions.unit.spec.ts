@@ -4,8 +4,10 @@ import {
   summarizeConditions,
   validateTree,
   conditionAttribute,
+  englishConditionTexts,
   provideConditionAttributes,
   type ConditionAttribute,
+  type ConditionTexts,
   type ConditionGroupInput,
 } from "../conditions";
 
@@ -122,5 +124,28 @@ describe("summarizeConditions", () => {
       summarizeConditions(tree({ conditions: [{ code: "engine.power_kw", operator: "between", value: "", value_to: null }] })),
     ).toBe("Power is between … and …");
     expect(summarizeConditions(null)).toBeNull();
+  });
+});
+
+describe("translated texts", () => {
+  const fr: ConditionTexts = {
+    attribute: (a) => ({ drive: "Transmission", "engine.power_kw": "Puissance", "engine.fuel": "Carburant" })[a.code] ?? a.label,
+    value: (a, v) => ({ FWD: "Traction avant", DIESEL: "Gazole" })[v] ?? englishConditionTexts.value(a, v),
+    operator: (op) => ({ eq: "est", between: "entre", gt: "supérieur à" })[op as string] ?? op,
+    message: (key, vars) =>
+      key === "and" ? "et" : key === "root" ? "Conditions" : key === "badOperator" ? `${vars!.attr} : « ${vars!.op} » n'est pas applicable.` : key,
+  };
+
+  it("summarizes and validates in the given language", () => {
+    const t = tree({
+      conditions: [
+        { code: "drive", operator: "eq", value: "FWD" },
+        { code: "engine.power_kw", operator: "between", value: 80, value_to: 110 },
+      ],
+    });
+    expect(summarizeConditions(t, fr)).toBe("Transmission est traction avant et Puissance entre 80 et 110 kW");
+    expect(validateTree(tree({ conditions: [{ code: "drive", operator: "gt", value: "FWD" }] }), fr)).toEqual([
+      "Conditions › #1: Transmission : « supérieur à » n'est pas applicable.",
+    ]);
   });
 });

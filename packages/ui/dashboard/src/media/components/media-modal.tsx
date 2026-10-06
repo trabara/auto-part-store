@@ -197,9 +197,9 @@ export const MediaModal = ({
       queryClient.invalidateQueries({ queryKey: ["medias", id] });
       setOpen(false);
       resetModalState();
-      toast.success("Category media saved successfully");
+      toast.success(t("erp.ui.saved", { defaultValue: "Saved" }));
     } catch (error) {
-      toast.error("Failed to save changes");
+      toast.error(t("erp.ui.saveFailed", { defaultValue: "Failed to save" }));
     }
   };
 

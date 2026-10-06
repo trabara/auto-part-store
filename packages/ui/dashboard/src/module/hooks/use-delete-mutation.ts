@@ -5,6 +5,7 @@ import {
   getErrorMessage,
   parseApiError,
 } from "../utils/api-error";
+import { useLabels } from "./use-labels";
 
 /**
  * Configuration for delete mutations
@@ -43,11 +44,12 @@ export interface UseDeleteMutationReturn {
  */
 export function useDeleteMutation({
   invalidateKeys,
-  successMessage = "Item deleted successfully",
-  errorMessage = "Failed to delete item",
+  successMessage,
+  errorMessage,
   deleteFn,
   mutationOptions,
 }: DeleteMutationConfig): UseDeleteMutationReturn {
+  const labels = useLabels();
   const prompt = usePrompt();
 
   const mutation = useGenericMutation({
@@ -61,7 +63,7 @@ export function useDeleteMutation({
     },
     invalidateKeys: invalidateKeys.map((k) => [k]) as (string | number)[][],
     onSuccess: () => {
-      toast.success(successMessage);
+      toast.success(successMessage ?? labels.ui("deleted"));
     },
     options: {
       onError: (error: Error) => {
@@ -70,11 +72,11 @@ export function useDeleteMutation({
         const description = getErrorMessage(error);
 
         if (category === "AUTH") {
-          toast.error("Access denied", { description });
+          toast.error(labels.ui("accessDenied"), { description });
         } else if (category === "NOT_FOUND") {
-          toast.warning("Not found", { description });
+          toast.warning(labels.ui("notFound"), { description });
         } else {
-          toast.error(errorMessage, { description });
+          toast.error(errorMessage ?? labels.ui("deleteFailed"), { description });
         }
       },
       ...mutationOptions,
@@ -84,10 +86,10 @@ export function useDeleteMutation({
   return {
     mutateAsync: async (...ids: string[]) => {
       const confirmed = await prompt({
-        title: `Are you sure you want to delete ${ids.length} item(s)?`,
-        description: "This action cannot be undone.",
-        confirmText: "Delete",
-        cancelText: "Cancel",
+        title: labels.ui("deleteConfirm", { count: ids.length }),
+        description: labels.ui("cannotUndo"),
+        confirmText: labels.action("delete"),
+        cancelText: labels.action("cancel"),
       });
       if (!confirmed) {
         return;

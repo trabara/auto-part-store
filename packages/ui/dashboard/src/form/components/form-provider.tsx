@@ -9,6 +9,8 @@ import {
   type Path,
 } from "react-hook-form";
 import { getFormItemClass, getFormUI } from "../registry";
+import { translateOr } from "../registry/translation";
+import { REQUIRED_MESSAGE } from "../utils/form";
 import { clx } from "@medusajs/ui";
 
 // =============================================================================
@@ -174,5 +176,6 @@ export function FormMessage({
     return null;
   }
 
-  return <ErrorMessage message={message} />;
+  const text = message === REQUIRED_MESSAGE ? translateOr("erp.ui.required", message) : message;
+  return <ErrorMessage message={text} />;
 }

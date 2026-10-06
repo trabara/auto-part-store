@@ -1,4 +1,4 @@
-import { defineTranslations, humanizeValue, i18nKeys, toAdminI18n, type SameShape } from "./i18n";
+import { COMMON_MESSAGES, defineTranslations, humanizeValue, i18nKeys, toAdminI18n, type SameShape } from "./i18n";
 
 const en = {
   name: "Vehicles",
@@ -32,7 +32,10 @@ describe("toAdminI18n", () => {
     expect(resources.fr.translation).toEqual({
       modules: { vehicles: { name: "Véhicules", features: { vehicle_make: "Marques" } }, parts: { name: "Pièces" } },
       entities: fr.entities,
-      erp: { fields: expect.objectContaining({ created_at: "Créé le" }) },
+      erp: {
+        fields: expect.objectContaining({ created_at: "Créé le" }),
+        ui: expect.objectContaining({ createEntity: "Créer : {{name}}" }),
+      },
     });
     expect(Object.keys(resources)).toEqual(["en", "fr", "ar"]);
   });
@@ -56,5 +59,12 @@ describe("keys", () => {
     expect(humanizeValue("PLUG_IN_HYBRID")).toBe("Plug in hybrid");
     expect(humanizeValue("SUV")).toBe("SUV");
     expect(humanizeValue("FWD")).toBe("FWD");
+  });
+});
+
+describe("COMMON_MESSAGES", () => {
+  it("translates every UI message in every locale", () => {
+    const keys = Object.keys(COMMON_MESSAGES.en.ui).sort();
+    for (const locale of ["fr", "ar"] as const) expect(Object.keys(COMMON_MESSAGES[locale].ui).sort()).toEqual(keys);
   });
 });

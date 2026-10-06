@@ -1,3 +1,5 @@
+import { i18nKeys } from "@repo/framework/core";
+import i18n from "../../admin/i18n";
 import { conditionAttribute, conditionAttributes } from "@repo/module-fitment/conditions";
 import { registerVehicleConditions, VEHICLE_ATTRIBUTES } from "../vehicle-attributes";
 
@@ -24,5 +26,24 @@ describe("vehicle attribute catalog", () => {
     registerVehicleConditions();
     expect(conditionAttributes()).toBe(VEHICLE_ATTRIBUTES);
     expect(conditionAttribute("engine.fuel")?.label).toBe("Fuel");
+  });
+});
+
+describe("vehicle attribute translations", () => {
+  const resources = i18n.en.translation as Record<string, any>;
+  const lookup = (key: string) => key.split(".").reduce<any>((node, k) => node?.[k], resources);
+
+  it("has an English label (matching the catalog) and a group for every attribute", () => {
+    for (const a of VEHICLE_ATTRIBUTES) {
+      expect([a.code, lookup(a.i18n!.label!)]).toEqual([a.code, a.label]);
+      expect([a.code, lookup(a.i18n!.group!)]).toEqual([a.code, a.group]);
+    }
+  });
+
+  it("points enum attributes at the vehicle module's value labels", () => {
+    for (const a of VEHICLE_ATTRIBUTES.filter((x) => x.data_type === "enum")) {
+      const src = a.i18n!.values!;
+      for (const v of a.values!) expect([a.code, typeof lookup(i18nKeys.value(src.entity, src.field, v.value))]).toEqual([a.code, "string"]);
+    }
   });
 });

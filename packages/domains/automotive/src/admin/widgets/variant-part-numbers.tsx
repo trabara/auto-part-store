@@ -9,9 +9,11 @@ import { useSdk } from "@repo/dashboard/common";
 import { EntityPanel, Module, entityUrl } from "@repo/dashboard/module";
 import { partsAdmin as parts } from "@repo/module-parts/admin";
 import { Brand } from "@repo/module-parts/entities";
+import { useDomainText } from "../use-domain-text";
 
 function VariantBrand({ variant }: { variant: AdminProductVariant }) {
   const sdk = useSdk();
+  const text = useDomainText();
   const valueIds = (variant.options ?? []).map((o: any) => o.id).filter(Boolean) as string[];
   const { data: brand } = useQuery({
     queryKey: [Brand.modelName, "variant", variant.id, valueIds],
@@ -20,38 +22,47 @@ function VariantBrand({ variant }: { variant: AdminProductVariant }) {
       sdk.client
         .fetch<{ data: Record<string, any>[] }>(entityUrl(parts, Brand), {
           signal,
-          query: { option_value_id: valueIds, fields: "id,name,logo,kind", limit: 1 },
+          query: {
+            option_value_id: valueIds,
+            fields: "id,name,logo,kind",
+            limit: 1,
+          },
         })
         .then((r) => r.data[0] ?? null),
   });
   if (!brand) {
     return (
       <Text size="small" className="text-ui-fg-muted">
-        No brand
+        {text("widgets.partNumbers.noBrand")}
       </Text>
     );
   }
   return (
     <div className="flex items-center gap-x-2">
-      {brand.logo && (
-        <img src={brand.logo} alt="" style={{ width: 24, height: 24, objectFit: "contain" }} />
-      )}
+      {brand.logo && <img src={brand.logo} alt="" style={{ width: 24, height: 24, objectFit: "contain" }} />}
       <Badge size="2xsmall">{brand.name}</Badge>
     </div>
+  );
+}
+
+function VariantPartNumbers({ variant }: { variant: AdminProductVariant }) {
+  const text = useDomainText();
+  return (
+    <EntityPanel
+      module={parts}
+      feature={parts.features.part_number}
+      parent={{ field: "variant_id", value: variant.id }}
+      title={text("widgets.partNumbers.title")}
+      description={text("widgets.partNumbers.description")}
+      aside={<VariantBrand variant={variant} />}
+    />
   );
 }
 
 export default function VariantPartNumbersWidget({ data }: DetailWidgetProps<AdminProductVariant>) {
   return (
     <Module module={parts}>
-      <EntityPanel
-        module={parts}
-        feature={parts.features.part_number}
-        parent={{ field: "variant_id", value: data.id }}
-        title="Part numbers"
-        description="Its own number, OE references, competitor and former numbers."
-        aside={<VariantBrand variant={data} />}
-      />
+      <VariantPartNumbers variant={data} />
     </Module>
   );
 }

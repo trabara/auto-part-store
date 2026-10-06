@@ -5,6 +5,7 @@
 export { fields } from "./fields"
 export {
   defineEntity,
+  defaultLabelContext,
   entityLabel,
   withDerived,
   getEntity,
@@ -33,6 +34,7 @@ export type {
   EntityExternal,
   EntityMessages,
   EntityLabel,
+  LabelContext,
   UniqueMessage,
   EntityDmlSchema,
   EntityModel,

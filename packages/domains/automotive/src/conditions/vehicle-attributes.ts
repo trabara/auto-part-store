@@ -2,6 +2,7 @@
 // catalog for the fitment module's condition port. Isomorphic (the admin
 // editor and the server register the same list).
 import { z } from "@medusajs/framework/zod";
+import { i18nKeys } from "@repo/framework/core";
 import {
   attributesFromSchema,
   describeAttribute,
@@ -57,6 +58,23 @@ const model = (code: string, field: z.ZodTypeAny) =>
 
 const vehicle = attributesFromSchema(Vehicle.schema, { group: "Vehicle", meta: META, valueLabel: vehicleValueLabel });
 
+/** Entity fields whose enum value translations an attribute uses. */
+const VALUE_SOURCES: Record<string, { entity: string; field: string }> = {
+  ...Object.fromEntries(["body_style", "drive", "transmission"].map((f) => [f, { entity: "Vehicle", field: f }])),
+  ...Object.fromEntries(["fuel", "layout"].map((f) => [`engine.${f}`, { entity: "VehicleEngine", field: f }])),
+  "generation.model.category": { entity: "VehicleModel", field: "category" },
+};
+
+/** Admin translation keys: the domain's messages (labels, groups), the vehicle module's (values). */
+const translated = (a: ConditionAttribute): ConditionAttribute => ({
+  ...a,
+  i18n: {
+    label: i18nKeys.message("automotive", `attributes.${a.code}`),
+    group: a.group ? i18nKeys.message("automotive", `attributeGroups.${a.group.toLowerCase()}`) : undefined,
+    values: VALUE_SOURCES[a.code],
+  },
+});
+
 /**
  * Every vehicle field a condition can test, generated from the vehicle schemas.
  * Drive first: the editor starts new conditions on the first attribute.
@@ -75,7 +93,7 @@ export const VEHICLE_ATTRIBUTES: readonly ConditionAttribute[] = [
   model("generation.model.name", z.string()),
   model("generation.model.category", VehicleModel.schema.shape.category),
   model("generation.model.make.name", z.string()),
-];
+].map(translated);
 
 /** Vehicle paths conditions read: the fields to load on the tested vehicle. */
 export const VEHICLE_ATTRIBUTE_PATHS: readonly string[] = VEHICLE_ATTRIBUTES.map((a) => a.code);

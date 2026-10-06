@@ -4,6 +4,7 @@ import { getZodShape } from "@repo/framework/utils";
 import { useCallback, useMemo, useState } from "react";
 import { UseFormReturn } from "react-hook-form";
 import { StepConfig } from "../types";
+import { useLabels } from "./use-labels";
 
 type UseWizardFormReturn<S extends z.ZodObject> = [
   {
@@ -21,6 +22,7 @@ export const useWizardForm = <S extends z.ZodObject>(
   steps: StepConfig<S>[] = [],
   onSuccess: (values: z.infer<S>) => void,
 ): UseWizardFormReturn<S> => {
+  const labels = useLabels();
   const [activeStep, setActiveStep] = useState(() => steps[0]?.id);
   const [allValues, setAllValues] = useState<Record<string, unknown>>({});
 
@@ -119,16 +121,14 @@ export const useWizardForm = <S extends z.ZodObject>(
 
         if (!finalValid.success) {
           setAllValues(updatedAllValues);
-          toast.error("Validation failed", {
-            description: "Please check all fields and try again.",
-          });
+          toast.error(labels.ui("validationFailed"), { description: labels.ui("checkFields") });
           return;
         }
 
         onSuccess(finalValid.data);
       }
     },
-    [currentStep, hasNextStep, nextStep, mergedSchema, allValues, onSuccess],
+    [currentStep, hasNextStep, nextStep, mergedSchema, allValues, onSuccess, labels],
   );
 
   return [

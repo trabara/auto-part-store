@@ -129,8 +129,8 @@ export const Fitment = defineEntity("Fitment", {
       ...ProductVariant.label.fields.map((f) => `variant.${f}`),
       ...Vehicle.label.fields.map((f) => `vehicle.${f}`),
     ],
-    format: (f) =>
-      [f.variant && ProductVariant.label.format(f.variant), f.vehicle && Vehicle.label.format(f.vehicle)]
+    format: (f, ctx) =>
+      [f.variant && ProductVariant.label.format(f.variant, ctx), f.vehicle && Vehicle.label.format(f.vehicle, ctx)]
         .filter(Boolean)
         .join(" → "),
   },

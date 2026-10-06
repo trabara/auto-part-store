@@ -21,6 +21,11 @@ export type ConditionAttribute = {
   values?: { value: string; label: string }[];
   /** Picker grouping, e.g. "Engine". */
   group?: string;
+  /**
+   * Translation keys (admin): of the label and group, and the entity field
+   * whose enum value labels apply (`entities.<entity>.values.<field>.<value>`).
+   */
+  i18n?: { label?: string; group?: string; values?: { entity: string; field: string } };
 };
 
 /** Supplies the attributes conditions may test; registered by the domain. */
@@ -121,6 +126,46 @@ export const OPERATOR_LABELS: Record<ConditionOperator, string> = {
   not_in: "is none of",
 };
 
+/** Messages of validation and summaries (`{{var}}` placeholders). */
+export const CONDITION_MESSAGES = {
+  and: "and",
+  or: "or",
+  root: "Conditions",
+  group: "group {{n}}",
+  tooDeep: "groups can be nested {{max}} levels deep at most.",
+  unknownAttribute: "\"{{code}}\" is not a known attribute.",
+  badOperator: "{{attr}} can't use \"{{op}}\".",
+  needsValues: "{{attr}} needs at least one value.",
+  needsSingle: "{{attr}} needs a single value.",
+  needsValue: "{{attr}} needs a value.",
+  badValue: "{{value}} is not a valid {{attr}}.",
+  notNumber: "{{attr}} must be a number.",
+  needsUpper: "{{attr}} needs an upper bound.",
+  upperBelow: "the upper bound of {{attr}} is below the lower one.",
+};
+export type ConditionMessageKey = keyof typeof CONDITION_MESSAGES;
+
+/**
+ * Words of validation messages and summaries. The server uses English
+ * (`englishConditionTexts`); the admin passes the user's language.
+ */
+export interface ConditionTexts {
+  attribute(attr: ConditionAttribute): string;
+  value(attr: ConditionAttribute, value: string): string;
+  operator(op: ConditionOperator): string;
+  message(key: ConditionMessageKey, vars?: Record<string, string | number>): string;
+}
+
+const fill = (template: string, vars: Record<string, string | number> = {}) =>
+  template.replace(/\{\{(\w+)\}\}/g, (_, k) => String(vars[k] ?? ""));
+
+export const englishConditionTexts: ConditionTexts = {
+  attribute: (attr) => attr.label,
+  value: (attr, value) => attr.values?.find((v) => v.value === value)?.label ?? humanizeValue(value),
+  operator: (op) => OPERATOR_LABELS[op],
+  message: (key, vars) => fill(CONDITION_MESSAGES[key], vars),
+};
+
 export const isListOperator = (op: ConditionOperator) => op === "in" || op === "not_in";
 
 // ── Condition tree (admin editor ⇄ API) ───────────────────────────────────────
@@ -155,41 +200,43 @@ export const ConditionGroupSchema: z.ZodType<ConditionGroupInput> = z.lazy(() =>
 export const ReplaceConditionsSchema = z.object({ tree: ConditionGroupSchema.nullable() });
 
 /** Human-readable problems in a tree (empty when valid). */
-export function validateTree(tree: ConditionGroupInput, depth = 1, path = "Conditions"): string[] {
+export function validateTree(
+  tree: ConditionGroupInput,
+  texts: ConditionTexts = englishConditionTexts,
+  depth = 1,
+  path = texts.message("root"),
+): string[] {
+  const m = texts.message;
   const errors: string[] = [];
-  if (depth > MAX_GROUP_DEPTH) return [`${path}: groups can be nested ${MAX_GROUP_DEPTH} levels deep at most.`];
+  if (depth > MAX_GROUP_DEPTH) return [`${path}: ${m("tooDeep", { max: MAX_GROUP_DEPTH })}`];
   tree.conditions.forEach((c, i) => {
     const where = `${path} › #${i + 1}`;
+    const add = (key: ConditionMessageKey, vars: Record<string, string | number> = {}) =>
+      errors.push(`${where}: ${m(key, vars)}`);
     const attr = conditionAttribute(c.code);
-    if (!attr) return errors.push(`${where}: "${c.code}" is not a known attribute.`);
+    if (!attr) return add("unknownAttribute", { code: c.code });
+    const label = texts.attribute(attr);
     if (!OPERATORS_BY_TYPE[attr.data_type].includes(c.operator)) {
-      return errors.push(`${where}: ${attr.label} can't use "${OPERATOR_LABELS[c.operator]}".`);
+      return add("badOperator", { attr: label, op: texts.operator(c.operator) });
     }
     const values = Array.isArray(c.value) ? c.value : [c.value];
-    if (isListOperator(c.operator) && (!Array.isArray(c.value) || !c.value.length)) {
-      return errors.push(`${where}: ${attr.label} needs at least one value.`);
-    }
-    if (!isListOperator(c.operator) && Array.isArray(c.value)) {
-      return errors.push(`${where}: ${attr.label} needs a single value.`);
-    }
-    if (values.some((v) => v === "" || v == null)) return errors.push(`${where}: ${attr.label} needs a value.`);
+    if (isListOperator(c.operator) && (!Array.isArray(c.value) || !c.value.length)) return add("needsValues", { attr: label });
+    if (!isListOperator(c.operator) && Array.isArray(c.value)) return add("needsSingle", { attr: label });
+    if (values.some((v) => v === "" || v == null)) return add("needsValue", { attr: label });
     if (attr.data_type === "enum") {
       const allowed = new Set(attr.values!.map((v) => v.value));
       const bad = values.filter((v) => !allowed.has(String(v)));
-      if (bad.length) errors.push(`${where}: ${bad.join(", ")} is not a valid ${attr.label.toLowerCase()}.`);
+      if (bad.length) add("badValue", { value: bad.join(", "), attr: label.toLowerCase() });
     }
     if (attr.data_type === "number") {
-      if (values.some((v) => !Number.isFinite(Number(v)))) errors.push(`${where}: ${attr.label} must be a number.`);
+      if (values.some((v) => !Number.isFinite(Number(v)))) add("notNumber", { attr: label });
       if (c.operator === "between") {
-        if (c.value_to == null || !Number.isFinite(Number(c.value_to))) {
-          errors.push(`${where}: ${attr.label} needs an upper bound.`);
-        } else if (Number(c.value_to) < Number(c.value)) {
-          errors.push(`${where}: the upper bound of ${attr.label} is below the lower one.`);
-        }
+        if (c.value_to == null || !Number.isFinite(Number(c.value_to))) add("needsUpper", { attr: label });
+        else if (Number(c.value_to) < Number(c.value)) add("upperBelow", { attr: label });
       }
     }
   });
-  tree.groups.forEach((g, i) => errors.push(...validateTree(g, depth + 1, `${path} › group ${i + 1}`)));
+  tree.groups.forEach((g, i) => errors.push(...validateTree(g, texts, depth + 1, `${path} › ${m("group", { n: i + 1 })}`)));
   return errors;
 }
 
@@ -229,35 +276,37 @@ export function deserializeCondition(row: {
 
 // ── Summary ───────────────────────────────────────────────────────────────────
 
-const enumLabel = (attr: ConditionAttribute, value: string) =>
-  attr.values?.find((v) => v.value === value)?.label ?? humanizeValue(value);
-
-function describeValue(attr: ConditionAttribute | undefined, value: unknown) {
+function describeValue(texts: ConditionTexts, attr: ConditionAttribute | undefined, value: unknown, unit = true) {
   if (value === "" || value == null) return "…";
-  const text = attr?.data_type === "enum" ? enumLabel(attr, String(value)).toLowerCase() : String(value);
-  return attr?.unit ? `${text} ${attr.unit}` : text;
+  const text = attr?.data_type === "enum" ? texts.value(attr, String(value)).toLowerCase() : String(value);
+  return unit && attr?.unit ? `${text} ${attr.unit}` : text;
 }
 
-function describeCondition(c: ConditionInput): string {
+function describeCondition(texts: ConditionTexts, c: ConditionInput): string {
   const attr = conditionAttribute(c.code);
-  const label = attr?.label ?? c.code;
+  const label = attr ? texts.attribute(attr) : c.code;
+  const op = texts.operator(c.operator);
   if (c.operator === "between") {
-    return `${label} is between ${describeValue(undefined, c.value)} and ${describeValue(attr, c.value_to)}`;
+    return `${label} ${op} ${describeValue(texts, attr, c.value, false)} ${texts.message("and")} ${describeValue(texts, attr, c.value_to)}`;
   }
   if (isListOperator(c.operator)) {
-    const list = (c.value as unknown[]).map((v) => describeValue(attr, v));
-    return `${label} ${OPERATOR_LABELS[c.operator]} ${list.join(", ")}`;
+    const list = (c.value as unknown[]).map((v) => describeValue(texts, attr, v));
+    return `${label} ${op} ${list.join(", ")}`;
   }
-  return `${label} ${OPERATOR_LABELS[c.operator]} ${describeValue(attr, c.value)}`;
+  return `${label} ${op} ${describeValue(texts, attr, c.value)}`;
 }
 
 /** "Drive is front-wheel drive and (Fuel is diesel or Power is at least 100 kW)" */
-export function summarizeConditions(tree: ConditionGroupInput | null | undefined, nested = false): string | null {
+export function summarizeConditions(
+  tree: ConditionGroupInput | null | undefined,
+  texts: ConditionTexts = englishConditionTexts,
+  nested = false,
+): string | null {
   if (!hasConditions(tree)) return null;
   const parts = [
-    ...tree!.conditions.map(describeCondition),
-    ...tree!.groups.map((g) => summarizeConditions(g, true)).filter((s): s is string => !!s),
+    ...tree!.conditions.map((c) => describeCondition(texts, c)),
+    ...tree!.groups.map((g) => summarizeConditions(g, texts, true)).filter((s): s is string => !!s),
   ];
-  const text = parts.join(tree!.operator === "and" ? " and " : " or ");
+  const text = parts.join(` ${texts.message(tree!.operator)} `);
   return nested && parts.length > 1 ? `(${text})` : text;
 }

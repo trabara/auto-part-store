@@ -190,6 +190,20 @@ describe("labels", () => {
     expect(entityLabel(Vehicle, null)).toBe("")
   })
 
+  it("translate enum values and text through the label context", () => {
+    const Engine = defineEntity("Engine", {
+      schema: BaseSchema.extend({ fuel: z.enum(["DIESEL", "PLUG_IN_HYBRID"]), power: z.number() }),
+      label: {
+        fields: ["fuel", "power"],
+        format: (e, ctx) => `${ctx.value("Engine", "fuel", e.fuel).toLowerCase()} ${e.power} ${ctx.text("units.hp", "hp")}`,
+      },
+    })
+    expect(entityLabel(Engine, { id: "e1", fuel: "PLUG_IN_HYBRID", power: 90 })).toBe("plug in hybrid 90 hp")
+    const fr = { value: (_: string, __: string, v: string) => (v === "DIESEL" ? "Gazole" : v), text: () => "ch" }
+    expect(entityLabel(Engine, { id: "e1", fuel: "DIESEL", power: 90 }, fr)).toBe("gazole 90 ch")
+    expect(Engine.label.format({ fuel: "DIESEL", power: 90 })).toBe("diesel 90 hp")
+  })
+
   it("compute from related fields, which are allowed past the depth", () => {
     const Engine = defineEntity("Engine", {
       schema: BaseSchema.extend({ name: z.string(), power: z.number() }),

@@ -1,5 +1,6 @@
 import { z } from "@medusajs/framework/zod";
-import { defineEntity, fields, type InferEntity } from "@repo/framework/entity";
+import { i18nKeys } from "@repo/framework/core";
+import { defaultLabelContext, defineEntity, fields, type InferEntity, type LabelContext } from "@repo/framework/entity";
 import { BaseSchema } from "@repo/framework/utils";
 import "@repo/framework/medusa";
 
@@ -182,13 +183,18 @@ type EngineLabelRow = {
   code?: string | null;
 };
 
-/** "2.0 diesel I4 110 kW (150 hp) CJSA", "electric 150 kW (201 hp)" */
-export const engineLabel = (e: EngineLabelRow) =>
+/**
+ * "2.0 diesel I4 110 kW (150 hp) CJSA", "electric 150 kW (201 hp)"; `ctx`
+ * translates the fuel and the hp unit (French: "gazole … (150 ch)").
+ */
+export const engineLabel = (e: EngineLabelRow, ctx: LabelContext = defaultLabelContext) =>
   [
     e.displacement_cc ? (e.displacement_cc / 1000).toFixed(1) : "",
-    e.fuel ? e.fuel.toLowerCase().replace(/_/g, "-") : "",
+    e.fuel ? ctx.value("VehicleEngine", "fuel", e.fuel).toLowerCase() : "",
     e.layout && e.layout !== EngineLayout.ELECTRIC_MOTOR ? `${LAYOUT_PREFIX[e.layout]}${e.cylinders ?? ""}` : "",
-    e.power_kw != null ? `${e.power_kw} kW${e.power_hp != null ? ` (${e.power_hp} hp)` : ""}` : "",
+    e.power_kw != null
+      ? `${e.power_kw} kW${e.power_hp != null ? ` (${e.power_hp} ${ctx.text(i18nKeys.message("vehicles", "units.hp"), "hp")})` : ""}`
+      : "",
     e.code ?? "",
   ]
     .filter(Boolean)
@@ -267,10 +273,10 @@ export const Vehicle = defineEntity("Vehicle", {
       "generation.model.make.name",
       ...["displacement_cc", "fuel", "layout", "cylinders", "power_kw", "power_hp", "code"].map((f) => `engine.${f}`),
     ],
-    format: (v) => {
+    format: (v, ctx) => {
       const g = v.generation;
       const name = [g?.model?.make?.name, g?.model?.name, g?.name, v.trim].filter(Boolean).join(" ");
-      const engine = v.engine ? engineLabel(v.engine) : "";
+      const engine = v.engine ? engineLabel(v.engine, ctx) : "";
       return name ? [`${name} ${years(v)}`.trim(), engine].filter(Boolean).join(" · ") : "";
     },
   },

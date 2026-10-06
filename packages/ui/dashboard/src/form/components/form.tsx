@@ -21,6 +21,7 @@ import {
   getT,
 } from "../registry";
 
+import { translateOr } from "../registry/translation";
 import { FormField } from "./form-field-provider";
 import { FormFieldProvider, FormProvider } from "./form-provider";
 import { getZodFieldInfo, getZodShape } from "@repo/framework/utils";
@@ -314,7 +315,7 @@ export function Form<TSchema extends z.ZodObject, TResponse = unknown>({
             disabled={isDisabled}
             className={clx("medusa-form-submit-btn", options?.className)}
           >
-            {isSubmitting ? "Loading..." : (options?.children ?? t("submit"))}
+            {isSubmitting ? translateOr("erp.ui.loading", "Loading…") : (options?.children ?? translateOr("actions.save", "Save"))}
           </button>
         );
       }
@@ -325,7 +326,7 @@ export function Form<TSchema extends z.ZodObject, TResponse = unknown>({
           disabled={isDisabled}
           className={clx("medusa-form-submit-btn", options?.className)}
         >
-          {options?.children ?? t("submit")}
+          {options?.children ?? translateOr("actions.save", "Save")}
         </SubmitButton>
       );
     },

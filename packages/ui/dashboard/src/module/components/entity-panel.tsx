@@ -3,9 +3,8 @@ import { Button, Container, Drawer, Heading, IconButton, Table, Text } from "@me
 import { z } from "@medusajs/framework/zod";
 import { useQuery } from "@tanstack/react-query";
 import type { FeatureDef, ModuleDef } from "@repo/framework/core";
-import { entityLabel, isToOne, relationField } from "@repo/framework/entity";
+import { isToOne, relationField } from "@repo/framework/entity";
 import { useState, type ReactNode } from "react";
-import { useTranslation } from "react-i18next";
 import { useSdk } from "../../common/context";
 import { Form } from "../../form/components/form";
 import { useCreateMutation } from "../hooks/use-create-mutation";
@@ -62,7 +61,6 @@ export function EntityPanel({
   rowActions = [],
 }: EntityPanelProps) {
   const sdk = useSdk();
-  const { t } = useTranslation();
   const labels = useLabels();
   const entity = feature.entity;
   const name = labels.entity(entity);
@@ -84,8 +82,8 @@ export function EntityPanel({
 
   const create = useCreateMutation({
     invalidateKeys: [entity.modelName],
-    successMessage: `${name} added`,
-    errorMessage: `Failed to add ${name.toLowerCase()}`,
+    successMessage: labels.ui("added", { name }),
+    errorMessage: labels.ui("addFailed", { name }),
     createFn: (body) =>
       sdk.client.fetch(entityUrl(module, entity), {
         method: "POST",
@@ -94,15 +92,15 @@ export function EntityPanel({
   });
   const update = useUpdateMutation({
     invalidateKeys: [entity.modelName],
-    successMessage: `${name} updated`,
-    errorMessage: `Failed to update ${name.toLowerCase()}`,
+    successMessage: labels.ui("updated", { name }),
+    errorMessage: labels.ui("updateFailed", { name }),
     updateFn: (body) =>
       sdk.client.fetch(entityUrl(module, entity, (editing as Row).id), { method: "PUT", body }),
   });
   const deletion = useDeleteMutation({
     invalidateKeys: [entity.modelName],
-    successMessage: `${name} removed`,
-    errorMessage: `Failed to remove ${name.toLowerCase()}`,
+    successMessage: labels.ui("removed", { name }),
+    errorMessage: labels.ui("removeFailed", { name }),
     deleteFn: (id) => sdk.client.fetch(entityUrl(module, entity, id), { method: "DELETE" }),
   });
 
@@ -117,7 +115,7 @@ export function EntityPanel({
     Object.keys(createSchema.shape).map((key) => {
       const rel = relationByField.get(key);
       return rel
-        ? { key, label: labels.field(entity, rel.key, rel.label), render: (row) => entityLabel(rel.targetEntity!, row[rel.key]) || "—" }
+        ? { key, label: labels.field(entity, rel.key, rel.label), render: (row) => labels.record(rel.targetEntity!, row[rel.key]) || "—" }
         : { key, label: labels.field(entity, key) };
     });
 
@@ -138,14 +136,14 @@ export function EntityPanel({
         <div className="flex items-center gap-x-3">
           {aside}
           <Button size="small" variant="secondary" onClick={() => setEditing("new")}>
-            <Plus /> {t("common.add", "Add")}
+            <Plus /> {labels.action("add")}
           </Button>
         </div>
       </div>
 
       {rows.length === 0 ? (
         <Text size="small" className="text-ui-fg-subtle px-6 py-4">
-          {isLoading ? t("common.loading", "Loading…") : `No ${name.toLowerCase()} yet.`}
+          {isLoading ? labels.ui("loading") : labels.ui("empty")}
         </Text>
       ) : (
         <Table>
@@ -176,10 +174,22 @@ export function EntityPanel({
                       {action.icon}
                     </IconButton>
                   ))}
-                  <IconButton size="small" variant="transparent" onClick={() => setEditing(row)}>
+                  <IconButton
+                    size="small"
+                    variant="transparent"
+                    title={labels.action("edit")}
+                    aria-label={labels.action("edit")}
+                    onClick={() => setEditing(row)}
+                  >
                     <PencilSquare />
                   </IconButton>
-                  <IconButton size="small" variant="transparent" onClick={() => deletion.mutateAsync(row.id)}>
+                  <IconButton
+                    size="small"
+                    variant="transparent"
+                    title={labels.action("delete")}
+                    aria-label={labels.action("delete")}
+                    onClick={() => deletion.mutateAsync(row.id)}
+                  >
                     <Trash />
                   </IconButton>
                 </Table.Cell>
@@ -210,7 +220,7 @@ export function EntityPanel({
                   <Drawer.Header>
                     <Drawer.Title asChild>
                       <Heading level="h2">
-                        {isNew ? t("common.add", "Add") : t("common.edit", "Edit")} {name.toLowerCase()}
+                        {labels.ui(isNew ? "addEntity" : "editEntity", { name })}
                       </Heading>
                     </Drawer.Title>
                   </Drawer.Header>
@@ -219,9 +229,9 @@ export function EntityPanel({
                   </Drawer.Body>
                   <Drawer.Footer>
                     <Button variant="secondary" size="small" type="button" onClick={() => setEditing(null)}>
-                      {t("common.cancel", "Cancel")}
+                      {labels.action("cancel")}
                     </Button>
-                    {renderSubmitButton({ children: isNew ? t("common.add", "Add") : t("common.save", "Save") })}
+                    {renderSubmitButton({ children: isNew ? labels.action("add") : labels.action("save") })}
                   </Drawer.Footer>
                 </>
               )}

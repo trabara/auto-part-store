@@ -34,7 +34,6 @@ export function relationOverrides(
           value={(props.value as string | null | undefined) ?? null}
           onChange={props.onChange}
           clearable={rel.relation.options.nullable === true}
-          placeholder={`Select ${rel.label.toLowerCase()}`}
         />
       ),
     };

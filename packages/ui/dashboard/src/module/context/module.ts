@@ -1,10 +1,12 @@
-import type { ModuleDef } from "@repo/framework/core";
+import type { DetailSectionDef, ModuleDef } from "@repo/framework/core";
 import { createContext, useContext, useRef } from "react";
 
 export type ModuleContextValue<S = {}> = {
   module: ModuleDef;
   state: S;
   setState: (next: S) => void;
+  /** Detail-page panels by feature key, supplied by the admin page (UI code). */
+  sections?: Readonly<Record<string, readonly DetailSectionDef[]>>;
 };
 
 export const ModuleContext = createContext<ModuleContextValue<any> | null>(null);

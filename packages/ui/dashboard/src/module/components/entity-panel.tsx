@@ -35,6 +35,8 @@ export type EntityPanelProps = {
   columns?: PanelColumn[];
   /** Rendered next to the title (e.g. the parent's brand). */
   aside?: ReactNode;
+  /** Extra row buttons, before edit / delete. */
+  rowActions?: { id: string; label: string; icon: ReactNode; onClick: (row: Row) => void }[];
 };
 
 const omit = (schema: z.ZodObject<any>, field: string) =>
@@ -49,7 +51,16 @@ const ordered = (feature: FeatureDef, schema: z.ZodObject<any>) =>
  * numbers), listed with add / edit / delete in drawers. For admin widgets;
  * render inside `<Module module={…}>`.
  */
-export function EntityPanel({ module, feature, parent, title, description, columns, aside }: EntityPanelProps) {
+export function EntityPanel({
+  module,
+  feature,
+  parent,
+  title,
+  description,
+  columns,
+  aside,
+  rowActions = [],
+}: EntityPanelProps) {
   const sdk = useSdk();
   const { t } = useTranslation();
   const entity = feature.entity;
@@ -151,7 +162,19 @@ export function EntityPanel({ module, feature, parent, title, description, colum
                 {shown.map((c) => (
                   <Table.Cell key={c.key}>{c.render ? c.render(row) : (row[c.key] ?? "—")}</Table.Cell>
                 ))}
-                <Table.Cell className="text-right">
+                <Table.Cell className="whitespace-nowrap text-right">
+                  {rowActions.map((action) => (
+                    <IconButton
+                      key={action.id}
+                      size="small"
+                      variant="transparent"
+                      title={action.label}
+                      aria-label={action.label}
+                      onClick={() => action.onClick(row)}
+                    >
+                      {action.icon}
+                    </IconButton>
+                  ))}
                   <IconButton size="small" variant="transparent" onClick={() => setEditing(row)}>
                     <PencilSquare />
                   </IconButton>

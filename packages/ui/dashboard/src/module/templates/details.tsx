@@ -7,6 +7,7 @@ import type { FeatureDef } from "@repo/framework/core";
 import { entityLabel, foreignKeyName, isToOne, type RelationDef } from "@repo/framework/entity";
 import { getFieldUi } from "@repo/framework/utils";
 import { startCase } from "lodash";
+import { Fragment, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useParams } from "react-router-dom";
 import { useSdk } from "../../common/context";
@@ -14,6 +15,7 @@ import { DataTable } from "../components/data-table";
 import { DetailsSection, type Attribute } from "../components/details-section";
 import { ImageThumbnail } from "../components/image-field";
 import { fieldUiOverrides } from "../helpers/field-ui-overrides";
+import { useModule } from "../context/module";
 import { useDeleteMutation } from "../hooks/use-delete-mutation";
 import { entityFields, toQueryFilters } from "../utils/query";
 import {
@@ -101,12 +103,13 @@ function RelationTable({ parentId, relation }: { parentId: string; relation: Res
  */
 export function TemplateDetail({ outlet }: RouteRenderContext) {
   const { module, feature, entity } = useFeature();
+  const { sections } = useModule();
   const { id = "" } = useParams();
   const sdk = useSdk();
   const navigate = useNavigate();
   const { t } = useTranslation();
 
-  const { data: record, isLoading } = useQuery({
+  const { data: record, isLoading, refetch } = useQuery({
     queryKey: [entity.modelName, id],
     queryFn: ({ signal }) =>
       sdk.client
@@ -149,7 +152,15 @@ export function TemplateDetail({ outlet }: RouteRenderContext) {
       <div className="flex w-full flex-col gap-y-3">
         <DetailsSection
           title={title}
-          attributes={scalarAttributes(entity, record)}
+          attributes={scalarAttributes(
+            entity,
+            record,
+            new Set(
+              Object.entries((feature.ui.overrides ?? {}) as Record<string, { hideInDetails?: boolean }>)
+                .filter(([, o]) => o?.hideInDetails)
+                .map(([key]) => key),
+            ),
+          )}
           actions={[
             {
               id: "edit",
@@ -165,6 +176,11 @@ export function TemplateDetail({ outlet }: RouteRenderContext) {
             },
           ]}
         />
+        {[...(feature.ui.sections ?? []), ...(sections?.[feature.key] ?? [])].map((section) => (
+          <Fragment key={section.id}>
+            {section.render({ record, refresh: () => refetch() }) as ReactNode}
+          </Fragment>
+        ))}
         {toMany.map((relation) => (
           <RelationTable key={relation.key} parentId={id} relation={relation} />
         ))}

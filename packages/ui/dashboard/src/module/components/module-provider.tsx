@@ -1,5 +1,5 @@
 import type Medusa from "@medusajs/js-sdk";
-import type { ModuleDef } from "@repo/framework/core";
+import type { DetailSectionDef, ModuleDef } from "@repo/framework/core";
 import {
   Button,
   DatePicker,
@@ -25,6 +25,11 @@ interface ModuleProps {
   /** Medusa client; defaults to the shared admin client (`adminSdk()`). */
   sdk?: Medusa;
   module: ModuleDef;
+  /**
+   * Extra detail-page panels by feature key. Given here (by the admin page)
+   * rather than in the module definition, which must stay free of UI code.
+   */
+  sections?: Readonly<Record<string, readonly DetailSectionDef[]>>;
   children?: React.ReactNode;
 }
 
@@ -35,7 +40,7 @@ interface ModuleProps {
  * QueryClientProvider is in scope (which is not guaranteed for plugin routes
  * served from a pre-built bundle).
  */
-function Module({ children, sdk, module }: ModuleProps) {
+function Module({ children, sdk, module, sections }: ModuleProps) {
   const queryClientRef = useRef<QueryClient | null>(null);
   if (!queryClientRef.current) {
     queryClientRef.current = new QueryClient();
@@ -139,7 +144,7 @@ function Module({ children, sdk, module }: ModuleProps) {
   return (
     <SdkContext.Provider value={sdk ?? adminSdk()}>
       <QueryClientProvider client={queryClientRef.current}>
-        <ModuleContext.Provider value={{ module, state, setState }}>
+        <ModuleContext.Provider value={{ module, state, setState, sections }}>
           <TooltipProvider>{children}</TooltipProvider>
           <Toaster position="top-right" />
         </ModuleContext.Provider>

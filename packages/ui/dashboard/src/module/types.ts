@@ -48,6 +48,8 @@ export type CellOverrides<T> = {
 
 export interface FilterFieldOverride extends BaseFieldConfig {
   isFiltrable?: boolean;
+  /** Leave the field out of the detail page's attributes (shown elsewhere). */
+  hideInDetails?: boolean;
 }
 
 export type FilterFieldOverrides<T> = {

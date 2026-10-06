@@ -106,6 +106,17 @@ export interface FeatureUi {
    * `FeatureFieldOverrides`).
    */
   readonly overrides?: Readonly<Record<string, object>>;
+  /** Extra panels on the detail page, below the record's own fields. */
+  readonly sections?: readonly DetailSectionDef[];
+}
+
+/**
+ * A detail-page panel contributed by a plugin. `render` returns a React
+ * node (opaque to core); `refresh` refetches the record.
+ */
+export interface DetailSectionDef {
+  readonly id: string;
+  readonly render: (ctx: { record: Record<string, any>; refresh: () => void }) => unknown;
 }
 
 /* ==========================================================================
@@ -273,6 +284,7 @@ export interface CrudOptions<E extends AnyEntity> {
     fields: readonly (keyof E["dto"]["create"]["shape"] & string)[];
   })[];
   overrides?: FeatureUi["overrides"];
+  sections?: FeatureUi["sections"];
   relations?: FeatureRelationsUi<E>;
 }
 
@@ -440,7 +452,7 @@ function createCrudFactory<M extends AnyModule>(mod: M): CrudFactory {
     return feature({
       entity,
       relations: options.relations,
-      ui: { label: options.label, steps: options.steps, overrides: options.overrides },
+      ui: { label: options.label, steps: options.steps, overrides: options.overrides, sections: options.sections },
       routes: (f) => [
         route(f, {
           path: list,

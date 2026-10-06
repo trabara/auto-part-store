@@ -1,6 +1,7 @@
 // Vehicle module rules that span rows, run inside the framework's workflows.
 import { MedusaError } from "@medusajs/framework/utils";
 import { onEntity, type HookContext } from "@repo/framework/entity/server";
+import { FITMENT_MODULE } from "../fitment/constants";
 import { VEHICLE_MODULE } from "./constants";
 
 const vehicles = (ctx: HookContext) => ctx.container.resolve<any>(VEHICLE_MODULE);
@@ -61,4 +62,23 @@ const restoreDefaults = async ({ cleared }: { cleared: string[] }, ctx: HookCont
 onEntity("CustomerVehicle", {
   created: { run: async ({ records }, ctx) => keepSingleDefault(ctx, records), compensate: restoreDefaults },
   updated: { run: async ({ records }, ctx) => keepSingleDefault(ctx, records), compensate: restoreDefaults },
+});
+
+// Deleting vehicles soft-deletes what points at them: fitments (fitment
+// module, id column) and garage entries. Restored if the delete rolls back.
+onEntity("Vehicle", {
+  deleted: {
+    async run({ ids }, ctx) {
+      const fitmentSvc = ctx.container.resolve<any>(FITMENT_MODULE);
+      const fitments: { id: string }[] = await fitmentSvc.listFitments({ vehicle_id: ids }, { select: ["id"] });
+      const garage: { id: string }[] = await vehicles(ctx).listCustomerVehicles({ vehicle_id: ids }, { select: ["id"] });
+      if (fitments.length) await fitmentSvc.softDeleteFitments(fitments.map((f) => f.id));
+      if (garage.length) await vehicles(ctx).softDeleteCustomerVehicles(garage.map((g) => g.id));
+      return { fitments: fitments.map((f) => f.id), garage: garage.map((g) => g.id) };
+    },
+    async compensate({ fitments, garage }, ctx) {
+      if (fitments.length) await ctx.container.resolve<any>(FITMENT_MODULE).restoreFitments(fitments);
+      if (garage.length) await vehicles(ctx).restoreCustomerVehicles(garage);
+    },
+  },
 });

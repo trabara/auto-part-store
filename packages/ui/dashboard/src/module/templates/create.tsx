@@ -7,6 +7,8 @@ import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { useSdk } from "../../common/context";
 import { Form } from "../../form/components/form";
+import { initializeDefaultValues } from "../../form/utils/form";
+import { getZodShape } from "@repo/framework/utils";
 import { fieldUiOverrides } from "../helpers/field-ui-overrides";
 import { relationOverrides } from "../helpers/relation-overrides";
 import { useCreateMutation } from "../hooks/use-create-mutation";
@@ -38,6 +40,12 @@ export function TemplateCreate(_: RouteRenderContext) {
     [module, feature, schema],
   );
 
+  // Every step's defaults, given up front: the form starts on step 1's schema.
+  const defaultValues = useMemo(
+    () => initializeDefaultValues(getZodShape(schema), undefined, overrides),
+    [schema, overrides],
+  );
+
   const steps = useMemo<StepConfig<any>[]>(
     () =>
       (feature.ui.steps ?? []).map((step) => ({
@@ -58,10 +66,17 @@ export function TemplateCreate(_: RouteRenderContext) {
 
   const close = () => navigate(featurePath(feature, "list")!, { replace: true });
 
-  const [wizard, wizardAction] = useWizardForm(steps, async (values) => {
-    await create.mutateAsync(values);
-    close();
-  });
+  // The mutation shows the error toast; a failed create keeps the modal open.
+  const submit = async (values: any) => {
+    try {
+      await create.mutateAsync(values);
+      close();
+    } catch {
+      // handled by the mutation's error toast
+    }
+  };
+
+  const [wizard, wizardAction] = useWizardForm(steps, submit);
 
   const isWizard = steps.length > 0;
   const activeSchema = isWizard ? wizard.schema : schema;
@@ -71,14 +86,13 @@ export function TemplateCreate(_: RouteRenderContext) {
       await wizardAction.handleSubmit(values);
       return;
     }
-    await create.mutateAsync(values);
-    close();
+    await submit(values);
   };
 
   return (
     <FocusModal open onOpenChange={close}>
       <FocusModal.Content>
-        <Form schema={activeSchema as any} overrides={overrides} onSubmit={handleSubmit}>
+        <Form schema={activeSchema as any} defaultValues={defaultValues as any} overrides={overrides} onSubmit={handleSubmit}>
           {({ renderField, renderSubmitButton, form }, fieldKeys) => {
             const footer = (submitLabel: React.ReactNode, disabled?: boolean) => (
               <FocusModal.Footer>

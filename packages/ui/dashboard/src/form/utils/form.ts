@@ -152,8 +152,31 @@ export function createZodResolver(schema: z.ZodTypeAny) {
   const resolve = zodResolver(schema as any);
   const shape = getZodShape(schema);
   // Blank optional fields validate (and submit) as null, not "".
-  return ((values: FieldValues, context: unknown, options: any) =>
-    resolve(emptyStringsToNull(values, shape), context, options)) as typeof resolve;
+  return (async (values: FieldValues, context: unknown, options: any) => {
+    const prepared = emptyStringsToNull(values, shape);
+    const result = await resolve(prepared, context, options);
+    return { ...result, errors: humanizeErrors(result.errors, prepared) };
+  }) as typeof resolve;
+}
+
+// Zod's message for a missing value ("Invalid input: expected number, received null").
+const MISSING_VALUE = /^Invalid input: expected \w+, received (null|undefined|NaN)$/;
+
+const isEmpty = (v: unknown) => v === undefined || v === null || v === "";
+
+/**
+ * Zod's technical messages for a missing value ("Invalid input: expected
+ * number, received null", "Invalid option: expected one of …" on an empty
+ * select) read as "Required".
+ */
+export function humanizeErrors<E extends Record<string, any>>(errors: E, values: Record<string, unknown> = {}): E {
+  const out: Record<string, any> = {};
+  for (const [key, error] of Object.entries(errors ?? {})) {
+    const message = error && typeof error.message === "string" ? error.message : "";
+    const missing = MISSING_VALUE.test(message) || (/^Invalid/.test(message) && key in values && isEmpty(values[key]));
+    out[key] = missing ? { ...error, message: "Required" } : error;
+  }
+  return out as E;
 }
 
 /**

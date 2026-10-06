@@ -6,6 +6,7 @@ import {
   resolveFieldType,
   emptyStringsToNull,
   createZodResolver,
+  humanizeErrors,
 } from "./form";
 
 // ---------------------------------------------------------------------------
@@ -251,5 +252,24 @@ describe("createZodResolver", () => {
     expect(ok.values).toEqual({ vehicle_id: "v1", position_id: null });
     const bad = await resolve({ vehicle_id: "", position_id: "" }, undefined, { fields: {}, shouldUseNativeValidation: false } as any);
     expect(Object.keys(bad.errors)).toEqual(["vehicle_id"]);
+  });
+});
+
+describe("humanizeErrors", () => {
+  it("reads missing values as Required and keeps other messages", async () => {
+    const resolve = createZodResolver(z.object({ year: z.number(), name: z.string().min(3) }));
+    const { errors } = await resolve({ year: null, name: "ab" }, undefined, { fields: {}, shouldUseNativeValidation: false } as any);
+    expect(errors.year?.message).toBe("Required");
+    expect(errors.name?.message).not.toBe("Required");
+    const select = await resolve({ year: 2020, name: "abc", ...{ kind: "" } }, undefined, { fields: {}, shouldUseNativeValidation: false } as any);
+    expect(select.errors).toEqual({});
+    const withEnum = createZodResolver(z.object({ kind: z.enum(["A", "B"]) }));
+    const empty = await withEnum({ kind: "" }, undefined, { fields: {}, shouldUseNativeValidation: false } as any);
+    expect(empty.errors.kind?.message).toBe("Required");
+    const wrong = await withEnum({ kind: "C" }, undefined, { fields: {}, shouldUseNativeValidation: false } as any);
+    expect(wrong.errors.kind?.message).not.toBe("Required");
+    expect(humanizeErrors({ a: { message: "Invalid input: expected string, received undefined", type: "x" } })).toEqual({
+      a: { message: "Required", type: "x" },
+    });
   });
 });

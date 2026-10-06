@@ -94,11 +94,17 @@ function Module({ children, sdk, module, sections }: ModuleProps) {
           <Select
             {...(rest as any)}
             {...componentProps}
-            value={(value as string) ?? ""}
+            // No value (not "") when empty, so Radix shows the placeholder and
+            // doesn't report "" back over the field's default.
+            value={value == null || value === "" ? undefined : String(value)}
             onValueChange={onChange}
           >
             <Select.Trigger aria-invalid={invalid}>
-              <Select.Value placeholder={placeholder} />
+              {/* Explicit label: Radix only knows item labels once opened, so a
+                  value set while closed (e.g. a seeded default) would show blank. */}
+              <Select.Value placeholder={placeholder}>
+                {options?.find((opt) => opt.value === value)?.label}
+              </Select.Value>
             </Select.Trigger>
             <Select.Content>
               {options?.map((opt) => (

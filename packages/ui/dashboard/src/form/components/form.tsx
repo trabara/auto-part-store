@@ -124,13 +124,14 @@ export function Form<TSchema extends z.ZodObject, TResponse = unknown>({
   // Form Initialization
   // ==========================================================================
 
+  // Provided values for fields outside the current schema are kept (wizards
+  // pass every step's defaults up front).
   const computedDefaultValues = useMemo(
     () =>
-      initializeDefaultValues<FormValues>(
-        schemaShape,
-        providedDefaultValues,
-        overrides ?? {},
-      ),
+      ({
+        ...(providedDefaultValues ?? {}),
+        ...initializeDefaultValues<FormValues>(schemaShape, providedDefaultValues, overrides ?? {}),
+      }) as typeof providedDefaultValues & ReturnType<typeof initializeDefaultValues<FormValues>>,
     [schemaShape, providedDefaultValues, overrides],
   );
 
@@ -138,6 +139,18 @@ export function Form<TSchema extends z.ZodObject, TResponse = unknown>({
     resolver: createZodResolver(schema),
     defaultValues: computedDefaultValues,
   });
+
+  // useForm reads defaultValues once: when the schema changes (wizard steps),
+  // seed the fields it adds with their defaults.
+  useEffect(() => {
+    for (const [key, value] of Object.entries(computedDefaultValues as Record<string, unknown>)) {
+      // "" counts as unset: some inputs (Radix Select) report "" on mount.
+      const current = form.getValues(key as Path<FormValues>) as unknown;
+      if (value !== undefined && (current === undefined || (current === "" && value !== ""))) {
+        form.setValue(key as Path<FormValues>, value as never, { shouldDirty: false });
+      }
+    }
+  }, [computedDefaultValues, form]);
 
   // ==========================================================================
   // Fetch Default Values (async)

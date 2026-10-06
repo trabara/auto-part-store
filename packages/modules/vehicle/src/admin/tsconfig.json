@@ -1,0 +1,5 @@
+{
+  "extends": "@repo/config/ts/admin.json",
+  "compilerOptions": { "types": ["vite/client"] },
+  "include": ["."]
+}

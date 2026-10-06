@@ -6,22 +6,28 @@
  * layer violation must fail the build.
  *
  *   apps            → anything
- *   plugin server   → framework, Medusa; never another plugin or a ui package
- *   plugin admin    → isomorphic framework entries, ui, admin-safe Medusa packages
+ *   domain server   → framework, modules, Medusa; never another domain or a ui package
+ *   domain admin    → isomorphic framework entries, module entries, ui, admin-safe Medusa packages
+ *   modules         → framework, Medusa, own files + declared dependencies'
+ *                     `entities` entry (manifest.ts); never a domain
+ *                     (see module-boundaries.js); admin/ as domain admin
  *   ui packages     → isomorphic framework entries, admin-safe Medusa packages
- *   framework       → Medusa, zod, lodash; never ui or plugins
- *   modules         → own files + declared dependencies' `entities` entry
- *                     (manifest.ts); never their domain (see module-boundaries.js)
+ *   framework       → Medusa, zod, lodash; never ui, modules or domains
  *
  * Type-only imports are always allowed (they are erased at build time).
  */
 import tseslint from "typescript-eslint";
 import { moduleBoundaries } from "./module-boundaries.js";
 
-const PLUGINS = {
-  group: ["@repo/*-plugin", "@repo/*-plugin/*", "@repo/plugin-*", "@repo/plugin-*/**"],
+const DOMAINS = {
+  group: ["@repo/domain-*", "@repo/domain-*/**", "@repo/plugin-*", "@repo/plugin-*/**"],
   message:
-    "Only apps may import plugins. Plugins cooperate through Medusa links, workflows and events, or share types via a contracts package.",
+    "Only apps may import domains (plugins). Domains cooperate through Medusa links, workflows and events, or share modules.",
+};
+
+const MODULES = {
+  group: ["@repo/module-*", "@repo/module-*/**"],
+  message: "The platform knows no module: modules build on the framework, not the other way round.",
 };
 
 const UI_PACKAGES = {
@@ -69,7 +75,7 @@ const PLUGIN_SERVER_FOLDERS = {
     "**/jobs/**",
   ],
   message:
-    "Admin code must not import the plugin's server code. Entity definitions (modules/*/entities) are isomorphic and allowed.",
+    "Admin code must not import server code. Entity definitions (`@repo/module-*/entities`) are isomorphic and allowed.",
 };
 
 /** Relative paths into the framework's server-only modules, from its isomorphic files. */
@@ -127,10 +133,10 @@ export const layers = [
     linterOptions: { noInlineConfig: true, reportUnusedDisableDirectives: "off" },
   },
 
-  // framework: never UI or plugins
+  // framework: never UI, modules or domains
   {
     files: ["packages/framework/src/**"],
-    rules: restrict(UI_PACKAGES, PLUGINS),
+    rules: restrict(UI_PACKAGES, DOMAINS, MODULES),
   },
   // framework isomorphic entries: additionally no server modules
   {
@@ -141,29 +147,30 @@ export const layers = [
       "packages/framework/src/entity/{index,define-entity,define-entities,relations,types}.ts",
       "packages/framework/src/medusa/**",
     ],
-    rules: restrict(UI_PACKAGES, PLUGINS, FRAMEWORK_SERVER_MODULES, MEDUSA_SERVER_PACKAGES),
+    rules: restrict(UI_PACKAGES, DOMAINS, MODULES, FRAMEWORK_SERVER_MODULES, MEDUSA_SERVER_PACKAGES),
   },
 
   // ui packages: isomorphic framework entries, admin-safe Medusa
   {
     files: ["packages/ui/*/src/**"],
-    rules: restrict(PLUGINS, FRAMEWORK_SERVER_ENTRIES, MEDUSA_SERVER_PACKAGES),
+    rules: restrict(DOMAINS, FRAMEWORK_SERVER_ENTRIES, MEDUSA_SERVER_PACKAGES),
   },
 
-  // plugins (server side): no other plugin, no UI packages
+  // domains and modules (server side): no domain, no UI packages
   {
-    files: ["packages/plugins/*/src/**"],
-    rules: restrict(PLUGINS, UI_PACKAGES),
+    files: ["packages/domains/*/src/**", "packages/modules/*/src/**"],
+    ignores: ["packages/domains/*/src/admin/**", "packages/modules/*/src/admin/**"],
+    rules: restrict(DOMAINS, UI_PACKAGES),
   },
-  // plugin admin (domain admin and each module's admin/): no other plugin, no server code
+  // admin code (domain admin, each module's admin/): no domain, no server code
   {
-    files: ["packages/plugins/*/src/admin/**", "packages/plugins/*/src/modules/*/admin/**"],
-    rules: restrict(PLUGINS, FRAMEWORK_SERVER_ENTRIES, MEDUSA_SERVER_PACKAGES, PLUGIN_SERVER_FOLDERS),
+    files: ["packages/domains/*/src/admin/**", "packages/modules/*/src/admin/**"],
+    rules: restrict(DOMAINS, FRAMEWORK_SERVER_ENTRIES, MEDUSA_SERVER_PACKAGES, PLUGIN_SERVER_FOLDERS),
   },
 
   // reusable modules: own files + declared dependencies' entities only
   {
-    files: ["packages/plugins/*/src/modules/**", "packages/modules/*/src/**"],
+    files: ["packages/modules/*/src/**"],
     rules: { "layers/module-boundaries": "error" },
   },
 ];

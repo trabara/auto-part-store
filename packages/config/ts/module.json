@@ -1,0 +1,26 @@
+{
+  // Medusa module packages (packages/modules/*): CommonJS + declarations in
+  // dist/ (Medusa require()s the module and runs dist/migrations). Admin UI
+  // is not built: domains bundle it from source (package exports `import`).
+  "compilerOptions": {
+    "target": "ES2021",
+    "module": "Node16",
+    "moduleResolution": "Node16",
+    "esModuleInterop": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "skipLibCheck": true,
+    "strictNullChecks": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "jsx": "react-jsx",
+    "rootDir": "${configDir}/src",
+    "outDir": "${configDir}/dist",
+    "types": ["node", "jest"]
+  },
+  "include": ["${configDir}/src/**/*"],
+  "exclude": ["${configDir}/node_modules", "${configDir}/dist"]
+}

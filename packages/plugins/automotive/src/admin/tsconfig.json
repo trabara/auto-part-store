@@ -1,7 +1,0 @@
-{
-  "extends": "@repo/config/ts/admin.json",
-  "include": [
-    ".",
-    "../modules/*/admin"
-  ]
-}

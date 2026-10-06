@@ -6,11 +6,17 @@ import {
   Modules,
 } from "@medusajs/framework/utils";
 import { medusaRouterExt } from "@repo/framework/admin/plugins";
+import { composeApplication } from "@repo/framework/core";
+import { automotiveDomain } from "@repo/domain-automotive/manifest";
 
 // Load environment variables based on the current NODE_ENV
 loadEnv(process.env.NODE_ENV || "development", process.cwd());
 
 const tenant = process.env.TENANT_NAME || "default";
+
+// This tenant's business capabilities: each domain (a Medusa plugin) brings
+// the reusable modules it builds on, registered once, dependencies first.
+const app = composeApplication({ domains: [automotiveDomain] });
 
 const coreModules = [
   {
@@ -146,13 +152,6 @@ export default defineConfig({
       cookieSecret: process.env.COOKIE_SECRET || "supersecret",
     },
   },
-  modules: [...coreModules],
-  plugins: [
-    {
-      resolve: "@repo/plugin-automotive",
-      options: {
-        // Plugin-specific options can be added here
-      },
-    },
-  ],
+  modules: [...coreModules, ...app.modules],
+  plugins: app.plugins,
 });

@@ -2,13 +2,15 @@
   "name": "@repo/scripts",
   "version": "0.0.1",
   "private": true,
-  "description": "Shared dev scripts for monorepo plugins",
+  "description": "Shared dev scripts for monorepo domains and modules",
   "type": "module",
   "files": [
     "src"
   ],
   "bin": {
-    "gen-plugin": "./src/gen-plugin.mjs",
+    "gen-domain": "./src/gen-domain.mjs",
+    "gen-module": "./src/gen-module.mjs",
+    "module-db-generate": "./src/module-db-generate.cjs",
     "plugin-dev-init": "./src/develop-init.mjs",
     "plugin-dev-watch": "./src/develop-watch.mjs"
   },

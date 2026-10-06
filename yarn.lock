@@ -6774,6 +6774,58 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@repo/domain-automotive@workspace:*, @repo/domain-automotive@workspace:packages/domains/automotive":
+  version: 0.0.0-use.local
+  resolution: "@repo/domain-automotive@workspace:packages/domains/automotive"
+  dependencies:
+    "@codemirror/lang-html": "npm:^6.4.11"
+    "@hookform/resolvers": "npm:^5.4.3"
+    "@medusajs/admin-bundler": "npm:2.21.2"
+    "@medusajs/admin-sdk": "npm:2.21.2"
+    "@medusajs/cli": "npm:2.21.2"
+    "@medusajs/framework": "npm:2.21.2"
+    "@medusajs/icons": "npm:2.21.2"
+    "@medusajs/medusa": "npm:2.21.2"
+    "@medusajs/test-utils": "npm:2.21.2"
+    "@medusajs/ui": "npm:4.0.25"
+    "@repo/config": "workspace:*"
+    "@repo/dashboard": "workspace:*"
+    "@repo/framework": "workspace:*"
+    "@repo/module-fitment": "workspace:*"
+    "@repo/module-parts": "workspace:*"
+    "@repo/module-vehicle": "workspace:*"
+    "@repo/scripts": "workspace:*"
+    "@swc/core": "npm:1.12.2"
+    "@swc/jest": "npm:^0.2.39"
+    "@tanstack/react-query": "npm:^5.101.4"
+    "@types/jest": "npm:^29.5.13"
+    "@types/node": "npm:^20.12.11"
+    "@types/react": "npm:^19.3.0"
+    "@types/react-dom": "npm:^19.2.0"
+    chokidar: "npm:^4.0.3"
+    date-fns: "npm:^4.4.0"
+    eslint: "npm:^9.39.5"
+    handlebars: "npm:^4.7.8"
+    jest: "npm:^29.7.0"
+    lodash: "npm:^4.18.1"
+    lucide-react: "npm:^0.563.0"
+    react: "npm:19.2.3"
+    react-dom: "npm:19.2.3"
+    react-hook-form: "npm:^7.83.0"
+    react-router-dom: "npm:6.30.6"
+    ts-node: "npm:^10.9.2"
+    typescript: "npm:^5.9.2"
+    vite: "npm:^5.4.14"
+  peerDependencies:
+    "@medusajs/admin-sdk": ~2.21.2
+    "@medusajs/framework": ~2.21.2
+    "@medusajs/icons": ~2.21.2
+    "@medusajs/medusa": ~2.21.2
+    "@medusajs/ui": ~4.0.25
+    react-router-dom: ">=6.4"
+  languageName: unknown
+  linkType: soft
+
 "@repo/framework@workspace:*, @repo/framework@workspace:packages/framework":
   version: 0.0.0-use.local
   resolution: "@repo/framework@workspace:packages/framework"
@@ -6810,19 +6862,50 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@repo/plugin-automotive@workspace:*, @repo/plugin-automotive@workspace:packages/plugins/automotive":
+"@repo/module-fitment@workspace:*, @repo/module-fitment@workspace:packages/modules/fitment":
   version: 0.0.0-use.local
-  resolution: "@repo/plugin-automotive@workspace:packages/plugins/automotive"
+  resolution: "@repo/module-fitment@workspace:packages/modules/fitment"
   dependencies:
-    "@codemirror/lang-html": "npm:^6.4.11"
-    "@hookform/resolvers": "npm:^5.4.3"
-    "@medusajs/admin-bundler": "npm:2.21.2"
     "@medusajs/admin-sdk": "npm:2.21.2"
     "@medusajs/cli": "npm:2.21.2"
     "@medusajs/framework": "npm:2.21.2"
     "@medusajs/icons": "npm:2.21.2"
     "@medusajs/medusa": "npm:2.21.2"
-    "@medusajs/test-utils": "npm:2.21.2"
+    "@medusajs/ui": "npm:4.0.25"
+    "@repo/config": "workspace:*"
+    "@repo/dashboard": "workspace:*"
+    "@repo/framework": "workspace:*"
+    "@repo/module-vehicle": "workspace:*"
+    "@repo/scripts": "workspace:*"
+    "@swc/core": "npm:1.12.2"
+    "@swc/jest": "npm:^0.2.39"
+    "@tanstack/react-query": "npm:^5.101.4"
+    "@types/jest": "npm:^29.5.13"
+    "@types/node": "npm:^20.12.11"
+    "@types/react": "npm:^19.3.0"
+    eslint: "npm:^9.39.5"
+    jest: "npm:^29.7.0"
+    lodash: "npm:^4.18.1"
+    react: "npm:19.2.3"
+    react-dom: "npm:19.2.3"
+    react-i18next: "npm:^15.7.4"
+    ts-node: "npm:^10.9.2"
+    typescript: "npm:^5.9.2"
+  peerDependencies:
+    "@medusajs/framework": ~2.21.2
+    "@medusajs/medusa": ~2.21.2
+  languageName: unknown
+  linkType: soft
+
+"@repo/module-parts@workspace:*, @repo/module-parts@workspace:packages/modules/parts":
+  version: 0.0.0-use.local
+  resolution: "@repo/module-parts@workspace:packages/modules/parts"
+  dependencies:
+    "@medusajs/admin-sdk": "npm:2.21.2"
+    "@medusajs/cli": "npm:2.21.2"
+    "@medusajs/framework": "npm:2.21.2"
+    "@medusajs/icons": "npm:2.21.2"
+    "@medusajs/medusa": "npm:2.21.2"
     "@medusajs/ui": "npm:4.0.25"
     "@repo/config": "workspace:*"
     "@repo/dashboard": "workspace:*"
@@ -6834,28 +6917,49 @@ __metadata:
     "@types/jest": "npm:^29.5.13"
     "@types/node": "npm:^20.12.11"
     "@types/react": "npm:^19.3.0"
-    "@types/react-dom": "npm:^19.2.0"
-    chokidar: "npm:^4.0.3"
-    date-fns: "npm:^4.4.0"
     eslint: "npm:^9.39.5"
-    handlebars: "npm:^4.7.8"
     jest: "npm:^29.7.0"
-    lodash: "npm:^4.18.1"
-    lucide-react: "npm:^0.563.0"
     react: "npm:19.2.3"
     react-dom: "npm:19.2.3"
-    react-hook-form: "npm:^7.83.0"
-    react-router-dom: "npm:6.30.6"
+    react-i18next: "npm:^15.7.4"
     ts-node: "npm:^10.9.2"
     typescript: "npm:^5.9.2"
-    vite: "npm:^5.4.14"
   peerDependencies:
-    "@medusajs/admin-sdk": ~2.21.2
     "@medusajs/framework": ~2.21.2
-    "@medusajs/icons": ~2.21.2
     "@medusajs/medusa": ~2.21.2
-    "@medusajs/ui": ~4.0.25
-    react-router-dom: ">=6.4"
+  languageName: unknown
+  linkType: soft
+
+"@repo/module-vehicle@workspace:*, @repo/module-vehicle@workspace:packages/modules/vehicle":
+  version: 0.0.0-use.local
+  resolution: "@repo/module-vehicle@workspace:packages/modules/vehicle"
+  dependencies:
+    "@medusajs/admin-sdk": "npm:2.21.2"
+    "@medusajs/cli": "npm:2.21.2"
+    "@medusajs/framework": "npm:2.21.2"
+    "@medusajs/icons": "npm:2.21.2"
+    "@medusajs/medusa": "npm:2.21.2"
+    "@medusajs/ui": "npm:4.0.25"
+    "@repo/config": "workspace:*"
+    "@repo/dashboard": "workspace:*"
+    "@repo/framework": "workspace:*"
+    "@repo/scripts": "workspace:*"
+    "@swc/core": "npm:1.12.2"
+    "@swc/jest": "npm:^0.2.39"
+    "@tanstack/react-query": "npm:^5.101.4"
+    "@types/jest": "npm:^29.5.13"
+    "@types/node": "npm:^20.12.11"
+    "@types/react": "npm:^19.3.0"
+    eslint: "npm:^9.39.5"
+    jest: "npm:^29.7.0"
+    react: "npm:19.2.3"
+    react-dom: "npm:19.2.3"
+    react-i18next: "npm:^15.7.4"
+    ts-node: "npm:^10.9.2"
+    typescript: "npm:^5.9.2"
+  peerDependencies:
+    "@medusajs/framework": ~2.21.2
+    "@medusajs/medusa": ~2.21.2
   languageName: unknown
   linkType: soft
 
@@ -6868,7 +6972,9 @@ __metadata:
     "@swc/core": ">=1.0.0"
     chokidar: ">=3.0.0"
   bin:
-    gen-plugin: ./src/gen-plugin.mjs
+    gen-domain: ./src/gen-domain.mjs
+    gen-module: ./src/gen-module.mjs
+    module-db-generate: ./src/module-db-generate.cjs
     plugin-dev-init: ./src/develop-init.mjs
     plugin-dev-watch: ./src/develop-watch.mjs
   languageName: unknown
@@ -8662,7 +8768,8 @@ __metadata:
     "@medusajs/medusa": "npm:2.21.2"
     "@medusajs/test-utils": "npm:2.21.2"
     "@repo/config": "workspace:*"
-    "@repo/plugin-automotive": "workspace:*"
+    "@repo/domain-automotive": "workspace:*"
+    "@repo/framework": "workspace:*"
     "@swc/core": "npm:1.12.2"
     "@swc/jest": "npm:^0.2.39"
     "@types/jest": "npm:^29.5.13"

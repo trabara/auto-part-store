@@ -1,0 +1,5 @@
+{
+  "extends": "@repo/config/ts/module.json",
+  // Admin UI is type-checked by src/admin/tsconfig.json (DOM, bundler).
+  "exclude": ["node_modules", "dist", "src/admin/tsconfig.json"]
+}

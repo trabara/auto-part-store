@@ -27,7 +27,7 @@ RUN yarn turbo run build --filter=backend...
 # Runtime artifacts of the workspace packages the server loads, at the same
 # relative paths as the node_modules/@repo/* symlinks expect.
 RUN set -e; \
-    for pkg in packages/framework packages/plugins/*; do \
+    for pkg in packages/framework packages/modules/* packages/domains/*; do \
       mkdir -p "/runtime/$pkg"; \
       cp "$pkg/package.json" "/runtime/$pkg/"; \
       if [ -d "$pkg/dist" ]; then cp -r "$pkg/dist" "/runtime/$pkg/"; fi; \

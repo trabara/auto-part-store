@@ -1,30 +1,25 @@
 /**
- * `layers/module-boundaries`: a reusable module only imports
- *   - its own files,
- *   - a declared dependency's `entities` entry (isomorphic definitions),
- * and never its domain (the plugin's other folders) or another module's
- * internals. Dependencies come from the module's `manifest.ts`
+ * `layers/module-boundaries`: a reusable module (`packages/modules/<name>/src`)
+ * only imports
+ *   - its own files (relative, or its own `@repo/module-<name>/…` entries),
+ *   - a declared dependency's `entities` entry (`@repo/module-<dep>/entities`),
+ *   - platform and third-party packages,
+ * and never a domain (`@repo/domain-*`) or a file outside its package.
+ * Dependencies come from the module's `src/manifest.ts`
  * (`defineModuleManifest({ key, dependsOn: ["…"] })`, a literal array).
- *
- * Modules live in `packages/plugins/<domain>/src/modules/<module>/` today and
- * in `packages/modules/<module>/src/` once extracted (imported as
- * `@repo/module-<module>/entities`). Type-only imports are allowed.
+ * Type-only imports are allowed.
  */
 import fs from "node:fs";
 import path from "node:path";
 
-const IN_PLUGIN = /^(.*\/packages\/plugins\/[^/]+\/src)\/modules\/([^/]+)(?=\/|$)/;
 const IN_PACKAGE = /^(.*\/packages\/modules\/([^/]+)\/src)(?=\/|$)/;
-const PACKAGE_SPECIFIER = /^@repo\/module-([^/]+)(?:\/(.+))?$/;
+const MODULE_SPECIFIER = /^@repo\/module-([^/]+)(?:\/(.+))?$/;
+const DOMAIN_SPECIFIER = /^@repo\/(domain|plugin)-/;
 
-/** The module a path belongs to: its root folder, the domain's src (if any) and name. */
+/** The module a path belongs to: its source root and package name. */
 function moduleOf(file) {
-  const p = file.split(path.sep).join("/");
-  const plugin = p.match(IN_PLUGIN);
-  if (plugin) return { root: `${plugin[1]}/modules/${plugin[2]}`, domainSrc: plugin[1], name: plugin[2] };
-  const pkg = p.match(IN_PACKAGE);
-  if (pkg) return { root: pkg[1], domainSrc: null, name: pkg[2] };
-  return null;
+  const pkg = file.split(path.sep).join("/").match(IN_PACKAGE);
+  return pkg ? { root: pkg[1], name: pkg[2] } : null;
 }
 
 const manifests = new Map();
@@ -64,7 +59,12 @@ export const moduleBoundaries = {
       if (typeOnly || typeof source !== "string") return;
       const fail = (message) => context.report({ node, message });
 
-      const pkg = source.match(PACKAGE_SPECIFIER);
+      if (DOMAIN_SPECIFIER.test(source)) {
+        return fail(
+          `Module "${mod.name}" imports a domain ("${source}"). Modules are reusable: cross-module logic belongs in the domain (workflows, hooks, queries).`,
+        );
+      }
+      const pkg = source.match(MODULE_SPECIFIER);
       if (pkg) {
         const [, name, rest = ""] = pkg;
         if (name === mod.name) return;
@@ -73,26 +73,9 @@ export const moduleBoundaries = {
         return;
       }
       if (!source.startsWith(".")) return;
-
       const target = path.resolve(path.dirname(filename), source).split(path.sep).join("/");
-      if (target === mod.root || target.startsWith(`${mod.root}/`)) return;
-
-      const other = moduleOf(target);
-      if (other && other.domainSrc === mod.domainSrc) {
-        const key = readManifest(other.root)?.key ?? other.name;
-        const rest = path.posix.relative(other.root, target);
-        if (!deps.includes(key)) {
-          return fail(`Module "${mod.name}" doesn't declare a dependency on "${key}" (manifest.ts dependsOn).`);
-        }
-        if (!isEntitiesEntry(rest)) {
-          return fail(`Module "${mod.name}" may only import "${key}"'s entities entry (definitions), not "${source}".`);
-        }
-        return;
-      }
-      if (mod.domainSrc && target.startsWith(`${mod.domainSrc}/`)) {
-        return fail(
-          `Module "${mod.name}" imports domain code ("${source}"). Modules are reusable: cross-module logic belongs in the domain (workflows, hooks, queries).`,
-        );
+      if (target !== mod.root && !target.startsWith(`${mod.root}/`)) {
+        return fail(`Module "${mod.name}" imports a file outside its package ("${source}"); use a package entry.`);
       }
     };
 

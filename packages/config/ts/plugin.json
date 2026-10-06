@@ -34,7 +34,6 @@
         "${configDir}/.medusa/server",
         "${configDir}/.medusa/admin",
         "${configDir}/src/admin",
-        "${configDir}/src/modules/*/admin",
         "${configDir}/.cache"
     ]
 }

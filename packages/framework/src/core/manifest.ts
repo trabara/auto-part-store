@@ -7,7 +7,11 @@
  * ```ts
  * // modules/fitment/manifest.ts — `dependsOn` is read by the layer check:
  * // keep it a literal array of module keys.
- * export const fitmentManifest = defineModuleManifest({ key: "fitment", dependsOn: ["vehicle"] })
+ * export const fitmentManifest = defineModuleManifest({
+ *   key: "fitment",
+ *   dependsOn: ["vehicle"],
+ *   resolve: "@repo/module-fitment",
+ * })
  * ```
  */
 
@@ -16,13 +20,20 @@ export interface ModuleManifest {
   readonly key: string
   /** Keys of the modules this one builds on (link targets, shared entities). */
   readonly dependsOn: readonly string[]
+  /** What the application registers with Medusa (the module's package). */
+  readonly resolve?: string
 }
 
 export function defineModuleManifest(manifest: {
   key: string
   dependsOn?: readonly string[]
+  resolve?: string
 }): ModuleManifest {
-  return Object.freeze({ key: manifest.key, dependsOn: Object.freeze([...(manifest.dependsOn ?? [])]) })
+  return Object.freeze({
+    key: manifest.key,
+    dependsOn: Object.freeze([...(manifest.dependsOn ?? [])]),
+    ...(manifest.resolve ? { resolve: manifest.resolve } : {}),
+  })
 }
 
 /** Problems in a set of manifests: duplicate keys, unknown dependencies, cycles. */

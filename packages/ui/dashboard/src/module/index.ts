@@ -1,3 +1,4 @@
+export { EntityPanel, type EntityPanelProps, type PanelColumn } from "./components/entity-panel";
 export { Module } from "./components/module-provider";
 export { RelationSelect } from "./components/relation-select";
 export { relationOverrides } from "./helpers/relation-overrides";

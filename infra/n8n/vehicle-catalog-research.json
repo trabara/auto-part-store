@@ -1,0 +1,943 @@
+{
+  "id": "vehCatResearch01",
+  "name": "Vehicle catalog research",
+  "active": false,
+  "nodes": [
+    {
+      "id": "068f7cd8-a9ef-4ab3-a2f8-1ba47a6a28ef",
+      "name": "Weekly",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "weeks",
+              "triggerAtDay": [
+                1
+              ],
+              "triggerAtHour": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "99a47931-39cd-4f22-af14-47fd60e4732f",
+      "name": "Run now",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        200
+      ],
+      "parameters": {}
+    },
+    {
+      "id": "e805814d-9997-4340-accb-14f6ce74ecbe",
+      "name": "Config",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        240,
+        100
+      ],
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "798f8a9b-e961-4e00-a0e4-c1c64d44aa46",
+              "name": "medusa_url",
+              "value": "http://host.docker.internal:9000",
+              "type": "string"
+            },
+            {
+              "id": "ab0f4f54-dd57-4277-a89c-aa5d4fe66f96",
+              "name": "make",
+              "value": "",
+              "type": "string"
+            },
+            {
+              "id": "2a794e9a-5751-45c1-a87d-22e5dd156260",
+              "name": "models_per_run",
+              "value": 5,
+              "type": "number"
+            },
+            {
+              "id": "5e598734-a1d3-4e22-ac06-43caa882969a",
+              "name": "max_configurations",
+              "value": -1,
+              "type": "number"
+            },
+            {
+              "id": "5648059d-30fc-47ec-a3a1-b0ad701583b6",
+              "name": "auto_apply",
+              "value": true,
+              "type": "boolean"
+            },
+            {
+              "id": "b1463827-9199-431e-a784-957a863c99b1",
+              "name": "review_webhook_url",
+              "value": "",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "notes": "Edit these values. Credentials: Medusa secret API key (HTTP Basic: key as user, empty password), Tavily API key (header Authorization: Bearer tvly-…), Anthropic."
+    },
+    {
+      "id": "ba40c2bd-914c-4a6f-a6c0-04525ad313d7",
+      "name": "Least complete models",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        480,
+        100
+      ],
+      "parameters": {
+        "url": "={{ $('Config').first().json.medusa_url }}/admin/vehicle-catalog/coverage",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBasicAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "limit",
+              "value": "={{ $('Config').first().json.models_per_run }}"
+            },
+            {
+              "name": "make",
+              "value": "={{ $('Config').first().json.make || undefined }}"
+            },
+            {
+              "name": "max_configurations",
+              "value": "={{ $('Config').first().json.max_configurations >= 0 ? $('Config').first().json.max_configurations : undefined }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "credentials": {
+        "httpBasicAuth": {
+          "id": "",
+          "name": "Medusa secret API key"
+        }
+      }
+    },
+    {
+      "id": "fce1471b-0577-4b44-ab19-027253ffbf46",
+      "name": "One item per model",
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        720,
+        100
+      ],
+      "parameters": {
+        "fieldToSplitOut": "models",
+        "options": {}
+      }
+    },
+    {
+      "id": "4a6fff53-6366-4367-a237-4f905fdc6982",
+      "name": "Loop over models",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        960,
+        100
+      ],
+      "parameters": {
+        "batchSize": 1,
+        "options": {}
+      }
+    },
+    {
+      "id": "0e86408d-14e1-47ac-a535-45d13fb96410",
+      "name": "Existing catalog",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1200,
+        200
+      ],
+      "parameters": {
+        "url": "={{ $('Config').first().json.medusa_url }}/admin/vehicle-catalog/export",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBasicAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "make",
+              "value": "={{ $json.make }}"
+            },
+            {
+              "name": "model",
+              "value": "={{ $json.model }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "credentials": {
+        "httpBasicAuth": {
+          "id": "",
+          "name": "Medusa secret API key"
+        }
+      }
+    },
+    {
+      "id": "8084bec3-d002-45d6-a029-0e0f989a5f4f",
+      "name": "Summarize existing",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1440,
+        200
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const target = $('Loop over models').item.json;\nconst model = $json.makes?.[0]?.models?.[0];\nconst lines = (model?.generations ?? []).map((g) =>\n  `- \"${g.name}\"${g.code ? ` (${g.code})` : \"\"}: ${g.year_start}–${g.year_end ?? \"present\"}, ${g.vehicles.length} configuration(s)`,\n);\nreturn {\n  make: target.make,\n  model: target.model,\n  category: target.category,\n  existing: lines.length ? lines.join(\"\\n\") : \"(no generations yet)\",\n};"
+      }
+    },
+    {
+      "id": "ef88b225-4c80-43a4-a370-3ae532cc8494",
+      "name": "Research agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        1680,
+        200
+      ],
+      "parameters": {
+        "promptType": "define",
+        "text": "=Make: {{ $json.make }}\nModel: {{ $json.model }}\nCategory: {{ $json.category }}\n\nGenerations already in the catalog (reuse these names exactly):\n{{ $json.existing }}\n\nResearch this model's generations and configurations, validate your answer with validate_catalog, then return it.",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "You are an automotive data researcher maintaining the vehicle catalog of an auto-parts business in Tunisia. Parts are matched to vehicles through this catalog, so a wrong engine power or production year means a customer gets a part that does not fit. Accuracy beats completeness: leave something out rather than guess.\n\n# Your task\n\nYou are given one model (make, model, category) and a summary of what the catalog already holds for it. Research the model on the web and return its **generations** and, for each generation, its **configurations** (engine × body × drive × transmission × trim, with production years).\n\n# The data you return\n\n- **Generation**: `name` (the catalog's natural key), `code` (chassis or platform code, e.g. \"BF\", \"8V\", \"G20\"; null when there is none), `year_start`, `year_end` (null while still in production), `vehicles` (configurations), `source` (the URL you took the generation from).\n  - **Reuse existing names.** When the catalog already has a generation, return it under exactly the same `name`, even if your sources name it differently. A new name creates a duplicate generation. Only add a new name for a generation the catalog lacks.\n  - For new generations, use the catalog's convention: Roman numerals (\"I\", \"II\", \"III\"); a facelift that the sources treat as a distinct series gets \"II facelift\".\n- **Configuration**: `engine`, `body_style`, `doors`, `drive`, `transmission`, `trim` (null unless the trim changes the specification), `year_start`, `year_end`, `references` (always []).\n  - `engine.power_kw` is required and an integer. Convert from metric horsepower: kW = PS × 0.7355, rounded; from bhp: kW = hp × 0.7457, rounded. Never estimate power.\n  - `engine.displacement_cc` is in cm³ (1.5 L → use the exact figure, e.g. 1461, when a source gives it; otherwise null rather than 1500). `engine.code` is the manufacturer's engine code (e.g. \"K9K\", \"EA211\") or null. `fuel`, `layout`, `cylinders`: from the enums; null when unknown.\n  - Configuration years must fall within their generation's years, and two identical configurations must not overlap in years.\n- `sources`: every URL you used. `notes`: anything a reviewer should know (conflicting sources, versions you left out and why).\n\n# Market\n\nThe catalog serves Tunisia. Prefer the versions sold there: the Tunisian importer's website, automobile.tn and other Tunisian sources. When those are silent, use the European-market versions, and say so in `notes`. Do not add versions sold only in North America or Asia.\n\n# Sources\n\n- Prefer primary and reference sources: manufacturer and importer press kits and price lists, type approval documents, Wikipedia (with its cited sources), established specification databases.\n- Corroborate engine power and years with two independent sources when you can. When sources disagree, use the manufacturer's figure and mention the conflict in `notes`.\n- Respect site terms: never use autoevolution.com (it forbids automated access) or any site that blocks automated readers.\n\n# Tools\n\n- `web_search`: search the web (returns snippets and URLs).\n- `read_page`: read a page's full text.\n- `get_existing_catalog`: the model as it is in the catalog (every generation and configuration; may be long).\n- `validate_catalog`: checks a catalog file without writing anything and reports problems, what would be created, updated, and existing values that contradict yours. **Call it with your final answer before returning**, wrapped as `{ \"format\": \"vehicle-catalog@1\", \"market\": \"TN\", \"source\": { \"name\": \"research draft\" }, \"makes\": [ { \"name\": <make>, \"models\": [ { \"name\": <model>, \"category\": <category>, \"generations\": [ ... ] } ] } ] }`. Fix every problem it reports. Contradictions with existing values are not problems, but re-check them: when the catalog is right, use its value.\n\nReturn only generations you have evidence for. Returning no generations, with an explanation in `notes`, is a valid answer.",
+          "maxIterations": 40
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "id": "d2ddfa65-389d-4eee-a357-5bbd1aee7a1c",
+      "name": "Claude",
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "typeVersion": 1.6,
+      "position": [
+        1440,
+        460
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "id",
+          "value": "claude-sonnet-5-5"
+        },
+        "options": {
+          "maxTokensToSample": 32000
+        }
+      },
+      "credentials": {
+        "anthropicApi": {
+          "id": "",
+          "name": "Anthropic account"
+        }
+      }
+    },
+    {
+      "id": "84deb236-9437-405a-aa5c-77b2f5c0c17e",
+      "name": "Catalog generations",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.2,
+      "position": [
+        2160,
+        460
+      ],
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"generations\": {\n      \"type\": \"array\",\n      \"items\": {\n        \"type\": \"object\",\n        \"properties\": {\n          \"name\": {\n            \"type\": \"string\",\n            \"minLength\": 1\n          },\n          \"code\": {\n            \"default\": null,\n            \"anyOf\": [\n              {\n                \"type\": \"string\"\n              },\n              {\n                \"type\": \"null\"\n              }\n            ]\n          },\n          \"year_start\": {\n            \"type\": \"integer\",\n            \"minimum\": 1886,\n            \"maximum\": 2028\n          },\n          \"year_end\": {\n            \"default\": null,\n            \"anyOf\": [\n              {\n                \"type\": \"integer\",\n                \"minimum\": 1886,\n                \"maximum\": 2028\n              },\n              {\n                \"type\": \"null\"\n              }\n            ]\n          },\n          \"vehicles\": {\n            \"default\": [],\n            \"type\": \"array\",\n            \"items\": {\n              \"type\": \"object\",\n              \"properties\": {\n                \"engine\": {\n                  \"type\": \"object\",\n                  \"properties\": {\n                    \"code\": {\n                      \"default\": null,\n                      \"anyOf\": [\n                        {\n                          \"type\": \"string\"\n                        },\n                        {\n                          \"type\": \"null\"\n                        }\n                      ]\n                    },\n                    \"fuel\": {\n                      \"type\": \"string\",\n                      \"enum\": [\n                        \"GASOLINE\",\n                        \"DIESEL\",\n                        \"ELECTRIC\",\n                        \"HYBRID\",\n                        \"PLUG_IN_HYBRID\",\n                        \"LPG\",\n                        \"CNG\",\n                        \"HYDROGEN\"\n                      ]\n                    },\n                    \"layout\": {\n                      \"default\": null,\n                      \"anyOf\": [\n                        {\n                          \"type\": \"string\",\n                          \"enum\": [\n                            \"INLINE\",\n                            \"V\",\n                            \"BOXER\",\n                            \"W\",\n                            \"ROTARY\",\n                            \"ELECTRIC_MOTOR\"\n                          ]\n                        },\n                        {\n                          \"type\": \"null\"\n                        }\n                      ]\n                    },\n                    \"cylinders\": {\n                      \"default\": null,\n                      \"anyOf\": [\n                        {\n                          \"type\": \"integer\",\n                          \"minimum\": 1,\n                          \"maximum\": 16\n                        },\n                        {\n                          \"type\": \"null\"\n                        }\n                      ]\n                    },\n                    \"displacement_cc\": {\n                      \"default\": null,\n                      \"anyOf\": [\n                        {\n                          \"type\": \"integer\",\n                          \"minimum\": 50,\n                          \"maximum\": 20000\n                        },\n                        {\n                          \"type\": \"null\"\n                        }\n                      ]\n                    },\n                    \"power_kw\": {\n                      \"type\": \"integer\",\n                      \"minimum\": 1,\n                      \"maximum\": 2000\n                    },\n                    \"name\": {\n                      \"type\": \"string\"\n                    }\n                  },\n                  \"required\": [\n                    \"fuel\",\n                    \"power_kw\"\n                  ]\n                },\n                \"body_style\": {\n                  \"default\": \"SEDAN\",\n                  \"type\": \"string\",\n                  \"enum\": [\n                    \"SEDAN\",\n                    \"SUV\",\n                    \"HATCHBACK\",\n                    \"COUPE\",\n                    \"CONVERTIBLE\",\n                    \"WAGON\",\n                    \"MINIVAN\",\n                    \"VAN\",\n                    \"PICKUP\",\n                    \"CHASSIS_CAB\",\n                    \"MOTORCYCLE\"\n                  ]\n                },\n                \"doors\": {\n                  \"default\": 4,\n                  \"type\": \"integer\",\n                  \"minimum\": 2,\n                  \"maximum\": 6\n                },\n                \"drive\": {\n                  \"default\": \"FWD\",\n                  \"type\": \"string\",\n                  \"enum\": [\n                    \"FWD\",\n                    \"RWD\",\n                    \"AWD\",\n                    \"FOUR_WD\"\n                  ]\n                },\n                \"transmission\": {\n                  \"default\": \"MANUAL\",\n                  \"type\": \"string\",\n                  \"enum\": [\n                    \"MANUAL\",\n                    \"AUTOMATIC\",\n                    \"DUAL_CLUTCH\",\n                    \"CVT\"\n                  ]\n                },\n                \"trim\": {\n                  \"default\": null,\n                  \"anyOf\": [\n                    {\n                      \"type\": \"string\"\n                    },\n                    {\n                      \"type\": \"null\"\n                    }\n                  ]\n                },\n                \"year_start\": {\n                  \"type\": \"integer\",\n                  \"minimum\": 1886,\n                  \"maximum\": 2028\n                },\n                \"year_end\": {\n                  \"default\": null,\n                  \"anyOf\": [\n                    {\n                      \"type\": \"integer\",\n                      \"minimum\": 1886,\n                      \"maximum\": 2028\n                    },\n                    {\n                      \"type\": \"null\"\n                    }\n                  ]\n                },\n                \"references\": {\n                  \"default\": [],\n                  \"type\": \"array\",\n                  \"items\": {\n                    \"type\": \"object\",\n                    \"properties\": {\n                      \"source\": {\n                        \"type\": \"string\",\n                        \"enum\": [\n                          \"TECDOC_KTYPE\",\n                          \"ACES_VEHICLE_ID\",\n                          \"ACES_BASE_VEHICLE\",\n                          \"OTHER\"\n                        ]\n                      },\n                      \"external_id\": {\n                        \"type\": \"string\",\n                        \"minLength\": 1\n                      }\n                    },\n                    \"required\": [\n                      \"source\",\n                      \"external_id\"\n                    ]\n                  }\n                }\n              },\n              \"required\": [\n                \"engine\",\n                \"year_start\"\n              ]\n            }\n          },\n          \"source\": {\n            \"type\": \"string\"\n          }\n        },\n        \"required\": [\n          \"name\",\n          \"year_start\"\n        ]\n      }\n    },\n    \"sources\": {\n      \"description\": \"Every URL used\",\n      \"type\": \"array\",\n      \"items\": {\n        \"type\": \"string\"\n      }\n    },\n    \"notes\": {\n      \"description\": \"What a reviewer should know: conflicts, versions left out and why\",\n      \"type\": \"string\"\n    }\n  },\n  \"required\": [\n    \"generations\",\n    \"sources\",\n    \"notes\"\n  ]\n}"
+      }
+    },
+    {
+      "id": "5a368ae8-c245-462c-ab51-951ce45d5b56",
+      "name": "web_search",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.2,
+      "position": [
+        1600,
+        460
+      ],
+      "parameters": {
+        "toolDescription": "Search the web. Returns results with title, URL and a content snippet.",
+        "method": "POST",
+        "url": "https://api.tavily.com/search",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ query: $fromAI('query', 'What to search for, e.g. \"Renault Clio V engines power kW 2019\"', 'string'), max_results: 8, search_depth: 'advanced', exclude_domains: ['autoevolution.com'] }) }}",
+        "options": {}
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "",
+          "name": "Tavily API key"
+        }
+      }
+    },
+    {
+      "id": "019a8177-c0ef-4f8c-adf2-13e67875f24d",
+      "name": "read_page",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.2,
+      "position": [
+        1760,
+        460
+      ],
+      "parameters": {
+        "toolDescription": "Read the full text of a web page (from a search result).",
+        "method": "POST",
+        "url": "https://api.tavily.com/extract",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ urls: [$fromAI('url', 'The page URL', 'string')], extract_depth: 'advanced', format: 'text' }) }}",
+        "options": {}
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "",
+          "name": "Tavily API key"
+        }
+      }
+    },
+    {
+      "id": "e4d78061-fedc-4231-a517-5da5e633cf23",
+      "name": "get_existing_catalog",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.2,
+      "position": [
+        1920,
+        460
+      ],
+      "parameters": {
+        "toolDescription": "The model as it is in the catalog: every generation and configuration (may be long).",
+        "url": "={{ $('Config').first().json.medusa_url }}/admin/vehicle-catalog/export",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBasicAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "make",
+              "value": "={{ $fromAI('make', 'The make, as given', 'string') }}"
+            },
+            {
+              "name": "model",
+              "value": "={{ $fromAI('model', 'The model, as given', 'string') }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "credentials": {
+        "httpBasicAuth": {
+          "id": "",
+          "name": "Medusa secret API key"
+        }
+      }
+    },
+    {
+      "id": "fa63a5ca-9d5b-4d48-a936-9782a9411577",
+      "name": "validate_catalog",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.2,
+      "position": [
+        2040,
+        460
+      ],
+      "parameters": {
+        "toolDescription": "Check a vehicle-catalog@1 file without writing anything: returns problems to fix, what would be created and updated, and existing values that contradict the file.",
+        "method": "POST",
+        "url": "={{ $('Config').first().json.medusa_url }}/admin/vehicle-catalog/import",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBasicAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "dry_run",
+              "value": "true"
+            },
+            {
+              "name": "mode",
+              "value": "fill"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($fromAI('catalog', 'The complete vehicle-catalog@1 file: { format, market, source, makes: [{ name, models: [{ name, category, generations }] }] }', 'json')) }}",
+        "options": {}
+      },
+      "credentials": {
+        "httpBasicAuth": {
+          "id": "",
+          "name": "Medusa secret API key"
+        }
+      }
+    },
+    {
+      "id": "53d06553-fdff-483d-ae26-0d8414c53714",
+      "name": "Build catalog file",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2000,
+        100
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const target = $('Summarize existing').item.json;\nconst { generations = [], sources = [], notes = \"\" } = $json.output ?? {};\nreturn {\n  make: target.make,\n  model: target.model,\n  sources,\n  notes,\n  file: {\n    format: \"vehicle-catalog@1\",\n    market: \"TN\",\n    source: {\n      name: \"AI research agent (n8n), \" + sources.length + \" source(s)\",\n      url: sources.join(\" \"),\n      retrieved_at: new Date().toISOString(),\n    },\n    makes: [{ name: target.make, models: [{ name: target.model, category: target.category, generations }] }],\n  },\n};"
+      }
+    },
+    {
+      "id": "d8333322-ef21-4129-a118-7bbbd6888e34",
+      "name": "Validate (dry run)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2240,
+        100
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Config').first().json.medusa_url }}/admin/vehicle-catalog/import",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBasicAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "dry_run",
+              "value": "true"
+            },
+            {
+              "name": "mode",
+              "value": "fill"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json.file) }}",
+        "options": {}
+      },
+      "credentials": {
+        "httpBasicAuth": {
+          "id": "",
+          "name": "Medusa secret API key"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "id": "aea4e0bf-823a-437f-a1c9-22f38a242cac",
+      "name": "Clean?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        2480,
+        100
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "300fd0c9-9c59-475a-aea1-1e3f6626371d",
+              "leftValue": "={{ $json.report.problems.length === 0 && $json.report.created.generations + $json.report.created.vehicles + $json.report.updated.length > 0 && $('Config').first().json.auto_apply }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "b770fa8f-5fae-4005-a9ab-130d98ddedc7",
+      "name": "Apply (fill)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2720,
+        0
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Config').first().json.medusa_url }}/admin/vehicle-catalog/import",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBasicAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "mode",
+              "value": "fill"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($('Build catalog file').item.json.file) }}",
+        "options": {}
+      },
+      "credentials": {
+        "httpBasicAuth": {
+          "id": "",
+          "name": "Medusa secret API key"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "id": "7f4528b0-af12-4eed-a973-5e5d0416c250",
+      "name": "Applied",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2960,
+        0
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "let built = {};\ntry { built = $('Build catalog file').item.json; } catch {} // not run for this model (agent failed)\nconst target = $('Summarize existing').item.json;\nconst report = $json.report ?? {};\nreturn {\n  make: target.make,\n  model: target.model,\n  status: (report.differences ?? []).length ? \"applied, review contradictions\" : \"applied\",\n  created: report.created ?? null,\n  updated: report.updated ?? [],\n  differences: report.differences ?? [],\n  problems: report.problems ?? [],\n  error: $json.error ? String($json.error.message ?? $json.error) : null,\n  notes: built.notes ?? \"\",\n  sources: built.sources ?? [],\n  file: report.dryRun === false ? undefined : built.file,\n};"
+      }
+    },
+    {
+      "id": "5261e38e-562f-4070-aa5a-7569df8e3eb0",
+      "name": "Needs review",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2720,
+        200
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "let built = {};\ntry { built = $('Build catalog file').item.json; } catch {} // not run for this model (agent failed)\nconst target = $('Summarize existing').item.json;\nconst report = $json.report ?? {};\nreturn {\n  make: target.make,\n  model: target.model,\n  status: (report.problems ?? []).length ? \"problems\" : $('Config').first().json.auto_apply ? \"nothing new\" : \"validated (auto_apply off)\",\n  created: report.created ?? null,\n  updated: report.updated ?? [],\n  differences: report.differences ?? [],\n  problems: report.problems ?? [],\n  error: $json.error ? String($json.error.message ?? $json.error) : null,\n  notes: built.notes ?? \"\",\n  sources: built.sources ?? [],\n  file: report.dryRun === false ? undefined : built.file,\n};"
+      }
+    },
+    {
+      "id": "ee9f89a6-f8cf-41da-add5-a536debcb6c7",
+      "name": "Failed",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2720,
+        380
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "let built = {};\ntry { built = $('Build catalog file').item.json; } catch {} // not run for this model (agent failed)\nconst target = $('Summarize existing').item.json;\nconst report = $json.report ?? {};\nreturn {\n  make: target.make,\n  model: target.model,\n  status: \"failed\",\n  created: report.created ?? null,\n  updated: report.updated ?? [],\n  differences: report.differences ?? [],\n  problems: report.problems ?? [],\n  error: $json.error ? String($json.error.message ?? $json.error) : null,\n  notes: built.notes ?? \"\",\n  sources: built.sources ?? [],\n  file: report.dryRun === false ? undefined : built.file,\n};"
+      }
+    },
+    {
+      "id": "af217aa3-f16d-4ff4-a6e3-ae5d0ec2382f",
+      "name": "Run summary",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1200,
+        -160
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const rows = $input.all().map((i) => i.json).filter((r) => r.status);\nconst count = (c) => c ? c.generations + \" generation(s), \" + c.vehicles + \" configuration(s)\" : \"\";\nconst lines = rows.map((r) => {\n  const parts = [\"• \" + r.make + \" \" + r.model + \": \" + r.status];\n  if (r.created) parts.push(count(r.created));\n  if (r.updated.length) parts.push(r.updated.length + \" value(s) filled\");\n  if (r.differences.length) parts.push(r.differences.length + \" contradiction(s) to review\");\n  if (r.problems.length) parts.push(r.problems.length + \" problem(s)\");\n  if (r.error) parts.push(r.error);\n  return parts.join(\" · \");\n});\nconst text = \"Vehicle catalog research (\" + rows.length + \" model(s))\\n\" + lines.join(\"\\n\") +\n  \"\\nDetails (sources, notes, proposals to review): this execution in n8n.\";\nreturn [{ json: { text, results: rows } }];"
+      }
+    },
+    {
+      "id": "f5d753ce-f4d7-4237-aff2-1eaa765185ca",
+      "name": "Notify?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1440,
+        -160
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "beac3493-e36a-4b6a-a0c8-cde064e653ea",
+              "leftValue": "={{ $('Config').first().json.review_webhook_url }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "af05bd18-a33c-4981-ad95-d283c73b2b09",
+      "name": "Send summary",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1680,
+        -240
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Config').first().json.review_webhook_url }}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ text: $json.text }) }}",
+        "options": {}
+      }
+    }
+  ],
+  "connections": {
+    "Weekly": {
+      "main": [
+        [
+          {
+            "node": "Config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Run now": {
+      "main": [
+        [
+          {
+            "node": "Config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Config": {
+      "main": [
+        [
+          {
+            "node": "Least complete models",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Least complete models": {
+      "main": [
+        [
+          {
+            "node": "One item per model",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "One item per model": {
+      "main": [
+        [
+          {
+            "node": "Loop over models",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop over models": {
+      "main": [
+        [
+          {
+            "node": "Run summary",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Existing catalog",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Existing catalog": {
+      "main": [
+        [
+          {
+            "node": "Summarize existing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Summarize existing": {
+      "main": [
+        [
+          {
+            "node": "Research agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Research agent": {
+      "main": [
+        [
+          {
+            "node": "Build catalog file",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Failed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build catalog file": {
+      "main": [
+        [
+          {
+            "node": "Validate (dry run)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate (dry run)": {
+      "main": [
+        [
+          {
+            "node": "Clean?",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Failed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Clean?": {
+      "main": [
+        [
+          {
+            "node": "Apply (fill)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Needs review",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Apply (fill)": {
+      "main": [
+        [
+          {
+            "node": "Applied",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Failed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Applied": {
+      "main": [
+        [
+          {
+            "node": "Loop over models",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Needs review": {
+      "main": [
+        [
+          {
+            "node": "Loop over models",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Failed": {
+      "main": [
+        [
+          {
+            "node": "Loop over models",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Run summary": {
+      "main": [
+        [
+          {
+            "node": "Notify?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Notify?": {
+      "main": [
+        [
+          {
+            "node": "Send summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Claude": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Research agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Catalog generations": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Research agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "web_search": {
+      "ai_tool": [
+        [
+          {
+            "node": "Research agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "read_page": {
+      "ai_tool": [
+        [
+          {
+            "node": "Research agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "get_existing_catalog": {
+      "ai_tool": [
+        [
+          {
+            "node": "Research agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "validate_catalog": {
+      "ai_tool": [
+        [
+          {
+            "node": "Research agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "Africa/Tunis",
+    "saveManualExecutions": true
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": false
+  }
+}

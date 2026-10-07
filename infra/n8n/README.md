@@ -7,7 +7,7 @@
 1. **Least complete models**: `GET /admin/vehicle-catalog/coverage` gives the models with no generations first, then those with the fewest configurations (`models_per_run` of them, optionally one `make`).
 2. For each model:
    - **Existing catalog** (`GET /admin/vehicle-catalog/export`) is summarized into the prompt, so the agent reuses the existing generation names (the natural key).
-   - The **Research agent** (Claude) uses four tools: `web_search` and `read_page` (Tavily), `get_existing_catalog`, and `validate_catalog` (a dry-run import). It must validate its answer and fix every problem before returning generations and configurations, with its sources and notes for reviewers. The output schema comes from the catalog contract.
+   - The **Research agent** (Claude Sonnet 5.5 through OpenRouter) uses four tools: `web_search` and `read_page` (Tavily), `get_existing_catalog`, and `validate_catalog` (a dry-run import). It must validate its answer and fix every problem before returning generations and configurations, with its sources and notes for reviewers. The output schema comes from the catalog contract.
    - **Validate (dry run)** re-checks the result. When it is clean and adds something, **Apply (fill)** imports it with `mode=fill`:
      - missing generations and configurations are created;
      - values the catalog lacks are filled in (a missing code, an end year for a generation still listed as current);
@@ -39,7 +39,7 @@ Guardrails:
 3. **Credentials.** Create these three, then select them on the nodes that show a warning:
    - *Medusa secret API key*: type **Basic Auth**, user = the secret key (`sk_…`), password empty. Used by the five Medusa nodes and tools.
    - *Tavily API key*: type **Header Auth**, name `Authorization`, value `Bearer tvly-…`. Used by `web_search` and `read_page`.
-   - *Anthropic account*: Anthropic API key. Used by the Claude node, model `claude-sonnet-5-5`.
+   - *OpenRouter account*: OpenRouter API key (`sk-or-…`). Used by the **Chat model (OpenRouter)** node, model `anthropic/claude-sonnet-5.5`; any OpenRouter model with tool calling can replace it (pick it in the node).
 4. **Config node:**
    - `medusa_url`: Medusa as seen from n8n. With n8n in compose and Medusa on the host (`yarn dev`), that is `http://host.docker.internal:9000` (the default); with Medusa in compose too (apps file), `http://medusa:9000`; in Kubernetes, the backend service URL.
    - `make`: one make only, or empty for every make.
@@ -49,7 +49,7 @@ Guardrails:
    - `review_webhook_url`: optional.
 5. Use **Run now** on one make with `models_per_run: 1`, check the execution and the catalog, then activate the workflow for the weekly run (Mondays 03:00, Africa/Tunis).
 
-Each model costs one agent run, usually 10 to 30 tool calls: Tavily searches and page reads plus Claude tokens. Size `models_per_run` to your budget.
+Each model costs one agent run, usually 10 to 30 tool calls: Tavily searches and page reads plus model tokens on OpenRouter. Size `models_per_run` to your budget.
 
 ## Applying a reviewed proposal
 

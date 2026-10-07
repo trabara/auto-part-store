@@ -81,7 +81,7 @@ node(
     // Slack-compatible incoming webhook for the run summary (empty: none).
     review_webhook_url: ["string", ""],
   }),
-  { notes: "Edit these values. Credentials: Medusa secret API key (HTTP Basic: key as user, empty password), Tavily API key (header Authorization: Bearer tvly-…), Anthropic." },
+  { notes: "Edit these values. Credentials: Medusa secret API key (HTTP Basic: key as user, empty password), Tavily API key (header Authorization: Bearer tvly-…), OpenRouter." },
 );
 
 // ── Research queue ───────────────────────────────────────────────────────────
@@ -167,12 +167,12 @@ Research this model's generations and configurations, validate your answer with 
   },
   { onError: "continueErrorOutput" },
 );
-node("Claude", "@n8n/n8n-nodes-langchain.lmChatAnthropic", 1.6, [1440, 460], {
-  model: { __rl: true, mode: "id", value: "claude-sonnet-5-5" },
-  // Streaming: the Anthropic SDK refuses non-streamed requests that may take
-  // over 10 minutes (max tokens above ~21k), and a large model's answer needs room.
-  options: { maxTokensToSample: 32000, streaming: true },
-}, { credentials: { anthropicApi: { id: "", name: "Anthropic account" } } });
+// Any OpenRouter model with tool calling; the id is OpenRouter's (provider/model).
+node("Chat model (OpenRouter)", "@n8n/n8n-nodes-langchain.lmChatOpenRouter", 1, [1440, 460], {
+  model: "anthropic/claude-sonnet-5.5",
+  // A large model's answer needs room; research calls can be slow (10 min).
+  options: { maxTokens: 32000, timeout: 600000, temperature: 0.1 },
+}, { credentials: { openRouterApi: { id: "", name: "OpenRouter account" } } });
 node("Catalog generations", "@n8n/n8n-nodes-langchain.outputParserStructured", 1.2, [2160, 460], {
   schemaType: "manual",
   inputSchema: JSON.stringify(outputSchema, null, 2),
@@ -432,7 +432,7 @@ link("Apply (fill)", "Failed", { output: 1 });
 for (const end of ["Applied", "Needs review", "Failed"]) link(end, "Loop over models");
 link("Run summary", "Notify?");
 link("Notify?", "Send summary", { output: 0 });
-link("Claude", "Research agent", { type: "ai_languageModel" });
+link("Chat model (OpenRouter)", "Research agent", { type: "ai_languageModel" });
 link("Catalog generations", "Research agent", { type: "ai_outputParser" });
 for (const t of ["web_search", "read_page", "get_existing_catalog", "validate_catalog"]) link(t, "Research agent", { type: "ai_tool" });
 

@@ -89,7 +89,7 @@
         },
         "options": {}
       },
-      "notes": "Edit these values. Credentials: Medusa secret API key (HTTP Basic: key as user, empty password), Tavily API key (header Authorization: Bearer tvly-…), Anthropic."
+      "notes": "Edit these values. Credentials: Medusa secret API key (HTTP Basic: key as user, empty password), Tavily API key (header Authorization: Bearer tvly-…), OpenRouter."
     },
     {
       "id": "ba40c2bd-914c-4a6f-a6c0-04525ad313d7",
@@ -228,29 +228,26 @@
       "onError": "continueErrorOutput"
     },
     {
-      "id": "d2ddfa65-389d-4eee-a357-5bbd1aee7a1c",
-      "name": "Claude",
-      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
-      "typeVersion": 1.6,
+      "id": "ab0ed04f-6e09-411a-a3da-fafedb674475",
+      "name": "Chat model (OpenRouter)",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
       "position": [
         1440,
         460
       ],
       "parameters": {
-        "model": {
-          "__rl": true,
-          "mode": "id",
-          "value": "claude-sonnet-5-5"
-        },
+        "model": "anthropic/claude-sonnet-5.5",
         "options": {
-          "maxTokensToSample": 32000,
-          "streaming": true
+          "maxTokens": 32000,
+          "timeout": 600000,
+          "temperature": 0.1
         }
       },
       "credentials": {
-        "anthropicApi": {
+        "openRouterApi": {
           "id": "",
-          "name": "Anthropic account"
+          "name": "OpenRouter account"
         }
       }
     },
@@ -865,7 +862,7 @@
         ]
       ]
     },
-    "Claude": {
+    "Chat model (OpenRouter)": {
       "ai_languageModel": [
         [
           {

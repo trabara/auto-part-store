@@ -4,6 +4,7 @@ name: ${PROJECT_NAME:-smap-store}
 volumes:
   postgres_data:
   minio_data:
+  n8n_data:
 
 networks:
   medusa_network:

@@ -70,3 +70,35 @@ services:
       "
     networks:
       - medusa_network
+
+  # Automation (http://localhost:5678): the vehicle catalog research workflow
+  # (infra/n8n, mounted read-only at /workflows; import with `yarn n8n:import`).
+  # Workflows, credentials and n8n's encryption key live in the n8n_data volume.
+  n8n:
+    image: n8nio/n8n:2.42.4
+    container_name: medusa_n8n
+    restart: unless-stopped
+    environment:
+      GENERIC_TIMEZONE: ${N8N_TIMEZONE:-Africa/Tunis}
+      TZ: ${N8N_TIMEZONE:-Africa/Tunis}
+      N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS: "true"
+      N8N_RUNNERS_ENABLED: "true"
+      N8N_DIAGNOSTICS_ENABLED: "false"
+      N8N_PERSONALIZATION_ENABLED: "false"
+    ports:
+      - "5678:5678"
+    volumes:
+      - n8n_data:/home/node/.n8n
+      - ../n8n:/workflows:ro
+    # Medusa: http://medusa:9000 when it runs in compose (apps file), else the
+    # host's http://host.docker.internal:9000 (this mapping makes it work on Linux too).
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    networks:
+      - medusa_network
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:5678/healthz || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s

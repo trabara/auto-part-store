@@ -90,7 +90,7 @@ yarn workspace @repo/dashboard test
 yarn workspace @repo/scripts test                         # generators emit the layouts
 ```
 
-Local infrastructure (Postgres, Redis, MinIO): `docker compose -f infra/docker/docker-compose.infra.yml up -d`.
+Local infrastructure (Postgres, Redis, MinIO, n8n on :5678): `docker compose -f infra/docker/docker-compose.yml -f infra/docker/docker-compose.infra.yml up -d` (append service names, e.g. `n8n`, to start only those); `yarn n8n:import` loads the catalog research workflow (`infra/n8n/`).
 
 ## Building a capability
 

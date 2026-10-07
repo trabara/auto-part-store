@@ -30,16 +30,18 @@ Guardrails:
 ## Setup
 
 1. **Medusa secret API key.** In the admin, open Settings › Secret API Keys and create a key, for example "n8n catalog research". The key acts as an admin, so keep it in n8n's credential store only.
-2. **Import the workflow.** In n8n, use Workflows › Import from file and pick `vehicle-catalog-research.json`. Alternatively, use the CLI:
+2. **Start n8n and import the workflow.** n8n is part of the local infrastructure (service `n8n` in `infra/docker/docker-compose.infra.yml`, http://localhost:5678; on the first visit, create the owner account):
    ```bash
-   docker cp infra/n8n/vehicle-catalog-research.json n8n:/tmp/ && docker exec n8n n8n import:workflow --input=/tmp/vehicle-catalog-research.json
+   docker compose -f infra/docker/docker-compose.yml -f infra/docker/docker-compose.infra.yml up -d n8n
+   yarn n8n:import        # this folder is mounted at /workflows in the container
    ```
+   Re-importing replaces the workflow (same id), so edits made in the editor are lost. Without the compose service, use Workflows › Import from file.
 3. **Credentials.** Create these three, then select them on the nodes that show a warning:
    - *Medusa secret API key*: type **Basic Auth**, user = the secret key (`sk_…`), password empty. Used by the five Medusa nodes and tools.
    - *Tavily API key*: type **Header Auth**, name `Authorization`, value `Bearer tvly-…`. Used by `web_search` and `read_page`.
    - *Anthropic account*: Anthropic API key. Used by the Claude node, model `claude-sonnet-5-5`.
 4. **Config node:**
-   - `medusa_url`: Medusa as seen from n8n. With n8n in Docker and Medusa on the host, that is `http://host.docker.internal:9000`; in Kubernetes, the backend service URL.
+   - `medusa_url`: Medusa as seen from n8n. With n8n in compose and Medusa on the host (`yarn dev`), that is `http://host.docker.internal:9000` (the default); with Medusa in compose too (apps file), `http://medusa:9000`; in Kubernetes, the backend service URL.
    - `make`: one make only, or empty for every make.
    - `models_per_run`, default 5.
    - `max_configurations`: -1 for any model.

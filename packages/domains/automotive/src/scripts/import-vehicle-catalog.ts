@@ -6,9 +6,11 @@
 //
 //   (from apps/backend) npx medusa exec \
 //     ../../packages/domains/automotive/.medusa/server/src/scripts/import-vehicle-catalog.js \
-//     ../../packages/domains/automotive/data/vehicle-catalog/tunisia [--dry-run]
+//     ../../packages/domains/automotive/data/vehicle-catalog/tunisia [dry-run]
 //
-// Arguments: catalog files or folders (every *.json inside); --dry-run.
+// Arguments: catalog files or folders (every *.json inside whose `format` is
+// vehicle-catalog@…, so a folder's model-map.json or report.json is skipped); `dry-run` (a
+// plain word: `medusa exec` refuses unknown --flags) reports without writing.
 import fs from "node:fs";
 import path from "node:path";
 import type { ExecArgs } from "@medusajs/framework/types";
@@ -22,7 +24,8 @@ const catalogFiles = (target: string): string[] => {
     .readdirSync(target)
     .filter((f) => f.endsWith(".json"))
     .sort()
-    .map((f) => path.join(target, f));
+    .map((f) => path.join(target, f))
+    .filter((f) => /"format"\s*:\s*"vehicle-catalog@/.test(fs.readFileSync(f, "utf8").slice(0, 200)));
 };
 
 const counts = (c: CatalogImportReport["created"]) =>
@@ -30,9 +33,9 @@ const counts = (c: CatalogImportReport["created"]) =>
 
 export default async function importVehicleCatalog({ container, args = [] }: ExecArgs) {
   const logger = container.resolve("logger");
-  const dryRun = args.includes("--dry-run");
-  const targets = args.filter((a) => !a.startsWith("--"));
-  if (!targets.length) throw new Error("Usage: import-vehicle-catalog <file or folder>... [--dry-run]");
+  const dryRun = args.includes("dry-run") || args.includes("--dry-run");
+  const targets = args.filter((a) => !a.startsWith("--") && a !== "dry-run");
+  if (!targets.length) throw new Error("Usage: import-vehicle-catalog <file or folder>... [dry-run]");
 
   const vehicles = container.resolve<VehicleModuleService>(VEHICLE_MODULE);
   let failed = 0;

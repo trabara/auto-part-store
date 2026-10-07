@@ -4,7 +4,7 @@ Catalog files (`vehicle-catalog@1`, schema `CatalogFileSchema` in `@repo/module-
 imported by the domain's `import-vehicle-catalog` script:
 
 ```bash
-# from apps/backend (add --dry-run to see what would change)
+# from apps/backend (append `dry-run` to see what would change)
 yarn seed:vehicles
 ```
 
@@ -74,7 +74,7 @@ generations to the same models:
 # from apps/backend
 npx medusa exec ../../packages/domains/automotive/.medusa/server/src/scripts/import-vehicle-catalog.js \
   ../../packages/domains/automotive/data/vehicle-catalog/tunisia \
-  ../../packages/domains/automotive/data/vehicle-catalog/tunisia-draft --dry-run
+  ../../packages/domains/automotive/data/vehicle-catalog/tunisia-draft dry-run
 ```
 
 Known limits, to review per model before production:

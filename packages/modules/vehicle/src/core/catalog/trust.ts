@@ -17,6 +17,14 @@ const rank = (tier: string | null | undefined) => TIER_RANK[(tier as SourceTier)
 export const mayOverwrite = (record: string | null | undefined, incoming: string) =>
   record !== SourceTier.HUMAN && rank(incoming) > rank(record);
 
+/**
+ * A blank value of a record may be filled from a source of `incoming` tier:
+ * never on a staff edit, and a blank end year ("still produced", a claim)
+ * only from a higher tier.
+ */
+export const mayFill = (record: string | null | undefined, incoming: string, field: string) =>
+  record !== SourceTier.HUMAN && (field !== "year_end" || mayOverwrite(record, incoming));
+
 /** The higher of two tiers. */
 export const higherTier = (a: string | null | undefined, b: string): SourceTier =>
   (rank(a) >= rank(b) ? (a ?? SourceTier.DRAFT) : b) as SourceTier;

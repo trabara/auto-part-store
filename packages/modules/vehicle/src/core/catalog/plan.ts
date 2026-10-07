@@ -15,13 +15,13 @@ import { SourceTier } from "../../contract/entities/enums";
 import type { SourceRef } from "../../contract/entities/shared";
 import { childrenOf } from "./export";
 import { engineKey, generationKey, makeKey, modelKey, vehicleKey } from "./keys";
-import { higherTier, mayOverwrite, mergeSources } from "./trust";
+import { higherTier, mayFill, mayOverwrite, mergeSources } from "./trust";
 
 /** An existing record (`id`) or one the plan creates (`key`). */
 export type CatalogRef = { id: string } | { key: string };
 
 /** A record's provenance, as stored (optional in snapshots built by hand). */
-type Provenance = { source_tier?: string | null; sources?: SourceRef[] | null };
+type Provenance = { source_tier?: string | null; sources?: SourceRef[] | null; verified_at?: Date | string | null };
 
 /** The records of the vehicle module an import needs to know about. */
 export type CatalogSnapshot = {
@@ -45,7 +45,7 @@ export type CatalogSnapshot = {
 };
 
 /** Provenance to write on a record (created, updated or touched). */
-export type ProvenancePatch = { source_tier: SourceTier; sources: SourceRef[]; verified_at: Date };
+export type ProvenancePatch = { source_tier: SourceTier; sources: SourceRef[]; verified_at: Date | null };
 
 /** The catalog entities an import writes provenance on. */
 export type CatalogRecordEntity = "VehicleMake" | "VehicleModel" | "VehicleGeneration" | "VehicleEngine" | "Vehicle";
@@ -109,7 +109,7 @@ const inside = (inner: Years, outer: Years) =>
 export function planCatalog(
   file: CatalogFile,
   snapshot: CatalogSnapshot,
-  options: { mode?: CatalogImportMode; now?: Date } = {},
+  options: { mode?: CatalogImportMode; now?: Date; touch?: boolean } = {},
 ): CatalogPlan {
   const mode = options.mode ?? "create";
   const now = options.now ?? new Date();
@@ -121,11 +121,13 @@ export function planCatalog(
     tier,
     at: file.source.retrieved_at ?? now.toISOString().slice(0, 10),
   });
-  const created = (url?: string | null): ProvenancePatch => ({ source_tier: tier, sources: [sourceRef(url)], verified_at: now });
+  // An unreviewed bulk (draft) file is no verification: its records stay due.
+  const verifies = tier !== SourceTier.DRAFT;
+  const created = (url?: string | null): ProvenancePatch => ({ source_tier: tier, sources: [sourceRef(url)], verified_at: verifies ? now : null });
   const stamped = (record: Provenance, url?: string | null): ProvenancePatch => ({
     source_tier: higherTier(record.source_tier, tier),
     sources: mergeSources(record.sources, sourceRef(url)),
-    verified_at: now,
+    verified_at: verifies ? now : record.verified_at ? new Date(record.verified_at) : null,
   });
   const plan: CatalogPlan = {
     makes: [],
@@ -159,8 +161,8 @@ export function planCatalog(
     if (blank(incoming) || current === incoming) return;
     const write =
       mode === "overwrite" ||
-      ((mode === "fill" || mode === "merge") && blank(current)) ||
-      (mode === "merge" && mayOverwrite(recordTier, tier));
+      (mode === "fill" && blank(current)) ||
+      (mode === "merge" && ((blank(current) && mayFill(recordTier, tier, field)) || mayOverwrite(recordTier, tier)));
     if (write) {
       const update = updates.get(id) ?? { entity, id, where, data: {}, changes: [] };
       update.data[field] = incoming ?? null;
@@ -345,7 +347,8 @@ export function planCatalog(
     if (m) update.provenance = stamped(m.record, m.url);
   }
   for (const [id, m] of matched) {
-    if (contradicted.has(id) || updates.has(id)) continue;
+    // `touch: false`: the file only adds records (e.g. what a verification found missing).
+    if (options.touch === false || contradicted.has(id) || updates.has(id)) continue;
     plan.touches.push({ entity: m.entity, id, provenance: stamped(m.record, m.url) });
   }
 

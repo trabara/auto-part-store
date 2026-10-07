@@ -81,7 +81,7 @@ medusaIntegrationTestRunner({
         await service().importCatalog(withSource("Wikipedia draft", "DRAFT", "X1"));
         let gen = await logan3();
         expect(gen).toMatchObject({ code: "X1", source_tier: "DRAFT", sources: [{ name: "Wikipedia draft", tier: "DRAFT" }] });
-        expect(gen.verified_at).toBeTruthy();
+        expect(gen.verified_at).toBeNull(); // a draft is no verification: due right away
 
         // Research outranks the draft: merge replaces its code.
         const merged = await service().importCatalog(withSource("AI research", "RESEARCH", "LJI"), { mode: "merge" });
@@ -89,6 +89,7 @@ medusaIntegrationTestRunner({
         gen = await logan3();
         expect(gen).toMatchObject({ code: "LJI", source_tier: "RESEARCH" });
         expect(gen.sources.map((s: any) => s.name)).toEqual(["AI research", "Wikipedia draft"]);
+        expect(gen.verified_at).toBeTruthy();
 
         // A staff edit in the admin pins the record.
         const admin = await adminHeaders(getContainer());

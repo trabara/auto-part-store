@@ -1,3 +1,4 @@
+import { randomUUID } from "node:crypto";
 import type { Context } from "@medusajs/framework/types";
 import {
   InjectManager,
@@ -14,6 +15,9 @@ import {
   VehicleMake,
   VehicleModel,
   VehicleReference,
+  CatalogEntityName,
+  CatalogTaskKind,
+  CatalogTaskStatus,
   SourceTier,
   type SourceRef,
   type CatalogFile,
@@ -34,7 +38,24 @@ import {
   type CatalogTouch,
   type ModelCoverage,
   type ResearchTask,
+  type Correction,
+  type Finding,
+  type FindingFix,
+  type LedgerRecords,
+  type LintRecords,
+  type StewardContext,
+  type StewardGeneration,
+  type VerificationOutcome,
+  claimable,
+  effectivePriority,
+  higherTier,
+  lintCatalog,
   mergeSources,
+  nextRun,
+  parseOutput,
+  researchFile,
+  taskCandidates,
+  verificationOutcome,
 } from "../core";
 import { vehicleModels } from "./models/vehicle";
 
@@ -66,7 +87,7 @@ const GENERATION_RELATIONS = relationsOf(VehicleGeneration.label.fields);
 const byName = (a: { name: string }, b: { name: string }) => a.name.localeCompare(b.name);
 
 /** Provenance columns, read with the records an import compares. */
-const PROVENANCE = ["source_tier", "sources"] as const;
+const PROVENANCE = ["source_tier", "sources", "verified_at"] as const;
 
 export type VehicleSummary = { id: string; label: string; year_start: number; year_end: number | null };
 
@@ -89,11 +110,11 @@ export default class VehicleModuleService extends MedusaService(vehicleModels) {
   @InjectTransactionManager()
   async importCatalog(
     file: CatalogFile,
-    options: { dryRun?: boolean; mode?: CatalogImportMode; now?: Date } = {},
+    options: { dryRun?: boolean; mode?: CatalogImportMode; now?: Date; touch?: boolean } = {},
     @MedusaContext() ctx: Context = {},
   ): Promise<CatalogImportReport> {
     const mode = options.mode ?? "create";
-    const plan = planCatalog(file, await this.catalogSnapshot_(file, ctx), { mode, now: options.now });
+    const plan = planCatalog(file, await this.catalogSnapshot_(file, ctx), { mode, now: options.now, touch: options.touch });
     const problems = [...validateCatalog(file), ...plan.problems];
     const report: CatalogImportReport = {
       dryRun: !!options.dryRun,
@@ -386,6 +407,513 @@ export default class VehicleModuleService extends MedusaService(vehicleModels) {
     return { tasks, count: all.length };
   }
 
+  // ── Maintenance ledger ─────────────────────────────────────────────────────
+
+  /** Everything the ledger and the rules read, in a few queries. */
+  @InjectManager()
+  protected async ledgerRecords_(@MedusaContext() ctx: Context = {}): Promise<LedgerRecords & LintRecords> {
+    const prov = ["source_tier", "verified_at"];
+    const [makes, models, generations, vehicles, engines, references] = await Promise.all([
+      this.listVehicleMakes({}, { select: ["id", "name"] }, ctx),
+      this.listVehicleModels({}, { select: ["id", "make_id", "name", "category", "on_sale_new", ...prov] }, ctx),
+      this.listVehicleGenerations({}, { select: ["id", "model_id", "name", "code", "year_start", "year_end", ...prov] }, ctx),
+      this.listVehicles(
+        {},
+        { select: ["id", "generation_id", "engine_id", "body_style", "doors", "drive", "transmission", "trim", "year_start", "year_end", ...prov] },
+        ctx,
+      ),
+      this.listVehicleEngines({}, { select: ["id", "code", "fuel", "layout", "cylinders", "displacement_cc", "power_kw", ...prov] }, ctx),
+      this.listVehicleReferences({}, { select: ["id", "vehicle_id", "source", "external_id"] }, ctx),
+    ]);
+    return { makes, models, generations, vehicles, engines, references } as unknown as LedgerRecords & LintRecords;
+  }
+
+  /**
+   * Brings the ledger in line with the catalog: a task for each gap to
+   * research and each unit due for verification (priorities refreshed, closed
+   * tasks reopened), and tasks no longer needed closed. Tasks waiting for a
+   * person (REVIEW) and leased ones are left alone.
+   */
+  @InjectTransactionManager()
+  async refreshTasks(
+    options: { maxConfigurations?: number; now?: Date } = {},
+    @MedusaContext() ctx: Context = {},
+  ): Promise<{ created: number; reopened: number; closed: number; open: number }> {
+    const now = options.now ?? new Date();
+    const candidates = taskCandidates(await this.ledgerRecords_(ctx), { now, maxConfigurations: options.maxConfigurations });
+    const existing = await this.listCatalogTasks({ kind: STEWARD_KINDS }, { select: ["id", "kind", "key", "status", "priority", "attempts", "record_id"] }, ctx);
+    const byKey = new Map(existing.map((t) => [`${t.kind}|${t.key}`, t]));
+    const wanted = new Set<string>();
+    const create: Row[] = [];
+    const update: Row[] = [];
+    let reopened = 0;
+    for (const c of candidates) {
+      const id = `${c.kind}|${c.key}`;
+      wanted.add(id);
+      const task = byKey.get(id);
+      const names = { make: c.make, model: c.model, generation: c.generation, entity: c.entity, record_id: c.record_id };
+      if (!task) {
+        create.push({ kind: c.kind, key: c.key, ...names, status: CatalogTaskStatus.PENDING, priority: c.priority });
+        continue;
+      }
+      const failures = task.status === CatalogTaskStatus.FAILED ? task.attempts : 0;
+      const priority = effectivePriority(c.priority, failures);
+      if (task.status === CatalogTaskStatus.DONE) {
+        reopened++;
+        update.push({ id: task.id, ...names, status: CatalogTaskStatus.PENDING, priority, attempts: 0, next_run_at: null });
+      } else if (task.priority !== priority || task.record_id !== c.record_id) {
+        update.push({ id: task.id, ...names, priority });
+      }
+    }
+    const closable = new Set<string>([CatalogTaskStatus.PENDING, CatalogTaskStatus.APPLIED, CatalogTaskStatus.NO_DATA, CatalogTaskStatus.FAILED]);
+    const closed = existing.filter((t) => !wanted.has(`${t.kind}|${t.key}`) && closable.has(t.status));
+    for (const t of closed) update.push({ id: t.id, status: CatalogTaskStatus.DONE, next_run_at: null, lease_until: null, lease_token: null });
+    for (let i = 0; i < create.length; i += 500) await this.createCatalogTasks(create.slice(i, i + 500) as any[], ctx);
+    for (let i = 0; i < update.length; i += 500) await this.updateCatalogTasks(update.slice(i, i + 500) as any[], ctx);
+    const open = candidates.length;
+    return { created: create.length, reopened, closed: closed.length, open };
+  }
+
+  /**
+   * Leases the most valuable tasks a worker may run now (optionally of some
+   * kinds, or one make): status RUNNING, a lease token the result must carry,
+   * and an expiry after which another worker may take the task over.
+   */
+  @InjectTransactionManager()
+  async claimTasks(
+    options: { limit?: number; kinds?: CatalogTaskKind[]; make?: string; now?: Date; leaseMinutes?: number } = {},
+    @MedusaContext() ctx: Context = {},
+  ) {
+    const now = options.now ?? new Date();
+    const filters: Row = {
+      kind: options.kinds?.length ? options.kinds : STEWARD_KINDS,
+      status: [CatalogTaskStatus.PENDING, CatalogTaskStatus.RUNNING, CatalogTaskStatus.APPLIED, CatalogTaskStatus.NO_DATA, CatalogTaskStatus.FAILED],
+    };
+    if (options.make) filters.make = options.make;
+    const tasks = (await this.listCatalogTasks(filters, { order: { priority: "DESC", created_at: "ASC" } }, ctx))
+      .filter((t) => claimable(t as any, now))
+      .slice(0, options.limit ?? 10);
+    if (!tasks.length) return [];
+    const leaseUntil = new Date(now.getTime() + (options.leaseMinutes ?? 60) * 60_000);
+    const leased = tasks.map((t) => ({
+      id: t.id,
+      status: CatalogTaskStatus.RUNNING,
+      lease_token: randomUUID(),
+      lease_until: leaseUntil,
+      attempts: (t.attempts ?? 0) + 1,
+      last_run_at: now,
+    }));
+    await this.updateCatalogTasks(leased as any[], ctx);
+    return tasks.map((t, i) => ({ ...t, ...leased[i]! }));
+  }
+
+  /** What a task is about, as the catalog has it, plus the source pages known for it. */
+  @InjectManager()
+  async taskContext(taskId: string, @MedusaContext() ctx: Context = {}): Promise<{ task: Row; context: StewardContext; urls: string[] }> {
+    const task = (await this.retrieveCatalogTask(taskId, {}, ctx)) as Row;
+    const genSelect = ["id", "model_id", "name", "code", "year_start", "year_end", "source_tier", "sources"];
+    let generationRow: Row | undefined;
+    let modelId = task.record_id as string;
+    if (task.entity === CatalogEntityName.VehicleGeneration) {
+      generationRow = (await this.retrieveVehicleGeneration(task.record_id, { select: genSelect }, ctx)) as Row;
+      modelId = generationRow.model_id;
+    }
+    const model = (await this.retrieveVehicleModel(modelId, { select: ["id", "make_id", "name", "category", "source_tier", "sources"] }, ctx)) as Row;
+    const make = (await this.retrieveVehicleMake(model.make_id, { select: ["id", "name"] }, ctx)) as Row;
+    const generations = ((await this.listVehicleGenerations({ model_id: model.id }, { select: genSelect }, ctx)) as Row[]).sort(
+      (a, b) => a.year_start - b.year_start,
+    );
+    const context: StewardContext = {
+      kind: task.kind,
+      feedback: task.feedback,
+      make: { id: make.id, name: make.name },
+      model: { id: model.id, name: model.name, category: model.category, source_tier: model.source_tier },
+      generations: generations.map(pickGeneration),
+    };
+    const urls = new Set<string>();
+    const addUrls = (sources: SourceRef[] | null | undefined) => (sources ?? []).forEach((s) => s.url && urls.add(s.url));
+    if (generationRow) {
+      context.generation = pickGeneration(generationRow);
+      const vehicles = ((await this.listVehicles({ generation_id: generationRow.id }, { relations: ["engine"] }, ctx)) as Row[]).sort(
+        (a, b) => a.year_start - b.year_start || (a.engine?.power_kw ?? 0) - (b.engine?.power_kw ?? 0),
+      );
+      context.vehicles = vehicles.map((v) => ({
+        id: v.id,
+        engine_id: v.engine_id,
+        body_style: v.body_style,
+        doors: v.doors,
+        drive: v.drive,
+        transmission: v.transmission,
+        trim: v.trim,
+        year_start: v.year_start,
+        year_end: v.year_end,
+        source_tier: v.source_tier,
+      }));
+      const engines = new Map<string, Row>(vehicles.filter((v) => v.engine).map((v) => [v.engine.id, v.engine]));
+      context.engines = [...engines.values()].map((e) => ({
+        id: e.id,
+        code: e.code,
+        fuel: e.fuel,
+        layout: e.layout,
+        cylinders: e.cylinders,
+        displacement_cc: e.displacement_cc,
+        power_kw: e.power_kw,
+        source_tier: e.source_tier,
+      }));
+      addUrls(generationRow.sources);
+    }
+    addUrls(model.sources);
+    generations.forEach((g) => addUrls(g.sources));
+    // Pages other tasks of this model read.
+    const siblings = await this.listCatalogTasks({ make: make.name, model: model.name }, { select: ["sources"] }, ctx);
+    siblings.forEach((t) => (t.sources ?? []).forEach((u: string) => urls.add(u)));
+    return { task, context, urls: [...urls] };
+  }
+
+  /**
+   * Records a worker's result for a leased task and applies it by the
+   * steward's policy (see the domain's README):
+   * - research: quotes checked, then a dry run; applied (merge, research tier)
+   *   when clean, else kept for review (problems, likely duplicates, mostly
+   *   assumed values); nothing new → NO_DATA;
+   * - verification: confirmed records stamped, corrections of draft (or
+   *   blank) values applied, the rest kept for review, missing records added.
+   * The task then waits by its outcome (backoff).
+   */
+  @InjectTransactionManager()
+  async submitTaskResult(taskId: string, input: TaskResultInput, @MedusaContext() ctx: Context = {}): Promise<TaskResult> {
+    const now = new Date();
+    const task = (await this.retrieveCatalogTask(taskId, {}, ctx)) as Row;
+    if (task.status !== CatalogTaskStatus.RUNNING || task.lease_token !== input.lease_token) {
+      throw new MedusaError(MedusaError.Types.NOT_ALLOWED, "This task's lease expired or belongs to another run.");
+    }
+    const sources = [...new Set([...(task.sources ?? []), ...(input.sources ?? []), ...(input.evidence ?? []).map((e) => e.url)])].slice(-20);
+    const cost = addCost(task.cost, input.cost, input.model);
+    const verification = task.kind === CatalogTaskKind.VERIFY_MODEL || task.kind === CatalogTaskKind.VERIFY_GENERATION;
+    const finish = async (status: CatalogTaskStatus, reason: string, report: Row, extra: Row = {}): Promise<TaskResult> => {
+      // A verified unit is done: the ledger reopens it when its records fall due again.
+      const stored = verification && status === CatalogTaskStatus.APPLIED ? CatalogTaskStatus.DONE : status;
+      await this.updateCatalogTasks(
+        [
+          {
+            id: task.id,
+            status: stored,
+            next_run_at: nextRun(stored, task.attempts, now),
+            lease_until: null,
+            lease_token: null,
+            report: { ...report, reason, model: input.model ?? null, notes: input.notes ?? null, at: now.toISOString() },
+            sources,
+            cost,
+            attention: false,
+            ...extra,
+          },
+        ] as any[],
+        ctx,
+      );
+      return { status, reason, report };
+    };
+    if (input.error) return finish(CatalogTaskStatus.FAILED, "error", { error: input.error });
+
+    const { context } = await this.taskContext(taskId, ctx);
+    const evidenceText = (input.evidence ?? []).map((e) => e.text).join("\n\n");
+    const source = {
+      name: input.model ? `AI research (${input.model})` : "AI research",
+      url: input.evidence?.[0]?.url ?? input.sources?.[0] ?? "",
+      retrievedAt: now.toISOString().slice(0, 10),
+    };
+    const research = task.kind === CatalogTaskKind.RESEARCH_GENERATIONS || task.kind === CatalogTaskKind.RESEARCH_CONFIGURATIONS;
+
+    if (research) {
+      let file: CatalogFile | null;
+      let checked: Row = {};
+      if (input.file) {
+        file = scopeFile(input.file, context);
+      } else {
+        const output = parseOutput(task.kind, input.output);
+        if (!output) return finish(CatalogTaskStatus.FAILED, "invalid output", {});
+        const result = researchFile(context, output as any, evidenceText, source);
+        file = result.file;
+        checked = { unsupported: result.unsupported, assumed: result.assumed, kept: result.kept };
+        if (file && result.kept && result.assumed / result.kept > 0.5) {
+          const dry = await this.importCatalog(file, { dryRun: true, mode: "merge" }, ctx);
+          return finish(CatalogTaskStatus.REVIEW, "mostly assumed values", { ...checked, ...dry }, { proposal: file });
+        }
+      }
+      if (!file) return finish(CatalogTaskStatus.NO_DATA, (checked.unsupported as string[] | undefined)?.length ? "unsupported" : "nothing found", checked);
+      const dry = await this.importCatalog(file, { dryRun: true, mode: "merge" }, ctx);
+      const report = { ...checked, ...dry };
+      if (dry.problems.length) return finish(CatalogTaskStatus.REVIEW, "problems", report, { proposal: file });
+      if (dry.warnings.length) return finish(CatalogTaskStatus.REVIEW, "possible duplicates", report, { proposal: file });
+      const adds = dry.created.generations + dry.created.vehicles + dry.updated.length;
+      if (!adds && !dry.touched) return finish(CatalogTaskStatus.NO_DATA, "nothing new", report);
+      const applied = await this.importCatalog(file, { mode: "merge" }, ctx);
+      return finish(CatalogTaskStatus.APPLIED, adds ? "applied" : "confirmed", { ...checked, ...applied }, { attention: applied.differences.length > 0 });
+    }
+
+    // Verification.
+    const output = parseOutput(task.kind, input.output);
+    if (!output) return finish(CatalogTaskStatus.FAILED, "invalid output", {});
+    const outcome = verificationOutcome(context, output as any, evidenceText, source);
+    // A configuration's first year is part of its identity: changed by a person only.
+    const apply = outcome.apply.filter((c) => !(c.entity === "Vehicle" && c.field === "year_start"));
+    const review = [...outcome.review, ...outcome.apply.filter((c) => c.entity === "Vehicle" && c.field === "year_start")];
+    const ref: SourceRef = { name: source.name, url: source.url || null, tier: SourceTier.RESEARCH, at: source.retrievedAt };
+    await this.stampConfirmed_(outcome.confirmed, ref, now, ctx);
+    const appliedChanges = await this.applyCorrections_(context, apply, ref, now, ctx);
+    review.push(...appliedChanges.refused);
+    let missing: Row | null = null;
+    if (outcome.missing) {
+      const dry = await this.importCatalog(outcome.missing, { dryRun: true, mode: "merge", touch: false }, ctx);
+      if (dry.problems.length || dry.warnings.length) missing = { file: outcome.missing, report: dry };
+      else await this.importCatalog(outcome.missing, { mode: "merge", touch: false }, ctx);
+    }
+    const report = {
+      confirmed: outcome.confirmed.length,
+      corrected: appliedChanges.applied.map(describeCorrection),
+      review: review.map(describeCorrection),
+      missing: outcome.missing ? countVehicles(outcome.missing) : 0,
+      unsupported: outcome.unsupported,
+    };
+    if (review.length || missing) {
+      return finish(CatalogTaskStatus.REVIEW, review.length ? "corrections to review" : "missing records to review", report, {
+        proposal: { corrections: review, missing },
+      });
+    }
+    if (outcome.confirmed.length || appliedChanges.applied.length || outcome.missing) {
+      return finish(CatalogTaskStatus.APPLIED, "verified", report);
+    }
+    return finish(CatalogTaskStatus.NO_DATA, outcome.unsupported.length ? "unsupported" : "nothing found", report);
+  }
+
+  /** Stamps records a source confirmed: verified now, the source added, draft raised to research. */
+  @InjectTransactionManager()
+  protected async stampConfirmed_(
+    confirmed: VerificationOutcome["confirmed"],
+    ref: SourceRef,
+    now: Date,
+    @MedusaContext() ctx: Context = {},
+  ) {
+    const touches: CatalogTouch[] = [];
+    for (const entity of ["VehicleModel", "VehicleGeneration", "Vehicle", "VehicleEngine"] as const) {
+      const ids = confirmed.filter((c) => c.entity === entity).map((c) => c.id);
+      if (!ids.length) continue;
+      const rows = await this.records_(entity).list({ id: ids }, { select: ["id", "source_tier", "sources"] }, ctx);
+      for (const r of rows) {
+        touches.push({ entity, id: r.id, provenance: { source_tier: higherTier(r.source_tier, SourceTier.RESEARCH), sources: mergeSources(r.sources, ref), verified_at: now } });
+      }
+    }
+    await this.stampProvenance_(touches, ctx);
+  }
+
+  /**
+   * Applies corrections a verification may make on its own (draft or blank
+   * values of generations and configurations), when the catalog's rules
+   * still hold afterwards; the others come back as refused (for review).
+   */
+  @InjectTransactionManager()
+  protected async applyCorrections_(
+    context: StewardContext,
+    corrections: Correction[],
+    ref: SourceRef,
+    now: Date,
+    @MedusaContext() ctx: Context = {},
+  ): Promise<{ applied: Correction[]; refused: Correction[] }> {
+    const applied: Correction[] = [];
+    const refused: Correction[] = [];
+    const byRecord = new Map<string, Correction[]>();
+    for (const c of corrections) byRecord.set(c.id, [...(byRecord.get(c.id) ?? []), c]);
+    for (const [id, changes] of byRecord) {
+      const entity = changes[0]!.entity;
+      if (entity === "VehicleEngine") {
+        refused.push(...changes);
+        continue;
+      }
+      const record =
+        entity === "VehicleGeneration" ? context.generations.find((g) => g.id === id) : context.vehicles?.find((v) => v.id === id);
+      if (!record) {
+        refused.push(...changes);
+        continue;
+      }
+      const after = { ...record, ...Object.fromEntries(changes.map((c) => [c.field, c.to])) } as Row;
+      // Years stay coherent: a generation keeps its configurations, a configuration fits its generation.
+      const within = (inner: Row, outer: Row) =>
+        inner.year_start >= outer.year_start && (outer.year_end == null || (inner.year_end != null && inner.year_end <= outer.year_end));
+      const ok =
+        (after.year_end == null || after.year_end >= after.year_start) &&
+        (entity === "VehicleGeneration"
+          ? context.generation?.id !== id || (context.vehicles ?? []).every((v) => within(v, after))
+          : within(after, context.generation!));
+      if (!ok) {
+        refused.push(...changes);
+        continue;
+      }
+      const current = await this.records_(entity).list({ id }, { select: ["id", "source_tier", "sources"] }, ctx);
+      await this.records_(entity).update(
+        [
+          {
+            id,
+            ...Object.fromEntries(changes.map((c) => [c.field, c.to])),
+            source_tier: higherTier(current[0]?.source_tier, SourceTier.RESEARCH),
+            sources: mergeSources(current[0]?.sources, ref),
+            verified_at: now,
+          },
+        ],
+        ctx,
+      );
+      applied.push(...changes);
+    }
+    return { applied, refused };
+  }
+
+  /**
+   * Settles a task waiting for review the way its proposal or finding says:
+   * a research proposal is imported (overwrite, reference tier: a person
+   * reviewed it), verification corrections are written, a cleanup fix is
+   * applied (vehicle merges, which touch other modules, go through the
+   * domain's workflow). The task is closed.
+   */
+  @InjectTransactionManager()
+  async approveTask(taskId: string, @MedusaContext() ctx: Context = {}): Promise<Row> {
+    const task = (await this.retrieveCatalogTask(taskId, {}, ctx)) as Row;
+    if (task.status !== CatalogTaskStatus.REVIEW) {
+      throw new MedusaError(MedusaError.Types.NOT_ALLOWED, "Only tasks waiting for review can be approved.");
+    }
+    const now = new Date();
+    const result: Row = {};
+    const proposal = task.proposal as Row | null;
+    if (task.kind === CatalogTaskKind.CLEANUP) {
+      const fix = (task.finding as Row | null)?.fix as FindingFix | undefined;
+      if (!fix) throw new MedusaError(MedusaError.Types.NOT_ALLOWED, "This finding proposes no fix: reject it, or fix the record by hand.");
+      if (fix.kind === "update") {
+        await this.records_(task.entity as CatalogRecordEntity).update([{ id: task.record_id, ...fix.data }], ctx);
+        result.updated = fix.data;
+      } else if (task.entity === CatalogEntityName.VehicleEngine) {
+        result.merged = await this.mergeEngines(task.record_id, fix.into, ctx);
+      } else if (task.entity === CatalogEntityName.VehicleGeneration) {
+        result.merged = await this.mergeGenerations(task.record_id, fix.into, ctx);
+      } else {
+        throw new MedusaError(MedusaError.Types.NOT_ALLOWED, `Merging ${task.entity} records goes through the domain's merge workflow.`);
+      }
+    } else if (proposal?.format === "vehicle-catalog@1") {
+      const file = { ...(proposal as unknown as CatalogFile), source: { ...(proposal as any).source, tier: SourceTier.REFERENCE } };
+      result.import = await this.importCatalog(file, { mode: "overwrite" }, ctx);
+      if ((result.import as CatalogImportReport).problems.length) {
+        throw new MedusaError(MedusaError.Types.INVALID_DATA, (result.import as CatalogImportReport).problems.join(" "));
+      }
+    } else if (proposal) {
+      const ref: SourceRef = { name: "reviewed correction", url: null, tier: SourceTier.REFERENCE, at: now.toISOString().slice(0, 10) };
+      for (const c of (proposal.corrections ?? []) as Correction[]) {
+        const current = await this.records_(c.entity).list({ id: c.id }, { select: ["id", "source_tier", "sources"] }, ctx);
+        await this.records_(c.entity).update(
+          [{ id: c.id, [c.field]: c.to, source_tier: higherTier(current[0]?.source_tier, SourceTier.REFERENCE), sources: mergeSources(current[0]?.sources, ref), verified_at: now }],
+          ctx,
+        );
+      }
+      if (proposal.missing?.file) result.import = await this.importCatalog(proposal.missing.file, { mode: "merge", touch: false }, ctx);
+      await this.assertWithinGeneration(
+        ((proposal.corrections ?? []) as Correction[]).filter((c) => c.entity === "Vehicle").map((c) => c.id),
+        ctx,
+      );
+    }
+    await this.updateCatalogTasks([{ id: task.id, status: CatalogTaskStatus.DONE, next_run_at: null, report: { ...(task.report ?? {}), approved_at: now.toISOString(), result } }] as any[], ctx);
+    return result;
+  }
+
+  /** Dismisses a proposal or finding: closed, with the reviewer's feedback (given to the next run), not raised again for 180 days. */
+  @InjectTransactionManager()
+  async rejectTask(taskId: string, feedback: string | null, @MedusaContext() ctx: Context = {}) {
+    const task = (await this.retrieveCatalogTask(taskId, {}, ctx)) as Row;
+    const now = new Date();
+    await this.updateCatalogTasks(
+      [{ id: task.id, status: CatalogTaskStatus.DONE, feedback: feedback ?? task.feedback, next_run_at: new Date(now.getTime() + 180 * 86_400_000), proposal: null }] as any[],
+      ctx,
+    );
+  }
+
+  /**
+   * Checks every record against the catalog's rules: safe fixes (stray
+   * spaces) are applied; errors and warnings become CLEANUP tasks for review
+   * (one per finding, closed once fixed; dismissed ones stay quiet for 180
+   * days); information findings are only counted.
+   */
+  @InjectTransactionManager()
+  async runLint(options: { now?: Date } = {}, @MedusaContext() ctx: Context = {}) {
+    const now = options.now ?? new Date();
+    const findings = lintCatalog(await this.ledgerRecords_(ctx), { now });
+    const fixed: Finding[] = [];
+    for (const f of findings.filter((x) => x.fix?.kind === "update" && x.fix.safe)) {
+      await this.records_(f.entity as CatalogRecordEntity).update([{ id: f.id, ...(f.fix as { data: Row }).data }], ctx);
+      fixed.push(f);
+    }
+    const reviewable = findings.filter((f) => !fixed.includes(f) && f.severity !== "info");
+    const existing = await this.listCatalogTasks({ kind: CatalogTaskKind.CLEANUP }, { select: ["id", "key", "status", "next_run_at"] }, ctx);
+    const byKey = new Map(existing.map((t) => [t.key, t]));
+    const create: Row[] = [];
+    const update: Row[] = [];
+    const seen = new Set<string>();
+    for (const f of reviewable) {
+      seen.add(f.key);
+      const row = {
+        rule: f.rule,
+        entity: f.entity,
+        record_id: f.id,
+        make: f.make,
+        model: f.model,
+        generation: f.generation,
+        finding: { severity: f.severity, message: f.message, fix: f.fix ?? null },
+        priority: f.severity === "error" ? 90 : 50,
+      };
+      const task = byKey.get(f.key);
+      if (!task) create.push({ kind: CatalogTaskKind.CLEANUP, key: f.key, status: CatalogTaskStatus.REVIEW, ...row });
+      else if (task.status === CatalogTaskStatus.DONE && task.next_run_at && new Date(task.next_run_at) > now) continue; // dismissed
+      else update.push({ id: task.id, status: CatalogTaskStatus.REVIEW, ...row });
+    }
+    const resolved = existing.filter((t) => !seen.has(t.key) && t.status === CatalogTaskStatus.REVIEW);
+    for (const t of resolved) update.push({ id: t.id, status: CatalogTaskStatus.DONE });
+    for (let i = 0; i < create.length; i += 500) await this.createCatalogTasks(create.slice(i, i + 500) as any[], ctx);
+    for (let i = 0; i < update.length; i += 500) await this.updateCatalogTasks(update.slice(i, i + 500) as any[], ctx);
+    const bySeverity = (s: string) => findings.filter((f) => f.severity === s).length;
+    return {
+      findings: findings.length,
+      errors: bySeverity("error"),
+      warnings: bySeverity("warning"),
+      info: bySeverity("info"),
+      fixed: fixed.length,
+      opened: create.length,
+      resolved: resolved.length,
+      rules: Object.fromEntries([...new Set(findings.map((f) => f.rule))].map((r) => [r, findings.filter((f) => f.rule === r).length])),
+    };
+  }
+
+  /** Merges an engine into another: its configurations move over (refused if one would collide), then it is deleted. */
+  @InjectTransactionManager()
+  async mergeEngines(fromId: string, intoId: string, @MedusaContext() ctx: Context = {}) {
+    if (fromId === intoId) throw new MedusaError(MedusaError.Types.INVALID_DATA, "An engine can't be merged into itself.");
+    await this.retrieveVehicleEngine(intoId, {}, ctx);
+    const vehicles = await this.listVehicles({ engine_id: fromId }, { select: ["id"] }, ctx);
+    if (vehicles.length) await this.updateVehicles(vehicles.map((v) => ({ id: v.id, engine_id: intoId })) as any[], ctx);
+    await this.softDeleteVehicleEngines([fromId], {}, ctx);
+    return { moved: vehicles.length };
+  }
+
+  /** Merges a generation into another of the same model: its configurations move over (they must fit its years), then it is deleted. */
+  @InjectTransactionManager()
+  async mergeGenerations(fromId: string, intoId: string, @MedusaContext() ctx: Context = {}) {
+    if (fromId === intoId) throw new MedusaError(MedusaError.Types.INVALID_DATA, "A generation can't be merged into itself.");
+    const [from, into] = await Promise.all([
+      this.retrieveVehicleGeneration(fromId, { select: ["id", "model_id"] }, ctx),
+      this.retrieveVehicleGeneration(intoId, { select: ["id", "model_id"] }, ctx),
+    ]);
+    if (from.model_id !== into.model_id) throw new MedusaError(MedusaError.Types.INVALID_DATA, "Only generations of the same model can be merged.");
+    const vehicles = await this.listVehicles({ generation_id: fromId }, { select: ["id"] }, ctx);
+    if (vehicles.length) {
+      await this.updateVehicles(vehicles.map((v) => ({ id: v.id, generation_id: intoId })) as any[], ctx);
+      await this.assertWithinGeneration(vehicles.map((v) => v.id), ctx);
+    }
+    await this.softDeleteVehicleGenerations([fromId], {}, ctx);
+    return { moved: vehicles.length };
+  }
+
   // ── Rules (called by the module's entity hooks) ────────────────────────────
 
   /** A configuration's production years must fall within its generation's. */
@@ -469,3 +997,72 @@ function pick(row: Row, ...lists: readonly (readonly string[])[]) {
   for (const key of lists.flat()) if (!key.includes(".") && key in row) out[key] = row[key];
   return out;
 }
+
+/** The kinds a worker runs (cleanup findings wait for people). */
+const STEWARD_KINDS = [
+  CatalogTaskKind.RESEARCH_GENERATIONS,
+  CatalogTaskKind.RESEARCH_CONFIGURATIONS,
+  CatalogTaskKind.VERIFY_MODEL,
+  CatalogTaskKind.VERIFY_GENERATION,
+];
+
+/** A worker's result for a leased task. */
+export type TaskResultInput = {
+  lease_token: string;
+  /** The model that answered (recorded as the source), e.g. "qwen3.5:4b". */
+  model?: string;
+  /** A local model's raw answer, checked against `evidence`. */
+  output?: unknown;
+  /** The cloud agent's answer, already a catalog file. */
+  file?: CatalogFile;
+  /** The pages the answer is based on (for the quote checks). */
+  evidence?: { url: string; text: string }[];
+  notes?: string;
+  /** The run failed (the task backs off). */
+  error?: string;
+  cost?: { usd?: number; credits?: number; steps?: number };
+  sources?: string[];
+};
+
+export type TaskResult = { status: CatalogTaskStatus; reason: string; report: Row };
+
+const pickGeneration = (g: Row): StewardGeneration => ({
+  id: g.id,
+  name: g.name,
+  code: g.code,
+  year_start: g.year_start,
+  year_end: g.year_end,
+  source_tier: g.source_tier,
+});
+
+/** A task's spend, accumulated over its runs. */
+function addCost(current: Row | null | undefined, add: TaskResultInput["cost"], model?: string) {
+  const c = current ?? {};
+  return {
+    usd: Math.round(((c.usd ?? 0) + (add?.usd ?? 0)) * 10_000) / 10_000,
+    credits: (c.credits ?? 0) + (add?.credits ?? 0),
+    steps: (c.steps ?? 0) + (add?.steps ?? 0),
+    model: model ?? c.model ?? null,
+  };
+}
+
+/** An agent's file, kept to the task: its make and model, and for a generation task that generation. */
+function scopeFile(file: CatalogFile, ctx: StewardContext): CatalogFile | null {
+  const same = (a: string, b: string) => a.trim().toLowerCase() === b.trim().toLowerCase();
+  const model = file.makes.find((m) => same(m.name, ctx.make.name))?.models.find((m) => same(m.name, ctx.model.name));
+  if (!model) return null;
+  const generations =
+    ctx.kind === CatalogTaskKind.RESEARCH_CONFIGURATIONS
+      ? model.generations.filter((g) => same(g.name, ctx.generation!.name)).map((g) => ({ ...g, name: ctx.generation!.name }))
+      : model.generations.map((g) => ({ ...g, vehicles: [] }));
+  if (!generations.length) return null;
+  return {
+    ...file,
+    source: { ...file.source, tier: SourceTier.RESEARCH },
+    makes: [{ name: ctx.make.name, models: [{ name: ctx.model.name, category: ctx.model.category as any, generations }] }],
+  };
+}
+
+const describeCorrection = (c: Correction) => `${c.ref}: ${c.field} ${c.from ?? "empty"} → ${c.to ?? "empty"} ("${c.quote}")`;
+const countVehicles = (file: CatalogFile) =>
+  file.makes.flatMap((m) => m.models.flatMap((mo) => mo.generations.flatMap((g) => [g, ...g.vehicles]))).length;

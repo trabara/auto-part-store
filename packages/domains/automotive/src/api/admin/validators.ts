@@ -14,6 +14,15 @@ export const AdminCatalogCoverageParams = z.object({
   offset: z.coerce.number().int().min(0).default(0),
 });
 
+/** What to research next: models without generations, then thin generations. */
+export const AdminCatalogTasksParams = z.object({
+  make: optional(z.string().trim().min(1)),
+  /** Generations with at most this many configurations (default: none yet). */
+  max_configurations: optional(z.coerce.number().int().min(0)),
+  limit: z.coerce.number().int().min(1).max(100).default(10),
+  offset: z.coerce.number().int().min(0).default(0),
+});
+
 /** One make (optionally one model) as a catalog file. */
 export const AdminCatalogExportParams = z.object({
   make: z.string().trim().min(1),
@@ -26,5 +35,6 @@ export const AdminCatalogImportParams = z.object({
 });
 
 export type AdminCatalogCoverageParams = z.infer<typeof AdminCatalogCoverageParams>;
+export type AdminCatalogTasksParams = z.infer<typeof AdminCatalogTasksParams>;
 export type AdminCatalogExportParams = z.infer<typeof AdminCatalogExportParams>;
 export type AdminCatalogImportParams = z.infer<typeof AdminCatalogImportParams>;

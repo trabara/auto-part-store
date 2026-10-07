@@ -37,6 +37,7 @@ export function validateCatalog(file: CatalogFile): string[] {
             const same =
               engineKey(other.engine) === engineKey(v.engine) &&
               other.body_style === v.body_style &&
+              other.doors === v.doors &&
               other.drive === v.drive &&
               other.transmission === v.transmission &&
               (other.trim ?? "").toLowerCase() === (v.trim ?? "").toLowerCase();

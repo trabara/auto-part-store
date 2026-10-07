@@ -114,6 +114,7 @@ medusaIntegrationTestRunner({
             "Dacia › Logan › III › #1: year_end empty → 2025.",
           ],
           differences: [],
+          warnings: [],
         });
         const [before] = await service().listVehicleGenerations({ name: "III" });
         expect(before!.code).toBeNull();
@@ -123,6 +124,23 @@ medusaIntegrationTestRunner({
         const [after] = await service().listVehicleGenerations({ name: "III" });
         expect(after).toMatchObject({ code: "LJI", year_end: 2025 });
         expect(await service().listVehicles({ generation_id: after!.id })).toHaveLength(2);
+      });
+
+      it("queues focused research tasks, each configuration task with what exists", async () => {
+        const auth = await apiKeyHeaders();
+        await service().importCatalog(catalog);
+        const { data } = await api.get("/admin/vehicle-catalog/tasks?make=Dacia&max_configurations=1", auth);
+        expect(data.count).toBe(2);
+        expect(data.tasks[0]).toEqual({ kind: "generations", make: "Dacia", model: "Dokker", category: "LCV" });
+        expect(data.tasks[1]).toMatchObject({
+          kind: "configurations",
+          model: "Logan",
+          generation: { name: "III", year_start: 2020 },
+          generations: [{ name: "III", configurations: 1 }],
+          existing: [{ engine: { code: "H4D", power_kw: 67 }, body_style: "SEDAN", year_start: 2021 }],
+        });
+        // By default only generations without configurations: Logan III has one.
+        expect((await api.get("/admin/vehicle-catalog/tasks?make=Dacia&max_configurations=", auth)).data.count).toBe(1);
       });
 
       it("rejects a malformed file and requires admin authentication", async () => {

@@ -150,7 +150,7 @@ export async function fetchCar2dbCatalog() {
             return owner.series ? owner.series.test(name) : !filters.some((f) => f.test(name));
           };
           data.push({
-            model: { name: owner.model.name, category: owner.model.category },
+            model: { name: owner.model.name, category: owner.model.category ?? "CAR" },
             car2dbModel: { id: c2d.id, name: c2d.name },
             generations,
             series,

@@ -6,6 +6,7 @@
 // missing code, or an end year for a generation still listed as current), and
 // `overwrite` writes them all (for reviewed files).
 import type { CatalogEngine, CatalogFile, CatalogImportMode, CatalogVehicle } from "../../contract/catalog";
+import { childrenOf } from "./export";
 import { engineKey, generationKey, makeKey, modelKey, vehicleKey } from "./keys";
 
 /** An existing record (`id`) or one the plan creates (`key`). */
@@ -58,11 +59,21 @@ export type CatalogPlan = {
   updates: CatalogUpdate[];
   /** Existing values the file contradicts that are not written (per the mode). */
   differences: string[];
+  /** Likely duplicates of existing records (a renamed generation, the same engine described differently): worth a review. */
+  warnings: string[];
   problems: string[];
 };
 
 const blank = (value: unknown) => value == null || value === "";
 const show = (value: unknown) => (blank(value) ? "empty" : String(value));
+type Years = { year_start: number; year_end: number | null };
+const years = (r: Years) => `${r.year_start}–${r.year_end ?? ""}`;
+/** Years two ranges share (Infinity when both are ongoing; negative when apart). */
+const sharedYears = (a: Years, b: Years) =>
+  Math.min(a.year_end ?? Infinity, b.year_end ?? Infinity) - Math.max(a.year_start, b.year_start);
+const inside = (inner: Years, outer: Years) =>
+  inner.year_start >= outer.year_start &&
+  (outer.year_end == null || (inner.year_end != null && inner.year_end <= outer.year_end));
 
 export function planCatalog(
   file: CatalogFile,
@@ -80,13 +91,15 @@ export function planCatalog(
     existing: { makes: 0, models: 0, generations: 0, engines: 0, vehicles: 0, references: 0 },
     updates: [],
     differences: [],
+    warnings: [],
     problems: [],
   };
 
   /** An existing value the file contradicts: updated or reported, per the mode. */
   const updates = new Map<string, CatalogUpdate>();
   const compare = (entity: CatalogUpdate["entity"], id: string, where: string, field: string, current: unknown, incoming: unknown) => {
-    if ((current ?? null) === (incoming ?? null)) return;
+    // A blank value says nothing (omitted, or unknown to the source): the catalog's stays.
+    if (blank(incoming) || current === incoming) return;
     if (mode === "overwrite" || (mode === "fill" && blank(current) && !blank(incoming))) {
       const update = updates.get(id) ?? { entity, id, where, data: {}, changes: [] };
       update.data[field] = incoming ?? null;
@@ -131,6 +144,46 @@ export function planCatalog(
     return { key };
   };
   const countedEngines = new Set<string>();
+  const engineById = new Map(snapshot.engines.map((e) => [e.id, e]));
+  const vehiclesOf = childrenOf(snapshot.vehicles, "generation_id");
+  const generationsOf = childrenOf(snapshot.generations, "model_id");
+  const vehicleById = new Map(snapshot.vehicles.map((v) => [v.id, v]));
+  const generationById = new Map(snapshot.generations.map((g) => [g.id, g]));
+  const norm = (value: string | null) => (value ?? "").trim().toLowerCase();
+
+  /** A new configuration of an existing generation, against what the catalog holds. */
+  const checkAgainstCatalog = (
+    existingGen: CatalogSnapshot["generations"][number],
+    fileGen: Years,
+    v: CatalogVehicle,
+    where: string,
+  ) => {
+    // The generation's years as they will be (updates applied), when the file disagrees.
+    const effective = { ...existingGen, ...(updates.get(existingGen.id)?.data ?? {}) } as Years;
+    const differs = effective.year_start !== fileGen.year_start || (effective.year_end ?? null) !== (fileGen.year_end ?? null);
+    if (differs && !inside(v, effective)) {
+      plan.problems.push(`${where}: years ${years(v)} fall outside the catalog's generation (${years(effective)}).`);
+    }
+    const existingEngine = engines.get(engineKey(v.engine));
+    for (const other of vehiclesOf(existingGen.id)) {
+      if (sharedYears(v, other) < 0) continue;
+      const sameShape =
+        other.body_style === v.body_style && other.doors === v.doors && other.drive === v.drive && other.transmission === v.transmission;
+      if (!sameShape) continue;
+      // The database refuses two identical configurations with overlapping years.
+      if (existingEngine && other.engine_id === existingEngine.id && norm(other.trim) === norm(v.trim)) {
+        plan.problems.push(`${where}: overlaps an existing identical configuration (${years(other)}); use its first year to match it.`);
+        continue;
+      }
+      const otherEngine = engineById.get(other.engine_id);
+      if (otherEngine && otherEngine.fuel === v.engine.fuel && otherEngine.power_kw === v.engine.power_kw) {
+        const described = [otherEngine.code, otherEngine.displacement_cc && `${otherEngine.displacement_cc} cm³`, other.trim].filter(Boolean).join(", ");
+        plan.warnings.push(
+          `${where}: may duplicate an existing configuration (${v.engine.fuel} ${v.engine.power_kw} kW${described ? `, ${described}` : ""}, ${years(other)}); copy its values to match it.`,
+        );
+      }
+    }
+  };
 
   for (const make of file.makes) {
     const mKey = makeKey(make.name);
@@ -145,7 +198,7 @@ export function planCatalog(
       if (existingModel) {
         plan.existing.models++;
         compare("VehicleModel", existingModel.id, `${make.name} › ${model.name}`, "category", existingModel.category, model.category);
-      } else plan.models.push({ key: moKey, make: makeRef, data: { name: model.name, category: model.category } });
+      } else plan.models.push({ key: moKey, make: makeRef, data: { name: model.name, category: model.category ?? "CAR" } });
       const modelRef: CatalogRef = existingModel ? { id: existingModel.id } : { key: moKey };
 
       for (const gen of model.generations) {
@@ -158,6 +211,11 @@ export function planCatalog(
             compare("VehicleGeneration", existingGen.id, genPath, field, existingGen[field], gen[field]);
           }
         } else {
+          for (const other of existingModel ? generationsOf(existingModel.id) : []) {
+            if (sharedYears(gen, other) > 1) {
+              plan.warnings.push(`${genPath}: new generation (${years(gen)}) overlaps existing "${other.name}" (${years(other)}): the same generation under another name?`);
+            }
+          }
           plan.generations.push({
             key: gKey,
             model: modelRef,
@@ -181,8 +239,8 @@ export function planCatalog(
             plan.existing.vehicles++;
             vehicleRef = { id: existingVehicle.id };
             compare("Vehicle", existingVehicle.id, where, "year_end", existingVehicle.year_end, v.year_end);
-            compare("Vehicle", existingVehicle.id, where, "doors", existingVehicle.doors, v.doors);
           } else {
+            if (existingGen) checkAgainstCatalog(existingGen, gen, v, where);
             plan.vehicles.push({ key: vKey, generation: genRef, engine: engineRef(engine), data });
             vehicleRef = { key: vKey };
           }
@@ -197,18 +255,28 @@ export function planCatalog(
     }
   }
 
+  // Updated configuration years must fit their generation's (as it will be).
+  for (const update of plan.updates) {
+    if (update.entity !== "Vehicle") continue;
+    const before = vehicleById.get(update.id)!;
+    const gen = generationById.get(before.generation_id);
+    if (!gen) continue;
+    const vehicle = { ...before, ...update.data } as Years;
+    const generation = { ...gen, ...(updates.get(gen.id)?.data ?? {}) } as Years;
+    if (!inside(vehicle, generation)) {
+      plan.problems.push(`${update.where}: years ${years(vehicle)} would fall outside the generation (${years(generation)}).`);
+    }
+  }
+
   // Updated generation years must still hold their existing configurations.
   for (const update of plan.updates) {
     if (update.entity !== "VehicleGeneration" || !("year_start" in update.data || "year_end" in update.data)) continue;
-    const before = snapshot.generations.find((g) => g.id === update.id)!;
+    const before = generationById.get(update.id)!;
     const after = { ...before, ...update.data } as typeof before;
-    for (const v of snapshot.vehicles.filter((v) => v.generation_id === update.id)) {
-      const end = (updates.get(v.id)?.data.year_end as number | null | undefined) ?? v.year_end;
-      const inside = v.year_start >= after.year_start && (after.year_end == null || (end != null && end <= after.year_end));
-      if (!inside) {
-        plan.problems.push(
-          `${update.where}: new years ${after.year_start}–${after.year_end ?? ""} leave a configuration (${v.year_start}–${end ?? ""}) outside.`,
-        );
+    for (const v of vehiclesOf(update.id)) {
+      const vehicle = { ...v, ...(updates.get(v.id)?.data ?? {}) } as Years;
+      if (!inside(vehicle, after)) {
+        plan.problems.push(`${update.where}: new years ${years(after)} leave a configuration (${years(vehicle)}) outside.`);
       }
     }
   }

@@ -9,8 +9,9 @@
 //     ../../packages/domains/automotive/data/vehicle-catalog/tunisia [dry-run]
 //
 // Arguments: `fill` or `overwrite` (what happens to existing values the file
-// contradicts; default: reported only), catalog files or folders (every *.json inside whose `format` is
-// vehicle-catalog@…, so a folder's model-map.json or report.json is skipped); `dry-run` (a
+// contradicts; default: reported only), catalog files or folders (every *.json
+// inside whose `format` is vehicle-catalog@…: a folder's model-map.json or
+// report.json is skipped; unreadable files count as failed); `dry-run` (a
 // plain word: `medusa exec` refuses unknown --flags) reports without writing.
 import fs from "node:fs";
 import path from "node:path";
@@ -18,16 +19,29 @@ import type { ExecArgs } from "@medusajs/framework/types";
 import { VEHICLE_MODULE, type VehicleModuleService } from "@repo/module-vehicle";
 import { CatalogFileSchema, type CatalogImportReport } from "@repo/module-vehicle/contract";
 
-const catalogFiles = (target: string): string[] => {
-  const stat = fs.statSync(target);
-  if (!stat.isDirectory()) return [target];
-  return fs
-    .readdirSync(target)
-    .filter((f) => f.endsWith(".json"))
-    .sort()
-    .map((f) => path.join(target, f))
-    .filter((f) => /"format"\s*:\s*"vehicle-catalog@/.test(fs.readFileSync(f, "utf8").slice(0, 200)));
+type Target = { file: string; data?: unknown; error?: string; inFolder: boolean };
+
+const read = (file: string, inFolder: boolean): Target => {
+  try {
+    return { file, data: JSON.parse(fs.readFileSync(file, "utf8")), inFolder };
+  } catch (error) {
+    return { file, error: `not valid JSON (${(error as Error).message})`, inFolder };
+  }
 };
+
+/** A file, or every *.json of a folder. */
+const targetsOf = (target: string): Target[] =>
+  fs.statSync(target).isDirectory()
+    ? fs
+        .readdirSync(target)
+        .filter((f) => f.endsWith(".json"))
+        .sort()
+        .map((f) => read(path.join(target, f), true))
+    : [read(target, false)];
+
+/** A folder's other JSON files (a model map, a fetch report) are not catalogs. */
+const isCatalog = (data: unknown) =>
+  typeof data === "object" && data !== null && String((data as { format?: unknown }).format ?? "").startsWith("vehicle-catalog@");
 
 const counts = (c: CatalogImportReport["created"]) =>
   `${c.makes} makes, ${c.models} models, ${c.generations} generations, ${c.engines} engines, ${c.vehicles} configurations, ${c.references} references`;
@@ -42,8 +56,17 @@ export default async function importVehicleCatalog({ container, args = [] }: Exe
 
   const vehicles = container.resolve<VehicleModuleService>(VEHICLE_MODULE);
   let failed = 0;
-  for (const file of targets.flatMap((t) => catalogFiles(path.resolve(t)))) {
-    const parsed = CatalogFileSchema.safeParse(JSON.parse(fs.readFileSync(file, "utf8")));
+  for (const { file, data, error, inFolder } of targets.flatMap((t) => targetsOf(path.resolve(t)))) {
+    if (error) {
+      failed++;
+      logger.error(`[vehicle-catalog] ${file}: ${error}`);
+      continue;
+    }
+    if (inFolder && !isCatalog(data)) {
+      logger.info(`[vehicle-catalog] ${path.basename(file)}: skipped (not a catalog file)`);
+      continue;
+    }
+    const parsed = CatalogFileSchema.safeParse(data);
     if (!parsed.success) {
       failed++;
       const issues = parsed.error.issues.map((i) => `${i.path.join(".")}: ${i.message}`);
@@ -60,6 +83,7 @@ export default async function importVehicleCatalog({ container, args = [] }: Exe
     logger.info(`[vehicle-catalog] ${name}: ${dryRun ? "would create" : "created"} ${counts(report.created)}; existing ${counts(report.existing)}`);
     for (const change of report.updated) logger.info(`[vehicle-catalog] ${name}: ${dryRun ? "would update" : "updated"} ${change}`);
     for (const difference of report.differences) logger.warn(`[vehicle-catalog] ${name}: ${difference}`);
+    for (const warning of report.warnings) logger.warn(`[vehicle-catalog] ${name}: ${warning}`);
   }
   if (failed) throw new Error(`[vehicle-catalog] ${failed} file(s) not imported (see above).`);
 }

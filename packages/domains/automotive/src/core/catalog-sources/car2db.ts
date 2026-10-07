@@ -140,7 +140,7 @@ export function car2dbToCatalog(input: {
   for (const data of input.models) {
     const genById = new Map(data.generations.map((g) => [g.id, g]));
     const genOfSeries = new Map(data.series.map((s) => [s.id, s.generationId]));
-    const generations = new Map<string, CatalogGeneration & { keys: Set<string> }>();
+    const generations = new Map<string, CatalogGeneration & { keys: Map<string, CatalogVehicle[]> }>();
 
     for (const trim of data.trims) {
       const problems: string[] = [];
@@ -223,19 +223,25 @@ export function car2dbToCatalog(input: {
       const groupKey = `${(code ?? name).toLowerCase()}|${stage}`;
       let entry = generations.get(groupKey);
       if (!entry) {
-        entry = { name, code, year_start: genStart, year_end: genEnd, vehicles: [], source: `car2db:generation:${gen.id}`, keys: new Set<string>() };
+        entry = { name, code, year_start: genStart, year_end: genEnd, vehicles: [], source: `car2db:generation:${gen.id}`, keys: new Map<string, CatalogVehicle[]>() };
         generations.set(groupKey, entry);
       } else {
         if (/generation/i.test(gen.name) && !/^[IVX]+\b/.test(entry.name)) entry.name = name;
         entry.year_start = Math.min(entry.year_start, genStart);
         entry.year_end = entry.year_end == null || genEnd == null ? null : Math.max(entry.year_end, genEnd);
       }
-      // The vehicle stays within the merged generation's years.
-      vehicle.year_start = Math.max(vehicle.year_start, entry.year_start);
-      // Same configuration twice (equipment variants): keep the first.
-      const key = JSON.stringify([vehicle.engine, vehicle.body_style, vehicle.drive, vehicle.transmission, (vehicle.trim ?? "").toLowerCase()]);
-      if (entry.keys.has(key)) continue;
-      entry.keys.add(key);
+      // Same configuration (the overlap constraint's columns) more than once:
+      // equipment variants with overlapping years merge into one (widest
+      // years, first reference); a later, separate period stays its own.
+      const key = JSON.stringify([vehicle.engine, vehicle.body_style, vehicle.doors, vehicle.drive, vehicle.transmission, (vehicle.trim ?? "").toLowerCase()]);
+      const same = entry.keys.get(key) ?? [];
+      const overlapping = same.find((o) => o.year_start <= (vehicle.year_end ?? Infinity) && vehicle.year_start <= (o.year_end ?? Infinity));
+      if (overlapping) {
+        overlapping.year_start = Math.min(overlapping.year_start, vehicle.year_start);
+        overlapping.year_end = overlapping.year_end == null || vehicle.year_end == null ? null : Math.max(overlapping.year_end, vehicle.year_end);
+        continue;
+      }
+      entry.keys.set(key, [...same, vehicle]);
       entry.vehicles.push(vehicle);
     }
 

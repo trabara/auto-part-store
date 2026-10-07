@@ -6,7 +6,12 @@ import { GARAGE_PATH, garageRoutes } from "@repo/module-garage";
 import { PARTS_PATH, partsRoutes } from "@repo/module-parts";
 import { VEHICLES_PATH, vehicleRoutes } from "@repo/module-vehicle";
 import { CatalogFileSchema } from "@repo/module-vehicle/contract";
-import { AdminCatalogCoverageParams, AdminCatalogExportParams, AdminCatalogImportParams } from "./admin/validators";
+import {
+  AdminCatalogCoverageParams,
+  AdminCatalogExportParams,
+  AdminCatalogImportParams,
+  AdminCatalogTasksParams,
+} from "./admin/validators";
 import {
   GarageCreateSchema,
   GarageUpdateSchema,
@@ -30,9 +35,10 @@ export default defineMiddlewares({
       methods: ["PUT"],
       middlewares: [validateAndTransformBody(ReplaceConditionsSchema)],
     },
-    // Vehicle catalog research: coverage (what to research), export (what
-    // exists), import (validate with ?dry_run=true, then apply). A model's
-    // catalog can be large, hence the body size.
+    // Vehicle catalog research: tasks and coverage (what to research), export
+    // (what exists), import (validate with ?dry_run=true, then apply). A
+    // model's catalog can be large, hence the body size.
+    { matcher: "/admin/vehicle-catalog/tasks", methods: ["GET"], middlewares: [query(AdminCatalogTasksParams)] },
     { matcher: "/admin/vehicle-catalog/coverage", methods: ["GET"], middlewares: [query(AdminCatalogCoverageParams)] },
     { matcher: "/admin/vehicle-catalog/export", methods: ["GET"], middlewares: [query(AdminCatalogExportParams)] },
     {

@@ -55,7 +55,8 @@ export const CatalogGenerationSchema = z.object({
 
 export const CatalogModelSchema = z.object({
   name,
-  category: z.enum(VehicleCategory).default(VehicleCategory.CAR),
+  /** Omitted: an existing model keeps its category, a new one is a CAR. */
+  category: z.enum(VehicleCategory).optional(),
   generations: z.array(CatalogGenerationSchema).default([]),
   /** Where this model's data comes from (page, document), for audits. */
   source: z.string().trim().optional(),
@@ -109,4 +110,6 @@ export type CatalogImportReport = {
   updated: string[];
   /** Existing values the catalog contradicts, not written (per the mode). */
   differences: string[];
+  /** Likely duplicates of existing records (a renamed generation, the same engine described differently). */
+  warnings: string[];
 };

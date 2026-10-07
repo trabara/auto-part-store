@@ -22,11 +22,14 @@ import {
   catalogCoverage,
   planCatalog,
   recordsToCatalog,
+  researchTasks,
+  toCatalogVehicle,
   validateCatalog,
   type CatalogRecords,
   type CatalogRef,
   type CatalogSnapshot,
   type ModelCoverage,
+  type ResearchTask,
 } from "../core";
 import { vehicleModels } from "./models/vehicle";
 
@@ -97,6 +100,7 @@ export default class VehicleModuleService extends MedusaService(vehicleModels) {
       mode,
       updated: plan.updates.flatMap((u) => u.changes),
       differences: plan.differences,
+      warnings: plan.warnings,
     };
     if (problems.length || options.dryRun) return report;
 
@@ -107,6 +111,7 @@ export default class VehicleModuleService extends MedusaService(vehicleModels) {
     if (models.length) await this.updateVehicleModels(models as any[], ctx);
     if (generations.length) await this.updateVehicleGenerations(generations as any[], ctx);
     if (vehicles.length) await this.updateVehicles(vehicles as any[], ctx);
+    const checked = new Set<string>(vehicles.map((v) => v.id as string));
 
     const ids = new Map<string, string>();
     const id = (ref: CatalogRef) => ("id" in ref ? ref.id : ids.get(ref.key)!);
@@ -134,12 +139,22 @@ export default class VehicleModuleService extends MedusaService(vehicleModels) {
       const rows = plan.vehicles.map((v) =>
         asCreated(Vehicle, { ...v.data, generation_id: id(v.generation), engine_id: id(v.engine) }),
       );
-      remember(plan.vehicles.map((v) => v.key), await this.createVehicles(rows as any[], ctx));
+      const created = await this.createVehicles(rows as any[], ctx);
+      remember(plan.vehicles.map((v) => v.key), created);
+      created.forEach((v) => checked.add(v.id));
     }
     if (plan.references.length) {
       const rows = plan.references.map((r) => asCreated(VehicleReference, { ...r.data, vehicle_id: id(r.vehicle) }));
       await this.createVehicleReferences(rows as any[], ctx);
     }
+    // Safety net behind the plan's checks (the rule the entity hook enforces on
+    // API writes): written configurations, and those of updated generations,
+    // fall within their generation's years; otherwise the transaction rolls back.
+    if (generations.length) {
+      const affected = await this.listVehicles({ generation_id: generations.map((g) => g.id as string) }, { select: ["id"] }, ctx);
+      affected.forEach((v) => checked.add(v.id));
+    }
+    if (checked.size) await this.assertWithinGeneration([...checked], ctx);
     return report;
   }
 
@@ -244,6 +259,52 @@ export default class VehicleModuleService extends MedusaService(vehicleModels) {
       ? await this.listVehicles({ generation_id: generations.map((g) => g.id) }, { select: ["generation_id"] }, ctx)
       : [];
     return catalogCoverage({ makes, models, generations, vehicles } as any);
+  }
+
+  /**
+   * Research tasks, most useful first (see `researchTasks`), optionally for
+   * one make; a page of them, each configuration task with the generation's
+   * existing configurations.
+   */
+  @InjectManager()
+  async catalogResearchTasks(
+    filter: { make?: string; maxConfigurations?: number; limit?: number; offset?: number } = {},
+    @MedusaContext() ctx: Context = {},
+  ): Promise<{ tasks: Omit<ResearchTask, "generation_id">[]; count: number }> {
+    const lower = (v: string) => v.trim().toLowerCase();
+    const makes = (await this.listVehicleMakes({}, { select: ["id", "name"] }, ctx)).filter(
+      (m) => !filter.make || lower(m.name) === lower(filter.make),
+    );
+    const models = makes.length
+      ? await this.listVehicleModels({ make_id: makes.map((m) => m.id) }, { select: ["id", "make_id", "name", "category"] }, ctx)
+      : [];
+    const generations = models.length
+      ? await this.listVehicleGenerations(
+          { model_id: models.map((m) => m.id) },
+          { select: ["id", "model_id", "name", "code", "year_start", "year_end"] },
+          ctx,
+        )
+      : [];
+    const counts = generations.length
+      ? await this.listVehicles({ generation_id: generations.map((g) => g.id) }, { select: ["generation_id"] }, ctx)
+      : [];
+    const all = researchTasks({ makes, models, generations, vehicles: counts } as any, {
+      maxConfigurations: filter.maxConfigurations,
+    });
+    const offset = filter.offset ?? 0;
+    const page = all.slice(offset, offset + (filter.limit ?? 10));
+
+    const withExisting = page.flatMap((t) => (t.kind === "configurations" && t.configurations > 0 ? [t.generation_id] : []));
+    const existing = withExisting.length
+      ? ((await this.listVehicles({ generation_id: withExisting }, { relations: ["engine"] }, ctx)) as Row[])
+      : [];
+    const tasks = page.map((t) => {
+      if (t.kind !== "configurations") return t;
+      const { generation_id, ...task } = t;
+      const vehicles = existing.filter((v) => v.generation_id === generation_id).sort((a, b) => a.year_start - b.year_start);
+      return { ...task, existing: vehicles.map((v) => toCatalogVehicle(v as any)) };
+    });
+    return { tasks, count: all.length };
   }
 
   // ── Rules (called by the module's entity hooks) ────────────────────────────

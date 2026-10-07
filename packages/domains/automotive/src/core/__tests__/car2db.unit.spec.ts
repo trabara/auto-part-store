@@ -68,4 +68,27 @@ describe("car2db → vehicle catalog", () => {
     expect(issues).toEqual([{ model: "Audi Q3", trim: "Empty", problem: expect.stringContaining("unknown engine type") }]);
     expect(validateCatalog(file)).toEqual([]);
   });
+
+  it("merges overlapping equipment variants, keeps a later period and other doors apart", () => {
+    const tfsi = { ...tdi, "Engine type": "Gasoline", Capacity: "1395", "Engine power": "125", "Gearbox type": "Manual", "Drive wheels": "Front wheel drive", "Body type": "Hatchback 5 doors" };
+    const golf: Car2dbModelData = {
+      model: { name: "A3", category: "CAR" },
+      car2dbModel: { id: 7, name: "A3" },
+      generations: [{ id: 1, name: "8V", yearBegin: "2012", yearEnd: "2020" }],
+      series: [{ id: 10, generationId: 1, name: "Hatchback" }],
+      trims: [
+        trim(1, 10, "1.4 TFSI (125 hp)", tfsi, { startProductionYear: "2012", endProductionYear: "2014" }),
+        trim(2, 10, "1.4 TFSI (125 hp)", tfsi, { startProductionYear: "2013", endProductionYear: "2015" }), // overlaps: merged
+        trim(3, 10, "1.4 TFSI (125 hp)", tfsi, { startProductionYear: "2018", endProductionYear: "2020" }), // later period: kept
+        trim(4, 10, "1.4 TFSI (125 hp)", { ...tfsi, "Body type": "Hatchback 3 doors" }, { startProductionYear: "2012", endProductionYear: "2014" }), // 3 doors: kept
+      ],
+    };
+    const { file } = car2dbToCatalog({ make: "Audi", models: [golf], retrievedAt: "2026-10-07", thisYear: 2026 });
+    const vehicles = file.makes[0]!.models[0]!.generations[0]!.vehicles;
+    expect(vehicles.map((v) => [v.doors, v.year_start, v.year_end])).toEqual(
+      expect.arrayContaining([[5, 2012, 2015], [5, 2018, 2020], [3, 2012, 2014]]),
+    );
+    expect(vehicles).toHaveLength(3);
+    expect(validateCatalog(file)).toEqual([]);
+  });
 });

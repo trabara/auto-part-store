@@ -13,9 +13,12 @@ export const generationKey = (make: string, model: string, generation: string) =
 export const engineKey = (e: Pick<CatalogEngine, "fuel" | "layout" | "cylinders" | "displacement_cc" | "power_kw" | "code">) =>
   [e.fuel, e.layout ?? "", e.cylinders ?? "", e.displacement_cc ?? "", e.power_kw, (e.code ?? "").trim().toUpperCase()].join("|");
 
-/** A configuration: generation, engine, body, drive, transmission, trim and first year. */
+/**
+ * A configuration: generation, engine, body, doors, drive, transmission, trim
+ * and first year (the configuration overlap constraint's columns, plus the year).
+ */
 export const vehicleKey = (
   generation: string,
   engine: string,
-  v: { body_style: string; drive: string; transmission: string; trim: string | null; year_start: number },
-) => [generation, engine, v.body_style, v.drive, v.transmission, norm(v.trim), v.year_start].join("|");
+  v: { body_style: string; doors: number; drive: string; transmission: string; trim: string | null; year_start: number },
+) => [generation, engine, v.body_style, v.doors, v.drive, v.transmission, norm(v.trim), v.year_start].join("|");

@@ -1,7 +1,7 @@
 // The catalog as it is: existing records written back as a `vehicle-catalog@1`
 // file (what a researcher, human or agent, starts from), and how complete
 // each model is (which models to research first).
-import type { CatalogFile } from "../../contract/catalog";
+import type { CatalogFile, CatalogVehicle } from "../../contract/catalog";
 
 type Engine = {
   code: string | null;
@@ -33,16 +33,45 @@ export type CatalogRecords = {
   references: { vehicle_id: string; source: string; external_id: string }[];
 };
 
+type RecordVehicle = CatalogRecords["vehicles"][number];
+
+/** Rows grouped by a parent key (one pass), read back by parent. */
+export function childrenOf<T, K extends keyof T>(rows: T[], key: K): (parent: unknown) => T[] {
+  const map = new Map<unknown, T[]>();
+  for (const row of rows) {
+    const list = map.get(row[key]);
+    if (list) list.push(row);
+    else map.set(row[key], [row]);
+  }
+  return (parent) => map.get(parent) ?? [];
+}
+
+/** An existing configuration as a catalog file writes it. */
+export const toCatalogVehicle = (v: RecordVehicle, references: CatalogRecords["references"] = []): CatalogVehicle => ({
+  engine: {
+    code: v.engine.code,
+    fuel: v.engine.fuel as any,
+    layout: v.engine.layout as any,
+    cylinders: v.engine.cylinders,
+    displacement_cc: v.engine.displacement_cc,
+    power_kw: v.engine.power_kw,
+    ...(v.engine.name ? { name: v.engine.name } : {}),
+  },
+  body_style: v.body_style as any,
+  doors: v.doors,
+  drive: v.drive as any,
+  transmission: v.transmission as any,
+  trim: v.trim,
+  year_start: v.year_start,
+  year_end: v.year_end,
+  references: references.map((r) => ({ source: r.source as any, external_id: r.external_id })),
+});
+
 const byName = (a: { name: string }, b: { name: string }) => a.name.localeCompare(b.name);
 const byYear = (a: { year_start: number }, b: { year_start: number }) => a.year_start - b.year_start;
 
 /** The records as a catalog file (makes, models and generations by name / year). */
 export function recordsToCatalog(records: CatalogRecords, source: CatalogFile["source"], market?: string): CatalogFile {
-  const childrenOf = <T, K extends keyof T>(rows: T[], key: K) => {
-    const map = new Map<unknown, T[]>();
-    for (const row of rows) map.set(row[key], [...(map.get(row[key]) ?? []), row]);
-    return (id: unknown) => map.get(id) ?? [];
-  };
   const models = childrenOf(records.models, "make_id");
   const generations = childrenOf(records.generations, "model_id");
   const vehicles = childrenOf(records.vehicles, "generation_id");
@@ -61,25 +90,7 @@ export function recordsToCatalog(records: CatalogRecords, source: CatalogFile["s
           code: g.code,
           year_start: g.year_start,
           year_end: g.year_end,
-          vehicles: [...vehicles(g.id)].sort(byYear).map((v) => ({
-            engine: {
-              code: v.engine.code,
-              fuel: v.engine.fuel as any,
-              layout: v.engine.layout as any,
-              cylinders: v.engine.cylinders,
-              displacement_cc: v.engine.displacement_cc,
-              power_kw: v.engine.power_kw,
-              ...(v.engine.name ? { name: v.engine.name } : {}),
-            },
-            body_style: v.body_style as any,
-            doors: v.doors,
-            drive: v.drive as any,
-            transmission: v.transmission as any,
-            trim: v.trim,
-            year_start: v.year_start,
-            year_end: v.year_end,
-            references: references(v.id).map((r) => ({ source: r.source as any, external_id: r.external_id })),
-          })),
+          vehicles: [...vehicles(g.id)].sort(byYear).map((v) => toCatalogVehicle(v, references(v.id))),
         })),
       })),
     })),
@@ -104,9 +115,10 @@ export function catalogCoverage(records: Omit<CatalogRecords, "vehicles" | "refe
   const makeName = new Map(records.makes.map((m) => [m.id, m.name]));
   const configurations = new Map<string, number>();
   for (const v of records.vehicles) configurations.set(v.generation_id, (configurations.get(v.generation_id) ?? 0) + 1);
+  const generationsOf = childrenOf(records.generations, "model_id");
   return records.models
     .map((model) => {
-      const gens = records.generations.filter((g) => g.model_id === model.id);
+      const gens = generationsOf(model.id);
       const counts = gens.map((g) => configurations.get(g.id) ?? 0);
       return {
         make: makeName.get(model.make_id) ?? "",

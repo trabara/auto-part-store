@@ -27,7 +27,7 @@ The backend holds the logic: the rules, the task ledger, prompts, quote checks a
      - `web_search` (Tavily, 1 credit);
      - `validate_catalog`.
 
-     It uses `cloud_cheap` normally and `cloud_strong` for tasks that failed twice, while the month is below `escalate_below` of the budget. The cost of each run is recorded on the task.
+     It uses `cloud_cheap` normally (NVIDIA Nemotron 3 Super, $0.08/$0.45 per million tokens) and `cloud_strong` (Nemotron 3 Ultra, $0.50/$2.20) for tasks that failed twice, while the month is below `escalate_below` of the budget. The cost of each run is recorded on the task.
    - **Backoff:** a failed task waits 2^attempts days (at most 60) before its next try, one with no data waits 90 days, and a review waits for a person.
 5. **Summary** (`GET /tasks/summary`): outcomes, spend and reviews waiting, posted to the webhook if set.
 

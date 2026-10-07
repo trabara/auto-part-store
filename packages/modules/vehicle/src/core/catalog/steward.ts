@@ -93,8 +93,8 @@ const generationFound = z.object({
 const versionFound = z.object({
   engine_code: z.string().nullable().describe("Manufacturer engine code, e.g. 'K9K'; null when not given"),
   fuel: z.enum(FuelType),
-  power: z.number().describe("Power exactly as written"),
-  power_unit: z.enum(POWER_UNITS),
+  power: z.number().nullable().describe("Power exactly as written; null when the evidence doesn't give it"),
+  power_unit: z.enum(POWER_UNITS).nullable(),
   displacement: z.number().nullable().describe("Displacement exactly as written; null when not given"),
   displacement_unit: z.enum(CC_UNITS).nullable(),
   cylinders: z.number().int().nullable(),
@@ -170,10 +170,19 @@ export function outputSchema(kind: CatalogTaskKind): Record<string, unknown> {
 export function parseOutput<K extends ModelKind>(kind: K, raw: unknown): StewardOutput<K> | null {
   let value = raw;
   if (typeof raw === "string") {
+    // Reasoning models may think aloud first; some wrap the JSON in a fence or a sentence.
+    const text = raw.replace(/<think>[\s\S]*?<\/think>/gi, "").replace(/^```(?:json)?\s*|\s*```$/g, "").trim();
     try {
-      value = JSON.parse(raw.replace(/^```(?:json)?\s*|\s*```$/g, ""));
+      value = JSON.parse(text);
     } catch {
-      return null;
+      const start = text.indexOf("{");
+      const end = text.lastIndexOf("}");
+      if (start < 0 || end <= start) return null;
+      try {
+        value = JSON.parse(text.slice(start, end + 1));
+      } catch {
+        return null;
+      }
     }
   }
   const parsed = OUTPUTS[kind].safeParse(value);
@@ -400,7 +409,7 @@ export function researchFile(
   for (const v of out.configurations) {
     const vehicle = quoteSupports(evidence, v.quote, [v.power]) ? toVehicle(v) : null;
     if (!vehicle) {
-      unsupported.push(`version ${v.power} ${v.power_unit} ${v.from}`);
+      unsupported.push(v.power == null ? `version without power (${v.engine_code ?? v.fuel.toLowerCase()} ${v.from})` : `version ${v.power} ${v.power_unit} ${v.from}`);
       continue;
     }
     if (v.assumed) assumed++;
@@ -541,7 +550,7 @@ export function verificationOutcome(
   for (const m of out.missing) {
     const vehicle = quoteSupports(evidence, m.quote, [m.power]) ? toVehicle(m) : null;
     if (!vehicle) {
-      outcome.unsupported.push(`missing ${m.power} ${m.power_unit}`);
+      outcome.unsupported.push(m.power == null ? "missing version without power" : `missing ${m.power} ${m.power_unit}`);
       continue;
     }
     missing.push(vehicle);

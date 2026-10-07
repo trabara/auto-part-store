@@ -95,8 +95,12 @@ export function taskCandidates(records: LedgerRecords, options: { now?: Date; ma
     }
     for (const g of gens) {
       const vehicles = vehiclesOf(g.id);
+      // A "generation" spanning more than 15 years is a model line entered as one (draft data):
+      // its configurations wait until a verification corrects its years.
+      const span = (g.year_end ?? now.getFullYear()) - g.year_start;
       const unit = { ...base, generation: g.name, entity: CatalogEntityName.VehicleGeneration, record_id: g.id, key: generationKey(make, model.name, g.name) };
       if (vehicles.length <= max) {
+        if (span > 15) continue;
         candidates.push({
           kind: CatalogTaskKind.RESEARCH_CONFIGURATIONS,
           ...unit,

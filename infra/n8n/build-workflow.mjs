@@ -59,6 +59,10 @@ const CONFIG = "$('Config').first().json";
 const TASK = "$('Task').first().json";
 const medusaCredentials = { httpBasicAuth: { id: "", name: "Medusa secret API key" } };
 const openRouterCredentials = { openRouterApi: { id: "", name: "OpenRouter account" } };
+const nvidiaCredentials = { nvidiaApi: { id: "", name: "NVIDIA API" } };
+const OLLAMA = `${CONFIG}.model_provider === 'ollama'`;
+/** The first-pass model, as recorded on the task (provenance). */
+const FIRST_MODEL = `(${OLLAMA} ? ${CONFIG}.local_model : 'nvidia:' + ${CONFIG}.nvidia_model)`;
 /** Medusa calls are idempotent or leased: retry transient failures. */
 const RETRY = { retryOnFail: true, maxTries: 3, waitBetweenTries: 5000 };
 const assignments = (values) => ({
@@ -103,16 +107,21 @@ node(
   3.4,
   [220, 100],
   assignments({
-    // Medusa and Ollama as seen from n8n (compose: Medusa on the host, Ollama a service).
+    // Medusa as seen from n8n (compose: Medusa on the host).
     medusa_url: ["string", "http://host.docker.internal:9000"],
+    // The first-pass model, which does every task it can: "nvidia" (the NVIDIA
+    // Nemotron chat model node, NVIDIA's API) or "ollama" (a local model, on a
+    // machine that can run one; pull it first: yarn ollama:pull).
+    model_provider: ["string", "nvidia"],
+    nvidia_model: ["string", "nvidia/nemotron-3-super-120b-a12b"],
     ollama_url: ["string", "http://ollama:11434"],
-    // The local model (pull it first: yarn ollama:pull) does every task it can.
     local_model: ["string", "qwen3.5:4b"],
     // The cloud agent researches what the local model couldn't settle.
     cloud_fallback: ["boolean", true],
-    cloud_cheap: ["string", "google/gemini-3.6-flash"],
+    // NVIDIA Nemotron through OpenRouter (tool calling and structured output).
+    cloud_cheap: ["string", "nvidia/nemotron-3-super-120b-a12b"],
     // Tasks that failed twice get the strong model, while the month is below `escalate_below` of the budget.
-    cloud_strong: ["string", "anthropic/claude-sonnet-5.5"],
+    cloud_strong: ["string", "nvidia/nemotron-3-ultra-550b-a55b"],
     escalate_below: ["number", 0.6],
     // Cloud spend cap for the month (also set it as the OpenRouter key's limit).
     monthly_budget_usd: ["number", 20],
@@ -122,7 +131,7 @@ node(
     // Slack-compatible incoming webhook for the run summary (empty: none).
     review_webhook_url: ["string", ""],
   }),
-  { notes: "Credentials: Medusa secret API key (Basic Auth: the key as user, empty password) and OpenRouter. Web search runs in the backend (TAVILY_API_KEY in its env)." },
+  { notes: "Credentials: Medusa secret API key (Basic Auth: the key as user, empty password), NVIDIA API (build.nvidia.com key) and OpenRouter. Web search runs in the backend (TAVILY_API_KEY in its env)." },
 );
 node(
   "Start",
@@ -142,11 +151,12 @@ return [{ json: { started: $now.toISO(), deadline: deadline.toISO() } }];
 );
 node("Lint", "n8n-nodes-base.httpRequest", 4.2, [660, 100], medusa("POST", "lint", "{}"), { credentials: medusaCredentials, ...RETRY });
 node("Refresh ledger", "n8n-nodes-base.httpRequest", 4.2, [880, 100], medusa("POST", "tasks/refresh", "{}"), { credentials: medusaCredentials, ...RETRY });
+node("Ollama?", "n8n-nodes-base.if", 2.2, [1000, 100], isTrue("ollama", OLLAMA));
 node(
   "Warm up model",
   "n8n-nodes-base.httpRequest",
   4.2,
-  [1100, 100],
+  [1100, 0],
   {
     method: "POST",
     url: `={{ ${CONFIG}.ollama_url }}/api/generate`,
@@ -163,13 +173,9 @@ node("Claim task", "n8n-nodes-base.httpRequest", 4.2, [1320, 100], medusa("POST"
   credentials: medusaCredentials,
   ...RETRY,
 });
-node(
-  "Next task?",
-  "n8n-nodes-base.if",
-  2.2,
-  [1540, 100],
-  isTrue("next", `$json.tasks.length > 0 && $now.toISO() < $('Start').first().json.deadline && $runIndex < ${CONFIG}.max_tasks`),
-);
+// Limits are checked before claiming: a claimed task is always worked.
+node("Continue?", "n8n-nodes-base.if", 2.2, [1210, 100], isTrue("continue", `$now.toISO() < $('Start').first().json.deadline && $runIndex < ${CONFIG}.max_tasks`));
+node("Next task?", "n8n-nodes-base.if", 2.2, [1540, 100], isTrue("next", "$json.tasks.length > 0"));
 node("Task", "n8n-nodes-base.code", 2, [1760, 200], code("return { ...$json.tasks[0] };"));
 node(
   "Prompt",
@@ -180,6 +186,30 @@ node(
   { credentials: medusaCredentials, ...RETRY, onError: "continueErrorOutput" },
 );
 node("Evidence found?", "n8n-nodes-base.if", 2.2, [2200, 200], isTrue("evidence", "!$json.fallback"));
+node("Use Ollama?", "n8n-nodes-base.if", 2.2, [2310, 160], isTrue("use-ollama", OLLAMA));
+// NVIDIA path: the backend's prompt through the NVIDIA Nemotron chat model, JSON mode
+// (the schema goes in the prompt; the backend validates the answer against it).
+node(
+  "Nemotron (first pass)",
+  "@n8n/n8n-nodes-langchain.chainLlm",
+  1.7,
+  [2420, 260],
+  {
+    promptType: "define",
+    text: "={{ $json.messages[1].content + '\\n\\nAnswer with one JSON object only, following this JSON schema:\\n' + JSON.stringify($json.schema) }}",
+    hasOutputParser: false,
+    messages: { messageValues: [{ type: "SystemMessagePromptTemplate", message: "={{ $json.messages[0].content }}" }] },
+  },
+  { onError: "continueErrorOutput" },
+);
+node(
+  "NVIDIA Nemotron Chat Model",
+  "@n8n/n8n-nodes-langchain.lmChatNvidia",
+  1,
+  [2420, 460],
+  { model: `={{ ${CONFIG}.nvidia_model }}`, options: { responseFormat: "json_object", temperature: 0, maxTokens: 16384, timeout: 300000 } },
+  { credentials: nvidiaCredentials },
+);
 node(
   "Local model",
   "n8n-nodes-base.httpRequest",
@@ -197,14 +227,14 @@ node(
   { onError: "continueErrorOutput" },
 );
 node(
-  "Submit local",
+  "Submit first pass",
   "n8n-nodes-base.httpRequest",
   4.2,
   [2640, 100],
   medusa(
     "POST",
     `tasks/{{ ${TASK}.id }}/result`,
-    `{ lease_token: ${TASK}.lease_token, model: ${CONFIG}.local_model, output: $json.message?.content ?? '', cost: { usd: 0, steps: 1 }, final: !(${CONFIG}.cloud_fallback && ${RESEARCH}) }`,
+    `{ lease_token: ${TASK}.lease_token, model: ${FIRST_MODEL}, output: $json.message?.content ?? $json.text ?? $json, cost: { usd: 0, steps: 1 }, final: !(${CONFIG}.cloud_fallback && ${RESEARCH}) }`,
   ),
   { credentials: medusaCredentials, ...RETRY, onError: "continueErrorOutput" },
 );
@@ -336,7 +366,7 @@ node(
   medusa(
     "POST",
     `tasks/{{ ${TASK}.id }}/result`,
-    `{ lease_token: ${TASK}.lease_token, error: $json.error?.message ?? ($json.data ? 'cloud budget reached' : 'no local answer and no cloud fallback'), final: true }`,
+    `{ lease_token: ${TASK}.lease_token, error: $json.error?.message ?? (typeof $json.error === 'string' ? $json.error : null) ?? ($json.data ? 'cloud budget reached' : 'no first-pass answer and no cloud fallback'), final: true }`,
   ),
   { credentials: medusaCredentials, ...RETRY, onError: "continueRegularOutput" },
 );
@@ -412,20 +442,29 @@ link("Run now", "Config");
 link("Config", "Start");
 link("Start", "Lint");
 link("Lint", "Refresh ledger");
-link("Refresh ledger", "Warm up model");
-link("Warm up model", "Claim task");
+link("Refresh ledger", "Ollama?");
+link("Ollama?", "Warm up model", { output: 0 });
+link("Ollama?", "Continue?", { output: 1 });
+link("Warm up model", "Continue?");
+link("Continue?", "Claim task", { output: 0 });
+link("Continue?", "Run summary", { output: 1 });
 link("Claim task", "Next task?");
 link("Next task?", "Task", { output: 0 });
 link("Next task?", "Run summary", { output: 1 });
 link("Task", "Prompt");
 link("Prompt", "Evidence found?", { output: 0 });
 link("Prompt", "Give up", { output: 1 });
-link("Evidence found?", "Local model", { output: 0 });
+link("Evidence found?", "Use Ollama?", { output: 0 });
+link("Use Ollama?", "Local model", { output: 0 });
+link("Use Ollama?", "Nemotron (first pass)", { output: 1 });
+link("Nemotron (first pass)", "Submit first pass", { output: 0 });
+link("Nemotron (first pass)", "Fallback?", { output: 1 }); // the API failed: the task is still leased
+link("NVIDIA Nemotron Chat Model", "Nemotron (first pass)", { type: "ai_languageModel" });
 link("Evidence found?", "Fallback?", { output: 1 });
-link("Local model", "Submit local", { output: 0 });
+link("Local model", "Submit first pass", { output: 0 });
 link("Local model", "Fallback?", { output: 1 }); // Ollama down: the task is still leased
-link("Submit local", "Settled?", { output: 0 });
-link("Submit local", "Outcome", { output: 1 });
+link("Submit first pass", "Settled?", { output: 0 });
+link("Submit first pass", "Outcome", { output: 1 });
 link("Settled?", "Outcome", { output: 0 });
 link("Settled?", "Fallback?", { output: 1 });
 link("Fallback?", "Budget", { output: 0 });
@@ -441,7 +480,7 @@ link("Usage after", "Submit agent");
 link("Submit agent", "Outcome", { output: 0 });
 link("Submit agent", "Outcome", { output: 1 });
 link("Give up", "Outcome");
-link("Outcome", "Claim task");
+link("Outcome", "Continue?");
 link("Run summary", "Summary text");
 link("Summary text", "Notify?");
 link("Notify?", "Send summary", { output: 0 });

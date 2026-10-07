@@ -53,6 +53,18 @@
               "type": "string"
             },
             {
+              "id": "0b7c992e-85de-4920-a62d-6a8b97ebbe53",
+              "name": "model_provider",
+              "value": "nvidia",
+              "type": "string"
+            },
+            {
+              "id": "2135a861-8fa1-4218-a52f-8c82f1bace6f",
+              "name": "nvidia_model",
+              "value": "nvidia/nemotron-3-super-120b-a12b",
+              "type": "string"
+            },
+            {
               "id": "b69280cf-ffdd-4156-ac15-ae26cae9930e",
               "name": "ollama_url",
               "value": "http://ollama:11434",
@@ -73,13 +85,13 @@
             {
               "id": "e62b8eae-4c94-4e86-aff3-423cfb655729",
               "name": "cloud_cheap",
-              "value": "google/gemini-3.6-flash",
+              "value": "nvidia/nemotron-3-super-120b-a12b",
               "type": "string"
             },
             {
               "id": "bf890467-d2f7-4359-a00a-4fd75902bdfe",
               "name": "cloud_strong",
-              "value": "anthropic/claude-sonnet-5.5",
+              "value": "nvidia/nemotron-3-ultra-550b-a55b",
               "type": "string"
             },
             {
@@ -116,7 +128,7 @@
         },
         "options": {}
       },
-      "notes": "Credentials: Medusa secret API key (Basic Auth: the key as user, empty password) and OpenRouter. Web search runs in the backend (TAVILY_API_KEY in its env)."
+      "notes": "Credentials: Medusa secret API key (Basic Auth: the key as user, empty password), NVIDIA API (build.nvidia.com key) and OpenRouter. Web search runs in the backend (TAVILY_API_KEY in its env)."
     },
     {
       "id": "ca14f53f-60c2-45f3-a050-cf5ec8178ab7",
@@ -191,13 +203,47 @@
       "waitBetweenTries": 5000
     },
     {
+      "id": "e088573c-7a86-49e3-a1aa-dd5128eb697c",
+      "name": "Ollama?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1000,
+        100
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "d0d09210-0d95-4e20-a05a-828b07e679d2",
+              "leftValue": "={{ $('Config').first().json.model_provider === 'ollama' }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      }
+    },
+    {
       "id": "333db4d7-8269-4a01-acc7-4a3963a6249d",
       "name": "Warm up model",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
         1100,
-        100
+        0
       ],
       "parameters": {
         "method": "POST",
@@ -241,6 +287,40 @@
       "waitBetweenTries": 5000
     },
     {
+      "id": "4d77610d-127e-4d43-a3b9-82a8928cf7ad",
+      "name": "Continue?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1210,
+        100
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "38ac6e0b-1da8-49f4-a9e6-2f90532aec8d",
+              "leftValue": "={{ $now.toISO() < $('Start').first().json.deadline && $runIndex < $('Config').first().json.max_tasks }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      }
+    },
+    {
       "id": "439ac8a9-8154-42b8-ac5f-e7bd5f3dd736",
       "name": "Next task?",
       "type": "n8n-nodes-base.if",
@@ -260,7 +340,7 @@
           "conditions": [
             {
               "id": "7d0247de-dccd-4009-aaf5-97f0fd5b1bca",
-              "leftValue": "={{ $json.tasks.length > 0 && $now.toISO() < $('Start').first().json.deadline && $runIndex < $('Config').first().json.max_tasks }}",
+              "leftValue": "={{ $json.tasks.length > 0 }}",
               "rightValue": "",
               "operator": {
                 "type": "boolean",
@@ -353,6 +433,89 @@
       }
     },
     {
+      "id": "af2c8af7-f643-4377-ae47-45ab299d5731",
+      "name": "Use Ollama?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        2310,
+        160
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "f2e83d57-8588-4db1-a080-146a4e3e30aa",
+              "leftValue": "={{ $('Config').first().json.model_provider === 'ollama' }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "4cb317f5-39c0-4932-af86-dea73a8200cb",
+      "name": "Nemotron (first pass)",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
+      "position": [
+        2420,
+        260
+      ],
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.messages[1].content + '\\n\\nAnswer with one JSON object only, following this JSON schema:\\n' + JSON.stringify($json.schema) }}",
+        "hasOutputParser": false,
+        "messages": {
+          "messageValues": [
+            {
+              "type": "SystemMessagePromptTemplate",
+              "message": "={{ $json.messages[0].content }}"
+            }
+          ]
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "id": "eba7c6f9-026d-4019-a605-07aee674cdd8",
+      "name": "NVIDIA Nemotron Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatNvidia",
+      "typeVersion": 1,
+      "position": [
+        2420,
+        460
+      ],
+      "parameters": {
+        "model": "={{ $('Config').first().json.nvidia_model }}",
+        "options": {
+          "responseFormat": "json_object",
+          "temperature": 0,
+          "maxTokens": 16384,
+          "timeout": 300000
+        }
+      },
+      "credentials": {
+        "nvidiaApi": {
+          "id": "",
+          "name": "NVIDIA API"
+        }
+      }
+    },
+    {
       "id": "8159b758-83c0-4a2a-a9d2-8f3ff55308d5",
       "name": "Local model",
       "type": "n8n-nodes-base.httpRequest",
@@ -374,8 +537,8 @@
       "onError": "continueErrorOutput"
     },
     {
-      "id": "75f41fc3-ba8c-4813-a96d-5bbaab61ce5e",
-      "name": "Submit local",
+      "id": "215cf568-1d53-4662-af9e-280a1798cf4a",
+      "name": "Submit first pass",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
@@ -389,7 +552,7 @@
         "genericAuthType": "httpBasicAuth",
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={{ JSON.stringify({ lease_token: $('Task').first().json.lease_token, model: $('Config').first().json.local_model, output: $json.message?.content ?? '', cost: { usd: 0, steps: 1 }, final: !($('Config').first().json.cloud_fallback && ['RESEARCH_GENERATIONS', 'RESEARCH_CONFIGURATIONS'].includes($('Task').first().json.kind)) }) }}",
+        "jsonBody": "={{ JSON.stringify({ lease_token: $('Task').first().json.lease_token, model: ($('Config').first().json.model_provider === 'ollama' ? $('Config').first().json.local_model : 'nvidia:' + $('Config').first().json.nvidia_model), output: $json.message?.content ?? $json.text ?? $json, cost: { usd: 0, steps: 1 }, final: !($('Config').first().json.cloud_fallback && ['RESEARCH_GENERATIONS', 'RESEARCH_CONFIGURATIONS'].includes($('Task').first().json.kind)) }) }}",
         "options": {}
       },
       "credentials": {
@@ -808,7 +971,7 @@
         "genericAuthType": "httpBasicAuth",
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={{ JSON.stringify({ lease_token: $('Task').first().json.lease_token, error: $json.error?.message ?? ($json.data ? 'cloud budget reached' : 'no local answer and no cloud fallback'), final: true }) }}",
+        "jsonBody": "={{ JSON.stringify({ lease_token: $('Task').first().json.lease_token, error: $json.error?.message ?? (typeof $json.error === 'string' ? $json.error : null) ?? ($json.data ? 'cloud budget reached' : 'no first-pass answer and no cloud fallback'), final: true }) }}",
         "options": {}
       },
       "credentials": {
@@ -997,7 +1160,25 @@
       "main": [
         [
           {
+            "node": "Ollama?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ollama?": {
+      "main": [
+        [
+          {
             "node": "Warm up model",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Continue?",
             "type": "main",
             "index": 0
           }
@@ -1008,7 +1189,25 @@
       "main": [
         [
           {
+            "node": "Continue?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Continue?": {
+      "main": [
+        [
+          {
             "node": "Claim task",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Run summary",
             "type": "main",
             "index": 0
           }
@@ -1077,7 +1276,7 @@
       "main": [
         [
           {
-            "node": "Local model",
+            "node": "Use Ollama?",
             "type": "main",
             "index": 0
           }
@@ -1086,6 +1285,53 @@
           {
             "node": "Fallback?",
             "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Use Ollama?": {
+      "main": [
+        [
+          {
+            "node": "Local model",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Nemotron (first pass)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Nemotron (first pass)": {
+      "main": [
+        [
+          {
+            "node": "Submit first pass",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Fallback?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "NVIDIA Nemotron Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Nemotron (first pass)",
+            "type": "ai_languageModel",
             "index": 0
           }
         ]
@@ -1095,7 +1341,7 @@
       "main": [
         [
           {
-            "node": "Submit local",
+            "node": "Submit first pass",
             "type": "main",
             "index": 0
           }
@@ -1109,7 +1355,7 @@
         ]
       ]
     },
-    "Submit local": {
+    "Submit first pass": {
       "main": [
         [
           {
@@ -1276,7 +1522,7 @@
       "main": [
         [
           {
-            "node": "Claim task",
+            "node": "Continue?",
             "type": "main",
             "index": 0
           }

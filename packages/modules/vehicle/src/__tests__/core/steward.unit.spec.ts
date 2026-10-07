@@ -42,9 +42,15 @@ describe("ledger", () => {
       [CatalogTaskKind.RESEARCH_CONFIGURATIONS, "renault/clio/v", 80 + 50 + 30], // on sale, ongoing
       [CatalogTaskKind.RESEARCH_GENERATIONS, "renault/zoe", 100],
       [CatalogTaskKind.VERIFY_GENERATION, "renault/clio/iv", 60 + 50 + 20], // its configuration is draft: due now
-      [CatalogTaskKind.RESEARCH_CONFIGURATIONS, "renault/4/i", 80],
       [CatalogTaskKind.VERIFY_MODEL, "renault/4", 60], // a draft generation, never verified
     ].sort((a, b) => (b[2] as number) - (a[2] as number)));
+  });
+
+  it("leaves the configurations of a 'generation' spanning decades until it is verified", () => {
+    // Renault 4 "I", 1961–1994: a model line entered as one generation (draft).
+    const keys = taskCandidates(records, { now }).map((t) => `${t.kind} ${t.key}`);
+    expect(keys).not.toContain("RESEARCH_CONFIGURATIONS renault/4/i");
+    expect(keys).toContain("VERIFY_MODEL renault/4");
   });
 
   it("backs off by outcome and only lets due tasks be claimed", () => {
@@ -242,8 +248,26 @@ describe("steward", () => {
     expect(checked.file!.source).toMatchObject({ name: source.name, tier: SourceTier.RESEARCH });
   });
 
+  it("drops a version whose power the evidence doesn't give, keeping the rest of the answer", () => {
+    const base = { engine_code: "EA839", fuel: "GASOLINE", displacement: 2.9, displacement_unit: "L", cylinders: 6, layout: "V", body: "SUV", doors: 5, drive: "AWD", gearbox: "AUTOMATIC", trim: null, from: 2019, to: null, assumed: false };
+    const output = parseOutput(CatalogTaskKind.RESEARCH_CONFIGURATIONS, {
+      generation: { code: null, from: null, to: null, quote: null },
+      configurations: [
+        { ...base, power: null, power_unit: null, quote: "2.9 L EA839 V6" },
+        { ...base, engine_code: null, fuel: "DIESEL", power: 85, power_unit: "ch", quote: "1.5 dCi 85 | 85 ch (63 kW) | 2019–2023" },
+      ],
+      notes: "",
+    });
+    expect(output).not.toBeNull();
+    const checked = researchFile(ctx(CatalogTaskKind.RESEARCH_CONFIGURATIONS), output!, evidence, source);
+    expect(checked.unsupported).toEqual(["version without power (EA839 2019)"]);
+    expect(checked.kept).toBe(1);
+  });
+
   it("rejects answers that don't follow the schema", () => {
     expect(parseOutput(CatalogTaskKind.RESEARCH_GENERATIONS, "{ not json")).toBeNull();
+    // Reasoning and prose around the JSON are tolerated.
+    expect(parseOutput(CatalogTaskKind.RESEARCH_GENERATIONS, '<think>The infobox lists two.</think>Here it is: {"generations": [], "notes": "none"} Done.')).toEqual({ generations: [], notes: "none" });
     expect(parseOutput(CatalogTaskKind.RESEARCH_GENERATIONS, { generations: [{ name: "V" }], notes: "" })).toBeNull();
   });
 

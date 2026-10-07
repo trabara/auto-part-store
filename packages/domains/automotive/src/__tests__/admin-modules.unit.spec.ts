@@ -1,7 +1,7 @@
 import { findSlotRoute, flattenModuleRoutes, getRoutePath, type ModuleDef } from "@repo/framework/core";
 import { getEntityUrl } from "@repo/framework/entity";
 import { getZodFieldInfo } from "@repo/framework/utils";
-import i18n from "../admin/i18n";
+import i18n from "../contract/i18n";
 import { fitmentAdmin as fitments } from "@repo/module-fitment/admin";
 import { fitmentRoutes } from "@repo/module-fitment";
 import { partsAdmin as parts } from "@repo/module-parts/admin";

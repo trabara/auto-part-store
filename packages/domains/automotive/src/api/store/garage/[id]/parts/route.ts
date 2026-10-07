@@ -2,7 +2,7 @@
 import type { AuthenticatedMedusaRequest, MedusaResponse } from "@medusajs/framework/http";
 import { partsForVehicle } from "../../../../../queries/parts-for-vehicle";
 import type { StorePartsParams } from "../../../validators";
-import { ownGarageVehicle, vehicleService } from "../../helpers";
+import { ownGarageVehicle, vehicleService } from "../../../../request";
 
 export async function GET(req: AuthenticatedMedusaRequest, res: MedusaResponse) {
   const garage = await ownGarageVehicle(req, req.params.id!);

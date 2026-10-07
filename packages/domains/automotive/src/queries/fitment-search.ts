@@ -3,7 +3,7 @@
 // large catalogs without touching the store routes.
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils";
 import { FITMENT_MODULE, type FitmentModuleService } from "@repo/module-fitment";
-import { VEHICLE_ATTRIBUTE_PATHS } from "../conditions/vehicle-attributes";
+import { VEHICLE_ATTRIBUTE_PATHS } from "../core/condition-attributes";
 import type { BuildDate, FitmentMatch } from "@repo/module-fitment";
 
 type Container = { resolve: <T = any>(key: string) => T };

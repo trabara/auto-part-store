@@ -2,7 +2,7 @@
 import type { AuthenticatedMedusaRequest, MedusaResponse } from "@medusajs/framework/http";
 import { createEntitiesWorkflow, withReadableErrors } from "@repo/framework/entity/server";
 import { CustomerVehicle } from "@repo/module-vehicle/contract";
-import { customerId, GARAGE_TARGET, ownGarageVehicle, vehicleService } from "./helpers";
+import { customerId, GARAGE_TARGET, ownGarageVehicle, vehicleService } from "../../request";
 
 export async function GET(req: AuthenticatedMedusaRequest, res: MedusaResponse) {
   res.json({ vehicles: await vehicleService(req).listGarage(customerId(req)) });

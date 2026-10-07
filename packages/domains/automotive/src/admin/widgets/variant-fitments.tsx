@@ -10,7 +10,7 @@ import { ConditionsDrawer } from "@repo/module-fitment/admin/ui";
 import { Fitment } from "@repo/module-fitment/contract";
 import { fitmentAdmin as fitments } from "@repo/module-fitment/admin";
 import { Vehicle } from "@repo/module-vehicle/contract";
-import { useDomainText } from "../use-domain-text";
+import { useDomainText } from "../hooks/use-domain-text";
 
 type Row = Record<string, any>;
 

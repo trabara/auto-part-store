@@ -7,7 +7,7 @@ import {
 } from "@medusajs/framework/utils";
 import { medusaRouterExt } from "@repo/framework/admin/plugins";
 import { composeApplication } from "@repo/framework/core";
-import { automotiveDomain } from "@repo/domain-automotive/manifest";
+import { automotiveDomain } from "@repo/domain-automotive/contract";
 
 // Load environment variables based on the current NODE_ENV
 loadEnv(process.env.NODE_ENV || "development", process.cwd());

@@ -3,7 +3,7 @@
 // through their own medusa-config.
 import path from "path";
 import { defineConfig, loadEnv } from "@medusajs/framework/utils";
-import { automotiveDomain } from "./src/manifest";
+import { automotiveDomain } from "./src/contract";
 
 loadEnv(process.env.NODE_ENV || "test", process.cwd());
 

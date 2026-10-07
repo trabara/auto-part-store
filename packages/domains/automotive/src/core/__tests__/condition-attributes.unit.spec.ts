@@ -1,7 +1,8 @@
 import { i18nKeys } from "@repo/framework/core";
-import i18n from "../../admin/i18n";
+import i18n from "../../contract/i18n";
 import { conditionAttribute, conditionAttributes } from "@repo/module-fitment/contract";
-import { registerVehicleConditions, VEHICLE_ATTRIBUTES } from "../vehicle-attributes";
+import { composeAutomotive } from "../../composition";
+import { VEHICLE_ATTRIBUTES } from "../condition-attributes";
 
 const attr = (code: string) => VEHICLE_ATTRIBUTES.find((a) => a.code === code);
 
@@ -22,8 +23,8 @@ describe("vehicle attribute catalog", () => {
     expect(VEHICLE_ATTRIBUTES[0]!.code).toBe("drive");
   });
 
-  it("registers with the fitment module", () => {
-    registerVehicleConditions();
+  it("is plugged into the fitment module by the composition root", () => {
+    composeAutomotive();
     expect(conditionAttributes()).toBe(VEHICLE_ATTRIBUTES);
     expect(conditionAttribute("engine.fuel")?.label).toBe("Fuel");
   });

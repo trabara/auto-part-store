@@ -4,8 +4,9 @@ import { ReplaceConditionsSchema } from "@repo/module-fitment/contract";
 import { FITMENTS_PATH, fitmentRoutes } from "@repo/module-fitment";
 import { PARTS_PATH, partsRoutes } from "@repo/module-parts";
 import { VEHICLES_PATH, vehicleRoutes } from "@repo/module-vehicle";
-import { GarageCreateSchema, GarageUpdateSchema } from "./store/garage/helpers";
 import {
+  GarageCreateSchema,
+  GarageUpdateSchema,
   StorePartSearchParams,
   StorePartsParams,
   StoreSelectorParams,

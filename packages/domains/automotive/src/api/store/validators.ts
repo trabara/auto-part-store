@@ -1,4 +1,5 @@
 import { z } from "@medusajs/framework/zod";
+import { CustomerVehicle } from "@repo/module-vehicle/contract";
 
 const ids = z.union([z.string(), z.array(z.string())]);
 const year = z.coerce.number().int().min(1886).max(2100);
@@ -32,3 +33,7 @@ export type StorePartsParams = z.infer<typeof StorePartsParams>;
 export type StoreVehiclePartsParams = z.infer<typeof StoreVehiclePartsParams>;
 export type StorePartSearchParams = z.infer<typeof StorePartSearchParams>;
 export type StoreSelectorParams = z.infer<typeof StoreSelectorParams>;
+
+/** Garage payloads: the customer comes from the session, never the body. */
+export const GarageCreateSchema = CustomerVehicle.dto.create.omit({ customer_id: true });
+export const GarageUpdateSchema = CustomerVehicle.dto.update.omit({ customer_id: true });

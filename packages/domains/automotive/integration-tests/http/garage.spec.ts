@@ -1,4 +1,4 @@
-import { adminUrl } from "../admin-url";
+import { adminUrl } from "../helpers/admin-url";
 import { medusaIntegrationTestRunner } from "@medusajs/test-utils";
 import { adminHeaders } from "@repo/config/jest/medusa-helpers.cjs";
 

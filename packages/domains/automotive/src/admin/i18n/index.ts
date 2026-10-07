@@ -1,4 +1,4 @@
-// Medusa loads the admin translations from here (see ../../i18n).
-import resources from "../../i18n";
+// Medusa loads the admin translations from here (see ../../contract/i18n).
+import resources from "../../contract/i18n";
 
 export default resources;

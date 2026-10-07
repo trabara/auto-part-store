@@ -9,8 +9,7 @@
   ],
   "exports": {
     "./package.json": "./package.json",
-    "./links/*": "./.medusa/server/src/links/*.js",
-    "./*": "./.medusa/server/src/*.js",
+    "./contract": "./.medusa/server/src/contract/index.js",
     "./admin": {
       "import": "./.medusa/server/src/admin/index.mjs",
       "require": "./.medusa/server/src/admin/index.js",

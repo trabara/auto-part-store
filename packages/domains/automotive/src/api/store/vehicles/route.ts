@@ -1,5 +1,5 @@
 import type { MedusaStoreRequest, MedusaResponse } from "@medusajs/framework/http";
-import { params, required, vehicleService } from "./selector";
+import { selectorParams as params, required, vehicleService } from "../../request";
 
 export async function GET(req: MedusaStoreRequest<unknown>, res: MedusaResponse) {
   const { generation_id, year } = params(req);

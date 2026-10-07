@@ -1,9 +1,9 @@
 // The vehicle fields a fitment condition can test: the automotive domain's
-// catalog for the fitment module's condition port. Isomorphic (the admin
-// editor and the server register the same list).
+// catalog for the fitment module's condition port (plugged in by
+// ../composition). Pure and isomorphic.
 import { z } from "@medusajs/framework/zod";
 import { i18nKeys } from "@repo/framework/core";
-import { provideConditionAttributes, type ConditionAttribute } from "@repo/module-fitment/contract";
+import type { ConditionAttribute } from "@repo/module-fitment/contract";
 import { attributesFromSchema, describeAttribute, humanizeValue, type AttributeMeta } from "@repo/module-fitment/core";
 import { Vehicle, VehicleEngine, VehicleModel } from "@repo/module-vehicle/contract";
 
@@ -91,6 +91,3 @@ export const VEHICLE_ATTRIBUTES: readonly ConditionAttribute[] = [
 
 /** Vehicle paths conditions read: the fields to load on the tested vehicle. */
 export const VEHICLE_ATTRIBUTE_PATHS: readonly string[] = VEHICLE_ATTRIBUTES.map((a) => a.code);
-
-/** Registers the catalog with the fitment module (server and admin). */
-export const registerVehicleConditions = () => provideConditionAttributes(VEHICLE_ATTRIBUTES);

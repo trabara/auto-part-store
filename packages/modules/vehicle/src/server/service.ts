@@ -15,9 +15,19 @@ import {
   VehicleModel,
   VehicleReference,
   type CatalogFile,
+  type CatalogImportMode,
   type CatalogImportReport,
 } from "../contract";
-import { planCatalog, validateCatalog, type CatalogRef, type CatalogSnapshot } from "../core";
+import {
+  catalogCoverage,
+  planCatalog,
+  recordsToCatalog,
+  validateCatalog,
+  type CatalogRecords,
+  type CatalogRef,
+  type CatalogSnapshot,
+  type ModelCoverage,
+} from "../core";
 import { vehicleModels } from "./models/vehicle";
 
 type Range = { year_start: number; year_end: number | null };
@@ -58,17 +68,19 @@ export default class VehicleModuleService extends MedusaService(vehicleModels) {
   /**
    * Imports a catalog file (`vehicle-catalog@1`) in one transaction: creates
    * the makes, models, generations, engines, configurations and references it
-   * lacks, matched by natural key; never overwrites existing records (their
-   * differences are reported). Nothing is written with `dryRun` or when the
-   * file has problems.
+   * lacks, matched by natural key. Existing values the file contradicts are
+   * reported (`mode: "create"`, the default), written only where the record
+   * has none (`fill`), or written (`overwrite`, for reviewed files). Nothing is
+   * written with `dryRun` or when the file has problems.
    */
   @InjectTransactionManager()
   async importCatalog(
     file: CatalogFile,
-    options: { dryRun?: boolean } = {},
+    options: { dryRun?: boolean; mode?: CatalogImportMode } = {},
     @MedusaContext() ctx: Context = {},
   ): Promise<CatalogImportReport> {
-    const plan = planCatalog(file, await this.catalogSnapshot_(file, ctx));
+    const mode = options.mode ?? "create";
+    const plan = planCatalog(file, await this.catalogSnapshot_(file, ctx), { mode });
     const problems = [...validateCatalog(file), ...plan.problems];
     const report: CatalogImportReport = {
       dryRun: !!options.dryRun,
@@ -82,9 +94,19 @@ export default class VehicleModuleService extends MedusaService(vehicleModels) {
         references: plan.references.length,
       },
       existing: plan.existing,
+      mode,
+      updated: plan.updates.flatMap((u) => u.changes),
       differences: plan.differences,
     };
     if (problems.length || options.dryRun) return report;
+
+    const update = (entity: string) => plan.updates.filter((u) => u.entity === entity).map((u) => ({ id: u.id, ...u.data }));
+    const models = update("VehicleModel");
+    const generations = update("VehicleGeneration");
+    const vehicles = update("Vehicle");
+    if (models.length) await this.updateVehicleModels(models as any[], ctx);
+    if (generations.length) await this.updateVehicleGenerations(generations as any[], ctx);
+    if (vehicles.length) await this.updateVehicles(vehicles as any[], ctx);
 
     const ids = new Map<string, string>();
     const id = (ref: CatalogRef) => ("id" in ref ? ref.id : ids.get(ref.key)!);
@@ -165,6 +187,63 @@ export default class VehicleModuleService extends MedusaService(vehicleModels) {
         )
       : [];
     return { makes, models, generations, engines, vehicles, references } as unknown as CatalogSnapshot;
+  }
+
+  /** Existing records of a make (optionally one model) as a catalog file. */
+  @InjectManager()
+  async exportCatalog(
+    filter: { make: string; model?: string },
+    @MedusaContext() ctx: Context = {},
+  ): Promise<CatalogFile> {
+    const lower = (v: string) => v.trim().toLowerCase();
+    const makes = (await this.listVehicleMakes({}, { select: ["id", "name"] }, ctx)).filter(
+      (m) => lower(m.name) === lower(filter.make),
+    );
+    const models = makes.length
+      ? (
+          await this.listVehicleModels({ make_id: makes.map((m) => m.id) }, { select: ["id", "make_id", "name", "category"] }, ctx)
+        ).filter((m) => !filter.model || lower(m.name) === lower(filter.model))
+      : [];
+    const generations = models.length
+      ? await this.listVehicleGenerations(
+          { model_id: models.map((m) => m.id) },
+          { select: ["id", "model_id", "name", "code", "year_start", "year_end"] },
+          ctx,
+        )
+      : [];
+    const vehicles = generations.length
+      ? await this.listVehicles({ generation_id: generations.map((g) => g.id) }, { relations: ["engine"] }, ctx)
+      : [];
+    const references = vehicles.length
+      ? await this.listVehicleReferences(
+          { vehicle_id: vehicles.map((v) => v.id) },
+          { select: ["vehicle_id", "source", "external_id"] },
+          ctx,
+        )
+      : [];
+    return recordsToCatalog(
+      { makes, models, generations, vehicles, references } as unknown as CatalogRecords,
+      { name: "Catalog export", retrieved_at: new Date().toISOString() },
+    );
+  }
+
+  /** Every model's coverage (optionally one make's), least complete first. */
+  @InjectManager()
+  async catalogCoverage(filter: { make?: string } = {}, @MedusaContext() ctx: Context = {}): Promise<ModelCoverage[]> {
+    const lower = (v: string) => v.trim().toLowerCase();
+    const makes = (await this.listVehicleMakes({}, { select: ["id", "name"] }, ctx)).filter(
+      (m) => !filter.make || lower(m.name) === lower(filter.make),
+    );
+    const models = makes.length
+      ? await this.listVehicleModels({ make_id: makes.map((m) => m.id) }, { select: ["id", "make_id", "name", "category"] }, ctx)
+      : [];
+    const generations = models.length
+      ? await this.listVehicleGenerations({ model_id: models.map((m) => m.id) }, { select: ["id", "model_id"] }, ctx)
+      : [];
+    const vehicles = generations.length
+      ? await this.listVehicles({ generation_id: generations.map((g) => g.id) }, { select: ["generation_id"] }, ctx)
+      : [];
+    return catalogCoverage({ makes, models, generations, vehicles } as any);
   }
 
   // ── Rules (called by the module's entity hooks) ────────────────────────────

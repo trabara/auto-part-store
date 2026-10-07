@@ -5,6 +5,8 @@ import { FITMENTS_PATH, fitmentRoutes } from "@repo/module-fitment";
 import { GARAGE_PATH, garageRoutes } from "@repo/module-garage";
 import { PARTS_PATH, partsRoutes } from "@repo/module-parts";
 import { VEHICLES_PATH, vehicleRoutes } from "@repo/module-vehicle";
+import { CatalogFileSchema } from "@repo/module-vehicle/contract";
+import { AdminCatalogCoverageParams, AdminCatalogExportParams, AdminCatalogImportParams } from "./admin/validators";
 import {
   GarageCreateSchema,
   GarageUpdateSchema,
@@ -27,6 +29,17 @@ export default defineMiddlewares({
       matcher: `${FITMENTS_PATH}/fitment/:id/conditions`,
       methods: ["PUT"],
       middlewares: [validateAndTransformBody(ReplaceConditionsSchema)],
+    },
+    // Vehicle catalog research: coverage (what to research), export (what
+    // exists), import (validate with ?dry_run=true, then apply). A model's
+    // catalog can be large, hence the body size.
+    { matcher: "/admin/vehicle-catalog/coverage", methods: ["GET"], middlewares: [query(AdminCatalogCoverageParams)] },
+    { matcher: "/admin/vehicle-catalog/export", methods: ["GET"], middlewares: [query(AdminCatalogExportParams)] },
+    {
+      matcher: "/admin/vehicle-catalog/import",
+      methods: ["POST"],
+      bodyParser: { sizeLimit: "10mb" },
+      middlewares: [query(AdminCatalogImportParams), validateAndTransformBody(CatalogFileSchema)],
     },
     // Customer garage: logged-in customers only, scoped to themselves.
     { matcher: "/store/garage*", middlewares: [authenticate("customer", ["session", "bearer"])] },

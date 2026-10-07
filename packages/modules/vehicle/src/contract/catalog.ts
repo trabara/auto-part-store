@@ -88,6 +88,14 @@ export type CatalogModel = z.infer<typeof CatalogModelSchema>;
 export type CatalogMake = z.infer<typeof CatalogMakeSchema>;
 export type CatalogFile = z.infer<typeof CatalogFileSchema>;
 
+/**
+ * What an import may change in existing records: `create` nothing (contradicting
+ * values are reported), `fill` only values the record lacks, `overwrite`
+ * every contradicting value (for reviewed files).
+ */
+export const CatalogImportModeSchema = z.enum(["create", "fill", "overwrite"]);
+export type CatalogImportMode = z.infer<typeof CatalogImportModeSchema>;
+
 /** What an import did (or would do, in a dry run). */
 export type CatalogImportReport = {
   dryRun: boolean;
@@ -95,6 +103,10 @@ export type CatalogImportReport = {
   problems: string[];
   created: { makes: number; models: number; generations: number; engines: number; vehicles: number; references: number };
   existing: { makes: number; models: number; generations: number; engines: number; vehicles: number; references: number };
-  /** Existing records whose catalog values differ (never overwritten). */
+  /** What the import may change in existing records (`create`: nothing). */
+  mode: CatalogImportMode;
+  /** Existing values updated (or that would be), one line per field. */
+  updated: string[];
+  /** Existing values the catalog contradicts, not written (per the mode). */
   differences: string[];
 };

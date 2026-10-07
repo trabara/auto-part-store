@@ -8,8 +8,12 @@ imported by the domain's `import-vehicle-catalog` script:
 yarn seed:vehicles
 ```
 
-Imports are idempotent (records matched by natural key), one transaction per file, and
-never overwrite existing records (differences are reported).
+Imports are idempotent (records matched by natural key), one transaction per file. Existing
+values a file contradicts are reported by default; append `fill` to write only values the
+catalog lacks (a missing code or end year), or `overwrite` to write them all (reviewed files).
+The same import is served at `POST /admin/vehicle-catalog/import?dry_run=true&mode=fill`,
+next to `GET /admin/vehicle-catalog/coverage` (least complete models) and `/export` (a make
+or model as a file): the AI research workflow in `infra/n8n/` uses them.
 
 ## tunisia/
 

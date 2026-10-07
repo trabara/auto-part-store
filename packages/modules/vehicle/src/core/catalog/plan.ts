@@ -1,8 +1,11 @@
 // What importing a catalog file would change, given what exists: records to
 // create (in dependency order, with references to existing ids or to records
-// created earlier in the plan), records that exist, and differences reported
-// (existing records are never overwritten).
-import type { CatalogEngine, CatalogFile, CatalogVehicle } from "../../contract/catalog";
+// created earlier in the plan), records that exist, and existing values the
+// file contradicts. The mode decides what happens to those: `create` reports
+// them, `fill` writes the file's value only where the record has none (e.g. a
+// missing code, or an end year for a generation still listed as current), and
+// `overwrite` writes them all (for reviewed files).
+import type { CatalogEngine, CatalogFile, CatalogImportMode, CatalogVehicle } from "../../contract/catalog";
 import { engineKey, generationKey, makeKey, modelKey, vehicleKey } from "./keys";
 
 /** An existing record (`id`) or one the plan creates (`key`). */
@@ -29,6 +32,16 @@ export type CatalogSnapshot = {
   references: { source: string; external_id: string; vehicle_id: string }[];
 };
 
+/** Fields of an existing record to update, and why (one line per field). */
+export type CatalogUpdate = {
+  entity: "VehicleModel" | "VehicleGeneration" | "Vehicle";
+  id: string;
+  /** The record, as a path (Make › Model › Generation › #n). */
+  where: string;
+  data: Record<string, unknown>;
+  changes: string[];
+};
+
 export type CatalogPlan = {
   makes: { key: string; data: { name: string } }[];
   models: { key: string; make: CatalogRef; data: { name: string; category: string } }[];
@@ -41,11 +54,22 @@ export type CatalogPlan = {
   vehicles: { key: string; generation: CatalogRef; engine: CatalogRef; data: Omit<CatalogVehicle, "engine" | "references"> }[];
   references: { vehicle: CatalogRef; data: { source: string; external_id: string } }[];
   existing: { makes: number; models: number; generations: number; engines: number; vehicles: number; references: number };
+  /** Existing records to update (per the mode). */
+  updates: CatalogUpdate[];
+  /** Existing values the file contradicts that are not written (per the mode). */
   differences: string[];
   problems: string[];
 };
 
-export function planCatalog(file: CatalogFile, snapshot: CatalogSnapshot): CatalogPlan {
+const blank = (value: unknown) => value == null || value === "";
+const show = (value: unknown) => (blank(value) ? "empty" : String(value));
+
+export function planCatalog(
+  file: CatalogFile,
+  snapshot: CatalogSnapshot,
+  options: { mode?: CatalogImportMode } = {},
+): CatalogPlan {
+  const mode = options.mode ?? "create";
   const plan: CatalogPlan = {
     makes: [],
     models: [],
@@ -54,8 +78,26 @@ export function planCatalog(file: CatalogFile, snapshot: CatalogSnapshot): Catal
     vehicles: [],
     references: [],
     existing: { makes: 0, models: 0, generations: 0, engines: 0, vehicles: 0, references: 0 },
+    updates: [],
     differences: [],
     problems: [],
+  };
+
+  /** An existing value the file contradicts: updated or reported, per the mode. */
+  const updates = new Map<string, CatalogUpdate>();
+  const compare = (entity: CatalogUpdate["entity"], id: string, where: string, field: string, current: unknown, incoming: unknown) => {
+    if ((current ?? null) === (incoming ?? null)) return;
+    if (mode === "overwrite" || (mode === "fill" && blank(current) && !blank(incoming))) {
+      const update = updates.get(id) ?? { entity, id, where, data: {}, changes: [] };
+      update.data[field] = incoming ?? null;
+      update.changes.push(`${where}: ${field} ${show(current)} → ${show(incoming)}.`);
+      if (!updates.has(id)) {
+        updates.set(id, update);
+        plan.updates.push(update);
+      }
+    } else {
+      plan.differences.push(`${where}: ${field} is ${show(current)}, catalog says ${show(incoming)}.`);
+    }
   };
 
   // Existing records by natural key (ids resolved through their parents).
@@ -102,9 +144,7 @@ export function planCatalog(file: CatalogFile, snapshot: CatalogSnapshot): Catal
       const existingModel = models.get(moKey);
       if (existingModel) {
         plan.existing.models++;
-        if (existingModel.category !== model.category) {
-          plan.differences.push(`${make.name} › ${model.name}: category is ${existingModel.category}, catalog says ${model.category}.`);
-        }
+        compare("VehicleModel", existingModel.id, `${make.name} › ${model.name}`, "category", existingModel.category, model.category);
       } else plan.models.push({ key: moKey, make: makeRef, data: { name: model.name, category: model.category } });
       const modelRef: CatalogRef = existingModel ? { id: existingModel.id } : { key: moKey };
 
@@ -115,9 +155,7 @@ export function planCatalog(file: CatalogFile, snapshot: CatalogSnapshot): Catal
         if (existingGen) {
           plan.existing.generations++;
           for (const field of ["code", "year_start", "year_end"] as const) {
-            if ((existingGen[field] ?? null) !== (gen[field] ?? null)) {
-              plan.differences.push(`${genPath}: ${field} is ${existingGen[field] ?? "empty"}, catalog says ${gen[field] ?? "empty"}.`);
-            }
+            compare("VehicleGeneration", existingGen.id, genPath, field, existingGen[field], gen[field]);
           }
         } else {
           plan.generations.push({
@@ -142,12 +180,8 @@ export function planCatalog(file: CatalogFile, snapshot: CatalogSnapshot): Catal
           if (existingVehicle) {
             plan.existing.vehicles++;
             vehicleRef = { id: existingVehicle.id };
-            if ((existingVehicle.year_end ?? null) !== (v.year_end ?? null)) {
-              plan.differences.push(`${where}: year_end is ${existingVehicle.year_end ?? "empty"}, catalog says ${v.year_end ?? "empty"}.`);
-            }
-            if (existingVehicle.doors !== v.doors) {
-              plan.differences.push(`${where}: doors is ${existingVehicle.doors}, catalog says ${v.doors}.`);
-            }
+            compare("Vehicle", existingVehicle.id, where, "year_end", existingVehicle.year_end, v.year_end);
+            compare("Vehicle", existingVehicle.id, where, "doors", existingVehicle.doors, v.doors);
           } else {
             plan.vehicles.push({ key: vKey, generation: genRef, engine: engineRef(engine), data });
             vehicleRef = { key: vKey };
@@ -159,6 +193,22 @@ export function planCatalog(file: CatalogFile, snapshot: CatalogSnapshot): Catal
             else plan.problems.push(`${where}: reference ${ref.source}:${ref.external_id} belongs to another vehicle.`);
           }
         });
+      }
+    }
+  }
+
+  // Updated generation years must still hold their existing configurations.
+  for (const update of plan.updates) {
+    if (update.entity !== "VehicleGeneration" || !("year_start" in update.data || "year_end" in update.data)) continue;
+    const before = snapshot.generations.find((g) => g.id === update.id)!;
+    const after = { ...before, ...update.data } as typeof before;
+    for (const v of snapshot.vehicles.filter((v) => v.generation_id === update.id)) {
+      const end = (updates.get(v.id)?.data.year_end as number | null | undefined) ?? v.year_end;
+      const inside = v.year_start >= after.year_start && (after.year_end == null || (end != null && end <= after.year_end));
+      if (!inside) {
+        plan.problems.push(
+          `${update.where}: new years ${after.year_start}–${after.year_end ?? ""} leave a configuration (${v.year_start}–${end ?? ""}) outside.`,
+        );
       }
     }
   }

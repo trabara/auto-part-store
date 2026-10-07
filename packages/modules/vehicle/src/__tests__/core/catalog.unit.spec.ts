@@ -1,5 +1,5 @@
 import { CatalogFileSchema, type CatalogFile } from "../../contract";
-import { planCatalog, validateCatalog, type CatalogSnapshot } from "../../core";
+import { catalogCoverage, planCatalog, recordsToCatalog, validateCatalog, type CatalogSnapshot } from "../../core";
 
 const engine = { fuel: "DIESEL", layout: "INLINE", cylinders: 4, displacement_cc: 1461, power_kw: 66, code: "K9K" };
 const file = (patch: Partial<CatalogFile> = {}): CatalogFile =>
@@ -109,10 +109,113 @@ describe("planCatalog", () => {
     ]);
   });
 
+  describe("modes", () => {
+    // The file says: Clio CAR, generation V without code from 2019, configuration #1 with 5 doors, ongoing.
+    const snapshot = (): CatalogSnapshot => ({
+      makes: [{ id: "mk", name: "Renault" }],
+      models: [{ id: "md", make_id: "mk", name: "Clio", category: "CAR" }],
+      generations: [{ id: "g", model_id: "md", name: "V", code: null, year_start: 2019, year_end: null }],
+      engines: [{ id: "e", ...engine }],
+      vehicles: [
+        { id: "v", generation_id: "g", engine_id: "e", body_style: "HATCHBACK", drive: "FWD", transmission: "MANUAL", trim: null, year_start: 2019, year_end: null, doors: 3 },
+      ],
+      references: [{ source: "TECDOC_KTYPE", external_id: "1", vehicle_id: "v" }],
+    });
+    const research = () => {
+      const f = file();
+      const gen = f.makes[0]!.models[0]!.generations[0]!;
+      gen.code = "BF";
+      gen.year_end = 2025;
+      gen.vehicles[0]!.year_end = 2024;
+      return f;
+    };
+
+    it("create: reports every contradicting value, updates nothing", () => {
+      const plan = planCatalog(research(), snapshot());
+      expect(plan.updates).toEqual([]);
+      expect(plan.differences).toHaveLength(4);
+    });
+
+    it("fill: writes values the record lacks, reports the others", () => {
+      const plan = planCatalog(research(), snapshot(), { mode: "fill" });
+      expect(plan.updates.map((u) => [u.entity, u.id, u.data])).toEqual([
+        ["VehicleGeneration", "g", { code: "BF", year_end: 2025 }],
+        ["Vehicle", "v", { year_end: 2024 }],
+      ]);
+      expect(plan.updates.flatMap((u) => u.changes)).toEqual([
+        "Renault › Clio › V: code empty → BF.",
+        "Renault › Clio › V: year_end empty → 2025.",
+        "Renault › Clio › V › #1: year_end empty → 2024.",
+      ]);
+      expect(plan.differences).toEqual(["Renault › Clio › V › #1: doors is 3, catalog says 5."]);
+      expect(plan.problems).toEqual([]);
+    });
+
+    it("overwrite: writes every contradicting value", () => {
+      const plan = planCatalog(research(), snapshot(), { mode: "overwrite" });
+      expect(plan.updates.find((u) => u.id === "v")!.data).toEqual({ year_end: 2024, doors: 5 });
+      expect(plan.differences).toEqual([]);
+    });
+
+    it("refuses new generation years that leave a configuration outside", () => {
+      const f = research();
+      f.makes[0]!.models[0]!.generations[0]!.vehicles = [];
+      const s = snapshot();
+      s.vehicles[0]!.year_end = 2026;
+      expect(planCatalog(f, s, { mode: "fill" }).problems).toEqual([
+        "Renault › Clio › V: new years 2019–2025 leave a configuration (2019–2026) outside.",
+      ]);
+    });
+  });
+
   it("refuses a reference that belongs to another vehicle", () => {
     const snapshot = { ...empty, references: [{ source: "TECDOC_KTYPE", external_id: "1", vehicle_id: "other" }] };
     expect(planCatalog(file(), snapshot).problems).toEqual([
       "Renault › Clio › V › #1: reference TECDOC_KTYPE:1 belongs to another vehicle.",
+    ]);
+  });
+});
+
+describe("export and coverage", () => {
+  const records = {
+    makes: [{ id: "mk", name: "Renault" }],
+    models: [
+      { id: "md", make_id: "mk", name: "Clio", category: "CAR" },
+      { id: "mx", make_id: "mk", name: "Express", category: "LCV" },
+      { id: "mz", make_id: "mk", name: "Zoe", category: "CAR" },
+    ],
+    generations: [
+      { id: "g", model_id: "md", name: "V", code: "BF", year_start: 2019, year_end: null },
+      { id: "g4", model_id: "md", name: "IV", code: null, year_start: 2012, year_end: 2019 },
+      { id: "gx", model_id: "mx", name: "II", code: null, year_start: 2021, year_end: null },
+    ],
+    vehicles: [
+      { id: "v", generation_id: "g", engine: { ...engine, name: null }, body_style: "HATCHBACK", doors: 5, drive: "FWD", transmission: "MANUAL", trim: null, year_start: 2019, year_end: null },
+    ],
+    references: [{ vehicle_id: "v", source: "TECDOC_KTYPE", external_id: "1" }],
+  };
+
+  it("writes existing records back as a valid catalog that imports as unchanged", () => {
+    const exported = recordsToCatalog(records, { name: "Export" });
+    expect(CatalogFileSchema.parse(exported)).toEqual(exported);
+    expect(exported.makes[0]!.models[0]!.generations.map((g) => g.name)).toEqual(["IV", "V"]);
+    const snapshot: CatalogSnapshot = {
+      makes: records.makes,
+      models: records.models,
+      generations: records.generations,
+      engines: [{ id: "e", ...engine }],
+      vehicles: [{ ...records.vehicles[0]!, engine_id: "e" }],
+      references: records.references,
+    };
+    const plan = planCatalog(exported, snapshot);
+    expect([plan.models, plan.generations, plan.vehicles, plan.engines, plan.references, plan.differences]).toEqual([[], [], [], [], [], []]);
+  });
+
+  it("lists models least complete first", () => {
+    expect(catalogCoverage(records).map((c) => [c.model, c.generations, c.empty_generations, c.configurations])).toEqual([
+      ["Zoe", 0, 0, 0],
+      ["Express", 1, 1, 0],
+      ["Clio", 2, 1, 1],
     ]);
   });
 });

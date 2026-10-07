@@ -1,4 +1,5 @@
 import { medusaIntegrationTestRunner } from "@medusajs/test-utils";
+import { adminHeaders } from "@repo/config/jest/medusa-helpers.cjs";
 import { VEHICLE_MODULE, type VehicleModuleService } from "@repo/module-vehicle";
 import { CatalogFileSchema } from "@repo/module-vehicle/contract";
 
@@ -36,7 +37,7 @@ const catalog = CatalogFileSchema.parse({
 });
 
 medusaIntegrationTestRunner({
-  testSuite: ({ getContainer }) => {
+  testSuite: ({ api, getContainer }) => {
     const service = () => getContainer().resolve<VehicleModuleService>(VEHICLE_MODULE);
 
     it("imports a catalog once: a second run finds everything", async () => {
@@ -65,6 +66,74 @@ medusaIntegrationTestRunner({
       const refused = await service().importCatalog(bad);
       expect(refused.problems).toEqual(["Dacia › Logan › III › #1: starts (2018) before its generation (2020)."]);
       expect(await service().listVehicleMakes({ name: "Dacia" })).toEqual([]);
+    });
+  
+    describe("research API (/admin/vehicle-catalog)", () => {
+      /** A secret API key, as an automation (n8n) authenticates. */
+      async function apiKeyHeaders() {
+        const admin = await adminHeaders(getContainer());
+        const { data } = await api.post("/admin/api-keys", { title: "catalog research", type: "secret" }, admin);
+        return { headers: { authorization: `Basic ${Buffer.from(`${data.api_key.token}:`).toString("base64")}` } };
+      }
+
+      it("lists the least complete models, exports what exists, validates then applies a file", async () => {
+        const auth = await apiKeyHeaders();
+        await service().importCatalog(catalog);
+
+        const coverage = (await api.get("/admin/vehicle-catalog/coverage?make=dacia&max_configurations=", auth)).data;
+        expect(coverage.models.map((m: any) => [m.model, m.generations, m.configurations])).toEqual([
+          ["Dokker", 0, 0],
+          ["Logan", 1, 1],
+        ]);
+        expect(coverage.summary).toEqual({ models: 2, without_generations: 1, without_configurations: 1 });
+
+        const exported = (await api.get("/admin/vehicle-catalog/export?make=Dacia&model=logan", auth)).data;
+        expect(exported.makes[0].models.map((m: any) => m.name)).toEqual(["Logan"]);
+        expect(exported.makes[0].models[0].generations[0].vehicles[0]).toMatchObject({
+          engine: { code: "H4D", power_kw: 67 },
+          references: [{ source: "OTHER", external_id: "fixture-1" }],
+        });
+
+        // Research found: the generation's code and end, and a facelift engine.
+        const research = structuredClone(exported);
+        const gen = research.makes[0].models[0].generations[0];
+        Object.assign(gen, { code: "LJI", year_end: 2025 });
+        gen.vehicles[0].year_end = 2025;
+        gen.vehicles.push({ ...gen.vehicles[0], engine: { ...gen.vehicles[0].engine, power_kw: 74 }, year_start: 2022, references: [] });
+        research.source = { name: "Research agent", url: "https://example.com/logan" };
+
+        const dry = (await api.post("/admin/vehicle-catalog/import?dry_run=true&mode=fill", research, auth)).data.report;
+        expect(dry).toMatchObject({
+          dryRun: true,
+          mode: "fill",
+          problems: [],
+          created: { vehicles: 1, engines: 1 },
+          updated: [
+            "Dacia › Logan › III: code empty → LJI.",
+            "Dacia › Logan › III: year_end empty → 2025.",
+            "Dacia › Logan › III › #1: year_end empty → 2025.",
+          ],
+          differences: [],
+        });
+        const [before] = await service().listVehicleGenerations({ name: "III" });
+        expect(before!.code).toBeNull();
+
+        const applied = (await api.post("/admin/vehicle-catalog/import?mode=fill", research, auth)).data.report;
+        expect(applied).toMatchObject({ dryRun: false, problems: [], created: { vehicles: 1 } });
+        const [after] = await service().listVehicleGenerations({ name: "III" });
+        expect(after).toMatchObject({ code: "LJI", year_end: 2025 });
+        expect(await service().listVehicles({ generation_id: after!.id })).toHaveLength(2);
+      });
+
+      it("rejects a malformed file and requires admin authentication", async () => {
+        const auth = await apiKeyHeaders();
+        const bad = await api
+          .post("/admin/vehicle-catalog/import?dry_run=true", { format: "vehicle-catalog@1", makes: [] }, auth)
+          .catch((e: any) => e.response);
+        expect(bad.status).toBe(400);
+        const anonymous = await api.get("/admin/vehicle-catalog/coverage").catch((e: any) => e.response);
+        expect(anonymous.status).toBe(401);
+      });
     });
   },
 });

@@ -8,7 +8,8 @@
 //     ../../packages/domains/automotive/.medusa/server/src/scripts/import-vehicle-catalog.js \
 //     ../../packages/domains/automotive/data/vehicle-catalog/tunisia [dry-run]
 //
-// Arguments: catalog files or folders (every *.json inside whose `format` is
+// Arguments: `fill` or `overwrite` (what happens to existing values the file
+// contradicts; default: reported only), catalog files or folders (every *.json inside whose `format` is
 // vehicle-catalog@…, so a folder's model-map.json or report.json is skipped); `dry-run` (a
 // plain word: `medusa exec` refuses unknown --flags) reports without writing.
 import fs from "node:fs";
@@ -34,8 +35,10 @@ const counts = (c: CatalogImportReport["created"]) =>
 export default async function importVehicleCatalog({ container, args = [] }: ExecArgs) {
   const logger = container.resolve("logger");
   const dryRun = args.includes("dry-run") || args.includes("--dry-run");
-  const targets = args.filter((a) => !a.startsWith("--") && a !== "dry-run");
-  if (!targets.length) throw new Error("Usage: import-vehicle-catalog <file or folder>... [dry-run]");
+  const mode = args.includes("overwrite") ? "overwrite" : args.includes("fill") ? "fill" : "create";
+  const words = new Set(["dry-run", "fill", "overwrite"]);
+  const targets = args.filter((a) => !a.startsWith("--") && !words.has(a));
+  if (!targets.length) throw new Error("Usage: import-vehicle-catalog <file or folder>... [fill|overwrite] [dry-run]");
 
   const vehicles = container.resolve<VehicleModuleService>(VEHICLE_MODULE);
   let failed = 0;
@@ -47,7 +50,7 @@ export default async function importVehicleCatalog({ container, args = [] }: Exe
       logger.error(`[vehicle-catalog] ${file}: not a vehicle-catalog@1 file\n  ${issues.join("\n  ")}`);
       continue;
     }
-    const report = await vehicles.importCatalog(parsed.data, { dryRun });
+    const report = await vehicles.importCatalog(parsed.data, { dryRun, mode });
     const name = path.basename(file);
     if (report.problems.length) {
       failed++;
@@ -55,6 +58,7 @@ export default async function importVehicleCatalog({ container, args = [] }: Exe
       continue;
     }
     logger.info(`[vehicle-catalog] ${name}: ${dryRun ? "would create" : "created"} ${counts(report.created)}; existing ${counts(report.existing)}`);
+    for (const change of report.updated) logger.info(`[vehicle-catalog] ${name}: ${dryRun ? "would update" : "updated"} ${change}`);
     for (const difference of report.differences) logger.warn(`[vehicle-catalog] ${name}: ${difference}`);
   }
   if (failed) throw new Error(`[vehicle-catalog] ${failed} file(s) not imported (see above).`);

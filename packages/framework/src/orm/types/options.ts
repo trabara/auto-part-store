@@ -3,8 +3,11 @@ import type { RelationshipInput } from "./fields"
 /** A DML index definition. */
 export type DmlIndex = { on: string[]; name?: string; unique?: boolean; where?: string }
 
-/** A DML check constraint (raw SQL expression). */
-export type DmlCheck = { name?: string; expression: string }
+/**
+ * A DML check constraint: a raw SQL expression, or a function of the column
+ * names (`(columns) => \`LENGTH(${columns.name}) <= 50\``).
+ */
+export type DmlCheck = { name?: string; expression: string | ((columns: Record<string, string>) => string) }
 
 /**
  * Options passed to `zodSchemaToDml`.

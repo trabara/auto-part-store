@@ -5,6 +5,7 @@ import { buildDmlProperty, buildRelationshipProperty } from "../orm/field-to-dml
 import { define, ref } from "../orm/registry"
 import type { EntitySet } from "./define-entities"
 import { foreignKeys, isColumnLink, linkColumns } from "./relations"
+import { searchPaths } from "./search"
 import type { EntityDef, EntityModel, RelationMap } from "./types"
 
 type AnyEntity = EntityDef<any, any, any>
@@ -20,9 +21,13 @@ function buildModel(entity: AnyEntity) {
   const relations = entity.relations as RelationMap
   const { storage } = entity
 
+  // Own text fields `?q=` searches are searchable for Medusa too (`q` in
+  // service list calls); relation paths are searched by the framework only.
+  const searchable = new Set(searchPaths(entity).filter((path) => !path.includes(".")))
+
   const fields: Record<string, unknown> = {}
   for (const [key, field] of Object.entries(shape)) {
-    const built = buildDmlProperty(field, key)
+    const built = buildDmlProperty(field, key, undefined, undefined, { searchable })
     if (built) fields[built.dmlName] = built.property
   }
   for (const [key, rel] of Object.entries(relations)) {

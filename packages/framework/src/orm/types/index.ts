@@ -1,4 +1,5 @@
 export type {
+  DmlBuildOptions,
   DmlFieldDef,
   DmlRelDef,
   RelationshipDef,

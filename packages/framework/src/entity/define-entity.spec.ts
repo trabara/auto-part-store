@@ -53,6 +53,19 @@ describe("defineEntity: model", () => {
     expect(parsed.indexes[0]).toMatchObject({ on: ["engine_id", "year_start"], unique: true })
   })
 
+  it("marks the own text fields of `search` searchable for Medusa's `q`", () => {
+    const Make = defineEntity("Make", { schema: BaseSchema.extend({ name: z.string() }) })
+    const Model = defineEntity("Model", {
+      schema: BaseSchema.extend({ name: z.string(), code: z.string(), doors: z.number().int() }),
+      relations: (r) => ({ make: r.belongsTo("Make") }),
+      search: ["name", "make.name"],
+    })
+    const schema = (toModel(Model) as any).parse().schema
+    expect(schema.name.parse("name").dataType.options).toMatchObject({ searchable: true })
+    expect(schema.code.parse("code").dataType.options).toMatchObject({ searchable: false })
+    expect(Make).toBeDefined()
+  })
+
   it("derives modelName from the entity name and honours tableName", () => {
     const E = defineEntity("FitmentPosition", { schema: BaseSchema, tableName: "positions" })
     expect(E.modelName).toBe("fitment_position")

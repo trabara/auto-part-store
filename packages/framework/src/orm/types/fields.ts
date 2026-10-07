@@ -1,11 +1,34 @@
 import type { DmlEntity } from "@medusajs/framework/utils"
 
-/** DML property type classification for a single field. */
+/**
+ * DML property type classification for a single field (Medusa property types:
+ * https://docs.medusajs.com/learn/fundamentals/data-models/properties).
+ */
 export type DmlFieldDef = {
-  dmlType: "text" | "boolean" | "number" | "dateTime" | "json" | "enum" | "id"
+  dmlType:
+    | "text"
+    | "boolean"
+    | "number" // integer column: z.number().int()
+    | "float" // real column: z.number()
+    | "bigNumber" // numeric column + raw_<field>: fields.bigNumber()
+    | "dateTime"
+    | "json"
+    | "array" // text[] column: z.array(z.string())
+    | "enum"
+    | "id"
   nullable: boolean
   default?: unknown
   enumValues?: string[]
+  /** Text only: queryable through Medusa's `q` filter (`model.text().searchable()`). */
+  searchable?: boolean
+  /** Text only: translated by Medusa's Translation module (`model.text().translatable()`). */
+  translatable?: boolean
+}
+
+/** Per-field options of the DML build that the schema alone doesn't carry. */
+export type DmlBuildOptions = {
+  /** Text fields to mark searchable (an entity's own `search` paths). */
+  searchable?: ReadonlySet<string>
 }
 
 /** Supported Medusa relationship kinds. */

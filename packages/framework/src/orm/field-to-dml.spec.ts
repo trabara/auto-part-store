@@ -1,5 +1,6 @@
 import { z } from "@medusajs/framework/zod"
 import { zodSchemaToDml } from "./schema-to-dml"
+import { fields } from "../entity/fields"
 import { zodFieldToDml, buildDmlProperty } from "./field-to-dml"
 import {
   StatusSchema,
@@ -39,10 +40,23 @@ describe("zodFieldToDml", () => {
     expect(result.fieldDef?.default).toBe("draft")
   })
 
-  it("maps number with default", () => {
-    const result = zodFieldToDml(z.number().default(0), "count")
+  it("maps integers to number (integer column) and keeps their default", () => {
+    const result = zodFieldToDml(z.number().int().default(0), "count")
     expect(result.fieldDef?.dmlType).toBe("number")
     expect(result.fieldDef?.default).toBe(0)
+    expect(zodFieldToDml(z.int(), "count").fieldDef?.dmlType).toBe("number")
+  })
+
+  it("maps other numbers to float (real column)", () => {
+    expect(zodFieldToDml(z.number().min(0), "rating").fieldDef?.dmlType).toBe("float")
+    expect(zodFieldToDml(z.number().default(0.5), "ratio").fieldDef).toMatchObject({ dmlType: "float", default: 0.5 })
+  })
+
+  it("maps fields.bigNumber() to bigNumber (numeric column)", () => {
+    expect(zodFieldToDml(fields.bigNumber().nullable(), "price").fieldDef).toMatchObject({
+      dmlType: "bigNumber",
+      nullable: true,
+    })
   })
 
   it("drops Date defaults so no fixed timestamp is baked into the column", () => {
@@ -82,8 +96,8 @@ describe("zodFieldToDml", () => {
     expect(result.fieldDef?.dmlType).toBe("number")
   })
 
-  it("maps nullable number to nullable number", () => {
-    const result = zodFieldToDml(z.number().nullable(), "price")
+  it("maps nullable integer to nullable number", () => {
+    const result = zodFieldToDml(z.number().int().nullable(), "stock")
     expect(result.fieldDef?.dmlType).toBe("number")
     expect(result.fieldDef?.nullable).toBe(true)
   })
@@ -144,9 +158,27 @@ describe("zodFieldToDml", () => {
     expect(result.relation?.kind).toBe("json")
   })
 
-  it("maps primitive array to json", () => {
-    const result = zodFieldToDml(z.array(z.string()), "tags")
-    expect(result.fieldDef?.dmlType).toBe("json")
+  it("maps string arrays to array (text[] column), with their default", () => {
+    expect(zodFieldToDml(z.array(z.string()), "tags").fieldDef?.dmlType).toBe("array")
+    expect(zodFieldToDml(z.array(z.string()).default([]), "tags").fieldDef).toMatchObject({ dmlType: "array", default: [] })
+  })
+
+  it("maps other primitive arrays and records to json, keeping defaults", () => {
+    expect(zodFieldToDml(z.array(z.number()), "sizes").fieldDef?.dmlType).toBe("json")
+    expect(zodFieldToDml(z.record(z.string(), z.string()).default({}), "labels").fieldDef).toMatchObject({
+      dmlType: "json",
+      default: {},
+    })
+  })
+
+  it("marks fields.translatable() text translatable, and refuses it elsewhere", () => {
+    expect(zodFieldToDml(fields.translatable(), "title").fieldDef).toMatchObject({ dmlType: "text", translatable: true })
+    expect(zodFieldToDml(fields.translatable(z.string().nullable()), "subtitle").fieldDef).toMatchObject({
+      dmlType: "text",
+      nullable: true,
+      translatable: true,
+    })
+    expect(() => zodFieldToDml(z.number().meta({ translatable: true }), "rank")).toThrow(/only text fields can be translatable/)
   })
 
   it("resolves z.lazy array elements to hasMany", () => {
@@ -177,7 +209,7 @@ describe("zodFieldToDml", () => {
   })
 
   it("unwraps preprocess (pipe) and detects inner type", () => {
-    const result = zodFieldToDml(z.preprocess((v) => Number(v), z.number()).optional(), "count")
+    const result = zodFieldToDml(z.preprocess((v) => Number(v), z.number().int()).optional(), "count")
     expect(result.fieldDef?.dmlType).toBe("number")
     expect(result.fieldDef?.nullable).toBe(true)
   })
@@ -312,5 +344,36 @@ describe("buildDmlProperty", () => {
     expect(result).not.toBeNull()
     expect(result?.dmlName).toBe("orders")
     expect(result?.property).toBeDefined()
+  })
+})
+
+describe("buildDmlProperty: Medusa property types", () => {
+  // https://docs.medusajs.com/learn/fundamentals/data-models/properties
+  const built = (field: z.ZodTypeAny, name = "f", options = {}) =>
+    buildDmlProperty(field, name, undefined, undefined, options)!.property
+
+  it.each([
+    [z.string(), "text"],
+    [z.number().int(), "number"],
+    [z.number(), "float"],
+    [fields.bigNumber(), "bigNumber"],
+    [z.boolean(), "boolean"],
+    [z.date(), "dateTime"],
+    [z.enum(["a", "b"]), "enum"],
+    [z.array(z.string()), "array"],
+    [z.object({ a: z.string() }).strict(), "json"],
+  ])("%#: builds the matching property", (field, name) => {
+    expect(built(field as z.ZodTypeAny).dataType.name).toBe(name)
+  })
+
+  it("marks text searchable (from options) and translatable (from the field)", () => {
+    expect(built(z.string(), "name", { searchable: new Set(["name"]) }).dataType.options).toMatchObject({ searchable: true })
+    expect(built(fields.translatable(), "title").dataType.options).toMatchObject({ translatable: true })
+    expect(() => built(z.number().int(), "rank", { searchable: new Set(["rank"]) })).toThrow(/only text fields can be searchable/)
+  })
+
+  it("keeps json and array defaults", () => {
+    expect(built(z.record(z.string(), z.string()).default({ en: "" })).parse("f")).toMatchObject({ defaultValue: { en: "" } })
+    expect(built(z.array(z.string()).default(["x"])).parse("f")).toMatchObject({ defaultValue: ["x"] })
   })
 })

@@ -545,6 +545,34 @@ export function zodQueryResolve(schema: z.ZodTypeAny, query = ""): string {
 /** UI hints a field can carry through `.meta({ ui })` (see `fields` in entity). */
 export type FieldUi = "image" | "localized"
 
+/** Storage hints a field can carry through `.meta(...)` (see `fields` in entity). */
+export type FieldMeta = {
+  ui?: FieldUi
+  /** Column type when the Zod type alone can't tell (`fields.bigNumber()`). */
+  dml?: "bigNumber"
+  /** Text translated per locale by Medusa's Translation module (`fields.translatable()`). */
+  translatable?: boolean
+}
+
+/**
+ * A meta key of a field, read from Zod's global registry on the field or any
+ * wrapper inside it (optional, nullable, default, …), so it survives
+ * `.partial()` and `.describe()`.
+ */
+export function getFieldMeta<K extends keyof FieldMeta>(
+  field: z.ZodTypeAny | null | undefined,
+  key: K,
+): FieldMeta[K] | undefined {
+  let current: z.ZodTypeAny | undefined = field ?? undefined
+  for (let i = 0; current && i < 20; i++) {
+    const value = (z.globalRegistry.get(current as any) as FieldMeta | undefined)?.[key]
+    if (value !== undefined) return value
+    const def = (current as unknown as { _def: ZodDef & Record<string, any> })._def
+    current = def.innerType ?? def.in ?? def.schema
+  }
+  return undefined
+}
+
 /**
  * The `ui` hint of a field, read from Zod's global registry on the field or any
  * wrapper inside it (optional, nullable, default, …), so it survives
@@ -557,12 +585,5 @@ export type FieldUi = "image" | "localized"
  * ```
  */
 export function getFieldUi(field: z.ZodTypeAny | null | undefined): FieldUi | undefined {
-  let current: z.ZodTypeAny | undefined = field ?? undefined
-  for (let i = 0; current && i < 20; i++) {
-    const ui = (z.globalRegistry.get(current as any) as { ui?: FieldUi } | undefined)?.ui
-    if (ui) return ui
-    const def = (current as unknown as { _def: ZodDef & Record<string, any> })._def
-    current = def.innerType ?? def.in ?? def.schema
-  }
-  return undefined
+  return getFieldMeta(field, "ui")
 }

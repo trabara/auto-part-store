@@ -9,6 +9,7 @@ import { model } from "@medusajs/framework/utils";
 import type { DmlEntity } from "@medusajs/framework/utils";
 import { z } from "@medusajs/framework/zod";
 import type {
+  DmlBuildOptions,
   DmlFieldDef,
   DmlPropertyResult,
   RelationshipDef,
@@ -29,6 +30,7 @@ import {
   looksLikeEntity,
   capitalizeFirstLetter,
   IMPLICIT_PROPERTIES,
+  getFieldMeta,
 } from "../utils";
 
 // =============================================================================
@@ -56,7 +58,7 @@ function getLiteralValue(schema: z.ZodTypeAny): unknown {
 // =============================================================================
 
 function scalarFieldDef(
-  dmlType: "text" | "boolean" | "number" | "dateTime",
+  dmlType: "text" | "boolean" | "number" | "float" | "bigNumber" | "dateTime",
   nullable: boolean,
   defaultValue: unknown,
 ): DmlFieldDef {
@@ -75,9 +77,15 @@ function enumFieldDef(
     : { dmlType: "enum", nullable, enumValues, default: defaultValue };
 }
 
+/** Whether a number schema only accepts integers (`.int()`, `z.int()`). */
+function isIntegerNumber(schema: z.ZodTypeAny): boolean {
+  const format = (schema as unknown as { _zod?: { bag?: { format?: string } } })._zod?.bag?.format;
+  return typeof format === "string" && /int/.test(format);
+}
+
 function literalDmlType(value: unknown): DmlFieldDef["dmlType"] {
   if (typeof value === "string") return "text";
-  if (typeof value === "number") return "number";
+  if (typeof value === "number") return Number.isInteger(value) ? "number" : "float";
   if (typeof value === "boolean") return "boolean";
   return "json";
 }
@@ -104,8 +112,16 @@ function arrayElement(current: z.ZodTypeAny): z.ZodTypeAny | undefined {
 function arrayFieldInfo(
   current: z.ZodTypeAny,
   nullable: boolean,
+  defaultValue: unknown,
 ): ZodFieldInfo {
   const element = arrayElement(current);
+  // Arrays of strings: a text[] column (model.array()); others are JSON.
+  if (element && typeTag(unwrap(element)) === "string") {
+    return {
+      fieldDef: { dmlType: "array", nullable, ...(defaultValue === undefined ? {} : { default: defaultValue }) },
+      relation: null,
+    };
+  }
   if (element && looksLikeEntity(element)) {
     return {
       fieldDef: null,
@@ -117,9 +133,13 @@ function arrayFieldInfo(
     };
   }
   return {
-    fieldDef: { dmlType: "json", nullable },
+    fieldDef: jsonFieldDef(nullable, defaultValue),
     relation: { kind: "json" },
   };
+}
+
+function jsonFieldDef(nullable: boolean, defaultValue: unknown): DmlFieldDef {
+  return defaultValue === undefined ? { dmlType: "json", nullable } : { dmlType: "json", nullable, default: defaultValue };
 }
 
 function objectFieldInfo(
@@ -158,42 +178,34 @@ function withNullable<P extends { nullable: () => unknown }>(
 function buildScalarProperty(fieldDef: DmlFieldDef) {
   const { dmlType, nullable, default: dv } = fieldDef;
   const hasDefault = dv !== undefined;
+  const withDefault = <P extends { default: (value: any) => any }>(prop: P) => (hasDefault ? prop.default(dv) : prop);
 
   switch (dmlType) {
-    case "text":
-      return withNullable(
-        hasDefault ? model.text().default(dv as string) : model.text(),
-        nullable,
-      );
-    case "number":
-      return withNullable(
-        hasDefault ? model.number().default(dv as number) : model.number(),
-        nullable,
-      );
-    case "boolean":
-      return withNullable(
-        hasDefault ? model.boolean().default(dv as boolean) : model.boolean(),
-        nullable,
-      );
-    case "dateTime":
-      return withNullable(
-        hasDefault ? model.dateTime().default(dv as Date) : model.dateTime(),
-        nullable,
-      );
-    case "enum": {
-      const values = fieldDef.enumValues ?? [];
-      return withNullable(
-        hasDefault
-          ? model.enum(values).default(dv as string)
-          : model.enum(values),
-        nullable,
-      );
+    case "text": {
+      let prop: any = model.text();
+      if (fieldDef.searchable) prop = prop.searchable();
+      if (fieldDef.translatable) prop = prop.translatable();
+      return withNullable(withDefault(prop), nullable);
     }
+    case "number":
+      return withNullable(withDefault(model.number()), nullable);
+    case "float":
+      return withNullable(withDefault(model.float()), nullable);
+    case "bigNumber":
+      return withNullable(withDefault(model.bigNumber()), nullable);
+    case "boolean":
+      return withNullable(withDefault(model.boolean()), nullable);
+    case "dateTime":
+      return withNullable(withDefault(model.dateTime()), nullable);
+    case "array":
+      return withNullable(withDefault(model.array()), nullable);
+    case "enum":
+      return withNullable(withDefault(model.enum(fieldDef.enumValues ?? [])), nullable);
     case "id":
       return model.id().primaryKey();
     case "json":
     default:
-      return withNullable(model.json(), nullable);
+      return withNullable(withDefault(model.json()), nullable);
   }
 }
 
@@ -296,15 +308,18 @@ export function zodFieldToDml(
   const t = typeTag(current);
   const defaultValue = getDefaultValue(field);
 
+  if (t !== "string" && getFieldMeta(field, "translatable")) {
+    throw new Error(`[dml] Field "${fieldName}": only text fields can be translatable.`);
+  }
+
   if (fieldName === "id" && t === "string") {
     return { fieldDef: { dmlType: "id", nullable: false }, relation: null };
   }
 
   if (t === "string") {
-    return {
-      fieldDef: scalarFieldDef("text", nullable, defaultValue),
-      relation: null,
-    };
+    const fieldDef = scalarFieldDef("text", nullable, defaultValue);
+    if (getFieldMeta(field, "translatable")) fieldDef.translatable = true;
+    return { fieldDef, relation: null };
   }
 
   if (t === "boolean") {
@@ -315,10 +330,10 @@ export function zodFieldToDml(
   }
 
   if (t === "number") {
-    return {
-      fieldDef: scalarFieldDef("number", nullable, defaultValue),
-      relation: null,
-    };
+    // integer (model.number()) for .int(); bigNumber when hinted; else float.
+    const dmlType =
+      getFieldMeta(field, "dml") === "bigNumber" ? "bigNumber" : isIntegerNumber(current) ? "number" : "float";
+    return { fieldDef: scalarFieldDef(dmlType, nullable, defaultValue), relation: null };
   }
 
   if (t === "date") {
@@ -362,7 +377,7 @@ export function zodFieldToDml(
   }
 
   if (t === "array") {
-    return arrayFieldInfo(current, nullable);
+    return arrayFieldInfo(current, nullable, defaultValue);
   }
 
   if (t === "object") {
@@ -370,13 +385,10 @@ export function zodFieldToDml(
   }
 
   if (t === "record") {
-    return {
-      fieldDef: { dmlType: "json", nullable },
-      relation: { kind: "json" },
-    };
+    return { fieldDef: jsonFieldDef(nullable, defaultValue), relation: { kind: "json" } };
   }
 
-  return { fieldDef: { dmlType: "json", nullable }, relation: null };
+  return { fieldDef: jsonFieldDef(nullable, defaultValue), relation: null };
 }
 
 // =============================================================================
@@ -406,6 +418,7 @@ export function buildDmlProperty(
   fieldName: string,
   relationships?: Record<string, RelationshipDef | null>,
   flatRelations?: Record<string, string>,
+  options: DmlBuildOptions = {},
 ): DmlPropertyResult {
   if (IMPLICIT_PROPERTIES.has(fieldName)) {
     return null;
@@ -442,5 +455,12 @@ export function buildDmlProperty(
     return { property, dmlName };
   }
 
-  return { property: buildScalarProperty(info.fieldDef!), dmlName };
+  const fieldDef = info.fieldDef!;
+  if (options.searchable?.has(fieldName)) {
+    if (fieldDef.dmlType !== "text") {
+      throw new Error(`[dml] Field "${fieldName}": only text fields can be searchable.`);
+    }
+    fieldDef.searchable = true;
+  }
+  return { property: buildScalarProperty(fieldDef), dmlName };
 }

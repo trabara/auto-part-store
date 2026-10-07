@@ -17,4 +17,17 @@ export const fields = {
    * admin shows the user's language (see `localizedText`).
    */
   localized: () => z.record(z.string(), z.string()).nullable().optional().meta({ ui: "localized" }),
+  /**
+   * High-precision decimal (money, rates): a `numeric` column through Medusa's
+   * `model.bigNumber()`, which also stores a `raw_<field>` column. Plain
+   * `z.number()` maps to `float`, `z.number().int()` to `number` (integer).
+   */
+  bigNumber: () => z.number().meta({ dml: "bigNumber" }),
+  /**
+   * Text translated per locale by Medusa's Translation module
+   * (`model.text().translatable()`): the field is registered as translatable.
+   * Pass a text schema to refine it, e.g. `fields.translatable(z.string().trim().min(1))`.
+   */
+  translatable: <S extends z.ZodTypeAny = z.ZodString>(schema?: S): S =>
+    (schema ?? z.string()).meta({ translatable: true }) as S,
 }

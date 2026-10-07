@@ -6,13 +6,20 @@ import { fieldUiOverrides } from "../helpers/field-ui-overrides";
 import { relationOverrides } from "../helpers/relation-overrides";
 import { featureRelations } from "./routes";
 
+type Overrides = Record<string, object>;
+
+/** Field overrides merged per field: later sets add to (and win over) earlier ones. */
+export function mergeOverrides(...sets: (object | undefined)[]): Overrides {
+  const out: Overrides = {};
+  for (const set of sets) {
+    for (const [key, value] of Object.entries((set ?? {}) as Overrides)) out[key] = { ...out[key], ...value };
+  }
+  return out;
+}
+
 /** Form overrides for a feature's schema: relation pickers, UI hints, then the feature's own. */
 export function formOverrides(module: ModuleDef, feature: FeatureDef, schema: z.ZodTypeAny) {
-  return {
-    ...relationOverrides(module, feature, schema),
-    ...fieldUiOverrides(schema),
-    ...(feature.ui.overrides as object),
-  };
+  return mergeOverrides(relationOverrides(module, feature, schema), fieldUiOverrides(schema), feature.ui.overrides);
 }
 
 /**

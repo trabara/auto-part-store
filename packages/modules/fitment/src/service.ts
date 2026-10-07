@@ -11,7 +11,7 @@ import {
   deserializeCondition,
   hasConditions,
   serializeValue,
-  summarizeConditions,
+  summarizeConditionsByLocale,
   validateTree,
   conditionAttribute,
   type ConditionGroupInput,
@@ -30,7 +30,7 @@ type Scalar = string | number | boolean;
 /** What `replaceConditions` changed, so a workflow can undo it. */
 export type ReplaceConditionsUndo = {
   fitment_id: string;
-  previousSummary: string | null;
+  previousSummary: Record<string, string> | null;
   createdGroups: string[];
   createdConditions: string[];
   oldGroups: string[];
@@ -173,6 +173,21 @@ export default class FitmentModuleService extends MedusaService(fitmentModels) {
   }
 
   /**
+   * Rewrites the stored summaries (every locale) of fitments with conditions,
+   * e.g. after translations change. Returns how many were updated.
+   */
+  @InjectTransactionManager()
+  async refreshConditionSummaries(@MedusaContext() ctx: Context = {}): Promise<number> {
+    const groups = await this.listFitmentConditionGroups({}, { select: ["fitment_id"] }, ctx);
+    const ids = [...new Set(groups.map((g) => g.fitment_id))];
+    for (const id of ids) {
+      const summary = summarizeConditionsByLocale(await this.getConditionTree(id, ctx));
+      await this.updateFitments({ id, conditions_summary: summary } as any, ctx);
+    }
+    return ids.length;
+  }
+
+  /**
    * Replaces a fitment's condition tree as one document: validates it against
    * the attribute catalog, creates missing attributes, keeps the order (rank)
    * and the readable summary. Returns what changed, for `undoReplaceConditions`.
@@ -182,7 +197,7 @@ export default class FitmentModuleService extends MedusaService(fitmentModels) {
     fitmentId: string,
     tree: ConditionGroupInput | null,
     @MedusaContext() ctx: Context = {},
-  ): Promise<{ summary: string | null; undo: ReplaceConditionsUndo }> {
+  ): Promise<{ summary: Record<string, string> | null; undo: ReplaceConditionsUndo }> {
     const errors = tree ? validateTree(tree) : [];
     if (errors.length) throw new MedusaError(MedusaError.Types.INVALID_DATA, errors.join(" "));
     return await this.replaceConditions_(fitmentId, tree, ctx);
@@ -193,7 +208,7 @@ export default class FitmentModuleService extends MedusaService(fitmentModels) {
     fitmentId: string,
     tree: ConditionGroupInput | null,
     @MedusaContext() ctx: Context = {},
-  ): Promise<{ summary: string | null; undo: ReplaceConditionsUndo }> {
+  ): Promise<{ summary: Record<string, string> | null; undo: ReplaceConditionsUndo }> {
     const fitment = await this.retrieveFitment(fitmentId, { select: ["id", "conditions_summary"] }, ctx);
     const oldGroups = await this.listFitmentConditionGroups({ fitment_id: fitmentId }, { select: ["id"] }, ctx);
     const oldConditions = oldGroups.length
@@ -234,7 +249,8 @@ export default class FitmentModuleService extends MedusaService(fitmentModels) {
     };
     if (keep) await create(keep, null);
 
-    const summary = summarizeConditions(keep);
+    // In every locale, from the translations the domain registered.
+    const summary = summarizeConditionsByLocale(keep);
     await this.updateFitments({ id: fitmentId, conditions_summary: summary } as any, ctx);
 
     return {

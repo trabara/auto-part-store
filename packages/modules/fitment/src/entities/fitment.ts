@@ -1,5 +1,5 @@
 import { z } from "@medusajs/framework/zod";
-import { defineEntity, type InferEntity } from "@repo/framework/entity";
+import { defineEntity, fields, type InferEntity } from "@repo/framework/entity";
 import { BaseSchema } from "@repo/framework/utils";
 import { Vehicle, YearSchema } from "@repo/module-vehicle/entities";
 import { ProductVariant } from "@repo/framework/medusa";
@@ -96,7 +96,8 @@ export const Fitment = defineEntity("Fitment", {
     to_month: MonthSchema.nullable().describe("Fits up to this month of to_year"),
     notes: z.string().nullable().describe("Additional notes about the fitment"),
     // Readable summary of the condition tree, kept by the conditions workflow.
-    conditions_summary: z.string().nullable().optional().describe("When the fitment applies"),
+    // One summary per locale: { en: "Drive is front-wheel drive", fr: "…" }.
+    conditions_summary: fields.localized().describe("When the fitment applies"),
   }),
   readOnly: ["conditions_summary"],
   relations: (r) => ({

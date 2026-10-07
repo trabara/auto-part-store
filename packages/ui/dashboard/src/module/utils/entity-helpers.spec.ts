@@ -3,6 +3,7 @@ import { defineModule } from "@repo/framework/core";
 import { defineEntities, defineEntity, fields } from "@repo/framework/entity";
 import { fieldUiOverrides } from "../helpers/field-ui-overrides";
 import { relationOverrides } from "../helpers/relation-overrides";
+import { mergeOverrides } from "./form-values";
 import { entityFields, toQueryFilters } from "./query";
 import { entityUrl, featureFor, featurePath, featureRelations } from "./routes";
 
@@ -133,6 +134,15 @@ describe("fieldUiOverrides", () => {
     expect(overrides.logo.render({ value: "u", onChange: () => {} }).props).toMatchObject({ value: "u" });
     expect(overrides.logo.cell({ getValue: () => "u" }).props).toMatchObject({ url: "u" });
   });
+
+  it("shows localized fields in the user's language, without a filter", () => {
+    const Note = defineEntity("DashNote", {
+      schema: z.object({ id: z.string(), summary: fields.localized() }),
+    });
+    const overrides = fieldUiOverrides(Note.schema) as Record<string, any>;
+    expect(overrides.summary.isFiltrable).toBe(false);
+    expect(overrides.summary.cell({ getValue: () => ({ en: "Hi" }) }).props).toMatchObject({ value: { en: "Hi" } });
+  });
 });
 
 describe("external entities", () => {
@@ -162,6 +172,15 @@ describe("external entities", () => {
     expect(overrides.variant_id.render({ value: "v1", onChange: () => {} }).props).toMatchObject({
       url: "/admin/product-variants",
       entity: Variant,
+    });
+  });
+});
+
+describe("mergeOverrides", () => {
+  it("merges per field, later sets winning", () => {
+    const cell = () => null;
+    expect(mergeOverrides({ a: { cell, isFiltrable: false } }, { a: { label: "A" } }, undefined)).toEqual({
+      a: { cell, isFiltrable: false, label: "A" },
     });
   });
 });

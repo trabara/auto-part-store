@@ -2,6 +2,8 @@
 // summary, validates against the vehicle catalog and saves it as a whole.
 import { Button, Container, Drawer, Heading, Text, toast } from "@medusajs/ui";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
+import { localizedText } from "@repo/framework/core";
 import { useSdk } from "@repo/dashboard/common";
 import { useLabels } from "@repo/dashboard/module";
 import { getEntityUrl } from "@repo/framework/entity";
@@ -139,6 +141,7 @@ export function ConditionsSection({ record, refresh }: { record: Record<string, 
   const sdk = useSdk();
   const texts = useConditionTexts();
   const labels = useLabels();
+  const { i18n } = useTranslation();
   const [open, setOpen] = useState(false);
   const [tree, setTree] = useState<ConditionGroupInput | null | undefined>(undefined);
   useEffect(() => {
@@ -147,7 +150,7 @@ export function ConditionsSection({ record, refresh }: { record: Record<string, 
       .then((r) => setTree(r.tree))
       .catch(() => setTree(undefined));
   }, [sdk, record.id, record.conditions_summary]);
-  const summary = tree === undefined ? record.conditions_summary : summarizeConditions(tree, texts);
+  const summary = tree === undefined ? localizedText(record.conditions_summary, i18n.language) : summarizeConditions(tree, texts);
   return (
     <Container className="flex items-start justify-between gap-x-4 px-6 py-4">
       <div className="flex flex-col gap-y-1">

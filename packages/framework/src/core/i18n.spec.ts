@@ -1,4 +1,4 @@
-import { COMMON_MESSAGES, defineTranslations, humanizeValue, i18nKeys, toAdminI18n, type SameShape } from "./i18n";
+import { COMMON_MESSAGES, defineTranslations, humanizeValue, i18nKeys, localizedText, toAdminI18n, translator, type SameShape } from "./i18n";
 
 const en = {
   name: "Vehicles",
@@ -66,5 +66,27 @@ describe("COMMON_MESSAGES", () => {
   it("translates every UI message in every locale", () => {
     const keys = Object.keys(COMMON_MESSAGES.en.ui).sort();
     for (const locale of ["fr", "ar"] as const) expect(Object.keys(COMMON_MESSAGES[locale].ui).sort()).toEqual(keys);
+  });
+});
+
+describe("translator and localizedText", () => {
+  const resources = toAdminI18n(
+    defineTranslations("x", {
+      en: { messages: { hi: "Hello {{name}}" } },
+      fr: { messages: { hi: "Bonjour {{name}}" } },
+      ar: { messages: { hi: "مرحبا {{name}}" } },
+    }),
+  );
+
+  it("translates by key for a locale, with fallback and variables", () => {
+    expect(translator(resources, "fr-FR")("modules.x.messages.hi", "Hi", { name: "Ali" })).toBe("Bonjour Ali");
+    expect(translator(resources, "de")("modules.x.messages.hi", "Hi {{name}}", { name: "Ali" })).toBe("Hi Ali");
+    expect(translator(resources, "fr")("modules.x.messages.nope", "Fallback")).toBe("Fallback");
+  });
+
+  it("picks the locale's text, else English", () => {
+    expect(localizedText({ en: "Diesel", fr: "Gazole" }, "fr-TN")).toBe("Gazole");
+    expect(localizedText({ en: "Diesel", fr: "Gazole" }, "ar")).toBe("Diesel");
+    expect(localizedText(null, "fr")).toBeNull();
   });
 });

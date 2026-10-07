@@ -12,4 +12,9 @@ import { z } from "@medusajs/framework/zod"
 export const fields = {
   /** Image URL (nullable text column), uploaded through Medusa's file module. */
   image: () => z.string().nullable().optional().meta({ ui: "image" }),
+  /**
+   * Text in several languages, `{ en: "…", fr: "…" }` (JSON column); the
+   * admin shows the user's language (see `localizedText`).
+   */
+  localized: () => z.record(z.string(), z.string()).nullable().optional().meta({ ui: "localized" }),
 }

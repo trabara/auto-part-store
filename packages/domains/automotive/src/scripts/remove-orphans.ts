@@ -1,5 +1,5 @@
 // One-off cleanup of records left behind before deletions cascaded:
-//   npx medusa exec <plugin>/.medusa/server/src/scripts/remove-orphans.js
+//   (from apps/backend) npx medusa exec ../../packages/domains/automotive/.medusa/server/src/scripts/remove-orphans.js
 // Idempotent: only soft-deletes rows whose variant, vehicle or customer is gone.
 import type { ExecArgs } from "@medusajs/framework/types";
 import { removeOrphansWorkflow } from "../workflows/remove-orphans";

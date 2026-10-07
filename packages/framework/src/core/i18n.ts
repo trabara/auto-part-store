@@ -250,3 +250,34 @@ export const i18nKeys = {
 };
 
 export { humanizeValue } from "../utils/strings";
+
+/** "fr-FR" → "fr". */
+export const languageOf = (locale: string | null | undefined): string => (locale ?? "").split(/[-_]/)[0]!.toLowerCase();
+
+/** Text of a localized value (`fields.localized()`) in `locale`, else English, else any. */
+export function localizedText(
+  value: Readonly<Record<string, string>> | null | undefined,
+  locale?: string | null,
+): string | null {
+  if (!value) return null;
+  return value[languageOf(locale)] ?? value.en ?? Object.values(value)[0] ?? null;
+}
+
+/** Looks up a translation: the text at `key`, else `fallback`; `{{var}}` filled from `vars`. */
+export type Translate = (key: string, fallback: string, vars?: Record<string, string | number>) => string;
+
+/**
+ * A `Translate` over admin i18n resources (`toAdminI18n(...)`) for a locale,
+ * for server code that writes text in several languages.
+ */
+export function translator(
+  resources: Partial<Record<string, { translation: Record<string, any> }>>,
+  locale: string,
+): Translate {
+  const root = resources[languageOf(locale)]?.translation ?? {};
+  return (key, fallback, vars = {}) => {
+    const found = key.split(".").reduce<any>((node, k) => node?.[k], root);
+    const template = typeof found === "string" ? found : fallback;
+    return template.replace(/\{\{(\w+)\}\}/g, (_, k) => String(vars[k] ?? ""));
+  };
+}

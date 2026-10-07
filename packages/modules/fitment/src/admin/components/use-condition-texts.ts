@@ -2,13 +2,7 @@
 // (from the catalog's translation keys), operators, validation messages and
 // the editor's own text (`modules.fitments.messages.conditions.*`).
 import { i18nKeys } from "@repo/framework/core";
-import {
-  CONDITION_MESSAGES,
-  englishConditionTexts,
-  OPERATOR_LABELS,
-  type ConditionAttribute,
-  type ConditionTexts,
-} from "@repo/module-fitment/conditions";
+import { conditionTexts, type ConditionAttribute } from "@repo/module-fitment/conditions";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { en } from "../i18n/en";
@@ -23,16 +17,7 @@ export function useConditionTexts() {
   return useMemo(() => {
     const tr = (k: string, fallback: string, vars: Record<string, string | number> = {}) =>
       t(k, { defaultValue: fallback, ...vars }) as string;
-    const texts: ConditionTexts = {
-      attribute: (a) => (a.i18n?.label ? tr(a.i18n.label, a.label) : a.label),
-      value: (a, v) => {
-        const english = englishConditionTexts.value(a, v);
-        const src = a.i18n?.values;
-        return src ? tr(i18nKeys.value(src.entity, src.field, v), english) : english;
-      },
-      operator: (op) => tr(key(`operators.${op}`), OPERATOR_LABELS[op]),
-      message: (k, vars) => tr(key(`validation.${k}`), CONDITION_MESSAGES[k], vars),
-    };
+    const texts = conditionTexts(tr);
     return {
       ...texts,
       /** Picker group of an attribute. */

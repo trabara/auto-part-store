@@ -82,8 +82,13 @@ medusaIntegrationTestRunner({
       const { data } = await api.get(`/admin/fitments/fitment/${c.dieselFit.id}/conditions`, admin);
       expect(data.tree).toMatchObject(dieselOnly);
 
+      // Stored in every locale, from the domain's translations.
       const fitment = await api.get(`/admin/fitments/fitment/${c.dieselFit.id}?fields=id,conditions_summary`, admin);
-      expect(fitment.data.data.conditions_summary).toBe(data.summary);
+      expect(fitment.data.data.conditions_summary).toEqual({
+        en: data.summary,
+        fr: "Carburant est diesel et (Transmission parmi traction avant, transmission intégrale ou Puissance entre 80 et 120 kW)",
+        ar: expect.stringContaining("الوقود هو"),
+      });
     });
 
     it("creates missing attributes from the vehicle catalog, typed from the field", async () => {
@@ -130,6 +135,10 @@ medusaIntegrationTestRunner({
       expect(await parts(c.petrol.id)).toEqual([]);
       const diesel = await parts(c.diesel.id);
       expect(diesel[0].variants[0].fitments[0].conditions).toMatch(/^Fuel is diesel and/);
+
+      // The request's locale picks the summary (`?locale=` or x-medusa-locale).
+      const fr = await api.get(`/store/vehicles/${c.diesel.id}/parts?locale=fr-TN`, store);
+      expect(fr.data.products[0].variants[0].fitments[0].conditions).toMatch(/^Carburant est diesel et/);
     });
 
     it("removes all conditions with a null tree", async () => {

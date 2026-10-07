@@ -543,7 +543,7 @@ export function zodQueryResolve(schema: z.ZodTypeAny, query = ""): string {
 // =============================================================================
 
 /** UI hints a field can carry through `.meta({ ui })` (see `fields` in entity). */
-export type FieldUi = "image"
+export type FieldUi = "image" | "localized"
 
 /**
  * The `ui` hint of a field, read from Zod's global registry on the field or any

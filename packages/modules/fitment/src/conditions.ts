@@ -5,6 +5,7 @@
 // The module knows no vehicle: the domain provides the catalog
 // (`provideConditionAttributes`), e.g. the vehicle fields a fitment can test.
 import { z } from "@medusajs/framework/zod";
+import { i18nKeys, LOCALES, translator, type Translate } from "@repo/framework/core";
 import { getZodFieldInfo } from "@repo/framework/utils";
 
 // ── Condition attribute catalog (port) ────────────────────────────────────────
@@ -165,6 +166,45 @@ export const englishConditionTexts: ConditionTexts = {
   operator: (op) => OPERATOR_LABELS[op],
   message: (key, vars) => fill(CONDITION_MESSAGES[key], vars),
 };
+
+const conditionKey = (path: string) => i18nKeys.message("fitments", `conditions.${path}`);
+
+/**
+ * `ConditionTexts` over a translation lookup (admin: i18next; server: the
+ * resources registered with `provideConditionTranslations`).
+ */
+export function conditionTexts(t: Translate): ConditionTexts {
+  return {
+    attribute: (a) => (a.i18n?.label ? t(a.i18n.label, a.label) : a.label),
+    value: (a, v) => {
+      const english = englishConditionTexts.value(a, v);
+      const src = a.i18n?.values;
+      return src ? t(i18nKeys.value(src.entity, src.field, v), english) : english;
+    },
+    operator: (op) => t(conditionKey(`operators.${op}`), OPERATOR_LABELS[op]),
+    message: (k, vars) => t(conditionKey(`validation.${k}`), CONDITION_MESSAGES[k], vars),
+  };
+}
+
+type Resources = Parameters<typeof translator>[0];
+let resources: Resources = {};
+
+/**
+ * Registers the admin translation resources (`toAdminI18n(...)` of the
+ * domain: this module's messages and the catalog's labels), so stored
+ * summaries are written in every locale.
+ */
+export function provideConditionTranslations(next: Resources): void {
+  resources = next;
+}
+
+/** The summary in every locale (`{ en, fr, ar }`), or null without conditions. */
+export function summarizeConditionsByLocale(tree: ConditionGroupInput | null | undefined): Record<string, string> | null {
+  if (!hasConditions(tree)) return null;
+  return Object.fromEntries(
+    LOCALES.map((locale) => [locale, summarizeConditions(tree, conditionTexts(translator(resources, locale)))!]),
+  );
+}
 
 export const isListOperator = (op: ConditionOperator) => op === "in" || op === "not_in";
 

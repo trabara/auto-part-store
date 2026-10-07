@@ -11,6 +11,7 @@ import { DataTable } from "../components/data-table";
 import { useDeleteMutation } from "../hooks/use-delete-mutation";
 import { useLabels } from "../hooks/use-labels";
 import type { FeatureFieldOverrides, RowAction, ToolbarAction } from "../types";
+import { mergeOverrides } from "../utils/form-values";
 import { entityFields, toQueryFilters } from "../utils/query";
 import { entityUrl, featurePath, featureRelations, useFeature } from "../utils/routes";
 
@@ -55,11 +56,11 @@ export function TemplateList({ outlet }: RouteRenderContext) {
         },
       };
     }
-    return labels.overrides(entity, schema, {
-      ...result,
-      ...fieldUiOverrides(entity.schema),
-      ...(feature.ui.overrides as FeatureFieldOverrides<any>),
-    });
+    return labels.overrides(
+      entity,
+      schema,
+      mergeOverrides(result, fieldUiOverrides(entity.schema), feature.ui.overrides) as FeatureFieldOverrides<any>,
+    );
   }, [toOne, feature, entity, schema, labels]);
 
   const deletion = useDeleteMutation({

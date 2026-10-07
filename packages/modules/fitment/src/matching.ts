@@ -13,8 +13,8 @@ export type FitmentMatch = {
   to_year: number | null;
   to_month: number | null;
   notes: string | null;
-  /** When it applies, e.g. "Drive is front-wheel drive" (null: always). */
-  conditions: string | null;
+  /** When it applies, by locale: `{ en: "Drive is front-wheel drive", … }` (null: always). */
+  conditions: Readonly<Record<string, string>> | null;
   position: { id: string; code: string; name: string } | null;
 };
 

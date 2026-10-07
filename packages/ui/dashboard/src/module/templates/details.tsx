@@ -12,6 +12,7 @@ import { useSdk } from "../../common/context";
 import { DataTable } from "../components/data-table";
 import { DetailsSection, type Attribute } from "../components/details-section";
 import { ImageThumbnail } from "../components/image-field";
+import { LocalizedText } from "../components/localized-text";
 import { fieldUiOverrides } from "../helpers/field-ui-overrides";
 import { useModule } from "../context/module";
 import { useDeleteMutation } from "../hooks/use-delete-mutation";
@@ -51,6 +52,8 @@ function scalarAttributes(
       node:
         getFieldUi(shape[key]) === "image" ? (
           <ImageThumbnail url={record[key] as string | null} size="large" />
+        ) : getFieldUi(shape[key]) === "localized" ? (
+          <LocalizedText value={record[key]} />
         ) : undefined,
     }));
 }

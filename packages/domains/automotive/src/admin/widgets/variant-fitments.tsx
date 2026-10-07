@@ -5,7 +5,7 @@ import type { AdminProductVariant, DetailWidgetProps } from "@medusajs/framework
 import { AdjustmentsDone } from "@medusajs/icons";
 import { useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { EntityPanel, Module, useLabels } from "@repo/dashboard/module";
+import { EntityPanel, LocalizedText, Module, useLabels } from "@repo/dashboard/module";
 import { ConditionsDrawer } from "@repo/module-fitment/admin/ui";
 import { Fitment } from "@repo/module-fitment/entities";
 import { fitmentAdmin as fitments } from "@repo/module-fitment/admin";
@@ -57,7 +57,7 @@ function VariantFitments({ variantId }: { variantId: string }) {
           {
             key: "conditions",
             label: field("conditions_summary"),
-            render: (r) => r.conditions_summary ?? "—",
+            render: (r) => <LocalizedText value={r.conditions_summary} />,
           },
         ]}
         rowActions={[

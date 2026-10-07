@@ -462,7 +462,7 @@
         },
         "conditions_summary": {
           "name": "conditions_summary",
-          "type": "text",
+          "type": "jsonb",
           "unsigned": false,
           "autoincrement": false,
           "primary": false,
@@ -474,7 +474,7 @@
           "default": null,
           "comment": null,
           "enumItems": [],
-          "mappedType": "text"
+          "mappedType": "json"
         },
         "variant_id": {
           "name": "variant_id",

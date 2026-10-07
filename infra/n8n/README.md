@@ -4,56 +4,79 @@
 
 ## How it works
 
-1. **Least complete models**: `GET /admin/vehicle-catalog/coverage` gives the models with no generations first, then those with the fewest configurations (`models_per_run` of them, optionally one `make`).
-2. For each model:
-   - **Existing catalog** (`GET /admin/vehicle-catalog/export`) is summarized into the prompt, so the agent reuses the existing generation names (the natural key).
-   - The **Research agent** (Claude Sonnet 5.5 through OpenRouter) uses four tools: `web_search` and `read_page` (Tavily), `get_existing_catalog`, and `validate_catalog` (a dry-run import). It must validate its answer and fix every problem before returning generations and configurations, with its sources and notes for reviewers. The output schema comes from the catalog contract.
-   - **Validate (dry run)** re-checks the result. When it is clean and adds something, **Apply (fill)** imports it with `mode=fill`:
+1. **Research tasks** (`GET /admin/vehicle-catalog/tasks`) gives the next `tasks_per_run` focused tasks, most useful first:
+   - **generations**: a model with no generations yet;
+   - **configurations**: one generation with at most `max_configurations` configurations (empty ones first, most recent first). Each task comes with the model's generations and the configurations the catalog already has.
+2. For each task:
+   - **Task prompt** turns the task into a short brief: which generation, its catalog years, and the existing configurations to match exactly.
+   - The **Research agent** (Claude Sonnet 5.5 through OpenRouter) uses three tools:
+     - `web_search`: 5 results with their most relevant passages;
+     - `read_page`: a page as markdown, either only the passages matching a `focus` or the whole page cut at 30k characters;
+     - `validate_catalog`: a dry-run import of its generations.
+
+     It must validate and fix every problem before answering. The output schema comes from the catalog contract, and every field the import would otherwise default (doors, drive, transmission…) must be stated.
+   - **Build catalog file** keeps the answer within the task: only the given generation for a configurations task, and no configurations for a generations task.
+   - **Validate (dry run)** re-checks the file, and **Decide** applies it only when all of these hold:
+     - no problems;
+     - no warnings (likely duplicates);
+     - it adds something;
+     - `auto_apply` is on.
+   - **Apply (fill)** imports with `mode=fill`:
      - missing generations and configurations are created;
-     - values the catalog lacks are filled in (a missing code, an end year for a generation still listed as current);
-     - **existing values are never overwritten**: contradictions are reported for review.
-3. **Run summary** lists each model's outcome and optionally posts it to a Slack-compatible webhook. The outcomes are:
+     - values the catalog lacks are filled in, such as a missing code or an end year;
+     - **existing values are never overwritten**, and blank values never count as information.
+3. **Run summary** lists each task's outcome and optionally posts it to a Slack-compatible webhook. The outcomes are:
    - `applied`;
    - `applied, review contradictions`;
-   - `problems`: nothing was written;
+   - `possible duplicates`;
+   - `problems`;
    - `nothing new`;
    - `failed`.
 
-   The proposal, its sources and the notes stay in the n8n execution.
+   Proposals that weren't applied stay in the execution with their sources and notes.
 
-Guardrails:
-- Imports are transactional: a file with any problem writes nothing.
-- Configuration years must fit their generation's.
-- An updated generation may not leave existing configurations outside its years.
-- The agent may not use sites that forbid automated access. autoevolution.com is excluded.
+The import refuses (nothing is written):
+- configurations outside their generation's years as the catalog has them;
+- generation or configuration updates that would break that rule;
+- a configuration that collides with an existing identical one;
+- duplicate references.
+
+It warns about likely duplicates, which go to review:
+- a new generation overlapping an existing one by more than a year (the same generation under another name);
+- a new configuration with the same fuel, power, body, doors, drive and transmission as an existing one but described differently (for example without its engine code).
+
+Imports are transactional. The agent may not use sites that forbid automated access; autoevolution.com is excluded.
 
 ## Setup
 
-1. **Medusa secret API key.** In the admin, open Settings › Secret API Keys and create a key, for example "n8n catalog research". The key acts as an admin, so keep it in n8n's credential store only.
-2. **Start n8n and import the workflow.** n8n is part of the local infrastructure (service `n8n` in `infra/docker/docker-compose.infra.yml`, http://localhost:5678; on the first visit, create the owner account):
+1. **Medusa secret API key.** In the admin, open Settings › Secret API Keys and create a key, for example "n8n catalog research". It acts as an admin, so keep it in n8n's credential store only.
+2. **Start n8n and import the workflow.** n8n is part of the local infrastructure: service `n8n` in `infra/docker/docker-compose.infra.yml`, at http://localhost:5678. On the first visit, create the owner account.
    ```bash
    docker compose -f infra/docker/docker-compose.yml -f infra/docker/docker-compose.infra.yml up -d n8n
    yarn n8n:import        # this folder is mounted at /workflows in the container
    ```
-   Re-importing replaces the workflow (same id), so edits made in the editor are lost. Without the compose service, use Workflows › Import from file.
-3. **Credentials.** Create these three, then select them on the nodes that show a warning:
-   - *Medusa secret API key*: type **Basic Auth**, user = the secret key (`sk_…`), password empty. Used by the five Medusa nodes and tools.
+   Re-importing replaces the workflow (same id), and its credentials have to be selected again. Without the compose service, use Workflows › Import from file.
+3. **Credentials.** Create these, then select them on the nodes that show a warning:
+   - *Medusa secret API key*: type **Basic Auth**, user = the secret key (`sk_…`), password empty. Used by Research tasks, Validate (dry run), Apply (fill) and `validate_catalog`.
    - *Tavily API key*: type **Header Auth**, name `Authorization`, value `Bearer tvly-…`. Used by `web_search` and `read_page`.
-   - *OpenRouter account*: OpenRouter API key (`sk-or-…`). Used by the **Chat model (OpenRouter)** node, model `anthropic/claude-sonnet-5.5`; any OpenRouter model with tool calling can replace it (pick it in the node).
+   - *OpenRouter account*: your OpenRouter API key (`sk-or-…`). Used by **Chat model (OpenRouter)**, model `anthropic/claude-sonnet-5.5`. Any OpenRouter model with tool calling can replace it.
 4. **Config node:**
-   - `medusa_url`: Medusa as seen from n8n. With n8n in compose and Medusa on the host (`yarn dev`), that is `http://host.docker.internal:9000` (the default); with Medusa in compose too (apps file), `http://medusa:9000`; in Kubernetes, the backend service URL.
+   - `medusa_url`: Medusa as seen from n8n.
+     - Medusa on the host (`yarn dev`): `http://host.docker.internal:9000`, the default.
+     - Medusa in compose: `http://medusa:9000`.
+     - Kubernetes: the backend service URL.
    - `make`: one make only, or empty for every make.
-   - `models_per_run`, default 5.
-   - `max_configurations`: -1 for any model.
-   - `auto_apply`: set it to false to validate only and review everything.
+   - `tasks_per_run`: default 10.
+   - `max_configurations`: 0 means empty generations only; raise it to complete thin ones.
+   - `auto_apply`: set it to false to validate only.
    - `review_webhook_url`: optional.
-5. Use **Run now** on one make with `models_per_run: 1`, check the execution and the catalog, then activate the workflow for the weekly run (Mondays 03:00, Africa/Tunis).
+5. Run **Run now** with `tasks_per_run: 1` and check the execution and the catalog, then activate the workflow (Mondays 03:00, Africa/Tunis).
 
-Each model costs one agent run, usually 10 to 30 tool calls: Tavily searches and page reads plus model tokens on OpenRouter. Size `models_per_run` to your budget.
+**Cost.** A task is one agent run, usually 5 to 15 steps: Tavily searches and reads, at 2 credits each, plus model tokens. The agent's context is re-sent on every step, which is why tool responses are trimmed. Expect roughly $0.20 to $0.60 per task with Sonnet 5.5. Size `tasks_per_run` accordingly, or pick a cheaper OpenRouter model.
 
 ## Applying a reviewed proposal
 
-To apply a reviewed proposal, take the `file` from the model's item in the **Needs review** node of the execution. Then either:
+Take the `file` from the task's item in the **Outcome** node of the execution. Fix what the review found (for example, copy an existing configuration's values to match it), then either:
 - post it with `mode=overwrite`, which writes the contradicting values too:
   ```bash
   curl -u "$MEDUSA_SECRET_KEY:" -H 'content-type: application/json' \

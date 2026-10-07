@@ -1,1 +1,0 @@
-export { automotiveDomain } from "./manifest";

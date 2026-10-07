@@ -1,0 +1,38 @@
+{
+  "format": "vehicle-catalog@1",
+  "market": "TN",
+  "source": {
+    "name": "automobile.tn — Prix du neuf",
+    "url": "https://www.automobile.tn/fr/neuf/dacia",
+    "license": "Facts only (make and model names); no prices, specs, text or images copied.",
+    "retrieved_at": "2026-10-07"
+  },
+  "makes": [
+    {
+      "name": "Dacia",
+      "source": "https://www.automobile.tn/fr/neuf/dacia",
+      "models": [
+        {
+          "name": "Duster",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/neuf/dacia/duster"
+        },
+        {
+          "name": "Logan",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/neuf/dacia/logan"
+        },
+        {
+          "name": "Sandero",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/neuf/dacia/sandero"
+        },
+        {
+          "name": "Sandero Stepway",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/neuf/dacia/sandero-stepway"
+        }
+      ]
+    }
+  ]
+}

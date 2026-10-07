@@ -3,4 +3,5 @@
 // modules may import.
 export * from "./manifest";
 export * from "./entities";
+export * from "./catalog";
 export { default as vehicleTranslations, type VehicleMessages } from "./i18n";

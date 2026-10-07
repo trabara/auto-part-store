@@ -1,0 +1,38 @@
+{
+  "format": "vehicle-catalog@1",
+  "market": "TN",
+  "source": {
+    "name": "automobile.tn — Prix du neuf",
+    "url": "https://www.automobile.tn/fr/neuf/ford",
+    "license": "Facts only (make and model names); no prices, specs, text or images copied.",
+    "retrieved_at": "2026-10-07"
+  },
+  "makes": [
+    {
+      "name": "Ford",
+      "source": "https://www.automobile.tn/fr/neuf/ford",
+      "models": [
+        {
+          "name": "Everest",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/neuf/ford/everest"
+        },
+        {
+          "name": "Ranger",
+          "category": "LCV",
+          "source": "https://www.automobile.tn/fr/neuf/ford/ranger"
+        },
+        {
+          "name": "Territory",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/neuf/ford/territory"
+        },
+        {
+          "name": "Transit",
+          "category": "LCV",
+          "source": "https://www.automobile.tn/fr/neuf/ford/transit-bus"
+        }
+      ]
+    }
+  ]
+}

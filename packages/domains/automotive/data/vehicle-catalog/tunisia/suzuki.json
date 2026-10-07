@@ -1,0 +1,43 @@
+{
+  "format": "vehicle-catalog@1",
+  "market": "TN",
+  "source": {
+    "name": "automobile.tn — Prix du neuf",
+    "url": "https://www.automobile.tn/fr/neuf/suzuki",
+    "license": "Facts only (make and model names); no prices, specs, text or images copied.",
+    "retrieved_at": "2026-10-07"
+  },
+  "makes": [
+    {
+      "name": "Suzuki",
+      "source": "https://www.automobile.tn/fr/neuf/suzuki",
+      "models": [
+        {
+          "name": "Baleno",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/neuf/suzuki/baleno"
+        },
+        {
+          "name": "Celerio",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/neuf/suzuki/celerio-populaire"
+        },
+        {
+          "name": "Dzire",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/neuf/suzuki/dzire"
+        },
+        {
+          "name": "Fronx",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/neuf/suzuki/fronx"
+        },
+        {
+          "name": "Swift",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/neuf/suzuki/swift"
+        }
+      ]
+    }
+  ]
+}

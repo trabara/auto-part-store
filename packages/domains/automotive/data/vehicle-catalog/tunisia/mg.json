@@ -1,0 +1,68 @@
+{
+  "format": "vehicle-catalog@1",
+  "market": "TN",
+  "source": {
+    "name": "automobile.tn — Prix du neuf",
+    "url": "https://www.automobile.tn/fr/neuf/mg",
+    "license": "Facts only (make and model names); no prices, specs, text or images copied.",
+    "retrieved_at": "2026-10-07"
+  },
+  "makes": [
+    {
+      "name": "MG",
+      "source": "https://www.automobile.tn/fr/neuf/mg",
+      "models": [
+        {
+          "name": "3",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/neuf/mg/3"
+        },
+        {
+          "name": "4 Urban",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/neuf/mg/4-urban"
+        },
+        {
+          "name": "5",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/neuf/mg/5"
+        },
+        {
+          "name": "7",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/neuf/mg/7"
+        },
+        {
+          "name": "Cyberster",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/neuf/mg/cyberster"
+        },
+        {
+          "name": "HS",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/neuf/mg/hs"
+        },
+        {
+          "name": "RX9",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/neuf/mg/rx9"
+        },
+        {
+          "name": "S5",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/neuf/mg/s5"
+        },
+        {
+          "name": "S6",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/neuf/mg/s6"
+        },
+        {
+          "name": "ZS",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/neuf/mg/zs"
+        }
+      ]
+    }
+  ]
+}

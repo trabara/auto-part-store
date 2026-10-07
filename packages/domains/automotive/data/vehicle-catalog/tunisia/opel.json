@@ -1,0 +1,43 @@
+{
+  "format": "vehicle-catalog@1",
+  "market": "TN",
+  "source": {
+    "name": "automobile.tn — Prix du neuf",
+    "url": "https://www.automobile.tn/fr/neuf/opel",
+    "license": "Facts only (make and model names); no prices, specs, text or images copied.",
+    "retrieved_at": "2026-10-07"
+  },
+  "makes": [
+    {
+      "name": "Opel",
+      "source": "https://www.automobile.tn/fr/neuf/opel",
+      "models": [
+        {
+          "name": "Combo",
+          "category": "LCV",
+          "source": "https://www.automobile.tn/fr/neuf/opel/combo"
+        },
+        {
+          "name": "Corsa",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/neuf/opel/corsa"
+        },
+        {
+          "name": "Crossland",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/neuf/opel/crossland"
+        },
+        {
+          "name": "Grandland",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/neuf/opel/grandland"
+        },
+        {
+          "name": "Mokka",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/neuf/opel/mokka"
+        }
+      ]
+    }
+  ]
+}

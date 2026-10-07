@@ -1,0 +1,48 @@
+{
+  "format": "vehicle-catalog@1",
+  "market": "TN",
+  "source": {
+    "name": "automobile.tn — Prix du neuf",
+    "url": "https://www.automobile.tn/fr/neuf/mitsubishi",
+    "license": "Facts only (make and model names); no prices, specs, text or images copied.",
+    "retrieved_at": "2026-10-07"
+  },
+  "makes": [
+    {
+      "name": "Mitsubishi",
+      "source": "https://www.automobile.tn/fr/neuf/mitsubishi",
+      "models": [
+        {
+          "name": "ASX",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/neuf/mitsubishi/asx"
+        },
+        {
+          "name": "Attrage",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/neuf/mitsubishi/attrage-populaire"
+        },
+        {
+          "name": "Eclipse Cross",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/neuf/mitsubishi/eclipse-cross"
+        },
+        {
+          "name": "L200",
+          "category": "LCV",
+          "source": "https://www.automobile.tn/fr/neuf/mitsubishi/l200-double-cabine"
+        },
+        {
+          "name": "Pajero",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/neuf/mitsubishi/pajero"
+        },
+        {
+          "name": "Pajero Sport",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/neuf/mitsubishi/pajero-sport"
+        }
+      ]
+    }
+  ]
+}

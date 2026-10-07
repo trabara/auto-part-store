@@ -1,0 +1,38 @@
+{
+  "format": "vehicle-catalog@1",
+  "market": "TN",
+  "source": {
+    "name": "automobile.tn — Prix du neuf",
+    "url": "https://www.automobile.tn/fr/neuf/mini",
+    "license": "Facts only (make and model names); no prices, specs, text or images copied.",
+    "retrieved_at": "2026-10-07"
+  },
+  "makes": [
+    {
+      "name": "MINI",
+      "source": "https://www.automobile.tn/fr/neuf/mini",
+      "models": [
+        {
+          "name": "Aceman",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/neuf/mini/aceman"
+        },
+        {
+          "name": "Cooper",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/neuf/mini/5-portes"
+        },
+        {
+          "name": "Cooper Cabrio",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/neuf/mini/cabriolet"
+        },
+        {
+          "name": "Countryman",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/neuf/mini/countryman"
+        }
+      ]
+    }
+  ]
+}

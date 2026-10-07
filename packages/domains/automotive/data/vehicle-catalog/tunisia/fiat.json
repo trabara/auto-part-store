@@ -1,0 +1,33 @@
+{
+  "format": "vehicle-catalog@1",
+  "market": "TN",
+  "source": {
+    "name": "automobile.tn — Prix du neuf",
+    "url": "https://www.automobile.tn/fr/neuf/fiat",
+    "license": "Facts only (make and model names); no prices, specs, text or images copied.",
+    "retrieved_at": "2026-10-07"
+  },
+  "makes": [
+    {
+      "name": "Fiat",
+      "source": "https://www.automobile.tn/fr/neuf/fiat",
+      "models": [
+        {
+          "name": "Doblo",
+          "category": "LCV",
+          "source": "https://www.automobile.tn/fr/neuf/fiat/doblo-combi"
+        },
+        {
+          "name": "Ducato",
+          "category": "LCV",
+          "source": "https://www.automobile.tn/fr/neuf/fiat/ducato"
+        },
+        {
+          "name": "Scudo",
+          "category": "LCV",
+          "source": "https://www.automobile.tn/fr/neuf/fiat/scudo-combi"
+        }
+      ]
+    }
+  ]
+}

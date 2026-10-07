@@ -1,0 +1,93 @@
+{
+  "format": "vehicle-catalog@1",
+  "market": "TN",
+  "source": {
+    "name": "automobile.tn — Prix du neuf",
+    "url": "https://www.automobile.tn/fr/neuf/mercedes-benz",
+    "license": "Facts only (make and model names); no prices, specs, text or images copied.",
+    "retrieved_at": "2026-10-07"
+  },
+  "makes": [
+    {
+      "name": "Mercedes-Benz",
+      "source": "https://www.automobile.tn/fr/neuf/mercedes-benz",
+      "models": [
+        {
+          "name": "A-Class",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/neuf/mercedes-benz/classe-a"
+        },
+        {
+          "name": "A-Class Saloon",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/neuf/mercedes-benz/classe-a-berline"
+        },
+        {
+          "name": "C-Class",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/neuf/mercedes-benz/classe-c"
+        },
+        {
+          "name": "CLA",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/neuf/mercedes-benz/cla"
+        },
+        {
+          "name": "CLE",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/neuf/mercedes-benz/cle-coupe"
+        },
+        {
+          "name": "E-Class",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/neuf/mercedes-benz/classe-e"
+        },
+        {
+          "name": "EQE",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/neuf/mercedes-benz/eqe-berline"
+        },
+        {
+          "name": "EQE SUV",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/neuf/mercedes-benz/eqe-suv"
+        },
+        {
+          "name": "EQS",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/neuf/mercedes-benz/eqs-berline"
+        },
+        {
+          "name": "G-Class",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/neuf/mercedes-benz/classe-g-electric"
+        },
+        {
+          "name": "GLA",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/neuf/mercedes-benz/gla"
+        },
+        {
+          "name": "GLB",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/neuf/mercedes-benz/glb"
+        },
+        {
+          "name": "GLC",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/neuf/mercedes-benz/glc"
+        },
+        {
+          "name": "GLC Coupé",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/neuf/mercedes-benz/glc-coupe"
+        },
+        {
+          "name": "V-Class",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/neuf/mercedes-benz/classe-v"
+        }
+      ]
+    }
+  ]
+}

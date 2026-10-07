@@ -1,0 +1,28 @@
+{
+  "format": "vehicle-catalog@1",
+  "market": "TN",
+  "source": {
+    "name": "automobile.tn — Prix du neuf",
+    "url": "https://www.automobile.tn/fr/neuf/avantier",
+    "license": "Facts only (make and model names); no prices, specs, text or images copied.",
+    "retrieved_at": "2026-10-07"
+  },
+  "makes": [
+    {
+      "name": "Avantier",
+      "source": "https://www.automobile.tn/fr/neuf/avantier",
+      "models": [
+        {
+          "name": "Avantier C",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/neuf/avantier/avantier-c"
+        },
+        {
+          "name": "Commuter",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/neuf/avantier/commuter"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,58 @@
+{
+  "format": "vehicle-catalog@1",
+  "market": "TN",
+  "source": {
+    "name": "automobile.tn — Prix du neuf",
+    "url": "https://www.automobile.tn/fr/neuf/peugeot",
+    "license": "Facts only (make and model names); no prices, specs, text or images copied.",
+    "retrieved_at": "2026-10-07"
+  },
+  "makes": [
+    {
+      "name": "Peugeot",
+      "source": "https://www.automobile.tn/fr/neuf/peugeot",
+      "models": [
+        {
+          "name": "2008",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/neuf/peugeot/2008"
+        },
+        {
+          "name": "208",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/neuf/peugeot/208"
+        },
+        {
+          "name": "Boxer",
+          "category": "LCV",
+          "source": "https://www.automobile.tn/fr/neuf/peugeot/boxer"
+        },
+        {
+          "name": "Expert",
+          "category": "LCV",
+          "source": "https://www.automobile.tn/fr/neuf/peugeot/expert-combi"
+        },
+        {
+          "name": "Landtrek",
+          "category": "LCV",
+          "source": "https://www.automobile.tn/fr/neuf/peugeot/landtrek-simple-cabine"
+        },
+        {
+          "name": "Partner",
+          "category": "LCV",
+          "source": "https://www.automobile.tn/fr/neuf/peugeot/partner"
+        },
+        {
+          "name": "Rifter",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/neuf/peugeot/rifter"
+        },
+        {
+          "name": "Traveller",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/neuf/peugeot/traveller"
+        }
+      ]
+    }
+  ]
+}

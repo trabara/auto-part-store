@@ -1,0 +1,43 @@
+{
+  "format": "vehicle-catalog@1",
+  "market": "TN",
+  "source": {
+    "name": "automobile.tn — Prix du neuf",
+    "url": "https://www.automobile.tn/fr/neuf/dongfeng",
+    "license": "Facts only (make and model names); no prices, specs, text or images copied.",
+    "retrieved_at": "2026-10-07"
+  },
+  "makes": [
+    {
+      "name": "Dongfeng",
+      "source": "https://www.automobile.tn/fr/neuf/dongfeng",
+      "models": [
+        {
+          "name": "Box",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/neuf/dongfeng/box"
+        },
+        {
+          "name": "Forthing T5 EVO",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/neuf/dongfeng/t5-evo"
+        },
+        {
+          "name": "Rich 6",
+          "category": "LCV",
+          "source": "https://www.automobile.tn/fr/neuf/dongfeng/rich-6"
+        },
+        {
+          "name": "Shine",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/neuf/dongfeng/shine"
+        },
+        {
+          "name": "Shine Max",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/neuf/dongfeng/shine-max"
+        }
+      ]
+    }
+  ]
+}

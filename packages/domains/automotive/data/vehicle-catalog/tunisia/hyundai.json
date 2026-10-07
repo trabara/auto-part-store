@@ -1,0 +1,78 @@
+{
+  "format": "vehicle-catalog@1",
+  "market": "TN",
+  "source": {
+    "name": "automobile.tn — Prix du neuf",
+    "url": "https://www.automobile.tn/fr/neuf/hyundai",
+    "license": "Facts only (make and model names); no prices, specs, text or images copied.",
+    "retrieved_at": "2026-10-07"
+  },
+  "makes": [
+    {
+      "name": "Hyundai",
+      "source": "https://www.automobile.tn/fr/neuf/hyundai",
+      "models": [
+        {
+          "name": "Bayon",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/neuf/hyundai/bayon"
+        },
+        {
+          "name": "Creta",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/neuf/hyundai/creta"
+        },
+        {
+          "name": "Grand i10",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/neuf/hyundai/grand-i10-populaire"
+        },
+        {
+          "name": "Grand i10 Saloon",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/neuf/hyundai/grand-i10-sedan"
+        },
+        {
+          "name": "i20",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/neuf/hyundai/i20"
+        },
+        {
+          "name": "i30 Fastback",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/neuf/hyundai/i30-fastback"
+        },
+        {
+          "name": "Ioniq 5",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/neuf/hyundai/ioniq-5"
+        },
+        {
+          "name": "Ioniq 6",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/neuf/hyundai/ioniq-6"
+        },
+        {
+          "name": "Kona",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/neuf/hyundai/kona-ev"
+        },
+        {
+          "name": "Staria",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/neuf/hyundai/staria-9-places"
+        },
+        {
+          "name": "Tucson",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/neuf/hyundai/tucson-hybride"
+        },
+        {
+          "name": "Venue",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/neuf/hyundai/venue"
+        }
+      ]
+    }
+  ]
+}

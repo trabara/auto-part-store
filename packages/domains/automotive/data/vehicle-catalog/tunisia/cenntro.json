@@ -1,0 +1,33 @@
+{
+  "format": "vehicle-catalog@1",
+  "market": "TN",
+  "source": {
+    "name": "automobile.tn — Prix du neuf",
+    "url": "https://www.automobile.tn/fr/neuf/cenntro",
+    "license": "Facts only (make and model names); no prices, specs, text or images copied.",
+    "retrieved_at": "2026-10-07"
+  },
+  "makes": [
+    {
+      "name": "Cenntro",
+      "source": "https://www.automobile.tn/fr/neuf/cenntro",
+      "models": [
+        {
+          "name": "Logistar 100",
+          "category": "LCV",
+          "source": "https://www.automobile.tn/fr/neuf/cenntro/logistar-ls-100"
+        },
+        {
+          "name": "Logistar 210",
+          "category": "LCV",
+          "source": "https://www.automobile.tn/fr/neuf/cenntro/logistar-210-pickup"
+        },
+        {
+          "name": "Logistar 260",
+          "category": "LCV",
+          "source": "https://www.automobile.tn/fr/neuf/cenntro/logistar-ls-260"
+        }
+      ]
+    }
+  ]
+}

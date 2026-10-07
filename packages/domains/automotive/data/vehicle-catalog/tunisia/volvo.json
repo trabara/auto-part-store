@@ -1,0 +1,53 @@
+{
+  "format": "vehicle-catalog@1",
+  "market": "TN",
+  "source": {
+    "name": "automobile.tn — Prix du neuf",
+    "url": "https://www.automobile.tn/fr/neuf/volvo",
+    "license": "Facts only (make and model names); no prices, specs, text or images copied.",
+    "retrieved_at": "2026-10-07"
+  },
+  "makes": [
+    {
+      "name": "Volvo",
+      "source": "https://www.automobile.tn/fr/neuf/volvo",
+      "models": [
+        {
+          "name": "EC40",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/neuf/volvo/ec40-recharge"
+        },
+        {
+          "name": "ES90",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/neuf/volvo/es90"
+        },
+        {
+          "name": "EX30",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/neuf/volvo/ex30"
+        },
+        {
+          "name": "EX90",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/neuf/volvo/ex90"
+        },
+        {
+          "name": "XC40",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/neuf/volvo/xc40"
+        },
+        {
+          "name": "XC60",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/neuf/volvo/xc60"
+        },
+        {
+          "name": "XC90",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/neuf/volvo/xc90"
+        }
+      ]
+    }
+  ]
+}

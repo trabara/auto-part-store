@@ -1,0 +1,33 @@
+{
+  "format": "vehicle-catalog@1",
+  "market": "TN",
+  "source": {
+    "name": "automobile.tn — Prix du neuf",
+    "url": "https://www.automobile.tn/fr/neuf/xpeng",
+    "license": "Facts only (make and model names); no prices, specs, text or images copied.",
+    "retrieved_at": "2026-10-07"
+  },
+  "makes": [
+    {
+      "name": "XPeng",
+      "source": "https://www.automobile.tn/fr/neuf/xpeng",
+      "models": [
+        {
+          "name": "G6",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/neuf/xpeng/g6"
+        },
+        {
+          "name": "G9",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/neuf/xpeng/g9"
+        },
+        {
+          "name": "P7+",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/neuf/xpeng/p7plus"
+        }
+      ]
+    }
+  ]
+}

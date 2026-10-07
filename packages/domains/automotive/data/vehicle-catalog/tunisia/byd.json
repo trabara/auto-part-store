@@ -1,0 +1,43 @@
+{
+  "format": "vehicle-catalog@1",
+  "market": "TN",
+  "source": {
+    "name": "automobile.tn — Prix du neuf",
+    "url": "https://www.automobile.tn/fr/neuf/byd",
+    "license": "Facts only (make and model names); no prices, specs, text or images copied.",
+    "retrieved_at": "2026-10-07"
+  },
+  "makes": [
+    {
+      "name": "BYD",
+      "source": "https://www.automobile.tn/fr/neuf/byd",
+      "models": [
+        {
+          "name": "Atto 3",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/neuf/byd/atto-3"
+        },
+        {
+          "name": "Dolphin",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/neuf/byd/dolphin"
+        },
+        {
+          "name": "Dolphin Surf",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/neuf/byd/dolphin-surf"
+        },
+        {
+          "name": "Song Plus",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/neuf/byd/song-plus"
+        },
+        {
+          "name": "Tang",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/neuf/byd/tang-ev"
+        }
+      ]
+    }
+  ]
+}

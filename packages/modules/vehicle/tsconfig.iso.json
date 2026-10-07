@@ -2,6 +2,6 @@
   // Isomorphic layers (contract, core, admin definition): no Node, no DOM.
   "extends": ["./tsconfig.json", "@repo/config/ts/layer.json"],
   "compilerOptions": { "rootDir": "./src", "outDir": "./.tsbuild/iso", "types": [], "lib": ["ES2022"] },
-  "include": ["src/contract/**/*", "src/admin/*.ts"],
+  "include": ["src/contract/**/*", "src/admin/*.ts", "src/core/**/*"],
   "exclude": ["src/**/__tests__"]
 }

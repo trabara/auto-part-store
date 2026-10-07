@@ -1,0 +1,28 @@
+{
+  "format": "vehicle-catalog@1",
+  "market": "TN",
+  "source": {
+    "name": "automobile.tn — Prix du neuf",
+    "url": "https://www.automobile.tn/fr/neuf/wallyscar",
+    "license": "Facts only (make and model names); no prices, specs, text or images copied.",
+    "retrieved_at": "2026-10-07"
+  },
+  "makes": [
+    {
+      "name": "Wallyscar",
+      "source": "https://www.automobile.tn/fr/neuf/wallyscar",
+      "models": [
+        {
+          "name": "Annibal",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/neuf/wallyscar/annibal"
+        },
+        {
+          "name": "Annibal XXL",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/neuf/wallyscar/annibal-xxl"
+        }
+      ]
+    }
+  ]
+}

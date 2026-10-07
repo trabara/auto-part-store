@@ -21,6 +21,11 @@
       "import": "./src/contract/index.ts",
       "default": "./dist/contract/index.js"
     },
+    "./core": {
+      "types": "./dist/core/index.d.ts",
+      "import": "./src/core/index.ts",
+      "default": "./dist/core/index.js"
+    },
     "./admin": {
       "types": "./dist/admin/index.d.ts",
       "import": "./src/admin/index.ts",

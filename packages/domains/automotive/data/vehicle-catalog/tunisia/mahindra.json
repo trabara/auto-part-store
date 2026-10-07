@@ -1,0 +1,28 @@
+{
+  "format": "vehicle-catalog@1",
+  "market": "TN",
+  "source": {
+    "name": "automobile.tn — Prix du neuf",
+    "url": "https://www.automobile.tn/fr/neuf/mahindra",
+    "license": "Facts only (make and model names); no prices, specs, text or images copied.",
+    "retrieved_at": "2026-10-07"
+  },
+  "makes": [
+    {
+      "name": "Mahindra",
+      "source": "https://www.automobile.tn/fr/neuf/mahindra",
+      "models": [
+        {
+          "name": "Pick-up",
+          "category": "LCV",
+          "source": "https://www.automobile.tn/fr/neuf/mahindra/pick-up-sc"
+        },
+        {
+          "name": "XUV 3XO",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/neuf/mahindra/3xo"
+        }
+      ]
+    }
+  ]
+}

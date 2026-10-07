@@ -1,0 +1,33 @@
+{
+  "format": "vehicle-catalog@1",
+  "market": "TN",
+  "source": {
+    "name": "automobile.tn — Prix du neuf",
+    "url": "https://www.automobile.tn/fr/neuf/foton",
+    "license": "Facts only (make and model names); no prices, specs, text or images copied.",
+    "retrieved_at": "2026-10-07"
+  },
+  "makes": [
+    {
+      "name": "Foton",
+      "source": "https://www.automobile.tn/fr/neuf/foton",
+      "models": [
+        {
+          "name": "TM5",
+          "category": "LCV",
+          "source": "https://www.automobile.tn/fr/neuf/foton/tm5h"
+        },
+        {
+          "name": "Tunland G7",
+          "category": "LCV",
+          "source": "https://www.automobile.tn/fr/neuf/foton/tunland-g7-simple-cabine"
+        },
+        {
+          "name": "View CS2",
+          "category": "LCV",
+          "source": "https://www.automobile.tn/fr/neuf/foton/view-c2"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,73 @@
+{
+  "format": "vehicle-catalog@1",
+  "market": "TN",
+  "source": {
+    "name": "automobile.tn — Prix du neuf",
+    "url": "https://www.automobile.tn/fr/neuf/dfsk",
+    "license": "Facts only (make and model names); no prices, specs, text or images copied.",
+    "retrieved_at": "2026-10-07"
+  },
+  "makes": [
+    {
+      "name": "DFSK",
+      "source": "https://www.automobile.tn/fr/neuf/dfsk",
+      "models": [
+        {
+          "name": "C31",
+          "category": "LCV",
+          "source": "https://www.automobile.tn/fr/neuf/dfsk/c31"
+        },
+        {
+          "name": "C32",
+          "category": "LCV",
+          "source": "https://www.automobile.tn/fr/neuf/dfsk/c32"
+        },
+        {
+          "name": "C35",
+          "category": "LCV",
+          "source": "https://www.automobile.tn/fr/neuf/dfsk/c35"
+        },
+        {
+          "name": "E5",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/neuf/dfsk/e5"
+        },
+        {
+          "name": "EC75",
+          "category": "LCV",
+          "source": "https://www.automobile.tn/fr/neuf/dfsk/ec75"
+        },
+        {
+          "name": "Glory 500",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/neuf/dfsk/glory-500"
+        },
+        {
+          "name": "Glory 580",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/neuf/dfsk/glory-580"
+        },
+        {
+          "name": "Glory iX5",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/neuf/dfsk/glory-ix5"
+        },
+        {
+          "name": "K01H",
+          "category": "LCV",
+          "source": "https://www.automobile.tn/fr/neuf/dfsk/k01h"
+        },
+        {
+          "name": "K01S",
+          "category": "LCV",
+          "source": "https://www.automobile.tn/fr/neuf/dfsk/k01s"
+        },
+        {
+          "name": "K02S",
+          "category": "LCV",
+          "source": "https://www.automobile.tn/fr/neuf/dfsk/k02s"
+        }
+      ]
+    }
+  ]
+}

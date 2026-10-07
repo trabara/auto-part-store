@@ -1,0 +1,53 @@
+{
+  "format": "vehicle-catalog@1",
+  "market": "TN",
+  "source": {
+    "name": "automobile.tn — Prix du neuf",
+    "url": "https://www.automobile.tn/fr/neuf/volkswagen",
+    "license": "Facts only (make and model names); no prices, specs, text or images copied.",
+    "retrieved_at": "2026-10-07"
+  },
+  "makes": [
+    {
+      "name": "Volkswagen",
+      "source": "https://www.automobile.tn/fr/neuf/volkswagen",
+      "models": [
+        {
+          "name": "Amarok",
+          "category": "LCV",
+          "source": "https://www.automobile.tn/fr/neuf/volkswagen/amarok"
+        },
+        {
+          "name": "Caddy",
+          "category": "LCV",
+          "source": "https://www.automobile.tn/fr/neuf/volkswagen/caddy-cargo"
+        },
+        {
+          "name": "Crafter",
+          "category": "LCV",
+          "source": "https://www.automobile.tn/fr/neuf/volkswagen/crafter"
+        },
+        {
+          "name": "Golf",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/neuf/volkswagen/golf-8"
+        },
+        {
+          "name": "T-Cross",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/neuf/volkswagen/t-cross"
+        },
+        {
+          "name": "Tiguan",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/neuf/volkswagen/tiguan"
+        },
+        {
+          "name": "Virtus",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/neuf/volkswagen/virtus"
+        }
+      ]
+    }
+  ]
+}

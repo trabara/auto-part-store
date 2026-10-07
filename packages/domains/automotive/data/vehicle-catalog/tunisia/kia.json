@@ -1,0 +1,58 @@
+{
+  "format": "vehicle-catalog@1",
+  "market": "TN",
+  "source": {
+    "name": "automobile.tn — Prix du neuf",
+    "url": "https://www.automobile.tn/fr/neuf/kia",
+    "license": "Facts only (make and model names); no prices, specs, text or images copied.",
+    "retrieved_at": "2026-10-07"
+  },
+  "makes": [
+    {
+      "name": "Kia",
+      "source": "https://www.automobile.tn/fr/neuf/kia",
+      "models": [
+        {
+          "name": "EV3",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/neuf/kia/ev3"
+        },
+        {
+          "name": "EV9",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/neuf/kia/ev9"
+        },
+        {
+          "name": "Niro",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/neuf/kia/niro"
+        },
+        {
+          "name": "Picanto",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/neuf/kia/picanto-populaire"
+        },
+        {
+          "name": "Seltos",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/neuf/kia/seltos"
+        },
+        {
+          "name": "Sonet",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/neuf/kia/sonet"
+        },
+        {
+          "name": "Sorento",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/neuf/kia/sorento-hybride"
+        },
+        {
+          "name": "Sportage",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/neuf/kia/sportage"
+        }
+      ]
+    }
+  ]
+}

@@ -6,8 +6,18 @@ import {
   MedusaError,
   MedusaService,
 } from "@medusajs/framework/utils";
-import { entityLabel } from "@repo/framework/entity";
-import { Vehicle, VehicleGeneration } from "../contract";
+import { entityLabel, withDerived, type EntityDef } from "@repo/framework/entity";
+import {
+  Vehicle,
+  VehicleEngine,
+  VehicleGeneration,
+  VehicleMake,
+  VehicleModel,
+  VehicleReference,
+  type CatalogFile,
+  type CatalogImportReport,
+} from "../contract";
+import { planCatalog, validateCatalog, type CatalogRef, type CatalogSnapshot } from "../core";
 import { vehicleModels } from "./models/vehicle";
 
 type Range = { year_start: number; year_end: number | null };
@@ -54,7 +64,124 @@ export type GarageVehicle = {
 
 export type VehicleSummary = { id: string; label: string; year_start: number; year_end: number | null };
 
+/** A row as the API would store it: parsed by the entity's create DTO, derived fields computed. */
+const asCreated = (entity: EntityDef<any, any, any>, row: Row): Row => withDerived(entity, entity.dto.create.parse(row));
+
 export default class VehicleModuleService extends MedusaService(vehicleModels) {
+  // ── Catalog import ──────────────────────────────────────────────────────────
+
+  /**
+   * Imports a catalog file (`vehicle-catalog@1`) in one transaction: creates
+   * the makes, models, generations, engines, configurations and references it
+   * lacks, matched by natural key; never overwrites existing records (their
+   * differences are reported). Nothing is written with `dryRun` or when the
+   * file has problems.
+   */
+  @InjectTransactionManager()
+  async importCatalog(
+    file: CatalogFile,
+    options: { dryRun?: boolean } = {},
+    @MedusaContext() ctx: Context = {},
+  ): Promise<CatalogImportReport> {
+    const plan = planCatalog(file, await this.catalogSnapshot_(file, ctx));
+    const problems = [...validateCatalog(file), ...plan.problems];
+    const report: CatalogImportReport = {
+      dryRun: !!options.dryRun,
+      problems,
+      created: {
+        makes: plan.makes.length,
+        models: plan.models.length,
+        generations: plan.generations.length,
+        engines: plan.engines.length,
+        vehicles: plan.vehicles.length,
+        references: plan.references.length,
+      },
+      existing: plan.existing,
+      differences: plan.differences,
+    };
+    if (problems.length || options.dryRun) return report;
+
+    const ids = new Map<string, string>();
+    const id = (ref: CatalogRef) => ("id" in ref ? ref.id : ids.get(ref.key)!);
+    const remember = (keys: string[], rows: { id: string }[]) => keys.forEach((key, i) => ids.set(key, rows[i]!.id));
+
+    if (plan.makes.length) {
+      const rows = plan.makes.map((m) => asCreated(VehicleMake, { name: m.data.name, slug: m.data.name, logo: null }));
+      remember(plan.makes.map((m) => m.key), await this.createVehicleMakes(rows as any[], ctx));
+    }
+    if (plan.models.length) {
+      const rows = plan.models.map((m) =>
+        asCreated(VehicleModel, { ...m.data, slug: m.data.name, image: null, make_id: id(m.make) }),
+      );
+      remember(plan.models.map((m) => m.key), await this.createVehicleModels(rows as any[], ctx));
+    }
+    if (plan.generations.length) {
+      const rows = plan.generations.map((g) => asCreated(VehicleGeneration, { ...g.data, image: null, model_id: id(g.model) }));
+      remember(plan.generations.map((g) => g.key), await this.createVehicleGenerations(rows as any[], ctx));
+    }
+    if (plan.engines.length) {
+      const rows = plan.engines.map((e) => asCreated(VehicleEngine, e.data));
+      remember(plan.engines.map((e) => e.key), await this.createVehicleEngines(rows as any[], ctx));
+    }
+    if (plan.vehicles.length) {
+      const rows = plan.vehicles.map((v) =>
+        asCreated(Vehicle, { ...v.data, generation_id: id(v.generation), engine_id: id(v.engine) }),
+      );
+      remember(plan.vehicles.map((v) => v.key), await this.createVehicles(rows as any[], ctx));
+    }
+    if (plan.references.length) {
+      const rows = plan.references.map((r) => asCreated(VehicleReference, { ...r.data, vehicle_id: id(r.vehicle) }));
+      await this.createVehicleReferences(rows as any[], ctx);
+    }
+    return report;
+  }
+
+  /** The existing records a catalog file can match (its makes' subtree, its engines' powers, its references). */
+  @InjectManager()
+  protected async catalogSnapshot_(file: CatalogFile, @MedusaContext() ctx: Context = {}): Promise<CatalogSnapshot> {
+    const names = new Set(file.makes.map((m) => m.name.trim().toLowerCase()));
+    const makes = (await this.listVehicleMakes({}, { select: ["id", "name"] }, ctx)).filter((m) =>
+      names.has(m.name.trim().toLowerCase()),
+    );
+    const models = makes.length
+      ? await this.listVehicleModels({ make_id: makes.map((m) => m.id) }, { select: ["id", "make_id", "name", "category"] }, ctx)
+      : [];
+    const generations = models.length
+      ? await this.listVehicleGenerations(
+          { model_id: models.map((m) => m.id) },
+          { select: ["id", "model_id", "name", "code", "year_start", "year_end"] },
+          ctx,
+        )
+      : [];
+    const vehiclesIn = file.makes.flatMap((m) => m.models.flatMap((mo) => mo.generations.flatMap((g) => g.vehicles)));
+    const powers = [...new Set(vehiclesIn.map((v) => v.engine.power_kw))];
+    const engines = powers.length
+      ? await this.listVehicleEngines(
+          { power_kw: powers },
+          { select: ["id", "code", "fuel", "layout", "cylinders", "displacement_cc", "power_kw"] },
+          ctx,
+        )
+      : [];
+    const vehicles = generations.length
+      ? await this.listVehicles(
+          { generation_id: generations.map((g) => g.id) },
+          {
+            select: ["id", "generation_id", "engine_id", "body_style", "drive", "transmission", "trim", "year_start", "year_end", "doors"],
+          },
+          ctx,
+        )
+      : [];
+    const externalIds = [...new Set(vehiclesIn.flatMap((v) => v.references.map((r) => r.external_id)))];
+    const references = externalIds.length
+      ? await this.listVehicleReferences(
+          { external_id: externalIds },
+          { select: ["source", "external_id", "vehicle_id"] },
+          ctx,
+        )
+      : [];
+    return { makes, models, generations, engines, vehicles, references } as unknown as CatalogSnapshot;
+  }
+
   // ── Rules (called by the module's entity hooks) ────────────────────────────
 
   /** A configuration's production years must fall within its generation's. */

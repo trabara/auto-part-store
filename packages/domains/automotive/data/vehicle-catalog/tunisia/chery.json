@@ -1,0 +1,63 @@
+{
+  "format": "vehicle-catalog@1",
+  "market": "TN",
+  "source": {
+    "name": "automobile.tn — Prix du neuf",
+    "url": "https://www.automobile.tn/fr/neuf/chery",
+    "license": "Facts only (make and model names); no prices, specs, text or images copied.",
+    "retrieved_at": "2026-10-07"
+  },
+  "makes": [
+    {
+      "name": "Chery",
+      "source": "https://www.automobile.tn/fr/neuf/chery",
+      "models": [
+        {
+          "name": "Arrizo 8",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/neuf/chery/arrizo-8-phev"
+        },
+        {
+          "name": "Himla",
+          "category": "LCV",
+          "source": "https://www.automobile.tn/fr/neuf/chery/himla"
+        },
+        {
+          "name": "iCar 03",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/neuf/chery/i03"
+        },
+        {
+          "name": "Tiggo 1X",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/neuf/chery/tiggo-1x-populaire"
+        },
+        {
+          "name": "Tiggo 2 Pro Max",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/neuf/chery/tiggo-2-pro"
+        },
+        {
+          "name": "Tiggo 4",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/neuf/chery/tiggo-4-hev"
+        },
+        {
+          "name": "Tiggo 7",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/neuf/chery/tiggo-7-pro-phev"
+        },
+        {
+          "name": "Tiggo 8",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/neuf/chery/tiggo-8-phev"
+        },
+        {
+          "name": "Tiggo 9",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/neuf/chery/tiggo-9-phev"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,33 @@
+{
+  "format": "vehicle-catalog@1",
+  "market": "TN",
+  "source": {
+    "name": "automobile.tn — Prix du neuf",
+    "url": "https://www.automobile.tn/fr/neuf/lynk-co",
+    "license": "Facts only (make and model names); no prices, specs, text or images copied.",
+    "retrieved_at": "2026-10-07"
+  },
+  "makes": [
+    {
+      "name": "Lynk & Co",
+      "source": "https://www.automobile.tn/fr/neuf/lynk-co",
+      "models": [
+        {
+          "name": "01",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/neuf/lynk-co/01"
+        },
+        {
+          "name": "02",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/neuf/lynk-co/02"
+        },
+        {
+          "name": "08",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/neuf/lynk-co/08"
+        }
+      ]
+    }
+  ]
+}

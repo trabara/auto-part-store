@@ -1,0 +1,28 @@
+{
+  "format": "vehicle-catalog@1",
+  "market": "TN",
+  "source": {
+    "name": "automobile.tn — Prix du neuf",
+    "url": "https://www.automobile.tn/fr/neuf/jaguar",
+    "license": "Facts only (make and model names); no prices, specs, text or images copied.",
+    "retrieved_at": "2026-10-07"
+  },
+  "makes": [
+    {
+      "name": "Jaguar",
+      "source": "https://www.automobile.tn/fr/neuf/jaguar",
+      "models": [
+        {
+          "name": "E-Pace",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/neuf/jaguar/e-pace"
+        },
+        {
+          "name": "F-Pace",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/neuf/jaguar/f-pace"
+        }
+      ]
+    }
+  ]
+}

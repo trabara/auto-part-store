@@ -1,0 +1,33 @@
+{
+  "format": "vehicle-catalog@1",
+  "market": "TN",
+  "source": {
+    "name": "automobile.tn — Prix du neuf",
+    "url": "https://www.automobile.tn/fr/neuf/faw",
+    "license": "Facts only (make and model names); no prices, specs, text or images copied.",
+    "retrieved_at": "2026-10-07"
+  },
+  "makes": [
+    {
+      "name": "FAW",
+      "source": "https://www.automobile.tn/fr/neuf/faw",
+      "models": [
+        {
+          "name": "Bestune B70",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/neuf/faw/bestune-b70"
+        },
+        {
+          "name": "Bestune T77",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/neuf/faw/bestune-t77"
+        },
+        {
+          "name": "Bestune T90",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/neuf/faw/bestune-t90"
+        }
+      ]
+    }
+  ]
+}

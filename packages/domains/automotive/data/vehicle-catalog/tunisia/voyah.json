@@ -1,0 +1,33 @@
+{
+  "format": "vehicle-catalog@1",
+  "market": "TN",
+  "source": {
+    "name": "automobile.tn — Prix du neuf",
+    "url": "https://www.automobile.tn/fr/neuf/voyah",
+    "license": "Facts only (make and model names); no prices, specs, text or images copied.",
+    "retrieved_at": "2026-10-07"
+  },
+  "makes": [
+    {
+      "name": "Voyah",
+      "source": "https://www.automobile.tn/fr/neuf/voyah",
+      "models": [
+        {
+          "name": "Courage",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/neuf/voyah/courage"
+        },
+        {
+          "name": "Dream",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/neuf/voyah/dream"
+        },
+        {
+          "name": "Free",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/neuf/voyah/free"
+        }
+      ]
+    }
+  ]
+}

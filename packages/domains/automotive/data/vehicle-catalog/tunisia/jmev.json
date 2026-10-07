@@ -1,0 +1,28 @@
+{
+  "format": "vehicle-catalog@1",
+  "market": "TN",
+  "source": {
+    "name": "automobile.tn — Prix du neuf",
+    "url": "https://www.automobile.tn/fr/neuf/jmev",
+    "license": "Facts only (make and model names); no prices, specs, text or images copied.",
+    "retrieved_at": "2026-10-07"
+  },
+  "makes": [
+    {
+      "name": "JMEV",
+      "source": "https://www.automobile.tn/fr/neuf/jmev",
+      "models": [
+        {
+          "name": "Elight",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/neuf/jmev/elight"
+        },
+        {
+          "name": "EV3",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/neuf/jmev/ev3"
+        }
+      ]
+    }
+  ]
+}

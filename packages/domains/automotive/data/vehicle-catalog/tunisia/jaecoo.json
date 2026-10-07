@@ -1,0 +1,28 @@
+{
+  "format": "vehicle-catalog@1",
+  "market": "TN",
+  "source": {
+    "name": "automobile.tn — Prix du neuf",
+    "url": "https://www.automobile.tn/fr/neuf/omoda-jaecoo",
+    "license": "Facts only (make and model names); no prices, specs, text or images copied.",
+    "retrieved_at": "2026-10-07"
+  },
+  "makes": [
+    {
+      "name": "Jaecoo",
+      "source": "https://www.automobile.tn/fr/neuf/omoda-jaecoo",
+      "models": [
+        {
+          "name": "J7",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/neuf/omoda-jaecoo/7"
+        },
+        {
+          "name": "J8",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/neuf/omoda-jaecoo/8"
+        }
+      ]
+    }
+  ]
+}

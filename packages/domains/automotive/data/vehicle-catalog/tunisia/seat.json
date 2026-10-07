@@ -1,0 +1,38 @@
+{
+  "format": "vehicle-catalog@1",
+  "market": "TN",
+  "source": {
+    "name": "automobile.tn — Prix du neuf",
+    "url": "https://www.automobile.tn/fr/neuf/seat",
+    "license": "Facts only (make and model names); no prices, specs, text or images copied.",
+    "retrieved_at": "2026-10-07"
+  },
+  "makes": [
+    {
+      "name": "SEAT",
+      "source": "https://www.automobile.tn/fr/neuf/seat",
+      "models": [
+        {
+          "name": "Arona",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/neuf/seat/arona"
+        },
+        {
+          "name": "Ateca",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/neuf/seat/ateca"
+        },
+        {
+          "name": "Ibiza",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/neuf/seat/ibiza"
+        },
+        {
+          "name": "Leon",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/neuf/seat/leon"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,63 @@
+{
+  "format": "vehicle-catalog@1",
+  "market": "TN",
+  "source": {
+    "name": "automobile.tn — Prix du neuf",
+    "url": "https://www.automobile.tn/fr/neuf/geely",
+    "license": "Facts only (make and model names); no prices, specs, text or images copied.",
+    "retrieved_at": "2026-10-07"
+  },
+  "makes": [
+    {
+      "name": "Geely",
+      "source": "https://www.automobile.tn/fr/neuf/geely",
+      "models": [
+        {
+          "name": "Azkarra",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/neuf/geely/azkara"
+        },
+        {
+          "name": "Cityray",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/neuf/geely/cityray"
+        },
+        {
+          "name": "Coolray",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/neuf/geely/coolray"
+        },
+        {
+          "name": "Emgrand",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/neuf/geely/emgrand"
+        },
+        {
+          "name": "EX2",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/neuf/geely/ex2"
+        },
+        {
+          "name": "EX5",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/neuf/geely/ex5-hybride"
+        },
+        {
+          "name": "Monjaro",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/neuf/geely/monjaro"
+        },
+        {
+          "name": "Starray",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/neuf/geely/starray"
+        },
+        {
+          "name": "Tugella",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/neuf/geely/tugella"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,33 @@
+{
+  "format": "vehicle-catalog@1",
+  "market": "TN",
+  "source": {
+    "name": "automobile.tn — Prix du neuf",
+    "url": "https://www.automobile.tn/fr/neuf/jmc",
+    "license": "Facts only (make and model names); no prices, specs, text or images copied.",
+    "retrieved_at": "2026-10-07"
+  },
+  "makes": [
+    {
+      "name": "JMC",
+      "source": "https://www.automobile.tn/fr/neuf/jmc",
+      "models": [
+        {
+          "name": "Grand Avenue",
+          "category": "LCV",
+          "source": "https://www.automobile.tn/fr/neuf/jmc/grand-avenue"
+        },
+        {
+          "name": "Vigus",
+          "category": "LCV",
+          "source": "https://www.automobile.tn/fr/neuf/jmc/vigus-simple-cabine"
+        },
+        {
+          "name": "Vigus Plus",
+          "category": "LCV",
+          "source": "https://www.automobile.tn/fr/neuf/jmc/vigus-plus-double-cabine"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,48 @@
+{
+  "format": "vehicle-catalog@1",
+  "market": "TN",
+  "source": {
+    "name": "automobile.tn — Prix du neuf",
+    "url": "https://www.automobile.tn/fr/neuf/great-wall",
+    "license": "Facts only (make and model names); no prices, specs, text or images copied.",
+    "retrieved_at": "2026-10-07"
+  },
+  "makes": [
+    {
+      "name": "Great Wall",
+      "source": "https://www.automobile.tn/fr/neuf/great-wall",
+      "models": [
+        {
+          "name": "Haval H6",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/neuf/great-wall/h6-hybride"
+        },
+        {
+          "name": "Haval Jolion",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/neuf/great-wall/jolion"
+        },
+        {
+          "name": "Poer",
+          "category": "LCV",
+          "source": "https://www.automobile.tn/fr/neuf/great-wall/poer"
+        },
+        {
+          "name": "Tank 300",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/neuf/great-wall/tank-300"
+        },
+        {
+          "name": "Tank 500",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/neuf/great-wall/tank-500"
+        },
+        {
+          "name": "Wingle 5",
+          "category": "LCV",
+          "source": "https://www.automobile.tn/fr/neuf/great-wall/wingle-5"
+        }
+      ]
+    }
+  ]
+}

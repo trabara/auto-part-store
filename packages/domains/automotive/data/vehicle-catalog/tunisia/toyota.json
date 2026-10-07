@@ -1,0 +1,78 @@
+{
+  "format": "vehicle-catalog@1",
+  "market": "TN",
+  "source": {
+    "name": "automobile.tn — Prix du neuf",
+    "url": "https://www.automobile.tn/fr/neuf/toyota",
+    "license": "Facts only (make and model names); no prices, specs, text or images copied.",
+    "retrieved_at": "2026-10-07"
+  },
+  "makes": [
+    {
+      "name": "Toyota",
+      "source": "https://www.automobile.tn/fr/neuf/toyota",
+      "models": [
+        {
+          "name": "Ace",
+          "category": "LCV",
+          "source": "https://www.automobile.tn/fr/neuf/toyota/ace-14-places"
+        },
+        {
+          "name": "bZ4X",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/neuf/toyota/bz4x"
+        },
+        {
+          "name": "Coaster",
+          "category": "LCV",
+          "source": "https://www.automobile.tn/fr/neuf/toyota/coaster"
+        },
+        {
+          "name": "Fortuner",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/neuf/toyota/fortuner"
+        },
+        {
+          "name": "Hiace",
+          "category": "LCV",
+          "source": "https://www.automobile.tn/fr/neuf/toyota/hiace"
+        },
+        {
+          "name": "Hilux",
+          "category": "LCV",
+          "source": "https://www.automobile.tn/fr/neuf/toyota/hilux-simple-cabine"
+        },
+        {
+          "name": "Land Cruiser 300",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/neuf/toyota/land-cruiser-300"
+        },
+        {
+          "name": "Land Cruiser 70",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/neuf/toyota/land-cruiser-76"
+        },
+        {
+          "name": "Land Cruiser Prado",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/neuf/toyota/prado"
+        },
+        {
+          "name": "RAV4",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/neuf/toyota/rav-4-hybride"
+        },
+        {
+          "name": "Yaris",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/neuf/toyota/yaris-hybride"
+        },
+        {
+          "name": "Yaris Cross",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/neuf/toyota/yaris-cross"
+        }
+      ]
+    }
+  ]
+}

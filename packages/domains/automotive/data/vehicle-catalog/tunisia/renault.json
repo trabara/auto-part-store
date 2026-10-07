@@ -1,0 +1,43 @@
+{
+  "format": "vehicle-catalog@1",
+  "market": "TN",
+  "source": {
+    "name": "automobile.tn — Prix du neuf",
+    "url": "https://www.automobile.tn/fr/neuf/renault",
+    "license": "Facts only (make and model names); no prices, specs, text or images copied.",
+    "retrieved_at": "2026-10-07"
+  },
+  "makes": [
+    {
+      "name": "Renault",
+      "source": "https://www.automobile.tn/fr/neuf/renault",
+      "models": [
+        {
+          "name": "Austral",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/neuf/renault/austral"
+        },
+        {
+          "name": "Clio",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/neuf/renault/clio"
+        },
+        {
+          "name": "Express",
+          "category": "LCV",
+          "source": "https://www.automobile.tn/fr/neuf/renault/express-van"
+        },
+        {
+          "name": "Kwid",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/neuf/renault/kwid"
+        },
+        {
+          "name": "Master",
+          "category": "LCV",
+          "source": "https://www.automobile.tn/fr/neuf/renault/master"
+        }
+      ]
+    }
+  ]
+}

@@ -243,7 +243,8 @@
           "value": "claude-sonnet-5-5"
         },
         "options": {
-          "maxTokensToSample": 32000
+          "maxTokensToSample": 32000,
+          "streaming": true
         }
       },
       "credentials": {

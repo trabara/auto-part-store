@@ -169,7 +169,9 @@ Research this model's generations and configurations, validate your answer with 
 );
 node("Claude", "@n8n/n8n-nodes-langchain.lmChatAnthropic", 1.6, [1440, 460], {
   model: { __rl: true, mode: "id", value: "claude-sonnet-5-5" },
-  options: { maxTokensToSample: 32000 },
+  // Streaming: the Anthropic SDK refuses non-streamed requests that may take
+  // over 10 minutes (max tokens above ~21k), and a large model's answer needs room.
+  options: { maxTokensToSample: 32000, streaming: true },
 }, { credentials: { anthropicApi: { id: "", name: "Anthropic account" } } });
 node("Catalog generations", "@n8n/n8n-nodes-langchain.outputParserStructured", 1.2, [2160, 460], {
   schemaType: "manual",

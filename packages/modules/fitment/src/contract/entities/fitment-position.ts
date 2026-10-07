@@ -1,5 +1,5 @@
 import { z } from "@medusajs/framework/zod";
-import { defineEntity, type InferEntity } from "@repo/framework/entity";
+import { defineEntity, fields, type InferEntity } from "@repo/framework/entity";
 import { BaseSchema } from "@repo/framework/utils";
 
 export const FitmentPosition = defineEntity("FitmentPosition", {
@@ -9,12 +9,10 @@ export const FitmentPosition = defineEntity("FitmentPosition", {
       .trim()
       .toUpperCase()
       .describe("The code of the fitment position, e.g., 'FRONT_LEFT', 'REAR_RIGHT', etc."),
-    name: z
-      .string()
-      .describe("The name of the fitment position, e.g., 'Front Left', 'Rear Right', etc."),
-    category: z
-      .string()
-      .nullable()
+    // Shown in the storefront: translated per locale (Medusa's Translation module).
+    name: fields.translatable().describe("The name of the fitment position, e.g., 'Front Left', 'Rear Right', etc."),
+    category: fields
+      .translatable(z.string().nullable())
       .describe("The category of the fitment position, e.g., 'Front', 'Rear', etc."),
   }),
   relations: (r) => ({

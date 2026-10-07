@@ -1,7 +1,7 @@
 // Storefront product cards for a set of variants: only published products in
 // the publishable key's sales channels, with prices (region), stock and brand.
 import type { MedusaStoreRequest } from "@medusajs/framework/http";
-import { ContainerRegistrationKeys, MedusaError, Modules, QueryContext } from "@medusajs/framework/utils";
+import { applyTranslations, ContainerRegistrationKeys, MedusaError, Modules, QueryContext } from "@medusajs/framework/utils";
 import { wrapVariantsWithInventoryQuantityForSalesChannel } from "@medusajs/medusa/api/utils/middlewares/index";
 
 export type ProductFilters = {
@@ -80,5 +80,10 @@ export async function storeProducts<X extends object>(
     byProduct.set(product.id, entry);
   }
   const products = [...byProduct.values()].sort((a, b) => a.title.localeCompare(b.title));
-  return { products: products.slice(page.offset, page.offset + page.limit), count: products.length, ...page };
+  const pageItems = products.slice(page.offset, page.offset + page.limit);
+  // Translatable fields in the request's locale (Medusa's Translation module:
+  // products, variants and ours, e.g. fitment positions and notes). A no-op
+  // without a locale or with the `translation` feature flag off.
+  await applyTranslations({ localeCode: req.locale, objects: pageItems, container: req.scope as any });
+  return { products: pageItems, count: products.length, ...page };
 }

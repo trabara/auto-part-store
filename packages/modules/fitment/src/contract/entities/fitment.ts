@@ -13,7 +13,7 @@ export const Fitment = defineEntity("Fitment", {
     from_month: MonthSchema.nullable().describe("Fits from this month of from_year"),
     to_year: YearSchema.nullable().describe("Fits up to this production year (empty: the vehicle's)"),
     to_month: MonthSchema.nullable().describe("Fits up to this month of to_year"),
-    notes: z.string().nullable().describe("Additional notes about the fitment"),
+    notes: fields.translatable(z.string().nullable()).describe("Additional notes about the fitment (translatable)"),
     // Readable summary of the condition tree, kept by the conditions workflow.
     // One summary per locale: { en: "Drive is front-wheel drive", fr: "…" }.
     conditions_summary: fields.localized().describe("When the fitment applies"),

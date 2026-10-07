@@ -1,4 +1,5 @@
 import { medusaIntegrationTestRunner } from "@medusajs/test-utils";
+import { Modules } from "@medusajs/framework/utils";
 import { adminHeaders } from "@repo/config/jest/medusa-helpers.cjs";
 import { FITMENT_MODULE } from "@repo/module-fitment";
 
@@ -74,13 +75,13 @@ medusaIntegrationTestRunner({
       c.padsBrembo = variant(c.pads, "Brembo");
 
       // Fitments.
-      const position = await entity("fitments", "fitment_position", { code: "FRONT", name: "Front axle", category: null });
+      const position = (c.position = await entity("fitments", "fitment_position", { code: "FRONT", name: "Front axle", category: null }));
       const fit = (variant_id: string, vehicle_id: string, extra = {}) =>
         entity("fitments", "fitment", {
           variant_id, vehicle_id, position_id: position.id, quantity: 1, notes: null,
           from_year: null, from_month: null, to_year: null, to_month: null, ...extra,
         });
-      await fit(c.padsBosch, c.fwd.id, { quantity: 2 });
+      c.boschFit = await fit(c.padsBosch, c.fwd.id, { quantity: 2, notes: "Check the wear sensor" });
       await fit(c.padsBrembo, c.fwd.id, { from_year: 2018, from_month: 6 });
       await fit(variant(c.draft, "Bosch"), c.fwd.id);
       await fit(variant(c.elsewhere, "Bosch"), c.fwd.id);
@@ -140,6 +141,21 @@ medusaIntegrationTestRunner({
       expect(bosch.brand).toMatchObject({ id: c.bosch.id, name: "Bosch" });
       expect(bosch.fitments).toEqual([expect.objectContaining({ quantity: 2, position: expect.objectContaining({ code: "FRONT" }) })]);
       expect(bosch.calculated_price).toMatchObject({ currency_code: "tnd", calculated_amount: 45.5 });
+    });
+
+    it("translates positions and notes to the request's locale (Translation module)", async () => {
+      const translations = getContainer().resolve<any>(Modules.TRANSLATION);
+      await translations.createTranslations([
+        { reference_id: c.position.id, reference: "fitment_position", locale_code: "fr-FR", translations: { name: "Essieu avant" } },
+        { reference_id: c.boschFit.id, reference: "fitment", locale_code: "fr-FR", translations: { notes: "Vérifier le témoin d'usure" } },
+      ]);
+      const fitmentOf = (data: any) => data.products[0].variants.find((v: any) => v.id === c.padsBosch).fitments[0];
+
+      const fr = (await api.get(`/store/vehicles/${c.fwd.id}/parts?locale=fr-FR`, store)).data;
+      expect(fitmentOf(fr)).toMatchObject({ notes: "Vérifier le témoin d'usure", position: { name: "Essieu avant" } });
+      // Same request in English (or an untranslated locale): the stored text.
+      const en = (await api.get(`/store/vehicles/${c.fwd.id}/parts`, store)).data;
+      expect(fitmentOf(en)).toMatchObject({ notes: "Check the wear sensor", position: { name: "Front axle" } });
     });
 
     it("narrows production windows by build date", async () => {

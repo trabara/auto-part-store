@@ -137,6 +137,9 @@ export default defineConfig({
       });
     },
   },
+  // Entity translations (Translation module): translatable fields are edited
+  // in Settings › Translations and applied to store responses by locale.
+  featureFlags: { translation: true },
   projectConfig: {
     databaseUrl: process.env.DATABASE_URL,
     redisUrl: process.env.REDIS_URL,

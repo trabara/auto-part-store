@@ -8,6 +8,8 @@ import { automotiveDomain } from "./src/contract";
 loadEnv(process.env.NODE_ENV || "test", process.cwd());
 
 export default defineConfig({
+  // As in the app: translatable fields are translated in store responses.
+  featureFlags: { translation: true },
   projectConfig: {
     databaseUrl: process.env.DATABASE_URL,
     http: {
@@ -20,7 +22,11 @@ export default defineConfig({
   },
   // The domain's modules, loaded from source (Jest maps @repo/module-* imports
   // to the same files, so the server and the tests share one instance).
-  modules: automotiveDomain.modules.map((m) => ({
-    resolve: path.join(__dirname, "../../modules", m.resolve!.replace("@repo/module-", ""), "src", "server"),
-  })),
+  modules: [
+    ...automotiveDomain.modules.map((m) => ({
+      resolve: path.join(__dirname, "../../modules", m.resolve!.replace("@repo/module-", ""), "src", "server"),
+    })),
+    // Entity translations, as in the app.
+    { resolve: "@medusajs/medusa/translation" },
+  ],
 });

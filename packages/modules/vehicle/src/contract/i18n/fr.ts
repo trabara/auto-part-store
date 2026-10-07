@@ -39,6 +39,7 @@ export const fr: SameShape<typeof en> = {
         fix: "Correction proposée",
         merge: "Fusionner avec l'autre enregistrement",
         sources: "Pages lues",
+        credits: "crédits de recherche",
         cost: "Coût",
         approve: "Approuver",
         reject: "Rejeter",

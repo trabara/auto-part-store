@@ -265,6 +265,10 @@ function vehicleText(ctx: StewardContext, v: StewardVehicle) {
 /** Text as compared for quotes: accents, case, markup, dash and digit-grouping differences removed. */
 export function normalizeText(text: string): string {
   return text
+    // As the model saw the page (condensed): links reduced to their text, reference marks dropped.
+    .replace(/!\[[^\]]*\]\([^)]*\)/g, "")
+    .replace(/\[([^\]]*)\]\([^)]*\)/g, "$1")
+    .replace(/\[(\d+|[a-z])\]/gi, "")
     .normalize("NFKD")
     .replace(/[̀-ͯ]/g, "")
     .toLowerCase()
@@ -274,6 +278,13 @@ export function normalizeText(text: string): string {
     .replace(/(\d) (?=\d{3}\b)/g, "$1")
     .replace(/\s+/g, " ")
     .trim();
+}
+
+/** The quote states this value (a number among its numbers, a code in its words). */
+export function quoted(quoteText: string | null | undefined, value: unknown): boolean {
+  if (!quoteText || value == null || value === "") return false;
+  if (typeof value === "number") return numbersIn(quoteText).some((n) => Math.abs(n - value) < 1e-9);
+  return ` ${normalizeText(quoteText)} `.includes(` ${normalizeText(String(value))} `) || normalizeText(quoteText).includes(normalizeText(String(value)));
 }
 
 /** Whole numbers a text mentions ("1.5 L", "1 461 cm3" → 1.5, 1461). */
@@ -395,14 +406,18 @@ export function researchFile(
     if (v.assumed) assumed++;
     vehicles.push(vehicle);
   }
-  // Generation corrections count only with their own evidence.
+  // Generation corrections count only with their own evidence: the quote is
+  // in the page, and states each corrected value.
   const g = out.generation;
-  const corrected = g.quote && quoteSupports(evidence, g.quote, [g.from, g.to]);
+  const found = !!g.quote && quoteSupports(evidence, g.quote);
+  const code = found && quoted(g.quote, g.code?.trim()) ? g.code!.trim() : null;
+  const start = found && quoted(g.quote, g.from) ? g.from! : gen.year_start;
+  const end = found && quoted(g.quote, g.to) ? g.to : gen.year_end;
   const generation: CatalogGeneration = {
     name: gen.name,
-    code: corrected ? g.code?.trim() || null : null,
-    year_start: corrected && g.from ? g.from : gen.year_start,
-    year_end: corrected && g.from ? g.to : gen.year_end,
+    code,
+    year_start: start,
+    year_end: end,
     vehicles,
     source: source.url,
   };
@@ -453,13 +468,21 @@ export function verificationOutcome(
         continue;
       }
       const changes: Correction[] = [];
+      let unsure = false;
       const field = (name: "code" | "year_start" | "year_end", catalog: unknown, said: unknown) => {
-        if (differs(catalog, said)) changes.push({ entity: "VehicleGeneration", id: g.id, ref: item.ref, field: name, from: catalog, to: said, quote: item.quote! });
+        if (!differs(catalog, said)) return;
+        // A value the quote doesn't state is no evidence (the model may have made it up).
+        if (!quoted(item.quote, said)) unsure = true;
+        else changes.push({ entity: "VehicleGeneration", id: g.id, ref: item.ref, field: name, from: catalog, to: said, quote: item.quote! });
       };
       field("code", g.code, item.code?.trim() || null);
       field("year_start", g.year_start, item.from);
       // An end year only counts when the source gives one (null may just mean "not stated").
       field("year_end", g.year_end, item.to);
+      if (unsure && !changes.length) {
+        outcome.unsupported.push(`${item.ref} (${g.name}): values not in the quote`);
+        continue;
+      }
       if (!changes.length) {
         outcome.confirmed.push({ entity: "VehicleGeneration", id: g.id });
         anyConfirmed = true;

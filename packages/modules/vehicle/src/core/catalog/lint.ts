@@ -62,6 +62,16 @@ const makeIdentity = (name: string) => MAKE_ALIASES[nameKey(name)] ?? nameKey(na
 /** Names with stray whitespace, tidied. */
 const tidy = (value: string) => value.trim().replace(/\s+/g, " ");
 
+/** The tidied name is free among the siblings (else tidying would collide: the duplicate rules flag it). */
+const freeName = (record: { id: string; name: string }, siblings: { id: string; name: string }[]) =>
+  !siblings.some((s) => s.id !== record.id && tidy(s.name).toLowerCase() === tidy(record.name).toLowerCase());
+/** A whitespace fix: safe alone unless the tidied name is taken. */
+const tidyFix = (record: { id: string; name: string }, siblings: { id: string; name: string }[]) => ({
+  kind: "update" as const,
+  data: { name: tidy(record.name) },
+  ...(freeName(record, siblings) ? { safe: true } : {}),
+});
+
 /** Words that say a model is commercial (vans, pickups, cabs). */
 const COMMERCIAL = /\b(van|vans|pick-?up|cabine?|cab|fourgon|fourgonnette|utilitaire|cargo|truck|camion|chassis|panel|plateau|benne)\b/i;
 
@@ -117,7 +127,7 @@ export function lintCatalog(records: LintRecords, options: { now?: Date } = {}):
   for (const make of records.makes) {
     const at = { make: make.name, model: null, generation: null };
     if (tidy(make.name) !== make.name) {
-      add({ rule: "make.whitespace", severity: "info", entity: CatalogEntityName.VehicleMake, id: make.id, at, message: `"${make.name}" has stray spaces.`, fix: { kind: "update", data: { name: tidy(make.name) }, safe: true } });
+      add({ rule: "make.whitespace", severity: "info", entity: CatalogEntityName.VehicleMake, id: make.id, at, message: `"${make.name}" has stray spaces.`, fix: tidyFix(make, records.makes) });
     }
     byIdentity.set(makeIdentity(make.name), [...(byIdentity.get(makeIdentity(make.name)) ?? []), make]);
     if (!modelsOf(make.id).length) {
@@ -141,7 +151,7 @@ export function lintCatalog(records: LintRecords, options: { now?: Date } = {}):
         add({ rule: "model.duplicate", severity: "warning", entity: CatalogEntityName.VehicleModel, id: model.id, pair: twin.id, at, message: `"${model.name}" looks like "${twin.name}" (${make.name}).` });
       } else seen.set(key, model);
       if (tidy(model.name) !== model.name) {
-        add({ rule: "model.whitespace", severity: "info", entity: CatalogEntityName.VehicleModel, id: model.id, at, message: `"${model.name}" has stray spaces.`, fix: { kind: "update", data: { name: tidy(model.name) }, safe: true } });
+        add({ rule: "model.whitespace", severity: "info", entity: CatalogEntityName.VehicleModel, id: model.id, at, message: `"${model.name}" has stray spaces.`, fix: tidyFix(model, modelsOf(make.id)) });
       }
       // Acronym makes name models after themselves (DS 3, MG 5): only longer make names count.
       const prefix = new RegExp(`^${tidy(make.name).replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\s+`, "i");
@@ -170,7 +180,7 @@ export function lintCatalog(records: LintRecords, options: { now?: Date } = {}):
         add({ rule: "generation.ongoing_long", severity: "warning", entity: CatalogEntityName.VehicleGeneration, id: g.id, at, message: `${g.name} is listed as produced since ${g.year_start}: has it ended?` });
       }
       if (tidy(g.name) !== g.name) {
-        add({ rule: "generation.whitespace", severity: "info", entity: CatalogEntityName.VehicleGeneration, id: g.id, at, message: `"${g.name}" has stray spaces.`, fix: { kind: "update", data: { name: tidy(g.name) }, safe: true } });
+        add({ rule: "generation.whitespace", severity: "info", entity: CatalogEntityName.VehicleGeneration, id: g.id, at, message: `"${g.name}" has stray spaces.`, fix: tidyFix(g, gens) });
       }
       for (const other of gens.slice(0, i)) {
         if (faceliftPair(g.name, other.name)) continue; // a facelift follows its generation, same code

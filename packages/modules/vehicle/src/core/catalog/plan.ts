@@ -162,7 +162,7 @@ export function planCatalog(
     if (blank(incoming) || current === incoming) return;
     const write =
       mode === "overwrite" ||
-      (mode === "fill" && blank(current)) ||
+      (mode === "fill" && blank(current) && recordTier !== SourceTier.HUMAN) ||
       (mode === "merge" && ((blank(current) && mayFill(recordTier, tier, field)) || mayOverwrite(recordTier, tier)));
     if (write) {
       const update = updates.get(id) ?? { entity, id, where, data: {}, changes: [] };

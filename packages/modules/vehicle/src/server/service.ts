@@ -1,4 +1,3 @@
-import { randomUUID } from "node:crypto";
 import type { Context } from "@medusajs/framework/types";
 import {
   InjectManager,
@@ -46,7 +45,6 @@ import {
   type StewardContext,
   type StewardGeneration,
   type VerificationOutcome,
-  claimable,
   effectivePriority,
   higherTier,
   lintCatalog,
@@ -441,7 +439,11 @@ export default class VehicleModuleService extends MedusaService(vehicleModels) {
   ): Promise<{ created: number; reopened: number; closed: number; open: number }> {
     const now = options.now ?? new Date();
     const candidates = taskCandidates(await this.ledgerRecords_(ctx), { now, maxConfigurations: options.maxConfigurations });
-    const existing = await this.listCatalogTasks({ kind: STEWARD_KINDS }, { select: ["id", "kind", "key", "status", "priority", "attempts", "record_id"] }, ctx);
+    const existing = await this.listCatalogTasks(
+      { kind: STEWARD_KINDS },
+      { select: ["id", "kind", "key", "status", "priority", "attempts", "record_id", "next_run_at"] },
+      ctx,
+    );
     const byKey = new Map(existing.map((t) => [`${t.kind}|${t.key}`, t]));
     const wanted = new Set<string>();
     const create: Row[] = [];
@@ -449,6 +451,7 @@ export default class VehicleModuleService extends MedusaService(vehicleModels) {
     let reopened = 0;
     for (const c of candidates) {
       const id = `${c.kind}|${c.key}`;
+      if (wanted.has(id)) continue; // two records with one natural key (e.g. "Clio" and "Clio "): lint flags them
       wanted.add(id);
       const task = byKey.get(id);
       const names = { make: c.make, model: c.model, generation: c.generation, entity: c.entity, record_id: c.record_id };
@@ -459,6 +462,8 @@ export default class VehicleModuleService extends MedusaService(vehicleModels) {
       const failures = task.status === CatalogTaskStatus.FAILED ? task.attempts : 0;
       const priority = effectivePriority(c.priority, failures);
       if (task.status === CatalogTaskStatus.DONE) {
+        // Closed with a pause (a rejection, a verified unit): not reopened before it ends.
+        if (task.next_run_at && new Date(task.next_run_at) > now) continue;
         reopened++;
         update.push({ id: task.id, ...names, status: CatalogTaskStatus.PENDING, priority, attempts: 0, next_run_at: null });
       } else if (task.priority !== priority || task.record_id !== c.record_id) {
@@ -485,26 +490,31 @@ export default class VehicleModuleService extends MedusaService(vehicleModels) {
     @MedusaContext() ctx: Context = {},
   ) {
     const now = options.now ?? new Date();
-    const filters: Row = {
-      kind: options.kinds?.length ? options.kinds : STEWARD_KINDS,
-      status: [CatalogTaskStatus.PENDING, CatalogTaskStatus.RUNNING, CatalogTaskStatus.APPLIED, CatalogTaskStatus.NO_DATA, CatalogTaskStatus.FAILED],
-    };
-    if (options.make) filters.make = options.make;
-    const tasks = (await this.listCatalogTasks(filters, { order: { priority: "DESC", created_at: "ASC" } }, ctx))
-      .filter((t) => claimable(t as any, now))
-      .slice(0, options.limit ?? 10);
-    if (!tasks.length) return [];
     const leaseUntil = new Date(now.getTime() + (options.leaseMinutes ?? 60) * 60_000);
-    const leased = tasks.map((t) => ({
-      id: t.id,
-      status: CatalogTaskStatus.RUNNING,
-      lease_token: randomUUID(),
-      lease_until: leaseUntil,
-      attempts: (t.attempts ?? 0) + 1,
-      last_run_at: now,
-    }));
-    await this.updateCatalogTasks(leased as any[], ctx);
-    return tasks.map((t, i) => ({ ...t, ...leased[i]! }));
+    const kinds = options.kinds?.length ? options.kinds : STEWARD_KINDS;
+    // One statement, rows locked and skipped by concurrent claims: two workers
+    // (or two backend instances) never lease the same task.
+    const rows: { id: string }[] = await (ctx.transactionManager as any).execute(
+      `update catalog_task set status = 'RUNNING', lease_token = gen_random_uuid()::text, lease_until = ?,
+         attempts = attempts + 1, last_run_at = ?, updated_at = now()
+       where id in (
+         select id from catalog_task
+         where deleted_at is null and kind in (?) and (?::text is null or make = ?)
+           and (
+             (status = 'PENDING' and (next_run_at is null or next_run_at <= ?))
+             or (status in ('APPLIED', 'NO_DATA', 'FAILED') and (next_run_at is null or next_run_at <= ?))
+             or (status = 'RUNNING' and (lease_until is null or lease_until < ?))
+           )
+         order by priority desc, created_at asc
+         limit ?
+         for update skip locked
+       )
+       returning id`,
+      [leaseUntil, now, kinds, options.make ?? null, options.make ?? null, now, now, now, options.limit ?? 10],
+    );
+    if (!rows.length) return [];
+    const tasks = await this.listCatalogTasks({ id: rows.map((r) => r.id) }, { order: { priority: "DESC", created_at: "ASC" } }, ctx);
+    return tasks as Row[];
   }
 
   /** What a task is about, as the catalog has it, plus the source pages known for it. */
@@ -642,12 +652,14 @@ export default class VehicleModuleService extends MedusaService(vehicleModels) {
       }
       // A verified unit is done: the ledger reopens it when its records fall due again.
       const stored = verification && status === CatalogTaskStatus.APPLIED ? CatalogTaskStatus.DONE : status;
+      // A verified unit whose records partly stay due (not found in the source) waits a month, not a night.
+      const next = stored === CatalogTaskStatus.DONE ? new Date(now.getTime() + 30 * 86_400_000) : nextRun(stored, task.attempts, now);
       await this.updateCatalogTasks(
         [
           {
             id: task.id,
             status: stored,
-            next_run_at: nextRun(stored, task.attempts, now),
+            next_run_at: next,
             lease_until: null,
             lease_token: null,
             report: { ...report, reason, model: input.model ?? null, notes: input.notes ?? null, at: now.toISOString() },
@@ -787,11 +799,16 @@ export default class VehicleModuleService extends MedusaService(vehicleModels) {
       // Years stay coherent: a generation keeps its configurations, a configuration fits its generation.
       const within = (inner: Row, outer: Row) =>
         inner.year_start >= outer.year_start && (outer.year_end == null || (inner.year_end != null && inner.year_end <= outer.year_end));
+      // A generation's configurations: from the context when it is the task's, else read (model verification).
+      const configurations =
+        entity === "VehicleGeneration"
+          ? context.generation?.id === id
+            ? (context.vehicles ?? [])
+            : ((await this.listVehicles({ generation_id: id }, { select: ["year_start", "year_end"] }, ctx)) as Row[])
+          : [];
       const ok =
         (after.year_end == null || after.year_end >= after.year_start) &&
-        (entity === "VehicleGeneration"
-          ? context.generation?.id !== id || (context.vehicles ?? []).every((v) => within(v, after))
-          : within(after, context.generation!));
+        (entity === "VehicleGeneration" ? configurations.every((v) => within(v, after)) : within(after, context.generation!));
       if (!ok) {
         refused.push(...changes);
         continue;
@@ -844,23 +861,30 @@ export default class VehicleModuleService extends MedusaService(vehicleModels) {
         throw new MedusaError(MedusaError.Types.NOT_ALLOWED, `Merging ${task.entity} records goes through the domain's merge workflow.`);
       }
     } else if (proposal?.format === "vehicle-catalog@1") {
+      // Reviewed: reference tier, merged (what a lower tier set is replaced; staff and licensed values stay).
       const file = { ...(proposal as unknown as CatalogFile), source: { ...(proposal as any).source, tier: SourceTier.REFERENCE } };
-      result.import = await this.importCatalog(file, { mode: "overwrite" }, ctx);
+      result.import = await this.importCatalog(file, { mode: "merge" }, ctx);
       if ((result.import as CatalogImportReport).problems.length) {
         throw new MedusaError(MedusaError.Types.INVALID_DATA, (result.import as CatalogImportReport).problems.join(" "));
       }
     } else if (proposal) {
       const ref: SourceRef = { name: "reviewed correction", url: null, tier: SourceTier.REFERENCE, at: now.toISOString().slice(0, 10) };
-      for (const c of (proposal.corrections ?? []) as Correction[]) {
+      const corrections = (proposal.corrections ?? []) as Correction[];
+      for (const c of corrections) {
         const current = await this.records_(c.entity).list({ id: c.id }, { select: ["id", "source_tier", "sources"] }, ctx);
+        // Derived columns follow (an engine's hp from its kW).
+        const derived = c.entity === "VehicleEngine" && c.field === "power_kw" ? { power_hp: withDerived(VehicleEngine, { power_kw: c.to } as any).power_hp } : {};
         await this.records_(c.entity).update(
-          [{ id: c.id, [c.field]: c.to, source_tier: higherTier(current[0]?.source_tier, SourceTier.REFERENCE), sources: mergeSources(current[0]?.sources, ref), verified_at: now }],
+          [{ id: c.id, [c.field]: c.to, ...derived, source_tier: higherTier(current[0]?.source_tier, SourceTier.REFERENCE), sources: mergeSources(current[0]?.sources, ref), verified_at: now }],
           ctx,
         );
       }
       if (proposal.missing?.file) result.import = await this.importCatalog(proposal.missing.file, { mode: "merge", touch: false }, ctx);
+      // The years still hold: corrected configurations, and those of corrected generations.
+      const generations = corrections.filter((c) => c.entity === "VehicleGeneration").map((c) => c.id);
+      const affected = generations.length ? await this.listVehicles({ generation_id: generations }, { select: ["id"] }, ctx) : [];
       await this.assertWithinGeneration(
-        ((proposal.corrections ?? []) as Correction[]).filter((c) => c.entity === "Vehicle").map((c) => c.id),
+        [...corrections.filter((c) => c.entity === "Vehicle").map((c) => c.id), ...affected.map((v) => v.id)],
         ctx,
       );
     }

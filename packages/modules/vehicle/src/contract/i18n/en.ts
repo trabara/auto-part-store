@@ -37,6 +37,7 @@ export const en = {
         fix: "Proposed fix",
         merge: "Merge into the other record",
         sources: "Pages read",
+        credits: "search credits",
         cost: "Cost",
         approve: "Approve",
         reject: "Reject",

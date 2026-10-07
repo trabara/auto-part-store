@@ -170,6 +170,33 @@ describe("steward", () => {
     expect(quoteSupports(evidence, "1.0 TCe 90 90 ch", [95])).toBe(false); // the number isn't quoted
   });
 
+  it("matches quotes against the page as the model saw it (no link targets, no reference marks)", () => {
+    const raw = "The [Renault](https://en.wikipedia.org/wiki/Renault) Clio V uses the 1.5 dCi[2] engine with 85 ch.";
+    expect(quoteSupports(raw, "Renault Clio V uses the 1.5 dCi engine with 85 ch", [85])).toBe(true);
+  });
+
+  it("accepts a correction only for the values its quote states", () => {
+    const gen = { id: "g5", name: "V", code: null, year_start: 2019, year_end: null, source_tier: SourceTier.DRAFT };
+    const c = ctx(CatalogTaskKind.VERIFY_MODEL, { generations: [gen] });
+    // The quote states 2019 only: the invented end year and code are not taken.
+    const invented = verificationOutcome(
+      c,
+      parseOutput(CatalogTaskKind.VERIFY_MODEL, { generations: [{ ref: "g1", found: true, code: "X9", from: 2019, to: 2016, quote: "produced from 2019" }], missing: [], notes: "" })!,
+      evidence,
+      source,
+    );
+    expect(invented.apply).toEqual([]);
+    expect(invented.confirmed).toEqual([]);
+    expect(invented.unsupported).toEqual(["g1 (V): values not in the quote"]);
+    // Research: the generation's code is only corrected when quoted.
+    const out = parseOutput(CatalogTaskKind.RESEARCH_CONFIGURATIONS, {
+      generation: { code: "ZZ", from: 2019, to: null, quote: "Renault Clio V (BF) is the fifth generation, produced from 2019" },
+      configurations: [{ engine_code: null, fuel: "DIESEL", power: 85, power_unit: "ch", displacement: null, displacement_unit: null, cylinders: null, layout: null, body: "HATCHBACK", doors: 5, drive: "FWD", gearbox: "MANUAL", trim: null, from: 2019, to: 2023, assumed: false, quote: "1.5 dCi 85 | 85 ch (63 kW) | 2019–2023" }],
+      notes: "",
+    })!;
+    expect(researchFile(ctx(CatalogTaskKind.RESEARCH_CONFIGURATIONS), out, evidence, source).file!.makes[0]!.models[0]!.generations[0]!.code).toBeNull();
+  });
+
   it("names generations the catalog's way", () => {
     expect(generationName("Fifth generation (BF)", "Clio")).toBe("V");
     expect(generationName("troisième génération", "Clio")).toBe("III");

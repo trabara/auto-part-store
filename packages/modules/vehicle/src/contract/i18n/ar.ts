@@ -39,6 +39,7 @@ export const ar: SameShape<typeof en> = {
         fix: "التصحيح المقترح",
         merge: "الدمج مع السجل الآخر",
         sources: "الصفحات المقروءة",
+        credits: "أرصدة البحث",
         cost: "التكلفة",
         approve: "موافقة",
         reject: "رفض",

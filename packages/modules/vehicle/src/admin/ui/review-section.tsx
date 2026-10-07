@@ -113,7 +113,7 @@ export function ReviewSection({ record, refresh }: { record: Record<string, any>
       {cost && (cost.usd || cost.credits || cost.model) ? (
         <div className="px-6 py-3">
           <Text size="small" className="text-ui-fg-subtle">
-            {text("review", "cost")}: ${(cost.usd ?? 0).toFixed(4)} · {cost.credits ?? 0} credits{cost.model ? ` · ${cost.model}` : ""}
+            {text("review", "cost")}: ${(cost.usd ?? 0).toFixed(4)} · {cost.credits ?? 0} {text("review", "credits")}{cost.model ? ` · ${cost.model}` : ""}
           </Text>
         </div>
       ) : null}

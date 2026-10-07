@@ -5,6 +5,8 @@
 // answers are checked against the cached page. Behind an interface, so the
 // provider can change.
 import { createHash } from "node:crypto";
+import { lookup } from "node:dns/promises";
+import net from "node:net";
 import { Modules } from "@medusajs/framework/utils";
 import { NodeHtmlMarkdown } from "node-html-markdown";
 import { parse } from "node-html-parser";
@@ -80,6 +82,37 @@ export function htmlToMarkdown(html: string): string {
     .trim();
 }
 
+type Resolver = (host: string) => Promise<{ address: string }[]>;
+
+/** Private, loopback, link-local or otherwise internal addresses (IPv4, IPv6, mapped). */
+export function internalAddress(ip: string): boolean {
+  const v = ip.toLowerCase();
+  if (net.isIPv6(v)) {
+    if (v.startsWith("::ffff:")) return internalAddress(v.slice(7));
+    return v === "::" || v === "::1" || v.startsWith("fc") || v.startsWith("fd") || v.startsWith("fe80");
+  }
+  return [/^0\./, /^10\./, /^127\./, /^169\.254\./, /^172\.(1[6-9]|2\d|3[01])\./, /^192\.168\./, /^100\.(6[4-9]|[7-9]\d|1[01]\d|12[0-7])\./].some((r) => r.test(v));
+}
+
+/**
+ * Refuses what the steward must never read: other schemes, cluster names
+ * (single-label hosts, localhost, .internal, .local) and hosts resolving to
+ * internal addresses. The agent picks URLs from pages it read, which anyone
+ * can write.
+ */
+export async function assertPublicUrl(url: string, resolve: Resolver = (h) => lookup(h, { all: true })): Promise<void> {
+  const u = new URL(url);
+  if (u.protocol !== "http:" && u.protocol !== "https:") throw new Error(`${u.protocol} URLs are not read`);
+  const host = u.hostname.replace(/^\[|\]$/g, "").toLowerCase();
+  if (net.isIP(host)) {
+    if (internalAddress(host)) throw new Error(`${host} is an internal address`);
+    return;
+  }
+  if (!host.includes(".") || /(^|\.)(localhost|internal|local|lan|home|cluster\.local)$/.test(host)) throw new Error(`${host} is not a public host`);
+  const addresses = await resolve(host);
+  if (!addresses.length || addresses.some((a) => internalAddress(a.address))) throw new Error(`${host} resolves to an internal address`);
+}
+
 /** `https://fr.wikipedia.org/wiki/Renault_Clio` → { lang: "fr", title: "Renault_Clio" }. */
 export function wikipediaPage(url: string): { lang: string; title: string } | null {
   const m = url.match(/^https?:\/\/([a-z-]+)\.(?:m\.)?wikipedia\.org\/wiki\/([^?#]+)/i);
@@ -88,7 +121,7 @@ export function wikipediaPage(url: string): { lang: string; title: string } | nu
 
 export function webResearch(
   container: Container,
-  options: { fetch?: typeof fetch; tavilyKey?: string | null; userAgent?: string; blocked?: string[] } = {},
+  options: { fetch?: typeof fetch; tavilyKey?: string | null; userAgent?: string; blocked?: string[]; resolve?: Resolver } = {},
 ): WebResearch {
   const fetcher = options.fetch ?? fetch;
   const cache = cacheOf(container);
@@ -107,8 +140,16 @@ export function webResearch(
     }
   };
   const get = async (url: string, accept = "text/html,application/xhtml+xml") => {
-    const res = await fetcher(url, { headers: { "user-agent": userAgent, accept }, redirect: "follow", signal: AbortSignal.timeout(20_000) });
-    return res;
+    // Redirects followed by hand: each hop must be public too.
+    let current = url;
+    for (let hop = 0; hop < 5; hop++) {
+      await assertPublicUrl(current, options.resolve);
+      const res = await fetcher(current, { headers: { "user-agent": userAgent, accept }, redirect: "manual", signal: AbortSignal.timeout(20_000) });
+      const location = res.status >= 300 && res.status < 400 ? res.headers.get("location") : null;
+      if (!location) return res;
+      current = new URL(location, current).toString();
+    }
+    throw new Error(`Too many redirects from ${url}`);
   };
   const tavily = async (path: "search" | "extract", body: Record<string, unknown>) => {
     const res = await fetcher(`https://api.tavily.com/${path}`, {
@@ -175,6 +216,7 @@ export function webResearch(
       if (isBlocked(url)) throw new Error(`${new URL(url).hostname} is on the blocklist`);
       const cached = await cache.get(`web:page:${hash(url)}`);
       if (cached?.text) return { url, text: cached.text, via: "cache", credits: 0 };
+      await assertPublicUrl(url, options.resolve);
       const wiki = wikipediaPage(url);
       if (wiki) {
         const res = await get(`https://${wiki.lang}.wikipedia.org/api/rest_v1/page/html/${encodeURIComponent(wiki.title)}`);

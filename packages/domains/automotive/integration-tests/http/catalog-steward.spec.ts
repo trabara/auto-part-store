@@ -177,8 +177,44 @@ medusaIntegrationTestRunner({
       expect(result).toMatchObject({ status: "REVIEW", reason: "corrections to review", report: { review: ['e1: power_kw 70 → 74 ("1.5 dCi 100 | 100 ch")'] } });
       await service().approveTask(task.id);
       const [engine] = await service().listVehicleEngines({ code: "K9K" });
-      expect(engine).toMatchObject({ power_kw: 74, power_hp: expect.any(Number), source_tier: "REFERENCE" });
+      expect(engine).toMatchObject({ power_kw: 74, power_hp: 99, source_tier: "REFERENCE" }); // hp follows kW
       expect((await service().retrieveCatalogTask(task.id)).status).toBe("DONE");
+    });
+
+    it("never moves a generation's years past its configurations on a model verification", async () => {
+      await service().refreshTasks();
+      const task = (await service().claimTasks({ kinds: ["VERIFY_MODEL" as any], make: "Dacia", limit: 5 })).find((t: any) => t.model === "Logan")!;
+      const result = await service().submitTaskResult(task.id, {
+        lease_token: task.lease_token,
+        evidence: [{ url: "https://x", text: "The third generation Logan was produced from 2022." }],
+        output: { generations: [{ ref: "g1", found: true, code: null, from: 2022, to: null, quote: "third generation Logan was produced from 2022" }], missing: [], notes: "" },
+      });
+      // The draft generation starts in 2020 and has a 2021 configuration: 2022 would strand it.
+      expect(result).toMatchObject({ status: "REVIEW", report: { review: ['g1: year_start 2020 → 2022 ("third generation Logan was produced from 2022")'] } });
+      expect((await service().listVehicleGenerations({ name: "III", model: { name: "Logan" } } as any))[0]!.year_start).toBe(2020);
+    });
+
+    it("keeps a rejection closed through the ledger refresh, and approvals never overwrite staff edits", async () => {
+      await service().refreshTasks();
+      const [task] = await service().listCatalogTasks({ key: "dacia/sandero/iii" });
+      await service().rejectTask(task!.id, "Wait for the facelift data.");
+      await service().refreshTasks();
+      expect(await service().retrieveCatalogTask(task!.id)).toMatchObject({ status: "DONE", feedback: "Wait for the facelift data." });
+
+      // A staff edit, then a reviewed proposal that contradicts it.
+      const sandero = (await service().listVehicleGenerations({ name: "III", model: { name: "Sandero" } } as any))[0]!;
+      await service().updateVehicleGenerations([{ id: sandero.id, code: "STAFF" }] as any);
+      await service().pinHuman("VehicleGeneration", [sandero.id]);
+      const proposal = CatalogFileSchema.parse({
+        format: "vehicle-catalog@1",
+        source: { name: "agent" },
+        makes: [{ name: "Dacia", models: [{ name: "Sandero", generations: [{ name: "III", code: "AI", year_start: 2020, vehicles: [{ engine: { fuel: "GASOLINE", power_kw: 67, cylinders: 3 }, body_style: "HATCHBACK", doors: 5, year_start: 2020 }] }] }] }],
+      });
+      await service().updateCatalogTasks([{ id: task!.id, status: "REVIEW", proposal }] as any);
+      await service().approveTask(task!.id);
+      const after = (await service().listVehicleGenerations({ id: sandero.id }))[0]!;
+      expect(after).toMatchObject({ code: "STAFF", source_tier: "HUMAN" });
+      expect(await service().listVehicles({ generation_id: sandero.id })).toHaveLength(1);
     });
 
     it("turns rule findings into reviews, merges duplicates on approval, and remembers dismissals", async () => {

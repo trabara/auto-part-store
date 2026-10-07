@@ -1,0 +1,110 @@
+{
+  "format": "vehicle-catalog@1",
+  "market": "TN",
+  "source": {
+    "name": "Wikipedia — DRAFT, review before production",
+    "url": "https://en.wikipedia.org/",
+    "license": "Facts (generation names, codes, production years) from article infoboxes, CC BY-SA 4.0; each generation cites its article.",
+    "retrieved_at": "2026-10-07"
+  },
+  "makes": [
+    {
+      "name": "SEAT",
+      "models": [
+        {
+          "name": "Arona",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": "KJ7",
+              "year_start": 2017,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/SEAT_Arona"
+            }
+          ]
+        },
+        {
+          "name": "Ateca",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": "KH7",
+              "year_start": 2016,
+              "year_end": 2026,
+              "source": "https://en.wikipedia.org/wiki/SEAT_Ateca"
+            }
+          ]
+        },
+        {
+          "name": "Exeo",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": null,
+              "year_start": 2008,
+              "year_end": 2014,
+              "source": "https://en.wikipedia.org/wiki/SEAT_Exeo"
+            }
+          ]
+        },
+        {
+          "name": "Ibiza",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "Mk1",
+              "code": "021A",
+              "year_start": 1984,
+              "year_end": 1993,
+              "source": "https://en.wikipedia.org/wiki/SEAT_Ibiza"
+            },
+            {
+              "name": "Mk2",
+              "code": "6K",
+              "year_start": 1993,
+              "year_end": 2002,
+              "source": "https://en.wikipedia.org/wiki/SEAT_Ibiza"
+            },
+            {
+              "name": "Mk3",
+              "code": "6L",
+              "year_start": 2002,
+              "year_end": 2008,
+              "source": "https://en.wikipedia.org/wiki/SEAT_Ibiza"
+            },
+            {
+              "name": "Mk4",
+              "code": "6J",
+              "year_start": 2008,
+              "year_end": 2017,
+              "source": "https://en.wikipedia.org/wiki/SEAT_Ibiza"
+            },
+            {
+              "name": "Mk5",
+              "code": "6F",
+              "year_start": 2017,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/SEAT_Ibiza"
+            }
+          ]
+        },
+        {
+          "name": "Tarraco",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": "KN2",
+              "year_start": 2018,
+              "year_end": 2024,
+              "source": "https://en.wikipedia.org/wiki/SEAT_Tarraco"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

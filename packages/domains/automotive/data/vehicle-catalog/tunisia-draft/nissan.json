@@ -1,0 +1,303 @@
+{
+  "format": "vehicle-catalog@1",
+  "market": "TN",
+  "source": {
+    "name": "Wikipedia — DRAFT, review before production",
+    "url": "https://en.wikipedia.org/",
+    "license": "Facts (generation names, codes, production years) from article infoboxes, CC BY-SA 4.0; each generation cites its article.",
+    "retrieved_at": "2026-10-07"
+  },
+  "makes": [
+    {
+      "name": "Nissan",
+      "models": [
+        {
+          "name": "Altima",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": "U13",
+              "year_start": 1992,
+              "year_end": 1997,
+              "source": "https://en.wikipedia.org/wiki/Nissan_Altima"
+            },
+            {
+              "name": "II",
+              "code": "L30",
+              "year_start": 1997,
+              "year_end": 2001,
+              "source": "https://en.wikipedia.org/wiki/Nissan_Altima"
+            },
+            {
+              "name": "III",
+              "code": "L31",
+              "year_start": 2001,
+              "year_end": 2006,
+              "source": "https://en.wikipedia.org/wiki/Nissan_Altima"
+            },
+            {
+              "name": "IV",
+              "code": "L32",
+              "year_start": 2006,
+              "year_end": 2012,
+              "source": "https://en.wikipedia.org/wiki/Nissan_Altima"
+            },
+            {
+              "name": "V",
+              "code": "L33",
+              "year_start": 2012,
+              "year_end": 2018,
+              "source": "https://en.wikipedia.org/wiki/Nissan_Altima"
+            },
+            {
+              "name": "VI",
+              "code": "L34",
+              "year_start": 2018,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Nissan_Altima"
+            }
+          ]
+        },
+        {
+          "name": "Juke",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": "F15",
+              "year_start": 2010,
+              "year_end": 2019,
+              "source": "https://en.wikipedia.org/wiki/Nissan_Juke"
+            },
+            {
+              "name": "II",
+              "code": "F16",
+              "year_start": 2019,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Nissan_Juke"
+            }
+          ]
+        },
+        {
+          "name": "Magnite",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": "DD0",
+              "year_start": 2020,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Nissan_Magnite"
+            }
+          ]
+        },
+        {
+          "name": "Micra",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": "K10",
+              "year_start": 1982,
+              "year_end": 1992,
+              "source": "https://en.wikipedia.org/wiki/Nissan_Micra"
+            },
+            {
+              "name": "II",
+              "code": "K11",
+              "year_start": 1992,
+              "year_end": 2003,
+              "source": "https://en.wikipedia.org/wiki/Nissan_Micra"
+            },
+            {
+              "name": "III",
+              "code": "K12",
+              "year_start": 2002,
+              "year_end": 2010,
+              "source": "https://en.wikipedia.org/wiki/Nissan_Micra"
+            },
+            {
+              "name": "IV",
+              "code": "K13",
+              "year_start": 2010,
+              "year_end": 2022,
+              "source": "https://en.wikipedia.org/wiki/Nissan_Micra"
+            },
+            {
+              "name": "V",
+              "code": "K14",
+              "year_start": 2016,
+              "year_end": 2023,
+              "source": "https://en.wikipedia.org/wiki/Nissan_Micra"
+            },
+            {
+              "name": "VI",
+              "code": "K15",
+              "year_start": 2025,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Nissan_Micra"
+            }
+          ]
+        },
+        {
+          "name": "Navara",
+          "category": "LCV",
+          "generations": [
+            {
+              "name": "D21",
+              "code": null,
+              "year_start": 1985,
+              "year_end": 1997,
+              "source": "https://en.wikipedia.org/wiki/Nissan_Navara"
+            },
+            {
+              "name": "I",
+              "code": "D22",
+              "year_start": 1997,
+              "year_end": 2004,
+              "source": "https://en.wikipedia.org/wiki/Nissan_Navara"
+            },
+            {
+              "name": "II",
+              "code": "D40",
+              "year_start": 2004,
+              "year_end": 2021,
+              "source": "https://en.wikipedia.org/wiki/Nissan_Navara"
+            },
+            {
+              "name": "III",
+              "code": "D23",
+              "year_start": 2014,
+              "year_end": 2015,
+              "source": "https://en.wikipedia.org/wiki/Nissan_Navara"
+            },
+            {
+              "name": "IV",
+              "code": "D27",
+              "year_start": 2025,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Nissan_Navara"
+            }
+          ]
+        },
+        {
+          "name": "Patrol",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": "4W60",
+              "year_start": 1951,
+              "year_end": 1960,
+              "source": "https://en.wikipedia.org/wiki/Nissan_Patrol"
+            },
+            {
+              "name": "II",
+              "code": "60",
+              "year_start": 1960,
+              "year_end": 1980,
+              "source": "https://en.wikipedia.org/wiki/Nissan_Patrol"
+            },
+            {
+              "name": "III",
+              "code": "160/260",
+              "year_start": 1980,
+              "year_end": 2002,
+              "source": "https://en.wikipedia.org/wiki/Nissan_Patrol"
+            },
+            {
+              "name": "IV",
+              "code": "Y60",
+              "year_start": 1987,
+              "year_end": 1997,
+              "source": "https://en.wikipedia.org/wiki/Nissan_Patrol"
+            },
+            {
+              "name": "V",
+              "code": "Y61",
+              "year_start": 1997,
+              "year_end": 2024,
+              "source": "https://en.wikipedia.org/wiki/Nissan_Patrol"
+            },
+            {
+              "name": "VI",
+              "code": "Y62",
+              "year_start": 2010,
+              "year_end": 2026,
+              "source": "https://en.wikipedia.org/wiki/Nissan_Patrol"
+            },
+            {
+              "name": "VII",
+              "code": "Y63",
+              "year_start": 2024,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Nissan_Patrol"
+            }
+          ]
+        },
+        {
+          "name": "Qashqai",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": "J10",
+              "year_start": 2006,
+              "year_end": 2013,
+              "source": "https://en.wikipedia.org/wiki/Nissan_Qashqai"
+            },
+            {
+              "name": "II",
+              "code": "J11",
+              "year_start": 2013,
+              "year_end": 2021,
+              "source": "https://en.wikipedia.org/wiki/Nissan_Qashqai"
+            },
+            {
+              "name": "III",
+              "code": "J12",
+              "year_start": 2021,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Nissan_Qashqai"
+            }
+          ]
+        },
+        {
+          "name": "X-Trail",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": "T30",
+              "year_start": 2000,
+              "year_end": 2007,
+              "source": "https://en.wikipedia.org/wiki/Nissan_X-Trail"
+            },
+            {
+              "name": "II",
+              "code": "T31",
+              "year_start": 2007,
+              "year_end": 2013,
+              "source": "https://en.wikipedia.org/wiki/Nissan_X-Trail"
+            },
+            {
+              "name": "III",
+              "code": "T32",
+              "year_start": 2013,
+              "year_end": 2022,
+              "source": "https://en.wikipedia.org/wiki/Nissan_X-Trail"
+            },
+            {
+              "name": "IV",
+              "code": "T33",
+              "year_start": 2021,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Nissan_X-Trail"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,482 @@
+{
+  "format": "vehicle-catalog@1",
+  "market": "TN",
+  "source": {
+    "name": "Wikipedia — DRAFT, review before production",
+    "url": "https://en.wikipedia.org/",
+    "license": "Facts (generation names, codes, production years) from article infoboxes, CC BY-SA 4.0; each generation cites its article.",
+    "retrieved_at": "2026-10-07"
+  },
+  "makes": [
+    {
+      "name": "Mercedes-Benz",
+      "models": [
+        {
+          "name": "A-Class",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": "W168",
+              "year_start": 1996,
+              "year_end": 2004,
+              "source": "https://en.wikipedia.org/wiki/Mercedes-Benz_A-Class"
+            },
+            {
+              "name": "II",
+              "code": "W169",
+              "year_start": 2004,
+              "year_end": 2012,
+              "source": "https://en.wikipedia.org/wiki/Mercedes-Benz_A-Class"
+            },
+            {
+              "name": "III",
+              "code": "W176",
+              "year_start": 2012,
+              "year_end": 2018,
+              "source": "https://en.wikipedia.org/wiki/Mercedes-Benz_A-Class"
+            },
+            {
+              "name": "IV",
+              "code": "W177",
+              "year_start": 2018,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Mercedes-Benz_A-Class"
+            }
+          ]
+        },
+        {
+          "name": "AMG GT",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": "C190/R190",
+              "year_start": 2014,
+              "year_end": 2022,
+              "source": "https://en.wikipedia.org/wiki/Mercedes-AMG_GT"
+            },
+            {
+              "name": "II",
+              "code": "C192",
+              "year_start": 2023,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Mercedes-AMG_GT"
+            }
+          ]
+        },
+        {
+          "name": "C-Class",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "W201",
+              "code": null,
+              "year_start": 1982,
+              "year_end": 1993,
+              "source": "https://en.wikipedia.org/wiki/Mercedes-Benz_C-Class"
+            },
+            {
+              "name": "I",
+              "code": "W202/S202",
+              "year_start": 1992,
+              "year_end": 2001,
+              "source": "https://en.wikipedia.org/wiki/Mercedes-Benz_C-Class"
+            },
+            {
+              "name": "II",
+              "code": "W203/S203/CL203",
+              "year_start": 1999,
+              "year_end": 2010,
+              "source": "https://en.wikipedia.org/wiki/Mercedes-Benz_C-Class"
+            },
+            {
+              "name": "III",
+              "code": "W204/S204/C204",
+              "year_start": 2006,
+              "year_end": 2015,
+              "source": "https://en.wikipedia.org/wiki/Mercedes-Benz_C-Class"
+            },
+            {
+              "name": "IV",
+              "code": "W205/S205/C205",
+              "year_start": 2014,
+              "year_end": 2021,
+              "source": "https://en.wikipedia.org/wiki/Mercedes-Benz_C-Class"
+            },
+            {
+              "name": "V",
+              "code": "W206/S206/V206",
+              "year_start": 2021,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Mercedes-Benz_C-Class"
+            },
+            {
+              "name": "Battery electric",
+              "code": "W520",
+              "year_start": 2026,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Mercedes-Benz_C-Class"
+            }
+          ]
+        },
+        {
+          "name": "CLA",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": "C117/X117",
+              "year_start": 2013,
+              "year_end": 2019,
+              "source": "https://en.wikipedia.org/wiki/Mercedes-Benz_CLA"
+            },
+            {
+              "name": "II",
+              "code": "C118/X118",
+              "year_start": 2019,
+              "year_end": 2025,
+              "source": "https://en.wikipedia.org/wiki/Mercedes-Benz_CLA"
+            },
+            {
+              "name": "III",
+              "code": "C178/C174/X178",
+              "year_start": 2025,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Mercedes-Benz_CLA"
+            }
+          ]
+        },
+        {
+          "name": "CLE",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": "C236/A236",
+              "year_start": 2023,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Mercedes-Benz_CLE"
+            }
+          ]
+        },
+        {
+          "name": "CLS",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": null,
+              "year_start": 2003,
+              "year_end": 2023,
+              "source": "https://en.wikipedia.org/wiki/Mercedes-Benz_CLS"
+            }
+          ]
+        },
+        {
+          "name": "E-Class",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": null,
+              "year_start": 1985,
+              "year_end": 1985,
+              "source": "https://en.wikipedia.org/wiki/Mercedes-Benz_E-Class"
+            }
+          ]
+        },
+        {
+          "name": "EQE SUV",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": "X294",
+              "year_start": 2022,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Mercedes-Benz_EQE_SUV"
+            }
+          ]
+        },
+        {
+          "name": "G-Class",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "W460",
+              "code": null,
+              "year_start": 1979,
+              "year_end": 1991,
+              "source": "https://en.wikipedia.org/wiki/Mercedes-Benz_G-Class"
+            },
+            {
+              "name": "W461",
+              "code": null,
+              "year_start": 1985,
+              "year_end": 2022,
+              "source": "https://en.wikipedia.org/wiki/Mercedes-Benz_G-Class"
+            },
+            {
+              "name": "W463",
+              "code": null,
+              "year_start": 1990,
+              "year_end": 2024,
+              "source": "https://en.wikipedia.org/wiki/Mercedes-Benz_G-Class"
+            },
+            {
+              "name": "W465",
+              "code": null,
+              "year_start": 2024,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Mercedes-Benz_G-Class"
+            }
+          ]
+        },
+        {
+          "name": "GL",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": null,
+              "year_start": 2006,
+              "year_end": 2015,
+              "source": "https://en.wikipedia.org/wiki/Mercedes-Benz_GLS"
+            }
+          ]
+        },
+        {
+          "name": "GLA",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": "X156",
+              "year_start": 2013,
+              "year_end": 2019,
+              "source": "https://en.wikipedia.org/wiki/Mercedes-Benz_GLA"
+            },
+            {
+              "name": "II",
+              "code": "H247",
+              "year_start": 2019,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Mercedes-Benz_GLA"
+            },
+            {
+              "name": "III",
+              "code": "H248/H244",
+              "year_start": 2026,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Mercedes-Benz_GLA"
+            }
+          ]
+        },
+        {
+          "name": "GLB",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": "X247",
+              "year_start": 2019,
+              "year_end": 2026,
+              "source": "https://en.wikipedia.org/wiki/Mercedes-Benz_GLB"
+            },
+            {
+              "name": "II",
+              "code": "X244",
+              "year_start": 2026,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Mercedes-Benz_GLB"
+            }
+          ]
+        },
+        {
+          "name": "GLC",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": "X253/C253/V253",
+              "year_start": 2015,
+              "year_end": 2022,
+              "source": "https://en.wikipedia.org/wiki/Mercedes-Benz_GLC"
+            },
+            {
+              "name": "II",
+              "code": "X254/C254/V254",
+              "year_start": 2022,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Mercedes-Benz_GLC"
+            }
+          ]
+        },
+        {
+          "name": "GLE",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "M-Class (W163",
+              "code": "W163",
+              "year_start": 1997,
+              "year_end": 2004,
+              "source": "https://en.wikipedia.org/wiki/Mercedes-Benz_GLE"
+            },
+            {
+              "name": "M-Class (W164",
+              "code": "W164",
+              "year_start": 2005,
+              "year_end": 2011,
+              "source": "https://en.wikipedia.org/wiki/Mercedes-Benz_GLE"
+            },
+            {
+              "name": "M-Class/GLE (W166/C292",
+              "code": "W166/C292",
+              "year_start": 2011,
+              "year_end": 2019,
+              "source": "https://en.wikipedia.org/wiki/Mercedes-Benz_GLE"
+            },
+            {
+              "name": "W167/C167",
+              "code": "W167/C167",
+              "year_start": 2018,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Mercedes-Benz_GLE"
+            }
+          ]
+        },
+        {
+          "name": "GLK",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": "X204",
+              "year_start": 2008,
+              "year_end": 2015,
+              "source": "https://en.wikipedia.org/wiki/Mercedes-Benz_GLK-Class"
+            }
+          ]
+        },
+        {
+          "name": "S-Class",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "W180",
+              "code": null,
+              "year_start": 1954,
+              "year_end": 1959,
+              "source": "https://en.wikipedia.org/wiki/Mercedes-Benz_S-Class"
+            },
+            {
+              "name": "W111, W112",
+              "code": null,
+              "year_start": 1959,
+              "year_end": 1968,
+              "source": "https://en.wikipedia.org/wiki/Mercedes-Benz_S-Class"
+            },
+            {
+              "name": "W108, W109",
+              "code": null,
+              "year_start": 1965,
+              "year_end": 1972,
+              "source": "https://en.wikipedia.org/wiki/Mercedes-Benz_S-Class"
+            },
+            {
+              "name": "I",
+              "code": "W116",
+              "year_start": 1972,
+              "year_end": 1980,
+              "source": "https://en.wikipedia.org/wiki/Mercedes-Benz_S-Class"
+            },
+            {
+              "name": "II",
+              "code": "W126/C126",
+              "year_start": 1979,
+              "year_end": 1992,
+              "source": "https://en.wikipedia.org/wiki/Mercedes-Benz_S-Class"
+            },
+            {
+              "name": "III",
+              "code": "W140/C140",
+              "year_start": 1991,
+              "year_end": 1999,
+              "source": "https://en.wikipedia.org/wiki/Mercedes-Benz_S-Class"
+            },
+            {
+              "name": "IV",
+              "code": "W220",
+              "year_start": 1998,
+              "year_end": 2005,
+              "source": "https://en.wikipedia.org/wiki/Mercedes-Benz_S-Class"
+            },
+            {
+              "name": "V",
+              "code": "W221/C216",
+              "year_start": 2005,
+              "year_end": 2013,
+              "source": "https://en.wikipedia.org/wiki/Mercedes-Benz_S-Class"
+            },
+            {
+              "name": "VI",
+              "code": "W222/C217/A217",
+              "year_start": 2013,
+              "year_end": 2020,
+              "source": "https://en.wikipedia.org/wiki/Mercedes-Benz_S-Class"
+            },
+            {
+              "name": "VII",
+              "code": "W223",
+              "year_start": 2020,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Mercedes-Benz_S-Class"
+            }
+          ]
+        },
+        {
+          "name": "Sprinter",
+          "category": "LCV",
+          "generations": [
+            {
+              "name": "I",
+              "code": "W903",
+              "year_start": 1995,
+              "year_end": 2006,
+              "source": "https://en.wikipedia.org/wiki/Mercedes-Benz_Sprinter"
+            },
+            {
+              "name": "II",
+              "code": "W906",
+              "year_start": 2006,
+              "year_end": 2018,
+              "source": "https://en.wikipedia.org/wiki/Mercedes-Benz_Sprinter"
+            },
+            {
+              "name": "III",
+              "code": "W907/W910",
+              "year_start": 2018,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Mercedes-Benz_Sprinter"
+            }
+          ]
+        },
+        {
+          "name": "X-Class",
+          "category": "LCV",
+          "generations": [
+            {
+              "name": "I",
+              "code": "W470",
+              "year_start": 2017,
+              "year_end": 2020,
+              "source": "https://en.wikipedia.org/wiki/Mercedes-Benz_X-Class"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

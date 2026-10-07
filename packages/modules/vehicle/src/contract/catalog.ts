@@ -49,6 +49,8 @@ export const CatalogGenerationSchema = z.object({
   year_start: YearSchema,
   year_end: YearSchema.nullable().default(null),
   vehicles: z.array(CatalogVehicleSchema).default([]),
+  /** Where this generation's data comes from (page, document), for audits. */
+  source: z.string().trim().optional(),
 });
 
 export const CatalogModelSchema = z.object({

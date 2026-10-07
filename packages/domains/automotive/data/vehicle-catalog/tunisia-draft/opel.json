@@ -1,0 +1,267 @@
+{
+  "format": "vehicle-catalog@1",
+  "market": "TN",
+  "source": {
+    "name": "Wikipedia — DRAFT, review before production",
+    "url": "https://en.wikipedia.org/",
+    "license": "Facts (generation names, codes, production years) from article infoboxes, CC BY-SA 4.0; each generation cites its article.",
+    "retrieved_at": "2026-10-07"
+  },
+  "makes": [
+    {
+      "name": "Opel",
+      "models": [
+        {
+          "name": "Astra",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": "T91",
+              "year_start": 1991,
+              "year_end": 2003,
+              "source": "https://en.wikipedia.org/wiki/Opel_Astra"
+            },
+            {
+              "name": "II",
+              "code": "T98",
+              "year_start": 1998,
+              "year_end": 2009,
+              "source": "https://en.wikipedia.org/wiki/Opel_Astra"
+            },
+            {
+              "name": "III",
+              "code": "A04",
+              "year_start": 2004,
+              "year_end": 2014,
+              "source": "https://en.wikipedia.org/wiki/Opel_Astra"
+            },
+            {
+              "name": "IV",
+              "code": "P09",
+              "year_start": 2009,
+              "year_end": 2015,
+              "source": "https://en.wikipedia.org/wiki/Opel_Astra"
+            },
+            {
+              "name": "V",
+              "code": "B15/B16",
+              "year_start": 2015,
+              "year_end": 2021,
+              "source": "https://en.wikipedia.org/wiki/Opel_Astra"
+            },
+            {
+              "name": "VI",
+              "code": "C02",
+              "year_start": 2021,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Opel_Astra"
+            }
+          ]
+        },
+        {
+          "name": "Calibra",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": null,
+              "year_start": 1989,
+              "year_end": 1997,
+              "source": "https://en.wikipedia.org/wiki/Opel_Calibra"
+            }
+          ]
+        },
+        {
+          "name": "Combo",
+          "category": "LCV",
+          "generations": [
+            {
+              "name": "Kadett Combo",
+              "code": null,
+              "year_start": 1986,
+              "year_end": 1993,
+              "source": "https://en.wikipedia.org/wiki/Opel_Combo"
+            },
+            {
+              "name": "B",
+              "code": null,
+              "year_start": 1993,
+              "year_end": 2001,
+              "source": "https://en.wikipedia.org/wiki/Opel_Combo"
+            },
+            {
+              "name": "C",
+              "code": null,
+              "year_start": 2002,
+              "year_end": 2012,
+              "source": "https://en.wikipedia.org/wiki/Opel_Combo"
+            },
+            {
+              "name": "D",
+              "code": null,
+              "year_start": 2012,
+              "year_end": 2018,
+              "source": "https://en.wikipedia.org/wiki/Opel_Combo"
+            },
+            {
+              "name": "E",
+              "code": null,
+              "year_start": 2018,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Opel_Combo"
+            }
+          ]
+        },
+        {
+          "name": "Corsa",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "A",
+              "code": "S83",
+              "year_start": 1982,
+              "year_end": 1993,
+              "source": "https://en.wikipedia.org/wiki/Opel_Corsa"
+            },
+            {
+              "name": "B",
+              "code": "S93",
+              "year_start": 1993,
+              "year_end": 2000,
+              "source": "https://en.wikipedia.org/wiki/Opel_Corsa"
+            },
+            {
+              "name": "C",
+              "code": "X01",
+              "year_start": 2000,
+              "year_end": 2007,
+              "source": "https://en.wikipedia.org/wiki/Opel_Corsa"
+            },
+            {
+              "name": "D",
+              "code": "S07",
+              "year_start": 2006,
+              "year_end": 2014,
+              "source": "https://en.wikipedia.org/wiki/Opel_Corsa"
+            },
+            {
+              "name": "E",
+              "code": "X15",
+              "year_start": 2014,
+              "year_end": 2019,
+              "source": "https://en.wikipedia.org/wiki/Opel_Corsa"
+            },
+            {
+              "name": "F",
+              "code": "P2JO",
+              "year_start": 2019,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Opel_Corsa"
+            }
+          ]
+        },
+        {
+          "name": "Crossland",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": null,
+              "year_start": 2017,
+              "year_end": 2024,
+              "source": "https://en.wikipedia.org/wiki/Opel_Crossland"
+            }
+          ]
+        },
+        {
+          "name": "Grandland",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": null,
+              "year_start": 2017,
+              "year_end": 2024,
+              "source": "https://en.wikipedia.org/wiki/Opel_Grandland"
+            },
+            {
+              "name": "II",
+              "code": null,
+              "year_start": 2024,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Opel_Grandland"
+            }
+          ]
+        },
+        {
+          "name": "Insignia",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "2003 Insignia Concept",
+              "code": null,
+              "year_start": 2003,
+              "year_end": 2003,
+              "source": "https://en.wikipedia.org/wiki/Opel_Insignia"
+            },
+            {
+              "name": "A",
+              "code": "G09",
+              "year_start": 2008,
+              "year_end": 2017,
+              "source": "https://en.wikipedia.org/wiki/Opel_Insignia"
+            },
+            {
+              "name": "B",
+              "code": "Z18",
+              "year_start": 2017,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Opel_Insignia"
+            }
+          ]
+        },
+        {
+          "name": "Mokka",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "A",
+              "code": "J13",
+              "year_start": 2012,
+              "year_end": 2019,
+              "source": "https://en.wikipedia.org/wiki/Opel_Mokka"
+            },
+            {
+              "name": "B",
+              "code": null,
+              "year_start": 2020,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Opel_Mokka"
+            }
+          ]
+        },
+        {
+          "name": "Zafira",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "B",
+              "code": "A05",
+              "year_start": 2005,
+              "year_end": 2014,
+              "source": "https://en.wikipedia.org/wiki/Opel_Zafira"
+            },
+            {
+              "name": "C/Zafira Tourer",
+              "code": "A11",
+              "year_start": 2011,
+              "year_end": 2019,
+              "source": "https://en.wikipedia.org/wiki/Opel_Zafira"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

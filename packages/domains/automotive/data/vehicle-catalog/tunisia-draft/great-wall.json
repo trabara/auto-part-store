@@ -1,0 +1,57 @@
+{
+  "format": "vehicle-catalog@1",
+  "market": "TN",
+  "source": {
+    "name": "Wikipedia — DRAFT, review before production",
+    "url": "https://en.wikipedia.org/",
+    "license": "Facts (generation names, codes, production years) from article infoboxes, CC BY-SA 4.0; each generation cites its article.",
+    "retrieved_at": "2026-10-07"
+  },
+  "makes": [
+    {
+      "name": "Great Wall",
+      "models": [
+        {
+          "name": "Haval H2",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": null,
+              "year_start": 2014,
+              "year_end": 2021,
+              "source": "https://en.wikipedia.org/wiki/Haval_H2"
+            }
+          ]
+        },
+        {
+          "name": "Haval H6",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": null,
+              "year_start": 2011,
+              "year_end": 2020,
+              "source": "https://en.wikipedia.org/wiki/Haval_H6"
+            },
+            {
+              "name": "II",
+              "code": null,
+              "year_start": 2017,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Haval_H6"
+            },
+            {
+              "name": "III",
+              "code": null,
+              "year_start": 2020,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Haval_H6"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

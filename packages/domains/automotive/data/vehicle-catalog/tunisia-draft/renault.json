@@ -1,0 +1,384 @@
+{
+  "format": "vehicle-catalog@1",
+  "market": "TN",
+  "source": {
+    "name": "Wikipedia — DRAFT, review before production",
+    "url": "https://en.wikipedia.org/",
+    "license": "Facts (generation names, codes, production years) from article infoboxes, CC BY-SA 4.0; each generation cites its article.",
+    "retrieved_at": "2026-10-07"
+  },
+  "makes": [
+    {
+      "name": "Renault",
+      "models": [
+        {
+          "name": "19",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": null,
+              "year_start": 1988,
+              "year_end": 1996,
+              "source": "https://en.wikipedia.org/wiki/Renault_19"
+            }
+          ]
+        },
+        {
+          "name": "21",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": null,
+              "year_start": 1986,
+              "year_end": 1995,
+              "source": "https://en.wikipedia.org/wiki/Renault_21"
+            }
+          ]
+        },
+        {
+          "name": "25",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": null,
+              "year_start": 1983,
+              "year_end": 1992,
+              "source": "https://en.wikipedia.org/wiki/Renault_25"
+            }
+          ]
+        },
+        {
+          "name": "4",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": null,
+              "year_start": 1961,
+              "year_end": 1992,
+              "source": "https://en.wikipedia.org/wiki/Renault_4"
+            }
+          ]
+        },
+        {
+          "name": "Austral",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": "HHN",
+              "year_start": 2022,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Renault_Austral"
+            }
+          ]
+        },
+        {
+          "name": "Captur",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": "J87",
+              "year_start": 2013,
+              "year_end": 2023,
+              "source": "https://en.wikipedia.org/wiki/Renault_Captur"
+            },
+            {
+              "name": "II",
+              "code": "XJB/HJB/HJE",
+              "year_start": 2019,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Renault_Captur"
+            }
+          ]
+        },
+        {
+          "name": "Clio",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": "X57",
+              "year_start": 1990,
+              "year_end": 1998,
+              "source": "https://en.wikipedia.org/wiki/Renault_Clio"
+            },
+            {
+              "name": "II",
+              "code": "X65",
+              "year_start": 1998,
+              "year_end": 2012,
+              "source": "https://en.wikipedia.org/wiki/Renault_Clio"
+            },
+            {
+              "name": "III",
+              "code": "X85",
+              "year_start": 2005,
+              "year_end": 2012,
+              "source": "https://en.wikipedia.org/wiki/Renault_Clio"
+            },
+            {
+              "name": "IV",
+              "code": "X98",
+              "year_start": 2012,
+              "year_end": 2020,
+              "source": "https://en.wikipedia.org/wiki/Renault_Clio"
+            },
+            {
+              "name": "V",
+              "code": "BJA",
+              "year_start": 2018,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Renault_Clio"
+            },
+            {
+              "name": "VI",
+              "code": "X60",
+              "year_start": 2025,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Renault_Clio"
+            }
+          ]
+        },
+        {
+          "name": "Express",
+          "category": "LCV",
+          "generations": [
+            {
+              "name": "I",
+              "code": null,
+              "year_start": 1985,
+              "year_end": 2000,
+              "source": "https://en.wikipedia.org/wiki/Renault_Express"
+            }
+          ]
+        },
+        {
+          "name": "Fluence",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "Z.E.",
+              "code": null,
+              "year_start": 2011,
+              "year_end": 2013,
+              "source": "https://en.wikipedia.org/wiki/Renault_Fluence"
+            }
+          ]
+        },
+        {
+          "name": "Kadjar",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": null,
+              "year_start": 2015,
+              "year_end": 2022,
+              "source": "https://en.wikipedia.org/wiki/Renault_Kadjar"
+            }
+          ]
+        },
+        {
+          "name": "Kangoo",
+          "category": "LCV",
+          "generations": [
+            {
+              "name": "I",
+              "code": null,
+              "year_start": 1997,
+              "year_end": 2009,
+              "source": "https://en.wikipedia.org/wiki/Renault_Kangoo"
+            },
+            {
+              "name": "II",
+              "code": null,
+              "year_start": 2007,
+              "year_end": 2021,
+              "source": "https://en.wikipedia.org/wiki/Renault_Kangoo"
+            },
+            {
+              "name": "III",
+              "code": null,
+              "year_start": 2020,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Renault_Kangoo"
+            }
+          ]
+        },
+        {
+          "name": "Kwid",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "City K-ZE",
+              "code": null,
+              "year_start": 2019,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Renault_Kwid"
+            }
+          ]
+        },
+        {
+          "name": "Master",
+          "category": "LCV",
+          "generations": [
+            {
+              "name": "I",
+              "code": null,
+              "year_start": 1980,
+              "year_end": 1997,
+              "source": "https://en.wikipedia.org/wiki/Renault_Master"
+            },
+            {
+              "name": "II",
+              "code": null,
+              "year_start": 1997,
+              "year_end": 2010,
+              "source": "https://en.wikipedia.org/wiki/Renault_Master"
+            },
+            {
+              "name": "Mascott",
+              "code": null,
+              "year_start": 1999,
+              "year_end": 2013,
+              "source": "https://en.wikipedia.org/wiki/Renault_Master"
+            },
+            {
+              "name": "III",
+              "code": null,
+              "year_start": 2010,
+              "year_end": 2024,
+              "source": "https://en.wikipedia.org/wiki/Renault_Master"
+            },
+            {
+              "name": "IV",
+              "code": "XDD",
+              "year_start": 2024,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Renault_Master"
+            }
+          ]
+        },
+        {
+          "name": "Rafale",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": "DHN",
+              "year_start": 2024,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Renault_Rafale"
+            }
+          ]
+        },
+        {
+          "name": "Symbol",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "Clio Symbol",
+              "code": null,
+              "year_start": 1999,
+              "year_end": 2008,
+              "source": "https://en.wikipedia.org/wiki/Renault_Symbol"
+            },
+            {
+              "name": "II",
+              "code": "L35",
+              "year_start": 2008,
+              "year_end": 2012,
+              "source": "https://en.wikipedia.org/wiki/Renault_Symbol"
+            },
+            {
+              "name": "III",
+              "code": null,
+              "year_start": 2013,
+              "year_end": 2021,
+              "source": "https://en.wikipedia.org/wiki/Renault_Symbol"
+            }
+          ]
+        },
+        {
+          "name": "Trafic",
+          "category": "LCV",
+          "generations": [
+            {
+              "name": "I",
+              "code": null,
+              "year_start": 1980,
+              "year_end": 2001,
+              "source": "https://en.wikipedia.org/wiki/Renault_Trafic"
+            },
+            {
+              "name": "II",
+              "code": "X83",
+              "year_start": 2001,
+              "year_end": 2015,
+              "source": "https://en.wikipedia.org/wiki/Renault_Trafic"
+            },
+            {
+              "name": "III",
+              "code": "X82",
+              "year_start": 2014,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Renault_Trafic"
+            }
+          ]
+        },
+        {
+          "name": "Twingo",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "II",
+              "code": null,
+              "year_start": 2007,
+              "year_end": 2014,
+              "source": "https://en.wikipedia.org/wiki/Renault_Twingo"
+            },
+            {
+              "name": "Twin'Z",
+              "code": null,
+              "year_start": 2013,
+              "year_end": 2013,
+              "source": "https://en.wikipedia.org/wiki/Renault_Twingo"
+            },
+            {
+              "name": "III",
+              "code": null,
+              "year_start": 2014,
+              "year_end": 2024,
+              "source": "https://en.wikipedia.org/wiki/Renault_Twingo"
+            },
+            {
+              "name": "Electric",
+              "code": null,
+              "year_start": 2021,
+              "year_end": 2024,
+              "source": "https://en.wikipedia.org/wiki/Renault_Twingo"
+            }
+          ]
+        },
+        {
+          "name": "Vel Satis",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": null,
+              "year_start": 2001,
+              "year_end": 2009,
+              "source": "https://en.wikipedia.org/wiki/Renault_Vel_Satis"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

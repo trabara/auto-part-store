@@ -1,0 +1,235 @@
+{
+  "format": "vehicle-catalog@1",
+  "market": "TN",
+  "source": {
+    "name": "Wikipedia — DRAFT, review before production",
+    "url": "https://en.wikipedia.org/",
+    "license": "Facts (generation names, codes, production years) from article infoboxes, CC BY-SA 4.0; each generation cites its article.",
+    "retrieved_at": "2026-10-07"
+  },
+  "makes": [
+    {
+      "name": "BMW",
+      "models": [
+        {
+          "name": "1 Series",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": null,
+              "year_start": 2004,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/BMW_1_Series"
+            }
+          ]
+        },
+        {
+          "name": "2 Series Gran Coupé",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": "F44",
+              "year_start": 2020,
+              "year_end": 2024,
+              "source": "https://en.wikipedia.org/wiki/BMW_2_Series_Gran_Coupé"
+            },
+            {
+              "name": "II",
+              "code": "F74/F78",
+              "year_start": 2024,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/BMW_2_Series_Gran_Coupé"
+            }
+          ]
+        },
+        {
+          "name": "3 Series",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": null,
+              "year_start": 1975,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/BMW_3_Series"
+            }
+          ]
+        },
+        {
+          "name": "5 Series",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": null,
+              "year_start": 1972,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/BMW_5_Series"
+            }
+          ]
+        },
+        {
+          "name": "7 Series",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": null,
+              "year_start": 1977,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/BMW_7_Series"
+            }
+          ]
+        },
+        {
+          "name": "i4",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": "G26/BEV",
+              "year_start": 2021,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/BMW_i4"
+            }
+          ]
+        },
+        {
+          "name": "iX3",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": "NA5/NA6",
+              "year_start": 2025,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/BMW_iX3"
+            }
+          ]
+        },
+        {
+          "name": "X1",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": null,
+              "year_start": 2009,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/BMW_X1"
+            }
+          ]
+        },
+        {
+          "name": "X2",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": "F39",
+              "year_start": 2017,
+              "year_end": 2023,
+              "source": "https://en.wikipedia.org/wiki/BMW_X2"
+            },
+            {
+              "name": "II",
+              "code": "U10",
+              "year_start": 2023,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/BMW_X2"
+            }
+          ]
+        },
+        {
+          "name": "X3",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": "E83",
+              "year_start": 2003,
+              "year_end": 2003,
+              "source": "https://en.wikipedia.org/wiki/BMW_X3"
+            },
+            {
+              "name": "II",
+              "code": "F25",
+              "year_start": 2010,
+              "year_end": 2010,
+              "source": "https://en.wikipedia.org/wiki/BMW_X3"
+            },
+            {
+              "name": "III",
+              "code": "G01/F97/G08",
+              "year_start": 2017,
+              "year_end": 2024,
+              "source": "https://en.wikipedia.org/wiki/BMW_X3"
+            }
+          ]
+        },
+        {
+          "name": "X4",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": "F26",
+              "year_start": 2014,
+              "year_end": 2018,
+              "source": "https://en.wikipedia.org/wiki/BMW_X4"
+            },
+            {
+              "name": "II",
+              "code": "G02/F98",
+              "year_start": 2018,
+              "year_end": 2025,
+              "source": "https://en.wikipedia.org/wiki/BMW_X4"
+            }
+          ]
+        },
+        {
+          "name": "X5",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": null,
+              "year_start": 1999,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/BMW_X5"
+            }
+          ]
+        },
+        {
+          "name": "X6",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": "E71",
+              "year_start": 2007,
+              "year_end": 2014,
+              "source": "https://en.wikipedia.org/wiki/BMW_X6"
+            },
+            {
+              "name": "II",
+              "code": "F16",
+              "year_start": 2014,
+              "year_end": 2019,
+              "source": "https://en.wikipedia.org/wiki/BMW_X6"
+            },
+            {
+              "name": "III",
+              "code": "G06",
+              "year_start": 2019,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/BMW_X6"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

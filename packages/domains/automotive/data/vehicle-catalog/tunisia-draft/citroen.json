@@ -1,0 +1,290 @@
+{
+  "format": "vehicle-catalog@1",
+  "market": "TN",
+  "source": {
+    "name": "Wikipedia — DRAFT, review before production",
+    "url": "https://en.wikipedia.org/",
+    "license": "Facts (generation names, codes, production years) from article infoboxes, CC BY-SA 4.0; each generation cites its article.",
+    "retrieved_at": "2026-10-07"
+  },
+  "makes": [
+    {
+      "name": "Citroën",
+      "models": [
+        {
+          "name": "AX",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": null,
+              "year_start": 1986,
+              "year_end": 1998,
+              "source": "https://en.wikipedia.org/wiki/Citroën_AX"
+            }
+          ]
+        },
+        {
+          "name": "Berlingo",
+          "category": "LCV",
+          "generations": [
+            {
+              "name": "I",
+              "code": null,
+              "year_start": 1996,
+              "year_end": 2008,
+              "source": "https://en.wikipedia.org/wiki/Citroën_Berlingo"
+            },
+            {
+              "name": "II",
+              "code": null,
+              "year_start": 2008,
+              "year_end": 2018,
+              "source": "https://en.wikipedia.org/wiki/Citroën_Berlingo"
+            },
+            {
+              "name": "III",
+              "code": "K9/EK9",
+              "year_start": 2018,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Citroën_Berlingo"
+            }
+          ]
+        },
+        {
+          "name": "C-Elysée",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": null,
+              "year_start": 2012,
+              "year_end": 2022,
+              "source": "https://en.wikipedia.org/wiki/Citroën_C-Elysée"
+            }
+          ]
+        },
+        {
+          "name": "C1",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": null,
+              "year_start": 2005,
+              "year_end": 2014,
+              "source": "https://en.wikipedia.org/wiki/Citroën_C1"
+            },
+            {
+              "name": "II",
+              "code": "AB40",
+              "year_start": 2014,
+              "year_end": 2022,
+              "source": "https://en.wikipedia.org/wiki/Citroën_C1"
+            }
+          ]
+        },
+        {
+          "name": "C15",
+          "category": "LCV",
+          "generations": [
+            {
+              "name": "I",
+              "code": null,
+              "year_start": 1984,
+              "year_end": 2006,
+              "source": "https://en.wikipedia.org/wiki/Citroën_C15"
+            }
+          ]
+        },
+        {
+          "name": "C3",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": "FC/FN",
+              "year_start": 2002,
+              "year_end": 2010,
+              "source": "https://en.wikipedia.org/wiki/Citroën_C3"
+            },
+            {
+              "name": "II",
+              "code": "SC",
+              "year_start": 2009,
+              "year_end": 2016,
+              "source": "https://en.wikipedia.org/wiki/Citroën_C3"
+            },
+            {
+              "name": "III",
+              "code": "SX/SY",
+              "year_start": 2016,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Citroën_C3"
+            },
+            {
+              "name": "IV",
+              "code": null,
+              "year_start": 2024,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Citroën_C3"
+            }
+          ]
+        },
+        {
+          "name": "C3 Aircross",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": "A88",
+              "year_start": 2017,
+              "year_end": 2024,
+              "source": "https://en.wikipedia.org/wiki/Citroën_C3_Aircross"
+            },
+            {
+              "name": "II",
+              "code": "CC24",
+              "year_start": 2023,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Citroën_C3_Aircross"
+            }
+          ]
+        },
+        {
+          "name": "C4",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": null,
+              "year_start": 2004,
+              "year_end": 2010,
+              "source": "https://en.wikipedia.org/wiki/Citroën_C4"
+            },
+            {
+              "name": "II",
+              "code": "B7",
+              "year_start": 2010,
+              "year_end": 2018,
+              "source": "https://en.wikipedia.org/wiki/Citroën_C4"
+            },
+            {
+              "name": "III",
+              "code": "C41/C43",
+              "year_start": 2020,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Citroën_C4"
+            }
+          ]
+        },
+        {
+          "name": "C4 Aircross",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": null,
+              "year_start": 2012,
+              "year_end": 2017,
+              "source": "https://en.wikipedia.org/wiki/Citroën_C4_Aircross"
+            }
+          ]
+        },
+        {
+          "name": "C4 Cactus",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": null,
+              "year_start": 2014,
+              "year_end": 2020,
+              "source": "https://en.wikipedia.org/wiki/Citroën_C4_Cactus"
+            }
+          ]
+        },
+        {
+          "name": "C5",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": "DC/DE",
+              "year_start": 2000,
+              "year_end": 2007,
+              "source": "https://en.wikipedia.org/wiki/Citroën_C5"
+            },
+            {
+              "name": "II",
+              "code": "RD/TD",
+              "year_start": 2008,
+              "year_end": 2019,
+              "source": "https://en.wikipedia.org/wiki/Citroën_C5"
+            }
+          ]
+        },
+        {
+          "name": "C5 Aircross",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": "C84",
+              "year_start": 2017,
+              "year_end": 2025,
+              "source": "https://en.wikipedia.org/wiki/Citroën_C5_Aircross"
+            },
+            {
+              "name": "II",
+              "code": "CR3",
+              "year_start": 2025,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Citroën_C5_Aircross"
+            }
+          ]
+        },
+        {
+          "name": "Jumpy",
+          "category": "LCV",
+          "generations": [
+            {
+              "name": "I",
+              "code": null,
+              "year_start": 1994,
+              "year_end": 2007,
+              "source": "https://en.wikipedia.org/wiki/Citroën_Jumpy"
+            },
+            {
+              "name": "II",
+              "code": null,
+              "year_start": 2007,
+              "year_end": 2016,
+              "source": "https://en.wikipedia.org/wiki/Citroën_Jumpy"
+            },
+            {
+              "name": "III",
+              "code": "2016",
+              "year_start": 2015,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Citroën_Jumpy"
+            }
+          ]
+        },
+        {
+          "name": "Xsara",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": null,
+              "year_start": 1997,
+              "year_end": 2006,
+              "source": "https://en.wikipedia.org/wiki/Citroën_Xsara"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

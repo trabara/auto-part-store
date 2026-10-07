@@ -1,0 +1,95 @@
+{
+  "format": "vehicle-catalog@1",
+  "market": "TN",
+  "source": {
+    "name": "Wikipedia — DRAFT, review before production",
+    "url": "https://en.wikipedia.org/",
+    "license": "Facts (generation names, codes, production years) from article infoboxes, CC BY-SA 4.0; each generation cites its article.",
+    "retrieved_at": "2026-10-07"
+  },
+  "makes": [
+    {
+      "name": "BYD",
+      "models": [
+        {
+          "name": "Atto 3",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": "SC2E",
+              "year_start": 2022,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/BYD_Atto_3"
+            }
+          ]
+        },
+        {
+          "name": "Dolphin",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": "EA1/EM2E",
+              "year_start": 2021,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/BYD_Dolphin"
+            }
+          ]
+        },
+        {
+          "name": "Sealion 7",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": "UKE",
+              "year_start": 2024,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/BYD_Sealion_7"
+            }
+          ]
+        },
+        {
+          "name": "Song",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": null,
+              "year_start": 2015,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/BYD_Song"
+            }
+          ]
+        },
+        {
+          "name": "Song Plus",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": "SA3",
+              "year_start": 2020,
+              "year_end": 2026,
+              "source": "https://en.wikipedia.org/wiki/BYD_Song_Plus"
+            }
+          ]
+        },
+        {
+          "name": "Tang",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": null,
+              "year_start": 2015,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/BYD_Tang"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

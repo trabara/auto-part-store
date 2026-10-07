@@ -1,0 +1,205 @@
+{
+  "format": "vehicle-catalog@1",
+  "market": "TN",
+  "source": {
+    "name": "Wikipedia — DRAFT, review before production",
+    "url": "https://en.wikipedia.org/",
+    "license": "Facts (generation names, codes, production years) from article infoboxes, CC BY-SA 4.0; each generation cites its article.",
+    "retrieved_at": "2026-10-07"
+  },
+  "makes": [
+    {
+      "name": "Land Rover",
+      "models": [
+        {
+          "name": "Defender",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "Ninety, One Ten and One Two Seven",
+              "code": null,
+              "year_start": 1983,
+              "year_end": 1990,
+              "source": "https://en.wikipedia.org/wiki/Land_Rover_Defender"
+            }
+          ]
+        },
+        {
+          "name": "Discovery",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "Series I",
+              "code": null,
+              "year_start": 1989,
+              "year_end": 1998,
+              "source": "https://en.wikipedia.org/wiki/Land_Rover_Discovery"
+            },
+            {
+              "name": "Series II",
+              "code": "L318",
+              "year_start": 1998,
+              "year_end": 2004,
+              "source": "https://en.wikipedia.org/wiki/Land_Rover_Discovery"
+            },
+            {
+              "name": "3",
+              "code": "L319",
+              "year_start": 2004,
+              "year_end": 2010,
+              "source": "https://en.wikipedia.org/wiki/Land_Rover_Discovery"
+            },
+            {
+              "name": "4",
+              "code": "L319",
+              "year_start": 2009,
+              "year_end": 2016,
+              "source": "https://en.wikipedia.org/wiki/Land_Rover_Discovery"
+            },
+            {
+              "name": "V",
+              "code": "L462",
+              "year_start": 2017,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Land_Rover_Discovery"
+            }
+          ]
+        },
+        {
+          "name": "Discovery Sport",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": "L550",
+              "year_start": 2014,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Land_Rover_Discovery_Sport"
+            }
+          ]
+        },
+        {
+          "name": "Freelander",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": "L314",
+              "year_start": 1997,
+              "year_end": 2006,
+              "source": "https://en.wikipedia.org/wiki/Land_Rover_Freelander"
+            },
+            {
+              "name": "2",
+              "code": "L359",
+              "year_start": 2006,
+              "year_end": 2014,
+              "source": "https://en.wikipedia.org/wiki/Land_Rover_Freelander"
+            }
+          ]
+        },
+        {
+          "name": "Range Rover",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "\"Classic\"",
+              "code": null,
+              "year_start": 1969,
+              "year_end": 1996,
+              "source": "https://en.wikipedia.org/wiki/Range_Rover"
+            },
+            {
+              "name": "P38A",
+              "code": null,
+              "year_start": 1994,
+              "year_end": 2001,
+              "source": "https://en.wikipedia.org/wiki/Range_Rover"
+            },
+            {
+              "name": "L322",
+              "code": null,
+              "year_start": 2001,
+              "year_end": 2012,
+              "source": "https://en.wikipedia.org/wiki/Range_Rover"
+            },
+            {
+              "name": "L405",
+              "code": null,
+              "year_start": 2012,
+              "year_end": 2021,
+              "source": "https://en.wikipedia.org/wiki/Range_Rover"
+            },
+            {
+              "name": "L460",
+              "code": null,
+              "year_start": 2022,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Range_Rover"
+            }
+          ]
+        },
+        {
+          "name": "Range Rover Evoque",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": "L538",
+              "year_start": 2011,
+              "year_end": 2018,
+              "source": "https://en.wikipedia.org/wiki/Range_Rover_Evoque"
+            },
+            {
+              "name": "II",
+              "code": "L551",
+              "year_start": 2018,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Range_Rover_Evoque"
+            }
+          ]
+        },
+        {
+          "name": "Range Rover Sport",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": "L320",
+              "year_start": 2005,
+              "year_end": 2013,
+              "source": "https://en.wikipedia.org/wiki/Range_Rover_Sport"
+            },
+            {
+              "name": "II",
+              "code": "L494",
+              "year_start": 2013,
+              "year_end": 2022,
+              "source": "https://en.wikipedia.org/wiki/Range_Rover_Sport"
+            },
+            {
+              "name": "III",
+              "code": "L461",
+              "year_start": 2022,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Range_Rover_Sport"
+            }
+          ]
+        },
+        {
+          "name": "Range Rover Velar",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": "L560",
+              "year_start": 2017,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Range_Rover_Velar"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

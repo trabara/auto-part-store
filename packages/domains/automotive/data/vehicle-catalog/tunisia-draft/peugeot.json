@@ -1,0 +1,367 @@
+{
+  "format": "vehicle-catalog@1",
+  "market": "TN",
+  "source": {
+    "name": "Wikipedia — DRAFT, review before production",
+    "url": "https://en.wikipedia.org/",
+    "license": "Facts (generation names, codes, production years) from article infoboxes, CC BY-SA 4.0; each generation cites its article.",
+    "retrieved_at": "2026-10-07"
+  },
+  "makes": [
+    {
+      "name": "Peugeot",
+      "models": [
+        {
+          "name": "106",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": null,
+              "year_start": 1991,
+              "year_end": 2003,
+              "source": "https://en.wikipedia.org/wiki/Peugeot_106"
+            }
+          ]
+        },
+        {
+          "name": "107",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": null,
+              "year_start": 2005,
+              "year_end": 2014,
+              "source": "https://en.wikipedia.org/wiki/Peugeot_107"
+            }
+          ]
+        },
+        {
+          "name": "2008",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": "A94",
+              "year_start": 2013,
+              "year_end": 2023,
+              "source": "https://en.wikipedia.org/wiki/Peugeot_2008"
+            },
+            {
+              "name": "II",
+              "code": "P24",
+              "year_start": 2019,
+              "year_end": 2019,
+              "source": "https://en.wikipedia.org/wiki/Peugeot_2008"
+            }
+          ]
+        },
+        {
+          "name": "205",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": null,
+              "year_start": 1983,
+              "year_end": 1999,
+              "source": "https://en.wikipedia.org/wiki/Peugeot_205"
+            }
+          ]
+        },
+        {
+          "name": "206",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": null,
+              "year_start": 1998,
+              "year_end": 2012,
+              "source": "https://en.wikipedia.org/wiki/Peugeot_206"
+            }
+          ]
+        },
+        {
+          "name": "207",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": null,
+              "year_start": 2006,
+              "year_end": 2015,
+              "source": "https://en.wikipedia.org/wiki/Peugeot_207"
+            }
+          ]
+        },
+        {
+          "name": "208",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": "A9",
+              "year_start": 2012,
+              "year_end": 2019,
+              "source": "https://en.wikipedia.org/wiki/Peugeot_208"
+            },
+            {
+              "name": "II",
+              "code": "P21",
+              "year_start": 2019,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Peugeot_208"
+            }
+          ]
+        },
+        {
+          "name": "3008",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": "T84",
+              "year_start": 2008,
+              "year_end": 2016,
+              "source": "https://en.wikipedia.org/wiki/Peugeot_3008"
+            },
+            {
+              "name": "II",
+              "code": "P84",
+              "year_start": 2016,
+              "year_end": 2024,
+              "source": "https://en.wikipedia.org/wiki/Peugeot_3008"
+            },
+            {
+              "name": "III",
+              "code": "P64",
+              "year_start": 2024,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Peugeot_3008"
+            }
+          ]
+        },
+        {
+          "name": "301",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": null,
+              "year_start": 2012,
+              "year_end": 2021,
+              "source": "https://en.wikipedia.org/wiki/Peugeot_301_(2012)"
+            }
+          ]
+        },
+        {
+          "name": "306",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "Phase 1",
+              "code": null,
+              "year_start": 1993,
+              "year_end": 1997,
+              "source": "https://en.wikipedia.org/wiki/Peugeot_306"
+            },
+            {
+              "name": "Phase 2 (N5",
+              "code": null,
+              "year_start": 1997,
+              "year_end": 1999,
+              "source": "https://en.wikipedia.org/wiki/Peugeot_306"
+            },
+            {
+              "name": "Phase 3",
+              "code": null,
+              "year_start": 1999,
+              "year_end": 2002,
+              "source": "https://en.wikipedia.org/wiki/Peugeot_306"
+            }
+          ]
+        },
+        {
+          "name": "307",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": null,
+              "year_start": 2001,
+              "year_end": 2008,
+              "source": "https://en.wikipedia.org/wiki/Peugeot_307"
+            }
+          ]
+        },
+        {
+          "name": "308",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": "T7",
+              "year_start": 2007,
+              "year_end": 2013,
+              "source": "https://en.wikipedia.org/wiki/Peugeot_308"
+            },
+            {
+              "name": "II",
+              "code": "T9",
+              "year_start": 2013,
+              "year_end": 2021,
+              "source": "https://en.wikipedia.org/wiki/Peugeot_308"
+            },
+            {
+              "name": "III",
+              "code": "P5",
+              "year_start": 2021,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Peugeot_308"
+            }
+          ]
+        },
+        {
+          "name": "4008",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": null,
+              "year_start": 2012,
+              "year_end": 2017,
+              "source": "https://en.wikipedia.org/wiki/Peugeot_4008"
+            }
+          ]
+        },
+        {
+          "name": "404",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": null,
+              "year_start": 1960,
+              "year_end": 1975,
+              "source": "https://en.wikipedia.org/wiki/Peugeot_404"
+            }
+          ]
+        },
+        {
+          "name": "405",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": null,
+              "year_start": 1987,
+              "year_end": 1997,
+              "source": "https://en.wikipedia.org/wiki/Peugeot_405"
+            }
+          ]
+        },
+        {
+          "name": "406",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": null,
+              "year_start": 1995,
+              "year_end": 2004,
+              "source": "https://en.wikipedia.org/wiki/Peugeot_406"
+            }
+          ]
+        },
+        {
+          "name": "407",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": null,
+              "year_start": 2004,
+              "year_end": 2011,
+              "source": "https://en.wikipedia.org/wiki/Peugeot_407"
+            }
+          ]
+        },
+        {
+          "name": "5008",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": "T87",
+              "year_start": 2009,
+              "year_end": 2016,
+              "source": "https://en.wikipedia.org/wiki/Peugeot_5008"
+            },
+            {
+              "name": "II",
+              "code": "P87",
+              "year_start": 2017,
+              "year_end": 2024,
+              "source": "https://en.wikipedia.org/wiki/Peugeot_5008"
+            },
+            {
+              "name": "III",
+              "code": "P67",
+              "year_start": 2024,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Peugeot_5008"
+            }
+          ]
+        },
+        {
+          "name": "504",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": null,
+              "year_start": 1968,
+              "year_end": 1968,
+              "source": "https://en.wikipedia.org/wiki/Peugeot_504"
+            }
+          ]
+        },
+        {
+          "name": "508",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": "W23",
+              "year_start": 2011,
+              "year_end": 2018,
+              "source": "https://en.wikipedia.org/wiki/Peugeot_508"
+            },
+            {
+              "name": "II",
+              "code": "R83",
+              "year_start": 2018,
+              "year_end": 2025,
+              "source": "https://en.wikipedia.org/wiki/Peugeot_508"
+            }
+          ]
+        },
+        {
+          "name": "Landtrek",
+          "category": "LCV",
+          "generations": [
+            {
+              "name": "I",
+              "code": null,
+              "year_start": 2020,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Peugeot_Landtrek"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

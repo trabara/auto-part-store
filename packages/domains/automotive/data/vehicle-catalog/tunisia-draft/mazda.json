@@ -1,0 +1,200 @@
+{
+  "format": "vehicle-catalog@1",
+  "market": "TN",
+  "source": {
+    "name": "Wikipedia — DRAFT, review before production",
+    "url": "https://en.wikipedia.org/",
+    "license": "Facts (generation names, codes, production years) from article infoboxes, CC BY-SA 4.0; each generation cites its article.",
+    "retrieved_at": "2026-10-07"
+  },
+  "makes": [
+    {
+      "name": "Mazda",
+      "models": [
+        {
+          "name": "2",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": "DY",
+              "year_start": 2002,
+              "year_end": 2007,
+              "source": "https://en.wikipedia.org/wiki/Mazda2"
+            },
+            {
+              "name": "II",
+              "code": "DE/DH",
+              "year_start": 2007,
+              "year_end": 2014,
+              "source": "https://en.wikipedia.org/wiki/Mazda2"
+            },
+            {
+              "name": "III",
+              "code": "DJ/DL",
+              "year_start": 2014,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Mazda2"
+            }
+          ]
+        },
+        {
+          "name": "3",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": "BK",
+              "year_start": 2003,
+              "year_end": 2008,
+              "source": "https://en.wikipedia.org/wiki/Mazda3"
+            },
+            {
+              "name": "II",
+              "code": "BL",
+              "year_start": 2008,
+              "year_end": 2013,
+              "source": "https://en.wikipedia.org/wiki/Mazda3"
+            },
+            {
+              "name": "III",
+              "code": "BM/BN/BY",
+              "year_start": 2013,
+              "year_end": 2018,
+              "source": "https://en.wikipedia.org/wiki/Mazda3"
+            },
+            {
+              "name": "IV",
+              "code": "BP",
+              "year_start": 2019,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Mazda3"
+            }
+          ]
+        },
+        {
+          "name": "6",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": "GG1/GY",
+              "year_start": 2002,
+              "year_end": 2008,
+              "source": "https://en.wikipedia.org/wiki/Mazda6"
+            },
+            {
+              "name": "II",
+              "code": "GH1/GH2/GZ",
+              "year_start": 2007,
+              "year_end": 2012,
+              "source": "https://en.wikipedia.org/wiki/Mazda6"
+            },
+            {
+              "name": "III",
+              "code": "GJ1/GL",
+              "year_start": 2012,
+              "year_end": 2024,
+              "source": "https://en.wikipedia.org/wiki/Mazda6"
+            }
+          ]
+        },
+        {
+          "name": "B-Series",
+          "category": "LCV",
+          "generations": [
+            {
+              "name": "I",
+              "code": null,
+              "year_start": 1961,
+              "year_end": 1965,
+              "source": "https://en.wikipedia.org/wiki/Mazda_B_series"
+            },
+            {
+              "name": "II",
+              "code": null,
+              "year_start": 1965,
+              "year_end": 1977,
+              "source": "https://en.wikipedia.org/wiki/Mazda_B_series"
+            },
+            {
+              "name": "III",
+              "code": null,
+              "year_start": 1977,
+              "year_end": 1985,
+              "source": "https://en.wikipedia.org/wiki/Mazda_B_series"
+            },
+            {
+              "name": "IV",
+              "code": null,
+              "year_start": 1985,
+              "year_end": 1998,
+              "source": "https://en.wikipedia.org/wiki/Mazda_B_series"
+            },
+            {
+              "name": "V",
+              "code": null,
+              "year_start": 1998,
+              "year_end": 2006,
+              "source": "https://en.wikipedia.org/wiki/Mazda_B_series"
+            }
+          ]
+        },
+        {
+          "name": "BT-50",
+          "category": "LCV",
+          "generations": [
+            {
+              "name": "I",
+              "code": "UN",
+              "year_start": 2006,
+              "year_end": 2011,
+              "source": "https://en.wikipedia.org/wiki/Mazda_BT-50"
+            },
+            {
+              "name": "II",
+              "code": "UP/UR",
+              "year_start": 2011,
+              "year_end": 2020,
+              "source": "https://en.wikipedia.org/wiki/Mazda_BT-50"
+            },
+            {
+              "name": "III",
+              "code": "TF",
+              "year_start": 2020,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Mazda_BT-50"
+            }
+          ]
+        },
+        {
+          "name": "CX-5",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": "KE",
+              "year_start": 2012,
+              "year_end": 2017,
+              "source": "https://en.wikipedia.org/wiki/Mazda_CX-5"
+            },
+            {
+              "name": "II",
+              "code": "KF",
+              "year_start": 2016,
+              "year_end": 2025,
+              "source": "https://en.wikipedia.org/wiki/Mazda_CX-5"
+            },
+            {
+              "name": "III",
+              "code": "KM",
+              "year_start": 2025,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Mazda_CX-5"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

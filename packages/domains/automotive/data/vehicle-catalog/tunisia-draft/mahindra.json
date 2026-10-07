@@ -1,0 +1,76 @@
+{
+  "format": "vehicle-catalog@1",
+  "market": "TN",
+  "source": {
+    "name": "Wikipedia — DRAFT, review before production",
+    "url": "https://en.wikipedia.org/",
+    "license": "Facts (generation names, codes, production years) from article infoboxes, CC BY-SA 4.0; each generation cites its article.",
+    "retrieved_at": "2026-10-07"
+  },
+  "makes": [
+    {
+      "name": "Mahindra",
+      "models": [
+        {
+          "name": "KUV100",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": null,
+              "year_start": 2016,
+              "year_end": 2023,
+              "source": "https://en.wikipedia.org/wiki/Mahindra_KUV100"
+            }
+          ]
+        },
+        {
+          "name": "Scorpio",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "/Scorpio-N",
+              "code": null,
+              "year_start": 2002,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Mahindra_Scorpio"
+            },
+            {
+              "name": "N",
+              "code": null,
+              "year_start": 2022,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Mahindra_Scorpio"
+            }
+          ]
+        },
+        {
+          "name": "XUV 3XO",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": "S220",
+              "year_start": 2024,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Mahindra_XUV_3XO"
+            }
+          ]
+        },
+        {
+          "name": "XUV300",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": "S201/S210",
+              "year_start": 2019,
+              "year_end": 2024,
+              "source": "https://en.wikipedia.org/wiki/Mahindra_XUV300"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

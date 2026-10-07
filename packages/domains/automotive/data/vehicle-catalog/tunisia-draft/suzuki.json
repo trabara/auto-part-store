@@ -1,0 +1,199 @@
+{
+  "format": "vehicle-catalog@1",
+  "market": "TN",
+  "source": {
+    "name": "Wikipedia — DRAFT, review before production",
+    "url": "https://en.wikipedia.org/",
+    "license": "Facts (generation names, codes, production years) from article infoboxes, CC BY-SA 4.0; each generation cites its article.",
+    "retrieved_at": "2026-10-07"
+  },
+  "makes": [
+    {
+      "name": "Suzuki",
+      "models": [
+        {
+          "name": "Celerio",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "II",
+              "code": "FE",
+              "year_start": 2014,
+              "year_end": 2021,
+              "source": "https://en.wikipedia.org/wiki/Suzuki_Celerio"
+            },
+            {
+              "name": "III",
+              "code": null,
+              "year_start": 2021,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Suzuki_Celerio"
+            }
+          ]
+        },
+        {
+          "name": "Ciaz",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": "AVB",
+              "year_start": 2014,
+              "year_end": 2025,
+              "source": "https://en.wikipedia.org/wiki/Suzuki_Ciaz"
+            }
+          ]
+        },
+        {
+          "name": "Dzire",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": null,
+              "year_start": 2008,
+              "year_end": 2012,
+              "source": "https://en.wikipedia.org/wiki/Suzuki_Dzire"
+            },
+            {
+              "name": "II",
+              "code": null,
+              "year_start": 2011,
+              "year_end": 2017,
+              "source": "https://en.wikipedia.org/wiki/Suzuki_Dzire"
+            },
+            {
+              "name": "III",
+              "code": null,
+              "year_start": 2017,
+              "year_end": 2024,
+              "source": "https://en.wikipedia.org/wiki/Suzuki_Dzire"
+            },
+            {
+              "name": "IV",
+              "code": null,
+              "year_start": 2024,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Suzuki_Dzire"
+            }
+          ]
+        },
+        {
+          "name": "Fronx",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": "WDB3S/WEB3S",
+              "year_start": 2023,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Suzuki_Fronx"
+            }
+          ]
+        },
+        {
+          "name": "Jimny",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": "LJ10/SJ20",
+              "year_start": 1970,
+              "year_end": 1981,
+              "source": "https://en.wikipedia.org/wiki/Suzuki_Jimny"
+            },
+            {
+              "name": "II",
+              "code": "SJ30/40/50",
+              "year_start": 1981,
+              "year_end": 1998,
+              "source": "https://en.wikipedia.org/wiki/Suzuki_Jimny"
+            },
+            {
+              "name": "III",
+              "code": "JB23/JB33/JB43",
+              "year_start": 1998,
+              "year_end": 2018,
+              "source": "https://en.wikipedia.org/wiki/Suzuki_Jimny"
+            },
+            {
+              "name": "IV",
+              "code": "JB64W/JB74W/JC74W",
+              "year_start": 2018,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Suzuki_Jimny"
+            }
+          ]
+        },
+        {
+          "name": "Swift",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": "RS",
+              "year_start": 2004,
+              "year_end": 2010,
+              "source": "https://en.wikipedia.org/wiki/Suzuki_Swift"
+            },
+            {
+              "name": "II",
+              "code": "AZG",
+              "year_start": 2010,
+              "year_end": 2017,
+              "source": "https://en.wikipedia.org/wiki/Suzuki_Swift"
+            },
+            {
+              "name": "III",
+              "code": "A2L",
+              "year_start": 2016,
+              "year_end": 2023,
+              "source": "https://en.wikipedia.org/wiki/Suzuki_Swift"
+            },
+            {
+              "name": "IV",
+              "code": "AOL",
+              "year_start": 2023,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Suzuki_Swift"
+            }
+          ]
+        },
+        {
+          "name": "Vitara",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": "ET/TA",
+              "year_start": 1988,
+              "year_end": 1998,
+              "source": "https://en.wikipedia.org/wiki/Suzuki_Vitara"
+            },
+            {
+              "name": "II",
+              "code": "FT/GT",
+              "year_start": 1998,
+              "year_end": 2005,
+              "source": "https://en.wikipedia.org/wiki/Suzuki_Vitara"
+            },
+            {
+              "name": "III",
+              "code": "JT",
+              "year_start": 2005,
+              "year_end": 2017,
+              "source": "https://en.wikipedia.org/wiki/Suzuki_Vitara"
+            },
+            {
+              "name": "IV",
+              "code": "LY",
+              "year_start": 2015,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Suzuki_Vitara"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

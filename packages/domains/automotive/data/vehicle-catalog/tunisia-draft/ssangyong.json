@@ -1,0 +1,118 @@
+{
+  "format": "vehicle-catalog@1",
+  "market": "TN",
+  "source": {
+    "name": "Wikipedia — DRAFT, review before production",
+    "url": "https://en.wikipedia.org/",
+    "license": "Facts (generation names, codes, production years) from article infoboxes, CC BY-SA 4.0; each generation cites its article.",
+    "retrieved_at": "2026-10-07"
+  },
+  "makes": [
+    {
+      "name": "SsangYong",
+      "models": [
+        {
+          "name": "Korando",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": null,
+              "year_start": 1983,
+              "year_end": 1984,
+              "source": "https://en.wikipedia.org/wiki/SsangYong_Korando"
+            },
+            {
+              "name": "II",
+              "code": null,
+              "year_start": 1996,
+              "year_end": 2006,
+              "source": "https://en.wikipedia.org/wiki/SsangYong_Korando"
+            },
+            {
+              "name": "III",
+              "code": "C200",
+              "year_start": 2010,
+              "year_end": 2019,
+              "source": "https://en.wikipedia.org/wiki/SsangYong_Korando"
+            },
+            {
+              "name": "IV",
+              "code": "C300",
+              "year_start": 2019,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/SsangYong_Korando"
+            }
+          ]
+        },
+        {
+          "name": "Musso",
+          "category": "LCV",
+          "generations": [
+            {
+              "name": "KGM Musso",
+              "code": null,
+              "year_start": 1993,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/SsangYong_Musso"
+            },
+            {
+              "name": "SUV",
+              "code": null,
+              "year_start": 1993,
+              "year_end": 2005,
+              "source": "https://en.wikipedia.org/wiki/SsangYong_Musso"
+            },
+            {
+              "name": "Sports",
+              "code": null,
+              "year_start": 2002,
+              "year_end": 2006,
+              "source": "https://en.wikipedia.org/wiki/SsangYong_Musso"
+            },
+            {
+              "name": "/KGM Musso (pick-up",
+              "code": null,
+              "year_start": 2018,
+              "year_end": 2026,
+              "source": "https://en.wikipedia.org/wiki/SsangYong_Musso"
+            }
+          ]
+        },
+        {
+          "name": "Rexton",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": "Y200",
+              "year_start": 2001,
+              "year_end": 2017,
+              "source": "https://en.wikipedia.org/wiki/SsangYong_Rexton"
+            },
+            {
+              "name": "II",
+              "code": "Y400",
+              "year_start": 2017,
+              "year_end": 2018,
+              "source": "https://en.wikipedia.org/wiki/SsangYong_Rexton"
+            }
+          ]
+        },
+        {
+          "name": "Tivoli",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": null,
+              "year_start": 2015,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/KGM_Tivoli"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

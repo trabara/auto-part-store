@@ -1,0 +1,104 @@
+{
+  "format": "vehicle-catalog@1",
+  "market": "TN",
+  "source": {
+    "name": "Wikipedia — DRAFT, review before production",
+    "url": "https://en.wikipedia.org/",
+    "license": "Facts (generation names, codes, production years) from article infoboxes, CC BY-SA 4.0; each generation cites its article.",
+    "retrieved_at": "2026-10-07"
+  },
+  "makes": [
+    {
+      "name": "Jaguar",
+      "models": [
+        {
+          "name": "E-Pace",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "X540",
+              "code": "X540",
+              "year_start": 2017,
+              "year_end": 2024,
+              "source": "https://en.wikipedia.org/wiki/Jaguar_E-Pace"
+            }
+          ]
+        },
+        {
+          "name": "F-Pace",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": "X761",
+              "year_start": 2016,
+              "year_end": 2025,
+              "source": "https://en.wikipedia.org/wiki/Jaguar_F-Pace"
+            }
+          ]
+        },
+        {
+          "name": "X-Type",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": "X400",
+              "year_start": 2001,
+              "year_end": 2009,
+              "source": "https://en.wikipedia.org/wiki/Jaguar_X-Type"
+            }
+          ]
+        },
+        {
+          "name": "XJ",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "Series I",
+              "code": null,
+              "year_start": 1968,
+              "year_end": 1973,
+              "source": "https://en.wikipedia.org/wiki/Jaguar_XJ"
+            },
+            {
+              "name": "Series II",
+              "code": null,
+              "year_start": 1973,
+              "year_end": 1979,
+              "source": "https://en.wikipedia.org/wiki/Jaguar_XJ"
+            },
+            {
+              "name": "Coupé",
+              "code": null,
+              "year_start": 1975,
+              "year_end": 1978,
+              "source": "https://en.wikipedia.org/wiki/Jaguar_XJ"
+            },
+            {
+              "name": "Series III",
+              "code": null,
+              "year_start": 1979,
+              "year_end": 1979,
+              "source": "https://en.wikipedia.org/wiki/Jaguar_XJ"
+            },
+            {
+              "name": "X350 and X358",
+              "code": null,
+              "year_start": 2002,
+              "year_end": 2009,
+              "source": "https://en.wikipedia.org/wiki/Jaguar_XJ"
+            },
+            {
+              "name": "X351",
+              "code": null,
+              "year_start": 2010,
+              "year_end": 2019,
+              "source": "https://en.wikipedia.org/wiki/Jaguar_XJ"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,158 @@
+{
+  "format": "vehicle-catalog@1",
+  "market": "TN",
+  "source": {
+    "name": "Wikipedia — DRAFT, review before production",
+    "url": "https://en.wikipedia.org/",
+    "license": "Facts (generation names, codes, production years) from article infoboxes, CC BY-SA 4.0; each generation cites its article.",
+    "retrieved_at": "2026-10-07"
+  },
+  "makes": [
+    {
+      "name": "Skoda",
+      "models": [
+        {
+          "name": "Fabia",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "Mk1",
+              "code": null,
+              "year_start": 1999,
+              "year_end": 2009,
+              "source": "https://en.wikipedia.org/wiki/Škoda_Fabia"
+            },
+            {
+              "name": "Mk2",
+              "code": null,
+              "year_start": 2007,
+              "year_end": 2014,
+              "source": "https://en.wikipedia.org/wiki/Škoda_Fabia"
+            },
+            {
+              "name": "Mk3 (NJ",
+              "code": null,
+              "year_start": 2014,
+              "year_end": 2022,
+              "source": "https://en.wikipedia.org/wiki/Škoda_Fabia"
+            },
+            {
+              "name": "Mk4",
+              "code": null,
+              "year_start": 2021,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Škoda_Fabia"
+            }
+          ]
+        },
+        {
+          "name": "Kamiq",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": "NW4",
+              "year_start": 2019,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Škoda_Kamiq"
+            }
+          ]
+        },
+        {
+          "name": "Kushaq",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": null,
+              "year_start": 2021,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Škoda_Kushaq"
+            }
+          ]
+        },
+        {
+          "name": "Octavia",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "Mk1",
+              "code": "1U",
+              "year_start": 1996,
+              "year_end": 2010,
+              "source": "https://en.wikipedia.org/wiki/Škoda_Octavia"
+            },
+            {
+              "name": "Mk2",
+              "code": "1Z",
+              "year_start": 2004,
+              "year_end": 2013,
+              "source": "https://en.wikipedia.org/wiki/Škoda_Octavia"
+            },
+            {
+              "name": "Mk3",
+              "code": "5E",
+              "year_start": 2012,
+              "year_end": 2019,
+              "source": "https://en.wikipedia.org/wiki/Škoda_Octavia"
+            },
+            {
+              "name": "Mk4",
+              "code": "NX",
+              "year_start": 2019,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Škoda_Octavia"
+            }
+          ]
+        },
+        {
+          "name": "Scala",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": null,
+              "year_start": 2019,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Škoda_Scala"
+            }
+          ]
+        },
+        {
+          "name": "Superb",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": "3U",
+              "year_start": 2001,
+              "year_end": 2008,
+              "source": "https://en.wikipedia.org/wiki/Škoda_Superb"
+            },
+            {
+              "name": "II",
+              "code": "3T",
+              "year_start": 2008,
+              "year_end": 2015,
+              "source": "https://en.wikipedia.org/wiki/Škoda_Superb"
+            },
+            {
+              "name": "III",
+              "code": "3V",
+              "year_start": 2015,
+              "year_end": 2024,
+              "source": "https://en.wikipedia.org/wiki/Škoda_Superb"
+            },
+            {
+              "name": "IV",
+              "code": "3Y",
+              "year_start": 2023,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Škoda_Superb"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

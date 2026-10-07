@@ -1,0 +1,136 @@
+{
+  "format": "vehicle-catalog@1",
+  "market": "TN",
+  "source": {
+    "name": "Wikipedia — DRAFT, review before production",
+    "url": "https://en.wikipedia.org/",
+    "license": "Facts (generation names, codes, production years) from article infoboxes, CC BY-SA 4.0; each generation cites its article.",
+    "retrieved_at": "2026-10-07"
+  },
+  "makes": [
+    {
+      "name": "Volvo",
+      "models": [
+        {
+          "name": "ES90",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": "V551",
+              "year_start": 2025,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Volvo_ES90"
+            }
+          ]
+        },
+        {
+          "name": "EX30",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": null,
+              "year_start": 2023,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Volvo_EX30"
+            }
+          ]
+        },
+        {
+          "name": "EX90",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": "V536",
+              "year_start": 2024,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Volvo_EX90"
+            }
+          ]
+        },
+        {
+          "name": "S60",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "first generation",
+              "code": null,
+              "year_start": 2000,
+              "year_end": 2009,
+              "source": "https://en.wikipedia.org/wiki/Volvo_S60"
+            },
+            {
+              "name": "second generation",
+              "code": null,
+              "year_start": 2010,
+              "year_end": 2018,
+              "source": "https://en.wikipedia.org/wiki/Volvo_S60"
+            },
+            {
+              "name": "third generation",
+              "code": null,
+              "year_start": 2018,
+              "year_end": 2024,
+              "source": "https://en.wikipedia.org/wiki/Volvo_S60"
+            }
+          ]
+        },
+        {
+          "name": "XC40",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": null,
+              "year_start": 2017,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Volvo_XC40"
+            }
+          ]
+        },
+        {
+          "name": "XC60",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": null,
+              "year_start": 2008,
+              "year_end": 2017,
+              "source": "https://en.wikipedia.org/wiki/Volvo_XC60"
+            },
+            {
+              "name": "II",
+              "code": null,
+              "year_start": 2017,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Volvo_XC60"
+            }
+          ]
+        },
+        {
+          "name": "XC90",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": null,
+              "year_start": 2002,
+              "year_end": 2014,
+              "source": "https://en.wikipedia.org/wiki/Volvo_XC90"
+            },
+            {
+              "name": "II",
+              "code": null,
+              "year_start": 2015,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Volvo_XC90"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

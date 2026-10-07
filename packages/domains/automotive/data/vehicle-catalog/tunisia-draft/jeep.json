@@ -1,0 +1,104 @@
+{
+  "format": "vehicle-catalog@1",
+  "market": "TN",
+  "source": {
+    "name": "Wikipedia — DRAFT, review before production",
+    "url": "https://en.wikipedia.org/",
+    "license": "Facts (generation names, codes, production years) from article infoboxes, CC BY-SA 4.0; each generation cites its article.",
+    "retrieved_at": "2026-10-07"
+  },
+  "makes": [
+    {
+      "name": "Jeep",
+      "models": [
+        {
+          "name": "Compass",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": null,
+              "year_start": 2006,
+              "year_end": 2016,
+              "source": "https://en.wikipedia.org/wiki/Jeep_Compass"
+            },
+            {
+              "name": "II",
+              "code": null,
+              "year_start": 2016,
+              "year_end": 2026,
+              "source": "https://en.wikipedia.org/wiki/Jeep_Compass"
+            },
+            {
+              "name": "III",
+              "code": "J4U/J4D",
+              "year_start": 2025,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Jeep_Compass"
+            }
+          ]
+        },
+        {
+          "name": "Grand Cherokee",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "V",
+              "code": "WL74/WL75",
+              "year_start": 2021,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Jeep_Grand_Cherokee"
+            }
+          ]
+        },
+        {
+          "name": "Renegade",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": null,
+              "year_start": 2014,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Jeep_Renegade"
+            }
+          ]
+        },
+        {
+          "name": "Wrangler",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "YJ",
+              "code": null,
+              "year_start": 1986,
+              "year_end": 1995,
+              "source": "https://en.wikipedia.org/wiki/Jeep_Wrangler"
+            },
+            {
+              "name": "TJ",
+              "code": null,
+              "year_start": 1996,
+              "year_end": 2006,
+              "source": "https://en.wikipedia.org/wiki/Jeep_Wrangler"
+            },
+            {
+              "name": "JK",
+              "code": null,
+              "year_start": 2006,
+              "year_end": 2018,
+              "source": "https://en.wikipedia.org/wiki/Jeep_Wrangler"
+            },
+            {
+              "name": "JL",
+              "code": null,
+              "year_start": 2017,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Jeep_Wrangler"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

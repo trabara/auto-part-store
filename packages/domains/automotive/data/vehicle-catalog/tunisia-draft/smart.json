@@ -1,0 +1,37 @@
+{
+  "format": "vehicle-catalog@1",
+  "market": "TN",
+  "source": {
+    "name": "Wikipedia — DRAFT, review before production",
+    "url": "https://en.wikipedia.org/",
+    "license": "Facts (generation names, codes, production years) from article infoboxes, CC BY-SA 4.0; each generation cites its article.",
+    "retrieved_at": "2026-10-07"
+  },
+  "makes": [
+    {
+      "name": "Smart",
+      "models": [
+        {
+          "name": "ForFour",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": "W454",
+              "year_start": 2003,
+              "year_end": 2006,
+              "source": "https://en.wikipedia.org/wiki/Smart_Forfour"
+            },
+            {
+              "name": "II",
+              "code": "W453",
+              "year_start": 2014,
+              "year_end": 2019,
+              "source": "https://en.wikipedia.org/wiki/Smart_Forfour"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

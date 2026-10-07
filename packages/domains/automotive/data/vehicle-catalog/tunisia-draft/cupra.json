@@ -1,0 +1,43 @@
+{
+  "format": "vehicle-catalog@1",
+  "market": "TN",
+  "source": {
+    "name": "Wikipedia — DRAFT, review before production",
+    "url": "https://en.wikipedia.org/",
+    "license": "Facts (generation names, codes, production years) from article infoboxes, CC BY-SA 4.0; each generation cites its article.",
+    "retrieved_at": "2026-10-07"
+  },
+  "makes": [
+    {
+      "name": "Cupra",
+      "models": [
+        {
+          "name": "Formentor",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": "SE316",
+              "year_start": 2020,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Cupra_Formentor"
+            }
+          ]
+        },
+        {
+          "name": "Terramar",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": null,
+              "year_start": 2024,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Cupra_Terramar"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

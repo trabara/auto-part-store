@@ -1,0 +1,137 @@
+{
+  "format": "vehicle-catalog@1",
+  "market": "TN",
+  "source": {
+    "name": "Wikipedia — DRAFT, review before production",
+    "url": "https://en.wikipedia.org/",
+    "license": "Facts (generation names, codes, production years) from article infoboxes, CC BY-SA 4.0; each generation cites its article.",
+    "retrieved_at": "2026-10-07"
+  },
+  "makes": [
+    {
+      "name": "Porsche",
+      "models": [
+        {
+          "name": "911",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": null,
+              "year_start": 1964,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Porsche_911"
+            }
+          ]
+        },
+        {
+          "name": "Boxster",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "; Porsche Cayman ; Porsche 718",
+              "code": null,
+              "year_start": 1996,
+              "year_end": 2025,
+              "source": "https://en.wikipedia.org/wiki/Porsche_Boxster_and_Cayman"
+            }
+          ]
+        },
+        {
+          "name": "Cayenne",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": "9PA",
+              "year_start": 2002,
+              "year_end": 2009,
+              "source": "https://en.wikipedia.org/wiki/Porsche_Cayenne"
+            },
+            {
+              "name": "II",
+              "code": "92A",
+              "year_start": 2010,
+              "year_end": 2017,
+              "source": "https://en.wikipedia.org/wiki/Porsche_Cayenne"
+            },
+            {
+              "name": "III",
+              "code": "9YA/9YB",
+              "year_start": 2017,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Porsche_Cayenne"
+            },
+            {
+              "name": "IV",
+              "code": "X1A/X1B",
+              "year_start": 2026,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Porsche_Cayenne"
+            }
+          ]
+        },
+        {
+          "name": "Macan",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": "95B",
+              "year_start": 2014,
+              "year_end": 2026,
+              "source": "https://en.wikipedia.org/wiki/Porsche_Macan"
+            },
+            {
+              "name": "II",
+              "code": "XAB",
+              "year_start": 2024,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Porsche_Macan"
+            }
+          ]
+        },
+        {
+          "name": "Panamera",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": "970",
+              "year_start": 2009,
+              "year_end": 2016,
+              "source": "https://en.wikipedia.org/wiki/Porsche_Panamera"
+            },
+            {
+              "name": "II",
+              "code": "971",
+              "year_start": 2016,
+              "year_end": 2024,
+              "source": "https://en.wikipedia.org/wiki/Porsche_Panamera"
+            },
+            {
+              "name": "III",
+              "code": "976",
+              "year_start": 2024,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Porsche_Panamera"
+            }
+          ]
+        },
+        {
+          "name": "Taycan",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": "9J1/II",
+              "year_start": 2019,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Porsche_Taycan"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

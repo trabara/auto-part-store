@@ -1,0 +1,111 @@
+{
+  "format": "vehicle-catalog@1",
+  "market": "TN",
+  "source": {
+    "name": "Wikipedia — DRAFT, review before production",
+    "url": "https://en.wikipedia.org/",
+    "license": "Facts (generation names, codes, production years) from article infoboxes, CC BY-SA 4.0; each generation cites its article.",
+    "retrieved_at": "2026-10-07"
+  },
+  "makes": [
+    {
+      "name": "Dacia",
+      "models": [
+        {
+          "name": "Dokker",
+          "category": "LCV",
+          "generations": [
+            {
+              "name": "Renault Express",
+              "code": null,
+              "year_start": 2021,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Dacia_Dokker"
+            }
+          ]
+        },
+        {
+          "name": "Duster",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": "HS",
+              "year_start": 2010,
+              "year_end": 2017,
+              "source": "https://en.wikipedia.org/wiki/Dacia_Duster"
+            },
+            {
+              "name": "II",
+              "code": "HM",
+              "year_start": 2017,
+              "year_end": 2024,
+              "source": "https://en.wikipedia.org/wiki/Dacia_Duster"
+            },
+            {
+              "name": "III",
+              "code": "P1310",
+              "year_start": 2023,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Dacia_Duster"
+            }
+          ]
+        },
+        {
+          "name": "Logan",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": null,
+              "year_start": 2004,
+              "year_end": 2012,
+              "source": "https://en.wikipedia.org/wiki/Dacia_Logan"
+            },
+            {
+              "name": "II",
+              "code": null,
+              "year_start": 2012,
+              "year_end": 2020,
+              "source": "https://en.wikipedia.org/wiki/Dacia_Logan"
+            },
+            {
+              "name": "III",
+              "code": "LJI/LJF",
+              "year_start": 2020,
+              "year_end": 2021,
+              "source": "https://en.wikipedia.org/wiki/Dacia_Logan"
+            }
+          ]
+        },
+        {
+          "name": "Sandero",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": null,
+              "year_start": 2007,
+              "year_end": 2014,
+              "source": "https://en.wikipedia.org/wiki/Dacia_Sandero"
+            },
+            {
+              "name": "II",
+              "code": null,
+              "year_start": 2012,
+              "year_end": 2020,
+              "source": "https://en.wikipedia.org/wiki/Dacia_Sandero"
+            },
+            {
+              "name": "III",
+              "code": "BJI",
+              "year_start": 2020,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Dacia_Sandero"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,63 @@
+{
+  "format": "vehicle-catalog@1",
+  "market": "TN",
+  "source": {
+    "name": "Wikipedia — DRAFT, review before production",
+    "url": "https://en.wikipedia.org/",
+    "license": "Facts (generation names, codes, production years) from article infoboxes, CC BY-SA 4.0; each generation cites its article.",
+    "retrieved_at": "2026-10-07"
+  },
+  "makes": [
+    {
+      "name": "Voyah",
+      "models": [
+        {
+          "name": "Courage",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": null,
+              "year_start": 2024,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Voyah_Courage"
+            }
+          ]
+        },
+        {
+          "name": "Dream",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": null,
+              "year_start": 2021,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Voyah_Dream"
+            }
+          ]
+        },
+        {
+          "name": "Free",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": null,
+              "year_start": 2021,
+              "year_end": 2025,
+              "source": "https://en.wikipedia.org/wiki/Voyah_Free"
+            },
+            {
+              "name": "II",
+              "code": null,
+              "year_start": 2025,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Voyah_Free"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

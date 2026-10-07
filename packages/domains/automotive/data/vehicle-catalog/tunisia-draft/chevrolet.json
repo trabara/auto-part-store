@@ -1,0 +1,200 @@
+{
+  "format": "vehicle-catalog@1",
+  "market": "TN",
+  "source": {
+    "name": "Wikipedia — DRAFT, review before production",
+    "url": "https://en.wikipedia.org/",
+    "license": "Facts (generation names, codes, production years) from article infoboxes, CC BY-SA 4.0; each generation cites its article.",
+    "retrieved_at": "2026-10-07"
+  },
+  "makes": [
+    {
+      "name": "Chevrolet",
+      "models": [
+        {
+          "name": "Camaro",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": null,
+              "year_start": 1966,
+              "year_end": 1969,
+              "source": "https://en.wikipedia.org/wiki/Chevrolet_Camaro_(first_generation)"
+            },
+            {
+              "name": "II",
+              "code": null,
+              "year_start": 1970,
+              "year_end": 1981,
+              "source": "https://en.wikipedia.org/wiki/Chevrolet_Camaro_(second_generation)"
+            },
+            {
+              "name": "III",
+              "code": null,
+              "year_start": 1981,
+              "year_end": 1981,
+              "source": "https://en.wikipedia.org/wiki/Chevrolet_Camaro_(third_generation)"
+            },
+            {
+              "name": "IV",
+              "code": null,
+              "year_start": 1992,
+              "year_end": 1992,
+              "source": "https://en.wikipedia.org/wiki/Chevrolet_Camaro_(fourth_generation)"
+            },
+            {
+              "name": "V",
+              "code": null,
+              "year_start": 2009,
+              "year_end": 2015,
+              "source": "https://en.wikipedia.org/wiki/Chevrolet_Camaro_(fifth_generation)"
+            },
+            {
+              "name": "VI",
+              "code": null,
+              "year_start": 2015,
+              "year_end": 2023,
+              "source": "https://en.wikipedia.org/wiki/Chevrolet_Camaro_(sixth_generation)"
+            }
+          ]
+        },
+        {
+          "name": "Captiva",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": "C100/C140",
+              "year_start": 2006,
+              "year_end": 2018,
+              "source": "https://en.wikipedia.org/wiki/Chevrolet_Captiva"
+            }
+          ]
+        },
+        {
+          "name": "Cruze",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": "J300",
+              "year_start": 2008,
+              "year_end": 2016,
+              "source": "https://en.wikipedia.org/wiki/Chevrolet_Cruze"
+            },
+            {
+              "name": "II",
+              "code": "D2LC/D2SC",
+              "year_start": 2014,
+              "year_end": 2019,
+              "source": "https://en.wikipedia.org/wiki/Chevrolet_Cruze"
+            }
+          ]
+        },
+        {
+          "name": "Groove",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": null,
+              "year_start": 2020,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Chevrolet_Groove"
+            }
+          ]
+        },
+        {
+          "name": "Malibu",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "IV",
+              "code": null,
+              "year_start": 1978,
+              "year_end": 1983,
+              "source": "https://en.wikipedia.org/wiki/Chevrolet_Malibu"
+            },
+            {
+              "name": "V",
+              "code": "GMX130",
+              "year_start": 1996,
+              "year_end": 2003,
+              "source": "https://en.wikipedia.org/wiki/Chevrolet_Malibu"
+            },
+            {
+              "name": "VI",
+              "code": "GMX380",
+              "year_start": 2003,
+              "year_end": 2007,
+              "source": "https://en.wikipedia.org/wiki/Chevrolet_Malibu"
+            },
+            {
+              "name": "VII",
+              "code": null,
+              "year_start": 2007,
+              "year_end": 2012,
+              "source": "https://en.wikipedia.org/wiki/Chevrolet_Malibu"
+            },
+            {
+              "name": "VIII",
+              "code": null,
+              "year_start": 2011,
+              "year_end": 2016,
+              "source": "https://en.wikipedia.org/wiki/Chevrolet_Malibu"
+            },
+            {
+              "name": "IX",
+              "code": null,
+              "year_start": 2015,
+              "year_end": 2024,
+              "source": "https://en.wikipedia.org/wiki/Chevrolet_Malibu"
+            }
+          ]
+        },
+        {
+          "name": "Spark",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": "M100/M150",
+              "year_start": 1998,
+              "year_end": 2005,
+              "source": "https://en.wikipedia.org/wiki/Chevrolet_Spark"
+            },
+            {
+              "name": "II",
+              "code": "M200/M250",
+              "year_start": 2005,
+              "year_end": 2009,
+              "source": "https://en.wikipedia.org/wiki/Chevrolet_Spark"
+            },
+            {
+              "name": "III",
+              "code": "M300",
+              "year_start": 2009,
+              "year_end": 2015,
+              "source": "https://en.wikipedia.org/wiki/Chevrolet_Spark"
+            },
+            {
+              "name": "EV",
+              "code": null,
+              "year_start": 2013,
+              "year_end": 2016,
+              "source": "https://en.wikipedia.org/wiki/Chevrolet_Spark"
+            },
+            {
+              "name": "IV",
+              "code": "M400",
+              "year_start": 2015,
+              "year_end": 2022,
+              "source": "https://en.wikipedia.org/wiki/Chevrolet_Spark"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

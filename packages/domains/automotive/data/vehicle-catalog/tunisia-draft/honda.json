@@ -1,0 +1,255 @@
+{
+  "format": "vehicle-catalog@1",
+  "market": "TN",
+  "source": {
+    "name": "Wikipedia — DRAFT, review before production",
+    "url": "https://en.wikipedia.org/",
+    "license": "Facts (generation names, codes, production years) from article infoboxes, CC BY-SA 4.0; each generation cites its article.",
+    "retrieved_at": "2026-10-07"
+  },
+  "makes": [
+    {
+      "name": "Honda",
+      "models": [
+        {
+          "name": "Accord",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": "SJ/SM",
+              "year_start": 1976,
+              "year_end": 1981,
+              "source": "https://en.wikipedia.org/wiki/Honda_Accord"
+            },
+            {
+              "name": "II",
+              "code": "SY/SZ/AC",
+              "year_start": 1981,
+              "year_end": 1985,
+              "source": "https://en.wikipedia.org/wiki/Honda_Accord"
+            },
+            {
+              "name": "III",
+              "code": null,
+              "year_start": 1985,
+              "year_end": 1989,
+              "source": "https://en.wikipedia.org/wiki/Honda_Accord"
+            },
+            {
+              "name": "IV",
+              "code": "CB7",
+              "year_start": 1989,
+              "year_end": 1993,
+              "source": "https://en.wikipedia.org/wiki/Honda_Accord"
+            },
+            {
+              "name": "V",
+              "code": "CD3/CC7/CE7",
+              "year_start": 1993,
+              "year_end": 1998,
+              "source": "https://en.wikipedia.org/wiki/Honda_Accord"
+            },
+            {
+              "name": "X",
+              "code": "CV1/CV2/CV3",
+              "year_start": 2017,
+              "year_end": 2022,
+              "source": "https://en.wikipedia.org/wiki/Honda_Accord"
+            },
+            {
+              "name": "XI",
+              "code": "CY1/CY2",
+              "year_start": 2023,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Honda_Accord"
+            }
+          ]
+        },
+        {
+          "name": "City",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": "AA/VF/FA",
+              "year_start": 1981,
+              "year_end": 1986,
+              "source": "https://en.wikipedia.org/wiki/Honda_City"
+            },
+            {
+              "name": "II",
+              "code": "GA1/GA2",
+              "year_start": 1986,
+              "year_end": 1995,
+              "source": "https://en.wikipedia.org/wiki/Honda_City"
+            },
+            {
+              "name": "III",
+              "code": "3A2/3A3/SX8",
+              "year_start": 1996,
+              "year_end": 2002,
+              "source": "https://en.wikipedia.org/wiki/Honda_City"
+            },
+            {
+              "name": "IV",
+              "code": "GD6/GD7/GD8",
+              "year_start": 2002,
+              "year_end": 2008,
+              "source": "https://en.wikipedia.org/wiki/Honda_City"
+            },
+            {
+              "name": "V",
+              "code": "GM2/GM3",
+              "year_start": 2008,
+              "year_end": 2013,
+              "source": "https://en.wikipedia.org/wiki/Honda_City"
+            },
+            {
+              "name": "VI",
+              "code": "GM4/GM5/GM6",
+              "year_start": 2013,
+              "year_end": 2023,
+              "source": "https://en.wikipedia.org/wiki/Honda_City"
+            },
+            {
+              "name": "VII",
+              "code": "GN1/GN2/GN3",
+              "year_start": 2019,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Honda_City"
+            }
+          ]
+        },
+        {
+          "name": "Civic",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": null,
+              "year_start": 1972,
+              "year_end": 1979,
+              "source": "https://en.wikipedia.org/wiki/Honda_Civic_(first_generation)"
+            },
+            {
+              "name": "II",
+              "code": "SL/SS/SR",
+              "year_start": 1979,
+              "year_end": 1983,
+              "source": "https://en.wikipedia.org/wiki/Honda_Civic_(second_generation)"
+            },
+            {
+              "name": "III",
+              "code": "AG/AH/AJ",
+              "year_start": 1983,
+              "year_end": 1987,
+              "source": "https://en.wikipedia.org/wiki/Honda_Civic_(third_generation)"
+            },
+            {
+              "name": "IV",
+              "code": "EC/ED/EE",
+              "year_start": 1987,
+              "year_end": 1991,
+              "source": "https://en.wikipedia.org/wiki/Honda_Civic_(fourth_generation)"
+            },
+            {
+              "name": "V",
+              "code": "EG/EH/EJ",
+              "year_start": 1991,
+              "year_end": 1995,
+              "source": "https://en.wikipedia.org/wiki/Honda_Civic_(fifth_generation)"
+            },
+            {
+              "name": "VII",
+              "code": null,
+              "year_start": 2000,
+              "year_end": 2000,
+              "source": "https://en.wikipedia.org/wiki/Honda_Civic_(seventh_generation)"
+            },
+            {
+              "name": "VIII",
+              "code": null,
+              "year_start": 2005,
+              "year_end": 2012,
+              "source": "https://en.wikipedia.org/wiki/Honda_Civic_(eighth_generation)"
+            }
+          ]
+        },
+        {
+          "name": "CR-V",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": "RD1/RD2/RD3",
+              "year_start": 1995,
+              "year_end": 2001,
+              "source": "https://en.wikipedia.org/wiki/Honda_CR-V"
+            },
+            {
+              "name": "II",
+              "code": "RD4/RD5/RD6",
+              "year_start": 2001,
+              "year_end": 2006,
+              "source": "https://en.wikipedia.org/wiki/Honda_CR-V"
+            }
+          ]
+        },
+        {
+          "name": "HR-V",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": "GH1/GH2/GH3",
+              "year_start": 1999,
+              "year_end": 2006,
+              "source": "https://en.wikipedia.org/wiki/Honda_HR-V"
+            },
+            {
+              "name": "II",
+              "code": "RU1/RU2/RU3",
+              "year_start": 2013,
+              "year_end": 2022,
+              "source": "https://en.wikipedia.org/wiki/Honda_HR-V"
+            }
+          ]
+        },
+        {
+          "name": "Jazz",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": "GD1/GD2/GD3",
+              "year_start": 2001,
+              "year_end": 2008,
+              "source": "https://en.wikipedia.org/wiki/Honda_Fit_(first_generation)"
+            },
+            {
+              "name": "II",
+              "code": "GE6/GE7/GE8",
+              "year_start": 2007,
+              "year_end": 2014,
+              "source": "https://en.wikipedia.org/wiki/Honda_Fit_(second_generation)"
+            }
+          ]
+        },
+        {
+          "name": "ZR-V",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": "RZ",
+              "year_start": 2022,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Honda_ZR-V"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

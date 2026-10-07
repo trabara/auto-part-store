@@ -1,0 +1,446 @@
+{
+  "format": "vehicle-catalog@1",
+  "market": "TN",
+  "source": {
+    "name": "Wikipedia — DRAFT, review before production",
+    "url": "https://en.wikipedia.org/",
+    "license": "Facts (generation names, codes, production years) from article infoboxes, CC BY-SA 4.0; each generation cites its article.",
+    "retrieved_at": "2026-10-07"
+  },
+  "makes": [
+    {
+      "name": "Toyota",
+      "models": [
+        {
+          "name": "Avanza",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": "F600",
+              "year_start": 2003,
+              "year_end": 2011,
+              "source": "https://en.wikipedia.org/wiki/Toyota_Avanza"
+            },
+            {
+              "name": "II",
+              "code": "F650",
+              "year_start": 2011,
+              "year_end": 2023,
+              "source": "https://en.wikipedia.org/wiki/Toyota_Avanza"
+            },
+            {
+              "name": "III",
+              "code": "W100/W150",
+              "year_start": 2021,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Toyota_Avanza"
+            }
+          ]
+        },
+        {
+          "name": "bZ4X",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "Touring",
+              "code": "EA10",
+              "year_start": 2026,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Toyota_bZ4X"
+            }
+          ]
+        },
+        {
+          "name": "C-HR",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": "AX10/AX50",
+              "year_start": 2016,
+              "year_end": 2023,
+              "source": "https://en.wikipedia.org/wiki/Toyota_C-HR"
+            },
+            {
+              "name": "II",
+              "code": "AX20",
+              "year_start": 2023,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Toyota_C-HR"
+            }
+          ]
+        },
+        {
+          "name": "Corolla",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": null,
+              "year_start": 1966,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Toyota_Corolla"
+            }
+          ]
+        },
+        {
+          "name": "Fortuner",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": "AN50/AN60",
+              "year_start": 2004,
+              "year_end": 2015,
+              "source": "https://en.wikipedia.org/wiki/Toyota_Fortuner"
+            },
+            {
+              "name": "II",
+              "code": "AN150/AN160",
+              "year_start": 2015,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Toyota_Fortuner"
+            }
+          ]
+        },
+        {
+          "name": "Hiace",
+          "category": "LCV",
+          "generations": [
+            {
+              "name": "I",
+              "code": "H10",
+              "year_start": 1967,
+              "year_end": 1977,
+              "source": "https://en.wikipedia.org/wiki/Toyota_HiAce"
+            },
+            {
+              "name": "II",
+              "code": "H11/H20/H30",
+              "year_start": 1977,
+              "year_end": 1982,
+              "source": "https://en.wikipedia.org/wiki/Toyota_HiAce"
+            },
+            {
+              "name": "III",
+              "code": "H50/H60/H70",
+              "year_start": 1982,
+              "year_end": 2007,
+              "source": "https://en.wikipedia.org/wiki/Toyota_HiAce"
+            },
+            {
+              "name": "IV",
+              "code": "H100/Y100",
+              "year_start": 1989,
+              "year_end": 2004,
+              "source": "https://en.wikipedia.org/wiki/Toyota_HiAce"
+            },
+            {
+              "name": "XH10/XH20",
+              "code": "XH10/XH20",
+              "year_start": 1995,
+              "year_end": 2002,
+              "source": "https://en.wikipedia.org/wiki/Toyota_HiAce"
+            },
+            {
+              "name": "V",
+              "code": "H200",
+              "year_start": 2004,
+              "year_end": 2019,
+              "source": "https://en.wikipedia.org/wiki/Toyota_HiAce"
+            },
+            {
+              "name": "VI",
+              "code": "H300",
+              "year_start": 2019,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Toyota_HiAce"
+            }
+          ]
+        },
+        {
+          "name": "Hilux",
+          "category": "LCV",
+          "generations": [
+            {
+              "name": "I",
+              "code": "N10",
+              "year_start": 1968,
+              "year_end": 1972,
+              "source": "https://en.wikipedia.org/wiki/Toyota_Hilux"
+            },
+            {
+              "name": "II",
+              "code": "N20",
+              "year_start": 1972,
+              "year_end": 1978,
+              "source": "https://en.wikipedia.org/wiki/Toyota_Hilux"
+            },
+            {
+              "name": "III",
+              "code": "N30/N40",
+              "year_start": 1978,
+              "year_end": 1983,
+              "source": "https://en.wikipedia.org/wiki/Toyota_Hilux"
+            },
+            {
+              "name": "IV",
+              "code": "N50/N60/N70",
+              "year_start": 1983,
+              "year_end": 1988,
+              "source": "https://en.wikipedia.org/wiki/Toyota_Hilux"
+            },
+            {
+              "name": "V",
+              "code": "N80/N90/N100",
+              "year_start": 1988,
+              "year_end": 1997,
+              "source": "https://en.wikipedia.org/wiki/Toyota_Hilux"
+            },
+            {
+              "name": "VI",
+              "code": "N140/N150/N160",
+              "year_start": 1997,
+              "year_end": 2006,
+              "source": "https://en.wikipedia.org/wiki/Toyota_Hilux"
+            },
+            {
+              "name": "Sport Rider",
+              "code": "N160/N190",
+              "year_start": 1998,
+              "year_end": 2004,
+              "source": "https://en.wikipedia.org/wiki/Toyota_Hilux"
+            },
+            {
+              "name": "VII",
+              "code": "AN10/AN20/AN30",
+              "year_start": 2004,
+              "year_end": 2015,
+              "source": "https://en.wikipedia.org/wiki/Toyota_Hilux"
+            },
+            {
+              "name": "VIII",
+              "code": "AN110/AN120/AN130",
+              "year_start": 2015,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Toyota_Hilux"
+            },
+            {
+              "name": "IX",
+              "code": "AN220/AN230",
+              "year_start": 2025,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Toyota_Hilux"
+            }
+          ]
+        },
+        {
+          "name": "Land Cruiser",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "BJ and FJ",
+              "code": null,
+              "year_start": 1951,
+              "year_end": 1955,
+              "source": "https://en.wikipedia.org/wiki/Toyota_Land_Cruiser"
+            },
+            {
+              "name": "J20",
+              "code": null,
+              "year_start": 1955,
+              "year_end": 1960,
+              "source": "https://en.wikipedia.org/wiki/Toyota_Land_Cruiser"
+            },
+            {
+              "name": "J40",
+              "code": null,
+              "year_start": 1960,
+              "year_end": 1985,
+              "source": "https://en.wikipedia.org/wiki/Toyota_Land_Cruiser"
+            },
+            {
+              "name": "J50",
+              "code": null,
+              "year_start": 1967,
+              "year_end": 1980,
+              "source": "https://en.wikipedia.org/wiki/Toyota_Land_Cruiser"
+            },
+            {
+              "name": "J60",
+              "code": null,
+              "year_start": 1980,
+              "year_end": 1992,
+              "source": "https://en.wikipedia.org/wiki/Toyota_Land_Cruiser"
+            },
+            {
+              "name": "J70",
+              "code": null,
+              "year_start": 1984,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Toyota_Land_Cruiser"
+            },
+            {
+              "name": "J80",
+              "code": null,
+              "year_start": 1990,
+              "year_end": 2007,
+              "source": "https://en.wikipedia.org/wiki/Toyota_Land_Cruiser"
+            },
+            {
+              "name": "J100",
+              "code": null,
+              "year_start": 1998,
+              "year_end": 2007,
+              "source": "https://en.wikipedia.org/wiki/Toyota_Land_Cruiser"
+            },
+            {
+              "name": "J200",
+              "code": null,
+              "year_start": 2007,
+              "year_end": 2021,
+              "source": "https://en.wikipedia.org/wiki/Toyota_Land_Cruiser"
+            },
+            {
+              "name": "J300",
+              "code": null,
+              "year_start": 2021,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Toyota_Land_Cruiser"
+            }
+          ]
+        },
+        {
+          "name": "Land Cruiser Prado",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "J70",
+              "code": null,
+              "year_start": 1984,
+              "year_end": 1990,
+              "source": "https://en.wikipedia.org/wiki/Toyota_Land_Cruiser_Prado"
+            },
+            {
+              "name": "I",
+              "code": "J70",
+              "year_start": 1990,
+              "year_end": 1996,
+              "source": "https://en.wikipedia.org/wiki/Toyota_Land_Cruiser_Prado"
+            },
+            {
+              "name": "II",
+              "code": "J90",
+              "year_start": 1996,
+              "year_end": 2002,
+              "source": "https://en.wikipedia.org/wiki/Toyota_Land_Cruiser_Prado"
+            },
+            {
+              "name": "III",
+              "code": "J120",
+              "year_start": 2002,
+              "year_end": 2009,
+              "source": "https://en.wikipedia.org/wiki/Toyota_Land_Cruiser_Prado"
+            },
+            {
+              "name": "IV",
+              "code": "J150",
+              "year_start": 2009,
+              "year_end": 2023,
+              "source": "https://en.wikipedia.org/wiki/Toyota_Land_Cruiser_Prado"
+            },
+            {
+              "name": "V",
+              "code": "J250",
+              "year_start": 2023,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Toyota_Land_Cruiser_Prado"
+            }
+          ]
+        },
+        {
+          "name": "RAV4",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": "XA10",
+              "year_start": 1994,
+              "year_end": 2000,
+              "source": "https://en.wikipedia.org/wiki/Toyota_RAV4"
+            },
+            {
+              "name": "II",
+              "code": "XA20",
+              "year_start": 2000,
+              "year_end": 2005,
+              "source": "https://en.wikipedia.org/wiki/Toyota_RAV4"
+            },
+            {
+              "name": "III",
+              "code": "XA30",
+              "year_start": 2005,
+              "year_end": 2012,
+              "source": "https://en.wikipedia.org/wiki/Toyota_RAV4"
+            },
+            {
+              "name": "IV",
+              "code": "XA40",
+              "year_start": 2012,
+              "year_end": 2018,
+              "source": "https://en.wikipedia.org/wiki/Toyota_RAV4"
+            },
+            {
+              "name": "V",
+              "code": "XA50",
+              "year_start": 2018,
+              "year_end": 2025,
+              "source": "https://en.wikipedia.org/wiki/Toyota_RAV4"
+            },
+            {
+              "name": "VI",
+              "code": "XA60",
+              "year_start": 2025,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Toyota_RAV4"
+            }
+          ]
+        },
+        {
+          "name": "Yaris",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": null,
+              "year_start": 1999,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Toyota_Yaris"
+            }
+          ]
+        },
+        {
+          "name": "Yaris Cross",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "XP210",
+              "code": "XP210",
+              "year_start": 2020,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Toyota_Yaris_Cross"
+            },
+            {
+              "name": "AC200",
+              "code": "AC200",
+              "year_start": 2023,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Toyota_Yaris_Cross"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

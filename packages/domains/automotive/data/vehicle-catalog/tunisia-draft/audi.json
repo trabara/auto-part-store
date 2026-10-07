@@ -1,0 +1,307 @@
+{
+  "format": "vehicle-catalog@1",
+  "market": "TN",
+  "source": {
+    "name": "Wikipedia — DRAFT, review before production",
+    "url": "https://en.wikipedia.org/",
+    "license": "Facts (generation names, codes, production years) from article infoboxes, CC BY-SA 4.0; each generation cites its article.",
+    "retrieved_at": "2026-10-07"
+  },
+  "makes": [
+    {
+      "name": "Audi",
+      "models": [
+        {
+          "name": "A1",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": "8X",
+              "year_start": 2010,
+              "year_end": 2018,
+              "source": "https://en.wikipedia.org/wiki/Audi_A1"
+            },
+            {
+              "name": "II",
+              "code": "GB",
+              "year_start": 2018,
+              "year_end": 2026,
+              "source": "https://en.wikipedia.org/wiki/Audi_A1"
+            }
+          ]
+        },
+        {
+          "name": "A3",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": "8L",
+              "year_start": 1996,
+              "year_end": 2003,
+              "source": "https://en.wikipedia.org/wiki/Audi_A3"
+            },
+            {
+              "name": "II",
+              "code": "8P",
+              "year_start": 2003,
+              "year_end": 2013,
+              "source": "https://en.wikipedia.org/wiki/Audi_A3"
+            },
+            {
+              "name": "III",
+              "code": "8V",
+              "year_start": 2012,
+              "year_end": 2020,
+              "source": "https://en.wikipedia.org/wiki/Audi_A3"
+            },
+            {
+              "name": "IV",
+              "code": "8Y",
+              "year_start": 2020,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Audi_A3"
+            }
+          ]
+        },
+        {
+          "name": "A4",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": "B5/8D",
+              "year_start": 1994,
+              "year_end": 2001,
+              "source": "https://en.wikipedia.org/wiki/Audi_A4"
+            },
+            {
+              "name": "II",
+              "code": "B6/8E/8H",
+              "year_start": 2000,
+              "year_end": 2006,
+              "source": "https://en.wikipedia.org/wiki/Audi_A4"
+            },
+            {
+              "name": "III",
+              "code": "B7/8E/8H",
+              "year_start": 2004,
+              "year_end": 2009,
+              "source": "https://en.wikipedia.org/wiki/Audi_A4"
+            },
+            {
+              "name": "IV",
+              "code": "B8/8K",
+              "year_start": 2008,
+              "year_end": 2016,
+              "source": "https://en.wikipedia.org/wiki/Audi_A4"
+            },
+            {
+              "name": "V",
+              "code": "B9/8W",
+              "year_start": 2015,
+              "year_end": 2025,
+              "source": "https://en.wikipedia.org/wiki/Audi_A4"
+            }
+          ]
+        },
+        {
+          "name": "A5",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": "8T/8F",
+              "year_start": 2007,
+              "year_end": 2016,
+              "source": "https://en.wikipedia.org/wiki/Audi_A5"
+            },
+            {
+              "name": "II",
+              "code": "F5",
+              "year_start": 2016,
+              "year_end": 2024,
+              "source": "https://en.wikipedia.org/wiki/Audi_A5"
+            },
+            {
+              "name": "III",
+              "code": "B10",
+              "year_start": 2024,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Audi_A5"
+            }
+          ]
+        },
+        {
+          "name": "A6",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": "4A",
+              "year_start": 1994,
+              "year_end": 1998,
+              "source": "https://en.wikipedia.org/wiki/Audi_A6"
+            },
+            {
+              "name": "II",
+              "code": "4B",
+              "year_start": 1997,
+              "year_end": 2005,
+              "source": "https://en.wikipedia.org/wiki/Audi_A6"
+            },
+            {
+              "name": "III",
+              "code": "4F",
+              "year_start": 2004,
+              "year_end": 2011,
+              "source": "https://en.wikipedia.org/wiki/Audi_A6"
+            },
+            {
+              "name": "IV",
+              "code": "4G",
+              "year_start": 2010,
+              "year_end": 2018,
+              "source": "https://en.wikipedia.org/wiki/Audi_A6"
+            },
+            {
+              "name": "V",
+              "code": "4K",
+              "year_start": 2018,
+              "year_end": 2025,
+              "source": "https://en.wikipedia.org/wiki/Audi_A6"
+            },
+            {
+              "name": "VI",
+              "code": "4L",
+              "year_start": 2025,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Audi_A6"
+            }
+          ]
+        },
+        {
+          "name": "e-tron GT",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": null,
+              "year_start": 2020,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Audi_e-tron_GT"
+            }
+          ]
+        },
+        {
+          "name": "Q2",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": null,
+              "year_start": 2016,
+              "year_end": 2026,
+              "source": "https://en.wikipedia.org/wiki/Audi_Q2"
+            }
+          ]
+        },
+        {
+          "name": "Q3",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": "8U",
+              "year_start": 2011,
+              "year_end": 2018,
+              "source": "https://en.wikipedia.org/wiki/Audi_Q3"
+            },
+            {
+              "name": "II",
+              "code": "F3",
+              "year_start": 2018,
+              "year_end": 2025,
+              "source": "https://en.wikipedia.org/wiki/Audi_Q3"
+            },
+            {
+              "name": "III",
+              "code": "FJ",
+              "year_start": 2025,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Audi_Q3"
+            }
+          ]
+        },
+        {
+          "name": "Q5",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": "8R",
+              "year_start": 2008,
+              "year_end": 2017,
+              "source": "https://en.wikipedia.org/wiki/Audi_Q5"
+            },
+            {
+              "name": "II",
+              "code": "FY",
+              "year_start": 2016,
+              "year_end": 2025,
+              "source": "https://en.wikipedia.org/wiki/Audi_Q5"
+            },
+            {
+              "name": "III",
+              "code": "GU",
+              "year_start": 2024,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Audi_Q5"
+            }
+          ]
+        },
+        {
+          "name": "Q7",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": "4L",
+              "year_start": 2005,
+              "year_end": 2015,
+              "source": "https://en.wikipedia.org/wiki/Audi_Q7"
+            },
+            {
+              "name": "II",
+              "code": "4M",
+              "year_start": 2015,
+              "year_end": 2026,
+              "source": "https://en.wikipedia.org/wiki/Audi_Q7"
+            },
+            {
+              "name": "III",
+              "code": "G8",
+              "year_start": 2026,
+              "year_end": 2026,
+              "source": "https://en.wikipedia.org/wiki/Audi_Q7"
+            }
+          ]
+        },
+        {
+          "name": "Q8",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": null,
+              "year_start": 2018,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Audi_Q8"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

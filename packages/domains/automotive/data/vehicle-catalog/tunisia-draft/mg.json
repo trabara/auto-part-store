@@ -1,0 +1,216 @@
+{
+  "format": "vehicle-catalog@1",
+  "market": "TN",
+  "source": {
+    "name": "Wikipedia — DRAFT, review before production",
+    "url": "https://en.wikipedia.org/",
+    "license": "Facts (generation names, codes, production years) from article infoboxes, CC BY-SA 4.0; each generation cites its article.",
+    "retrieved_at": "2026-10-07"
+  },
+  "makes": [
+    {
+      "name": "MG",
+      "models": [
+        {
+          "name": "3",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": null,
+              "year_start": 2008,
+              "year_end": 2011,
+              "source": "https://en.wikipedia.org/wiki/MG3_(automobile)"
+            },
+            {
+              "name": "II",
+              "code": "ZP11",
+              "year_start": 2011,
+              "year_end": 2024,
+              "source": "https://en.wikipedia.org/wiki/MG3_(automobile)"
+            },
+            {
+              "name": "III",
+              "code": "ZP22",
+              "year_start": 2024,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/MG3_(automobile)"
+            }
+          ]
+        },
+        {
+          "name": "5",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": "AP12",
+              "year_start": 2012,
+              "year_end": 2018,
+              "source": "https://en.wikipedia.org/wiki/MG5_(automobile)"
+            },
+            {
+              "name": "II",
+              "code": "AP32",
+              "year_start": 2020,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/MG5_(automobile)"
+            }
+          ]
+        },
+        {
+          "name": "6",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": null,
+              "year_start": 2009,
+              "year_end": 2016,
+              "source": "https://en.wikipedia.org/wiki/MG6_(automobile)"
+            },
+            {
+              "name": "II",
+              "code": "IP32",
+              "year_start": 2016,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/MG6_(automobile)"
+            }
+          ]
+        },
+        {
+          "name": "7",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": null,
+              "year_start": 2007,
+              "year_end": 2013,
+              "source": "https://en.wikipedia.org/wiki/MG7"
+            },
+            {
+              "name": "II",
+              "code": "IP42",
+              "year_start": 2022,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/MG7"
+            }
+          ]
+        },
+        {
+          "name": "Cyberster",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": "EC32",
+              "year_start": 2023,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/MG_Cyberster"
+            }
+          ]
+        },
+        {
+          "name": "GT",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": "AP13",
+              "year_start": 2014,
+              "year_end": 2019,
+              "source": "https://en.wikipedia.org/wiki/MG_GT"
+            }
+          ]
+        },
+        {
+          "name": "HS",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": "AS23",
+              "year_start": 2018,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/MG_HS"
+            },
+            {
+              "name": "II",
+              "code": "AS33",
+              "year_start": 2024,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/MG_HS"
+            }
+          ]
+        },
+        {
+          "name": "One",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": "AS32",
+              "year_start": 2021,
+              "year_end": 2025,
+              "source": "https://en.wikipedia.org/wiki/MG_One"
+            }
+          ]
+        },
+        {
+          "name": "RX5",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": "AS22",
+              "year_start": 2016,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Roewe_RX5"
+            },
+            {
+              "name": "Max",
+              "code": "AS28",
+              "year_start": 2019,
+              "year_end": 2023,
+              "source": "https://en.wikipedia.org/wiki/Roewe_RX5"
+            },
+            {
+              "name": "III",
+              "code": "AS33",
+              "year_start": 2022,
+              "year_end": 2026,
+              "source": "https://en.wikipedia.org/wiki/Roewe_RX5"
+            }
+          ]
+        },
+        {
+          "name": "RX9",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": "IS31",
+              "year_start": 2023,
+              "year_end": 2025,
+              "source": "https://en.wikipedia.org/wiki/Roewe_RX9"
+            }
+          ]
+        },
+        {
+          "name": "S5",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": "ES34",
+              "year_start": 2024,
+              "year_end": 2026,
+              "source": "https://en.wikipedia.org/wiki/MGS5_EV"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

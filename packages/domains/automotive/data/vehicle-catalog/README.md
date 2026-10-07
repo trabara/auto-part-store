@@ -31,8 +31,35 @@ Fiat Uno/Palio, Isuzu TFR/N-Series, Iveco Daily, Mercedes 190…).
   Jaecoo are separate makes; Haval, Tank, Poer and Wingle stay under Great Wall. Category is
   `LCV` when every variant is commercial (pickups, vans, minibuses), else `CAR`.
 
-**Not included:** generations, engines and configurations. No open source has them at
-production quality: Wikidata's generations are incomplete (Kia Rio has none; Clio III has
-only a start date) and its engines are just "diesel/petrol". They need a licensed source
-(TecDoc, a specs database export); the importer takes them in the same format.
+**Not included here:** generations, engines and configurations (see `tunisia-draft/` for
+generations).
+
+## tunisia-draft/ (DRAFT: review before production)
+
+Generations of 345 of those models (803 generations: name, model code, production years),
+from the automobile infoboxes of their English Wikipedia articles (CC BY-SA 4.0 facts; each
+generation cites its article), retrieved 2026-10-07. Importing it after `tunisia/` adds the
+generations to the same models:
+
+```bash
+# from apps/backend
+npx medusa exec ../../packages/domains/automotive/.medusa/server/src/scripts/import-vehicle-catalog.js \
+  ../../packages/domains/automotive/data/vehicle-catalog/tunisia \
+  ../../packages/domains/automotive/data/vehicle-catalog/tunisia-draft --dry-run
+```
+
+Known limits, to review per model before production:
+
+- **Global, not Tunisian, years:** the first (home-market) production range of each
+  infobox; local sales often started later or lasted longer (Clio II, Symbol, Polo sedan).
+- **Gaps and errors from the source:** missing generations (Polo Mk5), wrong or missing end
+  years (Tucson IV shown ending 2022, D-Max II open-ended), regional variants listed as
+  generations (Hilux Sport Rider); 183 models have no article or no dated infobox.
+- **Normalized names:** "Third generation" → `III`, "Clio IV" → `IV`, Golf-style `Mk7`;
+  codes keep at most three chassis codes.
+
+**Engines and configurations are not included:** infoboxes list engines as displacement
+and code ("1.2 L D4F I4") without power (9 of 874 give it), and nothing per configuration
+(body, drive, transmission). They need a licensed source (TecDoc, a specs database export);
+the importer takes them in the same format.
 Re-check the lineup periodically: new-car ranges change every year.

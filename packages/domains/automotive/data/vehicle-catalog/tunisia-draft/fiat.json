@@ -1,0 +1,244 @@
+{
+  "format": "vehicle-catalog@1",
+  "market": "TN",
+  "source": {
+    "name": "Wikipedia — DRAFT, review before production",
+    "url": "https://en.wikipedia.org/",
+    "license": "Facts (generation names, codes, production years) from article infoboxes, CC BY-SA 4.0; each generation cites its article.",
+    "retrieved_at": "2026-10-07"
+  },
+  "makes": [
+    {
+      "name": "Fiat",
+      "models": [
+        {
+          "name": "500",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": null,
+              "year_start": 1957,
+              "year_end": 1975,
+              "source": "https://en.wikipedia.org/wiki/Fiat_500"
+            }
+          ]
+        },
+        {
+          "name": "500X",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": null,
+              "year_start": 2014,
+              "year_end": 2024,
+              "source": "https://en.wikipedia.org/wiki/Fiat_500X"
+            }
+          ]
+        },
+        {
+          "name": "Ducato",
+          "category": "LCV",
+          "generations": [
+            {
+              "name": "I",
+              "code": null,
+              "year_start": 1981,
+              "year_end": 1993,
+              "source": "https://en.wikipedia.org/wiki/Fiat_Ducato"
+            },
+            {
+              "name": "II",
+              "code": null,
+              "year_start": 1993,
+              "year_end": 2006,
+              "source": "https://en.wikipedia.org/wiki/Fiat_Ducato"
+            },
+            {
+              "name": "III",
+              "code": "250",
+              "year_start": 2006,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Fiat_Ducato"
+            }
+          ]
+        },
+        {
+          "name": "Fiorino",
+          "category": "LCV",
+          "generations": [
+            {
+              "name": "I",
+              "code": "147",
+              "year_start": 1977,
+              "year_end": 1988,
+              "source": "https://en.wikipedia.org/wiki/Fiat_Fiorino"
+            },
+            {
+              "name": "II",
+              "code": "146",
+              "year_start": 1988,
+              "year_end": 2013,
+              "source": "https://en.wikipedia.org/wiki/Fiat_Fiorino"
+            },
+            {
+              "name": "III",
+              "code": "225",
+              "year_start": 2007,
+              "year_end": 2024,
+              "source": "https://en.wikipedia.org/wiki/Fiat_Fiorino"
+            },
+            {
+              "name": "327",
+              "code": null,
+              "year_start": 2013,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Fiat_Fiorino"
+            }
+          ]
+        },
+        {
+          "name": "Linea",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": "323",
+              "year_start": 2006,
+              "year_end": 2018,
+              "source": "https://en.wikipedia.org/wiki/Fiat_Linea"
+            }
+          ]
+        },
+        {
+          "name": "Palio",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": "178",
+              "year_start": 1996,
+              "year_end": 2016,
+              "source": "https://en.wikipedia.org/wiki/Fiat_Palio"
+            },
+            {
+              "name": "II",
+              "code": "326",
+              "year_start": 2011,
+              "year_end": 2018,
+              "source": "https://en.wikipedia.org/wiki/Fiat_Palio"
+            }
+          ]
+        },
+        {
+          "name": "Panda",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": "141",
+              "year_start": 1980,
+              "year_end": 2003,
+              "source": "https://en.wikipedia.org/wiki/Fiat_Panda"
+            },
+            {
+              "name": "II",
+              "code": "169",
+              "year_start": 2003,
+              "year_end": 2012,
+              "source": "https://en.wikipedia.org/wiki/Fiat_Panda"
+            },
+            {
+              "name": "III",
+              "code": "319",
+              "year_start": 2011,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Fiat_Panda"
+            }
+          ]
+        },
+        {
+          "name": "Punto",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": "176",
+              "year_start": 1993,
+              "year_end": 1999,
+              "source": "https://en.wikipedia.org/wiki/Fiat_Punto"
+            },
+            {
+              "name": "II",
+              "code": "188",
+              "year_start": 1999,
+              "year_end": 2010,
+              "source": "https://en.wikipedia.org/wiki/Fiat_Punto"
+            },
+            {
+              "name": "III",
+              "code": "199",
+              "year_start": 2004,
+              "year_end": 2018,
+              "source": "https://en.wikipedia.org/wiki/Fiat_Punto"
+            }
+          ]
+        },
+        {
+          "name": "Seicento",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "1997–2005) Fiat 600 (2005–2010",
+              "code": null,
+              "year_start": 1997,
+              "year_end": 2010,
+              "source": "https://en.wikipedia.org/wiki/Fiat_Seicento"
+            }
+          ]
+        },
+        {
+          "name": "Siena",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": "178",
+              "year_start": 1996,
+              "year_end": 2016,
+              "source": "https://en.wikipedia.org/wiki/Fiat_Siena"
+            },
+            {
+              "name": "II",
+              "code": "326",
+              "year_start": 2012,
+              "year_end": 2021,
+              "source": "https://en.wikipedia.org/wiki/Fiat_Siena"
+            }
+          ]
+        },
+        {
+          "name": "Uno",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": "146",
+              "year_start": 1983,
+              "year_end": 1995,
+              "source": "https://en.wikipedia.org/wiki/Fiat_Uno"
+            },
+            {
+              "name": "II",
+              "code": "327",
+              "year_start": 2010,
+              "year_end": 2021,
+              "source": "https://en.wikipedia.org/wiki/Fiat_Uno"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

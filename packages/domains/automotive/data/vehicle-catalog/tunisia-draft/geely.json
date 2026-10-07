@@ -1,0 +1,97 @@
+{
+  "format": "vehicle-catalog@1",
+  "market": "TN",
+  "source": {
+    "name": "Wikipedia — DRAFT, review before production",
+    "url": "https://en.wikipedia.org/",
+    "license": "Facts (generation names, codes, production years) from article infoboxes, CC BY-SA 4.0; each generation cites its article.",
+    "retrieved_at": "2026-10-07"
+  },
+  "makes": [
+    {
+      "name": "Geely",
+      "models": [
+        {
+          "name": "Emgrand",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": "FE-1/FE-2",
+              "year_start": 2009,
+              "year_end": 2021,
+              "source": "https://en.wikipedia.org/wiki/Geely_Emgrand"
+            },
+            {
+              "name": "II",
+              "code": "FE-3",
+              "year_start": 2014,
+              "year_end": 2018,
+              "source": "https://en.wikipedia.org/wiki/Geely_Emgrand"
+            },
+            {
+              "name": "III",
+              "code": "FE-3",
+              "year_start": 2018,
+              "year_end": 2021,
+              "source": "https://en.wikipedia.org/wiki/Geely_Emgrand"
+            },
+            {
+              "name": "IV",
+              "code": "SS11",
+              "year_start": 2021,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Geely_Emgrand"
+            },
+            {
+              "name": "V",
+              "code": "SS21",
+              "year_start": 2025,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Geely_Emgrand"
+            }
+          ]
+        },
+        {
+          "name": "EX2",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": "E22H",
+              "year_start": 2024,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Geely_EX2"
+            }
+          ]
+        },
+        {
+          "name": "EX5",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": "E245",
+              "year_start": 2024,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Geely_EX5"
+            }
+          ]
+        },
+        {
+          "name": "GX3",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": null,
+              "year_start": 2017,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Geely_Yuanjing_X3"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,64 @@
+{
+  "format": "vehicle-catalog@1",
+  "market": "TN",
+  "source": {
+    "name": "Wikipedia — DRAFT, review before production",
+    "url": "https://en.wikipedia.org/",
+    "license": "Facts (generation names, codes, production years) from article infoboxes, CC BY-SA 4.0; each generation cites its article.",
+    "retrieved_at": "2026-10-07"
+  },
+  "makes": [
+    {
+      "name": "Iveco",
+      "models": [
+        {
+          "name": "Daily",
+          "category": "LCV",
+          "generations": [
+            {
+              "name": "Fiat Daily",
+              "code": null,
+              "year_start": 1978,
+              "year_end": 1985,
+              "source": "https://en.wikipedia.org/wiki/Iveco_Daily"
+            },
+            {
+              "name": "TurboDaily",
+              "code": null,
+              "year_start": 1978,
+              "year_end": 1999,
+              "source": "https://en.wikipedia.org/wiki/Iveco_Daily"
+            },
+            {
+              "name": "II",
+              "code": null,
+              "year_start": 1999,
+              "year_end": 2014,
+              "source": "https://en.wikipedia.org/wiki/Iveco_Daily"
+            },
+            {
+              "name": "III",
+              "code": null,
+              "year_start": 2014,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Iveco_Daily"
+            }
+          ]
+        },
+        {
+          "name": "Eurocargo",
+          "category": "TRUCK",
+          "generations": [
+            {
+              "name": "I",
+              "code": null,
+              "year_start": 1991,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Iveco_EuroCargo"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

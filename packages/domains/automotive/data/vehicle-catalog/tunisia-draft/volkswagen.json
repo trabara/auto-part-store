@@ -1,0 +1,478 @@
+{
+  "format": "vehicle-catalog@1",
+  "market": "TN",
+  "source": {
+    "name": "Wikipedia — DRAFT, review before production",
+    "url": "https://en.wikipedia.org/",
+    "license": "Facts (generation names, codes, production years) from article infoboxes, CC BY-SA 4.0; each generation cites its article.",
+    "retrieved_at": "2026-10-07"
+  },
+  "makes": [
+    {
+      "name": "Volkswagen",
+      "models": [
+        {
+          "name": "Amarok",
+          "category": "LCV",
+          "generations": [
+            {
+              "name": "I",
+              "code": "2F",
+              "year_start": 2010,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Volkswagen_Amarok"
+            },
+            {
+              "name": "II",
+              "code": "NF",
+              "year_start": 2022,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Volkswagen_Amarok"
+            }
+          ]
+        },
+        {
+          "name": "Beetle",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "Type 1 ; \"Beetle\"",
+              "code": null,
+              "year_start": 1938,
+              "year_end": 2003,
+              "source": "https://en.wikipedia.org/wiki/Volkswagen_Beetle"
+            }
+          ]
+        },
+        {
+          "name": "Caddy",
+          "category": "LCV",
+          "generations": [
+            {
+              "name": "I",
+              "code": "14",
+              "year_start": 1979,
+              "year_end": 1995,
+              "source": "https://en.wikipedia.org/wiki/Volkswagen_Caddy"
+            },
+            {
+              "name": "II",
+              "code": null,
+              "year_start": 1996,
+              "year_end": 2004,
+              "source": "https://en.wikipedia.org/wiki/Volkswagen_Caddy"
+            },
+            {
+              "name": "III",
+              "code": null,
+              "year_start": 2003,
+              "year_end": 2021,
+              "source": "https://en.wikipedia.org/wiki/Volkswagen_Caddy"
+            },
+            {
+              "name": "IV",
+              "code": null,
+              "year_start": 2020,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Volkswagen_Caddy"
+            }
+          ]
+        },
+        {
+          "name": "CC",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": null,
+              "year_start": 2008,
+              "year_end": 2008,
+              "source": "https://en.wikipedia.org/wiki/Volkswagen_CC"
+            }
+          ]
+        },
+        {
+          "name": "Crafter",
+          "category": "LCV",
+          "generations": [
+            {
+              "name": "I",
+              "code": null,
+              "year_start": 2006,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Volkswagen_Crafter"
+            }
+          ]
+        },
+        {
+          "name": "Fox",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": null,
+              "year_start": 2003,
+              "year_end": 2021,
+              "source": "https://en.wikipedia.org/wiki/Volkswagen_Fox"
+            }
+          ]
+        },
+        {
+          "name": "Golf",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "Mk1",
+              "code": null,
+              "year_start": 1974,
+              "year_end": 1983,
+              "source": "https://en.wikipedia.org/wiki/Volkswagen_Golf_Mk1"
+            },
+            {
+              "name": "Mk2",
+              "code": null,
+              "year_start": 1983,
+              "year_end": 1992,
+              "source": "https://en.wikipedia.org/wiki/Volkswagen_Golf_Mk2"
+            },
+            {
+              "name": "Mk3",
+              "code": null,
+              "year_start": 1991,
+              "year_end": 1998,
+              "source": "https://en.wikipedia.org/wiki/Volkswagen_Golf_Mk3"
+            },
+            {
+              "name": "Mk4",
+              "code": null,
+              "year_start": 1997,
+              "year_end": 2006,
+              "source": "https://en.wikipedia.org/wiki/Volkswagen_Golf_Mk4"
+            },
+            {
+              "name": "Mk5",
+              "code": "1K",
+              "year_start": 2003,
+              "year_end": 2009,
+              "source": "https://en.wikipedia.org/wiki/Volkswagen_Golf_Mk5"
+            },
+            {
+              "name": "Mk6",
+              "code": "5K",
+              "year_start": 2008,
+              "year_end": 2013,
+              "source": "https://en.wikipedia.org/wiki/Volkswagen_Golf_Mk6"
+            },
+            {
+              "name": "Mk7",
+              "code": null,
+              "year_start": 2012,
+              "year_end": 2020,
+              "source": "https://en.wikipedia.org/wiki/Volkswagen_Golf_Mk7"
+            },
+            {
+              "name": "Mk8",
+              "code": "CD1/CG5",
+              "year_start": 2019,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Volkswagen_Golf_Mk8"
+            }
+          ]
+        },
+        {
+          "name": "Golf Plus",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": null,
+              "year_start": 2004,
+              "year_end": 2014,
+              "source": "https://en.wikipedia.org/wiki/Volkswagen_Golf_Plus"
+            }
+          ]
+        },
+        {
+          "name": "Jetta",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "Mk4",
+              "code": "1J",
+              "year_start": 1999,
+              "year_end": 2006,
+              "source": "https://en.wikipedia.org/wiki/Volkswagen_Bora"
+            },
+            {
+              "name": "Mk5",
+              "code": "1K",
+              "year_start": 2005,
+              "year_end": 2010,
+              "source": "https://en.wikipedia.org/wiki/Volkswagen_Jetta_(A5)"
+            },
+            {
+              "name": "Mk6",
+              "code": "1B",
+              "year_start": 2010,
+              "year_end": 2019,
+              "source": "https://en.wikipedia.org/wiki/Volkswagen_Jetta_(A6)"
+            },
+            {
+              "name": "Mk7",
+              "code": null,
+              "year_start": 2018,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Volkswagen_Jetta_(A7)"
+            }
+          ]
+        },
+        {
+          "name": "New Beetle",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": null,
+              "year_start": 1997,
+              "year_end": 2011,
+              "source": "https://en.wikipedia.org/wiki/Volkswagen_New_Beetle"
+            }
+          ]
+        },
+        {
+          "name": "Passat",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": null,
+              "year_start": 1973,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Volkswagen_Passat"
+            }
+          ]
+        },
+        {
+          "name": "Polo",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "Mk1",
+              "code": null,
+              "year_start": 1975,
+              "year_end": 1981,
+              "source": "https://en.wikipedia.org/wiki/Volkswagen_Polo_Mk1"
+            },
+            {
+              "name": "Mk2",
+              "code": null,
+              "year_start": 1981,
+              "year_end": 1994,
+              "source": "https://en.wikipedia.org/wiki/Volkswagen_Polo_Mk2"
+            },
+            {
+              "name": "Mk3",
+              "code": null,
+              "year_start": 1994,
+              "year_end": 2002,
+              "source": "https://en.wikipedia.org/wiki/Volkswagen_Polo_Mk3"
+            },
+            {
+              "name": "Mk4",
+              "code": null,
+              "year_start": 2001,
+              "year_end": 2010,
+              "source": "https://en.wikipedia.org/wiki/Volkswagen_Polo_Mk4"
+            },
+            {
+              "name": "Mk6",
+              "code": "AW1/BZ1/AE1",
+              "year_start": 2017,
+              "year_end": 2026,
+              "source": "https://en.wikipedia.org/wiki/Volkswagen_Polo_Mk6"
+            }
+          ]
+        },
+        {
+          "name": "T-Cross",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": "C11",
+              "year_start": 2018,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Volkswagen_T-Cross"
+            }
+          ]
+        },
+        {
+          "name": "T-Roc",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": "A11/D11/AC7",
+              "year_start": 2017,
+              "year_end": 2025,
+              "source": "https://en.wikipedia.org/wiki/Volkswagen_T-Roc"
+            },
+            {
+              "name": "II",
+              "code": null,
+              "year_start": 2025,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Volkswagen_T-Roc"
+            }
+          ]
+        },
+        {
+          "name": "Taigo",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "/Nivus",
+              "code": "CS1",
+              "year_start": 2020,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Volkswagen_Taigo"
+            }
+          ]
+        },
+        {
+          "name": "Tayron",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": null,
+              "year_start": 2018,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Volkswagen_Tayron"
+            },
+            {
+              "name": "II",
+              "code": null,
+              "year_start": 2024,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Volkswagen_Tayron"
+            }
+          ]
+        },
+        {
+          "name": "Tiguan",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": "5N",
+              "year_start": 2007,
+              "year_end": 2018,
+              "source": "https://en.wikipedia.org/wiki/Volkswagen_Tiguan"
+            },
+            {
+              "name": "II",
+              "code": "AD1/AX1/BW2",
+              "year_start": 2016,
+              "year_end": 2024,
+              "source": "https://en.wikipedia.org/wiki/Volkswagen_Tiguan"
+            },
+            {
+              "name": "III",
+              "code": "CT1",
+              "year_start": 2024,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Volkswagen_Tiguan"
+            }
+          ]
+        },
+        {
+          "name": "Touareg",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": "7L",
+              "year_start": 2002,
+              "year_end": 2010,
+              "source": "https://en.wikipedia.org/wiki/Volkswagen_Touareg"
+            },
+            {
+              "name": "II",
+              "code": "7P",
+              "year_start": 2010,
+              "year_end": 2018,
+              "source": "https://en.wikipedia.org/wiki/Volkswagen_Touareg"
+            },
+            {
+              "name": "III",
+              "code": "CR",
+              "year_start": 2018,
+              "year_end": 2026,
+              "source": "https://en.wikipedia.org/wiki/Volkswagen_Touareg"
+            }
+          ]
+        },
+        {
+          "name": "Touran",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": "1T",
+              "year_start": 2002,
+              "year_end": 2016,
+              "source": "https://en.wikipedia.org/wiki/Volkswagen_Touran"
+            },
+            {
+              "name": "II",
+              "code": "5T",
+              "year_start": 2015,
+              "year_end": 2026,
+              "source": "https://en.wikipedia.org/wiki/Volkswagen_Touran"
+            }
+          ]
+        },
+        {
+          "name": "Transporter",
+          "category": "LCV",
+          "generations": [
+            {
+              "name": "I",
+              "code": null,
+              "year_start": 1949,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Volkswagen_Transporter"
+            }
+          ]
+        },
+        {
+          "name": "up!",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "!",
+              "code": null,
+              "year_start": 2011,
+              "year_end": 2023,
+              "source": "https://en.wikipedia.org/wiki/Volkswagen_Up"
+            }
+          ]
+        },
+        {
+          "name": "Virtus",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": null,
+              "year_start": 2018,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Volkswagen_Virtus"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

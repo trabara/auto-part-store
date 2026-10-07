@@ -1,0 +1,339 @@
+{
+  "format": "vehicle-catalog@1",
+  "market": "TN",
+  "source": {
+    "name": "Wikipedia — DRAFT, review before production",
+    "url": "https://en.wikipedia.org/",
+    "license": "Facts (generation names, codes, production years) from article infoboxes, CC BY-SA 4.0; each generation cites its article.",
+    "retrieved_at": "2026-10-07"
+  },
+  "makes": [
+    {
+      "name": "Kia",
+      "models": [
+        {
+          "name": "Ceed",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": "ED",
+              "year_start": 2006,
+              "year_end": 2012,
+              "source": "https://en.wikipedia.org/wiki/Kia_Ceed"
+            },
+            {
+              "name": "II",
+              "code": "JD",
+              "year_start": 2012,
+              "year_end": 2018,
+              "source": "https://en.wikipedia.org/wiki/Kia_Ceed"
+            },
+            {
+              "name": "III",
+              "code": "CD",
+              "year_start": 2018,
+              "year_end": 2026,
+              "source": "https://en.wikipedia.org/wiki/Kia_Ceed"
+            }
+          ]
+        },
+        {
+          "name": "Cerato",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": "LD",
+              "year_start": 2003,
+              "year_end": 2008,
+              "source": "https://en.wikipedia.org/wiki/Kia_Cerato"
+            }
+          ]
+        },
+        {
+          "name": "EV3",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": "SV",
+              "year_start": 2024,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Kia_EV3"
+            }
+          ]
+        },
+        {
+          "name": "EV9",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": "MV",
+              "year_start": 2023,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Kia_EV9"
+            }
+          ]
+        },
+        {
+          "name": "K4",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": "CL4",
+              "year_start": 2024,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Kia_K4"
+            }
+          ]
+        },
+        {
+          "name": "K5",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "Optima (first generation",
+              "code": "MS",
+              "year_start": 2000,
+              "year_end": 2006,
+              "source": "https://en.wikipedia.org/wiki/Kia_K5"
+            },
+            {
+              "name": "Optima (second generation",
+              "code": "MG",
+              "year_start": 2005,
+              "year_end": 2010,
+              "source": "https://en.wikipedia.org/wiki/Kia_K5"
+            },
+            {
+              "name": "III",
+              "code": "TF",
+              "year_start": 2010,
+              "year_end": 2015,
+              "source": "https://en.wikipedia.org/wiki/Kia_K5"
+            },
+            {
+              "name": "IV",
+              "code": "JF",
+              "year_start": 2015,
+              "year_end": 2020,
+              "source": "https://en.wikipedia.org/wiki/Kia_K5"
+            },
+            {
+              "name": "V",
+              "code": "DL3",
+              "year_start": 2019,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Kia_K5"
+            }
+          ]
+        },
+        {
+          "name": "Niro",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": "DE",
+              "year_start": 2016,
+              "year_end": 2022,
+              "source": "https://en.wikipedia.org/wiki/Kia_Niro"
+            },
+            {
+              "name": "II",
+              "code": "SG2",
+              "year_start": 2021,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Kia_Niro"
+            }
+          ]
+        },
+        {
+          "name": "Picanto",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": "SA",
+              "year_start": 2003,
+              "year_end": 2011,
+              "source": "https://en.wikipedia.org/wiki/Kia_Picanto"
+            },
+            {
+              "name": "II",
+              "code": "TA",
+              "year_start": 2011,
+              "year_end": 2017,
+              "source": "https://en.wikipedia.org/wiki/Kia_Picanto"
+            },
+            {
+              "name": "III",
+              "code": "JA",
+              "year_start": 2017,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Kia_Picanto"
+            }
+          ]
+        },
+        {
+          "name": "Rio",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": "DC",
+              "year_start": 1999,
+              "year_end": 2005,
+              "source": "https://en.wikipedia.org/wiki/Kia_Rio"
+            },
+            {
+              "name": "II",
+              "code": "JB",
+              "year_start": 2005,
+              "year_end": 2011,
+              "source": "https://en.wikipedia.org/wiki/Kia_Rio"
+            },
+            {
+              "name": "III",
+              "code": "UB/QB",
+              "year_start": 2011,
+              "year_end": 2017,
+              "source": "https://en.wikipedia.org/wiki/Kia_Rio"
+            },
+            {
+              "name": "IV",
+              "code": "YB/SC/FB",
+              "year_start": 2016,
+              "year_end": 2023,
+              "source": "https://en.wikipedia.org/wiki/Kia_Rio"
+            }
+          ]
+        },
+        {
+          "name": "Seltos",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": "SP2",
+              "year_start": 2019,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Kia_Seltos"
+            },
+            {
+              "name": "II",
+              "code": "SP3",
+              "year_start": 2025,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Kia_Seltos"
+            }
+          ]
+        },
+        {
+          "name": "Sonet",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": "QY",
+              "year_start": 2020,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Kia_Sonet"
+            }
+          ]
+        },
+        {
+          "name": "Sorento",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": "BL",
+              "year_start": 2002,
+              "year_end": 2011,
+              "source": "https://en.wikipedia.org/wiki/Kia_Sorento"
+            },
+            {
+              "name": "II",
+              "code": "XM",
+              "year_start": 2009,
+              "year_end": 2014,
+              "source": "https://en.wikipedia.org/wiki/Kia_Sorento"
+            },
+            {
+              "name": "III",
+              "code": "UM",
+              "year_start": 2014,
+              "year_end": 2020,
+              "source": "https://en.wikipedia.org/wiki/Kia_Sorento"
+            },
+            {
+              "name": "IV",
+              "code": "MQ4",
+              "year_start": 2020,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Kia_Sorento"
+            }
+          ]
+        },
+        {
+          "name": "Sportage",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": "NB",
+              "year_start": 1993,
+              "year_end": 2005,
+              "source": "https://en.wikipedia.org/wiki/Kia_Sportage"
+            },
+            {
+              "name": "II",
+              "code": "JE/KM",
+              "year_start": 2004,
+              "year_end": 2010,
+              "source": "https://en.wikipedia.org/wiki/Kia_Sportage"
+            },
+            {
+              "name": "III",
+              "code": "SL",
+              "year_start": 2010,
+              "year_end": 2015,
+              "source": "https://en.wikipedia.org/wiki/Kia_Sportage"
+            },
+            {
+              "name": "IV",
+              "code": "QL",
+              "year_start": 2015,
+              "year_end": 2021,
+              "source": "https://en.wikipedia.org/wiki/Kia_Sportage"
+            },
+            {
+              "name": "V",
+              "code": "NQ5",
+              "year_start": 2021,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Kia_Sportage"
+            }
+          ]
+        },
+        {
+          "name": "Stonic",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": "YB/CUV",
+              "year_start": 2017,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Kia_Stonic"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

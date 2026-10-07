@@ -1,0 +1,44 @@
+{
+  "format": "vehicle-catalog@1",
+  "market": "TN",
+  "source": {
+    "name": "Wikipedia — DRAFT, review before production",
+    "url": "https://en.wikipedia.org/",
+    "license": "Facts (generation names, codes, production years) from article infoboxes, CC BY-SA 4.0; each generation cites its article.",
+    "retrieved_at": "2026-10-07"
+  },
+  "makes": [
+    {
+      "name": "MINI",
+      "models": [
+        {
+          "name": "Countryman",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": "R60",
+              "year_start": 2010,
+              "year_end": 2016,
+              "source": "https://en.wikipedia.org/wiki/Mini_Countryman"
+            },
+            {
+              "name": "II",
+              "code": "F60",
+              "year_start": 2016,
+              "year_end": 2023,
+              "source": "https://en.wikipedia.org/wiki/Mini_Countryman"
+            },
+            {
+              "name": "III",
+              "code": "U25",
+              "year_start": 2023,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Mini_Countryman"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

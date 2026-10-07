@@ -1,0 +1,111 @@
+{
+  "format": "vehicle-catalog@1",
+  "market": "TN",
+  "source": {
+    "name": "Wikipedia — DRAFT, review before production",
+    "url": "https://en.wikipedia.org/",
+    "license": "Facts (generation names, codes, production years) from article infoboxes, CC BY-SA 4.0; each generation cites its article.",
+    "retrieved_at": "2026-10-07"
+  },
+  "makes": [
+    {
+      "name": "Mitsubishi",
+      "models": [
+        {
+          "name": "ASX",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": "GA/XA/XB",
+              "year_start": 2010,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Mitsubishi_ASX"
+            }
+          ]
+        },
+        {
+          "name": "Eclipse Cross",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": "GK/GL/YA",
+              "year_start": 2017,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Mitsubishi_Eclipse_Cross"
+            }
+          ]
+        },
+        {
+          "name": "Pajero",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": null,
+              "year_start": 1982,
+              "year_end": 1991,
+              "source": "https://en.wikipedia.org/wiki/Mitsubishi_Pajero"
+            },
+            {
+              "name": "II",
+              "code": null,
+              "year_start": 1991,
+              "year_end": 1999,
+              "source": "https://en.wikipedia.org/wiki/Mitsubishi_Pajero"
+            },
+            {
+              "name": "III",
+              "code": null,
+              "year_start": 1999,
+              "year_end": 2006,
+              "source": "https://en.wikipedia.org/wiki/Mitsubishi_Pajero"
+            },
+            {
+              "name": "IV",
+              "code": null,
+              "year_start": 2006,
+              "year_end": 2021,
+              "source": "https://en.wikipedia.org/wiki/Mitsubishi_Pajero"
+            },
+            {
+              "name": "V",
+              "code": null,
+              "year_start": 2026,
+              "year_end": 2026,
+              "source": "https://en.wikipedia.org/wiki/Mitsubishi_Pajero"
+            }
+          ]
+        },
+        {
+          "name": "Pajero Sport",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": "K80/K90/PA",
+              "year_start": 1996,
+              "year_end": 2008,
+              "source": "https://en.wikipedia.org/wiki/Mitsubishi_Pajero_Sport"
+            },
+            {
+              "name": "II",
+              "code": "KG/KH/PB",
+              "year_start": 2008,
+              "year_end": 2016,
+              "source": "https://en.wikipedia.org/wiki/Mitsubishi_Pajero_Sport"
+            },
+            {
+              "name": "III",
+              "code": "KR/KS/QE",
+              "year_start": 2015,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Mitsubishi_Pajero_Sport"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

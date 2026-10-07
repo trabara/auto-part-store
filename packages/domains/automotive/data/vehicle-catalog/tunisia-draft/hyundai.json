@@ -1,0 +1,346 @@
+{
+  "format": "vehicle-catalog@1",
+  "market": "TN",
+  "source": {
+    "name": "Wikipedia — DRAFT, review before production",
+    "url": "https://en.wikipedia.org/",
+    "license": "Facts (generation names, codes, production years) from article infoboxes, CC BY-SA 4.0; each generation cites its article.",
+    "retrieved_at": "2026-10-07"
+  },
+  "makes": [
+    {
+      "name": "Hyundai",
+      "models": [
+        {
+          "name": "Accent",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": "X3",
+              "year_start": 1994,
+              "year_end": 1999,
+              "source": "https://en.wikipedia.org/wiki/Hyundai_Accent"
+            },
+            {
+              "name": "II",
+              "code": "LC",
+              "year_start": 1999,
+              "year_end": 2005,
+              "source": "https://en.wikipedia.org/wiki/Hyundai_Accent"
+            },
+            {
+              "name": "III",
+              "code": "MC",
+              "year_start": 2005,
+              "year_end": 2010,
+              "source": "https://en.wikipedia.org/wiki/Hyundai_Accent"
+            },
+            {
+              "name": "IV",
+              "code": "RB/RC",
+              "year_start": 2010,
+              "year_end": 2019,
+              "source": "https://en.wikipedia.org/wiki/Hyundai_Accent"
+            },
+            {
+              "name": "V",
+              "code": "HC/YC",
+              "year_start": 2016,
+              "year_end": 2022,
+              "source": "https://en.wikipedia.org/wiki/Hyundai_Accent"
+            },
+            {
+              "name": "VI",
+              "code": "BN7",
+              "year_start": 2023,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Hyundai_Accent"
+            }
+          ]
+        },
+        {
+          "name": "Bayon",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": "BC3/CUV",
+              "year_start": 2021,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Hyundai_Bayon"
+            }
+          ]
+        },
+        {
+          "name": "Creta",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": "GS/GC",
+              "year_start": 2014,
+              "year_end": 2019,
+              "source": "https://en.wikipedia.org/wiki/Hyundai_Creta"
+            },
+            {
+              "name": "II",
+              "code": "SU2",
+              "year_start": 2019,
+              "year_end": 2021,
+              "source": "https://en.wikipedia.org/wiki/Hyundai_Creta"
+            }
+          ]
+        },
+        {
+          "name": "i10",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": "PA",
+              "year_start": 2007,
+              "year_end": 2015,
+              "source": "https://en.wikipedia.org/wiki/Hyundai_i10"
+            },
+            {
+              "name": "II",
+              "code": "IA/BA",
+              "year_start": 2013,
+              "year_end": 2022,
+              "source": "https://en.wikipedia.org/wiki/Hyundai_i10"
+            },
+            {
+              "name": "III",
+              "code": "AC3/AI3",
+              "year_start": 2019,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Hyundai_i10"
+            }
+          ]
+        },
+        {
+          "name": "i20",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": "PB",
+              "year_start": 2008,
+              "year_end": 2014,
+              "source": "https://en.wikipedia.org/wiki/Hyundai_i20"
+            },
+            {
+              "name": "II",
+              "code": "GB/IB",
+              "year_start": 2014,
+              "year_end": 2020,
+              "source": "https://en.wikipedia.org/wiki/Hyundai_i20"
+            },
+            {
+              "name": "III",
+              "code": "BC3/BI3",
+              "year_start": 2020,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Hyundai_i20"
+            },
+            {
+              "name": "IV",
+              "code": "BC4",
+              "year_start": 2026,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Hyundai_i20"
+            }
+          ]
+        },
+        {
+          "name": "i30",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": "FD",
+              "year_start": 2007,
+              "year_end": 2012,
+              "source": "https://en.wikipedia.org/wiki/Hyundai_i30"
+            },
+            {
+              "name": "II",
+              "code": "GD",
+              "year_start": 2011,
+              "year_end": 2017,
+              "source": "https://en.wikipedia.org/wiki/Hyundai_i30"
+            },
+            {
+              "name": "III",
+              "code": "PD",
+              "year_start": 2016,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Hyundai_i30"
+            }
+          ]
+        },
+        {
+          "name": "Ioniq 5",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": "NE",
+              "year_start": 2021,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Hyundai_Ioniq_5"
+            }
+          ]
+        },
+        {
+          "name": "Ioniq 6",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": "CE",
+              "year_start": 2022,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Hyundai_Ioniq_6"
+            }
+          ]
+        },
+        {
+          "name": "Kona",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": "OS",
+              "year_start": 2017,
+              "year_end": 2023,
+              "source": "https://en.wikipedia.org/wiki/Hyundai_Kona"
+            },
+            {
+              "name": "II",
+              "code": "SX2",
+              "year_start": 2023,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Hyundai_Kona"
+            }
+          ]
+        },
+        {
+          "name": "Palisade",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": "LX2",
+              "year_start": 2018,
+              "year_end": 2025,
+              "source": "https://en.wikipedia.org/wiki/Hyundai_Palisade"
+            },
+            {
+              "name": "II",
+              "code": "LX3",
+              "year_start": 2024,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Hyundai_Palisade"
+            }
+          ]
+        },
+        {
+          "name": "Staria",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": "US4",
+              "year_start": 2021,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Hyundai_Staria"
+            }
+          ]
+        },
+        {
+          "name": "Tucson",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": "JM",
+              "year_start": 2004,
+              "year_end": 2009,
+              "source": "https://en.wikipedia.org/wiki/Hyundai_Tucson"
+            },
+            {
+              "name": "II",
+              "code": "LM",
+              "year_start": 2009,
+              "year_end": 2015,
+              "source": "https://en.wikipedia.org/wiki/Hyundai_Tucson"
+            },
+            {
+              "name": "III",
+              "code": "TL",
+              "year_start": 2015,
+              "year_end": 2021,
+              "source": "https://en.wikipedia.org/wiki/Hyundai_Tucson"
+            },
+            {
+              "name": "IV",
+              "code": "NX4",
+              "year_start": 2020,
+              "year_end": 2022,
+              "source": "https://en.wikipedia.org/wiki/Hyundai_Tucson"
+            },
+            {
+              "name": "V",
+              "code": "NX5",
+              "year_start": 2026,
+              "year_end": 2026,
+              "source": "https://en.wikipedia.org/wiki/Hyundai_Tucson"
+            }
+          ]
+        },
+        {
+          "name": "Veloster",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": "FS",
+              "year_start": 2011,
+              "year_end": 2018,
+              "source": "https://en.wikipedia.org/wiki/Hyundai_Veloster"
+            },
+            {
+              "name": "II",
+              "code": "JS",
+              "year_start": 2018,
+              "year_end": 2022,
+              "source": "https://en.wikipedia.org/wiki/Hyundai_Veloster"
+            }
+          ]
+        },
+        {
+          "name": "Venue",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": "QX",
+              "year_start": 2019,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Hyundai_Venue"
+            },
+            {
+              "name": "II",
+              "code": "QU2",
+              "year_start": 2025,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Hyundai_Venue"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

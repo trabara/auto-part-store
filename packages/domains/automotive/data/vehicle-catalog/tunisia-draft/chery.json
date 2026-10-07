@@ -1,0 +1,129 @@
+{
+  "format": "vehicle-catalog@1",
+  "market": "TN",
+  "source": {
+    "name": "Wikipedia — DRAFT, review before production",
+    "url": "https://en.wikipedia.org/",
+    "license": "Facts (generation names, codes, production years) from article infoboxes, CC BY-SA 4.0; each generation cites its article.",
+    "retrieved_at": "2026-10-07"
+  },
+  "makes": [
+    {
+      "name": "Chery",
+      "models": [
+        {
+          "name": "Arrizo 8",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": "M1E",
+              "year_start": 2022,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Chery_Arrizo_8"
+            }
+          ]
+        },
+        {
+          "name": "eQ1",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": "S51/EV",
+              "year_start": 2017,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Chery_eQ1"
+            }
+          ]
+        },
+        {
+          "name": "Himla",
+          "category": "LCV",
+          "generations": [
+            {
+              "name": "I",
+              "code": "KP11",
+              "year_start": 2025,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Chery_Himla"
+            }
+          ]
+        },
+        {
+          "name": "Tiggo 3x",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": null,
+              "year_start": 2016,
+              "year_end": 2017,
+              "source": "https://en.wikipedia.org/wiki/Chery_Tiggo_3x"
+            }
+          ]
+        },
+        {
+          "name": "Tiggo 7",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": "T15",
+              "year_start": 2016,
+              "year_end": 2020,
+              "source": "https://en.wikipedia.org/wiki/Chery_Tiggo_7"
+            },
+            {
+              "name": "II",
+              "code": "T1E",
+              "year_start": 2020,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Chery_Tiggo_7"
+            }
+          ]
+        },
+        {
+          "name": "Tiggo 8",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": "T18",
+              "year_start": 2017,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Chery_Tiggo_8"
+            },
+            {
+              "name": "Plus II",
+              "code": "T18FL4",
+              "year_start": 2024,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Chery_Tiggo_8"
+            },
+            {
+              "name": "II",
+              "code": null,
+              "year_start": 2025,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Chery_Tiggo_8"
+            }
+          ]
+        },
+        {
+          "name": "Tiggo 9",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": null,
+              "year_start": 2023,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Chery_Tiggo_9"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

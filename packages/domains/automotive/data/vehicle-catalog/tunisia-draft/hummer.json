@@ -1,0 +1,30 @@
+{
+  "format": "vehicle-catalog@1",
+  "market": "TN",
+  "source": {
+    "name": "Wikipedia — DRAFT, review before production",
+    "url": "https://en.wikipedia.org/",
+    "license": "Facts (generation names, codes, production years) from article infoboxes, CC BY-SA 4.0; each generation cites its article.",
+    "retrieved_at": "2026-10-07"
+  },
+  "makes": [
+    {
+      "name": "Hummer",
+      "models": [
+        {
+          "name": "H3",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "I",
+              "code": null,
+              "year_start": 2005,
+              "year_end": 2005,
+              "source": "https://en.wikipedia.org/wiki/Hummer_H3"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

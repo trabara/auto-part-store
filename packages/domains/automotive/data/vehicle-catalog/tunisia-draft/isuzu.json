@@ -1,0 +1,98 @@
+{
+  "format": "vehicle-catalog@1",
+  "market": "TN",
+  "source": {
+    "name": "Wikipedia — DRAFT, review before production",
+    "url": "https://en.wikipedia.org/",
+    "license": "Facts (generation names, codes, production years) from article infoboxes, CC BY-SA 4.0; each generation cites its article.",
+    "retrieved_at": "2026-10-07"
+  },
+  "makes": [
+    {
+      "name": "Isuzu",
+      "models": [
+        {
+          "name": "D-Max",
+          "category": "LCV",
+          "generations": [
+            {
+              "name": "I",
+              "code": "RA/RC",
+              "year_start": 2002,
+              "year_end": 2012,
+              "source": "https://en.wikipedia.org/wiki/Isuzu_D-Max"
+            },
+            {
+              "name": "II",
+              "code": "RT50/85",
+              "year_start": 2011,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Isuzu_D-Max"
+            },
+            {
+              "name": "III",
+              "code": "RG01",
+              "year_start": 2019,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Isuzu_D-Max"
+            }
+          ]
+        },
+        {
+          "name": "Faster",
+          "category": "LCV",
+          "generations": [
+            {
+              "name": "I",
+              "code": null,
+              "year_start": 1972,
+              "year_end": 1980,
+              "source": "https://en.wikipedia.org/wiki/Isuzu_Faster"
+            },
+            {
+              "name": "II",
+              "code": null,
+              "year_start": 1980,
+              "year_end": 1988,
+              "source": "https://en.wikipedia.org/wiki/Isuzu_Faster"
+            },
+            {
+              "name": "III",
+              "code": null,
+              "year_start": 1988,
+              "year_end": 2002,
+              "source": "https://en.wikipedia.org/wiki/Isuzu_Faster"
+            }
+          ]
+        },
+        {
+          "name": "MU-X",
+          "category": "CAR",
+          "generations": [
+            {
+              "name": "MU-7",
+              "code": "510",
+              "year_start": 2004,
+              "year_end": 2013,
+              "source": "https://en.wikipedia.org/wiki/Isuzu_MU-X"
+            },
+            {
+              "name": "I",
+              "code": "RF",
+              "year_start": 2013,
+              "year_end": 2021,
+              "source": "https://en.wikipedia.org/wiki/Isuzu_MU-X"
+            },
+            {
+              "name": "II",
+              "code": "RJ",
+              "year_start": 2020,
+              "year_end": null,
+              "source": "https://en.wikipedia.org/wiki/Isuzu_MU-X"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

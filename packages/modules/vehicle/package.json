@@ -30,6 +30,10 @@
       "types": "./dist/admin/index.d.ts",
       "import": "./src/admin/index.ts",
       "default": "./dist/admin/index.js"
+    },
+    "./admin/ui": {
+      "types": "./src/admin/ui/index.ts",
+      "default": "./src/admin/ui/index.ts"
     }
   },
   "scripts": {

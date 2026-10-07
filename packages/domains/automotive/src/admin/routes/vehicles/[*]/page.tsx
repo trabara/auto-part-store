@@ -5,6 +5,7 @@ import { Module, crudTemplates } from "@repo/dashboard/module";
 import { translatedMenu } from "@repo/framework/core";
 import { ModuleRouter } from "@repo/framework/admin";
 import { vehicleAdmin as definition } from "@repo/module-vehicle/admin";
+import { vehicleSections } from "@repo/module-vehicle/admin/ui";
 
 // Labels are translation keys (module messages); Medusa reads `label` and
 // `translationNs` statically, so they are spelled out here.
@@ -13,7 +14,7 @@ export const config = defineRouteConfig({ label: menu.label, translationNs: "tra
 
 export default function VehiclesRoutes() {
   return (
-    <Module module={definition}>
+    <Module module={definition} sections={vehicleSections}>
       <ModuleRouter module={definition} templates={crudTemplates} />
     </Module>
   );

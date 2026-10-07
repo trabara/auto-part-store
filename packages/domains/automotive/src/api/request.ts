@@ -1,7 +1,7 @@
 // Request accessors shared by the route handlers (the HTTP adapter): module
 // services from the request scope, the logged-in customer, parsed params.
 import type { AuthenticatedMedusaRequest, MedusaRequest } from "@medusajs/framework/http";
-import { MedusaError } from "@medusajs/framework/utils";
+import { MedusaError, Modules } from "@medusajs/framework/utils";
 import { GARAGE_MODULE } from "@repo/module-garage";
 import { VEHICLE_MODULE, type VehicleModuleService } from "@repo/module-vehicle";
 import { garageVehicle, garageVehicles } from "../queries/garage";
@@ -29,3 +29,17 @@ export const ownGarageVehicle = (req: AuthenticatedMedusaRequest<any>, id: strin
 
 /** The logged-in customer's garage vehicles, labelled. */
 export const ownGarage = (req: AuthenticatedMedusaRequest<any>) => garageVehicles(req.scope, customerId(req));
+
+/**
+ * Runs `job` under a lock (Medusa's locking module) so concurrent requests
+ * don't interleave; without a locking module (tests) it just runs.
+ */
+export async function withLock<T>(req: MedusaRequest<any>, key: string, job: () => Promise<T>): Promise<T> {
+  let locking: { execute: <R>(keys: string | string[], job: () => Promise<R>, args?: { timeout?: number }) => Promise<R> } | undefined;
+  try {
+    locking = req.scope.resolve(Modules.LOCKING);
+  } catch {
+    locking = undefined;
+  }
+  return locking?.execute ? locking.execute(key, job, { timeout: 30 }) : job();
+}

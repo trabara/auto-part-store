@@ -1,5 +1,5 @@
 {
   // `yarn check-types`: every layer project (see @repo/config/ts/layer.json).
   "files": [],
-  "references": [{ "path": "./tsconfig.iso.json" }, { "path": "./tsconfig.server.json" }]
+  "references": [{ "path": "./tsconfig.iso.json" }, { "path": "./tsconfig.server.json" }, { "path": "./src/admin/tsconfig.json" }]
 }

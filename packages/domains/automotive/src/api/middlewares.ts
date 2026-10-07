@@ -11,6 +11,14 @@ import {
   AdminCatalogExportParams,
   AdminCatalogImportParams,
   AdminCatalogTasksParams,
+  AdminResearchReadBody,
+  AdminResearchSearchBody,
+  AdminResearchWikiSearchBody,
+  AdminStewardClaimBody,
+  AdminStewardLeaseBody,
+  AdminStewardRefreshBody,
+  AdminStewardRejectBody,
+  AdminStewardResultBody,
 } from "./admin/validators";
 import {
   GarageCreateSchema,
@@ -35,6 +43,21 @@ export default defineMiddlewares({
       methods: ["PUT"],
       middlewares: [validateAndTransformBody(ReplaceConditionsSchema)],
     },
+    // The catalog steward: rules, the task ledger (refresh, claim, prompt,
+    // result, review) and the research gateway its agent reads the web through.
+    { matcher: "/admin/vehicle-catalog/tasks/refresh", methods: ["POST"], middlewares: [validateAndTransformBody(AdminStewardRefreshBody)] },
+    { matcher: "/admin/vehicle-catalog/tasks/claim", methods: ["POST"], middlewares: [validateAndTransformBody(AdminStewardClaimBody)] },
+    { matcher: "/admin/vehicle-catalog/tasks/:id/prompt", methods: ["POST"], middlewares: [validateAndTransformBody(AdminStewardLeaseBody)] },
+    {
+      matcher: "/admin/vehicle-catalog/tasks/:id/result",
+      methods: ["POST"],
+      bodyParser: { sizeLimit: "5mb" },
+      middlewares: [validateAndTransformBody(AdminStewardResultBody)],
+    },
+    { matcher: "/admin/vehicle-catalog/tasks/:id/reject", methods: ["POST"], middlewares: [validateAndTransformBody(AdminStewardRejectBody)] },
+    { matcher: "/admin/vehicle-catalog/research/search", methods: ["POST"], middlewares: [validateAndTransformBody(AdminResearchSearchBody)] },
+    { matcher: "/admin/vehicle-catalog/research/wiki-search", methods: ["POST"], middlewares: [validateAndTransformBody(AdminResearchWikiSearchBody)] },
+    { matcher: "/admin/vehicle-catalog/research/read", methods: ["POST"], middlewares: [validateAndTransformBody(AdminResearchReadBody)] },
     // Vehicle catalog research: tasks and coverage (what to research), export
     // (what exists), import (validate with ?dry_run=true, then apply). A
     // model's catalog can be large, hence the body size.

@@ -13,35 +13,11 @@
 // inside whose `format` is vehicle-catalog@…: a folder's model-map.json or
 // report.json is skipped; unreadable files count as failed); `dry-run` (a
 // plain word: `medusa exec` refuses unknown --flags) reports without writing.
-import fs from "node:fs";
 import path from "node:path";
 import type { ExecArgs } from "@medusajs/framework/types";
 import { VEHICLE_MODULE, type VehicleModuleService } from "@repo/module-vehicle";
 import { CatalogFileSchema, type CatalogImportReport } from "@repo/module-vehicle/contract";
-
-type Target = { file: string; data?: unknown; error?: string; inFolder: boolean };
-
-const read = (file: string, inFolder: boolean): Target => {
-  try {
-    return { file, data: JSON.parse(fs.readFileSync(file, "utf8")), inFolder };
-  } catch (error) {
-    return { file, error: `not valid JSON (${(error as Error).message})`, inFolder };
-  }
-};
-
-/** A file, or every *.json of a folder. */
-const targetsOf = (target: string): Target[] =>
-  fs.statSync(target).isDirectory()
-    ? fs
-        .readdirSync(target)
-        .filter((f) => f.endsWith(".json"))
-        .sort()
-        .map((f) => read(path.join(target, f), true))
-    : [read(target, false)];
-
-/** A folder's other JSON files (a model map, a fetch report) are not catalogs. */
-const isCatalog = (data: unknown) =>
-  typeof data === "object" && data !== null && String((data as { format?: unknown }).format ?? "").startsWith("vehicle-catalog@");
+import { isCatalog, targetsOf } from "./catalog-files";
 
 const counts = (c: CatalogImportReport["created"]) =>
   `${c.makes} makes, ${c.models} models, ${c.generations} generations, ${c.engines} engines, ${c.vehicles} configurations, ${c.references} references`;

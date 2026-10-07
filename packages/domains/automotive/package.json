@@ -40,6 +40,8 @@
     "handlebars": "^4.7.8",
     "lodash": "^4.18.1",
     "lucide-react": "^0.563.0",
+    "node-html-markdown": "^2.0.0",
+    "node-html-parser": "^6.1.13",
     "react-hook-form": "^7.83.0"
   },
   "devDependencies": {

@@ -570,6 +570,25 @@ export default class VehicleModuleService extends MedusaService(vehicleModels) {
     return { task, context, urls: [...urls] };
   }
 
+  /** The task, if `token` is its current lease (a worker's calls must carry it). */
+  @InjectManager()
+  async leasedTask(taskId: string, token: string, @MedusaContext() ctx: Context = {}) {
+    const task = (await this.retrieveCatalogTask(taskId, {}, ctx)) as Row;
+    if (task.status !== CatalogTaskStatus.RUNNING || task.lease_token !== token) {
+      throw new MedusaError(MedusaError.Types.NOT_ALLOWED, "This task's lease expired or belongs to another run.");
+    }
+    return task;
+  }
+
+  /** Adds pages read and search credits spent to a task (its sources feed sibling tasks). */
+  @InjectTransactionManager()
+  async noteTaskUsage(taskId: string, usage: { urls?: string[]; credits?: number }, @MedusaContext() ctx: Context = {}) {
+    const [task] = (await this.listCatalogTasks({ id: taskId }, { select: ["id", "sources", "cost"] }, ctx)) as Row[];
+    if (!task) return;
+    const sources = [...new Set([...(task.sources ?? []), ...(usage.urls ?? [])])].slice(-20);
+    await this.updateCatalogTasks([{ id: taskId, sources, cost: addCost(task.cost, { credits: usage.credits ?? 0 }) }] as any[], ctx);
+  }
+
   /**
    * Records a worker's result for a leased task and applies it by the
    * steward's policy (see the domain's README):
@@ -883,6 +902,38 @@ export default class VehicleModuleService extends MedusaService(vehicleModels) {
       resolved: resolved.length,
       rules: Object.fromEntries([...new Set(findings.map((f) => f.rule))].map((r) => [r, findings.filter((f) => f.rule === r).length])),
     };
+  }
+
+  /**
+   * The vehicle module's part of merging a configuration into another: its
+   * catalog references move over, then it is deleted. Returns what
+   * `unmergeVehicle` needs to undo it (the domain's workflow re-points
+   * fitments and garage entries around this).
+   */
+  @InjectTransactionManager()
+  async mergeVehicle(fromId: string, intoId: string, @MedusaContext() ctx: Context = {}) {
+    if (fromId === intoId) throw new MedusaError(MedusaError.Types.INVALID_DATA, "A configuration can't be merged into itself.");
+    await this.retrieveVehicle(intoId, { select: ["id"] }, ctx);
+    const references = await this.listVehicleReferences({ vehicle_id: fromId }, { select: ["id"] }, ctx);
+    if (references.length) await this.updateVehicleReferences(references.map((r) => ({ id: r.id, vehicle_id: intoId })) as any[], ctx);
+    await this.softDeleteVehicles([fromId], {}, ctx);
+    return { from: fromId, references: references.map((r) => r.id) };
+  }
+
+  @InjectTransactionManager()
+  async unmergeVehicle(undo: { from: string; references: string[] }, @MedusaContext() ctx: Context = {}) {
+    await this.restoreVehicles([undo.from], {}, ctx);
+    if (undo.references.length) await this.updateVehicleReferences(undo.references.map((id) => ({ id, vehicle_id: undo.from })) as any[], ctx);
+  }
+
+  /** Closes a reviewed task with what was done (e.g. a merge run by the domain). */
+  @InjectTransactionManager()
+  async markTaskDone(taskId: string, result: Row, @MedusaContext() ctx: Context = {}) {
+    const [task] = (await this.listCatalogTasks({ id: taskId }, { select: ["id", "report"] }, ctx)) as Row[];
+    await this.updateCatalogTasks(
+      [{ id: taskId, status: CatalogTaskStatus.DONE, next_run_at: null, report: { ...(task?.report ?? {}), approved_at: new Date().toISOString(), result } }] as any[],
+      ctx,
+    );
   }
 
   /** Merges an engine into another: its configurations move over (refused if one would collide), then it is deleted. */

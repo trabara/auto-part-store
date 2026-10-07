@@ -1,5 +1,9 @@
 import { medusaIntegrationTestRunner } from "@medusajs/test-utils";
+import { adminHeaders } from "@repo/config/jest/medusa-helpers.cjs";
+import { FITMENT_MODULE } from "@repo/module-fitment";
+import { GARAGE_MODULE } from "@repo/module-garage";
 import { VEHICLE_MODULE, type VehicleModuleService } from "@repo/module-vehicle";
+import { webResearch } from "../../src/queries/web-research";
 import { CatalogFileSchema } from "@repo/module-vehicle/contract";
 
 jest.setTimeout(120 * 1000);
@@ -28,7 +32,7 @@ const draft = CatalogFileSchema.parse({
             },
           ],
         },
-        { name: "Sandero", generations: [{ name: "III", year_start: 2020 }] },
+        { name: "Sandero", generations: [{ name: "III", year_start: 2020, source: "https://en.wikipedia.org/wiki/Dacia_Sandero" }] },
       ],
     },
   ],
@@ -44,7 +48,7 @@ const url = "https://en.wikipedia.org/wiki/Dacia_Sandero";
 const version = { engine_code: null, layout: null, cylinders: 3, displacement: null, displacement_unit: null, body: "HATCHBACK", doors: 5, drive: "FWD", gearbox: "MANUAL", trim: null, assumed: false };
 
 medusaIntegrationTestRunner({
-  testSuite: ({ getContainer }) => {
+  testSuite: ({ api, getContainer }) => {
     const service = () => getContainer().resolve<VehicleModuleService>(VEHICLE_MODULE);
     const claim = async (kind: string) => (await service().claimTasks({ kinds: [kind as any], limit: 5 }))[0]!;
 
@@ -175,6 +179,92 @@ medusaIntegrationTestRunner({
       await service().rejectTask(again!.id, "Two different engines: the K9K and an older F9Q.");
       await service().runLint();
       expect(await service().retrieveCatalogTask(again!.id)).toMatchObject({ status: "DONE", feedback: expect.stringContaining("F9Q") });
+    });
+  
+    describe("over HTTP, as the n8n workflow drives it", () => {
+      const steward = "/admin/vehicle-catalog";
+      async function auth() {
+        const admin = await adminHeaders(getContainer());
+        const { data } = await api.post("/admin/api-keys", { title: "steward", type: "secret" }, admin);
+        return { headers: { authorization: `Basic ${Buffer.from(`${data.api_key.token}:`).toString("base64")}` } };
+      }
+
+      it("refreshes, claims, prompts with the cached evidence, and applies a checked answer", async () => {
+        const headers = await auth();
+        // The pages the gateway would read (no network in tests).
+        const gateway = webResearch(getContainer(), { tavilyKey: null });
+        await gateway.remember(url, page);
+        await gateway.remember("https://en.wikipedia.org/wiki/Dacia_Logan", "Dacia Logan, a sedan.");
+
+        expect((await api.post(`${steward}/lint`, {}, headers)).data).toMatchObject({ findings: expect.any(Number) });
+        expect((await api.post(`${steward}/tasks/refresh`, {}, headers)).data.created).toBeGreaterThan(0);
+        const [task] = (await api.post(`${steward}/tasks/claim`, { limit: 1, kinds: ["RESEARCH_CONFIGURATIONS"] }, headers)).data.tasks;
+        expect(task).toMatchObject({ kind: "RESEARCH_CONFIGURATIONS", key: "dacia/sandero/iii", lease_token: expect.any(String) });
+
+        const prompt = (await api.post(`${steward}/tasks/${task.id}/prompt`, { lease_token: task.lease_token }, headers)).data;
+        expect(prompt.urls[0]).toBe(url);
+        expect(prompt.messages[1].content).toContain("1.0 TCe 90");
+        expect(prompt.schema).toMatchObject({ type: "object" });
+
+        const result = (
+          await api.post(
+            `${steward}/tasks/${task.id}/result`,
+            {
+              lease_token: task.lease_token,
+              model: "qwen3.5:4b",
+              output: {
+                generation: { code: null, from: null, to: null, quote: null },
+                configurations: [{ ...version, fuel: "GASOLINE", power: 90, power_unit: "ch", from: 2020, to: null, quote: "1.0 TCe 90 | 90 ch (67 kW)" }],
+                notes: "",
+              },
+            },
+            headers,
+          )
+        ).data;
+        expect(result).toMatchObject({ status: "APPLIED", report: { created: { vehicles: 1 } } });
+        // The lease is spent: the same token can't submit twice.
+        const again = await api.post(`${steward}/tasks/${task.id}/result`, { lease_token: task.lease_token, error: "x" }, headers).catch((e: any) => e.response);
+        expect(again.status).toBe(400);
+      });
+
+      it("merges a near-duplicate configuration on approval, re-pointing fitments, garage entries and references", async () => {
+        const headers = await auth();
+        const logan = (await service().listVehicleGenerations({ name: "III", model: { name: "Logan" } } as any))[0]!;
+        const keep = (await service().listVehicles({ generation_id: logan.id }))[0]!;
+        // The same 70 kW diesel sedan, its engine described without the code.
+        const [engine] = (await service().createVehicleEngines([{ fuel: "DIESEL", layout: "INLINE", cylinders: 4, displacement_cc: 1461, power_kw: 70, code: null, power_hp: 94 }] as any)) as unknown as any[];
+        const [dup] = (await service().createVehicles([{ generation_id: logan.id, engine_id: engine!.id, body_style: "SEDAN", doors: 4, drive: "FWD", transmission: "MANUAL", trim: null, year_start: 2022, year_end: null }] as any)) as unknown as any[];
+        await service().createVehicleReferences([{ vehicle_id: dup!.id, source: "OTHER", external_id: "dup-1" }] as any);
+        await getContainer().resolve<any>(FITMENT_MODULE).createFitments([{ variant_id: "variant_1", vehicle_id: dup!.id, quantity: 1 }]);
+        await getContainer().resolve<any>(GARAGE_MODULE).createCustomerVehicles([{ customer_id: "cus_1", vehicle_id: dup!.id, nickname: null, vin: null, registration: null }]);
+
+        await api.post(`${steward}/lint`, {}, headers);
+        const [finding] = await service().listCatalogTasks({ kind: "CLEANUP" as any, rule: "vehicle.near_duplicate" });
+        expect(finding).toMatchObject({ status: "REVIEW", record_id: dup!.id, finding: { fix: { kind: "merge", into: keep.id } } });
+
+        await api.post(`${steward}/tasks/${finding!.id}/approve`, {}, headers);
+        expect(await service().listVehicles({ id: dup!.id })).toEqual([]);
+        expect(await getContainer().resolve<any>(FITMENT_MODULE).listFitments({ vehicle_id: keep.id })).toHaveLength(1);
+        expect(await getContainer().resolve<any>(GARAGE_MODULE).listCustomerVehicles({ vehicle_id: keep.id })).toHaveLength(1);
+        expect((await service().listVehicleReferences({ external_id: "dup-1" }))[0]!.vehicle_id).toBe(keep.id);
+        expect((await service().retrieveCatalogTask(finding!.id)).status).toBe("DONE");
+      });
+
+      it("rejects with feedback, and serves the research gateway to the fallback agent", async () => {
+        const headers = await auth();
+        await service().refreshTasks();
+        const [task] = (await api.post(`${steward}/tasks/claim`, { limit: 1, kinds: ["RESEARCH_CONFIGURATIONS"] }, headers)).data.tasks;
+        await webResearch(getContainer(), { tavilyKey: null }).remember(url, page);
+        const read = (await api.post(`${steward}/research/read`, { url, focus: "TCe 90", task_id: task.id }, headers)).data;
+        expect(read).toMatchObject({ via: "cache", text: expect.stringContaining("1.0 TCe 90") });
+        expect((await service().retrieveCatalogTask(task.id)).sources).toContain(url);
+        // No Tavily key in tests: web search says so instead of failing.
+        expect((await api.post(`${steward}/research/search`, { query: "Dacia Sandero III moteurs" }, headers)).data).toMatchObject({ results: [], note: expect.any(String) });
+
+        await service().submitTaskResult(task.id, { lease_token: task.lease_token, output: { generation: { code: null, from: null, to: null, quote: null }, configurations: [], notes: "" } });
+        const lint = await service().runLint();
+        expect(lint).toMatchObject({ findings: expect.any(Number) });
+      });
     });
   },
 });

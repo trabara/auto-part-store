@@ -1,6 +1,5 @@
 {
-  // Build: everything but tests and admin UI. The admin definition and
-  // translations are built too (typed entry `./admin`, loaded by tests).
+  // Build: everything but tests and the admin UI (source only, bundled by the admin).
   "extends": "./tsconfig.json",
-  "exclude": ["node_modules", "dist", "src/**/__tests__"]
+  "exclude": ["node_modules", "dist", "src/admin/ui", "src/**/__tests__"]
 }

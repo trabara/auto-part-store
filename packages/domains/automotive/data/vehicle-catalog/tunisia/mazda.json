@@ -1,0 +1,47 @@
+{
+  "format": "vehicle-catalog@1",
+  "market": "TN",
+  "source": {
+    "name": "automobile.tn (new and used listings), tayara.tn (car search keywords)",
+    "url": "https://www.automobile.tn/fr/occasion",
+    "license": "Facts only (make and model names); no prices, specifications, text or images copied.",
+    "retrieved_at": "2026-10-07"
+  },
+  "makes": [
+    {
+      "name": "Mazda",
+      "models": [
+        {
+          "name": "2",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/occasion/mazda/2"
+        },
+        {
+          "name": "3",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/occasion/mazda/3"
+        },
+        {
+          "name": "6",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/occasion/mazda/6"
+        },
+        {
+          "name": "B-Series",
+          "category": "LCV",
+          "source": "https://www.tayara.tn/ads/k/mazda%20e2200%20tunisie/"
+        },
+        {
+          "name": "BT-50",
+          "category": "LCV",
+          "source": "https://www.automobile.tn/fr/occasion/mazda/bt-50"
+        },
+        {
+          "name": "CX-5",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/occasion/mazda/cx-5"
+        }
+      ]
+    }
+  ]
+}

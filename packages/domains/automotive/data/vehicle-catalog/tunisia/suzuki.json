@@ -2,9 +2,9 @@
   "format": "vehicle-catalog@1",
   "market": "TN",
   "source": {
-    "name": "automobile.tn — Prix du neuf",
-    "url": "https://www.automobile.tn/fr/neuf/suzuki",
-    "license": "Facts only (make and model names); no prices, specs, text or images copied.",
+    "name": "automobile.tn (new and used listings), tayara.tn (car search keywords)",
+    "url": "https://www.automobile.tn/fr/occasion",
+    "license": "Facts only (make and model names); no prices, specifications, text or images copied.",
     "retrieved_at": "2026-10-07"
   },
   "makes": [
@@ -23,6 +23,11 @@
           "source": "https://www.automobile.tn/fr/neuf/suzuki/celerio-populaire"
         },
         {
+          "name": "Ciaz",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/occasion/suzuki/ciaz"
+        },
+        {
           "name": "Dzire",
           "category": "CAR",
           "source": "https://www.automobile.tn/fr/neuf/suzuki/dzire"
@@ -33,9 +38,19 @@
           "source": "https://www.automobile.tn/fr/neuf/suzuki/fronx"
         },
         {
+          "name": "Jimny",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/occasion/suzuki/jimny"
+        },
+        {
           "name": "Swift",
           "category": "CAR",
           "source": "https://www.automobile.tn/fr/neuf/suzuki/swift"
+        },
+        {
+          "name": "Vitara",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/occasion/suzuki/vitara"
         }
       ]
     }

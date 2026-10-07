@@ -2,9 +2,9 @@
   "format": "vehicle-catalog@1",
   "market": "TN",
   "source": {
-    "name": "automobile.tn — Prix du neuf",
-    "url": "https://www.automobile.tn/fr/neuf/mg",
-    "license": "Facts only (make and model names); no prices, specs, text or images copied.",
+    "name": "automobile.tn (new and used listings), tayara.tn (car search keywords)",
+    "url": "https://www.automobile.tn/fr/occasion",
+    "license": "Facts only (make and model names); no prices, specifications, text or images copied.",
     "retrieved_at": "2026-10-07"
   },
   "makes": [
@@ -18,6 +18,11 @@
           "source": "https://www.automobile.tn/fr/neuf/mg/3"
         },
         {
+          "name": "4",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/occasion/mg/4"
+        },
+        {
           "name": "4 Urban",
           "category": "CAR",
           "source": "https://www.automobile.tn/fr/neuf/mg/4-urban"
@@ -26,6 +31,11 @@
           "name": "5",
           "category": "CAR",
           "source": "https://www.automobile.tn/fr/neuf/mg/5"
+        },
+        {
+          "name": "6",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/occasion/mg/6"
         },
         {
           "name": "7",
@@ -38,9 +48,29 @@
           "source": "https://www.automobile.tn/fr/neuf/mg/cyberster"
         },
         {
+          "name": "eHS",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/occasion/mg/ehs"
+        },
+        {
+          "name": "GT",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/occasion/mg/gt"
+        },
+        {
           "name": "HS",
           "category": "CAR",
           "source": "https://www.automobile.tn/fr/neuf/mg/hs"
+        },
+        {
+          "name": "One",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/occasion/mg/one"
+        },
+        {
+          "name": "RX5",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/occasion/mg/rx5"
         },
         {
           "name": "RX9",

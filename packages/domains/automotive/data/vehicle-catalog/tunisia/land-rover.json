@@ -2,9 +2,9 @@
   "format": "vehicle-catalog@1",
   "market": "TN",
   "source": {
-    "name": "automobile.tn — Prix du neuf",
-    "url": "https://www.automobile.tn/fr/neuf/land-rover",
-    "license": "Facts only (make and model names); no prices, specs, text or images copied.",
+    "name": "automobile.tn (new and used listings), tayara.tn (car search keywords)",
+    "url": "https://www.automobile.tn/fr/occasion",
+    "license": "Facts only (make and model names); no prices, specifications, text or images copied.",
     "retrieved_at": "2026-10-07"
   },
   "makes": [
@@ -18,9 +18,19 @@
           "source": "https://www.automobile.tn/fr/neuf/land-rover/defender"
         },
         {
+          "name": "Discovery",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/occasion/land-rover/discovery"
+        },
+        {
           "name": "Discovery Sport",
           "category": "CAR",
           "source": "https://www.automobile.tn/fr/neuf/land-rover/discovery-sport"
+        },
+        {
+          "name": "Freelander",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/occasion/land-rover/freelander"
         },
         {
           "name": "Range Rover",

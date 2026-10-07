@@ -2,9 +2,9 @@
   "format": "vehicle-catalog@1",
   "market": "TN",
   "source": {
-    "name": "automobile.tn — Prix du neuf",
-    "url": "https://www.automobile.tn/fr/neuf/bmw",
-    "license": "Facts only (make and model names); no prices, specs, text or images copied.",
+    "name": "automobile.tn (new and used listings), tayara.tn (car search keywords)",
+    "url": "https://www.automobile.tn/fr/occasion",
+    "license": "Facts only (make and model names); no prices, specifications, text or images copied.",
     "retrieved_at": "2026-10-07"
   },
   "makes": [
@@ -28,6 +28,16 @@
           "source": "https://www.automobile.tn/fr/neuf/bmw/serie-3"
         },
         {
+          "name": "3 Series Coupé",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/occasion/bmw/serie-3-coupe"
+        },
+        {
+          "name": "3 Series Gran Turismo",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/occasion/bmw/serie-3-gt"
+        },
+        {
           "name": "4 Series Coupé",
           "category": "CAR",
           "source": "https://www.automobile.tn/fr/neuf/bmw/serie-4-coupe"
@@ -43,6 +53,16 @@
           "source": "https://www.automobile.tn/fr/neuf/bmw/serie-5"
         },
         {
+          "name": "5 Series Gran Turismo",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/occasion/bmw/serie-5-gt"
+        },
+        {
+          "name": "7 Series",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/occasion/bmw/serie-7"
+        },
+        {
           "name": "i4",
           "category": "CAR",
           "source": "https://www.automobile.tn/fr/neuf/bmw/i4"
@@ -51,6 +71,11 @@
           "name": "i5",
           "category": "CAR",
           "source": "https://www.automobile.tn/fr/neuf/bmw/i5"
+        },
+        {
+          "name": "iX1",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/occasion/bmw/ix1"
         },
         {
           "name": "iX2",
@@ -78,9 +103,19 @@
           "source": "https://www.automobile.tn/fr/neuf/bmw/x3-hybride-rechargeable"
         },
         {
+          "name": "X4",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/occasion/bmw/x4"
+        },
+        {
           "name": "X5",
           "category": "CAR",
           "source": "https://www.automobile.tn/fr/neuf/bmw/x5-hybride"
+        },
+        {
+          "name": "X6",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/occasion/bmw/x6"
         },
         {
           "name": "Z4",

@@ -2,9 +2,9 @@
   "format": "vehicle-catalog@1",
   "market": "TN",
   "source": {
-    "name": "automobile.tn — Prix du neuf",
-    "url": "https://www.automobile.tn/fr/neuf/mercedes-benz",
-    "license": "Facts only (make and model names); no prices, specs, text or images copied.",
+    "name": "automobile.tn (new and used listings), tayara.tn (car search keywords)",
+    "url": "https://www.automobile.tn/fr/occasion",
+    "license": "Facts only (make and model names); no prices, specifications, text or images copied.",
     "retrieved_at": "2026-10-07"
   },
   "makes": [
@@ -12,6 +12,11 @@
       "name": "Mercedes-Benz",
       "source": "https://www.automobile.tn/fr/neuf/mercedes-benz",
       "models": [
+        {
+          "name": "190",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/occasion/mercedes-benz/190"
+        },
         {
           "name": "A-Class",
           "category": "CAR",
@@ -23,9 +28,19 @@
           "source": "https://www.automobile.tn/fr/neuf/mercedes-benz/classe-a-berline"
         },
         {
+          "name": "AMG GT",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/occasion/mercedes-benz/amg-gt"
+        },
+        {
           "name": "C-Class",
           "category": "CAR",
           "source": "https://www.automobile.tn/fr/neuf/mercedes-benz/classe-c"
+        },
+        {
+          "name": "C-Class Coupé",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/occasion/mercedes-benz/classe-c-coupe"
         },
         {
           "name": "CLA",
@@ -38,9 +53,29 @@
           "source": "https://www.automobile.tn/fr/neuf/mercedes-benz/cle-coupe"
         },
         {
+          "name": "CLS",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/occasion/mercedes-benz/cls"
+        },
+        {
           "name": "E-Class",
           "category": "CAR",
           "source": "https://www.automobile.tn/fr/neuf/mercedes-benz/classe-e"
+        },
+        {
+          "name": "E-Class Coupé",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/occasion/mercedes-benz/classe-e-coupe"
+        },
+        {
+          "name": "EQA",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/occasion/mercedes-benz/eqa"
+        },
+        {
+          "name": "EQB",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/occasion/mercedes-benz/eqb"
         },
         {
           "name": "EQE",
@@ -63,6 +98,11 @@
           "source": "https://www.automobile.tn/fr/neuf/mercedes-benz/classe-g-electric"
         },
         {
+          "name": "GL",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/occasion/mercedes-benz/classe-gl"
+        },
+        {
           "name": "GLA",
           "category": "CAR",
           "source": "https://www.automobile.tn/fr/neuf/mercedes-benz/gla"
@@ -83,9 +123,44 @@
           "source": "https://www.automobile.tn/fr/neuf/mercedes-benz/glc-coupe"
         },
         {
+          "name": "GLE",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/occasion/mercedes-benz/gle"
+        },
+        {
+          "name": "GLE Coupé",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/occasion/mercedes-benz/gle-coupe"
+        },
+        {
+          "name": "GLK",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/occasion/mercedes-benz/glk"
+        },
+        {
+          "name": "M-Class",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/occasion/mercedes-benz/ml"
+        },
+        {
+          "name": "S-Class",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/occasion/mercedes-benz/classe-s"
+        },
+        {
+          "name": "Sprinter",
+          "category": "LCV",
+          "source": "https://www.tayara.tn/ads/k/mercedes%20sprinter/"
+        },
+        {
           "name": "V-Class",
           "category": "CAR",
           "source": "https://www.automobile.tn/fr/neuf/mercedes-benz/classe-v"
+        },
+        {
+          "name": "X-Class",
+          "category": "LCV",
+          "source": "https://www.automobile.tn/fr/occasion/mercedes-benz/classe-x"
         }
       ]
     }

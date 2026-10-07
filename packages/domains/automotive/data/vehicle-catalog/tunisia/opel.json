@@ -2,9 +2,9 @@
   "format": "vehicle-catalog@1",
   "market": "TN",
   "source": {
-    "name": "automobile.tn — Prix du neuf",
-    "url": "https://www.automobile.tn/fr/neuf/opel",
-    "license": "Facts only (make and model names); no prices, specs, text or images copied.",
+    "name": "automobile.tn (new and used listings), tayara.tn (car search keywords)",
+    "url": "https://www.automobile.tn/fr/occasion",
+    "license": "Facts only (make and model names); no prices, specifications, text or images copied.",
     "retrieved_at": "2026-10-07"
   },
   "makes": [
@@ -12,6 +12,16 @@
       "name": "Opel",
       "source": "https://www.automobile.tn/fr/neuf/opel",
       "models": [
+        {
+          "name": "Astra",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/occasion/opel/astra"
+        },
+        {
+          "name": "Calibra",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/occasion/opel/calibra"
+        },
         {
           "name": "Combo",
           "category": "LCV",
@@ -33,9 +43,19 @@
           "source": "https://www.automobile.tn/fr/neuf/opel/grandland"
         },
         {
+          "name": "Insignia",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/occasion/opel/insignia"
+        },
+        {
           "name": "Mokka",
           "category": "CAR",
           "source": "https://www.automobile.tn/fr/neuf/opel/mokka"
+        },
+        {
+          "name": "Zafira",
+          "category": "CAR",
+          "source": "https://www.tayara.tn/ads/k/opel%20zafira%20tunisie/"
         }
       ]
     }

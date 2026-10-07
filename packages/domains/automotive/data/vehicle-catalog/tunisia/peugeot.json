@@ -2,9 +2,9 @@
   "format": "vehicle-catalog@1",
   "market": "TN",
   "source": {
-    "name": "automobile.tn — Prix du neuf",
-    "url": "https://www.automobile.tn/fr/neuf/peugeot",
-    "license": "Facts only (make and model names); no prices, specs, text or images copied.",
+    "name": "automobile.tn (new and used listings), tayara.tn (car search keywords)",
+    "url": "https://www.automobile.tn/fr/occasion",
+    "license": "Facts only (make and model names); no prices, specifications, text or images copied.",
     "retrieved_at": "2026-10-07"
   },
   "makes": [
@@ -13,14 +13,109 @@
       "source": "https://www.automobile.tn/fr/neuf/peugeot",
       "models": [
         {
+          "name": "106",
+          "category": "CAR",
+          "source": "https://www.tayara.tn/ads/k/achat%20voiture%20peugeot%20106%20tunis/"
+        },
+        {
+          "name": "107",
+          "category": "CAR",
+          "source": "https://www.tayara.tn/ads/k/achat%20voiture%20peugeot%20107%20tunis/"
+        },
+        {
           "name": "2008",
           "category": "CAR",
           "source": "https://www.automobile.tn/fr/neuf/peugeot/2008"
         },
         {
+          "name": "205",
+          "category": "CAR",
+          "source": "https://www.tayara.tn/ads/k/achat%20voiture%20peugeot%20205%20diesel%20tunis/"
+        },
+        {
+          "name": "206",
+          "category": "CAR",
+          "source": "https://www.tayara.tn/ads/k/peugeot%20206%20prix%20tunisie/"
+        },
+        {
+          "name": "207",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/occasion/peugeot/207-cc"
+        },
+        {
           "name": "208",
           "category": "CAR",
           "source": "https://www.automobile.tn/fr/neuf/peugeot/208"
+        },
+        {
+          "name": "3008",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/occasion/peugeot/3008"
+        },
+        {
+          "name": "301",
+          "category": "CAR",
+          "source": "https://www.tayara.tn/ads/k/peugeot%20301%20prix%20tunisie%20leasing/"
+        },
+        {
+          "name": "306",
+          "category": "CAR",
+          "source": "https://www.tayara.tn/ads/k/achat%20voiture%20peugeot%20306%20tunis/"
+        },
+        {
+          "name": "307",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/occasion/peugeot/307"
+        },
+        {
+          "name": "308",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/occasion/peugeot/308"
+        },
+        {
+          "name": "4008",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/occasion/peugeot/4008"
+        },
+        {
+          "name": "404",
+          "category": "CAR",
+          "source": "https://www.tayara.tn/ads/k/404%20tunisie/"
+        },
+        {
+          "name": "405",
+          "category": "CAR",
+          "source": "https://www.tayara.tn/ads/k/achat%20voiture%20peugeot%20405%20ben%20arous/"
+        },
+        {
+          "name": "406",
+          "category": "CAR",
+          "source": "https://www.tayara.tn/ads/k/achat%20voiture%20peugeot%20406%20tunis/"
+        },
+        {
+          "name": "407",
+          "category": "CAR",
+          "source": "https://www.tayara.tn/ads/k/achat%20voiture%20peugeot%20407%20tunis/"
+        },
+        {
+          "name": "5008",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/occasion/peugeot/5008"
+        },
+        {
+          "name": "504",
+          "category": "CAR",
+          "source": "https://www.tayara.tn/ads/k/achat%20voiture%20peugeot%20504%20tunis/"
+        },
+        {
+          "name": "508",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/occasion/peugeot/508"
+        },
+        {
+          "name": "Bipper",
+          "category": "LCV",
+          "source": "https://www.automobile.tn/fr/occasion/peugeot/bipper"
         },
         {
           "name": "Boxer",

@@ -2,9 +2,9 @@
   "format": "vehicle-catalog@1",
   "market": "TN",
   "source": {
-    "name": "automobile.tn — Prix du neuf",
-    "url": "https://www.automobile.tn/fr/neuf/chery",
-    "license": "Facts only (make and model names); no prices, specs, text or images copied.",
+    "name": "automobile.tn (new and used listings), tayara.tn (car search keywords)",
+    "url": "https://www.automobile.tn/fr/occasion",
+    "license": "Facts only (make and model names); no prices, specifications, text or images copied.",
     "retrieved_at": "2026-10-07"
   },
   "makes": [
@@ -18,6 +18,11 @@
           "source": "https://www.automobile.tn/fr/neuf/chery/arrizo-8-phev"
         },
         {
+          "name": "eQ1",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/occasion/chery/e3"
+        },
+        {
           "name": "Himla",
           "category": "LCV",
           "source": "https://www.automobile.tn/fr/neuf/chery/himla"
@@ -28,14 +33,29 @@
           "source": "https://www.automobile.tn/fr/neuf/chery/i03"
         },
         {
+          "name": "QQ",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/occasion/chery/qq"
+        },
+        {
           "name": "Tiggo 1X",
           "category": "CAR",
           "source": "https://www.automobile.tn/fr/neuf/chery/tiggo-1x-populaire"
         },
         {
+          "name": "Tiggo 2",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/occasion/chery/tiggo-2"
+        },
+        {
           "name": "Tiggo 2 Pro Max",
           "category": "CAR",
           "source": "https://www.automobile.tn/fr/neuf/chery/tiggo-2-pro"
+        },
+        {
+          "name": "Tiggo 3x",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/occasion/chery/tiggo-3x"
         },
         {
           "name": "Tiggo 4",
@@ -51,6 +71,11 @@
           "name": "Tiggo 8",
           "category": "CAR",
           "source": "https://www.automobile.tn/fr/neuf/chery/tiggo-8-phev"
+        },
+        {
+          "name": "Tiggo 8 Pro",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/occasion/chery/tiggo-8-pro"
         },
         {
           "name": "Tiggo 9",

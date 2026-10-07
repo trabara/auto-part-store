@@ -2,9 +2,9 @@
   "format": "vehicle-catalog@1",
   "market": "TN",
   "source": {
-    "name": "automobile.tn — Prix du neuf",
-    "url": "https://www.automobile.tn/fr/neuf/ssangyong",
-    "license": "Facts only (make and model names); no prices, specs, text or images copied.",
+    "name": "automobile.tn (new and used listings), tayara.tn (car search keywords)",
+    "url": "https://www.automobile.tn/fr/occasion",
+    "license": "Facts only (make and model names); no prices, specifications, text or images copied.",
     "retrieved_at": "2026-10-07"
   },
   "makes": [
@@ -12,6 +12,11 @@
       "name": "SsangYong",
       "source": "https://www.automobile.tn/fr/neuf/ssangyong",
       "models": [
+        {
+          "name": "Actyon Sports",
+          "category": "LCV",
+          "source": "https://www.automobile.tn/fr/occasion/ssangyong/actyon-sports"
+        },
         {
           "name": "Korando",
           "category": "CAR",
@@ -28,9 +33,19 @@
           "source": "https://www.automobile.tn/fr/neuf/ssangyong/rexton"
         },
         {
+          "name": "Stavic",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/occasion/ssangyong/stavic"
+        },
+        {
           "name": "Tivoli",
           "category": "CAR",
           "source": "https://www.automobile.tn/fr/neuf/ssangyong/tivoli"
+        },
+        {
+          "name": "XLV",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/occasion/ssangyong/xlv"
         }
       ]
     }

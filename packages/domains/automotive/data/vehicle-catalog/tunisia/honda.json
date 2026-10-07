@@ -2,9 +2,9 @@
   "format": "vehicle-catalog@1",
   "market": "TN",
   "source": {
-    "name": "automobile.tn — Prix du neuf",
-    "url": "https://www.automobile.tn/fr/neuf/honda",
-    "license": "Facts only (make and model names); no prices, specs, text or images copied.",
+    "name": "automobile.tn (new and used listings), tayara.tn (car search keywords)",
+    "url": "https://www.automobile.tn/fr/occasion",
+    "license": "Facts only (make and model names); no prices, specifications, text or images copied.",
     "retrieved_at": "2026-10-07"
   },
   "makes": [
@@ -16,6 +16,11 @@
           "name": "Accord",
           "category": "CAR",
           "source": "https://www.automobile.tn/fr/neuf/honda/accord"
+        },
+        {
+          "name": "Accord Coupé",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/occasion/honda/accord-coupe"
         },
         {
           "name": "City",

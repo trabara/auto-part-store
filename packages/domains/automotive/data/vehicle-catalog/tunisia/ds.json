@@ -1,0 +1,37 @@
+{
+  "format": "vehicle-catalog@1",
+  "market": "TN",
+  "source": {
+    "name": "automobile.tn (new and used listings), tayara.tn (car search keywords)",
+    "url": "https://www.automobile.tn/fr/occasion",
+    "license": "Facts only (make and model names); no prices, specifications, text or images copied.",
+    "retrieved_at": "2026-10-07"
+  },
+  "makes": [
+    {
+      "name": "DS",
+      "models": [
+        {
+          "name": "DS 3",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/occasion/ds/3"
+        },
+        {
+          "name": "DS 4",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/occasion/citroen/ds4"
+        },
+        {
+          "name": "DS 5",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/occasion/ds/5"
+        },
+        {
+          "name": "DS 7 Crossback",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/occasion/ds/7-crossback"
+        }
+      ]
+    }
+  ]
+}

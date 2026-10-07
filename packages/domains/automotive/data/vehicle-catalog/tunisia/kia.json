@@ -2,9 +2,9 @@
   "format": "vehicle-catalog@1",
   "market": "TN",
   "source": {
-    "name": "automobile.tn — Prix du neuf",
-    "url": "https://www.automobile.tn/fr/neuf/kia",
-    "license": "Facts only (make and model names); no prices, specs, text or images copied.",
+    "name": "automobile.tn (new and used listings), tayara.tn (car search keywords)",
+    "url": "https://www.automobile.tn/fr/occasion",
+    "license": "Facts only (make and model names); no prices, specifications, text or images copied.",
     "retrieved_at": "2026-10-07"
   },
   "makes": [
@@ -12,6 +12,16 @@
       "name": "Kia",
       "source": "https://www.automobile.tn/fr/neuf/kia",
       "models": [
+        {
+          "name": "Ceed",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/occasion/kia/ceed"
+        },
+        {
+          "name": "Cerato",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/occasion/kia/cerato"
+        },
         {
           "name": "EV3",
           "category": "CAR",
@@ -23,14 +33,34 @@
           "source": "https://www.automobile.tn/fr/neuf/kia/ev9"
         },
         {
+          "name": "K4",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/occasion/kia/k4"
+        },
+        {
+          "name": "K5",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/occasion/kia/k5"
+        },
+        {
           "name": "Niro",
           "category": "CAR",
           "source": "https://www.automobile.tn/fr/neuf/kia/niro"
         },
         {
+          "name": "Optima",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/occasion/kia/optima"
+        },
+        {
           "name": "Picanto",
           "category": "CAR",
           "source": "https://www.automobile.tn/fr/neuf/kia/picanto-populaire"
+        },
+        {
+          "name": "Rio",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/occasion/kia/rio"
         },
         {
           "name": "Seltos",
@@ -51,6 +81,16 @@
           "name": "Sportage",
           "category": "CAR",
           "source": "https://www.automobile.tn/fr/neuf/kia/sportage"
+        },
+        {
+          "name": "Stonic",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/occasion/kia/stonic"
+        },
+        {
+          "name": "XCeed",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/occasion/kia/xceed"
         }
       ]
     }

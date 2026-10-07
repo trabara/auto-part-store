@@ -2,9 +2,9 @@
   "format": "vehicle-catalog@1",
   "market": "TN",
   "source": {
-    "name": "automobile.tn — Prix du neuf",
-    "url": "https://www.automobile.tn/fr/neuf/byd",
-    "license": "Facts only (make and model names); no prices, specs, text or images copied.",
+    "name": "automobile.tn (new and used listings), tayara.tn (car search keywords)",
+    "url": "https://www.automobile.tn/fr/occasion",
+    "license": "Facts only (make and model names); no prices, specifications, text or images copied.",
     "retrieved_at": "2026-10-07"
   },
   "makes": [
@@ -26,6 +26,21 @@
           "name": "Dolphin Surf",
           "category": "CAR",
           "source": "https://www.automobile.tn/fr/neuf/byd/dolphin-surf"
+        },
+        {
+          "name": "King",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/occasion/byd/king"
+        },
+        {
+          "name": "Sealion 7",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/occasion/byd/sealion-7"
+        },
+        {
+          "name": "Song",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/occasion/byd/song"
         },
         {
           "name": "Song Plus",

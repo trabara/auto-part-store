@@ -2,9 +2,9 @@
   "format": "vehicle-catalog@1",
   "market": "TN",
   "source": {
-    "name": "automobile.tn — Prix du neuf",
-    "url": "https://www.automobile.tn/fr/neuf/jeep",
-    "license": "Facts only (make and model names); no prices, specs, text or images copied.",
+    "name": "automobile.tn (new and used listings), tayara.tn (car search keywords)",
+    "url": "https://www.automobile.tn/fr/occasion",
+    "license": "Facts only (make and model names); no prices, specifications, text or images copied.",
     "retrieved_at": "2026-10-07"
   },
   "makes": [
@@ -13,9 +13,19 @@
       "source": "https://www.automobile.tn/fr/neuf/jeep",
       "models": [
         {
+          "name": "Cherokee",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/occasion/jeep/cherokee"
+        },
+        {
           "name": "Compass",
           "category": "CAR",
           "source": "https://www.automobile.tn/fr/neuf/jeep/compass"
+        },
+        {
+          "name": "Grand Cherokee",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/occasion/jeep/grand-cherokee"
         },
         {
           "name": "Renegade",

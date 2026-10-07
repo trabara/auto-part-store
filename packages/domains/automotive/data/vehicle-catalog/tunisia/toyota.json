@@ -2,9 +2,9 @@
   "format": "vehicle-catalog@1",
   "market": "TN",
   "source": {
-    "name": "automobile.tn — Prix du neuf",
-    "url": "https://www.automobile.tn/fr/neuf/toyota",
-    "license": "Facts only (make and model names); no prices, specs, text or images copied.",
+    "name": "automobile.tn (new and used listings), tayara.tn (car search keywords)",
+    "url": "https://www.automobile.tn/fr/occasion",
+    "license": "Facts only (make and model names); no prices, specifications, text or images copied.",
     "retrieved_at": "2026-10-07"
   },
   "makes": [
@@ -18,14 +18,34 @@
           "source": "https://www.automobile.tn/fr/neuf/toyota/ace-14-places"
         },
         {
+          "name": "Agya",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/occasion/toyota/agya"
+        },
+        {
+          "name": "Avanza",
+          "category": "CAR",
+          "source": "https://www.tayara.tn/ads/k/achat%20voiture%20toyota%20avanza%20tunis/"
+        },
+        {
           "name": "bZ4X",
           "category": "CAR",
           "source": "https://www.automobile.tn/fr/neuf/toyota/bz4x"
         },
         {
+          "name": "C-HR",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/occasion/toyota/c-hr"
+        },
+        {
           "name": "Coaster",
           "category": "LCV",
           "source": "https://www.automobile.tn/fr/neuf/toyota/coaster"
+        },
+        {
+          "name": "Corolla",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/occasion/toyota/corolla-5p"
         },
         {
           "name": "Fortuner",
@@ -41,6 +61,11 @@
           "name": "Hilux",
           "category": "LCV",
           "source": "https://www.automobile.tn/fr/neuf/toyota/hilux-simple-cabine"
+        },
+        {
+          "name": "Land Cruiser",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/occasion/toyota/land-cruiser"
         },
         {
           "name": "Land Cruiser 300",

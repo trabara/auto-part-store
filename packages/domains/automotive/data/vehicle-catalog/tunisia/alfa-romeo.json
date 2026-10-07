@@ -1,0 +1,27 @@
+{
+  "format": "vehicle-catalog@1",
+  "market": "TN",
+  "source": {
+    "name": "automobile.tn (new and used listings), tayara.tn (car search keywords)",
+    "url": "https://www.automobile.tn/fr/occasion",
+    "license": "Facts only (make and model names); no prices, specifications, text or images copied.",
+    "retrieved_at": "2026-10-07"
+  },
+  "makes": [
+    {
+      "name": "Alfa Romeo",
+      "models": [
+        {
+          "name": "Giulietta",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/occasion/alfa-romeo/giulietta"
+        },
+        {
+          "name": "MiTo",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/occasion/alfa-romeo/mito"
+        }
+      ]
+    }
+  ]
+}

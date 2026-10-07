@@ -2,9 +2,9 @@
   "format": "vehicle-catalog@1",
   "market": "TN",
   "source": {
-    "name": "Isuzu Tunisia press coverage",
-    "url": "https://www.lapresse.tn/2026/09/23/kairouan-lambassadeur-du-japon-visite-le-site-de-production-des-vehicules-isuzu/",
-    "license": "Facts only (make and model names); no prices, specs, text or images copied.",
+    "name": "automobile.tn (new and used listings), tayara.tn (car search keywords)",
+    "url": "https://www.automobile.tn/fr/occasion",
+    "license": "Facts only (make and model names); no prices, specifications, text or images copied.",
     "retrieved_at": "2026-10-07"
   },
   "makes": [
@@ -17,9 +17,24 @@
           "source": "https://www.lapresse.tn/2026/09/23/kairouan-lambassadeur-du-japon-visite-le-site-de-production-des-vehicules-isuzu/"
         },
         {
+          "name": "Faster",
+          "category": "LCV",
+          "source": "https://www.tayara.tn/ads/k/achat%20voiture%20isuzu%20super%20faster/"
+        },
+        {
           "name": "MU-X",
           "category": "CAR",
           "source": "https://www.automotive-fleet.com/articles/tunisia-fleet-market-recovering-from-socio-economic-upheavals"
+        },
+        {
+          "name": "N-Series",
+          "category": "TRUCK",
+          "source": "https://www.tayara.tn/ads/k/isuzu%20nkr/"
+        },
+        {
+          "name": "TFR",
+          "category": "LCV",
+          "source": "https://www.tayara.tn/ads/k/achat%20voiture%20isuzu%20tfr/"
         }
       ]
     }

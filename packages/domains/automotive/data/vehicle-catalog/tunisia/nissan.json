@@ -2,9 +2,9 @@
   "format": "vehicle-catalog@1",
   "market": "TN",
   "source": {
-    "name": "automobile.tn — Prix du neuf",
-    "url": "https://www.automobile.tn/fr/neuf/nissan",
-    "license": "Facts only (make and model names); no prices, specs, text or images copied.",
+    "name": "automobile.tn (new and used listings), tayara.tn (car search keywords)",
+    "url": "https://www.automobile.tn/fr/occasion",
+    "license": "Facts only (make and model names); no prices, specifications, text or images copied.",
     "retrieved_at": "2026-10-07"
   },
   "makes": [
@@ -12,6 +12,11 @@
       "name": "Nissan",
       "source": "https://www.automobile.tn/fr/neuf/nissan",
       "models": [
+        {
+          "name": "Altima",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/occasion/nissan/altima"
+        },
         {
           "name": "Juke",
           "category": "CAR",
@@ -23,14 +28,29 @@
           "source": "https://www.automobile.tn/fr/neuf/nissan/magnite"
         },
         {
+          "name": "Micra",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/occasion/nissan/micra"
+        },
+        {
           "name": "Navara",
           "category": "LCV",
           "source": "https://www.automobile.tn/fr/neuf/nissan/navara"
         },
         {
+          "name": "Patrol",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/occasion/nissan/patrol"
+        },
+        {
           "name": "Qashqai",
           "category": "CAR",
           "source": "https://www.automobile.tn/fr/neuf/nissan/qashqai-e-power"
+        },
+        {
+          "name": "X-Trail",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/occasion/nissan/x-trail"
         }
       ]
     }

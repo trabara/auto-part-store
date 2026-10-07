@@ -2,9 +2,9 @@
   "format": "vehicle-catalog@1",
   "market": "TN",
   "source": {
-    "name": "automobile.tn — Prix du neuf",
-    "url": "https://www.automobile.tn/fr/neuf/great-wall",
-    "license": "Facts only (make and model names); no prices, specs, text or images copied.",
+    "name": "automobile.tn (new and used listings), tayara.tn (car search keywords)",
+    "url": "https://www.automobile.tn/fr/occasion",
+    "license": "Facts only (make and model names); no prices, specifications, text or images copied.",
     "retrieved_at": "2026-10-07"
   },
   "makes": [
@@ -12,6 +12,16 @@
       "name": "Great Wall",
       "source": "https://www.automobile.tn/fr/neuf/great-wall",
       "models": [
+        {
+          "name": "C30",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/occasion/great-wall/c30"
+        },
+        {
+          "name": "Haval H2",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/occasion/great-wall/h2"
+        },
         {
           "name": "Haval H6",
           "category": "CAR",
@@ -21,6 +31,11 @@
           "name": "Haval Jolion",
           "category": "CAR",
           "source": "https://www.automobile.tn/fr/neuf/great-wall/jolion"
+        },
+        {
+          "name": "Haval M4",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/occasion/great-wall/m4"
         },
         {
           "name": "Poer",

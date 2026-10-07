@@ -1,0 +1,27 @@
+{
+  "format": "vehicle-catalog@1",
+  "market": "TN",
+  "source": {
+    "name": "automobile.tn (new and used listings), tayara.tn (car search keywords)",
+    "url": "https://www.automobile.tn/fr/occasion",
+    "license": "Facts only (make and model names); no prices, specifications, text or images copied.",
+    "retrieved_at": "2026-10-07"
+  },
+  "makes": [
+    {
+      "name": "Iveco",
+      "models": [
+        {
+          "name": "Daily",
+          "category": "LCV",
+          "source": "https://www.automobile.tn/fr/occasion/iveco/daily"
+        },
+        {
+          "name": "Eurocargo",
+          "category": "TRUCK",
+          "source": "https://www.tayara.tn/ads/k/iveco%20eurocargo%20tunisie/"
+        }
+      ]
+    }
+  ]
+}

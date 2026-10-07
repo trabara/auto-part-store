@@ -1,0 +1,22 @@
+{
+  "format": "vehicle-catalog@1",
+  "market": "TN",
+  "source": {
+    "name": "automobile.tn (new and used listings), tayara.tn (car search keywords)",
+    "url": "https://www.automobile.tn/fr/occasion",
+    "license": "Facts only (make and model names); no prices, specifications, text or images copied.",
+    "retrieved_at": "2026-10-07"
+  },
+  "makes": [
+    {
+      "name": "Lancia",
+      "models": [
+        {
+          "name": "Ypsilon",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/occasion/lancia/ypsilon"
+        }
+      ]
+    }
+  ]
+}

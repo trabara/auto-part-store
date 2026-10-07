@@ -2,9 +2,9 @@
   "format": "vehicle-catalog@1",
   "market": "TN",
   "source": {
-    "name": "automobile.tn — Prix du neuf",
-    "url": "https://www.automobile.tn/fr/neuf/citroen",
-    "license": "Facts only (make and model names); no prices, specs, text or images copied.",
+    "name": "automobile.tn (new and used listings), tayara.tn (car search keywords)",
+    "url": "https://www.automobile.tn/fr/occasion",
+    "license": "Facts only (make and model names); no prices, specifications, text or images copied.",
     "retrieved_at": "2026-10-07"
   },
   "makes": [
@@ -13,9 +13,29 @@
       "source": "https://www.automobile.tn/fr/neuf/citroen",
       "models": [
         {
+          "name": "AX",
+          "category": "CAR",
+          "source": "https://www.tayara.tn/ads/k/achat%20voiture%20citroen%20ax%20tunis/"
+        },
+        {
           "name": "Berlingo",
           "category": "LCV",
           "source": "https://www.automobile.tn/fr/neuf/citroen/berlingo-multispace"
+        },
+        {
+          "name": "C-Elysée",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/occasion/citroen/c-elysee"
+        },
+        {
+          "name": "C1",
+          "category": "CAR",
+          "source": "https://www.tayara.tn/ads/k/citro%C3%ABn%20c1%20prix%20tunisie%20occasion/"
+        },
+        {
+          "name": "C15",
+          "category": "LCV",
+          "source": "https://www.tayara.tn/ads/k/achat%20voiture%20citroen%20c15%20tunis/"
         },
         {
           "name": "C3",
@@ -23,9 +43,39 @@
           "source": "https://www.automobile.tn/fr/neuf/citroen/c3-populaire"
         },
         {
+          "name": "C3 Aircross",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/occasion/citroen/c3-aircross"
+        },
+        {
+          "name": "C4",
+          "category": "CAR",
+          "source": "https://www.tayara.tn/ads/k/citroen%20c4%20tunisie%20prix/"
+        },
+        {
+          "name": "C4 Aircross",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/occasion/citroen/c4-aircross"
+        },
+        {
+          "name": "C4 Cactus",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/occasion/citroen/c4-cactus"
+        },
+        {
           "name": "C4 X",
           "category": "CAR",
           "source": "https://www.automobile.tn/fr/neuf/citroen/c4-x"
+        },
+        {
+          "name": "C5",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/occasion/citroen/c5"
+        },
+        {
+          "name": "C5 Aircross",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/occasion/citroen/c5-aircross"
         },
         {
           "name": "Jumper",
@@ -36,6 +86,16 @@
           "name": "Jumpy",
           "category": "LCV",
           "source": "https://www.automobile.tn/fr/neuf/citroen/jumpy-combi"
+        },
+        {
+          "name": "Nemo",
+          "category": "LCV",
+          "source": "https://www.automobile.tn/fr/occasion/citroen/nemo"
+        },
+        {
+          "name": "Xsara",
+          "category": "CAR",
+          "source": "https://www.tayara.tn/ads/k/citroen%20xsara%20tunisie/"
         }
       ]
     }

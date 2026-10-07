@@ -2,9 +2,9 @@
   "format": "vehicle-catalog@1",
   "market": "TN",
   "source": {
-    "name": "automobile.tn — Prix du neuf",
-    "url": "https://www.automobile.tn/fr/neuf/audi",
-    "license": "Facts only (make and model names); no prices, specs, text or images copied.",
+    "name": "automobile.tn (new and used listings), tayara.tn (car search keywords)",
+    "url": "https://www.automobile.tn/fr/occasion",
+    "license": "Facts only (make and model names); no prices, specifications, text or images copied.",
     "retrieved_at": "2026-10-07"
   },
   "makes": [
@@ -12,6 +12,21 @@
       "name": "Audi",
       "source": "https://www.automobile.tn/fr/neuf/audi",
       "models": [
+        {
+          "name": "A1",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/occasion/audi/a1"
+        },
+        {
+          "name": "A1 Sportback",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/occasion/audi/a1-sportback"
+        },
+        {
+          "name": "A3",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/occasion/audi/a3"
+        },
         {
           "name": "A3 Saloon",
           "category": "CAR",
@@ -23,14 +38,54 @@
           "source": "https://www.automobile.tn/fr/neuf/audi/a3-sportback"
         },
         {
+          "name": "A4",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/occasion/audi/a4"
+        },
+        {
           "name": "A5",
           "category": "CAR",
           "source": "https://www.automobile.tn/fr/neuf/audi/a5-berline"
         },
         {
+          "name": "A5 Coupé",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/occasion/audi/a5-coupe"
+        },
+        {
+          "name": "A5 Sportback",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/occasion/audi/a5-sportback"
+        },
+        {
+          "name": "A6",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/occasion/audi/a6"
+        },
+        {
           "name": "A6 Sportback e-tron",
           "category": "CAR",
           "source": "https://www.automobile.tn/fr/neuf/audi/a6-sportback-e-tron"
+        },
+        {
+          "name": "A7 Sportback",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/occasion/audi/a7-sportback"
+        },
+        {
+          "name": "e-tron",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/occasion/audi/e-tron"
+        },
+        {
+          "name": "e-tron GT",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/occasion/audi/e-tron-gt"
+        },
+        {
+          "name": "e-tron Sportback",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/occasion/audi/e-tron-sportback"
         },
         {
           "name": "Q2",
@@ -48,6 +103,21 @@
           "source": "https://www.automobile.tn/fr/neuf/audi/q3-sportback"
         },
         {
+          "name": "Q4 e-tron",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/occasion/audi/q4-e-tron"
+        },
+        {
+          "name": "Q5",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/occasion/audi/q5"
+        },
+        {
+          "name": "Q5 Sportback",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/occasion/audi/q5-sportback"
+        },
+        {
           "name": "Q6 e-tron",
           "category": "CAR",
           "source": "https://www.automobile.tn/fr/neuf/audi/q6-e-tron"
@@ -56,6 +126,11 @@
           "name": "Q6 Sportback e-tron",
           "category": "CAR",
           "source": "https://www.automobile.tn/fr/neuf/audi/q6-sportback-e-tron"
+        },
+        {
+          "name": "Q7",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/occasion/audi/q7"
         },
         {
           "name": "Q8",

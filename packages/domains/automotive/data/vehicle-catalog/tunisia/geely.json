@@ -2,9 +2,9 @@
   "format": "vehicle-catalog@1",
   "market": "TN",
   "source": {
-    "name": "automobile.tn — Prix du neuf",
-    "url": "https://www.automobile.tn/fr/neuf/geely",
-    "license": "Facts only (make and model names); no prices, specs, text or images copied.",
+    "name": "automobile.tn (new and used listings), tayara.tn (car search keywords)",
+    "url": "https://www.automobile.tn/fr/occasion",
+    "license": "Facts only (make and model names); no prices, specifications, text or images copied.",
     "retrieved_at": "2026-10-07"
   },
   "makes": [
@@ -41,6 +41,16 @@
           "name": "EX5",
           "category": "CAR",
           "source": "https://www.automobile.tn/fr/neuf/geely/ex5-hybride"
+        },
+        {
+          "name": "GX3",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/occasion/geely/gx3"
+        },
+        {
+          "name": "GX3 Pro",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/occasion/geely/gx3-pro"
         },
         {
           "name": "Monjaro",

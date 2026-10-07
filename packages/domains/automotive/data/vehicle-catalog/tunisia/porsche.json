@@ -2,9 +2,9 @@
   "format": "vehicle-catalog@1",
   "market": "TN",
   "source": {
-    "name": "automobile.tn — Prix du neuf",
-    "url": "https://www.automobile.tn/fr/neuf/porsche",
-    "license": "Facts only (make and model names); no prices, specs, text or images copied.",
+    "name": "automobile.tn (new and used listings), tayara.tn (car search keywords)",
+    "url": "https://www.automobile.tn/fr/occasion",
+    "license": "Facts only (make and model names); no prices, specifications, text or images copied.",
     "retrieved_at": "2026-10-07"
   },
   "makes": [
@@ -16,6 +16,11 @@
           "name": "911",
           "category": "CAR",
           "source": "https://www.automobile.tn/fr/neuf/porsche/911"
+        },
+        {
+          "name": "Boxster",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/occasion/porsche/boxster"
         },
         {
           "name": "Cayenne",

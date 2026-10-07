@@ -2,9 +2,9 @@
   "format": "vehicle-catalog@1",
   "market": "TN",
   "source": {
-    "name": "automobile.tn — Prix du neuf",
-    "url": "https://www.automobile.tn/fr/neuf/fiat",
-    "license": "Facts only (make and model names); no prices, specs, text or images copied.",
+    "name": "automobile.tn (new and used listings), tayara.tn (car search keywords)",
+    "url": "https://www.automobile.tn/fr/occasion",
+    "license": "Facts only (make and model names); no prices, specifications, text or images copied.",
     "retrieved_at": "2026-10-07"
   },
   "makes": [
@@ -12,6 +12,16 @@
       "name": "Fiat",
       "source": "https://www.automobile.tn/fr/neuf/fiat",
       "models": [
+        {
+          "name": "500",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/occasion/fiat/500"
+        },
+        {
+          "name": "500X",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/occasion/fiat/500x"
+        },
         {
           "name": "Doblo",
           "category": "LCV",
@@ -23,9 +33,64 @@
           "source": "https://www.automobile.tn/fr/neuf/fiat/ducato"
         },
         {
+          "name": "Fiorino",
+          "category": "LCV",
+          "source": "https://www.automobile.tn/fr/occasion/fiat/fiorino"
+        },
+        {
+          "name": "Grande Punto",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/occasion/fiat/grande-punto"
+        },
+        {
+          "name": "Linea",
+          "category": "CAR",
+          "source": "https://www.tayara.tn/ads/k/prix%20fiat%20linea%20tunisie/"
+        },
+        {
+          "name": "Palio",
+          "category": "CAR",
+          "source": "https://www.tayara.tn/ads/k/achat%20voiture%20fiat%20palio%20tunis/"
+        },
+        {
+          "name": "Panda",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/occasion/fiat/panda"
+        },
+        {
+          "name": "Punto",
+          "category": "CAR",
+          "source": "https://www.tayara.tn/ads/k/fiat%20grande%20punto%20prix%20neuf%20tunisie/"
+        },
+        {
+          "name": "Qubo",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/occasion/fiat/qubo"
+        },
+        {
           "name": "Scudo",
           "category": "LCV",
           "source": "https://www.automobile.tn/fr/neuf/fiat/scudo-combi"
+        },
+        {
+          "name": "Seicento",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/occasion/fiat/seicento"
+        },
+        {
+          "name": "Siena",
+          "category": "CAR",
+          "source": "https://www.tayara.tn/ads/k/fiat%20siena%20prix%20tunisie/"
+        },
+        {
+          "name": "Tipo",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/occasion/fiat/tipo"
+        },
+        {
+          "name": "Uno",
+          "category": "CAR",
+          "source": "https://www.tayara.tn/ads/k/fiat%20uno%20tunisie/"
         }
       ]
     }

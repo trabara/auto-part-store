@@ -2,9 +2,9 @@
   "format": "vehicle-catalog@1",
   "market": "TN",
   "source": {
-    "name": "automobile.tn — Prix du neuf",
-    "url": "https://www.automobile.tn/fr/neuf/renault",
-    "license": "Facts only (make and model names); no prices, specs, text or images copied.",
+    "name": "automobile.tn (new and used listings), tayara.tn (car search keywords)",
+    "url": "https://www.automobile.tn/fr/occasion",
+    "license": "Facts only (make and model names); no prices, specifications, text or images copied.",
     "retrieved_at": "2026-10-07"
   },
   "makes": [
@@ -13,9 +13,34 @@
       "source": "https://www.automobile.tn/fr/neuf/renault",
       "models": [
         {
+          "name": "19",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/occasion/renault/r-19"
+        },
+        {
+          "name": "21",
+          "category": "CAR",
+          "source": "https://www.tayara.tn/ads/k/achat%20voiture%20renault%20r%2021%20sousse/"
+        },
+        {
+          "name": "25",
+          "category": "CAR",
+          "source": "https://www.tayara.tn/ads/k/achat%20voiture%20renault%20r%2025%20tunis/"
+        },
+        {
+          "name": "4",
+          "category": "CAR",
+          "source": "https://www.tayara.tn/ads/k/renault%204l%20occasion%20tunisie/"
+        },
+        {
           "name": "Austral",
           "category": "CAR",
           "source": "https://www.automobile.tn/fr/neuf/renault/austral"
+        },
+        {
+          "name": "Captur",
+          "category": "CAR",
+          "source": "https://www.tayara.tn/ads/k/renault%20capture%20tunisie/"
         },
         {
           "name": "Clio",
@@ -28,6 +53,21 @@
           "source": "https://www.automobile.tn/fr/neuf/renault/express-van"
         },
         {
+          "name": "Fluence",
+          "category": "CAR",
+          "source": "https://www.tayara.tn/ads/k/renault%20fluence%20tunisie/"
+        },
+        {
+          "name": "Kadjar",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/occasion/renault/kadjar"
+        },
+        {
+          "name": "Kangoo",
+          "category": "LCV",
+          "source": "https://www.automobile.tn/fr/occasion/renault/kangoo"
+        },
+        {
           "name": "Kwid",
           "category": "CAR",
           "source": "https://www.automobile.tn/fr/neuf/renault/kwid"
@@ -36,6 +76,36 @@
           "name": "Master",
           "category": "LCV",
           "source": "https://www.automobile.tn/fr/neuf/renault/master"
+        },
+        {
+          "name": "Megane",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/occasion/renault/megane"
+        },
+        {
+          "name": "Rafale",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/occasion/renault/rafale"
+        },
+        {
+          "name": "Symbol",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/occasion/renault/symbol"
+        },
+        {
+          "name": "Trafic",
+          "category": "LCV",
+          "source": "https://www.tayara.tn/ads/k/renault%20trafic%20prix%20tunisie/"
+        },
+        {
+          "name": "Twingo",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/occasion/renault/twingo"
+        },
+        {
+          "name": "Vel Satis",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/occasion/renault/vel-satis"
         }
       ]
     }

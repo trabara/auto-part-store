@@ -2,9 +2,9 @@
   "format": "vehicle-catalog@1",
   "market": "TN",
   "source": {
-    "name": "automobile.tn — Prix du neuf",
-    "url": "https://www.automobile.tn/fr/neuf/mahindra",
-    "license": "Facts only (make and model names); no prices, specs, text or images copied.",
+    "name": "automobile.tn (new and used listings), tayara.tn (car search keywords)",
+    "url": "https://www.automobile.tn/fr/occasion",
+    "license": "Facts only (make and model names); no prices, specifications, text or images copied.",
     "retrieved_at": "2026-10-07"
   },
   "makes": [
@@ -13,14 +13,29 @@
       "source": "https://www.automobile.tn/fr/neuf/mahindra",
       "models": [
         {
+          "name": "KUV100",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/occasion/mahindra/kuv-100"
+        },
+        {
           "name": "Pick-up",
           "category": "LCV",
           "source": "https://www.automobile.tn/fr/neuf/mahindra/pick-up-sc"
         },
         {
+          "name": "Scorpio",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/occasion/mahindra/scorpio-suv"
+        },
+        {
           "name": "XUV 3XO",
           "category": "CAR",
           "source": "https://www.automobile.tn/fr/neuf/mahindra/3xo"
+        },
+        {
+          "name": "XUV300",
+          "category": "CAR",
+          "source": "https://www.automobile.tn/fr/occasion/mahindra/xuv-300"
         }
       ]
     }

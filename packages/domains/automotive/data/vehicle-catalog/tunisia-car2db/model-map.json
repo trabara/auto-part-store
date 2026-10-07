@@ -1,0 +1,20 @@
+{
+  "Audi": {
+    "A1 Sportback": { "model": "A1", "series": "sportback|5[ -]doors" },
+    "A3 Sportback": { "model": "A3", "series": "sportback|hatchback 5" },
+    "A3 Saloon": { "model": "A3", "series": "sedan" },
+    "A5 Coupé": { "model": "A5", "series": "coupe" },
+    "A5 Sportback": { "model": "A5", "series": "sportback|liftback" },
+    "A6 Sportback e-tron": { "model": "A6 e-tron" },
+    "A7 Sportback": { "model": "A7" }
+  },
+  "BMW": {
+    "1 Series": { "model": "1 series" },
+    "2 Series Gran Coupé": { "model": "2 series", "series": "gran coupe" },
+    "3 Series Coupé": { "model": "3 series", "series": "coupe" },
+    "3 Series Gran Turismo": { "model": "3 series", "series": "gran turismo" },
+    "4 Series Coupé": { "model": "4 series", "series": "^coupe" },
+    "4 Series Gran Coupé": { "model": "4 series", "series": "gran coupe" },
+    "5 Series Gran Turismo": { "model": "5 series", "series": "gran turismo" }
+  }
+}

@@ -1,0 +1,3 @@
+# Generated from car2db (licensed data): regenerate with the fetch script.
+*.json
+!model-map.json

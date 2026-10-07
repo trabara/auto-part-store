@@ -1,9 +1,9 @@
 import { defineMiddlewares } from "@medusajs/framework";
 import { authenticate, validateAndTransformBody, validateAndTransformQuery } from "@medusajs/framework/http";
-import { ReplaceConditionsSchema } from "@repo/module-fitment/conditions";
-import { FITMENTS_PATH, fitmentRoutes } from "@repo/module-fitment/http";
-import { PARTS_PATH, partsRoutes } from "@repo/module-parts/http";
-import { VEHICLES_PATH, vehicleRoutes } from "@repo/module-vehicle/http";
+import { ReplaceConditionsSchema } from "@repo/module-fitment/contract";
+import { FITMENTS_PATH, fitmentRoutes } from "@repo/module-fitment";
+import { PARTS_PATH, partsRoutes } from "@repo/module-parts";
+import { VEHICLES_PATH, vehicleRoutes } from "@repo/module-vehicle";
 import { GarageCreateSchema, GarageUpdateSchema } from "./store/garage/helpers";
 import {
   StorePartSearchParams,

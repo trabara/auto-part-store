@@ -13,8 +13,9 @@
  * - integration suites get a per-worker temp database, dropped afterwards
  * - `~/…` maps to `<rootDir>/src/…` (the plugin tsconfig alias)
  * - `@repo/module-<name>[/entry]` maps to the module's source
- *   (packages/modules/<name>/src[/entry]): tests run on source, and the
- *   modules a test project loads by path are the same files
+ *   (`.` → packages/modules/<name>/src/server, `/entry` → src/<entry>): tests
+ *   run on source, and the modules a test project loads by path are the same
+ *   files
  */
 const path = require("path");
 const dotenv = require("dotenv");
@@ -42,7 +43,7 @@ module.exports = function medusaJestConfig(rootDir, overrides = {}) {
     testTimeout: integration ? 60_000 : 10_000,
     moduleNameMapper: {
       "^~/(.*)$": "<rootDir>/src/$1",
-      "^@repo/module-([^/]+)$": `${MODULES}/$1/src`,
+      "^@repo/module-([^/]+)$": `${MODULES}/$1/src/server`,
       "^@repo/module-([^/]+)/(.*)$": `${MODULES}/$1/src/$2`,
     },
     ...(SUITES[type] ? { testMatch: SUITES[type] } : {}),

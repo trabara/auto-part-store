@@ -1,4 +1,4 @@
-// Admin entry (`@repo/module-fitment/admin`): the module's admin definition and
-// its translations. No UI code: tests and the server load it too.
+// Admin entry (`@repo/module-fitment/admin`): the module's admin definition.
+// No UI code: tests and the server load it too (UI: `./ui`). Translations are
+// part of the contract (`@repo/module-fitment/contract`).
 export { default as fitmentAdmin } from "./module";
-export { default as fitmentTranslations, type FitmentMessages } from "./i18n";

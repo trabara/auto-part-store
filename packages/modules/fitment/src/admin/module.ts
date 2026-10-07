@@ -2,8 +2,7 @@
 // no UI code here; the Conditions panel is given by the admin page
 // (./sections.tsx).
 import { defineModule } from "@repo/framework/core";
-import { conditionAttributes } from "../conditions";
-import { AutomotiveAttribute, Fitment, FitmentPosition } from "../entities";
+import { AutomotiveAttribute, conditionAttributes, Fitment, FitmentPosition } from "../contract";
 
 // Features match the entities of the module's API (../http.ts).
 export default defineModule({

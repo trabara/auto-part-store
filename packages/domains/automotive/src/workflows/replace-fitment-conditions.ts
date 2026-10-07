@@ -1,7 +1,7 @@
 // Replaces a fitment's condition tree; the rules live in FitmentModuleService.
 import { createStep, createWorkflow, StepResponse, WorkflowResponse } from "@medusajs/framework/workflows-sdk";
 import { FITMENT_MODULE, type FitmentModuleService } from "@repo/module-fitment";
-import type { ConditionGroupInput } from "@repo/module-fitment/conditions";
+import type { ConditionGroupInput } from "@repo/module-fitment/contract";
 import type { ReplaceConditionsUndo } from "@repo/module-fitment";
 
 export type ReplaceFitmentConditionsInput = { fitment_id: string; tree: ConditionGroupInput | null };

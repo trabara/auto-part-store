@@ -1,6 +1,6 @@
 import { i18nKeys } from "@repo/framework/core";
 import i18n from "../../admin/i18n";
-import { conditionAttribute, conditionAttributes } from "@repo/module-fitment/conditions";
+import { conditionAttribute, conditionAttributes } from "@repo/module-fitment/contract";
 import { registerVehicleConditions, VEHICLE_ATTRIBUTES } from "../vehicle-attributes";
 
 const attr = (code: string) => VEHICLE_ATTRIBUTES.find((a) => a.code === code);

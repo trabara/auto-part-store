@@ -2,10 +2,10 @@
  * `layers/module-boundaries`: a reusable module (`packages/modules/<name>/src`)
  * only imports
  *   - its own files (relative, or its own `@repo/module-<name>/…` entries),
- *   - a declared dependency's `entities` entry (`@repo/module-<dep>/entities`),
+ *   - a declared dependency's contract (`@repo/module-<dep>/contract`),
  *   - platform and third-party packages,
  * and never a domain (`@repo/domain-*`) or a file outside its package.
- * Dependencies come from the module's `src/manifest.ts`
+ * Dependencies come from the module's `src/contract/manifest.ts`
  * (`defineModuleManifest({ key, dependsOn: ["…"] })`, a literal array).
  * Type-only imports are allowed.
  */
@@ -29,7 +29,8 @@ function readManifest(root) {
   if (manifests.has(root)) return manifests.get(root);
   let manifest = null;
   try {
-    const source = fs.readFileSync(`${root}/manifest.ts`, "utf8");
+    const file = [`${root}/contract/manifest.ts`, `${root}/manifest.ts`].find((f) => fs.existsSync(f));
+    const source = fs.readFileSync(file, "utf8");
     const key = source.match(/key:\s*["']([^"']+)["']/)?.[1];
     const deps = source.match(/dependsOn:\s*\[([^\]]*)\]/)?.[1] ?? "";
     manifest = { key, dependsOn: [...deps.matchAll(/["']([^"']+)["']/g)].map((m) => m[1]) };
@@ -40,12 +41,13 @@ function readManifest(root) {
   return manifest;
 }
 
-const isEntitiesEntry = (rest) => rest === "entities" || rest === "entities/index";
+// The contract is a module's public entry (`entities` until every module has one).
+const isContractEntry = (rest) => ["contract", "contract/index", "entities", "entities/index"].includes(rest);
 
 export const moduleBoundaries = {
   meta: {
     type: "problem",
-    docs: { description: "Reusable modules import only their own files and declared dependencies' entities." },
+    docs: { description: "Reusable modules import only their own files and declared dependencies' contract." },
     schema: [],
   },
   create(context) {
@@ -69,7 +71,7 @@ export const moduleBoundaries = {
         const [, name, rest = ""] = pkg;
         if (name === mod.name) return;
         if (!deps.includes(name)) return fail(`Module "${mod.name}" doesn't declare a dependency on "${name}" (manifest.ts dependsOn).`);
-        if (!isEntitiesEntry(rest)) return fail(`Module "${mod.name}" may only import "@repo/module-${name}/entities" (definitions), not "${source}".`);
+        if (!isContractEntry(rest)) return fail(`Module "${mod.name}" may only import "@repo/module-${name}/contract", not "${source}".`);
         return;
       }
       if (!source.startsWith(".")) return;
@@ -81,7 +83,7 @@ export const moduleBoundaries = {
 
     return {
       Program(node) {
-        if (!manifest) context.report({ node, message: `Module "${mod.name}" has no manifest.ts (defineModuleManifest).` });
+        if (!manifest) context.report({ node, message: `Module "${mod.name}" has no contract/manifest.ts (defineModuleManifest).` });
       },
       ImportDeclaration: (node) => check(node, node.source.value, node.importKind === "type"),
       ExportNamedDeclaration: (node) => node.source && check(node, node.source.value, node.exportKind === "type"),

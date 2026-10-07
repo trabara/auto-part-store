@@ -3,7 +3,7 @@ import { defineWidgetConfig } from "@medusajs/admin-sdk";
 import type { AdminCustomer, DetailWidgetProps } from "@medusajs/framework/types";
 import { EntityPanel, Module, useLabels } from "@repo/dashboard/module";
 import { vehicleAdmin as vehicles } from "@repo/module-vehicle/admin";
-import { CustomerVehicle, Vehicle } from "@repo/module-vehicle/entities";
+import { CustomerVehicle, Vehicle } from "@repo/module-vehicle/contract";
 import { useDomainText } from "../use-domain-text";
 
 function CustomerGarage({ customerId }: { customerId: string }) {

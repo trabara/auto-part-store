@@ -6,7 +6,7 @@ import type { IProductModuleService } from "@medusajs/framework/types";
 import { MedusaError, Modules } from "@medusajs/framework/utils";
 import { onEntity, type HookContext } from "@repo/framework/entity/server";
 import { PARTS_MODULE, type PartsModuleService } from "@repo/module-parts";
-import { BrandKind } from "@repo/module-parts/entities";
+import { BrandKind } from "@repo/module-parts/contract";
 
 export const BRAND_OPTION_TITLE = "Brand";
 

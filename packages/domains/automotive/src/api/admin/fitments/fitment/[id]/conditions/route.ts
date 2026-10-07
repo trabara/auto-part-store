@@ -2,7 +2,8 @@
 // (A level below the generic /admin/fitments/:entity/:id routes.)
 import type { MedusaRequest, MedusaResponse } from "@medusajs/framework/http";
 import { FITMENT_MODULE, type FitmentModuleService } from "@repo/module-fitment";
-import { summarizeConditions, type ConditionGroupInput } from "@repo/module-fitment/conditions";
+import { type ConditionGroupInput } from "@repo/module-fitment/contract";
+import { summarizeConditions } from "@repo/module-fitment/core";
 import { replaceFitmentConditionsWorkflow } from "../../../../../../workflows/replace-fitment-conditions";
 
 const fitments = (req: MedusaRequest) => req.scope.resolve<FitmentModuleService>(FITMENT_MODULE);

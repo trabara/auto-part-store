@@ -4,7 +4,7 @@ import {
   updateEntitiesWorkflow,
   withReadableErrors,
 } from "@repo/framework/entity/server";
-import { CustomerVehicle } from "@repo/module-vehicle/entities";
+import { CustomerVehicle } from "@repo/module-vehicle/contract";
 import { GARAGE_TARGET, ownGarageVehicle } from "../helpers";
 
 export async function PUT(req: AuthenticatedMedusaRequest<Record<string, unknown>>, res: MedusaResponse) {

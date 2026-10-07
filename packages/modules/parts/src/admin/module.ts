@@ -1,5 +1,5 @@
 import { defineModule } from "@repo/framework/core";
-import { Brand, PartNumber } from "../entities";
+import { Brand, PartNumber } from "../contract";
 
 // Admin definition of the parts module (`/app/parts/...`). Isomorphic: no UI code.
 // Features match the entities of the module's API (../http.ts).

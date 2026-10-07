@@ -3,15 +3,9 @@
 // editor and the server register the same list).
 import { z } from "@medusajs/framework/zod";
 import { i18nKeys } from "@repo/framework/core";
-import {
-  attributesFromSchema,
-  describeAttribute,
-  humanizeValue,
-  provideConditionAttributes,
-  type AttributeMeta,
-  type ConditionAttribute,
-} from "@repo/module-fitment/conditions";
-import { Vehicle, VehicleEngine, VehicleModel } from "@repo/module-vehicle/entities";
+import { provideConditionAttributes, type ConditionAttribute } from "@repo/module-fitment/contract";
+import { attributesFromSchema, describeAttribute, humanizeValue, type AttributeMeta } from "@repo/module-fitment/core";
+import { Vehicle, VehicleEngine, VehicleModel } from "@repo/module-vehicle/contract";
 
 const META: Record<string, AttributeMeta> = {
   body_style: { label: "Body style" },

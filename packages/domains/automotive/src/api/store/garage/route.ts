@@ -1,7 +1,7 @@
 // The logged-in customer's garage ("my vehicles").
 import type { AuthenticatedMedusaRequest, MedusaResponse } from "@medusajs/framework/http";
 import { createEntitiesWorkflow, withReadableErrors } from "@repo/framework/entity/server";
-import { CustomerVehicle } from "@repo/module-vehicle/entities";
+import { CustomerVehicle } from "@repo/module-vehicle/contract";
 import { customerId, GARAGE_TARGET, ownGarageVehicle, vehicleService } from "./helpers";
 
 export async function GET(req: AuthenticatedMedusaRequest, res: MedusaResponse) {

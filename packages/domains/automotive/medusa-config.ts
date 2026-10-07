@@ -21,6 +21,6 @@ export default defineConfig({
   // The domain's modules, loaded from source (Jest maps @repo/module-* imports
   // to the same files, so the server and the tests share one instance).
   modules: automotiveDomain.modules.map((m) => ({
-    resolve: path.join(__dirname, "../../modules", m.resolve!.replace("@repo/module-", ""), "src"),
+    resolve: path.join(__dirname, "../../modules", m.resolve!.replace("@repo/module-", ""), "src", "server"),
   })),
 });

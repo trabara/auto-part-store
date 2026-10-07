@@ -1,3 +1,3 @@
-import { fitmentRoutes } from "@repo/module-fitment/http";
+import { fitmentRoutes } from "@repo/module-fitment";
 
 export const { GET, PUT, DELETE } = fitmentRoutes.item;

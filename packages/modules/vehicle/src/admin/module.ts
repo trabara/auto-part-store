@@ -9,7 +9,7 @@ import {
   VehicleMake,
   VehicleModel,
   VehicleReference,
-} from "../entities";
+} from "../contract";
 
 // Features match the entities of the module's API (../http.ts).
 export default defineModule({

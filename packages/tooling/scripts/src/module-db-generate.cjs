@@ -2,7 +2,7 @@
 /**
  * Migrations from entity changes, for a module package
  * (packages/modules/<name>): Medusa's `plugin:db:generate` for one module
- * whose sources sit in `src/` (index.ts, models/, migrations/).
+ * whose Medusa sources sit in `src/server/` (index.ts, models/, migrations/).
  *
  * Usage (from the module's package, env from .env.test[.example]):
  *   module-db-generate [moduleDir]
@@ -12,7 +12,7 @@ const path = require("path");
 const { createRequire } = require("module");
 
 const dir = path.resolve(process.argv[2] ?? process.cwd());
-const src = path.join(dir, "src");
+const src = path.join(dir, "src", "server");
 const local = createRequire(path.join(dir, "package.json"));
 
 // Load the module's TypeScript sources (decorators: the module's tsconfig).

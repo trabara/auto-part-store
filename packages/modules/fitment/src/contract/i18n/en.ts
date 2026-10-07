@@ -1,0 +1,103 @@
+// English messages of the fitment module: the source every locale matches.
+export const en = {
+  name: "Fitments",
+  features: {
+    fitment: "Fitments",
+    fitment_position: "Positions",
+    automotive_attribute: "Vehicle attributes",
+  },
+  steps: {
+    fitment: { application: "Application", production: "Production window" },
+  },
+  messages: {
+    conditions: {
+      // The English source of operator words and validation messages.
+      operators: {
+        eq: "is", neq: "is not", gt: "is above", gte: "is at least", lt: "is below", lte: "is at most",
+        between: "is between", in: "is one of", not_in: "is none of",
+      },
+      validation: {
+        and: "and",
+        or: "or",
+        root: "Conditions",
+        group: "group {{n}}",
+        tooDeep: "groups can be nested {{max}} levels deep at most.",
+        unknownAttribute: "\"{{code}}\" is not a known attribute.",
+        badOperator: "{{attr}} can't use \"{{op}}\".",
+        needsValues: "{{attr}} needs at least one value.",
+        needsSingle: "{{attr}} needs a single value.",
+        needsValue: "{{attr}} needs a value.",
+        badValue: "{{value}} is not a valid {{attr}}.",
+        notNumber: "{{attr}} must be a number.",
+        needsUpper: "{{attr}} needs an upper bound.",
+        upperBelow: "the upper bound of {{attr}} is below the lower one.",
+      },
+      editor: {
+        fitsWhen: "Fits when",
+        all: "all",
+        any: "any",
+        ofTheseMatch: "of these match:",
+        condition: "Condition",
+        group: "Group",
+        removeCondition: "Remove condition",
+        removeGroup: "Remove group",
+        from: "from",
+        to: "to",
+        value: "value",
+        listPlaceholder: "Comma-separated, e.g. GTI, R-Line",
+      },
+      drawer: {
+        title: "Fitment conditions",
+        description: "Narrow which configurations of the vehicle this part fits (e.g. front-wheel drive only).",
+        none: "No conditions: the part fits every configuration of the vehicle.",
+        addFirst: "Add a condition",
+        summary: "Summary",
+        noConditions: "No conditions",
+        removeAll: "Remove all",
+        saved: "Conditions saved",
+        removed: "Conditions removed",
+        saveFailed: "Failed to save conditions",
+      },
+      section: { title: "Conditions", none: "None: fits every configuration of the vehicle." },
+    },
+  },
+  entities: {
+    Fitment: {
+      name: "Fitment",
+      plural: "Fitments",
+      fields: {
+        variant: "Part",
+        vehicle: "Vehicle",
+        position: "Position",
+        quantity: "Quantity",
+        from_year: "From year",
+        from_month: "From month",
+        to_year: "To year",
+        to_month: "To month",
+        notes: "Notes",
+        conditions_summary: "Conditions",
+      },
+    },
+    FitmentPosition: {
+      name: "Position",
+      plural: "Positions",
+      fields: { code: "Code", name: "Name", category: "Category", fitments: "Fitments" },
+    },
+    AutomotiveAttribute: {
+      name: "Vehicle attribute",
+      plural: "Vehicle attributes",
+      fields: { code: "Vehicle field", name: "Name", data_type: "Type", default_unit: "Unit", category: "Category" },
+      values: {
+        data_type: {
+          string: "Text",
+          number: "Number",
+          boolean: "Yes / no",
+          date: "Date",
+          enum: "List of values",
+          array: "List",
+          object: "Object",
+        },
+      },
+    },
+  },
+};

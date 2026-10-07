@@ -4,8 +4,8 @@
   "private": true,
   "description": "Parts module: brands (owning the shared Brand option) and part numbers with equivalents",
   "license": "UNLICENSED",
-  "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
+  "main": "./dist/server/index.js",
+  "types": "./dist/server/index.d.ts",
   "files": [
     "dist",
     "src"
@@ -13,22 +13,13 @@
   "exports": {
     "./package.json": "./package.json",
     ".": {
-      "types": "./dist/index.d.ts",
-      "default": "./dist/index.js"
+      "types": "./dist/server/index.d.ts",
+      "default": "./dist/server/index.js"
     },
-    "./entities": {
-      "types": "./dist/entities/index.d.ts",
-      "import": "./src/entities/index.ts",
-      "default": "./dist/entities/index.js"
-    },
-    "./manifest": {
-      "types": "./dist/manifest.d.ts",
-      "import": "./src/manifest.ts",
-      "default": "./dist/manifest.js"
-    },
-    "./http": {
-      "types": "./dist/http.d.ts",
-      "default": "./dist/http.js"
+    "./contract": {
+      "types": "./dist/contract/index.d.ts",
+      "import": "./src/contract/index.ts",
+      "default": "./dist/contract/index.js"
     },
     "./admin": {
       "types": "./dist/admin/index.d.ts",

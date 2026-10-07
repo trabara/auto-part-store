@@ -8,7 +8,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useSdk } from "@repo/dashboard/common";
 import { EntityPanel, Module, entityUrl } from "@repo/dashboard/module";
 import { partsAdmin as parts } from "@repo/module-parts/admin";
-import { Brand } from "@repo/module-parts/entities";
+import { Brand } from "@repo/module-parts/contract";
 import { useDomainText } from "../use-domain-text";
 
 function VariantBrand({ variant }: { variant: AdminProductVariant }) {

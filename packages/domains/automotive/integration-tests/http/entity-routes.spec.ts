@@ -16,9 +16,9 @@ import {
   type VehicleModuleService,
 } from "@repo/module-vehicle";
 import { FITMENT_MODULE } from "@repo/module-fitment";
-import { AutomotiveAttribute, Fitment } from "@repo/module-fitment/entities";
+import { AutomotiveAttribute, Fitment } from "@repo/module-fitment/contract";
 import { entityLabel } from "@repo/framework/entity";
-import { EngineLayout, Vehicle } from "@repo/module-vehicle/entities";
+import { EngineLayout, Vehicle } from "@repo/module-vehicle/contract";
 
 // Each CRUD step followed by a step that always fails, to exercise compensation.
 const failStep = createStep("test-fail", async () => {

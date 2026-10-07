@@ -7,9 +7,9 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { EntityPanel, LocalizedText, Module, useLabels } from "@repo/dashboard/module";
 import { ConditionsDrawer } from "@repo/module-fitment/admin/ui";
-import { Fitment } from "@repo/module-fitment/entities";
+import { Fitment } from "@repo/module-fitment/contract";
 import { fitmentAdmin as fitments } from "@repo/module-fitment/admin";
-import { Vehicle } from "@repo/module-vehicle/entities";
+import { Vehicle } from "@repo/module-vehicle/contract";
 import { useDomainText } from "../use-domain-text";
 
 type Row = Record<string, any>;

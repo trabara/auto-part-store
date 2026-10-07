@@ -1,7 +1,7 @@
 import { getEntityUrl } from "@repo/framework/entity";
-import { fitmentEntities } from "@repo/module-fitment/entities";
-import { partsEntities } from "@repo/module-parts/entities";
-import { vehicleEntities } from "@repo/module-vehicle/entities";
+import { fitmentEntities } from "@repo/module-fitment/contract";
+import { partsEntities } from "@repo/module-parts/contract";
+import { vehicleEntities } from "@repo/module-vehicle/contract";
 
 /** Admin API collection URL of an entity by key (`vehicle_make` → `/admin/vehicles/vehicle_make`). */
 export function adminUrl(key: string): string {

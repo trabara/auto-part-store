@@ -3,11 +3,11 @@ import { getEntityUrl } from "@repo/framework/entity";
 import { getZodFieldInfo } from "@repo/framework/utils";
 import i18n from "../admin/i18n";
 import { fitmentAdmin as fitments } from "@repo/module-fitment/admin";
-import { fitmentRoutes } from "@repo/module-fitment/http";
+import { fitmentRoutes } from "@repo/module-fitment";
 import { partsAdmin as parts } from "@repo/module-parts/admin";
-import { partsRoutes } from "@repo/module-parts/http";
+import { partsRoutes } from "@repo/module-parts";
 import { vehicleAdmin as vehicles } from "@repo/module-vehicle/admin";
-import { vehicleRoutes } from "@repo/module-vehicle/http";
+import { vehicleRoutes } from "@repo/module-vehicle";
 
 const lists = (module: ModuleDef) =>
   Object.values(module.features).map((f) => getRoutePath(findSlotRoute(f, "list")!.scope));

@@ -1,5 +1,5 @@
 import type { AuthenticatedMedusaRequest } from "@medusajs/framework/http";
-import { CustomerVehicle } from "@repo/module-vehicle/entities";
+import { CustomerVehicle } from "@repo/module-vehicle/contract";
 import { VEHICLE_MODULE, type VehicleModuleService } from "@repo/module-vehicle";
 
 /** Garage writes go through the framework's workflows on this target. */

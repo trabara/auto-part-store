@@ -69,6 +69,23 @@ const COMMERCIAL = /\b(van|vans|pick-?up|cabine?|cab|fourgon|fourgonnette|utilit
 const convention = (name: string) =>
   /^[IVXL]+\b/.test(name) ? "roman" : /^mk\s?\d+/i.test(name) ? "mk" : /^\d+$/.test(name) ? "number" : "code";
 
+/** "IV facelift" / "IV": a facelift shares its generation's code and follows it. */
+const faceliftPair = (a: string, b: string) => {
+  const base = (n: string) => n.replace(/\s*(facelift|phase\s*\d|restyl\w*|ph\.?\s*\d)\s*$/i, "").trim().toLowerCase();
+  return a.toLowerCase() !== b.toLowerCase() && base(a) === base(b);
+};
+
+/** Two engine records that describe the same engine (what is known agrees, one may lack a code or displacement). */
+export const sameEngine = (
+  a: { fuel: string; power_kw: number; displacement_cc: number | null; cylinders: number | null; code: string | null },
+  b: { fuel: string; power_kw: number; displacement_cc: number | null; cylinders: number | null; code: string | null },
+) =>
+  a.fuel === b.fuel &&
+  a.power_kw === b.power_kw &&
+  (a.displacement_cc == null || b.displacement_cc == null || a.displacement_cc === b.displacement_cc) &&
+  (a.cylinders == null || b.cylinders == null || a.cylinders === b.cylinders) &&
+  (!a.code || !b.code || a.code === b.code);
+
 type Years = { year_start: number; year_end: number | null };
 const span = (r: Years) => `${r.year_start}–${r.year_end ?? ""}`;
 const shared = (a: Years, b: Years) => Math.min(a.year_end ?? Infinity, b.year_end ?? Infinity) - Math.max(a.year_start, b.year_start);
@@ -126,8 +143,9 @@ export function lintCatalog(records: LintRecords, options: { now?: Date } = {}):
       if (tidy(model.name) !== model.name) {
         add({ rule: "model.whitespace", severity: "info", entity: CatalogEntityName.VehicleModel, id: model.id, at, message: `"${model.name}" has stray spaces.`, fix: { kind: "update", data: { name: tidy(model.name) }, safe: true } });
       }
+      // Acronym makes name models after themselves (DS 3, MG 5): only longer make names count.
       const prefix = new RegExp(`^${tidy(make.name).replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\s+`, "i");
-      if (prefix.test(model.name)) {
+      if (tidy(make.name).length > 3 && prefix.test(model.name)) {
         add({ rule: "model.name_contains_make", severity: "warning", entity: CatalogEntityName.VehicleModel, id: model.id, at, message: `"${model.name}" repeats the make's name.`, fix: { kind: "update", data: { name: model.name.replace(prefix, "") } } });
       }
       if (model.category === "CAR" && COMMERCIAL.test(model.name)) {
@@ -155,6 +173,7 @@ export function lintCatalog(records: LintRecords, options: { now?: Date } = {}):
         add({ rule: "generation.whitespace", severity: "info", entity: CatalogEntityName.VehicleGeneration, id: g.id, at, message: `"${g.name}" has stray spaces.`, fix: { kind: "update", data: { name: tidy(g.name) }, safe: true } });
       }
       for (const other of gens.slice(0, i)) {
+        if (faceliftPair(g.name, other.name)) continue; // a facelift follows its generation, same code
         if (shared(g, other) > 1) {
           add({ rule: "generation.overlap", severity: "warning", entity: CatalogEntityName.VehicleGeneration, id: g.id, pair: other.id, at, message: `${g.name} (${span(g)}) overlaps ${other.name} (${span(other)}): one generation under two names?`, fix: { kind: "merge", into: other.id } });
         }
@@ -231,8 +250,9 @@ export function lintCatalog(records: LintRecords, options: { now?: Date } = {}):
       for (const other of vehicles.slice(0, i)) {
         const otherEngine = engineById.get(other.engine_id);
         const sameShape = other.body_style === v.body_style && other.doors === v.doors && other.drive === v.drive && other.transmission === v.transmission;
-        if (sameShape && engine && otherEngine && engine.fuel === otherEngine.fuel && engine.power_kw === otherEngine.power_kw && shared(v, other) >= 0) {
-          if (other.engine_id !== v.engine_id || (other.trim ?? "") !== (v.trim ?? "")) {
+        // The same engine under two records (one lacking its code or displacement); trims are distinct configurations.
+        if (sameShape && engine && otherEngine && other.engine_id !== v.engine_id && sameEngine(engine, otherEngine) && shared(v, other) >= 0) {
+          if ((other.trim ?? "") === (v.trim ?? "")) {
             add({ rule: "vehicle.near_duplicate", severity: "warning", entity: CatalogEntityName.Vehicle, id: v.id, pair: other.id, at, message: `${label} looks like another configuration (${span(other)}), described differently.`, fix: { kind: "merge", into: other.id } });
           }
         }

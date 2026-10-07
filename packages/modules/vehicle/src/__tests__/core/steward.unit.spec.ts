@@ -103,10 +103,36 @@ describe("lint", () => {
     expect(rules("e2")).toEqual(["engine.duplicate"]);
     expect(rules("e3")).toEqual(["engine.electric_fields"]);
     expect(rules("e4")).toEqual(["engine.specific_output"]);
-    expect(rules("v2")).toEqual(["vehicle.near_duplicate"]);
+    expect(rules("v2")).toEqual(["vehicle.near_duplicate"]); // same engine, its code missing
     expect(rules("v3")).toEqual(["vehicle.drive_category", "vehicle.electric_manual"]);
     expect(rules("v4")).toEqual(["vehicle.outside_generation"]);
     expect(rules("r1")).toEqual(["reference.format"]);
+  });
+
+  it("tells real duplicates from legitimate variants", () => {
+    const records: LintRecords = {
+      makes: [{ id: "ds", name: "DS" }, { id: "au", name: "Audi" }],
+      models: [
+        { id: "ds3", make_id: "ds", name: "DS 3", category: "CAR" }, // the official name
+        { id: "a3", make_id: "au", name: "A3", category: "CAR" },
+      ],
+      generations: [
+        { id: "g3", model_id: "a3", name: "III", code: "8V", year_start: 2012, year_end: 2016 },
+        { id: "g3f", model_id: "a3", name: "III facelift", code: "8V", year_start: 2016, year_end: 2020 },
+      ],
+      engines: [
+        { id: "tsi14", code: null, fuel: "GASOLINE", layout: "INLINE", cylinders: 4, displacement_cc: 1395, power_kw: 110 },
+        { id: "tsi15", code: null, fuel: "GASOLINE", layout: "INLINE", cylinders: 4, displacement_cc: 1498, power_kw: 110 },
+      ],
+      vehicles: [
+        { id: "att", generation_id: "g3", engine_id: "tsi14", body_style: "HATCHBACK", doors: 5, drive: "FWD", transmission: "MANUAL", trim: "Attraction", year_start: 2012, year_end: 2016 },
+        { id: "amb", generation_id: "g3", engine_id: "tsi14", body_style: "HATCHBACK", doors: 5, drive: "FWD", transmission: "MANUAL", trim: "Ambition", year_start: 2012, year_end: 2016 },
+        { id: "evo", generation_id: "g3", engine_id: "tsi15", body_style: "HATCHBACK", doors: 5, drive: "FWD", transmission: "MANUAL", trim: "Attraction", year_start: 2015, year_end: 2016 },
+      ],
+      references: [],
+    };
+    // Trims are distinct configurations, 1.4 and 1.5 L are different engines, a facelift shares its code, DS 3 is a name.
+    expect(lintCatalog(records, { now }).filter((f) => f.severity !== "info").map((f) => f.rule)).toEqual([]);
   });
 
   it("proposes fixes, and only whitespace is safe to apply alone", () => {

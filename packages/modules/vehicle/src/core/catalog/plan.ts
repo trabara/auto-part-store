@@ -14,6 +14,7 @@ import type { CatalogEngine, CatalogFile, CatalogImportMode, CatalogVehicle } fr
 import { SourceTier } from "../../contract/entities/enums";
 import type { SourceRef } from "../../contract/entities/shared";
 import { childrenOf } from "./export";
+import { sameEngine } from "./lint";
 import { engineKey, generationKey, makeKey, modelKey, vehicleKey } from "./keys";
 import { higherTier, mayFill, mayOverwrite, mergeSources } from "./trust";
 
@@ -246,7 +247,7 @@ export function planCatalog(
         continue;
       }
       const otherEngine = engineById.get(other.engine_id);
-      if (otherEngine && otherEngine.fuel === v.engine.fuel && otherEngine.power_kw === v.engine.power_kw) {
+      if (otherEngine && norm(other.trim) === norm(v.trim) && sameEngine(otherEngine, v.engine)) {
         const described = [otherEngine.code, otherEngine.displacement_cc && `${otherEngine.displacement_cc} cm³`, other.trim].filter(Boolean).join(", ");
         plan.warnings.push(
           `${where}: may duplicate an existing configuration (${v.engine.fuel} ${v.engine.power_kw} kW${described ? `, ${described}` : ""}, ${years(other)}); copy its values to match it.`,

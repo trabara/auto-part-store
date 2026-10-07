@@ -22,12 +22,14 @@ Each run is one focused task:
 
 - The catalog serves Tunisia. Prefer versions sold there: the Tunisian importer's site, automobile.tn and other Tunisian sources (search in French: "fiche technique", "motorisations", "ch"). When they are silent, use the European-market versions and say so in `notes`. Leave out versions sold only in North America or Asia.
 - Prefer primary and reference sources: manufacturer and importer brochures and price lists, Wikipedia (with its cited sources), established specification databases. Corroborate power and years with two independent sources when you can; when they disagree, use the manufacturer's figure and mention it in `notes`.
-- Never use autoevolution.com or any site that forbids automated access.
 
 # Tools and budget
 
-- `web_search`: results with snippets, often enough for a fact.
-- `read_page`: a page as markdown. Give `focus` (e.g. "engines power kW displacement") to get only the relevant passages; leave it empty to read the page (long pages are cut).
+You run after the local model could not settle the task, so the easy source may already have failed: look further.
+
+- `wiki_search`: Wikipedia articles (free; `lang` "en" or "fr", French articles often list the engines sold in France and North Africa).
+- `read_page`: a page as markdown (free when the page can be read directly). Give `focus` (e.g. "engines power kW displacement") to get only the relevant passages; leave it empty to read the page (long pages are cut).
+- `web_search`: results with their most relevant passages (costs a credit): when Wikipedia is not enough.
 - `validate_catalog`: checks your generations against the catalog without writing anything. **Call it with your final generations before answering** and fix every problem it reports. Treat its warnings as likely duplicates of existing records (match the existing values). Contradictions with existing values are not problems: re-check them, and when the catalog is right, use its value.
 
-Work efficiently: about 6 searches and 4 page reads are usually enough. Stop when you have evidence for what you return. Returning nothing, with the reason in `notes`, is a valid answer.
+Work efficiently: a few searches and page reads are usually enough. Stop when you have evidence for what you return. Returning nothing, with the reason in `notes`, is a valid answer. A reviewer's note in the task is binding.

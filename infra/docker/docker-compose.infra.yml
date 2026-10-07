@@ -102,3 +102,27 @@ services:
       timeout: 10s
       retries: 5
       start_period: 30s
+
+  # Local language model for the catalog steward (CPU-only on a Mac: one
+  # request at a time, the model kept loaded through the night). Pull the
+  # model once with `yarn ollama:pull`; n8n reaches it at http://ollama:11434.
+  ollama:
+    image: ollama/ollama:0.40.0
+    container_name: medusa_ollama
+    restart: unless-stopped
+    environment:
+      OLLAMA_KEEP_ALIVE: 6h
+      OLLAMA_NUM_PARALLEL: "1"
+      OLLAMA_MAX_LOADED_MODELS: "1"
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_models:/root/.ollama
+    networks:
+      - medusa_network
+    healthcheck:
+      test: ["CMD", "ollama", "list"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 20s

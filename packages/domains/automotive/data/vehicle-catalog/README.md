@@ -12,7 +12,9 @@ Imports are idempotent (records matched by natural key), one transaction per fil
 values a file contradicts are reported by default; append `fill` to write only values the
 catalog lacks (a missing code or end year), or `overwrite` to write them all (reviewed files).
 Blank values in a file say nothing (the catalog's stay); a configuration's identity includes
-its doors. The same import is served at `POST /admin/vehicle-catalog/import?dry_run=true&mode=fill`
+its doors. Files declare a trust tier (`source.tier`); `merge` replaces only values of a lower
+tier and never staff edits. `backfill-catalog-provenance` re-imports these folders with their
+tiers (draft DRAFT, tunisia REFERENCE with `on_sale_new`, car2db LICENSED). The same import is served at `POST /admin/vehicle-catalog/import?dry_run=true&mode=fill`
 (its report adds `warnings`: likely duplicates of existing records), next to
 `GET /admin/vehicle-catalog/tasks` (what to research next), `/coverage` (least complete models)
 and `/export` (a make or model as a file): the AI research workflow in `infra/n8n/` uses them.

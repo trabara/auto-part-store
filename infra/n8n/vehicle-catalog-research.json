@@ -1,11 +1,11 @@
 {
   "id": "vehCatResearch01",
-  "name": "Vehicle catalog research",
+  "name": "Vehicle catalog steward",
   "active": false,
   "nodes": [
     {
-      "id": "068f7cd8-a9ef-4ab3-a2f8-1ba47a6a28ef",
-      "name": "Weekly",
+      "id": "ac420e64-c169-404d-a367-351bc5f84704",
+      "name": "Nightly",
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1.2,
       "position": [
@@ -16,11 +16,8 @@
         "rule": {
           "interval": [
             {
-              "field": "weeks",
-              "triggerAtDay": [
-                1
-              ],
-              "triggerAtHour": 3
+              "field": "days",
+              "triggerAtHour": 1
             }
           ]
         }
@@ -43,7 +40,7 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        240,
+        220,
         100
       ],
       "parameters": {
@@ -56,28 +53,58 @@
               "type": "string"
             },
             {
-              "id": "ab0f4f54-dd57-4277-a89c-aa5d4fe66f96",
-              "name": "make",
-              "value": "",
+              "id": "b69280cf-ffdd-4156-ac15-ae26cae9930e",
+              "name": "ollama_url",
+              "value": "http://ollama:11434",
               "type": "string"
             },
             {
-              "id": "c8061f63-9879-4dff-a676-5e91c8e2350a",
-              "name": "tasks_per_run",
-              "value": 10,
-              "type": "number"
+              "id": "72819e21-d881-4894-ad32-ebe1032cc987",
+              "name": "local_model",
+              "value": "qwen3.5:4b",
+              "type": "string"
             },
             {
-              "id": "5e598734-a1d3-4e22-ac06-43caa882969a",
-              "name": "max_configurations",
-              "value": 0,
-              "type": "number"
-            },
-            {
-              "id": "5648059d-30fc-47ec-a3a1-b0ad701583b6",
-              "name": "auto_apply",
+              "id": "049d84d2-b1db-4adc-a961-837c5bbfa414",
+              "name": "cloud_fallback",
               "value": true,
               "type": "boolean"
+            },
+            {
+              "id": "e62b8eae-4c94-4e86-aff3-423cfb655729",
+              "name": "cloud_cheap",
+              "value": "google/gemini-3.6-flash",
+              "type": "string"
+            },
+            {
+              "id": "bf890467-d2f7-4359-a00a-4fd75902bdfe",
+              "name": "cloud_strong",
+              "value": "anthropic/claude-sonnet-5.5",
+              "type": "string"
+            },
+            {
+              "id": "07bd6205-8596-4521-a9e3-228e3a7df7b2",
+              "name": "escalate_below",
+              "value": 0.6,
+              "type": "number"
+            },
+            {
+              "id": "9dc223d8-f7c5-4d78-ade6-a0d4d8a51d53",
+              "name": "monthly_budget_usd",
+              "value": 20,
+              "type": "number"
+            },
+            {
+              "id": "a1ae86d0-b759-47d8-a5b7-ecf6de630464",
+              "name": "window_end",
+              "value": "06:00",
+              "type": "string"
+            },
+            {
+              "id": "1886b821-9d35-4c1b-a05a-a21d28d1b378",
+              "name": "max_tasks",
+              "value": 150,
+              "type": "number"
             },
             {
               "id": "b1463827-9199-431e-a784-957a863c99b1",
@@ -89,38 +116,39 @@
         },
         "options": {}
       },
-      "notes": "Edit these values. Credentials: Medusa secret API key (Basic Auth: key as user, empty password), Tavily API key (Header Auth: Authorization = Bearer tvly-…), OpenRouter."
+      "notes": "Credentials: Medusa secret API key (Basic Auth: the key as user, empty password) and OpenRouter. Web search runs in the backend (TAVILY_API_KEY in its env)."
     },
     {
-      "id": "abbfecb7-8a57-47a1-afc3-9aa72d7098c8",
-      "name": "Research tasks",
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.2,
+      "id": "ca14f53f-60c2-45f3-a050-cf5ec8178ab7",
+      "name": "Start",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
       "position": [
-        480,
+        440,
         100
       ],
       "parameters": {
-        "url": "={{ $('Config').first().json.medusa_url }}/admin/vehicle-catalog/tasks",
+        "mode": "runOnceForAllItems",
+        "jsCode": "const cfg = $('Config').first().json;\nconst [h, m] = String(cfg.window_end || \"06:00\").split(\":\").map(Number);\nlet deadline = $now.set({ hour: h, minute: m || 0, second: 0, millisecond: 0 });\nif (deadline <= $now) deadline = deadline.plus({ days: 1 });\nreturn [{ json: { started: $now.toISO(), deadline: deadline.toISO() } }];"
+      }
+    },
+    {
+      "id": "aa7af5dc-e64e-4e9d-aae8-fff28feedf9d",
+      "name": "Lint",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        660,
+        100
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Config').first().json.medusa_url }}/admin/vehicle-catalog/lint",
         "authentication": "genericCredentialType",
         "genericAuthType": "httpBasicAuth",
-        "sendQuery": true,
-        "queryParameters": {
-          "parameters": [
-            {
-              "name": "limit",
-              "value": "={{ $('Config').first().json.tasks_per_run }}"
-            },
-            {
-              "name": "make",
-              "value": "={{ $('Config').first().json.make || undefined }}"
-            },
-            {
-              "name": "max_configurations",
-              "value": "={{ $('Config').first().json.max_configurations }}"
-            }
-          ]
-        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({}) }}",
         "options": {}
       },
       "credentials": {
@@ -134,45 +162,386 @@
       "waitBetweenTries": 5000
     },
     {
-      "id": "2e5e767a-99b4-4872-af2c-d7262e233232",
-      "name": "One item per task",
-      "type": "n8n-nodes-base.splitOut",
-      "typeVersion": 1,
+      "id": "35814578-d133-416c-a29d-43b3ad596dc0",
+      "name": "Refresh ledger",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
       "position": [
-        720,
+        880,
         100
       ],
       "parameters": {
-        "fieldToSplitOut": "tasks",
+        "method": "POST",
+        "url": "={{ $('Config').first().json.medusa_url }}/admin/vehicle-catalog/tasks/refresh",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBasicAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({}) }}",
+        "options": {}
+      },
+      "credentials": {
+        "httpBasicAuth": {
+          "id": "",
+          "name": "Medusa secret API key"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000
+    },
+    {
+      "id": "333db4d7-8269-4a01-acc7-4a3963a6249d",
+      "name": "Warm up model",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1100,
+        100
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Config').first().json.ollama_url }}/api/generate",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ model: $('Config').first().json.local_model, keep_alive: '6h' }) }}",
+        "options": {
+          "timeout": 600000
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "id": "a6840cd0-0ef6-4a4c-a609-7852f233f76f",
+      "name": "Claim task",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1320,
+        100
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Config').first().json.medusa_url }}/admin/vehicle-catalog/tasks/claim",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBasicAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ limit: 1, lease_minutes: 60 }) }}",
+        "options": {}
+      },
+      "credentials": {
+        "httpBasicAuth": {
+          "id": "",
+          "name": "Medusa secret API key"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000
+    },
+    {
+      "id": "439ac8a9-8154-42b8-ac5f-e7bd5f3dd736",
+      "name": "Next task?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1540,
+        100
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "7d0247de-dccd-4009-aaf5-97f0fd5b1bca",
+              "leftValue": "={{ $json.tasks.length > 0 && $now.toISO() < $('Start').first().json.deadline && $runIndex < $('Config').first().json.max_tasks }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
         "options": {}
       }
     },
     {
-      "id": "f2b80dcb-8090-462a-a36e-a470bb29e21f",
-      "name": "Loop over tasks",
-      "type": "n8n-nodes-base.splitInBatches",
-      "typeVersion": 3,
-      "position": [
-        960,
-        100
-      ],
-      "parameters": {
-        "batchSize": 1,
-        "options": {}
-      }
-    },
-    {
-      "id": "a7a4f1ad-79e0-4078-a387-f58532f177d5",
-      "name": "Task prompt",
+      "id": "80e5e425-aa59-4ab5-ade8-4bd00bc3421f",
+      "name": "Task",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1200,
+        1760,
         200
       ],
       "parameters": {
         "mode": "runOnceForEachItem",
-        "jsCode": "const t = $json;\nconst span = (g) => g.year_start + \"–\" + (g.year_end ?? \"present\");\nconst head = [\"Task: \" + t.kind, \"Make: \" + t.make, \"Model: \" + t.model, \"Category: \" + t.category, \"\"];\nlet body;\nif (t.kind === \"generations\") {\n  body = [\n    \"The catalog has no generations for this model yet. List its generations, each with vehicles: [].\",\n  ];\n} else {\n  const g = t.generation;\n  const engine = (e) => [e.fuel, e.layout, e.cylinders && e.cylinders + \" cyl\", e.displacement_cc && e.displacement_cc + \" cm³\", e.power_kw + \" kW\", e.code && \"code \" + e.code]\n    .filter(Boolean).join(\" \");\n  const lines = (t.existing ?? []).map((v, i) =>\n    \"#\" + (i + 1) + \" \" + engine(v.engine) + \" · \" + v.body_style + \" \" + v.doors + \" doors · \" + v.drive + \" · \" + v.transmission +\n    \" · trim \" + (v.trim ?? \"—\") + \" · \" + span(v));\n  const shown = lines.slice(0, 120);\n  body = [\n    'Generation to research: \"' + g.name + '\"' + (g.code ? \" (\" + g.code + \")\" : \"\") + \", \" + span(g) + \" in the catalog.\",\n    \"\",\n    \"The model's generations in the catalog:\",\n    ...t.generations.map((s) => '- \"' + s.name + '\"' + (s.code ? \" (\" + s.code + \")\" : \"\") + \": \" + span(s) + \", \" + s.configurations + \" configuration(s)\"),\n    \"\",\n    'Configurations of \"' + g.name + '\" already in the catalog:',\n    ...(shown.length ? shown : [\"(none yet)\"]),\n    ...(lines.length > shown.length ? [\"(and \" + (lines.length - shown.length) + \" more)\"] : []),\n    \"\",\n    'Return exactly one generation, named \"' + g.name + '\", with its configurations.',\n  ];\n}\nreturn {\n  kind: t.kind,\n  make: t.make,\n  model: t.model,\n  category: t.category,\n  generation: t.generation?.name ?? null,\n  label: t.make + \" \" + t.model + (t.generation ? \" \" + t.generation.name : \" (generations)\"),\n  prompt: [...head, ...body, \"\", \"Research, validate your generations with validate_catalog, then return them.\"].join(\"\\n\"),\n};"
+        "jsCode": "return { ...$json.tasks[0] };"
+      }
+    },
+    {
+      "id": "acf0c303-a0ff-4431-ac91-7517705ec0ea",
+      "name": "Prompt",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1980,
+        200
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Config').first().json.medusa_url }}/admin/vehicle-catalog/tasks/{{ $('Task').first().json.id }}/prompt",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBasicAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ lease_token: $('Task').first().json.lease_token }) }}",
+        "options": {}
+      },
+      "credentials": {
+        "httpBasicAuth": {
+          "id": "",
+          "name": "Medusa secret API key"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000,
+      "onError": "continueErrorOutput"
+    },
+    {
+      "id": "64e8b291-a5d0-45cf-acaf-e0ec00323bfd",
+      "name": "Evidence found?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        2200,
+        200
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "553889a3-0250-4d3d-a622-f8c74f9fb1b6",
+              "leftValue": "={{ !$json.fallback }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "8159b758-83c0-4a2a-a9d2-8f3ff55308d5",
+      "name": "Local model",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2420,
+        100
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Config').first().json.ollama_url }}/api/chat",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ model: $('Config').first().json.local_model, messages: $json.messages, format: $json.schema, stream: false, think: false, keep_alive: '6h', options: { temperature: 0, num_ctx: 8192 } }) }}",
+        "options": {
+          "timeout": 900000
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "id": "75f41fc3-ba8c-4813-a96d-5bbaab61ce5e",
+      "name": "Submit local",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2640,
+        100
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Config').first().json.medusa_url }}/admin/vehicle-catalog/tasks/{{ $('Task').first().json.id }}/result",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBasicAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ lease_token: $('Task').first().json.lease_token, model: $('Config').first().json.local_model, output: $json.message?.content ?? '', cost: { usd: 0, steps: 1 }, final: !($('Config').first().json.cloud_fallback && ['RESEARCH_GENERATIONS', 'RESEARCH_CONFIGURATIONS'].includes($('Task').first().json.kind)) }) }}",
+        "options": {}
+      },
+      "credentials": {
+        "httpBasicAuth": {
+          "id": "",
+          "name": "Medusa secret API key"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000,
+      "onError": "continueErrorOutput"
+    },
+    {
+      "id": "61e270fd-0571-40cd-a05b-ceccd0c29388",
+      "name": "Settled?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        2860,
+        100
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "e5dbf80d-9ea2-45ba-a628-229536d70cc6",
+              "leftValue": "={{ $json.final !== false }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "6fe097e1-f08d-4d0a-ade8-67da44013786",
+      "name": "Fallback?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        2640,
+        420
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "5ba226e2-42ef-428f-ac93-32be4f89bbb3",
+              "leftValue": "={{ $('Config').first().json.cloud_fallback && ['RESEARCH_GENERATIONS', 'RESEARCH_CONFIGURATIONS'].includes($('Task').first().json.kind) }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "3ca2689a-2f1b-4588-a336-2d481b4fc7e9",
+      "name": "Budget",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2860,
+        360
+      ],
+      "parameters": {
+        "url": "https://openrouter.ai/api/v1/key",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "openRouterApi",
+        "options": {}
+      },
+      "credentials": {
+        "openRouterApi": {
+          "id": "",
+          "name": "OpenRouter account"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000
+    },
+    {
+      "id": "adde609f-b053-4a98-a047-175dad3d35e0",
+      "name": "Within budget?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        3080,
+        360
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "e1002886-b4d6-4332-af3e-02279cf28576",
+              "leftValue": "={{ ($json.data?.usage_monthly ?? 0) < $('Config').first().json.monthly_budget_usd && ($json.data?.limit_remaining == null || $json.data.limit_remaining > 0.05) }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "d3c92f86-1f90-41f6-a38a-b45921cbaff7",
+      "name": "Agent brief",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3300,
+        300
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const t = $('Task').first().json;\nconst cfg = $('Config').first().json;\nconst usage = $('Budget').first().json.data ?? {};\nconst strong = t.attempts >= 2 && (usage.usage_monthly ?? 0) < cfg.escalate_below * cfg.monthly_budget_usd;\nconst what = t.kind === \"RESEARCH_GENERATIONS\"\n  ? \"List this model's generations (each with vehicles: []).\"\n  : 'Find the configurations of generation \"' + t.generation + '\" (return exactly that generation, under that name).';\nreturn {\n  model: strong ? cfg.cloud_strong : cfg.cloud_cheap,\n  usage_before: usage.usage ?? 0,\n  prompt: [\n    \"Make: \" + t.make, \"Model: \" + t.model, t.generation ? \"Generation: \" + t.generation : \"\",\n    \"\", what,\n    t.feedback ? \"A reviewer noted: \" + t.feedback : \"\",\n    \"Start with wiki_search and read_page (free); use web_search when Wikipedia is not enough. Validate with validate_catalog, then return the generations.\",\n  ].filter(Boolean).join(\"\\n\"),\n};"
       }
     },
     {
@@ -181,16 +550,16 @@
       "type": "@n8n/n8n-nodes-langchain.agent",
       "typeVersion": 2,
       "position": [
-        1440,
-        200
+        3520,
+        300
       ],
       "parameters": {
         "promptType": "define",
         "text": "={{ $json.prompt }}",
         "hasOutputParser": true,
         "options": {
-          "systemMessage": "You are an automotive data researcher maintaining the vehicle catalog of an auto-parts business in Tunisia. Parts are matched to vehicles through this catalog, so a wrong engine power or production year means a customer gets a part that does not fit. Accuracy beats completeness: leave something out rather than guess.\n\n# Tasks\n\nEach run is one focused task:\n\n- **generations**: list the model's generations. Return each with `vehicles: []`: configurations are researched later, one generation at a time.\n- **configurations**: list the configurations of **one** generation. Return exactly that generation, under exactly the given name, with its configurations. If your sources give it a different code or years, return what they say: the catalog keeps its values and a reviewer settles the difference. Configuration years must fall within the generation's years **as the catalog has them**.\n\n# The data\n\n- **Generation**: `name`, `code` (chassis or platform code, e.g. \"BF\", \"8V\", \"G20\"; null when there is none), `year_start`, `year_end` (null while in production), `vehicles`, `source` (the URL it comes from). Name new generations with Roman numerals (\"I\", \"II\"); a facelift that sources treat as a distinct series is \"II facelift\".\n- **Configuration**: one engine × body × drive × transmission × trim, with production years:\n  - `engine.power_kw` (required, integer): from metric horsepower (ch, PS, CV) multiply by 0.7355; from bhp by 0.7457; round. Never estimate.\n  - `engine.displacement_cc`: exact cm³ when a source gives it (1461, not 1500), else null. `engine.code`: the manufacturer's engine code (\"K9K\", \"EA211\") or null. `fuel`, `layout`, `cylinders` from the enums, null when unknown.\n  - `body_style`, `doors`, `drive`, `transmission`; `trim` only when it changes the specification (else null); `year_start`, `year_end`; `references: []`.\n  - Two identical configurations must not overlap in years.\n- **Existing configurations** (listed in the task): when yours is one of them, copy it exactly (same engine code, displacement, trim and first year), changing only what you have evidence for, such as its end year. Leave out existing ones you have nothing to add to. A configuration that differs only in how it is described becomes a duplicate.\n- `sources`: every URL you used. `notes`: what a reviewer should know (conflicting sources, versions left out and why).\n\n# Market and sources\n\n- The catalog serves Tunisia. Prefer versions sold there: the Tunisian importer's site, automobile.tn and other Tunisian sources (search in French: \"fiche technique\", \"motorisations\", \"ch\"). When they are silent, use the European-market versions and say so in `notes`. Leave out versions sold only in North America or Asia.\n- Prefer primary and reference sources: manufacturer and importer brochures and price lists, Wikipedia (with its cited sources), established specification databases. Corroborate power and years with two independent sources when you can; when they disagree, use the manufacturer's figure and mention it in `notes`.\n- Never use autoevolution.com or any site that forbids automated access.\n\n# Tools and budget\n\n- `web_search`: results with snippets, often enough for a fact.\n- `read_page`: a page as markdown. Give `focus` (e.g. \"engines power kW displacement\") to get only the relevant passages; leave it empty to read the page (long pages are cut).\n- `validate_catalog`: checks your generations against the catalog without writing anything. **Call it with your final generations before answering** and fix every problem it reports. Treat its warnings as likely duplicates of existing records (match the existing values). Contradictions with existing values are not problems: re-check them, and when the catalog is right, use its value.\n\nWork efficiently: about 6 searches and 4 page reads are usually enough. Stop when you have evidence for what you return. Returning nothing, with the reason in `notes`, is a valid answer.",
-          "maxIterations": 20
+          "systemMessage": "You are an automotive data researcher maintaining the vehicle catalog of an auto-parts business in Tunisia. Parts are matched to vehicles through this catalog, so a wrong engine power or production year means a customer gets a part that does not fit. Accuracy beats completeness: leave something out rather than guess.\n\n# Tasks\n\nEach run is one focused task:\n\n- **generations**: list the model's generations. Return each with `vehicles: []`: configurations are researched later, one generation at a time.\n- **configurations**: list the configurations of **one** generation. Return exactly that generation, under exactly the given name, with its configurations. If your sources give it a different code or years, return what they say: the catalog keeps its values and a reviewer settles the difference. Configuration years must fall within the generation's years **as the catalog has them**.\n\n# The data\n\n- **Generation**: `name`, `code` (chassis or platform code, e.g. \"BF\", \"8V\", \"G20\"; null when there is none), `year_start`, `year_end` (null while in production), `vehicles`, `source` (the URL it comes from). Name new generations with Roman numerals (\"I\", \"II\"); a facelift that sources treat as a distinct series is \"II facelift\".\n- **Configuration**: one engine × body × drive × transmission × trim, with production years:\n  - `engine.power_kw` (required, integer): from metric horsepower (ch, PS, CV) multiply by 0.7355; from bhp by 0.7457; round. Never estimate.\n  - `engine.displacement_cc`: exact cm³ when a source gives it (1461, not 1500), else null. `engine.code`: the manufacturer's engine code (\"K9K\", \"EA211\") or null. `fuel`, `layout`, `cylinders` from the enums, null when unknown.\n  - `body_style`, `doors`, `drive`, `transmission`; `trim` only when it changes the specification (else null); `year_start`, `year_end`; `references: []`.\n  - Two identical configurations must not overlap in years.\n- **Existing configurations** (listed in the task): when yours is one of them, copy it exactly (same engine code, displacement, trim and first year), changing only what you have evidence for, such as its end year. Leave out existing ones you have nothing to add to. A configuration that differs only in how it is described becomes a duplicate.\n- `sources`: every URL you used. `notes`: what a reviewer should know (conflicting sources, versions left out and why).\n\n# Market and sources\n\n- The catalog serves Tunisia. Prefer versions sold there: the Tunisian importer's site, automobile.tn and other Tunisian sources (search in French: \"fiche technique\", \"motorisations\", \"ch\"). When they are silent, use the European-market versions and say so in `notes`. Leave out versions sold only in North America or Asia.\n- Prefer primary and reference sources: manufacturer and importer brochures and price lists, Wikipedia (with its cited sources), established specification databases. Corroborate power and years with two independent sources when you can; when they disagree, use the manufacturer's figure and mention it in `notes`.\n\n# Tools and budget\n\nYou run after the local model could not settle the task, so the easy source may already have failed: look further.\n\n- `wiki_search`: Wikipedia articles (free; `lang` \"en\" or \"fr\", French articles often list the engines sold in France and North Africa).\n- `read_page`: a page as markdown (free when the page can be read directly). Give `focus` (e.g. \"engines power kW displacement\") to get only the relevant passages; leave it empty to read the page (long pages are cut).\n- `web_search`: results with their most relevant passages (costs a credit): when Wikipedia is not enough.\n- `validate_catalog`: checks your generations against the catalog without writing anything. **Call it with your final generations before answering** and fix every problem it reports. Treat its warnings as likely duplicates of existing records (match the existing values). Contradictions with existing values are not problems: re-check them, and when the catalog is right, use its value.\n\nWork efficiently: a few searches and page reads are usually enough. Stop when you have evidence for what you return. Returning nothing, with the reason in `notes`, is a valid answer. A reviewer's note in the task is binding.",
+          "maxIterations": 15
         }
       },
       "onError": "continueErrorOutput"
@@ -201,11 +570,11 @@
       "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
       "typeVersion": 1,
       "position": [
-        1200,
-        460
+        3360,
+        560
       ],
       "parameters": {
-        "model": "anthropic/claude-sonnet-5.5",
+        "model": "={{ $('Agent brief').first().json.model }}",
         "options": {
           "maxTokens": 16000,
           "timeout": 600000,
@@ -225,8 +594,8 @@
       "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
       "typeVersion": 1.2,
       "position": [
-        1920,
-        460
+        3900,
+        560
       ],
       "parameters": {
         "schemaType": "manual",
@@ -234,34 +603,29 @@
       }
     },
     {
-      "id": "5a368ae8-c245-462c-ab51-951ce45d5b56",
-      "name": "web_search",
+      "id": "7593ec62-8eec-4894-a1b8-3b674059687e",
+      "name": "wiki_search",
       "type": "n8n-nodes-base.httpRequestTool",
       "typeVersion": 4.2,
       "position": [
-        1360,
-        460
+        3480,
+        560
       ],
       "parameters": {
-        "toolDescription": "Search the web. Returns up to 5 results, each with title, URL and the most relevant passages.",
+        "toolDescription": "Search Wikipedia (free). Returns article titles, URLs and snippets.",
         "method": "POST",
+        "url": "={{ $('Config').first().json.medusa_url }}/admin/vehicle-catalog/research/wiki-search",
         "authentication": "genericCredentialType",
-        "genericAuthType": "httpHeaderAuth",
+        "genericAuthType": "httpBasicAuth",
         "sendBody": true,
         "specifyBody": "json",
-        "url": "https://api.tavily.com/search",
-        "jsonBody": "={{ JSON.stringify({ query: $fromAI('query', 'What to search for, e.g. \"Renault Clio V fiche technique motorisations ch\" or \"Golf VII engines kW\"', 'string'), max_results: 5, search_depth: 'advanced', chunks_per_source: 3, exclude_domains: ['autoevolution.com'] }) }}",
-        "optimizeResponse": true,
-        "responseType": "json",
-        "dataField": "results",
-        "fieldsToInclude": "selected",
-        "fields": "title,url,content",
+        "jsonBody": "={{ JSON.stringify({ query: $fromAI('query', 'e.g. \"Dacia Sandero\" or \"Renault K engine\"', 'string'), lang: $fromAI('lang', 'Wikipedia language: en or fr', 'string', 'en'), task_id: $('Task').first().json.id }) }}",
         "options": {}
       },
       "credentials": {
-        "httpHeaderAuth": {
+        "httpBasicAuth": {
           "id": "",
-          "name": "Tavily API key"
+          "name": "Medusa secret API key"
         }
       }
     },
@@ -271,28 +635,51 @@
       "type": "n8n-nodes-base.httpRequestTool",
       "typeVersion": 4.2,
       "position": [
-        1520,
-        460
+        3600,
+        560
       ],
       "parameters": {
-        "toolDescription": "Read a web page as markdown. With focus (what you look for, e.g. 'engines power kW displacement'), returns only the most relevant passages; without, the page (long pages are cut).",
+        "toolDescription": "Read a page as markdown (free when possible). With focus (what you look for, e.g. 'engines power kW'), only the relevant passages come back.",
         "method": "POST",
+        "url": "={{ $('Config').first().json.medusa_url }}/admin/vehicle-catalog/research/read",
         "authentication": "genericCredentialType",
-        "genericAuthType": "httpHeaderAuth",
+        "genericAuthType": "httpBasicAuth",
         "sendBody": true,
         "specifyBody": "json",
-        "url": "https://api.tavily.com/extract",
-        "jsonBody": "={{ [$fromAI('focus', 'What you look for on the page; empty to read the whole page', 'string', '')].map((focus) => JSON.stringify({ urls: [$fromAI('url', 'The page URL', 'string')], extract_depth: 'advanced', format: 'markdown', query: focus || undefined, chunks_per_source: focus ? 5 : undefined }))[0] }}",
-        "optimizeResponse": true,
-        "responseType": "text",
-        "truncateResponse": true,
-        "maxLength": 30000,
+        "jsonBody": "={{ JSON.stringify({ url: $fromAI('url', 'The page URL', 'string'), focus: $fromAI('focus', 'What you look for; empty for the whole page', 'string', ''), task_id: $('Task').first().json.id }) }}",
         "options": {}
       },
       "credentials": {
-        "httpHeaderAuth": {
+        "httpBasicAuth": {
           "id": "",
-          "name": "Tavily API key"
+          "name": "Medusa secret API key"
+        }
+      }
+    },
+    {
+      "id": "5a368ae8-c245-462c-ab51-951ce45d5b56",
+      "name": "web_search",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.2,
+      "position": [
+        3720,
+        560
+      ],
+      "parameters": {
+        "toolDescription": "Search the web (costs a credit; use when Wikipedia is not enough). Returns results with their most relevant passages.",
+        "method": "POST",
+        "url": "={{ $('Config').first().json.medusa_url }}/admin/vehicle-catalog/research/search",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBasicAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ query: $fromAI('query', 'e.g. \"Dacia Sandero III fiche technique motorisations ch\"', 'string'), task_id: $('Task').first().json.id }) }}",
+        "options": {}
+      },
+      "credentials": {
+        "httpBasicAuth": {
+          "id": "",
+          "name": "Medusa secret API key"
         }
       }
     },
@@ -302,15 +689,19 @@
       "type": "n8n-nodes-base.httpRequestTool",
       "typeVersion": 4.2,
       "position": [
-        1680,
-        460
+        3840,
+        560
       ],
       "parameters": {
-        "toolDescription": "Check your generations against the catalog without writing anything: problems to fix, warnings (likely duplicates of existing records), what would be created and updated, and existing values that contradict yours.",
+        "toolDescription": "Check your generations against the catalog without writing anything: problems to fix, warnings (likely duplicates), what would be created and updated, contradicted existing values.",
         "method": "POST",
         "url": "={{ $('Config').first().json.medusa_url }}/admin/vehicle-catalog/import",
         "authentication": "genericCredentialType",
         "genericAuthType": "httpBasicAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ format: 'vehicle-catalog@1', source: { name: 'research draft' }, makes: [{ name: $('Task').first().json.make, models: [{ name: $('Task').first().json.model, generations: $fromAI('generations', 'Your generations, exactly as you will return them', 'json') }] }] }) }}",
+        "options": {},
         "sendQuery": true,
         "queryParameters": {
           "parameters": [
@@ -320,14 +711,10 @@
             },
             {
               "name": "mode",
-              "value": "fill"
+              "value": "merge"
             }
           ]
-        },
-        "sendBody": true,
-        "specifyBody": "json",
-        "jsonBody": "={{ JSON.stringify({ format: 'vehicle-catalog@1', market: 'TN', source: { name: 'research draft' }, makes: [{ name: $('Task prompt').first().json.make, models: [{ name: $('Task prompt').first().json.model, category: $('Task prompt').first().json.category, generations: $fromAI('generations', 'Your generations, exactly as you will return them', 'json') }] }] }) }}",
-        "options": {}
+        }
       },
       "credentials": {
         "httpBasicAuth": {
@@ -337,136 +724,61 @@
       }
     },
     {
-      "id": "53d06553-fdff-483d-ae26-0d8414c53714",
-      "name": "Build catalog file",
+      "id": "75c42b02-f9b0-4de0-af08-e7960cb35783",
+      "name": "Agent file",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1680,
-        100
+        3740,
+        300
       ],
       "parameters": {
         "mode": "runOnceForEachItem",
-        "jsCode": "const task = $('Task prompt').item.json;\nconst { generations = [], sources = [], notes = \"\" } = $json.output ?? {};\n// Keep the result within the task: the given generation only (configurations),\n// or generations without configurations (generations: those come in their own tasks).\nconst scoped = [];\nconst dropped = [];\nfor (const g of generations) {\n  if (task.kind === \"configurations\") {\n    if (g.name.trim().toLowerCase() === task.generation.toLowerCase()) scoped.push({ ...g, name: task.generation });\n    else dropped.push(g.name);\n  } else scoped.push({ ...g, vehicles: [] });\n}\nreturn {\n  task,\n  sources,\n  notes: [notes, dropped.length ? \"Left out (outside this task): \" + dropped.join(\", \") + \".\" : \"\"].filter(Boolean).join(\" \"),\n  file: {\n    format: \"vehicle-catalog@1\",\n    market: \"TN\",\n    source: { name: \"AI research agent (n8n), \" + sources.length + \" source(s)\", url: sources.join(\" \"), retrieved_at: new Date().toISOString() },\n    makes: [{ name: task.make, models: [{ name: task.model, category: task.category, generations: scoped }] }],\n  },\n};"
+        "jsCode": "const t = $('Task').first().json;\nconst { generations = [], sources = [], notes = \"\" } = $json.output ?? {};\nreturn {\n  sources,\n  notes,\n  file: {\n    format: \"vehicle-catalog@1\",\n    source: { name: \"AI research agent\", url: sources[0], retrieved_at: new Date().toISOString().slice(0, 10) },\n    makes: [{ name: t.make, models: [{ name: t.model, generations }] }],\n  },\n};"
       }
     },
     {
-      "id": "d8333322-ef21-4129-a118-7bbbd6888e34",
-      "name": "Validate (dry run)",
+      "id": "d46164dd-1d68-468d-a0f2-99dfbf28fd7e",
+      "name": "Usage after",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        1920,
-        100
+        3960,
+        300
       ],
       "parameters": {
-        "method": "POST",
-        "url": "={{ $('Config').first().json.medusa_url }}/admin/vehicle-catalog/import",
-        "authentication": "genericCredentialType",
-        "genericAuthType": "httpBasicAuth",
-        "sendQuery": true,
-        "queryParameters": {
-          "parameters": [
-            {
-              "name": "dry_run",
-              "value": "true"
-            },
-            {
-              "name": "mode",
-              "value": "fill"
-            }
-          ]
-        },
-        "sendBody": true,
-        "specifyBody": "json",
-        "jsonBody": "={{ JSON.stringify($json.file) }}",
+        "url": "https://openrouter.ai/api/v1/key",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "openRouterApi",
         "options": {}
       },
       "credentials": {
-        "httpBasicAuth": {
+        "openRouterApi": {
           "id": "",
-          "name": "Medusa secret API key"
+          "name": "OpenRouter account"
         }
       },
-      "onError": "continueErrorOutput",
       "retryOnFail": true,
       "maxTries": 3,
       "waitBetweenTries": 5000
     },
     {
-      "id": "ae3bd01a-5048-4a68-acf5-b48215232ab0",
-      "name": "Decide",
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [
-        2160,
-        100
-      ],
-      "parameters": {
-        "mode": "runOnceForEachItem",
-        "jsCode": "const report = $json.report;\nconst adds = report.created.generations + report.created.vehicles + report.updated.length;\nconst autoApply = $('Config').first().json.auto_apply;\nconst status = report.problems.length\n  ? \"problems\"\n  : report.warnings.length\n    ? \"possible duplicates\"\n    : !adds\n      ? \"nothing new\"\n      : !autoApply\n        ? \"validated (auto_apply off)\"\n        : null;\nreturn { apply: status === null, status, report };"
-      }
-    },
-    {
-      "id": "1fa6acfb-7717-45ed-ab8b-89f906726c33",
-      "name": "Apply?",
-      "type": "n8n-nodes-base.if",
-      "typeVersion": 2.2,
-      "position": [
-        2400,
-        100
-      ],
-      "parameters": {
-        "conditions": {
-          "options": {
-            "caseSensitive": true,
-            "leftValue": "",
-            "typeValidation": "loose",
-            "version": 2
-          },
-          "conditions": [
-            {
-              "id": "3d21f9bb-9e70-40cb-a66f-ce9f66e52635",
-              "leftValue": "={{ $json.apply }}",
-              "rightValue": "",
-              "operator": {
-                "type": "boolean",
-                "operation": "true",
-                "singleValue": true
-              }
-            }
-          ],
-          "combinator": "and"
-        },
-        "options": {}
-      }
-    },
-    {
-      "id": "b770fa8f-5fae-4005-a9ab-130d98ddedc7",
-      "name": "Apply (fill)",
+      "id": "ab97c4dd-a00b-4561-a590-f785039ecce9",
+      "name": "Submit agent",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        2640,
-        0
+        4180,
+        300
       ],
       "parameters": {
         "method": "POST",
-        "url": "={{ $('Config').first().json.medusa_url }}/admin/vehicle-catalog/import",
+        "url": "={{ $('Config').first().json.medusa_url }}/admin/vehicle-catalog/tasks/{{ $('Task').first().json.id }}/result",
         "authentication": "genericCredentialType",
         "genericAuthType": "httpBasicAuth",
-        "sendQuery": true,
-        "queryParameters": {
-          "parameters": [
-            {
-              "name": "mode",
-              "value": "fill"
-            }
-          ]
-        },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={{ JSON.stringify($('Build catalog file').item.json.file) }}",
+        "jsonBody": "={{ JSON.stringify({ lease_token: $('Task').first().json.lease_token, model: 'openrouter:' + $('Agent brief').first().json.model, file: $('Agent file').first().json.file, sources: $('Agent file').first().json.sources, notes: $('Agent file').first().json.notes, cost: { usd: Math.max(0, ($json.data?.usage ?? 0) - $('Agent brief').first().json.usage_before), steps: 1 }, final: true }) }}",
         "options": {}
       },
       "credentials": {
@@ -475,10 +787,40 @@
           "name": "Medusa secret API key"
         }
       },
-      "onError": "continueErrorOutput",
       "retryOnFail": true,
       "maxTries": 3,
-      "waitBetweenTries": 5000
+      "waitBetweenTries": 5000,
+      "onError": "continueErrorOutput"
+    },
+    {
+      "id": "7e47be28-e3ec-43a9-abbd-03eea1577204",
+      "name": "Give up",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        3300,
+        560
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Config').first().json.medusa_url }}/admin/vehicle-catalog/tasks/{{ $('Task').first().json.id }}/result",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBasicAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ lease_token: $('Task').first().json.lease_token, error: $json.error?.message ?? ($json.data ? 'cloud budget reached' : 'no local answer and no cloud fallback'), final: true }) }}",
+        "options": {}
+      },
+      "credentials": {
+        "httpBasicAuth": {
+          "id": "",
+          "name": "Medusa secret API key"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000,
+      "onError": "continueRegularOutput"
     },
     {
       "id": "ba6d66cb-508c-402b-a098-55c31244b825",
@@ -486,26 +828,60 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        2880,
-        200
+        4400,
+        100
       ],
       "parameters": {
         "mode": "runOnceForEachItem",
-        "jsCode": "let built = {};\ntry { built = $('Build catalog file').item.json; } catch {} // the agent failed: nothing built\nconst task = $('Task prompt').item.json;\nconst report = $json.report ?? {};\nconst applied = report.dryRun === false;\nconst status = $json.error ? \"failed\" : applied ? ((report.differences ?? []).length ? \"applied, review contradictions\" : \"applied\") : $json.status;\nreturn {\n  label: task.label,\n  status,\n  created: report.created ?? null,\n  updated: report.updated ?? [],\n  differences: report.differences ?? [],\n  warnings: report.warnings ?? [],\n  problems: report.problems ?? [],\n  error: $json.error ? String($json.error.message ?? $json.error) : null,\n  notes: built.notes ?? \"\",\n  sources: built.sources ?? [],\n  // The proposal, to review or apply by hand (not kept once applied).\n  file: applied ? undefined : built.file,\n};"
+        "jsCode": "const t = $('Task').first().json;\nreturn { task: t.id, kind: t.kind, label: [t.make, t.model, t.generation].filter(Boolean).join(\" \"), status: $json.status ?? \"failed\", reason: $json.reason ?? $json.error?.message ?? null };"
       }
     },
     {
       "id": "af217aa3-f16d-4ff4-a6e3-ae5d0ec2382f",
       "name": "Run summary",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1760,
+        -160
+      ],
+      "parameters": {
+        "url": "={{ $('Config').first().json.medusa_url }}/admin/vehicle-catalog/tasks/summary",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBasicAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "since",
+              "value": "={{ $('Start').first().json.started }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "credentials": {
+        "httpBasicAuth": {
+          "id": "",
+          "name": "Medusa secret API key"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000
+    },
+    {
+      "id": "62ee6334-c5c0-4cd3-a440-3fc902c3a4ff",
+      "name": "Summary text",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1200,
+        1980,
         -160
       ],
       "parameters": {
         "mode": "runOnceForAllItems",
-        "jsCode": "const rows = $input.all().map((i) => i.json).filter((r) => r.status);\nconst lines = rows.map((r) => {\n  const parts = [\"• \" + r.label + \": \" + r.status];\n  if (r.created && r.created.generations + r.created.vehicles) parts.push(r.created.generations + \" generation(s), \" + r.created.vehicles + \" configuration(s)\");\n  if (r.updated.length) parts.push(r.updated.length + \" value(s) filled\");\n  if (r.differences.length) parts.push(r.differences.length + \" contradiction(s)\");\n  if (r.warnings.length) parts.push(r.warnings.length + \" possible duplicate(s)\");\n  if (r.problems.length) parts.push(r.problems.length + \" problem(s)\");\n  if (r.error) parts.push(r.error);\n  return parts.join(\" · \");\n});\nconst text = \"Vehicle catalog research (\" + rows.length + \" task(s))\\n\" + lines.join(\"\\n\") +\n  \"\\nDetails (sources, notes, proposals to review): this execution in n8n.\";\nreturn [{ json: { text, results: rows } }];"
+        "jsCode": "const s = $input.first().json;\nconst lint = $('Lint').first().json;\nconst fmt = (o) => Object.entries(o ?? {}).map(([k, v]) => k + \" \" + v).join(\", \") || \"none\";\nconst text = [\n  \"Catalog steward: \" + s.ran + \" task(s) run (\" + fmt(s.by_status) + \").\",\n  \"By kind: \" + fmt(s.by_kind) + \".\",\n  \"Rules: \" + (lint.errors ?? 0) + \" error(s), \" + (lint.warnings ?? 0) + \" warning(s), \" + (lint.fixed ?? 0) + \" fixed.\",\n  \"Cloud spend: $\" + (s.usd ?? 0).toFixed(2) + \", search credits: \" + (s.credits ?? 0) + \".\",\n  \"Waiting for review: \" + s.waiting_review + \" (Vehicles › Research in the admin).\",\n  ...(s.applied ?? []).slice(0, 15).map((a) => \"• \" + a),\n].join(\"\\n\");\nreturn [{ json: { text, summary: s } }];"
       }
     },
     {
@@ -514,7 +890,7 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        1440,
+        2200,
         -160
       ],
       "parameters": {
@@ -528,11 +904,11 @@
           "conditions": [
             {
               "id": "beac3493-e36a-4b6a-a0c8-cde064e653ea",
-              "leftValue": "={{ $('Config').first().json.review_webhook_url }}",
+              "leftValue": "={{ !!$('Config').first().json.review_webhook_url }}",
               "rightValue": "",
               "operator": {
-                "type": "string",
-                "operation": "notEmpty",
+                "type": "boolean",
+                "operation": "true",
                 "singleValue": true
               }
             }
@@ -548,7 +924,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        1680,
+        2420,
         -240
       ],
       "parameters": {
@@ -562,7 +938,7 @@
     }
   ],
   "connections": {
-    "Weekly": {
+    "Nightly": {
       "main": [
         [
           {
@@ -588,54 +964,235 @@
       "main": [
         [
           {
-            "node": "Research tasks",
+            "node": "Start",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Research tasks": {
+    "Start": {
       "main": [
         [
           {
-            "node": "One item per task",
+            "node": "Lint",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "One item per task": {
+    "Lint": {
       "main": [
         [
           {
-            "node": "Loop over tasks",
+            "node": "Refresh ledger",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Loop over tasks": {
+    "Refresh ledger": {
       "main": [
         [
           {
-            "node": "Run summary",
+            "node": "Warm up model",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Warm up model": {
+      "main": [
+        [
+          {
+            "node": "Claim task",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Claim task": {
+      "main": [
+        [
+          {
+            "node": "Next task?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Next task?": {
+      "main": [
+        [
+          {
+            "node": "Task",
             "type": "main",
             "index": 0
           }
         ],
         [
           {
-            "node": "Task prompt",
+            "node": "Run summary",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Task prompt": {
+    "Task": {
+      "main": [
+        [
+          {
+            "node": "Prompt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prompt": {
+      "main": [
+        [
+          {
+            "node": "Evidence found?",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Give up",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Evidence found?": {
+      "main": [
+        [
+          {
+            "node": "Local model",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Fallback?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Local model": {
+      "main": [
+        [
+          {
+            "node": "Submit local",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Fallback?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Submit local": {
+      "main": [
+        [
+          {
+            "node": "Settled?",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Outcome",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Settled?": {
+      "main": [
+        [
+          {
+            "node": "Outcome",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Fallback?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fallback?": {
+      "main": [
+        [
+          {
+            "node": "Budget",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Give up",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Budget": {
+      "main": [
+        [
+          {
+            "node": "Within budget?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Within budget?": {
+      "main": [
+        [
+          {
+            "node": "Agent brief",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Give up",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Agent brief": {
       "main": [
         [
           {
@@ -650,7 +1207,47 @@
       "main": [
         [
           {
-            "node": "Build catalog file",
+            "node": "Agent file",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Give up",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Agent file": {
+      "main": [
+        [
+          {
+            "node": "Usage after",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Usage after": {
+      "main": [
+        [
+          {
+            "node": "Submit agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Submit agent": {
+      "main": [
+        [
+          {
+            "node": "Outcome",
             "type": "main",
             "index": 0
           }
@@ -664,73 +1261,8 @@
         ]
       ]
     },
-    "Build catalog file": {
+    "Give up": {
       "main": [
-        [
-          {
-            "node": "Validate (dry run)",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Validate (dry run)": {
-      "main": [
-        [
-          {
-            "node": "Decide",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        [
-          {
-            "node": "Outcome",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Decide": {
-      "main": [
-        [
-          {
-            "node": "Apply?",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Apply?": {
-      "main": [
-        [
-          {
-            "node": "Apply (fill)",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        [
-          {
-            "node": "Outcome",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Apply (fill)": {
-      "main": [
-        [
-          {
-            "node": "Outcome",
-            "type": "main",
-            "index": 0
-          }
-        ],
         [
           {
             "node": "Outcome",
@@ -744,7 +1276,7 @@
       "main": [
         [
           {
-            "node": "Loop over tasks",
+            "node": "Claim task",
             "type": "main",
             "index": 0
           }
@@ -752,6 +1284,17 @@
       ]
     },
     "Run summary": {
+      "main": [
+        [
+          {
+            "node": "Summary text",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Summary text": {
       "main": [
         [
           {
@@ -795,7 +1338,7 @@
         ]
       ]
     },
-    "web_search": {
+    "wiki_search": {
       "ai_tool": [
         [
           {
@@ -807,6 +1350,17 @@
       ]
     },
     "read_page": {
+      "ai_tool": [
+        [
+          {
+            "node": "Research agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "web_search": {
       "ai_tool": [
         [
           {

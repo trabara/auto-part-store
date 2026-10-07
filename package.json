@@ -14,6 +14,7 @@
     "docker:build": "docker compose -f infra/docker/docker-compose.yml build",
     "docker:up": "docker compose -f infra/docker/docker-compose.yml -f infra/docker/docker-compose.infra.yml --env-file infra/docker/.env up -d",
     "docker:down": "docker compose -f infra/docker/docker-compose.yml -f infra/docker/docker-compose.infra.yml down",
+    "ollama:pull": "docker exec medusa_ollama ollama pull qwen3.5:4b",
     "n8n:import": "docker exec medusa_n8n n8n import:workflow --input=/workflows/vehicle-catalog-research.json",
     "docker:logs": "docker compose -f infra/docker/docker-compose.yml -f infra/docker/docker-compose.infra.yml --env-file infra/docker/.env logs -f",
     "check-layout": "node packages/tooling/scripts/src/check-layout.mjs",

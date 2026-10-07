@@ -107,6 +107,27 @@ medusaIntegrationTestRunner({
       expect(new Date(done.next_run_at!).getTime()).toBeGreaterThan(Date.now() + 29 * 86_400_000);
     });
 
+    it("keeps the lease after a first attempt that didn't apply, for the fallback to submit", async () => {
+      await service().refreshTasks();
+      const task = await claim("RESEARCH_CONFIGURATIONS");
+      const local = await service().submitTaskResult(task.id, { lease_token: task.lease_token, model: "qwen3.5:4b", output: "nope", final: false });
+      expect(local).toMatchObject({ status: "FAILED", reason: "invalid output", final: false });
+      expect(await service().retrieveCatalogTask(task.id)).toMatchObject({ status: "RUNNING", lease_token: task.lease_token, report: { attempts: [{ reason: "invalid output" }] } });
+      // The agent's answer settles it.
+      const agent = await service().submitTaskResult(task.id, {
+        lease_token: task.lease_token,
+        model: "openrouter:google/gemini-3.6-flash",
+        file: CatalogFileSchema.parse({
+          format: "vehicle-catalog@1",
+          source: { name: "agent" },
+          makes: [{ name: "Dacia", models: [{ name: "Sandero", generations: [{ name: "III", year_start: 2020, vehicles: [{ engine: { fuel: "GASOLINE", power_kw: 67, cylinders: 3 }, body_style: "HATCHBACK", doors: 5, year_start: 2020 }] }] }] }],
+        }),
+        sources: [url],
+      });
+      expect(agent).toMatchObject({ status: "APPLIED" });
+      expect(await service().retrieveCatalogTask(task.id)).toMatchObject({ status: "APPLIED", lease_token: null });
+    });
+
     it("backs off after an invalid answer", async () => {
       await service().refreshTasks();
       const task = await claim("RESEARCH_CONFIGURATIONS");

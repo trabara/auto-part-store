@@ -570,6 +570,30 @@ export default class VehicleModuleService extends MedusaService(vehicleModels) {
     return { task, context, urls: [...urls] };
   }
 
+  /** What ran since `since`: outcomes by status and kind, spend, and what waits for review. */
+  @InjectManager()
+  async taskSummary(since: Date, @MedusaContext() ctx: Context = {}) {
+    const ran = (await this.listCatalogTasks(
+      { last_run_at: { $gte: since } },
+      { select: ["kind", "status", "make", "model", "generation", "cost", "report"] },
+      ctx,
+    )) as Row[];
+    const count = (rows: Row[], key: string) => rows.reduce<Record<string, number>>((acc, r) => ({ ...acc, [r[key]]: (acc[r[key]] ?? 0) + 1 }), {});
+    const review = await this.listCatalogTasks({ status: CatalogTaskStatus.REVIEW }, { select: ["id"] }, ctx);
+    return {
+      ran: ran.length,
+      by_status: count(ran, "status"),
+      by_kind: count(ran, "kind"),
+      usd: Math.round(ran.reduce((n, r) => n + (r.cost?.usd ?? 0), 0) * 10_000) / 10_000,
+      credits: ran.reduce((n, r) => n + (r.cost?.credits ?? 0), 0),
+      waiting_review: review.length,
+      applied: ran
+        .filter((r) => r.status === CatalogTaskStatus.APPLIED || (r.status === CatalogTaskStatus.DONE && r.report?.reason === "verified"))
+        .map((r) => [r.make, r.model, r.generation].filter(Boolean).join(" ") + (r.report?.reason ? ` (${r.report.reason})` : ""))
+        .slice(0, 30),
+    };
+  }
+
   /** The task, if `token` is its current lease (a worker's calls must carry it). */
   @InjectManager()
   async leasedTask(taskId: string, token: string, @MedusaContext() ctx: Context = {}) {
@@ -610,6 +634,12 @@ export default class VehicleModuleService extends MedusaService(vehicleModels) {
     const cost = addCost(task.cost, input.cost, input.model);
     const verification = task.kind === CatalogTaskKind.VERIFY_MODEL || task.kind === CatalogTaskKind.VERIFY_GENERATION;
     const finish = async (status: CatalogTaskStatus, reason: string, report: Row, extra: Row = {}): Promise<TaskResult> => {
+      // A first attempt that didn't apply keeps the lease, for the fallback to try.
+      if (input.final === false && status !== CatalogTaskStatus.APPLIED) {
+        const attempt = { status, reason, model: input.model ?? null, at: now.toISOString(), report };
+        await this.updateCatalogTasks([{ id: task.id, sources, cost, report: { ...(task.report ?? {}), attempts: [...((task.report?.attempts as Row[]) ?? []), attempt].slice(-5) } }] as any[], ctx);
+        return { status, reason, report, final: false };
+      }
       // A verified unit is done: the ledger reopens it when its records fall due again.
       const stored = verification && status === CatalogTaskStatus.APPLIED ? CatalogTaskStatus.DONE : status;
       await this.updateCatalogTasks(
@@ -1073,9 +1103,11 @@ export type TaskResultInput = {
   error?: string;
   cost?: { usd?: number; credits?: number; steps?: number };
   sources?: string[];
+  /** false: a first attempt; unless it applies, the task stays leased for a fallback to submit. */
+  final?: boolean;
 };
 
-export type TaskResult = { status: CatalogTaskStatus; reason: string; report: Row };
+export type TaskResult = { status: CatalogTaskStatus; reason: string; report: Row; final?: boolean };
 
 const pickGeneration = (g: Row): StewardGeneration => ({
   id: g.id,

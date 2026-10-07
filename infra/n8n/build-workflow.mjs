@@ -1,6 +1,9 @@
-// Builds the n8n workflow that researches the vehicle catalog with an AI agent
-// (vehicle-catalog-research.json). The agent's output schema is derived from
-// the catalog contract, so rebuild after changing CatalogGenerationSchema:
+// Builds the n8n workflow of the catalog steward (vehicle-catalog-research.json):
+// a nightly loop over the backend's task ledger. The backend decides what to do
+// (rules, ledger, prompts, checks, apply policy); this workflow runs the
+// models: the local one (Ollama) first, the cloud agent (OpenRouter) as a
+// budget-paced fallback for research it couldn't settle. The agent's output
+// schema derives from the catalog contract, so rebuild after changing it:
 //
 //   yarn workspace @repo/module-vehicle build && node infra/n8n/build-workflow.mjs
 import { createHash } from "node:crypto";
@@ -14,7 +17,7 @@ const require = createRequire(path.join(here, "../../packages/modules/vehicle/pa
 const { z } = require("@medusajs/framework/zod");
 const { CatalogGenerationSchema } = require("./dist/contract/catalog.js");
 
-// ── Agent output: generations as the import reads them, plus provenance ──────
+// ── The cloud agent's output: generations as the import reads them, plus provenance ──
 const AgentOutputSchema = z.object({
   generations: z.array(CatalogGenerationSchema),
   sources: z.array(z.string()).describe("Every URL used"),
@@ -53,11 +56,10 @@ const node = (name, type, typeVersion, position, parameters, extra = {}) => {
   return name;
 };
 const CONFIG = "$('Config').first().json";
-const TASK = "$('Task prompt').first().json";
-const MEDUSA_AUTH = { authentication: "genericCredentialType", genericAuthType: "httpBasicAuth" };
+const TASK = "$('Task').first().json";
 const medusaCredentials = { httpBasicAuth: { id: "", name: "Medusa secret API key" } };
-const tavilyCredentials = { httpHeaderAuth: { id: "", name: "Tavily API key" } };
-/** Medusa calls are idempotent (natural keys): retry transient failures. */
+const openRouterCredentials = { openRouterApi: { id: "", name: "OpenRouter account" } };
+/** Medusa calls are idempotent or leased: retry transient failures. */
 const RETRY = { retryOnFail: true, maxTries: 3, waitBetweenTries: 5000 };
 const assignments = (values) => ({
   assignments: {
@@ -65,115 +67,181 @@ const assignments = (values) => ({
   },
   options: {},
 });
-const condition = (name, leftValue, operator, rightValue = "") => ({
+const isTrue = (name, expression) => ({
   conditions: {
     options: { caseSensitive: true, leftValue: "", typeValidation: "loose", version: 2 },
-    conditions: [{ id: id(`if/${name}`), leftValue, rightValue, operator }],
+    conditions: [{ id: id(`if/${name}`), leftValue: `={{ ${expression} }}`, rightValue: "", operator: { type: "boolean", operation: "true", singleValue: true } }],
     combinator: "and",
   },
   options: {},
 });
-const IS_TRUE = { type: "boolean", operation: "true", singleValue: true };
-const code = (jsCode) => ({ mode: "runOnceForEachItem", jsCode: jsCode.trim() });
-const medusa = (path, query = [], extra = {}) => ({
-  url: `={{ ${CONFIG}.medusa_url }}/admin/vehicle-catalog/${path}`,
-  ...MEDUSA_AUTH,
-  sendQuery: true,
-  queryParameters: { parameters: query.map(([name, value]) => ({ name, value })) },
+const code = (jsCode, mode = "runOnceForEachItem") => ({ mode, jsCode: jsCode.trim() });
+/** A Medusa admin call (Basic auth with the secret API key). */
+const medusa = (method, route, body, extra = {}) => ({
+  method,
+  url: `={{ ${CONFIG}.medusa_url }}/admin/vehicle-catalog/${route}`,
+  authentication: "genericCredentialType",
+  genericAuthType: "httpBasicAuth",
+  ...(body ? { sendBody: true, specifyBody: "json", jsonBody: `={{ JSON.stringify(${body}) }}` } : {}),
+  options: {},
   ...extra,
 });
-
-// ── Triggers and configuration ───────────────────────────────────────────────
-node("Weekly", "n8n-nodes-base.scheduleTrigger", 1.2, [0, 0], {
-  rule: { interval: [{ field: "weeks", triggerAtDay: [1], triggerAtHour: 3 }] },
+const openRouterKey = () => ({
+  url: "https://openrouter.ai/api/v1/key",
+  authentication: "predefinedCredentialType",
+  nodeCredentialType: "openRouterApi",
+  options: {},
 });
+const RESEARCH = `['RESEARCH_GENERATIONS', 'RESEARCH_CONFIGURATIONS'].includes(${TASK}.kind)`;
+
+// ── Start: configuration, rules, ledger, model warm-up ───────────────────────
+node("Nightly", "n8n-nodes-base.scheduleTrigger", 1.2, [0, 0], { rule: { interval: [{ field: "days", triggerAtHour: 1 }] } });
 node("Run now", "n8n-nodes-base.manualTrigger", 1, [0, 200], {});
 node(
   "Config",
   "n8n-nodes-base.set",
   3.4,
-  [240, 100],
+  [220, 100],
   assignments({
-    // Medusa as seen from n8n (compose: the host's port 9000).
+    // Medusa and Ollama as seen from n8n (compose: Medusa on the host, Ollama a service).
     medusa_url: ["string", "http://host.docker.internal:9000"],
-    // Only this make (empty: every make).
-    make: ["string", ""],
-    // Tasks per run: a model's generations, or one generation's configurations.
-    tasks_per_run: ["number", 10],
-    // Generations with at most this many configurations (0: empty ones only).
-    max_configurations: ["number", 0],
-    // Apply clean results (creates, and fills values the catalog lacks);
-    // false: validate only, everything goes to review.
-    auto_apply: ["boolean", true],
+    ollama_url: ["string", "http://ollama:11434"],
+    // The local model (pull it first: yarn ollama:pull) does every task it can.
+    local_model: ["string", "qwen3.5:4b"],
+    // The cloud agent researches what the local model couldn't settle.
+    cloud_fallback: ["boolean", true],
+    cloud_cheap: ["string", "google/gemini-3.6-flash"],
+    // Tasks that failed twice get the strong model, while the month is below `escalate_below` of the budget.
+    cloud_strong: ["string", "anthropic/claude-sonnet-5.5"],
+    escalate_below: ["number", 0.6],
+    // Cloud spend cap for the month (also set it as the OpenRouter key's limit).
+    monthly_budget_usd: ["number", 20],
+    // The run stops claiming at this time (workflow timezone) or after this many tasks.
+    window_end: ["string", "06:00"],
+    max_tasks: ["number", 150],
     // Slack-compatible incoming webhook for the run summary (empty: none).
     review_webhook_url: ["string", ""],
   }),
-  { notes: "Edit these values. Credentials: Medusa secret API key (Basic Auth: key as user, empty password), Tavily API key (Header Auth: Authorization = Bearer tvly-…), OpenRouter." },
+  { notes: "Credentials: Medusa secret API key (Basic Auth: the key as user, empty password) and OpenRouter. Web search runs in the backend (TAVILY_API_KEY in its env)." },
 );
-
-// ── Research queue ───────────────────────────────────────────────────────────
 node(
-  "Research tasks",
-  "n8n-nodes-base.httpRequest",
-  4.2,
-  [480, 100],
-  {
-    ...medusa("tasks", [
-      ["limit", `={{ ${CONFIG}.tasks_per_run }}`],
-      ["make", `={{ ${CONFIG}.make || undefined }}`],
-      ["max_configurations", `={{ ${CONFIG}.max_configurations }}`],
-    ]),
-    options: {},
-  },
-  { credentials: medusaCredentials, ...RETRY },
-);
-node("One item per task", "n8n-nodes-base.splitOut", 1, [720, 100], { fieldToSplitOut: "tasks", options: {} });
-node("Loop over tasks", "n8n-nodes-base.splitInBatches", 3, [960, 100], { batchSize: 1, options: {} });
-
-// ── One task: prompt, research, scope, validate, decide, apply ───────────────
-node(
-  "Task prompt",
+  "Start",
   "n8n-nodes-base.code",
   2,
-  [1200, 200],
+  [440, 100],
+  code(
+    `
+const cfg = $('Config').first().json;
+const [h, m] = String(cfg.window_end || "06:00").split(":").map(Number);
+let deadline = $now.set({ hour: h, minute: m || 0, second: 0, millisecond: 0 });
+if (deadline <= $now) deadline = deadline.plus({ days: 1 });
+return [{ json: { started: $now.toISO(), deadline: deadline.toISO() } }];
+`,
+    "runOnceForAllItems",
+  ),
+);
+node("Lint", "n8n-nodes-base.httpRequest", 4.2, [660, 100], medusa("POST", "lint", "{}"), { credentials: medusaCredentials, ...RETRY });
+node("Refresh ledger", "n8n-nodes-base.httpRequest", 4.2, [880, 100], medusa("POST", "tasks/refresh", "{}"), { credentials: medusaCredentials, ...RETRY });
+node(
+  "Warm up model",
+  "n8n-nodes-base.httpRequest",
+  4.2,
+  [1100, 100],
+  {
+    method: "POST",
+    url: `={{ ${CONFIG}.ollama_url }}/api/generate`,
+    sendBody: true,
+    specifyBody: "json",
+    jsonBody: `={{ JSON.stringify({ model: ${CONFIG}.local_model, keep_alive: '6h' }) }}`,
+    options: { timeout: 600000 },
+  },
+  { onError: "continueRegularOutput" },
+);
+
+// ── The loop: one leased task at a time until the window ends ────────────────
+node("Claim task", "n8n-nodes-base.httpRequest", 4.2, [1320, 100], medusa("POST", "tasks/claim", "{ limit: 1, lease_minutes: 60 }"), {
+  credentials: medusaCredentials,
+  ...RETRY,
+});
+node(
+  "Next task?",
+  "n8n-nodes-base.if",
+  2.2,
+  [1540, 100],
+  isTrue("next", `$json.tasks.length > 0 && $now.toISO() < $('Start').first().json.deadline && $runIndex < ${CONFIG}.max_tasks`),
+);
+node("Task", "n8n-nodes-base.code", 2, [1760, 200], code("return { ...$json.tasks[0] };"));
+node(
+  "Prompt",
+  "n8n-nodes-base.httpRequest",
+  4.2,
+  [1980, 200],
+  medusa("POST", `tasks/{{ ${TASK}.id }}/prompt`, `{ lease_token: ${TASK}.lease_token }`),
+  { credentials: medusaCredentials, ...RETRY, onError: "continueErrorOutput" },
+);
+node("Evidence found?", "n8n-nodes-base.if", 2.2, [2200, 200], isTrue("evidence", "!$json.fallback"));
+node(
+  "Local model",
+  "n8n-nodes-base.httpRequest",
+  4.2,
+  [2420, 100],
+  {
+    method: "POST",
+    url: `={{ ${CONFIG}.ollama_url }}/api/chat`,
+    sendBody: true,
+    specifyBody: "json",
+    // One schema-constrained call, thinking off, the model kept loaded; a CPU needs time.
+    jsonBody: `={{ JSON.stringify({ model: ${CONFIG}.local_model, messages: $json.messages, format: $json.schema, stream: false, think: false, keep_alive: '6h', options: { temperature: 0, num_ctx: 8192 } }) }}`,
+    options: { timeout: 900000 },
+  },
+  { onError: "continueErrorOutput" },
+);
+node(
+  "Submit local",
+  "n8n-nodes-base.httpRequest",
+  4.2,
+  [2640, 100],
+  medusa(
+    "POST",
+    `tasks/{{ ${TASK}.id }}/result`,
+    `{ lease_token: ${TASK}.lease_token, model: ${CONFIG}.local_model, output: $json.message?.content ?? '', cost: { usd: 0, steps: 1 }, final: !(${CONFIG}.cloud_fallback && ${RESEARCH}) }`,
+  ),
+  { credentials: medusaCredentials, ...RETRY, onError: "continueErrorOutput" },
+);
+node("Settled?", "n8n-nodes-base.if", 2.2, [2860, 100], isTrue("settled", "$json.final !== false"));
+
+// ── Fallback: the cloud agent, for research only, within budget ──────────────
+node("Fallback?", "n8n-nodes-base.if", 2.2, [2640, 420], isTrue("fallback", `${CONFIG}.cloud_fallback && ${RESEARCH}`));
+node("Budget", "n8n-nodes-base.httpRequest", 4.2, [2860, 360], openRouterKey(), { credentials: openRouterCredentials, ...RETRY });
+node(
+  "Within budget?",
+  "n8n-nodes-base.if",
+  2.2,
+  [3080, 360],
+  isTrue("budget", `($json.data?.usage_monthly ?? 0) < ${CONFIG}.monthly_budget_usd && ($json.data?.limit_remaining == null || $json.data.limit_remaining > 0.05)`),
+);
+node(
+  "Agent brief",
+  "n8n-nodes-base.code",
+  2,
+  [3300, 300],
   code(`
-const t = $json;
-const span = (g) => g.year_start + "–" + (g.year_end ?? "present");
-const head = ["Task: " + t.kind, "Make: " + t.make, "Model: " + t.model, "Category: " + t.category, ""];
-let body;
-if (t.kind === "generations") {
-  body = [
-    "The catalog has no generations for this model yet. List its generations, each with vehicles: [].",
-  ];
-} else {
-  const g = t.generation;
-  const engine = (e) => [e.fuel, e.layout, e.cylinders && e.cylinders + " cyl", e.displacement_cc && e.displacement_cc + " cm³", e.power_kw + " kW", e.code && "code " + e.code]
-    .filter(Boolean).join(" ");
-  const lines = (t.existing ?? []).map((v, i) =>
-    "#" + (i + 1) + " " + engine(v.engine) + " · " + v.body_style + " " + v.doors + " doors · " + v.drive + " · " + v.transmission +
-    " · trim " + (v.trim ?? "—") + " · " + span(v));
-  const shown = lines.slice(0, 120);
-  body = [
-    'Generation to research: "' + g.name + '"' + (g.code ? " (" + g.code + ")" : "") + ", " + span(g) + " in the catalog.",
-    "",
-    "The model's generations in the catalog:",
-    ...t.generations.map((s) => '- "' + s.name + '"' + (s.code ? " (" + s.code + ")" : "") + ": " + span(s) + ", " + s.configurations + " configuration(s)"),
-    "",
-    'Configurations of "' + g.name + '" already in the catalog:',
-    ...(shown.length ? shown : ["(none yet)"]),
-    ...(lines.length > shown.length ? ["(and " + (lines.length - shown.length) + " more)"] : []),
-    "",
-    'Return exactly one generation, named "' + g.name + '", with its configurations.',
-  ];
-}
+const t = $('Task').first().json;
+const cfg = $('Config').first().json;
+const usage = $('Budget').first().json.data ?? {};
+const strong = t.attempts >= 2 && (usage.usage_monthly ?? 0) < cfg.escalate_below * cfg.monthly_budget_usd;
+const what = t.kind === "RESEARCH_GENERATIONS"
+  ? "List this model's generations (each with vehicles: [])."
+  : 'Find the configurations of generation "' + t.generation + '" (return exactly that generation, under that name).';
 return {
-  kind: t.kind,
-  make: t.make,
-  model: t.model,
-  category: t.category,
-  generation: t.generation?.name ?? null,
-  label: t.make + " " + t.model + (t.generation ? " " + t.generation.name : " (generations)"),
-  prompt: [...head, ...body, "", "Research, validate your generations with validate_catalog, then return them."].join("\\n"),
+  model: strong ? cfg.cloud_strong : cfg.cloud_cheap,
+  usage_before: usage.usage ?? 0,
+  prompt: [
+    "Make: " + t.make, "Model: " + t.model, t.generation ? "Generation: " + t.generation : "",
+    "", what,
+    t.feedback ? "A reviewer noted: " + t.feedback : "",
+    "Start with wiki_search and read_page (free); use web_search when Wikipedia is not enough. Validate with validate_catalog, then return the generations.",
+  ].filter(Boolean).join("\\n"),
 };
 `),
 );
@@ -181,232 +249,156 @@ node(
   "Research agent",
   "@n8n/n8n-nodes-langchain.agent",
   2,
-  [1440, 200],
-  { promptType: "define", text: "={{ $json.prompt }}", hasOutputParser: true, options: { systemMessage, maxIterations: 20 } },
+  [3520, 300],
+  { promptType: "define", text: "={{ $json.prompt }}", hasOutputParser: true, options: { systemMessage, maxIterations: 15 } },
   { onError: "continueErrorOutput" },
 );
-// Any OpenRouter model with tool calling; the id is OpenRouter's (provider/model).
-node("Chat model (OpenRouter)", "@n8n/n8n-nodes-langchain.lmChatOpenRouter", 1, [1200, 460], {
-  model: "anthropic/claude-sonnet-5.5",
-  // One task's answer fits well within 16k tokens; research calls can be slow.
-  options: { maxTokens: 16000, timeout: 600000, temperature: 0.1 },
-}, { credentials: { openRouterApi: { id: "", name: "OpenRouter account" } } });
-node("Catalog generations", "@n8n/n8n-nodes-langchain.outputParserStructured", 1.2, [1920, 460], {
+node(
+  "Chat model (OpenRouter)",
+  "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+  1,
+  [3360, 560],
+  { model: "={{ $('Agent brief').first().json.model }}", options: { maxTokens: 16000, timeout: 600000, temperature: 0.1 } },
+  { credentials: openRouterCredentials },
+);
+node("Catalog generations", "@n8n/n8n-nodes-langchain.outputParserStructured", 1.2, [3900, 560], {
   schemaType: "manual",
   inputSchema: JSON.stringify(outputSchema, null, 2),
 });
-
-// Agent tools: lean responses keep the agent's context (re-sent on every step) small.
-const tool = (name, position, description, parameters, credentials) =>
-  node(name, "n8n-nodes-base.httpRequestTool", 4.2, position, { toolDescription: description, ...parameters, options: {} }, { credentials });
-const TAVILY = { method: "POST", authentication: "genericCredentialType", genericAuthType: "httpHeaderAuth", sendBody: true, specifyBody: "json" };
+const tool = (name, position, description, parameters) =>
+  node(name, "n8n-nodes-base.httpRequestTool", 4.2, position, { toolDescription: description, ...parameters }, { credentials: medusaCredentials });
 tool(
-  "web_search",
-  [1360, 460],
-  "Search the web. Returns up to 5 results, each with title, URL and the most relevant passages.",
-  {
-    ...TAVILY,
-    url: "https://api.tavily.com/search",
-    jsonBody: `={{ JSON.stringify({ query: $fromAI('query', 'What to search for, e.g. "Renault Clio V fiche technique motorisations ch" or "Golf VII engines kW"', 'string'), max_results: 5, search_depth: 'advanced', chunks_per_source: 3, exclude_domains: ['autoevolution.com'] }) }}`,
-    optimizeResponse: true,
-    responseType: "json",
-    dataField: "results",
-    fieldsToInclude: "selected",
-    fields: "title,url,content",
-  },
-  tavilyCredentials,
+  "wiki_search",
+  [3480, 560],
+  "Search Wikipedia (free). Returns article titles, URLs and snippets.",
+  medusa("POST", "research/wiki-search", `{ query: $fromAI('query', 'e.g. "Dacia Sandero" or "Renault K engine"', 'string'), lang: $fromAI('lang', 'Wikipedia language: en or fr', 'string', 'en'), task_id: ${TASK}.id }`),
 );
 tool(
   "read_page",
-  [1520, 460],
-  "Read a web page as markdown. With focus (what you look for, e.g. 'engines power kW displacement'), returns only the most relevant passages; without, the page (long pages are cut).",
-  {
-    ...TAVILY,
-    url: "https://api.tavily.com/extract",
-    jsonBody: `={{ [$fromAI('focus', 'What you look for on the page; empty to read the whole page', 'string', '')].map((focus) => JSON.stringify({ urls: [$fromAI('url', 'The page URL', 'string')], extract_depth: 'advanced', format: 'markdown', query: focus || undefined, chunks_per_source: focus ? 5 : undefined }))[0] }}`,
-    optimizeResponse: true,
-    responseType: "text",
-    truncateResponse: true,
-    maxLength: 30000,
-  },
-  tavilyCredentials,
+  [3600, 560],
+  "Read a page as markdown (free when possible). With focus (what you look for, e.g. 'engines power kW'), only the relevant passages come back.",
+  medusa("POST", "research/read", `{ url: $fromAI('url', 'The page URL', 'string'), focus: $fromAI('focus', 'What you look for; empty for the whole page', 'string', ''), task_id: ${TASK}.id }`),
+);
+tool(
+  "web_search",
+  [3720, 560],
+  "Search the web (costs a credit; use when Wikipedia is not enough). Returns results with their most relevant passages.",
+  medusa("POST", "research/search", `{ query: $fromAI('query', 'e.g. "Dacia Sandero III fiche technique motorisations ch"', 'string'), task_id: ${TASK}.id }`),
 );
 tool(
   "validate_catalog",
-  [1680, 460],
-  "Check your generations against the catalog without writing anything: problems to fix, warnings (likely duplicates of existing records), what would be created and updated, and existing values that contradict yours.",
-  {
-    method: "POST",
-    ...medusa("import", [["dry_run", "true"], ["mode", "fill"]]),
-    sendBody: true,
-    specifyBody: "json",
-    jsonBody: `={{ JSON.stringify({ format: 'vehicle-catalog@1', market: 'TN', source: { name: 'research draft' }, makes: [{ name: ${TASK}.make, models: [{ name: ${TASK}.model, category: ${TASK}.category, generations: $fromAI('generations', 'Your generations, exactly as you will return them', 'json') }] }] }) }}`,
-  },
-  medusaCredentials,
+  [3840, 560],
+  "Check your generations against the catalog without writing anything: problems to fix, warnings (likely duplicates), what would be created and updated, contradicted existing values.",
+  medusa(
+    "POST",
+    "import",
+    `{ format: 'vehicle-catalog@1', source: { name: 'research draft' }, makes: [{ name: ${TASK}.make, models: [{ name: ${TASK}.model, generations: $fromAI('generations', 'Your generations, exactly as you will return them', 'json') }] }] }`,
+    { sendQuery: true, queryParameters: { parameters: [{ name: "dry_run", value: "true" }, { name: "mode", value: "merge" }] } },
+  ),
 );
-
 node(
-  "Build catalog file",
+  "Agent file",
   "n8n-nodes-base.code",
   2,
-  [1680, 100],
+  [3740, 300],
   code(`
-const task = $('Task prompt').item.json;
+const t = $('Task').first().json;
 const { generations = [], sources = [], notes = "" } = $json.output ?? {};
-// Keep the result within the task: the given generation only (configurations),
-// or generations without configurations (generations: those come in their own tasks).
-const scoped = [];
-const dropped = [];
-for (const g of generations) {
-  if (task.kind === "configurations") {
-    if (g.name.trim().toLowerCase() === task.generation.toLowerCase()) scoped.push({ ...g, name: task.generation });
-    else dropped.push(g.name);
-  } else scoped.push({ ...g, vehicles: [] });
-}
 return {
-  task,
   sources,
-  notes: [notes, dropped.length ? "Left out (outside this task): " + dropped.join(", ") + "." : ""].filter(Boolean).join(" "),
+  notes,
   file: {
     format: "vehicle-catalog@1",
-    market: "TN",
-    source: { name: "AI research agent (n8n), " + sources.length + " source(s)", url: sources.join(" "), retrieved_at: new Date().toISOString() },
-    makes: [{ name: task.make, models: [{ name: task.model, category: task.category, generations: scoped }] }],
+    source: { name: "AI research agent", url: sources[0], retrieved_at: new Date().toISOString().slice(0, 10) },
+    makes: [{ name: t.make, models: [{ name: t.model, generations }] }],
   },
 };
 `),
 );
+node("Usage after", "n8n-nodes-base.httpRequest", 4.2, [3960, 300], openRouterKey(), { credentials: openRouterCredentials, ...RETRY });
 node(
-  "Validate (dry run)",
+  "Submit agent",
   "n8n-nodes-base.httpRequest",
   4.2,
-  [1920, 100],
-  {
-    method: "POST",
-    ...medusa("import", [["dry_run", "true"], ["mode", "fill"]]),
-    sendBody: true,
-    specifyBody: "json",
-    jsonBody: "={{ JSON.stringify($json.file) }}",
-    options: {},
-  },
-  { credentials: medusaCredentials, onError: "continueErrorOutput", ...RETRY },
+  [4180, 300],
+  medusa(
+    "POST",
+    `tasks/{{ ${TASK}.id }}/result`,
+    `{ lease_token: ${TASK}.lease_token, model: 'openrouter:' + $('Agent brief').first().json.model, file: $('Agent file').first().json.file, sources: $('Agent file').first().json.sources, notes: $('Agent file').first().json.notes, cost: { usd: Math.max(0, ($json.data?.usage ?? 0) - $('Agent brief').first().json.usage_before), steps: 1 }, final: true }`,
+  ),
+  { credentials: medusaCredentials, ...RETRY, onError: "continueErrorOutput" },
 );
 node(
-  "Decide",
-  "n8n-nodes-base.code",
-  2,
-  [2160, 100],
-  code(`
-const report = $json.report;
-const adds = report.created.generations + report.created.vehicles + report.updated.length;
-const autoApply = $('Config').first().json.auto_apply;
-const status = report.problems.length
-  ? "problems"
-  : report.warnings.length
-    ? "possible duplicates"
-    : !adds
-      ? "nothing new"
-      : !autoApply
-        ? "validated (auto_apply off)"
-        : null;
-return { apply: status === null, status, report };
-`),
-);
-node("Apply?", "n8n-nodes-base.if", 2.2, [2400, 100], condition("apply", "={{ $json.apply }}", IS_TRUE));
-node(
-  "Apply (fill)",
+  "Give up",
   "n8n-nodes-base.httpRequest",
   4.2,
-  [2640, 0],
-  {
-    method: "POST",
-    ...medusa("import", [["mode", "fill"]]),
-    sendBody: true,
-    specifyBody: "json",
-    jsonBody: "={{ JSON.stringify($('Build catalog file').item.json.file) }}",
-    options: {},
-  },
-  { credentials: medusaCredentials, onError: "continueErrorOutput", ...RETRY },
+  [3300, 560],
+  medusa(
+    "POST",
+    `tasks/{{ ${TASK}.id }}/result`,
+    `{ lease_token: ${TASK}.lease_token, error: $json.error?.message ?? ($json.data ? 'cloud budget reached' : 'no local answer and no cloud fallback'), final: true }`,
+  ),
+  { credentials: medusaCredentials, ...RETRY, onError: "continueRegularOutput" },
 );
-
-// One outcome per task (applied, not applied with the reason, or failed),
-// fed back to the loop and summarized at the end.
 node(
   "Outcome",
   "n8n-nodes-base.code",
   2,
-  [2880, 200],
+  [4400, 100],
   code(`
-let built = {};
-try { built = $('Build catalog file').item.json; } catch {} // the agent failed: nothing built
-const task = $('Task prompt').item.json;
-const report = $json.report ?? {};
-const applied = report.dryRun === false;
-const status = $json.error ? "failed" : applied ? ((report.differences ?? []).length ? "applied, review contradictions" : "applied") : $json.status;
-return {
-  label: task.label,
-  status,
-  created: report.created ?? null,
-  updated: report.updated ?? [],
-  differences: report.differences ?? [],
-  warnings: report.warnings ?? [],
-  problems: report.problems ?? [],
-  error: $json.error ? String($json.error.message ?? $json.error) : null,
-  notes: built.notes ?? "",
-  sources: built.sources ?? [],
-  // The proposal, to review or apply by hand (not kept once applied).
-  file: applied ? undefined : built.file,
-};
+const t = $('Task').first().json;
+return { task: t.id, kind: t.kind, label: [t.make, t.model, t.generation].filter(Boolean).join(" "), status: $json.status ?? "failed", reason: $json.reason ?? $json.error?.message ?? null };
 `),
 );
 
-// ── Run summary ──────────────────────────────────────────────────────────────
+// ── Summary from the ledger ──────────────────────────────────────────────────
 node(
   "Run summary",
-  "n8n-nodes-base.code",
-  2,
-  [1200, -160],
-  {
-    mode: "runOnceForAllItems",
-    jsCode: `
-const rows = $input.all().map((i) => i.json).filter((r) => r.status);
-const lines = rows.map((r) => {
-  const parts = ["• " + r.label + ": " + r.status];
-  if (r.created && r.created.generations + r.created.vehicles) parts.push(r.created.generations + " generation(s), " + r.created.vehicles + " configuration(s)");
-  if (r.updated.length) parts.push(r.updated.length + " value(s) filled");
-  if (r.differences.length) parts.push(r.differences.length + " contradiction(s)");
-  if (r.warnings.length) parts.push(r.warnings.length + " possible duplicate(s)");
-  if (r.problems.length) parts.push(r.problems.length + " problem(s)");
-  if (r.error) parts.push(r.error);
-  return parts.join(" · ");
-});
-const text = "Vehicle catalog research (" + rows.length + " task(s))\\n" + lines.join("\\n") +
-  "\\nDetails (sources, notes, proposals to review): this execution in n8n.";
-return [{ json: { text, results: rows } }];
-`.trim(),
-  },
-);
-node(
-  "Notify?",
-  "n8n-nodes-base.if",
-  2.2,
-  [1440, -160],
-  condition("notify", `={{ ${CONFIG}.review_webhook_url }}`, { type: "string", operation: "notEmpty", singleValue: true }),
-);
-node(
-  "Send summary",
   "n8n-nodes-base.httpRequest",
   4.2,
-  [1680, -240],
+  [1760, -160],
   {
-    method: "POST",
-    url: `={{ ${CONFIG}.review_webhook_url }}`,
-    sendBody: true,
-    specifyBody: "json",
-    jsonBody: "={{ JSON.stringify({ text: $json.text }) }}",
+    url: `={{ ${CONFIG}.medusa_url }}/admin/vehicle-catalog/tasks/summary`,
+    authentication: "genericCredentialType",
+    genericAuthType: "httpBasicAuth",
+    sendQuery: true,
+    queryParameters: { parameters: [{ name: "since", value: "={{ $('Start').first().json.started }}" }] },
     options: {},
   },
+  { credentials: medusaCredentials, ...RETRY },
 );
+node(
+  "Summary text",
+  "n8n-nodes-base.code",
+  2,
+  [1980, -160],
+  code(
+    `
+const s = $input.first().json;
+const lint = $('Lint').first().json;
+const fmt = (o) => Object.entries(o ?? {}).map(([k, v]) => k + " " + v).join(", ") || "none";
+const text = [
+  "Catalog steward: " + s.ran + " task(s) run (" + fmt(s.by_status) + ").",
+  "By kind: " + fmt(s.by_kind) + ".",
+  "Rules: " + (lint.errors ?? 0) + " error(s), " + (lint.warnings ?? 0) + " warning(s), " + (lint.fixed ?? 0) + " fixed.",
+  "Cloud spend: $" + (s.usd ?? 0).toFixed(2) + ", search credits: " + (s.credits ?? 0) + ".",
+  "Waiting for review: " + s.waiting_review + " (Vehicles › Research in the admin).",
+  ...(s.applied ?? []).slice(0, 15).map((a) => "• " + a),
+].join("\\n");
+return [{ json: { text, summary: s } }];
+`,
+    "runOnceForAllItems",
+  ),
+);
+node("Notify?", "n8n-nodes-base.if", 2.2, [2200, -160], isTrue("notify", `!!${CONFIG}.review_webhook_url`));
+node("Send summary", "n8n-nodes-base.httpRequest", 4.2, [2420, -240], {
+  method: "POST",
+  url: `={{ ${CONFIG}.review_webhook_url }}`,
+  sendBody: true,
+  specifyBody: "json",
+  jsonBody: "={{ JSON.stringify({ text: $json.text }) }}",
+  options: {},
+});
 
 // ── Connections ──────────────────────────────────────────────────────────────
 const connections = {};
@@ -415,39 +407,55 @@ const link = (from, to, { output = 0, type = "main" } = {}) => {
   while (outputs.length <= output) outputs.push([]);
   outputs[output].push({ node: to, type, index: 0 });
 };
-link("Weekly", "Config");
+link("Nightly", "Config");
 link("Run now", "Config");
-link("Config", "Research tasks");
-link("Research tasks", "One item per task");
-link("One item per task", "Loop over tasks");
-link("Loop over tasks", "Run summary", { output: 0 });
-link("Loop over tasks", "Task prompt", { output: 1 });
-link("Task prompt", "Research agent");
-link("Research agent", "Build catalog file", { output: 0 });
-link("Research agent", "Outcome", { output: 1 });
-link("Build catalog file", "Validate (dry run)");
-link("Validate (dry run)", "Decide", { output: 0 });
-link("Validate (dry run)", "Outcome", { output: 1 });
-link("Decide", "Apply?");
-link("Apply?", "Apply (fill)", { output: 0 });
-link("Apply?", "Outcome", { output: 1 });
-link("Apply (fill)", "Outcome", { output: 0 });
-link("Apply (fill)", "Outcome", { output: 1 });
-link("Outcome", "Loop over tasks");
-link("Run summary", "Notify?");
+link("Config", "Start");
+link("Start", "Lint");
+link("Lint", "Refresh ledger");
+link("Refresh ledger", "Warm up model");
+link("Warm up model", "Claim task");
+link("Claim task", "Next task?");
+link("Next task?", "Task", { output: 0 });
+link("Next task?", "Run summary", { output: 1 });
+link("Task", "Prompt");
+link("Prompt", "Evidence found?", { output: 0 });
+link("Prompt", "Give up", { output: 1 });
+link("Evidence found?", "Local model", { output: 0 });
+link("Evidence found?", "Fallback?", { output: 1 });
+link("Local model", "Submit local", { output: 0 });
+link("Local model", "Fallback?", { output: 1 }); // Ollama down: the task is still leased
+link("Submit local", "Settled?", { output: 0 });
+link("Submit local", "Outcome", { output: 1 });
+link("Settled?", "Outcome", { output: 0 });
+link("Settled?", "Fallback?", { output: 1 });
+link("Fallback?", "Budget", { output: 0 });
+link("Fallback?", "Give up", { output: 1 });
+link("Budget", "Within budget?");
+link("Within budget?", "Agent brief", { output: 0 });
+link("Within budget?", "Give up", { output: 1 });
+link("Agent brief", "Research agent");
+link("Research agent", "Agent file", { output: 0 });
+link("Research agent", "Give up", { output: 1 });
+link("Agent file", "Usage after");
+link("Usage after", "Submit agent");
+link("Submit agent", "Outcome", { output: 0 });
+link("Submit agent", "Outcome", { output: 1 });
+link("Give up", "Outcome");
+link("Outcome", "Claim task");
+link("Run summary", "Summary text");
+link("Summary text", "Notify?");
 link("Notify?", "Send summary", { output: 0 });
 link("Chat model (OpenRouter)", "Research agent", { type: "ai_languageModel" });
 link("Catalog generations", "Research agent", { type: "ai_outputParser" });
-for (const t of ["web_search", "read_page", "validate_catalog"]) link(t, "Research agent", { type: "ai_tool" });
+for (const t of ["wiki_search", "read_page", "web_search", "validate_catalog"]) link(t, "Research agent", { type: "ai_tool" });
 
 const workflow = {
   // Stable: re-importing (CLI) updates this workflow instead of adding a copy.
   id: "vehCatResearch01",
-  name: "Vehicle catalog research",
+  name: "Vehicle catalog steward",
   active: false,
   nodes,
   connections,
-  // Executions keep each task's proposal, sources and notes for review.
   settings: {
     executionOrder: "v1",
     timezone: "Africa/Tunis",

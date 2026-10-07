@@ -5,6 +5,7 @@ volumes:
   postgres_data:
   minio_data:
   n8n_data:
+  ollama_models:
 
 networks:
   medusa_network:

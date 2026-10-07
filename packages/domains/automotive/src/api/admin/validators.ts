@@ -70,6 +70,8 @@ export const AdminStewardResultBody = z.object({
   cost: z.object({ usd: z.number().min(0).optional(), credits: z.number().min(0).optional(), steps: z.number().int().min(0).optional() }).optional(),
   /** Pages the agent read (the gateway records its own reads). */
   sources: z.array(z.string()).optional(),
+  /** false: a first attempt (local model); unless it applies, the lease stays for the fallback. */
+  final: z.boolean().default(true),
 });
 
 export const AdminStewardRejectBody = z.object({ feedback: z.string().trim().max(2000).optional() });

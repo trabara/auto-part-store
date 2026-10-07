@@ -1,96 +1,83 @@
-# n8n: vehicle catalog research
+# n8n: the vehicle catalog steward
 
-`vehicle-catalog-research.json` is an n8n workflow (n8n 2.x) in which an AI agent researches the vehicle catalog on the web and creates or completes it through the Medusa admin API. It runs weekly, or on demand with **Run now**.
+`vehicle-catalog-research.json` is an n8n workflow (n8n 2.x) that maintains the vehicle catalog every night. It does three things:
+- **Fills gaps:** models without generations, generations without configurations.
+- **Verifies records:** each entity against its source, on a cycle set by its trust tier.
+- **Applies rules** to every entity.
 
-## How it works
+It runs a local model first (Ollama, free) and a cloud agent (OpenRouter) only as a budget-paced fallback.
 
-1. **Research tasks** (`GET /admin/vehicle-catalog/tasks`) gives the next `tasks_per_run` focused tasks, most useful first:
-   - **generations**: a model with no generations yet;
-   - **configurations**: one generation with at most `max_configurations` configurations (empty ones first, most recent first). Each task comes with the model's generations and the configurations the catalog already has.
-2. For each task:
-   - **Task prompt** turns the task into a short brief: which generation, its catalog years, and the existing configurations to match exactly.
-   - The **Research agent** (Claude Sonnet 5.5 through OpenRouter) uses three tools:
-     - `web_search`: 5 results with their most relevant passages;
-     - `read_page`: a page as markdown, either only the passages matching a `focus` or the whole page cut at 30k characters;
-     - `validate_catalog`: a dry-run import of its generations.
+The backend holds the logic: the rules, the task ledger, prompts, quote checks and the apply policy (vehicle module and automotive domain, `/admin/vehicle-catalog/*`). The workflow runs the models and reports.
 
-     It must validate and fix every problem before answering. The output schema comes from the catalog contract, and every field the import would otherwise default (doors, drive, transmission…) must be stated.
-   - **Build catalog file** keeps the answer within the task: only the given generation for a configurations task, and no configurations for a generations task.
-   - **Validate (dry run)** re-checks the file, and **Decide** applies it only when all of these hold:
-     - no problems;
-     - no warnings (likely duplicates);
-     - it adds something;
-     - `auto_apply` is on.
-   - **Apply (fill)** imports with `mode=fill`:
-     - missing generations and configurations are created;
-     - values the catalog lacks are filled in, such as a missing code or an end year;
-     - **existing values are never overwritten**, and blank values never count as information.
-3. **Run summary** lists each task's outcome and optionally posts it to a Slack-compatible webhook. The outcomes are:
-   - `applied`;
-   - `applied, review contradictions`;
-   - `possible duplicates`;
-   - `problems`;
-   - `nothing new`;
-   - `failed`.
+## A night (01:00 until `window_end`, or Run now)
 
-   Proposals that weren't applied stay in the execution with their sources and notes.
+1. **Lint** (`POST /lint`) checks every make, model, generation, engine, configuration and reference against the rules: duplicates, implausible values, naming. Stray spaces are fixed automatically; other errors and warnings become **cleanup tasks** in the review queue, each with a proposed fix or merge.
+2. **Refresh ledger** (`POST /tasks/refresh`) queues what the catalog needs, ranked by value. Models sold new in Tunisia come first, then recent generations:
+   - research for gaps;
+   - verification of a *model unit* (the model and its generations) or a *generation unit* (its configurations and their engines) once one of its records is due. Draft and research records are due after 90 days, reference after 365, licensed after 730, and staff edits never.
+3. **Warm up model** loads the local model.
+4. **The loop**, one leased task at a time until `window_end` or `max_tasks`:
+   - **Prompt** (`POST /tasks/:id/prompt`): the backend finds the evidence (pages the catalog already cites, else Wikipedia's best match), condenses it to what the task needs (about 3k tokens, since a CPU reads every token), and returns the messages and the JSON schema of the answer.
+   - **Local model**: Ollama `/api/chat`, constrained to the schema, with thinking off. The model copies values as written ("85 ch", "1.461 L") and quotes its evidence verbatim.
+   - **Submit local** (`POST /tasks/:id/result`): the backend parses the answer, converts units, and checks every quote against the cached page; claims whose quote isn't found are dropped. It then applies the policy:
+     - **Research:** a dry run, then an import in `merge` mode at RESEARCH tier when clean; otherwise kept for review (problems, likely duplicates, mostly assumed values).
+     - **Verification:** confirmed records are stamped (`verified_at`, the source; draft rises to research). Draft or blank values are corrected, other contradictions go to review (engines always, because they are shared), and missing records are added.
+   - **Fallback** (research only, `cloud_fallback`): when the local attempt didn't apply, or found no evidence, and the month is within budget (OpenRouter `/api/v1/key`), the **cloud agent** researches with the backend's gateway tools:
+     - `wiki_search` and `read_page` (free);
+     - `web_search` (Tavily, 1 credit);
+     - `validate_catalog`.
 
-The import refuses (nothing is written):
-- configurations outside their generation's years as the catalog has them;
-- generation or configuration updates that would break that rule;
-- a configuration that collides with an existing identical one;
-- duplicate references.
+     It uses `cloud_cheap` normally and `cloud_strong` for tasks that failed twice, while the month is below `escalate_below` of the budget. The cost of each run is recorded on the task.
+   - **Backoff:** a failed task waits 2^attempts days (at most 60) before its next try, one with no data waits 90 days, and a review waits for a person.
+5. **Summary** (`GET /tasks/summary`): outcomes, spend and reviews waiting, posted to the webhook if set.
 
-It warns about likely duplicates, which go to review:
-- a new generation overlapping an existing one by more than a year (the same generation under another name);
-- a new configuration with the same fuel, power, body, doors, drive and transmission as an existing one but described differently (for example without its engine code).
+**Trust tiers:** DRAFT < RESEARCH < REFERENCE < LICENSED < HUMAN.
+- Imports replace a value only from a higher tier, and never a staff edit (admin edits pin HUMAN).
+- A blank end year means "still produced", so only a higher tier fills it.
+- Every catalog record shows its tier, last verification and sources (Provenance panel).
 
-Imports are transactional. The agent may not use sites that forbid automated access; autoevolution.com is excluded.
+**Review queue:** Vehicles › Research in the admin, filtered by status *To review*. Each task shows the report, the finding or proposal, the pages read and the cost.
+- **Approve** applies the proposal (at REFERENCE tier), the corrections, or the fix. Duplicate configurations are merged, with fitments and garage entries re-pointed.
+- **Reject** closes it with feedback that the next run receives, and the finding stays quiet for 180 days.
 
 ## Setup
 
-1. **Medusa secret API key.** In the admin, open Settings › Secret API Keys and create a key, for example "n8n catalog research". It acts as an admin, so keep it in n8n's credential store only.
-2. **Start n8n and import the workflow.** n8n is part of the local infrastructure: service `n8n` in `infra/docker/docker-compose.infra.yml`, at http://localhost:5678. On the first visit, create the owner account.
+1. **Local services.** n8n and Ollama are part of the local infrastructure:
    ```bash
-   docker compose -f infra/docker/docker-compose.yml -f infra/docker/docker-compose.infra.yml up -d n8n
-   yarn n8n:import        # this folder is mounted at /workflows in the container
+   docker compose -f infra/docker/docker-compose.yml -f infra/docker/docker-compose.infra.yml up -d n8n ollama
+   yarn ollama:pull      # qwen3.5:4b, about 3 GB, once
+   yarn n8n:import       # this folder is mounted at /workflows in the n8n container
    ```
-   Re-importing replaces the workflow (same id), and its credentials have to be selected again. Without the compose service, use Workflows › Import from file.
-3. **Credentials.** Create these, then select them on the nodes that show a warning:
-   - *Medusa secret API key*: type **Basic Auth**, user = the secret key (`sk_…`), password empty. Used by Research tasks, Validate (dry run), Apply (fill) and `validate_catalog`.
-   - *Tavily API key*: type **Header Auth**, name `Authorization`, value `Bearer tvly-…`. Used by `web_search` and `read_page`.
-   - *OpenRouter account*: your OpenRouter API key (`sk-or-…`). Used by **Chat model (OpenRouter)**, model `anthropic/claude-sonnet-5.5`. Any OpenRouter model with tool calling can replace it.
-4. **Config node:**
-   - `medusa_url`: Medusa as seen from n8n.
-     - Medusa on the host (`yarn dev`): `http://host.docker.internal:9000`, the default.
-     - Medusa in compose: `http://medusa:9000`.
-     - Kubernetes: the backend service URL.
-   - `make`: one make only, or empty for every make.
-   - `tasks_per_run`: default 10.
-   - `max_configurations`: 0 means empty generations only; raise it to complete thin ones.
-   - `auto_apply`: set it to false to validate only.
-   - `review_webhook_url`: optional.
-5. Run **Run now** with `tasks_per_run: 1` and check the execution and the catalog, then activate the workflow (Mondays 03:00, Africa/Tunis).
+   This Mac runs Ollama on the CPU (no usable GPU), so give Docker Desktop 10–12 GB of memory: Settings › Resources. Re-importing replaces the workflow, and its credentials have to be selected again.
+2. **Backend env** (`apps/backend/.env`):
+   - `TAVILY_API_KEY`: optional; Wikipedia and direct fetches are free;
+   - `WEB_RESEARCH_USER_AGENT`;
+   - `WEB_RESEARCH_BLOCKED_DOMAINS`: optional.
+3. **Database:**
+   - `yarn workspace backend medusa:db:migrate`;
+   - once, the provenance backfill, which gives existing records their tier and sources and sets `on_sale_new`:
+     ```bash
+     # from apps/backend
+     npx medusa exec ../../packages/domains/automotive/.medusa/server/src/scripts/backfill-catalog-provenance.js \
+       ../../packages/domains/automotive/data/vehicle-catalog
+     ```
+4. **Credentials in n8n:**
+   - *Medusa secret API key*: **Basic Auth**, the `sk_…` key as user, password empty. Create the key in the admin under Settings › Secret API Keys.
+   - *OpenRouter account*: your OpenRouter key. Give it a **$20 monthly limit** in OpenRouter: that is the hard cap, and the workflow also stops at `monthly_budget_usd`.
+5. **Config node:**
+   - `medusa_url`, `ollama_url`, `local_model`;
+   - `cloud_fallback`, `cloud_cheap`, `cloud_strong`, `escalate_below`;
+   - `monthly_budget_usd`;
+   - `window_end`, `max_tasks`;
+   - `review_webhook_url`.
+6. Run **Run now** with `max_tasks: 5` and check the ledger, the catalog and the review queue, then activate the workflow.
 
-**Cost.** A task is one agent run, usually 5 to 15 steps: Tavily searches and reads, at 2 credits each, plus model tokens. The agent's context is re-sent on every step, which is why tool responses are trimmed. Expect roughly $0.20 to $0.60 per task with Sonnet 5.5. Size `tasks_per_run` accordingly, or pick a cheaper OpenRouter model.
-
-## Applying a reviewed proposal
-
-Take the `file` from the task's item in the **Outcome** node of the execution. Fix what the review found (for example, copy an existing configuration's values to match it), then either:
-- post it with `mode=overwrite`, which writes the contradicting values too:
-  ```bash
-  curl -u "$MEDUSA_SECRET_KEY:" -H 'content-type: application/json' \
-    -X POST 'http://localhost:9000/admin/vehicle-catalog/import?mode=overwrite&dry_run=true' -d @proposal.json
-  ```
-  then repeat without `dry_run=true`;
-- or save it under `packages/domains/automotive/data/vehicle-catalog/` and run the import script with `overwrite` (see that folder's README).
+**Throughput and cost on this Mac** (Intel i7, 4 cores, CPU only): about 1–3 minutes per local task, so 100–150 tasks a night. The cloud agent costs about $0.05–0.35 per research task it takes over; most tasks never reach it.
 
 ## Changing the workflow
 
-The JSON file is generated: edit `build-workflow.mjs` and the agent's instructions in `prompts/researcher.md`, then rebuild:
+The JSON file is generated: edit `build-workflow.mjs` and the fallback agent's instructions in `prompts/researcher.md`, then rebuild. The local prompts are built by the backend (`buildPrompt` in `@repo/module-vehicle/core`).
 
 ```bash
 yarn workspace @repo/module-vehicle build && node infra/n8n/build-workflow.mjs
 ```
-
-Rebuild after changing the catalog format (`CatalogGenerationSchema`), since the agent's output schema derives from it. Changes made in the n8n editor are not written back here: export the workflow and port them to the builder.

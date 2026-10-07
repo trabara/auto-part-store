@@ -10,7 +10,6 @@ export const ar: SameShape<typeof en> = {
     vehicle_generation: "الأجيال",
     vehicle_engine: "المحركات",
     vehicle_reference: "معرّفات الكتالوج",
-    customer_vehicle: "المرآب",
   },
   steps: {
     vehicle: { general: "عام", specs: "المواصفات" },
@@ -124,20 +123,6 @@ export const ar: SameShape<typeof en> = {
           ACES_BASE_VEHICLE: "ACES base vehicle",
           OTHER: "أخرى",
         },
-      },
-    },
-    CustomerVehicle: {
-      name: "مركبة في المرآب",
-      plural: "المرآب",
-      fields: {
-        customer: "العميل",
-        vehicle: "المركبة",
-        nickname: "الاسم المستعار",
-        vin: "رقم الهيكل (VIN)",
-        registration: "رقم التسجيل",
-        is_default: "المركبة الافتراضية",
-        build_year: "سنة الصنع",
-        build_month: "شهر الصنع",
       },
     },
   },

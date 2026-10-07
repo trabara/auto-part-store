@@ -10,7 +10,6 @@ export const fr: SameShape<typeof en> = {
     vehicle_generation: "Générations",
     vehicle_engine: "Moteurs",
     vehicle_reference: "Identifiants catalogue",
-    customer_vehicle: "Garage",
   },
   steps: {
     vehicle: { general: "Général", specs: "Caractéristiques" },
@@ -117,20 +116,6 @@ export const fr: SameShape<typeof en> = {
           ACES_BASE_VEHICLE: "ACES base vehicle",
           OTHER: "Autre",
         },
-      },
-    },
-    CustomerVehicle: {
-      name: "Véhicule du garage",
-      plural: "Garage",
-      fields: {
-        customer: "Client",
-        vehicle: "Véhicule",
-        nickname: "Surnom",
-        vin: "VIN",
-        registration: "Immatriculation",
-        is_default: "Véhicule par défaut",
-        build_year: "Année de fabrication",
-        build_month: "Mois de fabrication",
       },
     },
   },

@@ -1,0 +1,4 @@
+/dist
+/.tsbuild
+/node_modules
+.env.test

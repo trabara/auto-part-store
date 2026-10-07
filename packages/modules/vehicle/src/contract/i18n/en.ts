@@ -8,7 +8,6 @@ export const en = {
     vehicle_generation: "Generations",
     vehicle_engine: "Engines",
     vehicle_reference: "Catalog IDs",
-    customer_vehicle: "Garage",
   },
   steps: {
     vehicle: { general: "General", specs: "Specifications" },
@@ -115,20 +114,6 @@ export const en = {
           ACES_BASE_VEHICLE: "ACES base vehicle",
           OTHER: "Other",
         },
-      },
-    },
-    CustomerVehicle: {
-      name: "Garage vehicle",
-      plural: "Garage",
-      fields: {
-        customer: "Customer",
-        vehicle: "Vehicle",
-        nickname: "Nickname",
-        vin: "VIN",
-        registration: "Registration",
-        is_default: "Default vehicle",
-        build_year: "Build year",
-        build_month: "Build month",
       },
     },
   },

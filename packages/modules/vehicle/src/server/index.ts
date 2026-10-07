@@ -1,6 +1,6 @@
 import { Module } from "@medusajs/framework/utils";
 import { VEHICLE_MODULE } from "../contract";
-// Cross-row rules (years within generation, single default garage vehicle).
+// Cross-row rules (years within generation).
 import "./hooks";
 import VehicleModuleService from "./service";
 

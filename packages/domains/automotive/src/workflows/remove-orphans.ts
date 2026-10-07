@@ -13,9 +13,9 @@ import {
   WorkflowResponse,
 } from "@medusajs/framework/workflows-sdk";
 import { deleteEntitiesStep } from "@repo/framework/entity/server";
+import { GARAGE_MODULE, type GarageModuleService } from "@repo/module-garage";
 import { FITMENT_MODULE, type FitmentModuleService } from "@repo/module-fitment";
 import { PARTS_MODULE, type PartsModuleService } from "@repo/module-parts";
-import { VEHICLE_MODULE, type VehicleModuleService } from "@repo/module-vehicle";
 
 /** Ids to soft-delete, per entity. */
 export type OrphanIds = { fitments: string[]; partNumbers: string[]; garage: string[] };
@@ -60,12 +60,12 @@ export const findOrphansStep = createStep(
   async (input: FindOrphansInput, { container }): Promise<StepResponse<OrphanIds>> => {
     const fitments = container.resolve<FitmentModuleService>(FITMENT_MODULE);
     const parts = container.resolve<PartsModuleService>(PARTS_MODULE);
-    const vehicles = container.resolve<VehicleModuleService>(VEHICLE_MODULE);
+    const garageService = container.resolve<GarageModuleService>(GARAGE_MODULE);
 
     if (input.all) {
       const allFitments = await fitments.listFitments({}, { select: ["id", "variant_id", "vehicle_id"] });
       const allNumbers = await parts.listPartNumbers({}, { select: ["id", "variant_id"] });
-      const garage = await vehicles.listCustomerVehicles({}, { select: ["id", "customer_id", "vehicle_id"] });
+      const garage = await garageService.listCustomerVehicles({}, { select: ["id", "customer_id", "vehicle_id"] });
       const variantIds = unique([...allFitments, ...allNumbers].map((r) => r.variant_id));
       const goneVariants = new Set(await missing(container, "product_variant", variantIds));
       const goneVehicles = new Set(
@@ -90,7 +90,7 @@ export const findOrphansStep = createStep(
         ? ids(await parts.listPartNumbers({ variant_id: variantIds }, { select: ["id"] }))
         : [],
       garage: customerIds.length
-        ? ids(await vehicles.listCustomerVehicles({ customer_id: customerIds }, { select: ["id"] }))
+        ? ids(await garageService.listCustomerVehicles({ customer_id: customerIds }, { select: ["id"] }))
         : [],
     });
   },
@@ -112,7 +112,7 @@ export const removeOrphansWorkflow = createWorkflow("automotive-remove-orphans",
   });
   when("automotive-orphan-garage", found, (f) => f.garage.length > 0).then(() => {
     deleteEntitiesStep(
-      transform({ found }, ({ found }) => ({ module: VEHICLE_MODULE, entity: "CustomerVehicle", ids: found.garage })),
+      transform({ found }, ({ found }) => ({ module: GARAGE_MODULE, entity: "CustomerVehicle", ids: found.garage })),
     ).config({ name: "automotive-delete-orphan-garage" });
   });
 

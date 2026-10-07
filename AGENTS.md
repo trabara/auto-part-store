@@ -15,7 +15,7 @@ Turborepo + Yarn 4 (node-modules linker), Node >= 20.
 apps/backend/                 Medusa app (workspace "backend"): config (composeApplication), scripts, no domain code
 packages/framework/           @repo/framework — platform SDK, built to dist/ (cjs for Node, esm for Vite)
 packages/ui/dashboard/        @repo/dashboard — admin templates, form engine, data table (source-linked)
-packages/modules/<name>/      @repo/module-<name> — reusable Medusa module (today: vehicle, fitment, parts)
+packages/modules/<name>/      @repo/module-<name> — reusable Medusa module (today: vehicle, fitment, parts, garage)
 packages/domains/<name>/      @repo/domain-<name> — business domain, a Medusa plugin (today: automotive)
 packages/config/              @repo/config — tsconfig (module.json, layer.json), eslint (layers.js, module-boundaries.js), jest presets
 packages/tooling/scripts/     @repo/scripts — layout spec + check-layout, gen-module, gen-domain, module-db-generate, domain dev watcher

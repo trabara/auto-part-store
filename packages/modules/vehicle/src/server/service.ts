@@ -44,23 +44,8 @@ const relationsOf = (fields: readonly string[], prefix = "") => {
 
 const VEHICLE_RELATIONS = relationsOf(Vehicle.label.fields);
 const GENERATION_RELATIONS = relationsOf(VehicleGeneration.label.fields);
-const GARAGE_RELATIONS = relationsOf(Vehicle.label.fields, "vehicle.");
 
 const byName = (a: { name: string }, b: { name: string }) => a.name.localeCompare(b.name);
-
-/** A garage vehicle as the storefront sees it. */
-export type GarageVehicle = {
-  id: string;
-  nickname: string | null;
-  vin: string | null;
-  registration: string | null;
-  is_default: boolean;
-  build_year: number | null;
-  build_month: number | null;
-  vehicle_id: string;
-  created_at: Date;
-  vehicle_label: string | null;
-};
 
 export type VehicleSummary = { id: string; label: string; year_start: number; year_end: number | null };
 
@@ -199,58 +184,6 @@ export default class VehicleModuleService extends MedusaService(vehicleModels) {
     }
   }
 
-  /**
-   * One default garage vehicle per customer: making `ids` the default clears
-   * it on the customer's others. Returns the cleared ids (see `restoreDefaults`).
-   */
-  @InjectTransactionManager()
-  async clearOtherDefaults(ids: string[], @MedusaContext() ctx: Context = {}): Promise<string[]> {
-    const cleared: string[] = [];
-    for (const id of ids) {
-      const [current] = await this.listCustomerVehicles({ id }, { select: ["customer_id"] }, ctx);
-      if (!current) continue;
-      const others = await this.listCustomerVehicles(
-        { customer_id: current.customer_id, is_default: true, id: { $ne: id } },
-        { select: ["id"] },
-        ctx,
-      );
-      if (others.length) {
-        await this.updateCustomerVehicles(others.map((o) => ({ id: o.id, is_default: false })), ctx);
-        cleared.push(...others.map((o) => o.id));
-      }
-    }
-    return cleared;
-  }
-
-  @InjectTransactionManager()
-  async restoreDefaults(ids: string[], @MedusaContext() ctx: Context = {}) {
-    if (ids.length) await this.updateCustomerVehicles(ids.map((id) => ({ id, is_default: true })), ctx);
-  }
-
-  // ── Garage ─────────────────────────────────────────────────────────────────
-
-  /** A customer's garage vehicles (optionally one), each with its vehicle label. */
-  @InjectManager()
-  async listGarage(customerId: string, id?: string, @MedusaContext() ctx: Context = {}): Promise<GarageVehicle[]> {
-    const rows = await this.listCustomerVehicles(
-      { customer_id: customerId, ...(id ? { id } : {}) },
-      { relations: GARAGE_RELATIONS, order: { created_at: "ASC" } },
-      ctx,
-    );
-    return (rows as Row[]).map(({ vehicle, ...row }) => ({
-      ...(pick(row, GARAGE_FIELDS) as Omit<GarageVehicle, "vehicle_label">),
-      vehicle_label: vehicle ? entityLabel(Vehicle, vehicle) : null,
-    }));
-  }
-
-  /** The customer's garage vehicle, or 404 (also when it belongs to someone else). */
-  @InjectManager()
-  async retrieveGarageVehicle(customerId: string, id: string, @MedusaContext() ctx: Context = {}): Promise<GarageVehicle> {
-    const [row] = await this.listGarage(customerId, id, ctx);
-    if (!row) throw new MedusaError(MedusaError.Types.NOT_FOUND, `Garage vehicle "${id}" not found`);
-    return row;
-  }
-
   // ── Selector (Year / Make / Model / Generation / Vehicle) ──────────────────
 
   @InjectManager()
@@ -295,6 +228,14 @@ export default class VehicleModuleService extends MedusaService(vehicleModels) {
       .sort((a, b) => a.label.localeCompare(b.label));
   }
 
+  /** Labels of these vehicles by id (missing ids are left out). */
+  @InjectManager()
+  async vehicleLabels(ids: string[], @MedusaContext() ctx: Context = {}): Promise<Record<string, string>> {
+    if (!ids.length) return {};
+    const rows = (await this.listVehicles({ id: ids }, { relations: VEHICLE_RELATIONS }, ctx)) as Row[];
+    return Object.fromEntries(rows.map((v) => [v.id, entityLabel(Vehicle, v)]));
+  }
+
   /** The vehicle's id, label and production years, or 404. */
   @InjectManager()
   async vehicleSummary(id: string, @MedusaContext() ctx: Context = {}): Promise<VehicleSummary> {
@@ -303,18 +244,6 @@ export default class VehicleModuleService extends MedusaService(vehicleModels) {
     return { id: v.id, label: entityLabel(Vehicle, v), year_start: v.year_start, year_end: v.year_end };
   }
 }
-
-const GARAGE_FIELDS = [
-  "id",
-  "nickname",
-  "vin",
-  "registration",
-  "is_default",
-  "build_year",
-  "build_month",
-  "vehicle_id",
-  "created_at",
-];
 
 function pick(row: Row, ...lists: readonly (readonly string[])[]) {
   const out: Row = {};

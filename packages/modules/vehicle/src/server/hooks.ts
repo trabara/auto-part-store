@@ -10,14 +10,3 @@ onEntity("Vehicle", {
   updated: { run: async ({ records }, ctx) => vehicles(ctx).assertWithinGeneration(records.map((r) => r.id)) },
 });
 
-// One default garage vehicle per customer (cleared defaults restored on rollback).
-const clearOtherDefaults = async ({ records }: { records: { id: string; is_default?: boolean }[] }, ctx: HookContext) => ({
-  cleared: await vehicles(ctx).clearOtherDefaults(records.filter((r) => r.is_default).map((r) => r.id)),
-});
-const restoreDefaults = async ({ cleared }: { cleared: string[] }, ctx: HookContext) =>
-  vehicles(ctx).restoreDefaults(cleared);
-
-onEntity("CustomerVehicle", {
-  created: { run: clearOtherDefaults, compensate: restoreDefaults },
-  updated: { run: clearOtherDefaults, compensate: restoreDefaults },
-});

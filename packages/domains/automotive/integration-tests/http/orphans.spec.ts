@@ -4,6 +4,7 @@ import { deleteEntitiesStep } from "@repo/framework/entity/server";
 import { adminHeaders } from "@repo/config/jest/medusa-helpers.cjs";
 import { removeOrphansWorkflow } from "../../src/workflows/remove-orphans";
 import { FITMENT_MODULE } from "@repo/module-fitment";
+import { GARAGE_MODULE } from "@repo/module-garage";
 import { VEHICLE_MODULE } from "@repo/module-vehicle";
 
 const failStep = createStep("orphans-test-fail", async () => {
@@ -101,28 +102,28 @@ medusaIntegrationTestRunner({
       });
 
       it("deleting a vehicle removes its fitments and garage entries, restored on rollback", async () => {
-        const vehicles = getContainer().resolve<any>(VEHICLE_MODULE);
-        await vehicles.createCustomerVehicles([{ customer_id: "cus_x", vehicle_id: c.vehicle.id, nickname: null, vin: null, registration: null }]);
+        const garage = getContainer().resolve<any>(GARAGE_MODULE);
+        await garage.createCustomerVehicles([{ customer_id: "cus_x", vehicle_id: c.vehicle.id, nickname: null, vin: null, registration: null }]);
 
         await deleteThenFail(getContainer()).run({
           input: { module: VEHICLE_MODULE, entity: "Vehicle", ids: [c.vehicle.id] },
           throwOnError: false,
         });
         expect(await live("fitments", "fitment", `vehicle_id=${c.vehicle.id}`)).toHaveLength(2);
-        expect(await vehicles.listCustomerVehicles({ vehicle_id: c.vehicle.id })).toHaveLength(1);
+        expect(await garage.listCustomerVehicles({ vehicle_id: c.vehicle.id })).toHaveLength(1);
 
         await api.delete(`/admin/vehicles/vehicle/${c.vehicle.id}`, admin);
         expect(await live("fitments", "fitment", `vehicle_id=${c.vehicle.id}`)).toEqual([]);
-        expect(await vehicles.listCustomerVehicles({ vehicle_id: c.vehicle.id })).toEqual([]);
+        expect(await garage.listCustomerVehicles({ vehicle_id: c.vehicle.id })).toEqual([]);
       });
 
       it("deleting a customer removes their garage", async () => {
         const customer = (await post("/admin/customers", { email: "gone@example.com" })).customer;
-        const vehicles = getContainer().resolve<any>(VEHICLE_MODULE);
-        await vehicles.createCustomerVehicles([{ customer_id: customer.id, vehicle_id: c.vehicle.id, nickname: null, vin: null, registration: null }]);
+        const garage = getContainer().resolve<any>(GARAGE_MODULE);
+        await garage.createCustomerVehicles([{ customer_id: customer.id, vehicle_id: c.vehicle.id, nickname: null, vin: null, registration: null }]);
         await api.delete(`/admin/customers/${customer.id}`, admin);
         await eventually(async () => {
-          expect(await vehicles.listCustomerVehicles({ customer_id: customer.id })).toEqual([]);
+          expect(await garage.listCustomerVehicles({ customer_id: customer.id })).toEqual([]);
         });
       });
 

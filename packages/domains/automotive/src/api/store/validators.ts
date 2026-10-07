@@ -1,5 +1,5 @@
 import { z } from "@medusajs/framework/zod";
-import { CustomerVehicle } from "@repo/module-vehicle/contract";
+import { CustomerVehicle } from "@repo/module-garage/contract";
 
 const ids = z.union([z.string(), z.array(z.string())]);
 const year = z.coerce.number().int().min(1886).max(2100);

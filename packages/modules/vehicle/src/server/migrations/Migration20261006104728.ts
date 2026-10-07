@@ -1,5 +1,6 @@
 import { Migration } from "@medusajs/framework/mikro-orm/migrations";
 
+// customer_vehicle moved to the garage module (its migrations create it).
 export class Migration20261006104728 extends Migration {
 
   override async up(): Promise<void> {
@@ -8,19 +9,12 @@ export class Migration20261006104728 extends Migration {
     this.addSql(`CREATE INDEX IF NOT EXISTS "IDX_vehicle_generation_deleted_at" ON "vehicle_generation" ("deleted_at") WHERE deleted_at IS NULL;`);
     this.addSql(`CREATE UNIQUE INDEX IF NOT EXISTS "vehicle_generation_unique" ON "vehicle_generation" ("model_id", "name") WHERE deleted_at IS NULL;`);
 
-    this.addSql(`create table if not exists "customer_vehicle" ("id" text not null, "nickname" text null, "vin" text null, "registration" text null, "is_default" boolean not null default false, "customer_id" text not null, "vehicle_id" text not null, "created_at" timestamptz not null default now(), "updated_at" timestamptz not null default now(), "deleted_at" timestamptz null, constraint "customer_vehicle_pkey" primary key ("id"));`);
-    this.addSql(`CREATE INDEX IF NOT EXISTS "IDX_customer_vehicle_customer_id" ON "customer_vehicle" ("customer_id") WHERE deleted_at IS NULL;`);
-    this.addSql(`CREATE INDEX IF NOT EXISTS "IDX_customer_vehicle_vehicle_id" ON "customer_vehicle" ("vehicle_id") WHERE deleted_at IS NULL;`);
-    this.addSql(`CREATE INDEX IF NOT EXISTS "IDX_customer_vehicle_deleted_at" ON "customer_vehicle" ("deleted_at") WHERE deleted_at IS NULL;`);
-
     this.addSql(`create table if not exists "vehicle_reference" ("id" text not null, "source" text check ("source" in ('TECDOC_KTYPE', 'ACES_VEHICLE_ID', 'ACES_BASE_VEHICLE', 'OTHER')) not null, "external_id" text not null, "vehicle_id" text not null, "created_at" timestamptz not null default now(), "updated_at" timestamptz not null default now(), "deleted_at" timestamptz null, constraint "vehicle_reference_pkey" primary key ("id"));`);
     this.addSql(`CREATE INDEX IF NOT EXISTS "IDX_vehicle_reference_vehicle_id" ON "vehicle_reference" ("vehicle_id") WHERE deleted_at IS NULL;`);
     this.addSql(`CREATE INDEX IF NOT EXISTS "IDX_vehicle_reference_deleted_at" ON "vehicle_reference" ("deleted_at") WHERE deleted_at IS NULL;`);
     this.addSql(`CREATE UNIQUE INDEX IF NOT EXISTS "vehicle_reference_unique" ON "vehicle_reference" ("source", "external_id") WHERE deleted_at IS NULL;`);
 
     this.addSql(`alter table if exists "vehicle_generation" add constraint "vehicle_generation_model_id_foreign" foreign key ("model_id") references "vehicle_model" ("id") on update cascade;`);
-
-    this.addSql(`alter table if exists "customer_vehicle" add constraint "customer_vehicle_vehicle_id_foreign" foreign key ("vehicle_id") references "vehicle" ("id") on update cascade;`);
 
     this.addSql(`alter table if exists "vehicle_reference" add constraint "vehicle_reference_vehicle_id_foreign" foreign key ("vehicle_id") references "vehicle" ("id") on update cascade;`);
 
@@ -106,7 +100,6 @@ export class Migration20261006104728 extends Migration {
     // Data was converted (model → generation, hp → kW, litres → cm³): not
     // reversible. Drops only what this migration added.
     this.addSql(`alter table if exists "vehicle" drop constraint if exists "vehicle_configuration_overlap";`);
-    this.addSql(`drop table if exists "customer_vehicle" cascade;`);
     this.addSql(`drop table if exists "vehicle_reference" cascade;`);
   }
 

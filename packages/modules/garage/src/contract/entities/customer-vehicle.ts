@@ -1,7 +1,7 @@
 import { z } from "@medusajs/framework/zod";
 import { defineEntity, type InferEntity } from "@repo/framework/entity";
 import { BaseSchema } from "@repo/framework/utils";
-import { YearSchema } from "./shared";
+import { YearSchema } from "@repo/module-vehicle/contract";
 
 /** A vehicle a customer owns ("my vehicles"): the storefront filters parts by it. */
 export const CustomerVehicle = defineEntity("CustomerVehicle", {
@@ -22,7 +22,9 @@ export const CustomerVehicle = defineEntity("CustomerVehicle", {
   }),
   relations: (r) => ({
     customer: r.link("Customer", { storage: "column" }),
-    vehicle: r.belongsTo("Vehicle"),
+    // The vehicle module owns the catalog: a column link (read through the
+    // domain's defineLink), not a foreign key.
+    vehicle: r.link("Vehicle", { storage: "column" }),
   }),
   checks: [{ name: "customer_vehicle_build_month_check", expression: "build_month IS NULL OR build_year IS NOT NULL" }],
   messages: { constraints: { customer_vehicle_build_month_check: "A build month needs a build year." } },

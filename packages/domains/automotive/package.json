@@ -33,6 +33,7 @@
     "@repo/dashboard": "workspace:*",
     "@repo/framework": "workspace:*",
     "@repo/module-fitment": "workspace:*",
+    "@repo/module-garage": "workspace:*",
     "@repo/module-parts": "workspace:*",
     "@repo/module-vehicle": "workspace:*",
     "date-fns": "^4.4.0",

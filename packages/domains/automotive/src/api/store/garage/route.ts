@@ -1,11 +1,11 @@
 // The logged-in customer's garage ("my vehicles").
 import type { AuthenticatedMedusaRequest, MedusaResponse } from "@medusajs/framework/http";
 import { createEntitiesWorkflow, withReadableErrors } from "@repo/framework/entity/server";
-import { CustomerVehicle } from "@repo/module-vehicle/contract";
-import { customerId, GARAGE_TARGET, ownGarageVehicle, vehicleService } from "../../request";
+import { CustomerVehicle } from "@repo/module-garage/contract";
+import { customerId, GARAGE_TARGET, ownGarage, ownGarageVehicle } from "../../request";
 
 export async function GET(req: AuthenticatedMedusaRequest, res: MedusaResponse) {
-  res.json({ vehicles: await vehicleService(req).listGarage(customerId(req)) });
+  res.json({ vehicles: await ownGarage(req) });
 }
 
 export async function POST(req: AuthenticatedMedusaRequest<Record<string, unknown>>, res: MedusaResponse) {

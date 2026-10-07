@@ -2,7 +2,6 @@
 // no UI code here (tests and the server load module definitions too).
 import { defineModule } from "@repo/framework/core";
 import {
-  CustomerVehicle,
   Vehicle,
   VehicleEngine,
   VehicleGeneration,
@@ -36,6 +35,5 @@ export default defineModule({
     vehicle_generation: m.crud(VehicleGeneration, { path: "generations" }),
     vehicle_engine: m.crud(VehicleEngine, { path: "engines" }),
     vehicle_reference: m.crud(VehicleReference, { path: "references", label: "Catalog IDs" }),
-    customer_vehicle: m.crud(CustomerVehicle, { path: "garage", label: "Garage" }),
   }),
 });

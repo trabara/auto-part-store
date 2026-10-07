@@ -2,8 +2,9 @@
 import { defineWidgetConfig } from "@medusajs/admin-sdk";
 import type { AdminCustomer, DetailWidgetProps } from "@medusajs/framework/types";
 import { EntityPanel, Module, useLabels } from "@repo/dashboard/module";
-import { vehicleAdmin as vehicles } from "@repo/module-vehicle/admin";
-import { CustomerVehicle, Vehicle } from "@repo/module-vehicle/contract";
+import { garageAdmin as garage } from "@repo/module-garage/admin";
+import { CustomerVehicle } from "@repo/module-garage/contract";
+import { Vehicle } from "@repo/module-vehicle/contract";
 import { useDomainText } from "../hooks/use-domain-text";
 
 function CustomerGarage({ customerId }: { customerId: string }) {
@@ -12,8 +13,8 @@ function CustomerGarage({ customerId }: { customerId: string }) {
   const field = (key: string) => labels.field(CustomerVehicle, key);
   return (
     <EntityPanel
-      module={vehicles}
-      feature={vehicles.features.customer_vehicle}
+      module={garage}
+      feature={garage.features.customer_vehicle}
       parent={{ field: "customer_id", value: customerId }}
       title={text("widgets.garage.title")}
       description={text("widgets.garage.description")}
@@ -46,7 +47,7 @@ function CustomerGarage({ customerId }: { customerId: string }) {
 
 export default function CustomerGarageWidget({ data }: DetailWidgetProps<AdminCustomer>) {
   return (
-    <Module module={vehicles}>
+    <Module module={garage}>
       <CustomerGarage customerId={data.id} />
     </Module>
   );

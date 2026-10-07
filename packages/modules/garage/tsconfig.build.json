@@ -1,0 +1,5 @@
+{
+  // Build: everything but tests and the admin UI (source only, bundled by the admin).
+  "extends": "./tsconfig.json",
+  "exclude": ["node_modules", "dist", "src/admin/ui", "src/**/__tests__"]
+}

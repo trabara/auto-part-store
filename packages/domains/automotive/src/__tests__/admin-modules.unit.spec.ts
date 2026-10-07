@@ -4,6 +4,8 @@ import { getZodFieldInfo } from "@repo/framework/utils";
 import i18n from "../contract/i18n";
 import { fitmentAdmin as fitments } from "@repo/module-fitment/admin";
 import { fitmentRoutes } from "@repo/module-fitment";
+import { garageAdmin as garage } from "@repo/module-garage/admin";
+import { garageRoutes } from "@repo/module-garage";
 import { partsAdmin as parts } from "@repo/module-parts/admin";
 import { partsRoutes } from "@repo/module-parts";
 import { vehicleAdmin as vehicles } from "@repo/module-vehicle/admin";
@@ -16,6 +18,7 @@ describe.each([
   ["vehicles", vehicles, vehicleRoutes],
   ["fitments", fitments, fitmentRoutes],
   ["parts", parts, partsRoutes],
+  ["garage", garage, garageRoutes],
 ] as const)("%s admin module", (path, module, routes) => {
   it("lives at its own path, with a feature per entity of the module's API", () => {
     expect(module.path).toBe(path);
@@ -39,11 +42,11 @@ describe("admin routes", () => {
       "/vehicles/generations",
       "/vehicles/engines",
       "/vehicles/references",
-      "/vehicles/garage",
     ]);
     expect(lists(fitments)).toEqual(["/fitments/fitments", "/fitments/positions", "/fitments/attributes"]);
     expect(lists(parts)).toEqual(["/parts/brands", "/parts/part-numbers"]);
-    expect(flattenModuleRoutes(vehicles)).toHaveLength(28);
+    expect(lists(garage)).toEqual(["/garage/vehicles"]);
+    expect(flattenModuleRoutes(vehicles)).toHaveLength(24);
   });
 
   it("keeps the vehicle wizard steps", () => {
@@ -63,7 +66,7 @@ describe("admin translations", () => {
   it("labels every feature and every enum value of each module, in every locale", () => {
     for (const locale of ["en", "fr", "ar"] as const) {
       const t = resources[locale].translation;
-      for (const module of [vehicles, fitments, parts]) {
+      for (const module of [vehicles, fitments, parts, garage]) {
         for (const feature of Object.values(module.features)) {
           expect(t.modules[module.path].features[feature.key]).toEqual(expect.any(String));
           const shape = feature.entity.schema.shape as Record<string, any>;

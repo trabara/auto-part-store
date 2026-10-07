@@ -2,6 +2,7 @@ import { defineMiddlewares } from "@medusajs/framework";
 import { authenticate, validateAndTransformBody, validateAndTransformQuery } from "@medusajs/framework/http";
 import { ReplaceConditionsSchema } from "@repo/module-fitment/contract";
 import { FITMENTS_PATH, fitmentRoutes } from "@repo/module-fitment";
+import { GARAGE_PATH, garageRoutes } from "@repo/module-garage";
 import { PARTS_PATH, partsRoutes } from "@repo/module-parts";
 import { VEHICLES_PATH, vehicleRoutes } from "@repo/module-vehicle";
 import {
@@ -21,6 +22,7 @@ export default defineMiddlewares({
     ...vehicleRoutes.middlewares(VEHICLES_PATH),
     ...fitmentRoutes.middlewares(FITMENTS_PATH),
     ...partsRoutes.middlewares(PARTS_PATH),
+    ...garageRoutes.middlewares(GARAGE_PATH),
     {
       matcher: `${FITMENTS_PATH}/fitment/:id/conditions`,
       methods: ["PUT"],

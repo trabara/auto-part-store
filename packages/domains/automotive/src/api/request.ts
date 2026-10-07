@@ -22,5 +22,7 @@ export const GARAGE_TARGET = { module: VEHICLE_MODULE, entity: "CustomerVehicle"
 export const customerId = (req: AuthenticatedMedusaRequest<any>) => req.auth_context.actor_id;
 
 /** 404 unless the garage vehicle belongs to the logged-in customer. */
-export const ownGarageVehicle = (req: AuthenticatedMedusaRequest<any>, id: string) =>
-  vehicleService(req).retrieveGarageVehicle(customerId(req), id);
+export const ownGarageVehicle = (
+  req: AuthenticatedMedusaRequest<any>,
+  id: string,
+): ReturnType<VehicleModuleService["retrieveGarageVehicle"]> => vehicleService(req).retrieveGarageVehicle(customerId(req), id);

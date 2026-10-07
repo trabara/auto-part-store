@@ -52,7 +52,7 @@ export default [
       "@typescript-eslint/no-unused-vars": ["warn", { argsIgnorePattern: "^_", varsIgnorePattern: "^_" }],
     },
   },
-  { ignores: [".medusa/**", "dist/**", "node_modules/**"] },
+  { ignores: [".medusa/**", ".tsbuild/**", "dist/**", "node_modules/**"] },
 ];
 `;
 

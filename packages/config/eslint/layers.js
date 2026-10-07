@@ -9,8 +9,11 @@
  *   domain server   → framework, modules, Medusa; never another domain or a ui package
  *   domain admin    → isomorphic framework entries, module entries, ui, admin-safe Medusa packages
  *   modules         → framework, Medusa, own files + declared dependencies'
- *                     `entities` entry (manifest.ts); never a domain
+ *                     contract (contract/manifest.ts); never a domain
  *                     (see module-boundaries.js); admin/ as domain admin
+ *   isomorphic layers (modules: contract/, core/, admin definition; domains:
+ *                     contract/, core/, composition/) → no server package, no
+ *                     UI package (they load in the admin and on the server)
  *   ui packages     → isomorphic framework entries, admin-safe Medusa packages
  *   framework       → Medusa, zod, lodash; never ui, modules or domains
  *
@@ -63,6 +66,19 @@ const MEDUSA_SERVER_PACKAGES = {
     "Server-side Medusa package in admin code. Admin code may use @medusajs/{ui,icons,admin-sdk,js-sdk} and @medusajs/framework/zod (types: import type).",
 };
 
+const ISO_HINT = "isomorphic layer (contract/, core/, admin definition, composition/): it loads on the server and in the admin";
+
+/** React and admin UI libraries: admin adapters only (admin/ui, a domain's admin/). */
+const ISO_UI = {
+  group: ["react", "react-dom", "react/*", "react-i18next", "@medusajs/ui", "@medusajs/icons", "@medusajs/admin-sdk", "@repo/dashboard", "@repo/dashboard/*"],
+  message: `UI code in an ${ISO_HINT}. Move it to an admin adapter (admin/ui, or the domain's admin/).`,
+};
+
+const ISO_SERVER = {
+  group: [...MEDUSA_SERVER_PACKAGES.group, ...FRAMEWORK_SERVER_ENTRIES.group],
+  message: `Server-only package in an ${ISO_HINT}. Move this code to the server adapter.`,
+};
+
 /** Relative paths into a plugin's server-side folders, from its admin code. */
 const PLUGIN_SERVER_FOLDERS = {
   group: [
@@ -104,7 +120,7 @@ const restrict = (...patterns) => ({
     "error",
     {
       patterns: patterns.map((pattern) => ({ ...pattern, allowTypeImports: true })),
-      paths: patterns.includes(MEDUSA_SERVER_PACKAGES)
+      paths: patterns.includes(MEDUSA_SERVER_PACKAGES) || patterns.includes(ISO_SERVER)
         ? [{ name: "@medusajs/framework", message: MEDUSA_SERVER_PACKAGES.message, allowTypeImports: true }]
         : [],
     },
@@ -117,6 +133,7 @@ export const layers = [
       "**/node_modules/**",
       "**/dist/**",
       "**/.medusa/**",
+      "**/.tsbuild/**",
       "**/*.spec.ts",
       "**/*.spec.tsx",
       "**/__tests__/**",
@@ -168,7 +185,20 @@ export const layers = [
     rules: restrict(DOMAINS, FRAMEWORK_SERVER_ENTRIES, MEDUSA_SERVER_PACKAGES, PLUGIN_SERVER_FOLDERS),
   },
 
-  // reusable modules: own files + declared dependencies' entities only
+  // isomorphic layers: loadable in the browser and in Node
+  {
+    files: [
+      "packages/modules/*/src/contract/**",
+      "packages/modules/*/src/core/**",
+      "packages/modules/*/src/admin/*.ts",
+      "packages/domains/*/src/contract/**",
+      "packages/domains/*/src/core/**",
+      "packages/domains/*/src/composition/**",
+    ],
+    rules: restrict(DOMAINS, ISO_UI, ISO_SERVER),
+  },
+
+  // reusable modules: own files + declared dependencies' contract only
   {
     files: ["packages/modules/*/src/**"],
     rules: { "layers/module-boundaries": "error" },

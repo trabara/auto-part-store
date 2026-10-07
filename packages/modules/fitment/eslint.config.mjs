@@ -12,6 +12,6 @@ export default [
     },
   },
   {
-    ignores: [".medusa/**", "dist/**", "node_modules/**"],
+    ignores: [".medusa/**", ".tsbuild/**", "dist/**", "node_modules/**"],
   },
 ];

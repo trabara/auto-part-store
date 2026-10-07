@@ -1,5 +1,16 @@
 {
-  "extends": "@repo/config/ts/admin.json",
-  "compilerOptions": { "types": ["vite/client"] },
-  "include": ["."]
+  // Admin UI (React, DOM), on top of the isomorphic layers. The package's own
+  // entries resolve to their source, i.e. to the referenced project.
+  "extends": ["@repo/config/ts/admin.json", "@repo/config/ts/layer.json"],
+  "compilerOptions": {
+    "rootDir": "..",
+    "outDir": "../../.tsbuild/admin",
+    "types": ["vite/client"],
+    "paths": {
+      "@repo/module-fitment/contract": ["../contract/index.ts"],
+      "@repo/module-fitment/core": ["../core/index.ts"]
+    }
+  },
+  "include": ["ui/**/*"],
+  "references": [{ "path": "../../tsconfig.iso.json" }]
 }

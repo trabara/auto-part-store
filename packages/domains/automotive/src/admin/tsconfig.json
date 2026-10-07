@@ -1,4 +1,7 @@
 {
-  "extends": "@repo/config/ts/admin.json",
-  "include": ["."]
+  // Admin UI (React, DOM), on top of the isomorphic layers.
+  "extends": ["@repo/config/ts/admin.json", "@repo/config/ts/layer.json"],
+  "compilerOptions": { "rootDir": "..", "outDir": "../../.tsbuild/admin" },
+  "include": ["."],
+  "references": [{ "path": "../../tsconfig.iso.json" }]
 }

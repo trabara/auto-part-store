@@ -1,0 +1,7 @@
+{
+  // Server adapter (Medusa module) and tests, on top of the isomorphic layers.
+  "extends": ["./tsconfig.json", "@repo/config/ts/layer.json"],
+  "compilerOptions": { "rootDir": "./src", "outDir": "./.tsbuild/server" },
+  "include": ["src/server/**/*", "src/__tests__/**/*"],
+  "references": [{ "path": "./tsconfig.iso.json" }]
+}

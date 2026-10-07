@@ -1,0 +1,15 @@
+{
+  // Layer projects (check only, `tsc -b`): each layer of a module or domain is
+  // a composite project; importing a file of a layer that isn't referenced
+  // fails ("not listed within the file list of project"). Declarations go to
+  // .tsbuild/ (git-ignored); builds keep their own tsconfig.
+  "compilerOptions": {
+    "composite": true,
+    "noEmit": false,
+    "declaration": true,
+    "emitDeclarationOnly": true,
+    "declarationMap": false,
+    "sourceMap": false,
+    "inlineSourceMap": false
+  }
+}

@@ -15,6 +15,7 @@
     "docker:up": "docker compose -f infra/docker/docker-compose.yml -f infra/docker/docker-compose.infra.yml --env-file infra/docker/.env up -d",
     "docker:down": "docker compose -f infra/docker/docker-compose.yml -f infra/docker/docker-compose.infra.yml down",
     "docker:logs": "docker compose -f infra/docker/docker-compose.yml -f infra/docker/docker-compose.infra.yml --env-file infra/docker/.env logs -f",
+    "check-layout": "node packages/tooling/scripts/src/check-layout.mjs",
     "check-layers": "eslint --config packages/config/eslint/layers.js --no-warn-ignored --quiet packages apps",
     "check-deps": "yarn constraints",
     "gen:module": "node packages/tooling/scripts/src/gen-module.mjs",

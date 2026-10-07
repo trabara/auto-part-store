@@ -18,7 +18,7 @@
   },
   "scripts": {
     "build": "medusa plugin:build",
-    "check-types": "tsc --noEmit",
+    "check-types": "tsc -b tsconfig.check.json",
     "dev": "plugin-dev-watch . ../../../apps/backend",
     "lint": "eslint .",
     "test:integration:http": "TEST_TYPE=integration:http NODE_OPTIONS=--experimental-vm-modules jest --silent=false --runInBand --forceExit",

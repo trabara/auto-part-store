@@ -30,7 +30,7 @@
   "scripts": {
     "build": "rm -rf dist && tsc -p tsconfig.build.json",
     "dev": "tsc -p tsconfig.build.json --watch --preserveWatchOutput",
-    "check-types": "tsc --noEmit && tsc --noEmit -p src/admin",
+    "check-types": "tsc -b tsconfig.check.json",
     "lint": "eslint .",
     "test:unit": "TEST_TYPE=unit NODE_OPTIONS=--experimental-vm-modules jest --silent=false --forceExit --passWithNoTests",
     "db:generate": "sh -c 'set -a; . ./.env.test.example; [ -f .env.test ] && . ./.env.test; set +a; module-db-generate'"

@@ -39,6 +39,9 @@ jobs:
       - name: Check dependency layers
         run: yarn check-layers
 
+      - name: Check package layouts
+        run: yarn check-layout
+
       - name: Run lint
         run: yarn lint
 

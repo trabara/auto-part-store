@@ -1,7 +1,7 @@
 /**
  * Module manifests: what a reusable module is (its Medusa key) and which
  * modules it depends on. A module may import only a declared dependency's
- * `entities` entry (enforced by `yarn check-layers`); the application
+ * contract (`@repo/module-<dep>/contract`, enforced by `yarn check-layers`); the application
  * composes modules and domains and checks the dependencies.
  *
  * ```ts

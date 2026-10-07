@@ -1,0 +1,19 @@
+{
+  // Medusa plugin folders (HTTP, links, workflows, queries, subscribers,
+  // scripts) and tests, on top of the isomorphic layers.
+  "extends": ["./tsconfig.json", "@repo/config/ts/layer.json"],
+  "compilerOptions": { "rootDir": ".", "outDir": "./.tsbuild/server" },
+  "include": [
+    "src/api/**/*",
+    "src/links/**/*",
+    "src/workflows/**/*",
+    "src/queries/**/*",
+    "src/subscribers/**/*",
+    "src/jobs/**/*",
+    "src/scripts/**/*",
+    "src/**/__tests__/**/*",
+    "integration-tests/**/*",
+    "medusa-config.ts"
+  ],
+  "references": [{ "path": "./tsconfig.iso.json" }]
+}

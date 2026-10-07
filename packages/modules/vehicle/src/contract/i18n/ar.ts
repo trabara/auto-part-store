@@ -10,6 +10,7 @@ export const ar: SameShape<typeof en> = {
     vehicle_generation: "الأجيال",
     vehicle_engine: "المحركات",
     vehicle_reference: "معرّفات الكتالوج",
+    catalog_task: "البحث",
   },
   steps: {
     vehicle: { general: "عام", specs: "المواصفات" },
@@ -32,6 +33,7 @@ export const ar: SameShape<typeof en> = {
         doors: "الأبواب",
         drive: "نظام الدفع",
         transmission: "ناقل الحركة",
+        source_tier: "مستوى الثقة", sources: "المصادر", verified_at: "تاريخ التحقق",
       },
       values: {
         body_style: {
@@ -49,12 +51,14 @@ export const ar: SameShape<typeof en> = {
         },
         drive: { FWD: "دفع أمامي", RWD: "دفع خلفي", AWD: "دفع كلي", FOUR_WD: "دفع رباعي 4×4" },
         transmission: { MANUAL: "يدوي", AUTOMATIC: "أوتوماتيكي", DUAL_CLUTCH: "قابض مزدوج", CVT: "CVT" },
+        source_tier: { DRAFT: "مسودة", RESEARCH: "بحث بالذكاء الاصطناعي", REFERENCE: "مرجع", LICENSED: "مرخّص", HUMAN: "الفريق" },
       },
     },
     VehicleMake: {
       name: "علامة تجارية",
       plural: "العلامات التجارية",
-      fields: { name: "الاسم", slug: "المعرّف النصي", logo: "الشعار", models: "الطرازات" },
+      fields: { name: "الاسم", slug: "المعرّف النصي", logo: "الشعار", models: "الطرازات", source_tier: "مستوى الثقة", sources: "المصادر", verified_at: "تاريخ التحقق" },
+      values: { source_tier: { DRAFT: "مسودة", RESEARCH: "بحث بالذكاء الاصطناعي", REFERENCE: "مرجع", LICENSED: "مرخّص", HUMAN: "الفريق" } },
     },
     VehicleModel: {
       name: "طراز",
@@ -66,9 +70,11 @@ export const ar: SameShape<typeof en> = {
         image: "الصورة",
         category: "الفئة",
         generations: "الأجيال",
+        on_sale_new: "يباع جديدًا", source_tier: "مستوى الثقة", sources: "المصادر", verified_at: "تاريخ التحقق",
       },
       values: {
         category: { CAR: "سيارة", LCV: "مركبة تجارية خفيفة", TRUCK: "شاحنة", MOTORCYCLE: "دراجة نارية" },
+        source_tier: { DRAFT: "مسودة", RESEARCH: "بحث بالذكاء الاصطناعي", REFERENCE: "مرجع", LICENSED: "مرخّص", HUMAN: "الفريق" },
       },
     },
     VehicleGeneration: {
@@ -82,7 +88,9 @@ export const ar: SameShape<typeof en> = {
         year_end: "سنة نهاية الإنتاج",
         image: "الصورة",
         vehicles: "التهيئات",
+        source_tier: "مستوى الثقة", sources: "المصادر", verified_at: "تاريخ التحقق",
       },
+      values: { source_tier: { DRAFT: "مسودة", RESEARCH: "بحث بالذكاء الاصطناعي", REFERENCE: "مرجع", LICENSED: "مرخّص", HUMAN: "الفريق" } },
     },
     VehicleEngine: {
       name: "محرك",
@@ -97,6 +105,7 @@ export const ar: SameShape<typeof en> = {
         power_kw: "القدرة (كيلوواط)",
         power_hp: "القدرة (حصان)",
         vehicles: "التهيئات",
+        source_tier: "مستوى الثقة", sources: "المصادر", verified_at: "تاريخ التحقق",
       },
       values: {
         fuel: {
@@ -110,6 +119,7 @@ export const ar: SameShape<typeof en> = {
           HYDROGEN: "هيدروجين",
         },
         layout: { INLINE: "خطي", V: "على شكل V", BOXER: "متقابل (بوكسر)", W: "على شكل W", ROTARY: "دوّار", ELECTRIC_MOTOR: "محرك كهربائي" },
+        source_tier: { DRAFT: "مسودة", RESEARCH: "بحث بالذكاء الاصطناعي", REFERENCE: "مرجع", LICENSED: "مرخّص", HUMAN: "الفريق" },
       },
     },
     VehicleReference: {
@@ -124,6 +134,12 @@ export const ar: SameShape<typeof en> = {
           OTHER: "أخرى",
         },
       },
+    },
+    CatalogTask: {
+      name: "مهمة بحث",
+      plural: "البحث",
+      fields: { kind: "المهمة", key: "المفتاح", entity: "نوع السجل", record_id: "السجل", make: "العلامة التجارية", model: "الطراز", generation: "الجيل", status: "الحالة", priority: "الأولوية", attempts: "المحاولات", next_run_at: "التشغيل التالي", last_run_at: "آخر تشغيل", lease_until: "محجوزة حتى", lease_token: "الحجز", attention: "تحتاج مراجعة", rule: "القاعدة", finding: "الملاحظة", sources: "الصفحات المقروءة", report: "التقرير", proposal: "الاقتراح", cost: "التكلفة", feedback: "ملاحظات المراجع" },
+      values: { kind: { RESEARCH_GENERATIONS: "إيجاد الأجيال", RESEARCH_CONFIGURATIONS: "إيجاد التهيئات", VERIFY_MODEL: "التحقق من الطراز", VERIFY_GENERATION: "التحقق من الجيل", CLEANUP: "تنظيف" }, status: { PENDING: "قيد الانتظار", RUNNING: "قيد التنفيذ", APPLIED: "مطبّقة", REVIEW: "للمراجعة", NO_DATA: "لا بيانات", FAILED: "فشل", DONE: "منتهية" }, entity: { VehicleMake: "العلامة التجارية", VehicleModel: "الطراز", VehicleGeneration: "الجيل", VehicleEngine: "المحرك", Vehicle: "التهيئة", VehicleReference: "معرّف الكتالوج" } },
     },
   },
 };

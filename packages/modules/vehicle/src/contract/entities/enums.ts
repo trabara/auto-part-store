@@ -70,3 +70,65 @@ export enum VehicleReferenceSource {
   ACES_BASE_VEHICLE = "ACES_BASE_VEHICLE",
   OTHER = "OTHER",
 }
+
+/**
+ * How far a record's values can be trusted, by where they came from (in this
+ * order). Imports overwrite a value only from a higher tier, and never a
+ * HUMAN one (staff edits).
+ */
+export enum SourceTier {
+  /** Bulk data nobody reviewed (e.g. the Wikipedia draft). */
+  DRAFT = "DRAFT",
+  /** AI research whose evidence was checked against its source. */
+  RESEARCH = "RESEARCH",
+  /** Curated sources and reviewed proposals. */
+  REFERENCE = "REFERENCE",
+  /** Licensed catalogs (car2db, TecDoc). */
+  LICENSED = "LICENSED",
+  /** Edited by staff in the admin. */
+  HUMAN = "HUMAN",
+}
+export const SourceTierSchema = z.enum(SourceTier);
+
+/** What a catalog maintenance task does. */
+export enum CatalogTaskKind {
+  /** Find the generations of a model that has none. */
+  RESEARCH_GENERATIONS = "RESEARCH_GENERATIONS",
+  /** Find the configurations of a generation. */
+  RESEARCH_CONFIGURATIONS = "RESEARCH_CONFIGURATIONS",
+  /** Check a model and its generations against their source. */
+  VERIFY_MODEL = "VERIFY_MODEL",
+  /** Check a generation's configurations and engines against their source. */
+  VERIFY_GENERATION = "VERIFY_GENERATION",
+  /** A rule finding a person should settle (duplicate, implausible value). */
+  CLEANUP = "CLEANUP",
+}
+export const CatalogTaskKindSchema = z.enum(CatalogTaskKind);
+
+export enum CatalogTaskStatus {
+  PENDING = "PENDING",
+  /** Leased by a worker. */
+  RUNNING = "RUNNING",
+  /** The last run changed or confirmed catalog data. */
+  APPLIED = "APPLIED",
+  /** Waiting for a person (a proposal or a finding). */
+  REVIEW = "REVIEW",
+  /** Nothing found; tried again later. */
+  NO_DATA = "NO_DATA",
+  /** The last run failed; tried again later. */
+  FAILED = "FAILED",
+  /** Closed: resolved, approved, rejected or no longer needed. */
+  DONE = "DONE",
+}
+export const CatalogTaskStatusSchema = z.enum(CatalogTaskStatus);
+
+/** The catalog entities a task or finding can be about. */
+export enum CatalogEntityName {
+  VehicleMake = "VehicleMake",
+  VehicleModel = "VehicleModel",
+  VehicleGeneration = "VehicleGeneration",
+  VehicleEngine = "VehicleEngine",
+  Vehicle = "Vehicle",
+  VehicleReference = "VehicleReference",
+}
+export const CatalogEntityNameSchema = z.enum(CatalogEntityName);

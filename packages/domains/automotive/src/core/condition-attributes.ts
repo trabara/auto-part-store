@@ -5,7 +5,7 @@ import { z } from "@medusajs/framework/zod";
 import { i18nKeys } from "@repo/framework/core";
 import type { ConditionAttribute } from "@repo/module-fitment/contract";
 import { attributesFromSchema, describeAttribute, humanizeValue, type AttributeMeta } from "@repo/module-fitment/core";
-import { Vehicle, VehicleEngine, VehicleModel } from "@repo/module-vehicle/contract";
+import { PROVENANCE_FIELDS, Vehicle, VehicleEngine, VehicleModel } from "@repo/module-vehicle/contract";
 
 const META: Record<string, AttributeMeta> = {
   body_style: { label: "Body style" },
@@ -50,7 +50,9 @@ export const vehicleValueLabel = (value: string) => VALUE_LABELS[value] ?? human
 const model = (code: string, field: z.ZodTypeAny) =>
   describeAttribute(code, field, { group: "Model", ...META[code] }, vehicleValueLabel);
 
-const vehicle = attributesFromSchema(Vehicle.schema, { group: "Vehicle", meta: META, valueLabel: vehicleValueLabel });
+// Provenance (where the catalog's values came from) is no property of a vehicle.
+const exclude = [...PROVENANCE_FIELDS];
+const vehicle = attributesFromSchema(Vehicle.schema, { group: "Vehicle", meta: META, valueLabel: vehicleValueLabel, exclude });
 
 /** Entity fields whose enum value translations an attribute uses. */
 const VALUE_SOURCES: Record<string, { entity: string; field: string }> = {
@@ -81,6 +83,7 @@ export const VEHICLE_ATTRIBUTES: readonly ConditionAttribute[] = [
     group: "Engine",
     meta: META,
     valueLabel: vehicleValueLabel,
+    exclude,
   }),
   model("generation.name", z.string()),
   model("generation.code", z.string()),

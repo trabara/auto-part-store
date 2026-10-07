@@ -8,6 +8,7 @@ export const en = {
     vehicle_generation: "Generations",
     vehicle_engine: "Engines",
     vehicle_reference: "Catalog IDs",
+    catalog_task: "Research",
   },
   steps: {
     vehicle: { general: "General", specs: "Specifications" },
@@ -30,6 +31,7 @@ export const en = {
         doors: "Doors",
         drive: "Drive",
         transmission: "Transmission",
+        source_tier: "Trust level", sources: "Sources", verified_at: "Verified",
       },
       values: {
         body_style: {
@@ -47,19 +49,22 @@ export const en = {
         },
         drive: { FWD: "Front-wheel drive", RWD: "Rear-wheel drive", AWD: "All-wheel drive", FOUR_WD: "4×4" },
         transmission: { MANUAL: "Manual", AUTOMATIC: "Automatic", DUAL_CLUTCH: "Dual-clutch", CVT: "CVT" },
+        source_tier: { DRAFT: "Draft", RESEARCH: "AI research", REFERENCE: "Reference", LICENSED: "Licensed", HUMAN: "Staff" },
       },
     },
     VehicleMake: {
       name: "Make",
       plural: "Makes",
-      fields: { name: "Name", slug: "Slug", logo: "Logo", models: "Models" },
+      fields: { name: "Name", slug: "Slug", logo: "Logo", models: "Models", source_tier: "Trust level", sources: "Sources", verified_at: "Verified" },
+      values: { source_tier: { DRAFT: "Draft", RESEARCH: "AI research", REFERENCE: "Reference", LICENSED: "Licensed", HUMAN: "Staff" } },
     },
     VehicleModel: {
       name: "Model",
       plural: "Models",
-      fields: { make: "Make", name: "Name", slug: "Slug", image: "Image", category: "Category", generations: "Generations" },
+      fields: { make: "Make", name: "Name", slug: "Slug", image: "Image", category: "Category", generations: "Generations", on_sale_new: "Sold new", source_tier: "Trust level", sources: "Sources", verified_at: "Verified" },
       values: {
         category: { CAR: "Car", LCV: "Light commercial", TRUCK: "Truck", MOTORCYCLE: "Motorcycle" },
+        source_tier: { DRAFT: "Draft", RESEARCH: "AI research", REFERENCE: "Reference", LICENSED: "Licensed", HUMAN: "Staff" },
       },
     },
     VehicleGeneration: {
@@ -73,7 +78,9 @@ export const en = {
         year_end: "Last production year",
         image: "Image",
         vehicles: "Configurations",
+        source_tier: "Trust level", sources: "Sources", verified_at: "Verified",
       },
+      values: { source_tier: { DRAFT: "Draft", RESEARCH: "AI research", REFERENCE: "Reference", LICENSED: "Licensed", HUMAN: "Staff" } },
     },
     VehicleEngine: {
       name: "Engine",
@@ -88,6 +95,7 @@ export const en = {
         power_kw: "Power (kW)",
         power_hp: "Power (hp)",
         vehicles: "Configurations",
+        source_tier: "Trust level", sources: "Sources", verified_at: "Verified",
       },
       values: {
         fuel: {
@@ -101,6 +109,7 @@ export const en = {
           HYDROGEN: "Hydrogen",
         },
         layout: { INLINE: "Inline", V: "V", BOXER: "Boxer", W: "W", ROTARY: "Rotary", ELECTRIC_MOTOR: "Electric motor" },
+        source_tier: { DRAFT: "Draft", RESEARCH: "AI research", REFERENCE: "Reference", LICENSED: "Licensed", HUMAN: "Staff" },
       },
     },
     VehicleReference: {
@@ -115,6 +124,12 @@ export const en = {
           OTHER: "Other",
         },
       },
+    },
+    CatalogTask: {
+      name: "Research task",
+      plural: "Research",
+      fields: { kind: "Task", key: "Key", entity: "Record type", record_id: "Record", make: "Make", model: "Model", generation: "Generation", status: "Status", priority: "Priority", attempts: "Attempts", next_run_at: "Next run", last_run_at: "Last run", lease_until: "Leased until", lease_token: "Lease", attention: "Needs a look", rule: "Rule", finding: "Finding", sources: "Pages read", report: "Report", proposal: "Proposal", cost: "Cost", feedback: "Reviewer notes" },
+      values: { kind: { RESEARCH_GENERATIONS: "Find generations", RESEARCH_CONFIGURATIONS: "Find configurations", VERIFY_MODEL: "Verify model", VERIFY_GENERATION: "Verify generation", CLEANUP: "Clean up" }, status: { PENDING: "Pending", RUNNING: "Running", APPLIED: "Applied", REVIEW: "To review", NO_DATA: "No data", FAILED: "Failed", DONE: "Done" }, entity: { VehicleMake: "Make", VehicleModel: "Model", VehicleGeneration: "Generation", VehicleEngine: "Engine", Vehicle: "Configuration", VehicleReference: "Catalog ID" } },
     },
   },
 };

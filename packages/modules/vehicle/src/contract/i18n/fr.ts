@@ -10,6 +10,7 @@ export const fr: SameShape<typeof en> = {
     vehicle_generation: "Générations",
     vehicle_engine: "Moteurs",
     vehicle_reference: "Identifiants catalogue",
+    catalog_task: "Recherche",
   },
   steps: {
     vehicle: { general: "Général", specs: "Caractéristiques" },
@@ -32,6 +33,7 @@ export const fr: SameShape<typeof en> = {
         doors: "Portes",
         drive: "Transmission (roues motrices)",
         transmission: "Boîte de vitesses",
+        source_tier: "Niveau de confiance", sources: "Sources", verified_at: "Vérifié le",
       },
       values: {
         body_style: {
@@ -49,19 +51,22 @@ export const fr: SameShape<typeof en> = {
         },
         drive: { FWD: "Traction avant", RWD: "Propulsion", AWD: "Transmission intégrale", FOUR_WD: "4×4" },
         transmission: { MANUAL: "Manuelle", AUTOMATIC: "Automatique", DUAL_CLUTCH: "Double embrayage", CVT: "CVT" },
+        source_tier: { DRAFT: "Brouillon", RESEARCH: "Recherche IA", REFERENCE: "Référence", LICENSED: "Sous licence", HUMAN: "Équipe" },
       },
     },
     VehicleMake: {
       name: "Marque",
       plural: "Marques",
-      fields: { name: "Nom", slug: "Slug", logo: "Logo", models: "Modèles" },
+      fields: { name: "Nom", slug: "Slug", logo: "Logo", models: "Modèles", source_tier: "Niveau de confiance", sources: "Sources", verified_at: "Vérifié le" },
+      values: { source_tier: { DRAFT: "Brouillon", RESEARCH: "Recherche IA", REFERENCE: "Référence", LICENSED: "Sous licence", HUMAN: "Équipe" } },
     },
     VehicleModel: {
       name: "Modèle",
       plural: "Modèles",
-      fields: { make: "Marque", name: "Nom", slug: "Slug", image: "Image", category: "Catégorie", generations: "Générations" },
+      fields: { make: "Marque", name: "Nom", slug: "Slug", image: "Image", category: "Catégorie", generations: "Générations", on_sale_new: "Vendu neuf", source_tier: "Niveau de confiance", sources: "Sources", verified_at: "Vérifié le" },
       values: {
         category: { CAR: "Voiture", LCV: "Utilitaire léger", TRUCK: "Camion", MOTORCYCLE: "Moto" },
+        source_tier: { DRAFT: "Brouillon", RESEARCH: "Recherche IA", REFERENCE: "Référence", LICENSED: "Sous licence", HUMAN: "Équipe" },
       },
     },
     VehicleGeneration: {
@@ -75,7 +80,9 @@ export const fr: SameShape<typeof en> = {
         year_end: "Dernière année de production",
         image: "Image",
         vehicles: "Configurations",
+        source_tier: "Niveau de confiance", sources: "Sources", verified_at: "Vérifié le",
       },
+      values: { source_tier: { DRAFT: "Brouillon", RESEARCH: "Recherche IA", REFERENCE: "Référence", LICENSED: "Sous licence", HUMAN: "Équipe" } },
     },
     VehicleEngine: {
       name: "Moteur",
@@ -90,6 +97,7 @@ export const fr: SameShape<typeof en> = {
         power_kw: "Puissance (kW)",
         power_hp: "Puissance (ch)",
         vehicles: "Configurations",
+        source_tier: "Niveau de confiance", sources: "Sources", verified_at: "Vérifié le",
       },
       values: {
         fuel: {
@@ -103,6 +111,7 @@ export const fr: SameShape<typeof en> = {
           HYDROGEN: "Hydrogène",
         },
         layout: { INLINE: "En ligne", V: "En V", BOXER: "À plat (boxer)", W: "En W", ROTARY: "Rotatif", ELECTRIC_MOTOR: "Moteur électrique" },
+        source_tier: { DRAFT: "Brouillon", RESEARCH: "Recherche IA", REFERENCE: "Référence", LICENSED: "Sous licence", HUMAN: "Équipe" },
       },
     },
     VehicleReference: {
@@ -117,6 +126,12 @@ export const fr: SameShape<typeof en> = {
           OTHER: "Autre",
         },
       },
+    },
+    CatalogTask: {
+      name: "Tâche de recherche",
+      plural: "Recherche",
+      fields: { kind: "Tâche", key: "Clé", entity: "Type d'enregistrement", record_id: "Enregistrement", make: "Marque", model: "Modèle", generation: "Génération", status: "Statut", priority: "Priorité", attempts: "Tentatives", next_run_at: "Prochaine exécution", last_run_at: "Dernière exécution", lease_until: "Réservée jusqu'au", lease_token: "Réservation", attention: "À examiner", rule: "Règle", finding: "Constat", sources: "Pages lues", report: "Rapport", proposal: "Proposition", cost: "Coût", feedback: "Notes du relecteur" },
+      values: { kind: { RESEARCH_GENERATIONS: "Trouver les générations", RESEARCH_CONFIGURATIONS: "Trouver les configurations", VERIFY_MODEL: "Vérifier le modèle", VERIFY_GENERATION: "Vérifier la génération", CLEANUP: "Nettoyage" }, status: { PENDING: "En attente", RUNNING: "En cours", APPLIED: "Appliquée", REVIEW: "À vérifier", NO_DATA: "Aucune donnée", FAILED: "Échec", DONE: "Terminée" }, entity: { VehicleMake: "Marque", VehicleModel: "Modèle", VehicleGeneration: "Génération", VehicleEngine: "Moteur", Vehicle: "Configuration", VehicleReference: "Identifiant catalogue" } },
     },
   },
 };

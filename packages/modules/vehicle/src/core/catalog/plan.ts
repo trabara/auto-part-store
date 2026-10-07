@@ -3,22 +3,33 @@
 // created earlier in the plan), records that exist, and existing values the
 // file contradicts. The mode decides what happens to those: `create` reports
 // them, `fill` writes the file's value only where the record has none (e.g. a
-// missing code, or an end year for a generation still listed as current), and
+// missing code, or an end year for a generation still listed as current),
+// `merge` also replaces values of a lower trust tier (never a staff edit), and
 // `overwrite` writes them all (for reviewed files).
+//
+// Provenance: created records take the file's tier and source; records the
+// file matches without contradiction ("touched") and updated records get the
+// source appended, `verified_at` and the higher of the two tiers.
 import type { CatalogEngine, CatalogFile, CatalogImportMode, CatalogVehicle } from "../../contract/catalog";
+import { SourceTier } from "../../contract/entities/enums";
+import type { SourceRef } from "../../contract/entities/shared";
 import { childrenOf } from "./export";
 import { engineKey, generationKey, makeKey, modelKey, vehicleKey } from "./keys";
+import { higherTier, mayOverwrite, mergeSources } from "./trust";
 
 /** An existing record (`id`) or one the plan creates (`key`). */
 export type CatalogRef = { id: string } | { key: string };
 
+/** A record's provenance, as stored (optional in snapshots built by hand). */
+type Provenance = { source_tier?: string | null; sources?: SourceRef[] | null };
+
 /** The records of the vehicle module an import needs to know about. */
 export type CatalogSnapshot = {
-  makes: { id: string; name: string }[];
-  models: { id: string; make_id: string; name: string; category: string }[];
-  generations: { id: string; model_id: string; name: string; code: string | null; year_start: number; year_end: number | null }[];
-  engines: { id: string; code: string | null; fuel: string; layout: string | null; cylinders: number | null; displacement_cc: number | null; power_kw: number }[];
-  vehicles: {
+  makes: ({ id: string; name: string } & Provenance)[];
+  models: ({ id: string; make_id: string; name: string; category: string } & Provenance)[];
+  generations: ({ id: string; model_id: string; name: string; code: string | null; year_start: number; year_end: number | null } & Provenance)[];
+  engines: ({ id: string; code: string | null; fuel: string; layout: string | null; cylinders: number | null; displacement_cc: number | null; power_kw: number } & Provenance)[];
+  vehicles: (Provenance & {
     id: string;
     generation_id: string;
     engine_id: string;
@@ -29,9 +40,15 @@ export type CatalogSnapshot = {
     year_start: number;
     year_end: number | null;
     doors: number;
-  }[];
+  })[];
   references: { source: string; external_id: string; vehicle_id: string }[];
 };
+
+/** Provenance to write on a record (created, updated or touched). */
+export type ProvenancePatch = { source_tier: SourceTier; sources: SourceRef[]; verified_at: Date };
+
+/** The catalog entities an import writes provenance on. */
+export type CatalogRecordEntity = "VehicleMake" | "VehicleModel" | "VehicleGeneration" | "VehicleEngine" | "Vehicle";
 
 /** Fields of an existing record to update, and why (one line per field). */
 export type CatalogUpdate = {
@@ -41,22 +58,36 @@ export type CatalogUpdate = {
   where: string;
   data: Record<string, unknown>;
   changes: string[];
+  /** The updated record's new provenance (the file is a source of its new values). */
+  provenance?: ProvenancePatch;
 };
 
+/** An existing record the file confirmed: provenance to stamp. */
+export type CatalogTouch = { entity: CatalogRecordEntity; id: string; provenance: ProvenancePatch };
+
 export type CatalogPlan = {
-  makes: { key: string; data: { name: string } }[];
-  models: { key: string; make: CatalogRef; data: { name: string; category: string } }[];
+  makes: { key: string; data: { name: string }; provenance: ProvenancePatch }[];
+  models: { key: string; make: CatalogRef; data: { name: string; category: string }; provenance: ProvenancePatch }[];
   generations: {
     key: string;
     model: CatalogRef;
     data: { name: string; code: string | null; year_start: number; year_end: number | null };
+    provenance: ProvenancePatch;
   }[];
-  engines: { key: string; data: CatalogEngine }[];
-  vehicles: { key: string; generation: CatalogRef; engine: CatalogRef; data: Omit<CatalogVehicle, "engine" | "references"> }[];
+  engines: { key: string; data: CatalogEngine; provenance: ProvenancePatch }[];
+  vehicles: {
+    key: string;
+    generation: CatalogRef;
+    engine: CatalogRef;
+    data: Omit<CatalogVehicle, "engine" | "references">;
+    provenance: ProvenancePatch;
+  }[];
   references: { vehicle: CatalogRef; data: { source: string; external_id: string } }[];
   existing: { makes: number; models: number; generations: number; engines: number; vehicles: number; references: number };
   /** Existing records to update (per the mode). */
   updates: CatalogUpdate[];
+  /** Existing records the file confirmed, to stamp. */
+  touches: CatalogTouch[];
   /** Existing values the file contradicts that are not written (per the mode). */
   differences: string[];
   /** Likely duplicates of existing records (a renamed generation, the same engine described differently): worth a review. */
@@ -78,9 +109,24 @@ const inside = (inner: Years, outer: Years) =>
 export function planCatalog(
   file: CatalogFile,
   snapshot: CatalogSnapshot,
-  options: { mode?: CatalogImportMode } = {},
+  options: { mode?: CatalogImportMode; now?: Date } = {},
 ): CatalogPlan {
   const mode = options.mode ?? "create";
+  const now = options.now ?? new Date();
+  const tier = (file.source.tier ?? SourceTier.RESEARCH) as SourceTier;
+  /** The file as a source, citing the most specific URL (generation, model, or the file's). */
+  const sourceRef = (url?: string | null): SourceRef => ({
+    name: file.source.name,
+    url: url ?? file.source.url ?? null,
+    tier,
+    at: file.source.retrieved_at ?? now.toISOString().slice(0, 10),
+  });
+  const created = (url?: string | null): ProvenancePatch => ({ source_tier: tier, sources: [sourceRef(url)], verified_at: now });
+  const stamped = (record: Provenance, url?: string | null): ProvenancePatch => ({
+    source_tier: higherTier(record.source_tier, tier),
+    sources: mergeSources(record.sources, sourceRef(url)),
+    verified_at: now,
+  });
   const plan: CatalogPlan = {
     makes: [],
     models: [],
@@ -90,6 +136,7 @@ export function planCatalog(
     references: [],
     existing: { makes: 0, models: 0, generations: 0, engines: 0, vehicles: 0, references: 0 },
     updates: [],
+    touches: [],
     differences: [],
     warnings: [],
     problems: [],
@@ -97,10 +144,24 @@ export function planCatalog(
 
   /** An existing value the file contradicts: updated or reported, per the mode. */
   const updates = new Map<string, CatalogUpdate>();
-  const compare = (entity: CatalogUpdate["entity"], id: string, where: string, field: string, current: unknown, incoming: unknown) => {
+  /** Records with a contradiction left in place: not confirmed by this file. */
+  const contradicted = new Set<string>();
+  const compare = (
+    entity: CatalogUpdate["entity"],
+    id: string,
+    where: string,
+    field: string,
+    current: unknown,
+    incoming: unknown,
+    recordTier?: string | null,
+  ) => {
     // A blank value says nothing (omitted, or unknown to the source): the catalog's stays.
     if (blank(incoming) || current === incoming) return;
-    if (mode === "overwrite" || (mode === "fill" && blank(current) && !blank(incoming))) {
+    const write =
+      mode === "overwrite" ||
+      ((mode === "fill" || mode === "merge") && blank(current)) ||
+      (mode === "merge" && mayOverwrite(recordTier, tier));
+    if (write) {
       const update = updates.get(id) ?? { entity, id, where, data: {}, changes: [] };
       update.data[field] = incoming ?? null;
       update.changes.push(`${where}: ${field} ${show(current)} → ${show(incoming)}.`);
@@ -109,8 +170,14 @@ export function planCatalog(
         plan.updates.push(update);
       }
     } else {
+      contradicted.add(id);
       plan.differences.push(`${where}: ${field} is ${show(current)}, catalog says ${show(incoming)}.`);
     }
+  };
+  /** Matched records, with the URL they are confirmed by (stamped unless contradicted). */
+  const matched = new Map<string, { entity: CatalogRecordEntity; record: Provenance; url?: string | null }>();
+  const match = (entity: CatalogRecordEntity, record: Provenance & { id: string }, url?: string | null) => {
+    if (!matched.has(record.id)) matched.set(record.id, { entity, record, url });
   };
 
   // Existing records by natural key (ids resolved through their parents).
@@ -133,13 +200,14 @@ export function planCatalog(
   const references = new Map(snapshot.references.map((r) => [`${r.source}:${r.external_id}`, r]));
   const planned = new Set<string>();
 
+  let engineUrl: string | null | undefined;
   const engineRef = (engine: CatalogEngine): CatalogRef => {
     const key = engineKey(engine);
     const found = engines.get(key);
     if (found) return { id: found.id };
     if (!planned.has(`engine:${key}`)) {
       planned.add(`engine:${key}`);
-      plan.engines.push({ key, data: engine });
+      plan.engines.push({ key, data: engine, provenance: created(engineUrl) });
     }
     return { key };
   };
@@ -188,27 +256,36 @@ export function planCatalog(
   for (const make of file.makes) {
     const mKey = makeKey(make.name);
     const existingMake = makes.get(mKey);
-    if (existingMake) plan.existing.makes++;
-    else plan.makes.push({ key: mKey, data: { name: make.name } });
+    if (existingMake) {
+      plan.existing.makes++;
+      match("VehicleMake", existingMake, make.source);
+    } else plan.makes.push({ key: mKey, data: { name: make.name }, provenance: created(make.source) });
     const makeRef: CatalogRef = existingMake ? { id: existingMake.id } : { key: mKey };
 
     for (const model of make.models) {
       const moKey = modelKey(make.name, model.name);
       const existingModel = models.get(moKey);
+      const modelUrl = model.source ?? make.source;
       if (existingModel) {
         plan.existing.models++;
-        compare("VehicleModel", existingModel.id, `${make.name} › ${model.name}`, "category", existingModel.category, model.category);
-      } else plan.models.push({ key: moKey, make: makeRef, data: { name: model.name, category: model.category ?? "CAR" } });
+        match("VehicleModel", existingModel, modelUrl);
+        compare("VehicleModel", existingModel.id, `${make.name} › ${model.name}`, "category", existingModel.category, model.category, existingModel.source_tier);
+      } else {
+        plan.models.push({ key: moKey, make: makeRef, data: { name: model.name, category: model.category ?? "CAR" }, provenance: created(modelUrl) });
+      }
       const modelRef: CatalogRef = existingModel ? { id: existingModel.id } : { key: moKey };
 
       for (const gen of model.generations) {
         const gKey = generationKey(make.name, model.name, gen.name);
         const genPath = `${make.name} › ${model.name} › ${gen.name}`;
         const existingGen = generations.get(gKey);
+        const genUrl = gen.source ?? modelUrl;
+        engineUrl = genUrl;
         if (existingGen) {
           plan.existing.generations++;
+          match("VehicleGeneration", existingGen, genUrl);
           for (const field of ["code", "year_start", "year_end"] as const) {
-            compare("VehicleGeneration", existingGen.id, genPath, field, existingGen[field], gen[field]);
+            compare("VehicleGeneration", existingGen.id, genPath, field, existingGen[field], gen[field], existingGen.source_tier);
           }
         } else {
           for (const other of existingModel ? generationsOf(existingModel.id) : []) {
@@ -220,6 +297,7 @@ export function planCatalog(
             key: gKey,
             model: modelRef,
             data: { name: gen.name, code: gen.code, year_start: gen.year_start, year_end: gen.year_end },
+            provenance: created(genUrl),
           });
         }
         const genRef: CatalogRef = existingGen ? { id: existingGen.id } : { key: gKey };
@@ -227,9 +305,13 @@ export function planCatalog(
         gen.vehicles.forEach((v, i) => {
           const where = `${genPath} › #${i + 1}`;
           const eKey = engineKey(v.engine);
-          if (engines.has(eKey) && !countedEngines.has(eKey)) {
-            countedEngines.add(eKey);
-            plan.existing.engines++;
+          const existingEngine = engines.get(eKey);
+          if (existingEngine) {
+            match("VehicleEngine", existingEngine, genUrl);
+            if (!countedEngines.has(eKey)) {
+              countedEngines.add(eKey);
+              plan.existing.engines++;
+            }
           }
           const vKey = vehicleKey(gKey, eKey, v);
           const existingVehicle = vehicles.get(vKey);
@@ -238,10 +320,11 @@ export function planCatalog(
           if (existingVehicle) {
             plan.existing.vehicles++;
             vehicleRef = { id: existingVehicle.id };
-            compare("Vehicle", existingVehicle.id, where, "year_end", existingVehicle.year_end, v.year_end);
+            match("Vehicle", existingVehicle, genUrl);
+            compare("Vehicle", existingVehicle.id, where, "year_end", existingVehicle.year_end, v.year_end, existingVehicle.source_tier);
           } else {
             if (existingGen) checkAgainstCatalog(existingGen, gen, v, where);
-            plan.vehicles.push({ key: vKey, generation: genRef, engine: engineRef(engine), data });
+            plan.vehicles.push({ key: vKey, generation: genRef, engine: engineRef(engine), data, provenance: created(genUrl) });
             vehicleRef = { key: vKey };
           }
           for (const ref of refs) {
@@ -253,6 +336,17 @@ export function planCatalog(
         });
       }
     }
+  }
+
+  // Provenance: updated records take the file as a source of their new values;
+  // matched records it doesn't contradict are confirmed by it.
+  for (const update of plan.updates) {
+    const m = matched.get(update.id);
+    if (m) update.provenance = stamped(m.record, m.url);
+  }
+  for (const [id, m] of matched) {
+    if (contradicted.has(id) || updates.has(id)) continue;
+    plan.touches.push({ entity: m.entity, id, provenance: stamped(m.record, m.url) });
   }
 
   // Updated configuration years must fit their generation's (as it will be).

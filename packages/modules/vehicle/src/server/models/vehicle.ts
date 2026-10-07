@@ -13,4 +13,5 @@ export const {
   VehicleGeneration,
   VehicleEngine,
   VehicleReference,
+  CatalogTask,
 } = vehicleModels;

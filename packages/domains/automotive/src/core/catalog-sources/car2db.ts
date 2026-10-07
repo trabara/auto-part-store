@@ -2,6 +2,7 @@
 // configurations of our models from car2db's makes › models › generations ›
 // series › trims (trim lists carry their specifications). Pure: the fetching
 // script (../../scripts/fetch-car2db-catalog.ts) passes the API responses in.
+import { psToKw } from "@repo/module-vehicle/core";
 import {
   BodyStyle,
   Drive,
@@ -9,6 +10,7 @@ import {
   FuelType,
   Transmission,
   VehicleCategory,
+  SourceTier,
   VehicleReferenceSource,
   type CatalogFile,
   type CatalogGeneration,
@@ -44,7 +46,8 @@ const year = (v: unknown, thisYear: number): number | null => {
 };
 
 /** Metric horsepower (PS) → kW. */
-export const psToKw = (ps: number) => Math.round(ps * 0.73549875);
+/** Metric horsepower (car2db lists PS) to kW: from the vehicle module, re-exported for the adapter tests. */
+export { psToKw };
 
 const FUEL: Record<string, CatalogVehicle["engine"]["fuel"]> = {
   gasoline: FuelType.GASOLINE,
@@ -266,6 +269,7 @@ export function car2dbToCatalog(input: {
         url: "https://car2db.com",
         license: "car2db API subscription (commercial use per car2db terms)",
         retrieved_at: input.retrievedAt,
+        tier: SourceTier.LICENSED,
       },
       makes: [{ name: input.make, models }],
     },

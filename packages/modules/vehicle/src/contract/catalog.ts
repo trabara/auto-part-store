@@ -12,6 +12,8 @@ import {
   FuelTypeSchema,
   Transmission,
   TransmissionSchema,
+  SourceTier,
+  SourceTierSchema,
   VehicleCategory,
   VehicleReferenceSource,
 } from "./entities/enums";
@@ -78,6 +80,8 @@ export const CatalogFileSchema = z.object({
     url: z.string().trim().optional(),
     license: z.string().trim().optional(),
     retrieved_at: z.string().trim().optional(),
+    /** How far the file can be trusted (see SourceTier): decides what `merge` may overwrite. */
+    tier: SourceTierSchema.default(SourceTier.RESEARCH),
   }),
   makes: z.array(CatalogMakeSchema),
 });
@@ -91,10 +95,11 @@ export type CatalogFile = z.infer<typeof CatalogFileSchema>;
 
 /**
  * What an import may change in existing records: `create` nothing (contradicting
- * values are reported), `fill` only values the record lacks, `overwrite`
+ * values are reported), `fill` only values the record lacks, `merge` values it
+ * lacks plus those of a lower trust tier (never a staff edit), `overwrite`
  * every contradicting value (for reviewed files).
  */
-export const CatalogImportModeSchema = z.enum(["create", "fill", "overwrite"]);
+export const CatalogImportModeSchema = z.enum(["create", "fill", "merge", "overwrite"]);
 export type CatalogImportMode = z.infer<typeof CatalogImportModeSchema>;
 
 /** What an import did (or would do, in a dry run). */
@@ -112,4 +117,6 @@ export type CatalogImportReport = {
   differences: string[];
   /** Likely duplicates of existing records (a renamed generation, the same engine described differently). */
   warnings: string[];
+  /** Existing records the file confirmed (their provenance is stamped). */
+  touched: number;
 };

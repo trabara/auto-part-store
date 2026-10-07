@@ -68,6 +68,45 @@ medusaIntegrationTestRunner({
       expect(await service().listVehicleMakes({ name: "Dacia" })).toEqual([]);
     });
   
+    describe("provenance and trust", () => {
+      const withSource = (name: string, tier: string, code: string | null) => {
+        const file = structuredClone(catalog);
+        file.source = { name, tier } as any;
+        file.makes[0]!.models[0]!.generations[0]!.code = code;
+        return file;
+      };
+      const logan3 = async () => (await service().listVehicleGenerations({ name: "III" }))[0]!;
+
+      it("stamps imports, lets research replace draft values, and never overwrites a staff edit", async () => {
+        await service().importCatalog(withSource("Wikipedia draft", "DRAFT", "X1"));
+        let gen = await logan3();
+        expect(gen).toMatchObject({ code: "X1", source_tier: "DRAFT", sources: [{ name: "Wikipedia draft", tier: "DRAFT" }] });
+        expect(gen.verified_at).toBeTruthy();
+
+        // Research outranks the draft: merge replaces its code.
+        const merged = await service().importCatalog(withSource("AI research", "RESEARCH", "LJI"), { mode: "merge" });
+        expect(merged.updated).toEqual(["Dacia › Logan › III: code X1 → LJI."]);
+        gen = await logan3();
+        expect(gen).toMatchObject({ code: "LJI", source_tier: "RESEARCH" });
+        expect(gen.sources.map((s: any) => s.name)).toEqual(["AI research", "Wikipedia draft"]);
+
+        // A staff edit in the admin pins the record.
+        const admin = await adminHeaders(getContainer());
+        await api.put(`/admin/vehicles/vehicle_generation/${gen.id}`, { code: "LJI-2" }, admin);
+        gen = await logan3();
+        expect(gen).toMatchObject({ code: "LJI-2", source_tier: "HUMAN" });
+        expect(gen.sources[0]).toMatchObject({ name: "admin", tier: "HUMAN" });
+
+        // Not even a licensed catalog overwrites it, nor confirms the contradicted record.
+        const licensed = await service().importCatalog(withSource("car2db", "LICENSED", "ZZZ"), { mode: "merge" });
+        expect(licensed.differences).toEqual(["Dacia › Logan › III: code is LJI-2, catalog says ZZZ."]);
+        expect((await logan3()).code).toBe("LJI-2");
+        // The rest of the file confirms what it agrees with: the configuration is now licensed.
+        const [config] = await service().listVehicles({ generation_id: gen.id });
+        expect(config).toMatchObject({ source_tier: "LICENSED" });
+      });
+    });
+
     describe("research API (/admin/vehicle-catalog)", () => {
       /** A secret API key, as an automation (n8n) authenticates. */
       async function apiKeyHeaders() {

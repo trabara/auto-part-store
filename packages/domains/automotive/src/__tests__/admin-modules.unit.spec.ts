@@ -42,11 +42,12 @@ describe("admin routes", () => {
       "/vehicles/generations",
       "/vehicles/engines",
       "/vehicles/references",
+      "/vehicles/research",
     ]);
     expect(lists(fitments)).toEqual(["/fitments/fitments", "/fitments/positions", "/fitments/attributes"]);
     expect(lists(parts)).toEqual(["/parts/brands", "/parts/part-numbers"]);
     expect(lists(garage)).toEqual(["/garage/vehicles"]);
-    expect(flattenModuleRoutes(vehicles)).toHaveLength(24);
+    expect(flattenModuleRoutes(vehicles)).toHaveLength(28);
   });
 
   it("keeps the vehicle wizard steps", () => {

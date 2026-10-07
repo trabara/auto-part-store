@@ -1,7 +1,7 @@
 import { z } from "@medusajs/framework/zod";
 import { defineEntity, fields, type InferEntity } from "@repo/framework/entity";
 import { BaseSchema } from "@repo/framework/utils";
-import { YearSchema, years, YEAR_CHECKS, YEAR_MESSAGES } from "./shared";
+import { PROVENANCE_FIELDS, provenanceFields, YearSchema, years, YEAR_CHECKS, YEAR_MESSAGES } from "./shared";
 
 export const VehicleGeneration = defineEntity("VehicleGeneration", {
   schema: BaseSchema.extend({
@@ -10,11 +10,13 @@ export const VehicleGeneration = defineEntity("VehicleGeneration", {
     year_start: YearSchema.describe("First production year"),
     year_end: YearSchema.nullable().describe("Last production year (empty: still produced)"),
     image: fields.image().describe("Generation image"),
+    ...provenanceFields,
   }),
   relations: (r) => ({
     model: r.belongsTo("VehicleModel", { mappedBy: "generations" }),
     vehicles: r.hasMany("Vehicle", { mappedBy: "generation" }),
   }),
+  readOnly: [...PROVENANCE_FIELDS],
   indexes: [{ name: "vehicle_generation_unique", on: ["model_id", "name"], unique: true }],
   checks: YEAR_CHECKS("vehicle_generation"),
   messages: {

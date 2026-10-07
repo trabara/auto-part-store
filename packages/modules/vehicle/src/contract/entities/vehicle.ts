@@ -2,7 +2,7 @@ import { z } from "@medusajs/framework/zod";
 import { defineEntity, type InferEntity } from "@repo/framework/entity";
 import { BaseSchema } from "@repo/framework/utils";
 import { Drive, DriveSchema, Transmission, TransmissionSchema, BodyStyle, BodyStyleSchema } from "./enums";
-import { YearSchema, years, YEAR_CHECKS, YEAR_MESSAGES } from "./shared";
+import { PROVENANCE_FIELDS, provenanceFields, YearSchema, years, YEAR_CHECKS, YEAR_MESSAGES } from "./shared";
 import { engineLabel } from "./vehicle-engine";
 
 /**
@@ -20,12 +20,14 @@ export const Vehicle = defineEntity("Vehicle", {
     trim: z.string().trim().nullable().describe("Trim / submodel, e.g. Highline, GTI"),
     year_start: YearSchema.describe("First production year"),
     year_end: YearSchema.nullable().describe("Last production year (empty: still produced)"),
+    ...provenanceFields,
   }),
   relations: (r) => ({
     generation: r.belongsTo("VehicleGeneration", { mappedBy: "vehicles" }),
     engine: r.belongsTo("VehicleEngine", { mappedBy: "vehicles" }),
     references: r.hasMany("VehicleReference", { mappedBy: "vehicle" }),
   }),
+  readOnly: [...PROVENANCE_FIELDS],
   checks: YEAR_CHECKS("vehicle"),
   messages: {
     constraints: {

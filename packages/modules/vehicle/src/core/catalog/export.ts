@@ -2,6 +2,7 @@
 // file (what a researcher, human or agent, starts from), and how complete
 // each model is (which models to research first).
 import type { CatalogFile, CatalogVehicle } from "../../contract/catalog";
+import { SourceTier } from "../../contract/entities/enums";
 
 type Engine = {
   code: string | null;
@@ -71,7 +72,11 @@ const byName = (a: { name: string }, b: { name: string }) => a.name.localeCompar
 const byYear = (a: { year_start: number }, b: { year_start: number }) => a.year_start - b.year_start;
 
 /** The records as a catalog file (makes, models and generations by name / year). */
-export function recordsToCatalog(records: CatalogRecords, source: CatalogFile["source"], market?: string): CatalogFile {
+export function recordsToCatalog(
+  records: CatalogRecords,
+  source: Omit<CatalogFile["source"], "tier"> & { tier?: CatalogFile["source"]["tier"] },
+  market?: string,
+): CatalogFile {
   const models = childrenOf(records.models, "make_id");
   const generations = childrenOf(records.generations, "model_id");
   const vehicles = childrenOf(records.vehicles, "generation_id");
@@ -79,7 +84,8 @@ export function recordsToCatalog(records: CatalogRecords, source: CatalogFile["s
   return {
     format: "vehicle-catalog@1",
     ...(market ? { market } : {}),
-    source,
+    // The catalog as a source is the lowest tier: re-importing it upgrades nothing.
+    source: { ...source, tier: source.tier ?? SourceTier.DRAFT },
     makes: [...records.makes].sort(byName).map((make) => ({
       name: make.name,
       models: [...models(make.id)].sort(byName).map((model) => ({

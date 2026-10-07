@@ -2,6 +2,7 @@ import { defineEntities } from "@repo/framework/entity";
 // Link targets must be defined before this module's relations are validated.
 import "@repo/framework/medusa";
 import { VEHICLE_MODULE } from "../manifest";
+import { CatalogTask } from "./catalog-task";
 import { Vehicle } from "./vehicle";
 import { VehicleEngine } from "./vehicle-engine";
 import { VehicleGeneration } from "./vehicle-generation";
@@ -17,6 +18,7 @@ export * from "./vehicle-generation";
 export * from "./vehicle-engine";
 export * from "./vehicle";
 export * from "./vehicle-reference";
+export * from "./catalog-task";
 
 declare module "@repo/framework/entity" {
   interface EntityRegistry {
@@ -26,11 +28,12 @@ declare module "@repo/framework/entity" {
     VehicleGeneration: typeof VehicleGeneration;
     VehicleEngine: typeof VehicleEngine;
     VehicleReference: typeof VehicleReference;
+    CatalogTask: typeof CatalogTask;
   }
 }
 
 /** Vehicle module entities; keys are the MedusaService model names. */
 export const vehicleEntities = defineEntities(
-  { Vehicle, VehicleMake, VehicleModel, VehicleGeneration, VehicleEngine, VehicleReference },
+  { Vehicle, VehicleMake, VehicleModel, VehicleGeneration, VehicleEngine, VehicleReference, CatalogTask },
   { module: VEHICLE_MODULE, path: "vehicles" },
 );

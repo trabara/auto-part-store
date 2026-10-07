@@ -8,11 +8,12 @@ import {
   VehicleMake,
   VehicleModel,
   VehicleReference,
+  CatalogTask,
   vehicleEntities,
 } from "../contract";
 
 export const VEHICLES_PATH = `/admin/${vehicleEntities.path}`;
 
 export const vehicleRoutes = createEntityRoutes({
-  entities: [Vehicle, VehicleEngine, VehicleModel, VehicleMake, VehicleGeneration, VehicleReference],
+  entities: [Vehicle, VehicleEngine, VehicleModel, VehicleMake, VehicleGeneration, VehicleReference, CatalogTask],
 });

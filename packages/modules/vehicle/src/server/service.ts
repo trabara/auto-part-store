@@ -14,6 +14,8 @@ import {
   VehicleMake,
   VehicleModel,
   VehicleReference,
+  SourceTier,
+  type SourceRef,
   type CatalogFile,
   type CatalogImportMode,
   type CatalogImportReport,
@@ -28,8 +30,11 @@ import {
   type CatalogRecords,
   type CatalogRef,
   type CatalogSnapshot,
+  type CatalogRecordEntity,
+  type CatalogTouch,
   type ModelCoverage,
   type ResearchTask,
+  mergeSources,
 } from "../core";
 import { vehicleModels } from "./models/vehicle";
 
@@ -60,6 +65,9 @@ const GENERATION_RELATIONS = relationsOf(VehicleGeneration.label.fields);
 
 const byName = (a: { name: string }, b: { name: string }) => a.name.localeCompare(b.name);
 
+/** Provenance columns, read with the records an import compares. */
+const PROVENANCE = ["source_tier", "sources"] as const;
+
 export type VehicleSummary = { id: string; label: string; year_start: number; year_end: number | null };
 
 /** A row as the API would store it: parsed by the entity's create DTO, derived fields computed. */
@@ -73,17 +81,19 @@ export default class VehicleModuleService extends MedusaService(vehicleModels) {
    * the makes, models, generations, engines, configurations and references it
    * lacks, matched by natural key. Existing values the file contradicts are
    * reported (`mode: "create"`, the default), written only where the record
-   * has none (`fill`), or written (`overwrite`, for reviewed files). Nothing is
+   * has none (`fill`), also where a lower trust tier set them (`merge`), or
+   * written (`overwrite`, for reviewed files). Records it creates, updates or
+   * confirms get its provenance (tier, source, verified_at). Nothing is
    * written with `dryRun` or when the file has problems.
    */
   @InjectTransactionManager()
   async importCatalog(
     file: CatalogFile,
-    options: { dryRun?: boolean; mode?: CatalogImportMode } = {},
+    options: { dryRun?: boolean; mode?: CatalogImportMode; now?: Date } = {},
     @MedusaContext() ctx: Context = {},
   ): Promise<CatalogImportReport> {
     const mode = options.mode ?? "create";
-    const plan = planCatalog(file, await this.catalogSnapshot_(file, ctx), { mode });
+    const plan = planCatalog(file, await this.catalogSnapshot_(file, ctx), { mode, now: options.now });
     const problems = [...validateCatalog(file), ...plan.problems];
     const report: CatalogImportReport = {
       dryRun: !!options.dryRun,
@@ -101,10 +111,12 @@ export default class VehicleModuleService extends MedusaService(vehicleModels) {
       updated: plan.updates.flatMap((u) => u.changes),
       differences: plan.differences,
       warnings: plan.warnings,
+      touched: plan.touches.length,
     };
     if (problems.length || options.dryRun) return report;
 
-    const update = (entity: string) => plan.updates.filter((u) => u.entity === entity).map((u) => ({ id: u.id, ...u.data }));
+    const update = (entity: string) =>
+      plan.updates.filter((u) => u.entity === entity).map((u) => ({ id: u.id, ...u.data, ...(u.provenance ?? {}) }));
     const models = update("VehicleModel");
     const generations = update("VehicleGeneration");
     const vehicles = update("Vehicle");
@@ -118,26 +130,29 @@ export default class VehicleModuleService extends MedusaService(vehicleModels) {
     const remember = (keys: string[], rows: { id: string }[]) => keys.forEach((key, i) => ids.set(key, rows[i]!.id));
 
     if (plan.makes.length) {
-      const rows = plan.makes.map((m) => asCreated(VehicleMake, { name: m.data.name, slug: m.data.name, logo: null }));
+      const rows = plan.makes.map((m) => ({ ...asCreated(VehicleMake, { name: m.data.name, slug: m.data.name, logo: null }), ...m.provenance }));
       remember(plan.makes.map((m) => m.key), await this.createVehicleMakes(rows as any[], ctx));
     }
     if (plan.models.length) {
       const rows = plan.models.map((m) =>
-        asCreated(VehicleModel, { ...m.data, slug: m.data.name, image: null, make_id: id(m.make) }),
+        ({ ...asCreated(VehicleModel, { ...m.data, slug: m.data.name, image: null, make_id: id(m.make) }), ...m.provenance }),
       );
       remember(plan.models.map((m) => m.key), await this.createVehicleModels(rows as any[], ctx));
     }
     if (plan.generations.length) {
-      const rows = plan.generations.map((g) => asCreated(VehicleGeneration, { ...g.data, image: null, model_id: id(g.model) }));
+      const rows = plan.generations.map((g) => ({
+        ...asCreated(VehicleGeneration, { ...g.data, image: null, model_id: id(g.model) }),
+        ...g.provenance,
+      }));
       remember(plan.generations.map((g) => g.key), await this.createVehicleGenerations(rows as any[], ctx));
     }
     if (plan.engines.length) {
-      const rows = plan.engines.map((e) => asCreated(VehicleEngine, e.data));
+      const rows = plan.engines.map((e) => ({ ...asCreated(VehicleEngine, e.data), ...e.provenance }));
       remember(plan.engines.map((e) => e.key), await this.createVehicleEngines(rows as any[], ctx));
     }
     if (plan.vehicles.length) {
       const rows = plan.vehicles.map((v) =>
-        asCreated(Vehicle, { ...v.data, generation_id: id(v.generation), engine_id: id(v.engine) }),
+        ({ ...asCreated(Vehicle, { ...v.data, generation_id: id(v.generation), engine_id: id(v.engine) }), ...v.provenance }),
       );
       const created = await this.createVehicles(rows as any[], ctx);
       remember(plan.vehicles.map((v) => v.key), created);
@@ -147,6 +162,7 @@ export default class VehicleModuleService extends MedusaService(vehicleModels) {
       const rows = plan.references.map((r) => asCreated(VehicleReference, { ...r.data, vehicle_id: id(r.vehicle) }));
       await this.createVehicleReferences(rows as any[], ctx);
     }
+    await this.stampProvenance_(plan.touches, ctx);
     // Safety net behind the plan's checks (the rule the entity hook enforces on
     // API writes): written configurations, and those of updated generations,
     // fall within their generation's years; otherwise the transaction rolls back.
@@ -158,20 +174,80 @@ export default class VehicleModuleService extends MedusaService(vehicleModels) {
     return report;
   }
 
+  // ── Provenance ─────────────────────────────────────────────────────────────
+
+  /** List and update a catalog entity's records (provenance writes). */
+  private records_(entity: CatalogRecordEntity) {
+    const crud: Record<CatalogRecordEntity, { list: (f: any, c: any, ctx: Context) => Promise<any[]>; update: (r: any[], ctx: Context) => Promise<unknown> }> = {
+      VehicleMake: { list: (f, c, x) => this.listVehicleMakes(f, c, x), update: (r, x) => this.updateVehicleMakes(r, x) },
+      VehicleModel: { list: (f, c, x) => this.listVehicleModels(f, c, x), update: (r, x) => this.updateVehicleModels(r, x) },
+      VehicleGeneration: { list: (f, c, x) => this.listVehicleGenerations(f, c, x), update: (r, x) => this.updateVehicleGenerations(r, x) },
+      VehicleEngine: { list: (f, c, x) => this.listVehicleEngines(f, c, x), update: (r, x) => this.updateVehicleEngines(r, x) },
+      Vehicle: { list: (f, c, x) => this.listVehicles(f, c, x), update: (r, x) => this.updateVehicles(r, x) },
+    };
+    return crud[entity];
+  }
+
+  /**
+   * Staff created or edited these records in the admin: their values become
+   * HUMAN tier, which imports never overwrite. Returns the previous
+   * provenance, for `restoreProvenance` when the write rolls back.
+   */
+  @InjectTransactionManager()
+  async pinHuman(entity: CatalogRecordEntity, ids: string[], @MedusaContext() ctx: Context = {}): Promise<Row[]> {
+    if (!ids.length) return [];
+    const { list, update } = this.records_(entity);
+    const previous = await list({ id: ids }, { select: ["id", "source_tier", "sources", "verified_at"] }, ctx);
+    const now = new Date();
+    const admin: SourceRef = { name: "admin", url: null, tier: SourceTier.HUMAN, at: now.toISOString().slice(0, 10) };
+    await update(
+      previous.map((r) => ({ id: r.id, source_tier: SourceTier.HUMAN, sources: mergeSources(r.sources, admin), verified_at: now })),
+      ctx,
+    );
+    return previous;
+  }
+
+  @InjectTransactionManager()
+  async restoreProvenance(entity: CatalogRecordEntity, previous: Row[], @MedusaContext() ctx: Context = {}) {
+    if (previous.length) await this.records_(entity).update(previous, ctx);
+  }
+
+  /** Writes the provenance of records an import confirmed, one batch per entity. */
+  @InjectTransactionManager()
+  protected async stampProvenance_(touches: CatalogTouch[], @MedusaContext() ctx: Context = {}) {
+    const rows = (entity: CatalogTouch["entity"]) =>
+      touches.filter((t) => t.entity === entity).map((t) => ({ id: t.id, ...t.provenance }));
+    const writes: [CatalogTouch["entity"], (rows: any[], ctx: Context) => Promise<unknown>][] = [
+      ["VehicleMake", (r, c) => this.updateVehicleMakes(r, c)],
+      ["VehicleModel", (r, c) => this.updateVehicleModels(r, c)],
+      ["VehicleGeneration", (r, c) => this.updateVehicleGenerations(r, c)],
+      ["VehicleEngine", (r, c) => this.updateVehicleEngines(r, c)],
+      ["Vehicle", (r, c) => this.updateVehicles(r, c)],
+    ];
+    for (const [entity, write] of writes) {
+      const batch = rows(entity);
+      if (batch.length) await write(batch, ctx);
+    }
+  }
+
   /** The existing records a catalog file can match (its makes' subtree, its engines' powers, its references). */
   @InjectManager()
   protected async catalogSnapshot_(file: CatalogFile, @MedusaContext() ctx: Context = {}): Promise<CatalogSnapshot> {
     const names = new Set(file.makes.map((m) => m.name.trim().toLowerCase()));
-    const makes = (await this.listVehicleMakes({}, { select: ["id", "name"] }, ctx)).filter((m) =>
+    const makes = (await this.listVehicleMakes({}, { select: ["id", "name", ...PROVENANCE] }, ctx)).filter((m) =>
       names.has(m.name.trim().toLowerCase()),
     );
     const models = makes.length
-      ? await this.listVehicleModels({ make_id: makes.map((m) => m.id) }, { select: ["id", "make_id", "name", "category"] }, ctx)
+      ? await this.listVehicleModels(
+          { make_id: makes.map((m) => m.id) },
+          { select: ["id", "make_id", "name", "category", ...PROVENANCE] },
+          ctx,
+        )
       : [];
     const generations = models.length
       ? await this.listVehicleGenerations(
           { model_id: models.map((m) => m.id) },
-          { select: ["id", "model_id", "name", "code", "year_start", "year_end"] },
+          { select: ["id", "model_id", "name", "code", "year_start", "year_end", ...PROVENANCE] },
           ctx,
         )
       : [];
@@ -180,7 +256,7 @@ export default class VehicleModuleService extends MedusaService(vehicleModels) {
     const engines = powers.length
       ? await this.listVehicleEngines(
           { power_kw: powers },
-          { select: ["id", "code", "fuel", "layout", "cylinders", "displacement_cc", "power_kw"] },
+          { select: ["id", "code", "fuel", "layout", "cylinders", "displacement_cc", "power_kw", ...PROVENANCE] },
           ctx,
         )
       : [];
@@ -188,7 +264,10 @@ export default class VehicleModuleService extends MedusaService(vehicleModels) {
       ? await this.listVehicles(
           { generation_id: generations.map((g) => g.id) },
           {
-            select: ["id", "generation_id", "engine_id", "body_style", "drive", "transmission", "trim", "year_start", "year_end", "doors"],
+            select: [
+              "id", "generation_id", "engine_id", "body_style", "drive", "transmission", "trim", "year_start", "year_end", "doors",
+              ...PROVENANCE,
+            ],
           },
           ctx,
         )

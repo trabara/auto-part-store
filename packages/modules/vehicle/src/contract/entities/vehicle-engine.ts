@@ -3,6 +3,7 @@ import { i18nKeys } from "@repo/framework/core";
 import { defaultLabelContext, defineEntity, type InferEntity, type LabelContext } from "@repo/framework/entity";
 import { BaseSchema } from "@repo/framework/utils";
 import { FuelType, FuelTypeSchema, EngineLayout, EngineLayoutSchema } from "./enums";
+import { PROVENANCE_FIELDS, provenanceFields } from "./shared";
 
 const LAYOUT_PREFIX: Record<EngineLayout, string> = {
   INLINE: "I",
@@ -50,11 +51,13 @@ export const VehicleEngine = defineEntity("VehicleEngine", {
     power_kw: z.number().int().min(1).max(2000).describe("Power in kW"),
     power_hp: z.number().int().describe("Power in hp, derived from kW"),
     name: z.string().optional().describe("Technology, e.g. TDI, EcoBoost, turbo"),
+    ...provenanceFields,
   }),
   relations: (r) => ({
     vehicles: r.hasMany("Vehicle", { mappedBy: "engine" }),
   }),
   derived: { power_hp: { from: ["power_kw"], compute: (e) => Math.round(e.power_kw * 1.34102) } },
+  readOnly: [...PROVENANCE_FIELDS],
   // Unique on (fuel, layout, cylinders, displacement_cc, power_kw, code)
   // NULLS NOT DISTINCT: hand-written index (migration).
   messages: {

@@ -1,22 +1,22 @@
 # @repo/module-fitment
 
-Fitment module (Medusa key `fitment`): which product variant fits which vehicle (`Fitment`: position, quantity, production window) and under which conditions (condition groups on vehicle fields). Depends on `vehicle` (`Fitment.vehicle` is a column link; it uses `@repo/module-vehicle/entities` only).
+Fitment module (Medusa key `fitment`): which product variant fits which vehicle (`Fitment`: position, quantity, production window) and under which conditions (condition groups on vehicle fields). Depends on `vehicle` (`Fitment.vehicle` is a column link; it imports `@repo/module-vehicle/contract` only). Layers: contract → core → adapters (see AGENTS.md).
 
-| Entry | Contents |
-|---|---|
-| `@repo/module-fitment` | the Medusa module: `FitmentModuleService` (`replaceConditions`, `findMatching`, `filterCompatible`), models, migrations |
-| `/entities` | entity definitions (isomorphic) |
-| `/conditions` | the condition tree: validation, storage, summary, and the attribute catalog port (isomorphic) |
-| `/http` | generic admin API `/admin/fitments/:entity` (`fitmentRoutes`, `FITMENTS_PATH`) |
-| `/admin` | `fitmentAdmin` (path `fitments`), `fitmentTranslations` (en, fr, ar) |
-| `/admin/ui` | `ConditionsDrawer`, `ConditionsSection`, `fitmentSections` (admin UI, bundled from source) |
-| `/manifest` | `fitmentManifest` |
+| Entry | Layer | Contents |
+|---|---|---|
+| `@repo/module-fitment` | server | the Medusa module: `FitmentModuleService` (`replaceConditions`, `findMatching`, `refreshConditionSummaries`), models, migrations, `fitmentRoutes` (`/admin/fitments/:entity`) |
+| `/contract` | iso | `FITMENT_MODULE`, `fitmentManifest`, entities, condition tree types and `ReplaceConditionsSchema`, `FitmentMatch`, ports, `fitmentTranslations` |
+| `/core` | iso | rules: `conditions/` (attribute builders, operators, validation, storage, summaries, texts), `matching/` (evaluation, production windows) |
+| `/admin` | iso | `fitmentAdmin` (admin definition, path `fitments`) |
+| `/admin/ui` | admin | `ConditionsDrawer`, `ConditionsSection`, `fitmentSections` (source only) |
 
-**Condition attributes are injected.** The module knows no vehicle field: the domain registers the catalog conditions may test, on the server and in the admin.
+**Ports** (`src/contract/ports.ts`): the module knows no vehicle field. Its domain plugs in, at startup on the server and in the admin, the catalog conditions may test and the translations stored summaries are written in:
 
 ```ts
-import { provideConditionAttributes, attributesFromSchema } from "@repo/module-fitment/conditions";
-provideConditionAttributes([...attributesFromSchema(Vehicle.schema, { group: "Vehicle" })]);
+import { provideConditionAttributes, provideConditionTranslations } from "@repo/module-fitment/contract";
+import { attributesFromSchema } from "@repo/module-fitment/core";
+provideConditionAttributes(attributesFromSchema(Vehicle.schema, { group: "Vehicle" }));
+provideConditionTranslations(resources); // toAdminI18n(...) of the domain
 ```
 
 After changing entities: `yarn workspace @repo/module-fitment db:generate`.

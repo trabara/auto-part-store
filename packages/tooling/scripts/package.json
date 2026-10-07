@@ -8,12 +8,12 @@
     "src"
   ],
   "bin": {
+    "check-layout": "./src/check-layout.mjs",
     "gen-domain": "./src/gen-domain.mjs",
     "gen-module": "./src/gen-module.mjs",
     "module-db-generate": "./src/module-db-generate.cjs",
     "plugin-dev-init": "./src/develop-init.mjs",
-    "plugin-dev-watch": "./src/develop-watch.mjs",
-    "check-layout": "./src/check-layout.mjs"
+    "plugin-dev-watch": "./src/develop-watch.mjs"
   },
   "peerDependencies": {
     "@medusajs/admin-bundler": "~2.21.2",
@@ -23,5 +23,8 @@
   },
   "engines": {
     "node": ">=20"
+  },
+  "scripts": {
+    "test": "node --test test/*.test.mjs"
   }
 }

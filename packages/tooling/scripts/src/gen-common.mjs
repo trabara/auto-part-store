@@ -1,7 +1,7 @@
 // Shared helpers of the generators (gen-module, gen-domain).
 import fs from "node:fs";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 
 export const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../../..");
 
@@ -10,6 +10,9 @@ export const camel = (s) => pascal(s).replace(/^./, (c) => c.toLowerCase());
 export const snake = (s) => s.replace(/([a-z0-9])([A-Z])/g, "$1_$2").replace(/-/g, "_").toLowerCase();
 export const kebab = (s) => snake(s).replace(/_/g, "-");
 export const words = (s) => snake(s).replace(/_/g, " ").replace(/^./, (c) => c.toUpperCase());
+
+/** Whether a generator module runs as the CLI (not imported, e.g. by tests). */
+export const isMain = (url) => !!process.argv[1] && url === pathToFileURL(fs.realpathSync(process.argv[1])).href;
 
 export function cli(command, usage) {
   const fail = (message) => {
@@ -35,6 +38,7 @@ export function referencePackage(dir) {
 }
 
 export function writeFiles(target, files) {
+  fs.mkdirSync(target, { recursive: true });
   for (const [file, content] of Object.entries(files)) {
     const out = path.join(target, file);
     fs.mkdirSync(path.dirname(out), { recursive: true });

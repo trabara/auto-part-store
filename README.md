@@ -2,7 +2,7 @@
 
 An ERP SaaS built on [Medusa v2](https://docs.medusajs.com). Each client runs its own Medusa instance with the capabilities their business needs: an auto-parts seller gets the automotive domain (vehicles, fitment, parts), others get different domains.
 
-The code is layered: **modules** (reusable Medusa modules: one bounded context each) → **domains** (Medusa plugins: a business capability combining modules) → the **application** (which domains a tenant runs, via `composeApplication`), all on the **platform** (`@repo/framework`, `@repo/dashboard`).
+Every module and domain is organized in layers, contract → core → adapters (see [AGENTS.md](AGENTS.md)). The code is layered: **modules** (reusable Medusa modules: one bounded context each) → **domains** (Medusa plugins: a business capability combining modules) → the **application** (which domains a tenant runs, via `composeApplication`), all on the **platform** (`@repo/framework`, `@repo/dashboard`).
 
 ## What's in the repo
 
@@ -40,6 +40,7 @@ yarn dev                  # backend with module and domain hot reload
 yarn check-types          # type check every workspace
 yarn lint                 # lint every workspace
 yarn check-layers         # dependency layer rules
+yarn check-layout         # package layouts (contract → core → adapters)
 yarn constraints          # dependency version rules
 yarn gen:module <name>    # scaffold a reusable module
 yarn gen:domain <name> --modules a,b   # scaffold a domain over modules

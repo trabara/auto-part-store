@@ -43,7 +43,14 @@ const explicit = (node, key) => {
   return node;
 };
 const { $schema, ...outputSchema } = explicit(z.toJSONSchema(AgentOutputSchema, { io: "input" }));
-const systemMessage = fs.readFileSync(path.join(here, "prompts/researcher.md"), "utf8").trim();
+// No n8n output parser: models wrap their answer ({"output": "<JSON text>"}) and the parser
+// fails the agent; the backend reads the answer leniently (agentDraftFile) instead.
+const systemMessage = [
+  fs.readFileSync(path.join(here, "prompts/researcher.md"), "utf8").trim(),
+  "# Answer",
+  "Answer with one JSON object and nothing else (no prose, no code fence), matching this JSON schema:",
+  JSON.stringify(outputSchema),
+].join("\n\n");
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 /** Stable ids, so rebuilding only changes what changed. */
@@ -206,7 +213,7 @@ return {
     "Make: " + t.make, "Model: " + t.model, t.generation ? "Generation: " + t.generation : "",
     "", what,
     t.feedback ? "A reviewer noted: " + t.feedback : "",
-    "Start with wiki_search and read_page (free); use web_search when Wikipedia is not enough. Validate with validate_catalog, then return the generations.",
+    "Start with wiki_search and read_page (free); use web_search when Wikipedia is not enough. Validate with validate_catalog, then answer with the JSON object.",
   ].filter(Boolean).join("\\n"),
 };
 `),
@@ -216,7 +223,7 @@ node(
   "@n8n/n8n-nodes-langchain.agent",
   2,
   [3520, 300],
-  { promptType: "define", text: "={{ $json.prompt }}", hasOutputParser: true, options: { systemMessage, maxIterations: 15 } },
+  { promptType: "define", text: "={{ $json.prompt }}", hasOutputParser: false, options: { systemMessage, maxIterations: 15 } },
   { onError: "continueErrorOutput" },
 );
 node(
@@ -227,10 +234,6 @@ node(
   nemotron("agent_model", { maxTokens: 16384, timeout: 600000, temperature: 0.1 }),
   { credentials: nvidiaCredentials },
 );
-node("Catalog generations", "@n8n/n8n-nodes-langchain.outputParserStructured", 1.2, [3900, 560], {
-  schemaType: "manual",
-  inputSchema: JSON.stringify(outputSchema, null, 2),
-});
 const tool = (name, position, description, parameters) =>
   node(name, "n8n-nodes-base.httpRequestTool", 4.2, position, { toolDescription: description, ...parameters }, { credentials: medusaCredentials });
 tool(
@@ -264,25 +267,6 @@ tool(
   ),
 );
 node(
-  "Agent file",
-  "n8n-nodes-base.code",
-  2,
-  [3740, 300],
-  code(`
-const t = $('Task').first().json;
-const { generations = [], sources = [], notes = "" } = $json.output ?? {};
-return {
-  sources,
-  notes,
-  file: {
-    format: "vehicle-catalog@1",
-    source: { name: "AI research agent", url: sources[0], retrieved_at: new Date().toISOString().slice(0, 10) },
-    makes: [{ name: t.make, models: [{ name: t.model, generations }] }],
-  },
-};
-`),
-);
-node(
   "Submit agent",
   "n8n-nodes-base.httpRequest",
   4.2,
@@ -290,7 +274,7 @@ node(
   medusa(
     "POST",
     `tasks/{{ ${TASK}.id }}/result`,
-    `{ lease_token: ${TASK}.lease_token, model: 'nvidia:' + ${CONFIG}.agent_model, file: $('Agent file').first().json.file, sources: $('Agent file').first().json.sources, notes: $('Agent file').first().json.notes, cost: { usd: 0, steps: 1 }, final: true }`,
+    `{ lease_token: ${TASK}.lease_token, model: 'nvidia:' + ${CONFIG}.agent_model, answer: $json.output, cost: { usd: 0, steps: 1 }, final: true }`,
   ),
   { credentials: medusaCredentials, ...RETRY, onError: "continueErrorOutput" },
 );
@@ -399,9 +383,8 @@ link("Settled?", "Fallback?", { output: 1 });
 link("Fallback?", "Agent brief", { output: 0 });
 link("Fallback?", "Give up", { output: 1 });
 link("Agent brief", "Research agent");
-link("Research agent", "Agent file", { output: 0 });
+link("Research agent", "Submit agent", { output: 0 });
 link("Research agent", "Give up", { output: 1 });
-link("Agent file", "Submit agent");
 link("Submit agent", "Outcome", { output: 0 });
 link("Submit agent", "Outcome", { output: 1 });
 link("Give up", "Outcome");
@@ -410,7 +393,6 @@ link("Run summary", "Summary text");
 link("Summary text", "Notify?");
 link("Notify?", "Send summary", { output: 0 });
 link("Nemotron (agent)", "Research agent", { type: "ai_languageModel" });
-link("Catalog generations", "Research agent", { type: "ai_outputParser" });
 for (const t of ["wiki_search", "read_page", "web_search", "validate_catalog"]) link(t, "Research agent", { type: "ai_tool" });
 
 const workflow = {

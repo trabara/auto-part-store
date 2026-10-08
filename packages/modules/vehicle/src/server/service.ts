@@ -24,6 +24,7 @@ import {
   type CatalogImportReport,
 } from "../contract";
 import {
+  agentDraftFile,
   catalogCoverage,
   planCatalog,
   recordsToCatalog,
@@ -640,7 +641,19 @@ export default class VehicleModuleService extends MedusaService(vehicleModels) {
     if (task.status !== CatalogTaskStatus.RUNNING || task.lease_token !== input.lease_token) {
       throw new MedusaError(MedusaError.Types.NOT_ALLOWED, "This task's lease expired or belongs to another run.");
     }
-    const sources = [...new Set([...(task.sources ?? []), ...(input.sources ?? []), ...(input.evidence ?? []).map((e) => e.url)])].slice(-20);
+    // The research agent's answer, however the model wrote it (JSON text, wrapped, with prose).
+    const answer =
+      input.answer === undefined
+        ? null
+        : agentDraftFile(input.answer, { make: task.make ?? "", model: task.model ?? "" }, {
+            name: input.model ? `AI research agent (${input.model})` : "AI research agent",
+            retrieved_at: now.toISOString().slice(0, 10),
+          });
+    const answered = answer && !("problems" in answer) ? answer : null;
+    const notes = input.notes ?? answered?.notes ?? null;
+    const sources = [
+      ...new Set([...(task.sources ?? []), ...(input.sources ?? []), ...(answered && "sources" in answered ? answered.sources : []), ...(input.evidence ?? []).map((e) => e.url)]),
+    ].slice(-20);
     const cost = addCost(task.cost, input.cost, input.model);
     const verification = task.kind === CatalogTaskKind.VERIFY_MODEL || task.kind === CatalogTaskKind.VERIFY_GENERATION;
     const finish = async (status: CatalogTaskStatus, reason: string, report: Row, extra: Row = {}): Promise<TaskResult> => {
@@ -660,7 +673,7 @@ export default class VehicleModuleService extends MedusaService(vehicleModels) {
         ({ status, reason, report, extra } = {
           status: CatalogTaskStatus.REVIEW,
           reason: pending.reason,
-          report: { ...pending.report, fallback: { status, reason, model: input.model ?? null } },
+          report: { ...pending.report, fallback: { status, reason, model: input.model ?? null, error: input.error ?? null } },
           extra: { proposal: pending.proposal },
         });
       }
@@ -676,7 +689,7 @@ export default class VehicleModuleService extends MedusaService(vehicleModels) {
             next_run_at: next,
             lease_until: null,
             lease_token: null,
-            report: { ...report, reason, model: input.model ?? null, notes: input.notes ?? null, at: now.toISOString() },
+            report: { ...report, reason, model: input.model ?? null, notes, at: now.toISOString() },
             sources,
             cost,
             attention: false,
@@ -701,7 +714,10 @@ export default class VehicleModuleService extends MedusaService(vehicleModels) {
     if (research) {
       let file: CatalogFile | null;
       let checked: Row = {};
-      if (input.file) {
+      if (answer) {
+        if ("problems" in answer) return finish(CatalogTaskStatus.FAILED, "invalid answer", { problems: answer.problems.slice(0, 20) });
+        file = "file" in answer ? scopeFile(answer.file, context) : null;
+      } else if (input.file) {
         file = scopeFile(input.file, context);
       } else {
         const output = parseOutput(task.kind, input.output);
@@ -1134,6 +1150,8 @@ export type TaskResultInput = {
   output?: unknown;
   /** The cloud agent's answer, already a catalog file. */
   file?: CatalogFile;
+  /** The research agent's answer as it wrote it: `{ generations, sources, notes }`, JSON text or wrapped (see agentDraftFile). */
+  answer?: unknown;
   /** The pages the answer is based on (for the quote checks). */
   evidence?: { url: string; text: string }[];
   notes?: string;

@@ -202,9 +202,15 @@ describe("steward", () => {
       agentDraftFile(`Here it is: ${JSON.stringify({ generations })}`, task),
     ];
     for (const f of files) expect(f).toMatchObject({ file: { makes: [{ name: "Dacia", models: [{ name: "Sandero", generations: [{ name: "III" }] }] }] } });
-    expect(agentDraftFile("", task)).toEqual({ empty: true });
-    expect(agentDraftFile('{"generations": []}', task)).toEqual({ empty: true });
-    expect(agentDraftFile({}, task)).toEqual({ empty: true });
+    // As Nemotron answers: the object as JSON text inside "output".
+    const wrapped = agentDraftFile({ output: JSON.stringify({ generations, sources: ["https://x.test/a", "not a url"], notes: " EU versions " }) }, task);
+    expect(wrapped).toMatchObject({ file: { source: { url: "https://x.test/a" } }, sources: ["https://x.test/a"], notes: "EU versions" });
+    expect(agentDraftFile(JSON.stringify({ output: JSON.stringify({ generations }) }), task)).toMatchObject({ file: expect.any(Object) });
+    expect(agentDraftFile(`${JSON.stringify({ generations })}\n}`, task)).toMatchObject({ file: expect.any(Object) }); // a stray closing brace
+    expect(agentDraftFile(`${JSON.stringify({ generations })} (see {notes})`, task)).toMatchObject({ file: expect.any(Object) });
+    expect(agentDraftFile("", task)).toEqual({ empty: true, notes: null });
+    expect(agentDraftFile('{"generations": [], "notes": "nothing sold"}', task)).toEqual({ empty: true, notes: "nothing sold" });
+    expect(agentDraftFile({}, task)).toEqual({ empty: true, notes: null });
     expect(agentDraftFile("not json", task)).toEqual({ problems: ["The answer is not valid JSON."] });
     expect(agentDraftFile({ generations: [{ name: "III" }] }, task)).toMatchObject({ problems: [expect.stringMatching(/^generations\.0\.year_start: /)] });
   });

@@ -64,6 +64,8 @@ export const AdminStewardResultBody = z.object({
   output: z.unknown().optional(),
   /** The cloud agent's answer, a catalog file. */
   file: CatalogFileSchema.optional(),
+  /** The research agent's answer as it wrote it (JSON text or object; read leniently). */
+  answer: z.unknown().optional(),
   notes: z.string().optional(),
   /** The run failed: the task backs off. */
   error: z.string().optional(),

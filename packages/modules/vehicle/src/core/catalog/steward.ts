@@ -180,36 +180,59 @@ export function parseJsonText(raw: string): unknown {
   try {
     return JSON.parse(text);
   } catch {
+    // The JSON inside prose, or followed by a stray bracket: the longest parseable span from its start.
     const start = text.search(/[[{]/);
-    const end = Math.max(text.lastIndexOf("}"), text.lastIndexOf("]"));
-    if (start < 0 || end <= start) return undefined;
-    try {
-      return JSON.parse(text.slice(start, end + 1));
-    } catch {
-      return undefined;
+    if (start < 0) return undefined;
+    let end = text.length;
+    for (let tries = 0; tries < 50; tries++) {
+      end = Math.max(text.lastIndexOf("}", end - 1), text.lastIndexOf("]", end - 1));
+      if (end <= start) return undefined;
+      try {
+        return JSON.parse(text.slice(start, end + 1));
+      } catch {
+        // a shorter span
+      }
     }
+    return undefined;
   }
 }
 
+/** The research agent's answer, read as a catalog file for the task's model. */
+export type AgentAnswer = { file: CatalogFile; sources: string[]; notes: string | null } | { problems: string[] } | { empty: true; notes: string | null };
+
 /**
- * The research agent's draft answer (JSON text or an object: `{ generations }`
- * or the bare list) as a catalog file for the task's model, or what is wrong
- * with it, in words the agent can act on.
+ * The research agent's answer (or draft) however the model wrote it: JSON
+ * text or an object, `{ generations, sources, notes }`, the bare list, or
+ * wrapped as `{ "output": "<JSON text>" }`. What is wrong with it comes back
+ * in words the agent can act on.
  */
-export function agentDraftFile(answer: unknown, task: { make: string; model: string }): { file: CatalogFile } | { problems: string[] } | { empty: true } {
-  const value = typeof answer === "string" ? (answer.trim() ? parseJsonText(answer) : null) : answer;
+export function agentDraftFile(
+  answer: unknown,
+  task: { make: string; model: string },
+  source: { name: string; url?: string; retrieved_at?: string } = { name: "research draft" },
+): AgentAnswer {
+  let value = answer;
+  for (let depth = 0; depth < 3; depth++) {
+    if (typeof value === "string") value = value.trim() ? parseJsonText(value) : null;
+    const wrapped = value as { output?: unknown; generations?: unknown } | null;
+    if (wrapped && typeof wrapped === "object" && !Array.isArray(wrapped) && wrapped.generations === undefined && wrapped.output !== undefined) value = wrapped.output;
+    else break;
+  }
   if (value === undefined) return { problems: ["The answer is not valid JSON."] };
-  const generations = Array.isArray(value) ? value : (value as { generations?: unknown } | null)?.generations;
-  if (generations == null || (Array.isArray(generations) && !generations.length)) return { empty: true };
+  const body = (Array.isArray(value) ? { generations: value } : (value ?? {})) as { generations?: unknown; sources?: unknown; notes?: unknown };
+  const notes = typeof body.notes === "string" && body.notes.trim() ? body.notes.trim() : null;
+  const sources = Array.isArray(body.sources) ? body.sources.filter((u): u is string => typeof u === "string" && /^https?:\/\//.test(u)) : [];
+  const generations = body.generations;
+  if (generations == null || (Array.isArray(generations) && !generations.length)) return { empty: true, notes };
   const parsed = CatalogFileSchema.safeParse({
     format: "vehicle-catalog@1",
-    source: { name: "research draft" },
+    source: { ...source, url: source.url ?? sources[0] },
     makes: [{ name: task.make, models: [{ name: task.model, generations }] }],
   });
   if (!parsed.success) {
     return { problems: parsed.error.issues.map((i) => `${i.path.slice(4).join(".") || "generations"}: ${i.message}`) };
   }
-  return { file: parsed.data };
+  return { file: parsed.data, sources, notes };
 }
 
 // ── Prompts ───────────────────────────────────────────────────────────────────

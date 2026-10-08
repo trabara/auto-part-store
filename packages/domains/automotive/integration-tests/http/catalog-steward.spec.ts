@@ -146,8 +146,28 @@ medusaIntegrationTestRunner({
       const agent = await service().submitTaskResult(task.id, { lease_token: task.lease_token, model: "nvidia:agent", error: "tool input did not match" });
       expect(agent).toMatchObject({ status: "REVIEW", reason: "mostly assumed values" });
       const stored = await service().retrieveCatalogTask(task.id);
-      expect(stored).toMatchObject({ status: "REVIEW", lease_token: null, report: { assumed: 1, fallback: { status: "FAILED", reason: "error" } } });
+      expect(stored).toMatchObject({ status: "REVIEW", lease_token: null, report: { assumed: 1, fallback: { status: "FAILED", reason: "error", error: "tool input did not match" } } });
       expect(stored.proposal).toMatchObject({ makes: [{ name: "Dacia" }] });
+    });
+
+    it("reads the research agent's answer however the model wrapped it", async () => {
+      await service().refreshTasks();
+      const task = await claim("RESEARCH_CONFIGURATIONS");
+      const generations = [{ name: "III", year_start: 2020, vehicles: [{ engine: { fuel: "GASOLINE", power_kw: 67, cylinders: 3 }, body_style: "HATCHBACK", doors: 5, year_start: 2020 }] }];
+      const answer = JSON.stringify({ output: JSON.stringify({ generations, sources: [url], notes: "EU versions" }) });
+      const result = await service().submitTaskResult(task.id, { lease_token: task.lease_token, model: "nvidia:agent", answer });
+      expect(result).toMatchObject({ status: "APPLIED", report: { created: { vehicles: 1 } } });
+      expect(await service().retrieveCatalogTask(task.id)).toMatchObject({ sources: expect.arrayContaining([url]), report: { notes: "EU versions" } });
+    });
+
+    it("fails an agent answer that isn't JSON, saying why", async () => {
+      await service().refreshTasks();
+      const task = await claim("RESEARCH_CONFIGURATIONS");
+      expect(await service().submitTaskResult(task.id, { lease_token: task.lease_token, answer: "I could not find it." })).toMatchObject({
+        status: "FAILED",
+        reason: "invalid answer",
+        report: { problems: ["The answer is not valid JSON."] },
+      });
     });
 
     it("backs off after an invalid answer", async () => {

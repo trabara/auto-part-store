@@ -103,9 +103,9 @@ services:
       retries: 5
       start_period: 30s
 
-  # Local language model for the catalog steward (CPU-only on a Mac: one
-  # request at a time, the model kept loaded through the night). Pull the
-  # model once with `yarn ollama:pull`; n8n reaches it at http://ollama:11434.
+  # Optional local language model, used as a provider by OmniRoute (which the
+  # catalog steward workflow calls): http://host.docker.internal:11434. On a
+  # Mac it runs on the CPU (one request at a time). Pull: `yarn ollama:pull`.
   ollama:
     image: ollama/ollama:0.40.0
     container_name: medusa_ollama

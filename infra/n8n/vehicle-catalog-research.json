@@ -53,58 +53,28 @@
               "type": "string"
             },
             {
-              "id": "0b7c992e-85de-4920-a62d-6a8b97ebbe53",
-              "name": "model_provider",
-              "value": "nvidia",
+              "id": "ce47171b-64ae-4da2-adc8-2200d5b8b2db",
+              "name": "omniroute_url",
+              "value": "http://host.docker.internal:20128/v1",
               "type": "string"
             },
             {
-              "id": "2135a861-8fa1-4218-a52f-8c82f1bace6f",
-              "name": "nvidia_model",
-              "value": "nvidia/nemotron-3-super-120b-a12b",
+              "id": "01d28c5e-5163-4f91-ae41-5dafaaf380fb",
+              "name": "first_pass_model",
+              "value": "auto/cheap",
               "type": "string"
             },
             {
-              "id": "b69280cf-ffdd-4156-ac15-ae26cae9930e",
-              "name": "ollama_url",
-              "value": "http://ollama:11434",
+              "id": "0c19a206-bac6-42dc-ae41-2c0297aec313",
+              "name": "agent_model",
+              "value": "auto/cheap",
               "type": "string"
             },
             {
-              "id": "72819e21-d881-4894-ad32-ebe1032cc987",
-              "name": "local_model",
-              "value": "qwen3.5:4b",
-              "type": "string"
-            },
-            {
-              "id": "049d84d2-b1db-4adc-a961-837c5bbfa414",
-              "name": "cloud_fallback",
+              "id": "0cd37a47-7fab-48ab-aa10-45240acccd55",
+              "name": "agent_fallback",
               "value": true,
               "type": "boolean"
-            },
-            {
-              "id": "e62b8eae-4c94-4e86-aff3-423cfb655729",
-              "name": "cloud_cheap",
-              "value": "nvidia/nemotron-3-super-120b-a12b",
-              "type": "string"
-            },
-            {
-              "id": "bf890467-d2f7-4359-a00a-4fd75902bdfe",
-              "name": "cloud_strong",
-              "value": "nvidia/nemotron-3-ultra-550b-a55b",
-              "type": "string"
-            },
-            {
-              "id": "07bd6205-8596-4521-a9e3-228e3a7df7b2",
-              "name": "escalate_below",
-              "value": 0.6,
-              "type": "number"
-            },
-            {
-              "id": "9dc223d8-f7c5-4d78-ade6-a0d4d8a51d53",
-              "name": "monthly_budget_usd",
-              "value": 20,
-              "type": "number"
             },
             {
               "id": "a1ae86d0-b759-47d8-a5b7-ecf6de630464",
@@ -128,7 +98,7 @@
         },
         "options": {}
       },
-      "notes": "Credentials: Medusa secret API key (Basic Auth: the key as user, empty password), NVIDIA API (build.nvidia.com key) and OpenRouter. Web search runs in the backend (TAVILY_API_KEY in its env)."
+      "notes": "Credentials: Medusa secret API key (Basic Auth: the key as user, empty password) and OmniRoute (type OpenAI: OmniRoute API key, URL http://host.docker.internal:20128/v1). Spend cap: the OmniRoute key's quota. Web search runs in the backend (TAVILY_API_KEY in its env)."
     },
     {
       "id": "ca14f53f-60c2-45f3-a050-cf5ec8178ab7",
@@ -201,61 +171,6 @@
       "retryOnFail": true,
       "maxTries": 3,
       "waitBetweenTries": 5000
-    },
-    {
-      "id": "e088573c-7a86-49e3-a1aa-dd5128eb697c",
-      "name": "Ollama?",
-      "type": "n8n-nodes-base.if",
-      "typeVersion": 2.2,
-      "position": [
-        1000,
-        100
-      ],
-      "parameters": {
-        "conditions": {
-          "options": {
-            "caseSensitive": true,
-            "leftValue": "",
-            "typeValidation": "loose",
-            "version": 2
-          },
-          "conditions": [
-            {
-              "id": "d0d09210-0d95-4e20-a05a-828b07e679d2",
-              "leftValue": "={{ $('Config').first().json.model_provider === 'ollama' }}",
-              "rightValue": "",
-              "operator": {
-                "type": "boolean",
-                "operation": "true",
-                "singleValue": true
-              }
-            }
-          ],
-          "combinator": "and"
-        },
-        "options": {}
-      }
-    },
-    {
-      "id": "333db4d7-8269-4a01-acc7-4a3963a6249d",
-      "name": "Warm up model",
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.2,
-      "position": [
-        1100,
-        0
-      ],
-      "parameters": {
-        "method": "POST",
-        "url": "={{ $('Config').first().json.ollama_url }}/api/generate",
-        "sendBody": true,
-        "specifyBody": "json",
-        "jsonBody": "={{ JSON.stringify({ model: $('Config').first().json.local_model, keep_alive: '6h' }) }}",
-        "options": {
-          "timeout": 600000
-        }
-      },
-      "onError": "continueRegularOutput"
     },
     {
       "id": "a6840cd0-0ef6-4a4c-a609-7852f233f76f",
@@ -433,42 +348,8 @@
       }
     },
     {
-      "id": "af2c8af7-f643-4377-ae47-45ab299d5731",
-      "name": "Use Ollama?",
-      "type": "n8n-nodes-base.if",
-      "typeVersion": 2.2,
-      "position": [
-        2310,
-        160
-      ],
-      "parameters": {
-        "conditions": {
-          "options": {
-            "caseSensitive": true,
-            "leftValue": "",
-            "typeValidation": "loose",
-            "version": 2
-          },
-          "conditions": [
-            {
-              "id": "f2e83d57-8588-4db1-a080-146a4e3e30aa",
-              "leftValue": "={{ $('Config').first().json.model_provider === 'ollama' }}",
-              "rightValue": "",
-              "operator": {
-                "type": "boolean",
-                "operation": "true",
-                "singleValue": true
-              }
-            }
-          ],
-          "combinator": "and"
-        },
-        "options": {}
-      }
-    },
-    {
-      "id": "4cb317f5-39c0-4932-af86-dea73a8200cb",
-      "name": "Nemotron (first pass)",
+      "id": "2866c1a2-e4c7-41b2-a63f-92d576ffdbd8",
+      "name": "First pass",
       "type": "@n8n/n8n-nodes-langchain.chainLlm",
       "typeVersion": 1.7,
       "position": [
@@ -491,52 +372,6 @@
       "onError": "continueErrorOutput"
     },
     {
-      "id": "eba7c6f9-026d-4019-a605-07aee674cdd8",
-      "name": "NVIDIA Nemotron Chat Model",
-      "type": "@n8n/n8n-nodes-langchain.lmChatNvidia",
-      "typeVersion": 1,
-      "position": [
-        2420,
-        460
-      ],
-      "parameters": {
-        "model": "={{ $('Config').first().json.nvidia_model }}",
-        "options": {
-          "responseFormat": "json_object",
-          "temperature": 0,
-          "maxTokens": 16384,
-          "timeout": 300000
-        }
-      },
-      "credentials": {
-        "nvidiaApi": {
-          "id": "",
-          "name": "NVIDIA API"
-        }
-      }
-    },
-    {
-      "id": "8159b758-83c0-4a2a-a9d2-8f3ff55308d5",
-      "name": "Local model",
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.2,
-      "position": [
-        2420,
-        100
-      ],
-      "parameters": {
-        "method": "POST",
-        "url": "={{ $('Config').first().json.ollama_url }}/api/chat",
-        "sendBody": true,
-        "specifyBody": "json",
-        "jsonBody": "={{ JSON.stringify({ model: $('Config').first().json.local_model, messages: $json.messages, format: $json.schema, stream: false, think: false, keep_alive: '6h', options: { temperature: 0, num_ctx: 8192 } }) }}",
-        "options": {
-          "timeout": 900000
-        }
-      },
-      "onError": "continueErrorOutput"
-    },
-    {
       "id": "215cf568-1d53-4662-af9e-280a1798cf4a",
       "name": "Submit first pass",
       "type": "n8n-nodes-base.httpRequest",
@@ -552,7 +387,7 @@
         "genericAuthType": "httpBasicAuth",
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={{ JSON.stringify({ lease_token: $('Task').first().json.lease_token, model: ($('Config').first().json.model_provider === 'ollama' ? $('Config').first().json.local_model : 'nvidia:' + $('Config').first().json.nvidia_model), output: $json.message?.content ?? $json.text ?? $json, cost: { usd: 0, steps: 1 }, final: !($('Config').first().json.cloud_fallback && ['RESEARCH_GENERATIONS', 'RESEARCH_CONFIGURATIONS'].includes($('Task').first().json.kind)) }) }}",
+        "jsonBody": "={{ JSON.stringify({ lease_token: $('Task').first().json.lease_token, model: 'omniroute:' + $('Config').first().json.first_pass_model, output: $json.text ?? $json, cost: { usd: 0, steps: 1 }, final: !($('Config').first().json.agent_fallback && ['RESEARCH_GENERATIONS', 'RESEARCH_CONFIGURATIONS'].includes($('Task').first().json.kind)) }) }}",
         "options": {}
       },
       "credentials": {
@@ -565,6 +400,36 @@
       "maxTries": 3,
       "waitBetweenTries": 5000,
       "onError": "continueErrorOutput"
+    },
+    {
+      "id": "c3e9e1f0-2aa3-44a2-ab32-22bbc50fa46c",
+      "name": "OmniRoute (first pass)",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        2420,
+        460
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $('Config').first().json.first_pass_model }}"
+        },
+        "options": {
+          "baseURL": "={{ $('Config').first().json.omniroute_url }}",
+          "responseFormat": "json_object",
+          "temperature": 0,
+          "maxTokens": 16384,
+          "timeout": 300000
+        }
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "",
+          "name": "OmniRoute"
+        }
+      }
     },
     {
       "id": "61e270fd-0571-40cd-a05b-ceccd0c29388",
@@ -620,66 +485,7 @@
           "conditions": [
             {
               "id": "5ba226e2-42ef-428f-ac93-32be4f89bbb3",
-              "leftValue": "={{ $('Config').first().json.cloud_fallback && ['RESEARCH_GENERATIONS', 'RESEARCH_CONFIGURATIONS'].includes($('Task').first().json.kind) }}",
-              "rightValue": "",
-              "operator": {
-                "type": "boolean",
-                "operation": "true",
-                "singleValue": true
-              }
-            }
-          ],
-          "combinator": "and"
-        },
-        "options": {}
-      }
-    },
-    {
-      "id": "3ca2689a-2f1b-4588-a336-2d481b4fc7e9",
-      "name": "Budget",
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.2,
-      "position": [
-        2860,
-        360
-      ],
-      "parameters": {
-        "url": "https://openrouter.ai/api/v1/key",
-        "authentication": "predefinedCredentialType",
-        "nodeCredentialType": "openRouterApi",
-        "options": {}
-      },
-      "credentials": {
-        "openRouterApi": {
-          "id": "",
-          "name": "OpenRouter account"
-        }
-      },
-      "retryOnFail": true,
-      "maxTries": 3,
-      "waitBetweenTries": 5000
-    },
-    {
-      "id": "adde609f-b053-4a98-a047-175dad3d35e0",
-      "name": "Within budget?",
-      "type": "n8n-nodes-base.if",
-      "typeVersion": 2.2,
-      "position": [
-        3080,
-        360
-      ],
-      "parameters": {
-        "conditions": {
-          "options": {
-            "caseSensitive": true,
-            "leftValue": "",
-            "typeValidation": "loose",
-            "version": 2
-          },
-          "conditions": [
-            {
-              "id": "e1002886-b4d6-4332-af3e-02279cf28576",
-              "leftValue": "={{ ($json.data?.usage_monthly ?? 0) < $('Config').first().json.monthly_budget_usd && ($json.data?.limit_remaining == null || $json.data.limit_remaining > 0.05) }}",
+              "leftValue": "={{ $('Config').first().json.agent_fallback && ['RESEARCH_GENERATIONS', 'RESEARCH_CONFIGURATIONS'].includes($('Task').first().json.kind) }}",
               "rightValue": "",
               "operator": {
                 "type": "boolean",
@@ -704,7 +510,7 @@
       ],
       "parameters": {
         "mode": "runOnceForEachItem",
-        "jsCode": "const t = $('Task').first().json;\nconst cfg = $('Config').first().json;\nconst usage = $('Budget').first().json.data ?? {};\nconst strong = t.attempts >= 2 && (usage.usage_monthly ?? 0) < cfg.escalate_below * cfg.monthly_budget_usd;\nconst what = t.kind === \"RESEARCH_GENERATIONS\"\n  ? \"List this model's generations (each with vehicles: []).\"\n  : 'Find the configurations of generation \"' + t.generation + '\" (return exactly that generation, under that name).';\nreturn {\n  model: strong ? cfg.cloud_strong : cfg.cloud_cheap,\n  usage_before: usage.usage ?? 0,\n  prompt: [\n    \"Make: \" + t.make, \"Model: \" + t.model, t.generation ? \"Generation: \" + t.generation : \"\",\n    \"\", what,\n    t.feedback ? \"A reviewer noted: \" + t.feedback : \"\",\n    \"Start with wiki_search and read_page (free); use web_search when Wikipedia is not enough. Validate with validate_catalog, then return the generations.\",\n  ].filter(Boolean).join(\"\\n\"),\n};"
+        "jsCode": "const t = $('Task').first().json;\nconst what = t.kind === \"RESEARCH_GENERATIONS\"\n  ? \"List this model's generations (each with vehicles: []).\"\n  : 'Find the configurations of generation \"' + t.generation + '\" (return exactly that generation, under that name).';\nreturn {\n  prompt: [\n    \"Make: \" + t.make, \"Model: \" + t.model, t.generation ? \"Generation: \" + t.generation : \"\",\n    \"\", what,\n    t.feedback ? \"A reviewer noted: \" + t.feedback : \"\",\n    \"Start with wiki_search and read_page (free); use web_search when Wikipedia is not enough. Validate with validate_catalog, then return the generations.\",\n  ].filter(Boolean).join(\"\\n\"),\n};"
       }
     },
     {
@@ -728,26 +534,31 @@
       "onError": "continueErrorOutput"
     },
     {
-      "id": "ab0ed04f-6e09-411a-a3da-fafedb674475",
-      "name": "Chat model (OpenRouter)",
-      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
-      "typeVersion": 1,
+      "id": "c549dbac-86df-4a13-ab75-9e98e57ec9d2",
+      "name": "OmniRoute (agent)",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
       "position": [
         3360,
         560
       ],
       "parameters": {
-        "model": "={{ $('Agent brief').first().json.model }}",
+        "model": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $('Config').first().json.agent_model }}"
+        },
         "options": {
-          "maxTokens": 16000,
+          "baseURL": "={{ $('Config').first().json.omniroute_url }}",
+          "maxTokens": 16384,
           "timeout": 600000,
           "temperature": 0.1
         }
       },
       "credentials": {
-        "openRouterApi": {
+        "openAiApi": {
           "id": "",
-          "name": "OpenRouter account"
+          "name": "OmniRoute"
         }
       }
     },
@@ -901,31 +712,6 @@
       }
     },
     {
-      "id": "d46164dd-1d68-468d-a0f2-99dfbf28fd7e",
-      "name": "Usage after",
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.2,
-      "position": [
-        3960,
-        300
-      ],
-      "parameters": {
-        "url": "https://openrouter.ai/api/v1/key",
-        "authentication": "predefinedCredentialType",
-        "nodeCredentialType": "openRouterApi",
-        "options": {}
-      },
-      "credentials": {
-        "openRouterApi": {
-          "id": "",
-          "name": "OpenRouter account"
-        }
-      },
-      "retryOnFail": true,
-      "maxTries": 3,
-      "waitBetweenTries": 5000
-    },
-    {
       "id": "ab97c4dd-a00b-4561-a590-f785039ecce9",
       "name": "Submit agent",
       "type": "n8n-nodes-base.httpRequest",
@@ -941,7 +727,7 @@
         "genericAuthType": "httpBasicAuth",
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={{ JSON.stringify({ lease_token: $('Task').first().json.lease_token, model: 'openrouter:' + $('Agent brief').first().json.model, file: $('Agent file').first().json.file, sources: $('Agent file').first().json.sources, notes: $('Agent file').first().json.notes, cost: { usd: Math.max(0, ($json.data?.usage ?? 0) - $('Agent brief').first().json.usage_before), steps: 1 }, final: true }) }}",
+        "jsonBody": "={{ JSON.stringify({ lease_token: $('Task').first().json.lease_token, model: 'omniroute:' + $('Config').first().json.agent_model, file: $('Agent file').first().json.file, sources: $('Agent file').first().json.sources, notes: $('Agent file').first().json.notes, cost: { usd: 0, steps: 1 }, final: true }) }}",
         "options": {}
       },
       "credentials": {
@@ -971,7 +757,7 @@
         "genericAuthType": "httpBasicAuth",
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={{ JSON.stringify({ lease_token: $('Task').first().json.lease_token, error: $json.error?.message ?? (typeof $json.error === 'string' ? $json.error : null) ?? ($json.data ? 'cloud budget reached' : 'no first-pass answer and no cloud fallback'), final: true }) }}",
+        "jsonBody": "={{ JSON.stringify({ lease_token: $('Task').first().json.lease_token, error: $json.error?.message ?? (typeof $json.error === 'string' ? $json.error : null) ?? 'no first-pass answer and no agent fallback', final: true }) }}",
         "options": {}
       },
       "credentials": {
@@ -1044,7 +830,7 @@
       ],
       "parameters": {
         "mode": "runOnceForAllItems",
-        "jsCode": "const s = $input.first().json;\nconst lint = $('Lint').first().json;\nconst fmt = (o) => Object.entries(o ?? {}).map(([k, v]) => k + \" \" + v).join(\", \") || \"none\";\nconst text = [\n  \"Catalog steward: \" + s.ran + \" task(s) run (\" + fmt(s.by_status) + \").\",\n  \"By kind: \" + fmt(s.by_kind) + \".\",\n  \"Rules: \" + (lint.errors ?? 0) + \" error(s), \" + (lint.warnings ?? 0) + \" warning(s), \" + (lint.fixed ?? 0) + \" fixed.\",\n  \"Cloud spend: $\" + (s.usd ?? 0).toFixed(2) + \", search credits: \" + (s.credits ?? 0) + \".\",\n  \"Waiting for review: \" + s.waiting_review + \" (Vehicles › Research in the admin).\",\n  ...(s.applied ?? []).slice(0, 15).map((a) => \"• \" + a),\n].join(\"\\n\");\nreturn [{ json: { text, summary: s } }];"
+        "jsCode": "const s = $input.first().json;\nconst lint = $('Lint').first().json;\nconst fmt = (o) => Object.entries(o ?? {}).map(([k, v]) => k + \" \" + v).join(\", \") || \"none\";\nconst text = [\n  \"Catalog steward: \" + s.ran + \" task(s) run (\" + fmt(s.by_status) + \").\",\n  \"By kind: \" + fmt(s.by_kind) + \".\",\n  \"Rules: \" + (lint.errors ?? 0) + \" error(s), \" + (lint.warnings ?? 0) + \" warning(s), \" + (lint.fixed ?? 0) + \" fixed.\",\n  \"Search credits: \" + (s.credits ?? 0) + \". Model spend: OmniRoute's dashboard.\",\n  \"Waiting for review: \" + s.waiting_review + \" (Vehicles › Research in the admin).\",\n  ...(s.applied ?? []).slice(0, 15).map((a) => \"• \" + a),\n].join(\"\\n\");\nreturn [{ json: { text, summary: s } }];"
       }
     },
     {
@@ -1160,35 +946,6 @@
       "main": [
         [
           {
-            "node": "Ollama?",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Ollama?": {
-      "main": [
-        [
-          {
-            "node": "Warm up model",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        [
-          {
-            "node": "Continue?",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Warm up model": {
-      "main": [
-        [
-          {
             "node": "Continue?",
             "type": "main",
             "index": 0
@@ -1276,7 +1033,7 @@
       "main": [
         [
           {
-            "node": "Use Ollama?",
+            "node": "First pass",
             "type": "main",
             "index": 0
           }
@@ -1290,25 +1047,7 @@
         ]
       ]
     },
-    "Use Ollama?": {
-      "main": [
-        [
-          {
-            "node": "Local model",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        [
-          {
-            "node": "Nemotron (first pass)",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Nemotron (first pass)": {
+    "First pass": {
       "main": [
         [
           {
@@ -1326,30 +1065,12 @@
         ]
       ]
     },
-    "NVIDIA Nemotron Chat Model": {
+    "OmniRoute (first pass)": {
       "ai_languageModel": [
         [
           {
-            "node": "Nemotron (first pass)",
+            "node": "First pass",
             "type": "ai_languageModel",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Local model": {
-      "main": [
-        [
-          {
-            "node": "Submit first pass",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        [
-          {
-            "node": "Fallback?",
-            "type": "main",
             "index": 0
           }
         ]
@@ -1392,35 +1113,6 @@
       ]
     },
     "Fallback?": {
-      "main": [
-        [
-          {
-            "node": "Budget",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        [
-          {
-            "node": "Give up",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Budget": {
-      "main": [
-        [
-          {
-            "node": "Within budget?",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Within budget?": {
       "main": [
         [
           {
@@ -1468,17 +1160,6 @@
       ]
     },
     "Agent file": {
-      "main": [
-        [
-          {
-            "node": "Usage after",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Usage after": {
       "main": [
         [
           {
@@ -1562,7 +1243,7 @@
         ]
       ]
     },
-    "Chat model (OpenRouter)": {
+    "OmniRoute (agent)": {
       "ai_languageModel": [
         [
           {

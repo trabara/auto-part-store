@@ -1,8 +1,8 @@
 // Builds the n8n workflow of the catalog steward (vehicle-catalog-research.json):
 // a nightly loop over the backend's task ledger. The backend decides what to do
 // (rules, ledger, prompts, checks, apply policy); this workflow runs the
-// models: the local one (Ollama) first, the cloud agent (OpenRouter) as a
-// budget-paced fallback for research it couldn't settle. The agent's output
+// models, all through OmniRoute: a first pass on the backend's prompt, then
+// the research agent as a fallback for research the first pass couldn't settle. The agent's output
 // schema derives from the catalog contract, so rebuild after changing it:
 //
 //   yarn workspace @repo/module-vehicle build && node infra/n8n/build-workflow.mjs
@@ -58,11 +58,13 @@ const node = (name, type, typeVersion, position, parameters, extra = {}) => {
 const CONFIG = "$('Config').first().json";
 const TASK = "$('Task').first().json";
 const medusaCredentials = { httpBasicAuth: { id: "", name: "Medusa secret API key" } };
-const openRouterCredentials = { openRouterApi: { id: "", name: "OpenRouter account" } };
-const nvidiaCredentials = { nvidiaApi: { id: "", name: "NVIDIA API" } };
-const OLLAMA = `${CONFIG}.model_provider === 'ollama'`;
-/** The first-pass model, as recorded on the task (provenance). */
-const FIRST_MODEL = `(${OLLAMA} ? ${CONFIG}.local_model : 'nvidia:' + ${CONFIG}.nvidia_model)`;
+/** Every chat model goes through OmniRoute (an OpenAI-compatible gateway): one credential. */
+const omniRouteCredentials = { openAiApi: { id: "", name: "OmniRoute" } };
+/** An OpenAI Chat Model node pointed at OmniRoute (chat completions, model from Config). */
+const omniRoute = (model, options) => ({
+  model: { __rl: true, mode: "id", value: `={{ ${CONFIG}.${model} }}` },
+  options: { baseURL: `={{ ${CONFIG}.omniroute_url }}`, ...options },
+});
 /** Medusa calls are idempotent or leased: retry transient failures. */
 const RETRY = { retryOnFail: true, maxTries: 3, waitBetweenTries: 5000 };
 const assignments = (values) => ({
@@ -90,12 +92,6 @@ const medusa = (method, route, body, extra = {}) => ({
   options: {},
   ...extra,
 });
-const openRouterKey = () => ({
-  url: "https://openrouter.ai/api/v1/key",
-  authentication: "predefinedCredentialType",
-  nodeCredentialType: "openRouterApi",
-  options: {},
-});
 const RESEARCH = `['RESEARCH_GENERATIONS', 'RESEARCH_CONFIGURATIONS'].includes(${TASK}.kind)`;
 
 // ── Start: configuration, rules, ledger, model warm-up ───────────────────────
@@ -107,31 +103,21 @@ node(
   3.4,
   [220, 100],
   assignments({
-    // Medusa as seen from n8n (compose: Medusa on the host).
+    // Medusa and OmniRoute as seen from n8n (both on the host).
     medusa_url: ["string", "http://host.docker.internal:9000"],
-    // The first-pass model, which does every task it can: "nvidia" (the NVIDIA
-    // Nemotron chat model node, NVIDIA's API) or "ollama" (a local model, on a
-    // machine that can run one; pull it first: yarn ollama:pull).
-    model_provider: ["string", "nvidia"],
-    nvidia_model: ["string", "nvidia/nemotron-3-super-120b-a12b"],
-    ollama_url: ["string", "http://ollama:11434"],
-    local_model: ["string", "qwen3.5:4b"],
-    // The cloud agent researches what the local model couldn't settle.
-    cloud_fallback: ["boolean", true],
-    // NVIDIA Nemotron through OpenRouter (tool calling and structured output).
-    cloud_cheap: ["string", "nvidia/nemotron-3-super-120b-a12b"],
-    // Tasks that failed twice get the strong model, while the month is below `escalate_below` of the budget.
-    cloud_strong: ["string", "nvidia/nemotron-3-ultra-550b-a55b"],
-    escalate_below: ["number", 0.6],
-    // Cloud spend cap for the month (also set it as the OpenRouter key's limit).
-    monthly_budget_usd: ["number", 20],
+    omniroute_url: ["string", "http://host.docker.internal:20128/v1"],
+    // OmniRoute models or routing combos (auto, auto/cheap, provider/model-id).
+    first_pass_model: ["string", "auto/cheap"],
+    agent_model: ["string", "auto/cheap"],
+    // The research agent takes over research the first pass couldn't settle.
+    agent_fallback: ["boolean", true],
     // The run stops claiming at this time (workflow timezone) or after this many tasks.
     window_end: ["string", "06:00"],
     max_tasks: ["number", 150],
     // Slack-compatible incoming webhook for the run summary (empty: none).
     review_webhook_url: ["string", ""],
   }),
-  { notes: "Credentials: Medusa secret API key (Basic Auth: the key as user, empty password), NVIDIA API (build.nvidia.com key) and OpenRouter. Web search runs in the backend (TAVILY_API_KEY in its env)." },
+  { notes: "Credentials: Medusa secret API key (Basic Auth: the key as user, empty password) and OmniRoute (type OpenAI: OmniRoute API key, URL http://host.docker.internal:20128/v1). Spend cap: the OmniRoute key's quota. Web search runs in the backend (TAVILY_API_KEY in its env)." },
 );
 node(
   "Start",
@@ -151,23 +137,6 @@ return [{ json: { started: $now.toISO(), deadline: deadline.toISO() } }];
 );
 node("Lint", "n8n-nodes-base.httpRequest", 4.2, [660, 100], medusa("POST", "lint", "{}"), { credentials: medusaCredentials, ...RETRY });
 node("Refresh ledger", "n8n-nodes-base.httpRequest", 4.2, [880, 100], medusa("POST", "tasks/refresh", "{}"), { credentials: medusaCredentials, ...RETRY });
-node("Ollama?", "n8n-nodes-base.if", 2.2, [1000, 100], isTrue("ollama", OLLAMA));
-node(
-  "Warm up model",
-  "n8n-nodes-base.httpRequest",
-  4.2,
-  [1100, 0],
-  {
-    method: "POST",
-    url: `={{ ${CONFIG}.ollama_url }}/api/generate`,
-    sendBody: true,
-    specifyBody: "json",
-    jsonBody: `={{ JSON.stringify({ model: ${CONFIG}.local_model, keep_alive: '6h' }) }}`,
-    options: { timeout: 600000 },
-  },
-  { onError: "continueRegularOutput" },
-);
-
 // ── The loop: one leased task at a time until the window ends ────────────────
 node("Claim task", "n8n-nodes-base.httpRequest", 4.2, [1320, 100], medusa("POST", "tasks/claim", "{ limit: 1, lease_minutes: 60 }"), {
   credentials: medusaCredentials,
@@ -186,11 +155,10 @@ node(
   { credentials: medusaCredentials, ...RETRY, onError: "continueErrorOutput" },
 );
 node("Evidence found?", "n8n-nodes-base.if", 2.2, [2200, 200], isTrue("evidence", "!$json.fallback"));
-node("Use Ollama?", "n8n-nodes-base.if", 2.2, [2310, 160], isTrue("use-ollama", OLLAMA));
-// NVIDIA path: the backend's prompt through the NVIDIA Nemotron chat model, JSON mode
-// (the schema goes in the prompt; the backend validates the answer against it).
+// First pass: the backend's prompt through OmniRoute, JSON mode (the schema goes
+// in the prompt; the backend validates the answer against it and checks quotes).
 node(
-  "Nemotron (first pass)",
+  "First pass",
   "@n8n/n8n-nodes-langchain.chainLlm",
   1.7,
   [2420, 260],
@@ -203,30 +171,6 @@ node(
   { onError: "continueErrorOutput" },
 );
 node(
-  "NVIDIA Nemotron Chat Model",
-  "@n8n/n8n-nodes-langchain.lmChatNvidia",
-  1,
-  [2420, 460],
-  { model: `={{ ${CONFIG}.nvidia_model }}`, options: { responseFormat: "json_object", temperature: 0, maxTokens: 16384, timeout: 300000 } },
-  { credentials: nvidiaCredentials },
-);
-node(
-  "Local model",
-  "n8n-nodes-base.httpRequest",
-  4.2,
-  [2420, 100],
-  {
-    method: "POST",
-    url: `={{ ${CONFIG}.ollama_url }}/api/chat`,
-    sendBody: true,
-    specifyBody: "json",
-    // One schema-constrained call, thinking off, the model kept loaded; a CPU needs time.
-    jsonBody: `={{ JSON.stringify({ model: ${CONFIG}.local_model, messages: $json.messages, format: $json.schema, stream: false, think: false, keep_alive: '6h', options: { temperature: 0, num_ctx: 8192 } }) }}`,
-    options: { timeout: 900000 },
-  },
-  { onError: "continueErrorOutput" },
-);
-node(
   "Submit first pass",
   "n8n-nodes-base.httpRequest",
   4.2,
@@ -234,22 +178,22 @@ node(
   medusa(
     "POST",
     `tasks/{{ ${TASK}.id }}/result`,
-    `{ lease_token: ${TASK}.lease_token, model: ${FIRST_MODEL}, output: $json.message?.content ?? $json.text ?? $json, cost: { usd: 0, steps: 1 }, final: !(${CONFIG}.cloud_fallback && ${RESEARCH}) }`,
+    `{ lease_token: ${TASK}.lease_token, model: 'omniroute:' + ${CONFIG}.first_pass_model, output: $json.text ?? $json, cost: { usd: 0, steps: 1 }, final: !(${CONFIG}.agent_fallback && ${RESEARCH}) }`,
   ),
   { credentials: medusaCredentials, ...RETRY, onError: "continueErrorOutput" },
 );
+node(
+  "OmniRoute (first pass)",
+  "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+  1.2,
+  [2420, 460],
+  omniRoute("first_pass_model", { responseFormat: "json_object", temperature: 0, maxTokens: 16384, timeout: 300000 }),
+  { credentials: omniRouteCredentials },
+);
 node("Settled?", "n8n-nodes-base.if", 2.2, [2860, 100], isTrue("settled", "$json.final !== false"));
 
-// ── Fallback: the cloud agent, for research only, within budget ──────────────
-node("Fallback?", "n8n-nodes-base.if", 2.2, [2640, 420], isTrue("fallback", `${CONFIG}.cloud_fallback && ${RESEARCH}`));
-node("Budget", "n8n-nodes-base.httpRequest", 4.2, [2860, 360], openRouterKey(), { credentials: openRouterCredentials, ...RETRY });
-node(
-  "Within budget?",
-  "n8n-nodes-base.if",
-  2.2,
-  [3080, 360],
-  isTrue("budget", `($json.data?.usage_monthly ?? 0) < ${CONFIG}.monthly_budget_usd && ($json.data?.limit_remaining == null || $json.data.limit_remaining > 0.05)`),
-);
+// ── Fallback: the research agent, for research only ──────────────────────────
+node("Fallback?", "n8n-nodes-base.if", 2.2, [2640, 420], isTrue("fallback", `${CONFIG}.agent_fallback && ${RESEARCH}`));
 node(
   "Agent brief",
   "n8n-nodes-base.code",
@@ -257,15 +201,10 @@ node(
   [3300, 300],
   code(`
 const t = $('Task').first().json;
-const cfg = $('Config').first().json;
-const usage = $('Budget').first().json.data ?? {};
-const strong = t.attempts >= 2 && (usage.usage_monthly ?? 0) < cfg.escalate_below * cfg.monthly_budget_usd;
 const what = t.kind === "RESEARCH_GENERATIONS"
   ? "List this model's generations (each with vehicles: [])."
   : 'Find the configurations of generation "' + t.generation + '" (return exactly that generation, under that name).';
 return {
-  model: strong ? cfg.cloud_strong : cfg.cloud_cheap,
-  usage_before: usage.usage ?? 0,
   prompt: [
     "Make: " + t.make, "Model: " + t.model, t.generation ? "Generation: " + t.generation : "",
     "", what,
@@ -284,12 +223,12 @@ node(
   { onError: "continueErrorOutput" },
 );
 node(
-  "Chat model (OpenRouter)",
-  "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
-  1,
+  "OmniRoute (agent)",
+  "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+  1.2,
   [3360, 560],
-  { model: "={{ $('Agent brief').first().json.model }}", options: { maxTokens: 16000, timeout: 600000, temperature: 0.1 } },
-  { credentials: openRouterCredentials },
+  omniRoute("agent_model", { maxTokens: 16384, timeout: 600000, temperature: 0.1 }),
+  { credentials: omniRouteCredentials },
 );
 node("Catalog generations", "@n8n/n8n-nodes-langchain.outputParserStructured", 1.2, [3900, 560], {
   schemaType: "manual",
@@ -345,7 +284,6 @@ return {
 };
 `),
 );
-node("Usage after", "n8n-nodes-base.httpRequest", 4.2, [3960, 300], openRouterKey(), { credentials: openRouterCredentials, ...RETRY });
 node(
   "Submit agent",
   "n8n-nodes-base.httpRequest",
@@ -354,7 +292,7 @@ node(
   medusa(
     "POST",
     `tasks/{{ ${TASK}.id }}/result`,
-    `{ lease_token: ${TASK}.lease_token, model: 'openrouter:' + $('Agent brief').first().json.model, file: $('Agent file').first().json.file, sources: $('Agent file').first().json.sources, notes: $('Agent file').first().json.notes, cost: { usd: Math.max(0, ($json.data?.usage ?? 0) - $('Agent brief').first().json.usage_before), steps: 1 }, final: true }`,
+    `{ lease_token: ${TASK}.lease_token, model: 'omniroute:' + ${CONFIG}.agent_model, file: $('Agent file').first().json.file, sources: $('Agent file').first().json.sources, notes: $('Agent file').first().json.notes, cost: { usd: 0, steps: 1 }, final: true }`,
   ),
   { credentials: medusaCredentials, ...RETRY, onError: "continueErrorOutput" },
 );
@@ -366,7 +304,7 @@ node(
   medusa(
     "POST",
     `tasks/{{ ${TASK}.id }}/result`,
-    `{ lease_token: ${TASK}.lease_token, error: $json.error?.message ?? (typeof $json.error === 'string' ? $json.error : null) ?? ($json.data ? 'cloud budget reached' : 'no first-pass answer and no cloud fallback'), final: true }`,
+    `{ lease_token: ${TASK}.lease_token, error: $json.error?.message ?? (typeof $json.error === 'string' ? $json.error : null) ?? 'no first-pass answer and no agent fallback', final: true }`,
   ),
   { credentials: medusaCredentials, ...RETRY, onError: "continueRegularOutput" },
 );
@@ -411,7 +349,7 @@ const text = [
   "Catalog steward: " + s.ran + " task(s) run (" + fmt(s.by_status) + ").",
   "By kind: " + fmt(s.by_kind) + ".",
   "Rules: " + (lint.errors ?? 0) + " error(s), " + (lint.warnings ?? 0) + " warning(s), " + (lint.fixed ?? 0) + " fixed.",
-  "Cloud spend: $" + (s.usd ?? 0).toFixed(2) + ", search credits: " + (s.credits ?? 0) + ".",
+  "Search credits: " + (s.credits ?? 0) + ". Model spend: OmniRoute's dashboard.",
   "Waiting for review: " + s.waiting_review + " (Vehicles › Research in the admin).",
   ...(s.applied ?? []).slice(0, 15).map((a) => "• " + a),
 ].join("\\n");
@@ -442,10 +380,7 @@ link("Run now", "Config");
 link("Config", "Start");
 link("Start", "Lint");
 link("Lint", "Refresh ledger");
-link("Refresh ledger", "Ollama?");
-link("Ollama?", "Warm up model", { output: 0 });
-link("Ollama?", "Continue?", { output: 1 });
-link("Warm up model", "Continue?");
+link("Refresh ledger", "Continue?");
 link("Continue?", "Claim task", { output: 0 });
 link("Continue?", "Run summary", { output: 1 });
 link("Claim task", "Next task?");
@@ -454,29 +389,21 @@ link("Next task?", "Run summary", { output: 1 });
 link("Task", "Prompt");
 link("Prompt", "Evidence found?", { output: 0 });
 link("Prompt", "Give up", { output: 1 });
-link("Evidence found?", "Use Ollama?", { output: 0 });
-link("Use Ollama?", "Local model", { output: 0 });
-link("Use Ollama?", "Nemotron (first pass)", { output: 1 });
-link("Nemotron (first pass)", "Submit first pass", { output: 0 });
-link("Nemotron (first pass)", "Fallback?", { output: 1 }); // the API failed: the task is still leased
-link("NVIDIA Nemotron Chat Model", "Nemotron (first pass)", { type: "ai_languageModel" });
+link("Evidence found?", "First pass", { output: 0 });
+link("First pass", "Submit first pass", { output: 0 });
+link("First pass", "Fallback?", { output: 1 }); // the model call failed: the task is still leased
+link("OmniRoute (first pass)", "First pass", { type: "ai_languageModel" });
 link("Evidence found?", "Fallback?", { output: 1 });
-link("Local model", "Submit first pass", { output: 0 });
-link("Local model", "Fallback?", { output: 1 }); // Ollama down: the task is still leased
 link("Submit first pass", "Settled?", { output: 0 });
 link("Submit first pass", "Outcome", { output: 1 });
 link("Settled?", "Outcome", { output: 0 });
 link("Settled?", "Fallback?", { output: 1 });
-link("Fallback?", "Budget", { output: 0 });
+link("Fallback?", "Agent brief", { output: 0 });
 link("Fallback?", "Give up", { output: 1 });
-link("Budget", "Within budget?");
-link("Within budget?", "Agent brief", { output: 0 });
-link("Within budget?", "Give up", { output: 1 });
 link("Agent brief", "Research agent");
 link("Research agent", "Agent file", { output: 0 });
 link("Research agent", "Give up", { output: 1 });
-link("Agent file", "Usage after");
-link("Usage after", "Submit agent");
+link("Agent file", "Submit agent");
 link("Submit agent", "Outcome", { output: 0 });
 link("Submit agent", "Outcome", { output: 1 });
 link("Give up", "Outcome");
@@ -484,7 +411,7 @@ link("Outcome", "Continue?");
 link("Run summary", "Summary text");
 link("Summary text", "Notify?");
 link("Notify?", "Send summary", { output: 0 });
-link("Chat model (OpenRouter)", "Research agent", { type: "ai_languageModel" });
+link("OmniRoute (agent)", "Research agent", { type: "ai_languageModel" });
 link("Catalog generations", "Research agent", { type: "ai_outputParser" });
 for (const t of ["wiki_search", "read_page", "web_search", "validate_catalog"]) link(t, "Research agent", { type: "ai_tool" });
 

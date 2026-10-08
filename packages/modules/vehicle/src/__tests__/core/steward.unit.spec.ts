@@ -213,6 +213,8 @@ describe("steward", () => {
       task,
     );
     expect((referenced as any).file.makes[0].models[0].generations[0].vehicles[0].references).toEqual([{ source: "TECDOC_KTYPE", external_id: "12345" }]); // pages are sources
+    const nulls = agentDraftFile({ generations: [{ name: "III", code: null, year_start: 2020, year_end: null, vehicles: [{ engine: { fuel: "GASOLINE", power_kw: 67, name: null }, body_style: "HATCHBACK", year_start: 2020 }] }] }, task);
+    expect((nulls as any).file.makes[0].models[0].generations[0]).toMatchObject({ code: null, year_end: null, vehicles: [{ engine: { power_kw: 67 } }] }); // null where only absence is allowed: dropped
     expect(agentDraftFile("", task)).toEqual({ empty: true, notes: null });
     expect(agentDraftFile('{"generations": [], "notes": "nothing sold"}', task)).toEqual({ empty: true, notes: "nothing sold" });
     expect(agentDraftFile({}, task)).toEqual({ empty: true, notes: null });

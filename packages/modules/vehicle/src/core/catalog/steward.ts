@@ -197,6 +197,9 @@ export function parseJsonText(raw: string): unknown {
   }
 }
 
+const valueAt = (value: unknown, path: readonly PropertyKey[]): unknown =>
+  path.reduce<unknown>((v, key) => (v && typeof v === "object" ? (v as Record<PropertyKey, unknown>)[key] : undefined), value);
+
 /** References are catalog ids (TecDoc, …): models put the pages they read there, which belong in sources. */
 const withoutUrlReferences = (generations: unknown) =>
   Array.isArray(generations)
@@ -241,11 +244,22 @@ export function agentDraftFile(
   const sources = Array.isArray(body.sources) ? body.sources.filter((u): u is string => typeof u === "string" && /^https?:\/\//.test(u)) : [];
   const generations = body.generations;
   if (generations == null || (Array.isArray(generations) && !generations.length)) return { empty: true, notes };
-  const parsed = CatalogFileSchema.safeParse({
+  const file = {
     format: "vehicle-catalog@1",
     source: { ...source, url: source.url ?? sources[0] },
     makes: [{ name: task.make, models: [{ name: task.model, generations: withoutUrlReferences(generations) }] }],
-  });
+  };
+  let parsed = CatalogFileSchema.safeParse(file);
+  // A null where the field is optional but not nullable ("name": null) means absent.
+  for (let round = 0; round < 5 && !parsed.success; round++) {
+    const nulls = parsed.error.issues.filter((i) => i.code === "invalid_type" && valueAt(file, i.path) === null);
+    if (!nulls.length) break;
+    for (const issue of nulls) {
+      const parent = valueAt(file, issue.path.slice(0, -1));
+      if (parent && typeof parent === "object") delete (parent as Record<PropertyKey, unknown>)[issue.path.at(-1) as PropertyKey];
+    }
+    parsed = CatalogFileSchema.safeParse(file);
+  }
   if (!parsed.success) {
     return { problems: parsed.error.issues.map((i) => `${i.path.slice(4).join(".") || "generations"}: ${i.message}`) };
   }

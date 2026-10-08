@@ -644,11 +644,25 @@ export default class VehicleModuleService extends MedusaService(vehicleModels) {
     const cost = addCost(task.cost, input.cost, input.model);
     const verification = task.kind === CatalogTaskKind.VERIFY_MODEL || task.kind === CatalogTaskKind.VERIFY_GENERATION;
     const finish = async (status: CatalogTaskStatus, reason: string, report: Row, extra: Row = {}): Promise<TaskResult> => {
-      // A first attempt that didn't apply keeps the lease, for the fallback to try.
+      // A first attempt that didn't apply keeps the lease, for the fallback to try; a proposal it made waits on the lease.
       if (input.final === false && status !== CatalogTaskStatus.APPLIED) {
         const attempt = { status, reason, model: input.model ?? null, at: now.toISOString(), report };
-        await this.updateCatalogTasks([{ id: task.id, sources, cost, report: { ...(task.report ?? {}), attempts: [...((task.report?.attempts as Row[]) ?? []), attempt].slice(-5) } }] as any[], ctx);
+        const review = status === CatalogTaskStatus.REVIEW && extra.proposal ? { pending_review: { reason, report, proposal: extra.proposal } } : {};
+        await this.updateCatalogTasks(
+          [{ id: task.id, sources, cost, report: { ...(task.report ?? {}), ...review, attempts: [...((task.report?.attempts as Row[]) ?? []), attempt].slice(-5) } }] as any[],
+          ctx,
+        );
         return { status, reason, report, final: false };
+      }
+      // The fallback found nothing better (failed, no data): the first attempt's proposal goes to review.
+      const pending = task.report?.pending_review as Row | undefined;
+      if (pending && status !== CatalogTaskStatus.APPLIED && status !== CatalogTaskStatus.REVIEW) {
+        ({ status, reason, report, extra } = {
+          status: CatalogTaskStatus.REVIEW,
+          reason: pending.reason,
+          report: { ...pending.report, fallback: { status, reason, model: input.model ?? null } },
+          extra: { proposal: pending.proposal },
+        });
       }
       // A verified unit is done: the ledger reopens it when its records fall due again.
       const stored = verification && status === CatalogTaskStatus.APPLIED ? CatalogTaskStatus.DONE : status;

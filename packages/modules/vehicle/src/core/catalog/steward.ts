@@ -300,19 +300,45 @@ export function quoted(quoteText: string | null | undefined, value: unknown): bo
 export const numbersIn = (text: string) =>
   (normalizeText(text).match(/\d+(?:[.,]\d+)?/g) ?? []).map((n) => Number(n.replace(",", ".")));
 
+/** Words as compared for quotes: letters and digits only, split where they meet ("261hp" → "261 hp"). */
+const words = (text: string) =>
+  normalizeText(text)
+    .replace(/(\d)(?=[a-z])|([a-z])(?=\d)/g, "$1$2 ")
+    .split(/[^a-z0-9]+/)
+    .filter(Boolean);
+
 /**
- * A quote supports a claim when it is found in the evidence (each part, if
- * elided with "…") and mentions one of the claim's numbers (when given).
+ * A quote supports a claim when it is the evidence's own words: models stitch
+ * table cells and sentences together, or elide with "…", so the quote is cut
+ * into the longest runs found verbatim in the evidence. Runs of two words or
+ * more (a spec-sheet row: "Boîte | Automatique") must cover 80% of it, and
+ * one of the claim's numbers (when given) must stand in a run of three words
+ * or more (or a whole elided part), i.e. in its context on the page.
  */
 export function quoteSupports(evidence: string, quoteText: string | null | undefined, anyOf: (number | null | undefined)[] = []): boolean {
   if (!quoteText) return false;
-  const doc = normalizeText(evidence);
-  const parts = quoteText.split(/\.\.\.|…/).map(normalizeText).filter((p) => p.length >= 6);
-  if (!parts.length || !parts.every((p) => doc.includes(p))) return false;
+  const doc = ` ${words(evidence).join(" ")} `;
+  const found = (run: string[]) => doc.includes(` ${run.join(" ")} `);
+  const parts = quoteText.split(/\.\.\.|…/).map(words).filter((p) => p.length);
+  const total = parts.reduce((n, p) => n + p.length, 0);
+  if (total < 2) return false;
+  const runs: { words: string[]; context: boolean }[] = [];
+  for (const part of parts) {
+    if (found(part)) {
+      runs.push({ words: part, context: true }); // an elided part found whole
+      continue;
+    }
+    for (let i = 0; i < part.length; ) {
+      let j = i + 1;
+      while (j < part.length && found(part.slice(i, j + 1))) j++;
+      if (j - i >= 2) runs.push({ words: part.slice(i, j), context: j - i >= 3 });
+      i = j;
+    }
+  }
+  if (runs.reduce((n, r) => n + r.words.length, 0) < 0.8 * total) return false;
   const wanted = anyOf.filter((n): n is number => n != null && Number.isFinite(n));
   if (!wanted.length) return true;
-  const mentioned = numbersIn(quoteText);
-  return wanted.some((n) => mentioned.some((m) => Math.abs(m - n) < 1e-9));
+  return wanted.some((n) => runs.some((r) => r.context && r.words.includes(String(Math.trunc(n)))));
 }
 
 // ── Answers to catalog changes ────────────────────────────────────────────────

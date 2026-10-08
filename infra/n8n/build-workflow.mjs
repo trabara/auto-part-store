@@ -1,8 +1,9 @@
 // Builds the n8n workflow of the catalog steward (vehicle-catalog-research.json):
 // a nightly loop over the backend's task ledger. The backend decides what to do
 // (rules, ledger, prompts, checks, apply policy); this workflow runs the
-// models, all through OmniRoute: a first pass on the backend's prompt, then
-// the research agent as a fallback for research the first pass couldn't settle. The agent's output
+// models, NVIDIA Nemotron through NVIDIA's API: a first pass on the backend's
+// prompt, then the research agent as a fallback for research the first pass
+// couldn't settle. The agent's output
 // schema derives from the catalog contract, so rebuild after changing it:
 //
 //   yarn workspace @repo/module-vehicle build && node infra/n8n/build-workflow.mjs
@@ -58,13 +59,10 @@ const node = (name, type, typeVersion, position, parameters, extra = {}) => {
 const CONFIG = "$('Config').first().json";
 const TASK = "$('Task').first().json";
 const medusaCredentials = { httpBasicAuth: { id: "", name: "Medusa secret API key" } };
-/** Every chat model goes through OmniRoute (an OpenAI-compatible gateway): one credential. */
-const omniRouteCredentials = { openAiApi: { id: "", name: "OmniRoute" } };
-/** An OpenAI Chat Model node pointed at OmniRoute (chat completions, model from Config). */
-const omniRoute = (model, options) => ({
-  model: { __rl: true, mode: "id", value: `={{ ${CONFIG}.${model} }}` },
-  options: { baseURL: `={{ ${CONFIG}.omniroute_url }}`, ...options },
-});
+/** Every chat model is the NVIDIA Nemotron chat model node (NVIDIA's API): one credential. */
+const nvidiaCredentials = { nvidiaApi: { id: "", name: "NVIDIA API" } };
+/** A Nemotron chat model node, its model from Config. */
+const nemotron = (model, options) => ({ model: `={{ ${CONFIG}.${model} }}`, options });
 /** Medusa calls are idempotent or leased: retry transient failures. */
 const RETRY = { retryOnFail: true, maxTries: 3, waitBetweenTries: 5000 };
 const assignments = (values) => ({
@@ -103,12 +101,11 @@ node(
   3.4,
   [220, 100],
   assignments({
-    // Medusa and OmniRoute as seen from n8n (both on the host).
+    // Medusa as seen from n8n (compose: Medusa on the host).
     medusa_url: ["string", "http://host.docker.internal:9000"],
-    omniroute_url: ["string", "http://host.docker.internal:20128/v1"],
-    // OmniRoute models or routing combos (auto, auto/cheap, provider/model-id).
-    first_pass_model: ["string", "auto/cheap"],
-    agent_model: ["string", "auto/cheap"],
+    // NVIDIA API models (build.nvidia.com): Nemotron 3 Super for both steps.
+    first_pass_model: ["string", "nvidia/nemotron-3-super-120b-a12b"],
+    agent_model: ["string", "nvidia/nemotron-3-super-120b-a12b"],
     // The research agent takes over research the first pass couldn't settle.
     agent_fallback: ["boolean", true],
     // The run stops claiming at this time (workflow timezone) or after this many tasks.
@@ -117,7 +114,7 @@ node(
     // Slack-compatible incoming webhook for the run summary (empty: none).
     review_webhook_url: ["string", ""],
   }),
-  { notes: "Credentials: Medusa secret API key (Basic Auth: the key as user, empty password) and OmniRoute (type OpenAI: OmniRoute API key, URL http://host.docker.internal:20128/v1). Spend cap: the OmniRoute key's quota. Web search runs in the backend (TAVILY_API_KEY in its env)." },
+  { notes: "Credentials: Medusa secret API key (Basic Auth: the key as user, empty password) and NVIDIA API (an API key from build.nvidia.com). Web search runs in the backend (TAVILY_API_KEY in its env)." },
 );
 node(
   "Start",
@@ -155,7 +152,7 @@ node(
   { credentials: medusaCredentials, ...RETRY, onError: "continueErrorOutput" },
 );
 node("Evidence found?", "n8n-nodes-base.if", 2.2, [2200, 200], isTrue("evidence", "!$json.fallback"));
-// First pass: the backend's prompt through OmniRoute, JSON mode (the schema goes
+// First pass: the backend's prompt through NVIDIA Nemotron, JSON mode (the schema goes
 // in the prompt; the backend validates the answer against it and checks quotes).
 node(
   "First pass",
@@ -178,17 +175,17 @@ node(
   medusa(
     "POST",
     `tasks/{{ ${TASK}.id }}/result`,
-    `{ lease_token: ${TASK}.lease_token, model: 'omniroute:' + ${CONFIG}.first_pass_model, output: $json.text ?? $json, cost: { usd: 0, steps: 1 }, final: !(${CONFIG}.agent_fallback && ${RESEARCH}) }`,
+    `{ lease_token: ${TASK}.lease_token, model: 'nvidia:' + ${CONFIG}.first_pass_model, output: $json.text ?? $json, cost: { usd: 0, steps: 1 }, final: !(${CONFIG}.agent_fallback && ${RESEARCH}) }`,
   ),
   { credentials: medusaCredentials, ...RETRY, onError: "continueErrorOutput" },
 );
 node(
-  "OmniRoute (first pass)",
-  "@n8n/n8n-nodes-langchain.lmChatOpenAi",
-  1.2,
+  "Nemotron (first pass)",
+  "@n8n/n8n-nodes-langchain.lmChatNvidia",
+  1,
   [2420, 460],
-  omniRoute("first_pass_model", { responseFormat: "json_object", temperature: 0, maxTokens: 16384, timeout: 300000 }),
-  { credentials: omniRouteCredentials },
+  nemotron("first_pass_model", { responseFormat: "json_object", temperature: 0, maxTokens: 16384, timeout: 300000 }),
+  { credentials: nvidiaCredentials },
 );
 node("Settled?", "n8n-nodes-base.if", 2.2, [2860, 100], isTrue("settled", "$json.final !== false"));
 
@@ -223,12 +220,12 @@ node(
   { onError: "continueErrorOutput" },
 );
 node(
-  "OmniRoute (agent)",
-  "@n8n/n8n-nodes-langchain.lmChatOpenAi",
-  1.2,
+  "Nemotron (agent)",
+  "@n8n/n8n-nodes-langchain.lmChatNvidia",
+  1,
   [3360, 560],
-  omniRoute("agent_model", { maxTokens: 16384, timeout: 600000, temperature: 0.1 }),
-  { credentials: omniRouteCredentials },
+  nemotron("agent_model", { maxTokens: 16384, timeout: 600000, temperature: 0.1 }),
+  { credentials: nvidiaCredentials },
 );
 node("Catalog generations", "@n8n/n8n-nodes-langchain.outputParserStructured", 1.2, [3900, 560], {
   schemaType: "manual",
@@ -257,11 +254,11 @@ tool(
 tool(
   "validate_catalog",
   [3840, 560],
-  "Check your generations against the catalog without writing anything: problems to fix, warnings (likely duplicates), what would be created and updated, contradicted existing values.",
+  "Check your answer (the object you will return) against the catalog without writing anything: problems to fix, warnings (likely duplicates), what would be created and updated, contradicted existing values.",
   medusa(
     "POST",
     "import",
-    `{ format: 'vehicle-catalog@1', source: { name: 'research draft' }, makes: [{ name: ${TASK}.make, models: [{ name: ${TASK}.model, generations: $fromAI('generations', 'Your generations, exactly as you will return them', 'json') }] }] }`,
+    `{ format: 'vehicle-catalog@1', source: { name: 'research draft' }, makes: [{ name: ${TASK}.make, models: [{ name: ${TASK}.model, generations: $fromAI('answer', 'Your answer object { generations, sources, notes }, exactly as you will return it', 'json').generations ?? [] }] }] }`,
     { sendQuery: true, queryParameters: { parameters: [{ name: "dry_run", value: "true" }, { name: "mode", value: "merge" }] } },
   ),
 );
@@ -292,7 +289,7 @@ node(
   medusa(
     "POST",
     `tasks/{{ ${TASK}.id }}/result`,
-    `{ lease_token: ${TASK}.lease_token, model: 'omniroute:' + ${CONFIG}.agent_model, file: $('Agent file').first().json.file, sources: $('Agent file').first().json.sources, notes: $('Agent file').first().json.notes, cost: { usd: 0, steps: 1 }, final: true }`,
+    `{ lease_token: ${TASK}.lease_token, model: 'nvidia:' + ${CONFIG}.agent_model, file: $('Agent file').first().json.file, sources: $('Agent file').first().json.sources, notes: $('Agent file').first().json.notes, cost: { usd: 0, steps: 1 }, final: true }`,
   ),
   { credentials: medusaCredentials, ...RETRY, onError: "continueErrorOutput" },
 );
@@ -349,7 +346,7 @@ const text = [
   "Catalog steward: " + s.ran + " task(s) run (" + fmt(s.by_status) + ").",
   "By kind: " + fmt(s.by_kind) + ".",
   "Rules: " + (lint.errors ?? 0) + " error(s), " + (lint.warnings ?? 0) + " warning(s), " + (lint.fixed ?? 0) + " fixed.",
-  "Search credits: " + (s.credits ?? 0) + ". Model spend: OmniRoute's dashboard.",
+  "Search credits: " + (s.credits ?? 0) + ". Model usage: NVIDIA's API dashboard.",
   "Waiting for review: " + s.waiting_review + " (Vehicles › Research in the admin).",
   ...(s.applied ?? []).slice(0, 15).map((a) => "• " + a),
 ].join("\\n");
@@ -392,7 +389,7 @@ link("Prompt", "Give up", { output: 1 });
 link("Evidence found?", "First pass", { output: 0 });
 link("First pass", "Submit first pass", { output: 0 });
 link("First pass", "Fallback?", { output: 1 }); // the model call failed: the task is still leased
-link("OmniRoute (first pass)", "First pass", { type: "ai_languageModel" });
+link("Nemotron (first pass)", "First pass", { type: "ai_languageModel" });
 link("Evidence found?", "Fallback?", { output: 1 });
 link("Submit first pass", "Settled?", { output: 0 });
 link("Submit first pass", "Outcome", { output: 1 });
@@ -411,7 +408,7 @@ link("Outcome", "Continue?");
 link("Run summary", "Summary text");
 link("Summary text", "Notify?");
 link("Notify?", "Send summary", { output: 0 });
-link("OmniRoute (agent)", "Research agent", { type: "ai_languageModel" });
+link("Nemotron (agent)", "Research agent", { type: "ai_languageModel" });
 link("Catalog generations", "Research agent", { type: "ai_outputParser" });
 for (const t of ["wiki_search", "read_page", "web_search", "validate_catalog"]) link(t, "Research agent", { type: "ai_tool" });
 

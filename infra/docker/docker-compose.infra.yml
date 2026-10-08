@@ -103,9 +103,9 @@ services:
       retries: 5
       start_period: 30s
 
-  # Optional local language model, used as a provider by OmniRoute (which the
-  # catalog steward workflow calls): http://host.docker.internal:11434. On a
-  # Mac it runs on the CPU (one request at a time). Pull: `yarn ollama:pull`.
+  # Optional local language model (not used by the catalog steward workflow,
+  # which calls NVIDIA's API): http://host.docker.internal:11434. On a Mac it
+  # runs on the CPU (one request at a time). Pull: `yarn ollama:pull`.
   ollama:
     image: ollama/ollama:0.40.0
     container_name: medusa_ollama

@@ -176,6 +176,22 @@ describe("steward", () => {
     expect(quoteSupports(evidence, "1.0 TCe 90 90 ch", [95])).toBe(false); // the number isn't quoted
   });
 
+  it("accepts quotes stitched from table cells and sentences, not invented context", () => {
+    const page = [
+      "| Engine | **Petrol:**2.0 L _Acteco F4J20_ turbo I42.0 L _Acteco SQRD4T20_ turbo I4 |",
+      "The engine of the Tiggo 9 is a 2.0-litre TGDi inline-four turbocharged petrol engine that produces 261 hp (195 kW; 265 PS) and 400 N⋅m of torque.",
+      "The update also introduces a new SQRF4J20C 2.0 liter turbo inline-4 engine with a maximum power output of 261hp（192kW） and 400N·m.",
+    ].join("\n");
+    expect(quoteSupports(page, "Petrol:2.0 L _Acteco F4J20_ turbo I4 produces 261 hp (195 kW; 265 PS)", [261])).toBe(true);
+    expect(quoteSupports(page, "2026 facelift introduces a new SQRF4J20C 2.0 liter turbo inline-4 engine with a maximum power output of 261hp（192kW）", [261])).toBe(true);
+    // The number must stand in the page's own words.
+    expect(quoteSupports(page, "Petrol:2.0 L _Acteco F4J20_ turbo I4 produces 290 hp", [290])).toBe(false);
+    expect(quoteSupports(page, "the diesel version of the Tiggo 9 delivers 261 hp", [261])).toBe(false);
+    const sheet = ["| Puissance (ch.din) | 605 CH |", "| Cylindrée | 1499 CM³ |", "| Boîte | Automatique |", "| Transmission | Intégrale |"].join("\n");
+    expect(quoteSupports(sheet, "Puissance (ch.din) 605 CH; Cylindrée: 1499 CM³; Boîte: Automatique; Transmission: Intégrale", [605])).toBe(true);
+    expect(quoteSupports(sheet, "Boîte: Automatique, 605 CH", [605])).toBe(false); // the number out of its row
+  });
+
   it("matches quotes against the page as the model saw it (no link targets, no reference marks)", () => {
     const raw = "The [Renault](https://en.wikipedia.org/wiki/Renault) Clio V uses the 1.5 dCi[2] engine with 85 ch.";
     expect(quoteSupports(raw, "Renault Clio V uses the 1.5 dCi engine with 85 ch", [85])).toBe(true);

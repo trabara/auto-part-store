@@ -128,6 +128,28 @@ medusaIntegrationTestRunner({
       expect(await service().retrieveCatalogTask(task.id)).toMatchObject({ status: "APPLIED", lease_token: null });
     });
 
+    it("sends a first attempt's proposal to review when the fallback finds nothing better", async () => {
+      await service().refreshTasks();
+      const task = await claim("RESEARCH_CONFIGURATIONS");
+      const local = await service().submitTaskResult(task.id, {
+        lease_token: task.lease_token,
+        model: "nvidia:nemotron",
+        evidence: [{ url, text: page }],
+        output: {
+          generation: { code: null, from: null, to: null, quote: null },
+          configurations: [{ ...version, fuel: "GASOLINE", power: 90, power_unit: "ch", from: 2020, to: null, assumed: true, quote: "1.0 TCe 90 | 90 ch (67 kW) | 2020–" }],
+          notes: "",
+        },
+        final: false,
+      });
+      expect(local).toMatchObject({ status: "REVIEW", reason: "mostly assumed values", final: false });
+      const agent = await service().submitTaskResult(task.id, { lease_token: task.lease_token, model: "nvidia:agent", error: "tool input did not match" });
+      expect(agent).toMatchObject({ status: "REVIEW", reason: "mostly assumed values" });
+      const stored = await service().retrieveCatalogTask(task.id);
+      expect(stored).toMatchObject({ status: "REVIEW", lease_token: null, report: { assumed: 1, fallback: { status: "FAILED", reason: "error" } } });
+      expect(stored.proposal).toMatchObject({ makes: [{ name: "Dacia" }] });
+    });
+
     it("backs off after an invalid answer", async () => {
       await service().refreshTasks();
       const task = await claim("RESEARCH_CONFIGURATIONS");

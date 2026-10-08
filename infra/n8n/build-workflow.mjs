@@ -251,15 +251,16 @@ tool(
   "Search the web (costs a credit; use when Wikipedia is not enough). Returns results with their most relevant passages.",
   medusa("POST", "research/search", `{ query: $fromAI('query', 'e.g. "Dacia Sandero III fiche technique motorisations ch"', 'string'), task_id: ${TASK}.id }`),
 );
+// The draft goes as JSON text: n8n rejects an empty or stringified value for a 'json' tool
+// input and fails the whole agent; the backend parses the text leniently instead.
 tool(
   "validate_catalog",
   [3840, 560],
-  "Check your answer (the object you will return) against the catalog without writing anything: problems to fix, warnings (likely duplicates), what would be created and updated, contradicted existing values.",
+  "Check your draft answer against the catalog without writing anything: problems to fix, warnings (likely duplicates), what would be created and updated, contradicted existing values. Input: your answer as JSON text.",
   medusa(
     "POST",
-    "import",
-    `{ format: 'vehicle-catalog@1', source: { name: 'research draft' }, makes: [{ name: ${TASK}.make, models: [{ name: ${TASK}.model, generations: $fromAI('answer', 'Your answer object { generations, sources, notes }, exactly as you will return it', 'json').generations ?? [] }] }] }`,
-    { sendQuery: true, queryParameters: { parameters: [{ name: "dry_run", value: "true" }, { name: "mode", value: "merge" }] } },
+    "research/validate",
+    `{ task_id: ${TASK}.id, answer: $fromAI('answer', 'Your answer as JSON text (a string): {"generations": [...], "sources": [...], "notes": "..."}', 'string') }`,
   ),
 );
 node(

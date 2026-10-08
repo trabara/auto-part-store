@@ -7,7 +7,7 @@
 // verification the model only reports what the source says: the comparison
 // with the catalog is done here. Pure.
 import { z } from "@medusajs/framework/zod";
-import type { CatalogFile, CatalogGeneration, CatalogVehicle } from "../../contract/catalog";
+import { CatalogFileSchema, type CatalogFile, type CatalogGeneration, type CatalogVehicle } from "../../contract/catalog";
 import {
   BodyStyle,
   CatalogTaskKind,
@@ -168,25 +168,48 @@ export function outputSchema(kind: CatalogTaskKind): Record<string, unknown> {
 
 /** Parses a model's answer (an object or JSON text) for a task kind; null when it doesn't match. */
 export function parseOutput<K extends ModelKind>(kind: K, raw: unknown): StewardOutput<K> | null {
-  let value = raw;
-  if (typeof raw === "string") {
-    // Reasoning models may think aloud first; some wrap the JSON in a fence or a sentence.
-    const text = raw.replace(/<think>[\s\S]*?<\/think>/gi, "").replace(/^```(?:json)?\s*|\s*```$/g, "").trim();
-    try {
-      value = JSON.parse(text);
-    } catch {
-      const start = text.indexOf("{");
-      const end = text.lastIndexOf("}");
-      if (start < 0 || end <= start) return null;
-      try {
-        value = JSON.parse(text.slice(start, end + 1));
-      } catch {
-        return null;
-      }
-    }
-  }
+  const value = typeof raw === "string" ? parseJsonText(raw) : raw;
+  if (value === undefined) return null;
   const parsed = OUTPUTS[kind].safeParse(value);
   return parsed.success ? (parsed.data as StewardOutput<K>) : null;
+}
+
+/** JSON a model wrote: reasoning models may think aloud first; some wrap it in a fence or a sentence. Undefined when there is none. */
+export function parseJsonText(raw: string): unknown {
+  const text = raw.replace(/<think>[\s\S]*?<\/think>/gi, "").replace(/^```(?:json)?\s*|\s*```$/g, "").trim();
+  try {
+    return JSON.parse(text);
+  } catch {
+    const start = text.search(/[[{]/);
+    const end = Math.max(text.lastIndexOf("}"), text.lastIndexOf("]"));
+    if (start < 0 || end <= start) return undefined;
+    try {
+      return JSON.parse(text.slice(start, end + 1));
+    } catch {
+      return undefined;
+    }
+  }
+}
+
+/**
+ * The research agent's draft answer (JSON text or an object: `{ generations }`
+ * or the bare list) as a catalog file for the task's model, or what is wrong
+ * with it, in words the agent can act on.
+ */
+export function agentDraftFile(answer: unknown, task: { make: string; model: string }): { file: CatalogFile } | { problems: string[] } | { empty: true } {
+  const value = typeof answer === "string" ? (answer.trim() ? parseJsonText(answer) : null) : answer;
+  if (value === undefined) return { problems: ["The answer is not valid JSON."] };
+  const generations = Array.isArray(value) ? value : (value as { generations?: unknown } | null)?.generations;
+  if (generations == null || (Array.isArray(generations) && !generations.length)) return { empty: true };
+  const parsed = CatalogFileSchema.safeParse({
+    format: "vehicle-catalog@1",
+    source: { name: "research draft" },
+    makes: [{ name: task.make, models: [{ name: task.model, generations }] }],
+  });
+  if (!parsed.success) {
+    return { problems: parsed.error.issues.map((i) => `${i.path.slice(4).join(".") || "generations"}: ${i.message}`) };
+  }
+  return { file: parsed.data };
 }
 
 // ── Prompts ───────────────────────────────────────────────────────────────────

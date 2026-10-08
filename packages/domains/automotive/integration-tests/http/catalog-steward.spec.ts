@@ -339,6 +339,13 @@ medusaIntegrationTestRunner({
         expect((await service().retrieveCatalogTask(task.id)).sources).toContain(url);
         // No Tavily key in tests: web search says so instead of failing.
         expect((await api.post(`${steward}/research/search`, { query: "Dacia Sandero III moteurs" }, headers)).data).toMatchObject({ results: [], note: expect.any(String) });
+        // The agent's draft check takes JSON text, empty or not, and never fails the agent.
+        const validate = (answer: unknown) => api.post(`${steward}/research/validate`, { task_id: task.id, answer }, headers).then((r) => r.data);
+        expect(await validate("")).toMatchObject({ problems: [], note: expect.any(String) });
+        expect(await validate("not json")).toEqual({ problems: ["The answer is not valid JSON."] });
+        const draft = { generations: [{ name: "III", year_start: 2020, vehicles: [{ engine: { fuel: "GASOLINE", power_kw: 67, cylinders: 3 }, body_style: "HATCHBACK", doors: 5, year_start: 2020 }] }] };
+        expect(await validate(JSON.stringify(draft))).toMatchObject({ report: { dryRun: true, mode: "merge", problems: [] } });
+        expect(await validate(draft)).toMatchObject({ report: { dryRun: true } });
 
         await service().submitTaskResult(task.id, { lease_token: task.lease_token, output: { generation: { code: null, from: null, to: null, quote: null }, configurations: [], notes: "" } });
         const lint = await service().runLint();

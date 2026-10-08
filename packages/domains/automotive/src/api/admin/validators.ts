@@ -85,6 +85,12 @@ export const AdminResearchReadBody = z.object({
   task_id: z.string().optional(),
 });
 
+/** The research agent's draft: JSON text (the tool's input is a string) or the object itself. */
+export const AdminResearchValidateBody = z.object({
+  task_id: z.string(),
+  answer: z.union([z.string(), z.array(z.unknown()), z.record(z.string(), z.unknown())]).nullish(),
+});
+
 export type AdminStewardRefreshBody = z.infer<typeof AdminStewardRefreshBody>;
 export type AdminStewardClaimBody = z.infer<typeof AdminStewardClaimBody>;
 export type AdminStewardLeaseBody = z.infer<typeof AdminStewardLeaseBody>;
@@ -93,3 +99,4 @@ export type AdminStewardRejectBody = z.infer<typeof AdminStewardRejectBody>;
 export type AdminResearchSearchBody = z.infer<typeof AdminResearchSearchBody>;
 export type AdminResearchWikiSearchBody = z.infer<typeof AdminResearchWikiSearchBody>;
 export type AdminResearchReadBody = z.infer<typeof AdminResearchReadBody>;
+export type AdminResearchValidateBody = z.infer<typeof AdminResearchValidateBody>;

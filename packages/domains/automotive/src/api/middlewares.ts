@@ -13,6 +13,7 @@ import {
   AdminCatalogTasksParams,
   AdminResearchReadBody,
   AdminResearchSearchBody,
+  AdminResearchValidateBody,
   AdminResearchWikiSearchBody,
   AdminStewardClaimBody,
   AdminStewardLeaseBody,
@@ -58,6 +59,7 @@ export default defineMiddlewares({
     { matcher: "/admin/vehicle-catalog/research/search", methods: ["POST"], middlewares: [validateAndTransformBody(AdminResearchSearchBody)] },
     { matcher: "/admin/vehicle-catalog/research/wiki-search", methods: ["POST"], middlewares: [validateAndTransformBody(AdminResearchWikiSearchBody)] },
     { matcher: "/admin/vehicle-catalog/research/read", methods: ["POST"], middlewares: [validateAndTransformBody(AdminResearchReadBody)] },
+    { matcher: "/admin/vehicle-catalog/research/validate", methods: ["POST"], middlewares: [validateAndTransformBody(AdminResearchValidateBody)] },
     // Vehicle catalog research: tasks and coverage (what to research), export
     // (what exists), import (validate with ?dry_run=true, then apply). A
     // model's catalog can be large, hence the body size.

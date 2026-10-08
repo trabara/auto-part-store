@@ -1,5 +1,6 @@
 import { CatalogTaskKind, CatalogTaskStatus, SourceTier } from "../../contract";
 import {
+  agentDraftFile,
   buildPrompt,
   claimable,
   generationName,
@@ -190,6 +191,22 @@ describe("steward", () => {
     const sheet = ["| Puissance (ch.din) | 605 CH |", "| Cylindrée | 1499 CM³ |", "| Boîte | Automatique |", "| Transmission | Intégrale |"].join("\n");
     expect(quoteSupports(sheet, "Puissance (ch.din) 605 CH; Cylindrée: 1499 CM³; Boîte: Automatique; Transmission: Intégrale", [605])).toBe(true);
     expect(quoteSupports(sheet, "Boîte: Automatique, 605 CH", [605])).toBe(false); // the number out of its row
+  });
+
+  it("reads the research agent's draft however it is written", () => {
+    const task = { make: "Dacia", model: "Sandero" };
+    const generations = [{ name: "III", year_start: 2020, vehicles: [] }];
+    const files = [
+      agentDraftFile({ generations, sources: [], notes: "" }, task),
+      agentDraftFile(generations, task),
+      agentDraftFile(`Here it is: ${JSON.stringify({ generations })}`, task),
+    ];
+    for (const f of files) expect(f).toMatchObject({ file: { makes: [{ name: "Dacia", models: [{ name: "Sandero", generations: [{ name: "III" }] }] }] } });
+    expect(agentDraftFile("", task)).toEqual({ empty: true });
+    expect(agentDraftFile('{"generations": []}', task)).toEqual({ empty: true });
+    expect(agentDraftFile({}, task)).toEqual({ empty: true });
+    expect(agentDraftFile("not json", task)).toEqual({ problems: ["The answer is not valid JSON."] });
+    expect(agentDraftFile({ generations: [{ name: "III" }] }, task)).toMatchObject({ problems: [expect.stringMatching(/^generations\.0\.year_start: /)] });
   });
 
   it("matches quotes against the page as the model saw it (no link targets, no reference marks)", () => {

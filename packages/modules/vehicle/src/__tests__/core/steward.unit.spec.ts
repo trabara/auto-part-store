@@ -208,6 +208,11 @@ describe("steward", () => {
     expect(agentDraftFile(JSON.stringify({ output: JSON.stringify({ generations }) }), task)).toMatchObject({ file: expect.any(Object) });
     expect(agentDraftFile(`${JSON.stringify({ generations })}\n}`, task)).toMatchObject({ file: expect.any(Object) }); // a stray closing brace
     expect(agentDraftFile(`${JSON.stringify({ generations })} (see {notes})`, task)).toMatchObject({ file: expect.any(Object) });
+    const referenced = agentDraftFile(
+      { generations: [{ name: "III", year_start: 2020, vehicles: [{ engine: { fuel: "GASOLINE", power_kw: 67 }, body_style: "HATCHBACK", year_start: 2020, references: [{ source: "OTHER", external_id: "https://en.wikipedia.org/wiki/Dacia_Sandero#engines" }, { source: "TECDOC_KTYPE", external_id: "12345" }] }] }] },
+      task,
+    );
+    expect((referenced as any).file.makes[0].models[0].generations[0].vehicles[0].references).toEqual([{ source: "TECDOC_KTYPE", external_id: "12345" }]); // pages are sources
     expect(agentDraftFile("", task)).toEqual({ empty: true, notes: null });
     expect(agentDraftFile('{"generations": [], "notes": "nothing sold"}', task)).toEqual({ empty: true, notes: "nothing sold" });
     expect(agentDraftFile({}, task)).toEqual({ empty: true, notes: null });

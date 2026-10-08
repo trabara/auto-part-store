@@ -197,6 +197,23 @@ export function parseJsonText(raw: string): unknown {
   }
 }
 
+/** References are catalog ids (TecDoc, …): models put the pages they read there, which belong in sources. */
+const withoutUrlReferences = (generations: unknown) =>
+  Array.isArray(generations)
+    ? generations.map((g) =>
+        g && typeof g === "object" && Array.isArray(g.vehicles)
+          ? {
+              ...g,
+              vehicles: g.vehicles.map((v: any) =>
+                v && typeof v === "object" && Array.isArray(v.references)
+                  ? { ...v, references: v.references.filter((r: any) => !/^https?:\/\//i.test(String(r?.external_id ?? "").trim())) }
+                  : v,
+              ),
+            }
+          : g,
+      )
+    : generations;
+
 /** The research agent's answer, read as a catalog file for the task's model. */
 export type AgentAnswer = { file: CatalogFile; sources: string[]; notes: string | null } | { problems: string[] } | { empty: true; notes: string | null };
 
@@ -227,7 +244,7 @@ export function agentDraftFile(
   const parsed = CatalogFileSchema.safeParse({
     format: "vehicle-catalog@1",
     source: { ...source, url: source.url ?? sources[0] },
-    makes: [{ name: task.make, models: [{ name: task.model, generations }] }],
+    makes: [{ name: task.make, models: [{ name: task.model, generations: withoutUrlReferences(generations) }] }],
   });
   if (!parsed.success) {
     return { problems: parsed.error.issues.map((i) => `${i.path.slice(4).join(".") || "generations"}: ${i.message}`) };

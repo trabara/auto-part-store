@@ -213,7 +213,7 @@ return {
     "Make: " + t.make, "Model: " + t.model, t.generation ? "Generation: " + t.generation : "",
     "", what,
     t.feedback ? "A reviewer noted: " + t.feedback : "",
-    "Start with wiki_search and read_page (free); use web_search when Wikipedia is not enough. Validate with validate_catalog, then answer with the JSON object.",
+    "Start with wiki_search and read_page (free); use web_search when Wikipedia is not enough. At most 12 tool calls: validate with validate_catalog, then answer with the JSON object.",
   ].filter(Boolean).join("\\n"),
 };
 `),
@@ -223,7 +223,7 @@ node(
   "@n8n/n8n-nodes-langchain.agent",
   2,
   [3520, 300],
-  { promptType: "define", text: "={{ $json.prompt }}", hasOutputParser: false, options: { systemMessage, maxIterations: 15 } },
+  { promptType: "define", text: "={{ $json.prompt }}", hasOutputParser: false, options: { systemMessage, maxIterations: 20, returnIntermediateSteps: true } },
   { onError: "continueErrorOutput" },
 );
 node(
@@ -266,6 +266,25 @@ tool(
     `{ task_id: ${TASK}.id, answer: $fromAI('answer', 'Your answer as JSON text (a string): {"generations": [...], "sources": [...], "notes": "..."}', 'string') }`,
   ),
 );
+// An agent that hit maxIterations returns only "Agent stopped due to max iterations.":
+// its last validated draft is the answer then (the backend checks it like any answer).
+node(
+  "Agent answer",
+  "n8n-nodes-base.code",
+  2,
+  [3960, 300],
+  code(`
+const out = $json.output;
+const drafts = ($json.intermediateSteps ?? [])
+  .filter((s) => s.action?.tool === "validate_catalog")
+  .map((s) => (typeof s.action.toolInput === "string" ? s.action.toolInput : s.action.toolInput?.answer))
+  .filter(Boolean);
+const stopped = typeof out !== "string" || /^agent stopped/i.test(out.trim());
+if (!stopped) return { answer: out };
+if (drafts.length) return { answer: drafts.at(-1), notes: "The agent ran out of steps: its last validated draft." };
+return { error: "agent ran out of steps" };
+`),
+);
 node(
   "Submit agent",
   "n8n-nodes-base.httpRequest",
@@ -274,7 +293,7 @@ node(
   medusa(
     "POST",
     `tasks/{{ ${TASK}.id }}/result`,
-    `{ lease_token: ${TASK}.lease_token, model: 'nvidia:' + ${CONFIG}.agent_model, answer: $json.output, cost: { usd: 0, steps: 1 }, final: true }`,
+    `{ lease_token: ${TASK}.lease_token, model: 'nvidia:' + ${CONFIG}.agent_model, answer: $json.answer, notes: $json.notes, error: $json.error, cost: { usd: 0, steps: 1 }, final: true }`,
   ),
   { credentials: medusaCredentials, ...RETRY, onError: "continueErrorOutput" },
 );
@@ -383,7 +402,8 @@ link("Settled?", "Fallback?", { output: 1 });
 link("Fallback?", "Agent brief", { output: 0 });
 link("Fallback?", "Give up", { output: 1 });
 link("Agent brief", "Research agent");
-link("Research agent", "Submit agent", { output: 0 });
+link("Research agent", "Agent answer", { output: 0 });
+link("Agent answer", "Submit agent");
 link("Research agent", "Give up", { output: 1 });
 link("Submit agent", "Outcome", { output: 0 });
 link("Submit agent", "Outcome", { output: 1 });

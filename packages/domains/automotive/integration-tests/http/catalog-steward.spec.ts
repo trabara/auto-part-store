@@ -166,7 +166,7 @@ medusaIntegrationTestRunner({
       expect(await service().submitTaskResult(task.id, { lease_token: task.lease_token, answer: "I could not find it." })).toMatchObject({
         status: "FAILED",
         reason: "invalid answer",
-        report: { problems: ["The answer is not valid JSON."] },
+        report: { problems: ["The answer is not valid JSON."], answer: "I could not find it." },
       });
     });
 

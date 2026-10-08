@@ -715,7 +715,11 @@ export default class VehicleModuleService extends MedusaService(vehicleModels) {
       let file: CatalogFile | null;
       let checked: Row = {};
       if (answer) {
-        if ("problems" in answer) return finish(CatalogTaskStatus.FAILED, "invalid answer", { problems: answer.problems.slice(0, 20) });
+        if ("problems" in answer) {
+          const text = typeof input.answer === "string" ? input.answer : JSON.stringify(input.answer);
+          const excerpt = text.length > 600 ? `${text.slice(0, 400)} … ${text.slice(-200)}` : text;
+          return finish(CatalogTaskStatus.FAILED, "invalid answer", { problems: answer.problems.slice(0, 20), answer: excerpt });
+        }
         file = "file" in answer ? scopeFile(answer.file, context) : null;
       } else if (input.file) {
         file = scopeFile(input.file, context);
